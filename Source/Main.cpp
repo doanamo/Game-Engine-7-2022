@@ -1,9 +1,14 @@
+/*
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
+*/
+
 #include "Precompiled.hpp"
-#include <iostream>
+#include "Common/Build.hpp"
 
 int main()
 {
-    std::cout << "Hello world! :)";
-    std::cin.get();
+    Debug::Initialize();
+    Build::Initialize();
+
     return 0;
 }

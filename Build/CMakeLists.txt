@@ -30,6 +30,15 @@ set(SOURCE_FILES
 
     "${PRECOMPILED_HEADER}.hpp"
     "${PRECOMPILED_HEADER}.cpp"
+
+    "Common/Debug.hpp"
+    "Common/Debug.cpp"
+    "Common/NonCopyable.hpp"
+    "Common/ScopeGuard.hpp"
+    "Common/Utility.hpp"
+    "Common/Utility.cpp"
+    "Common/Build.hpp"
+    "Common/Build.cpp"
 )
 
 # Append source directory path to each source file.
@@ -88,7 +97,7 @@ get_filename_component(WORKING_DIR_PATH "${CMAKE_CURRENT_LIST_DIR}/${WORKING_DIR
 file(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WORKING_DIR_PATH}/")
 
 # Write a file that will point the environment to the source directory.
-get_filename_component(SOURCE_DIR_PATH, "${CMAKE_CURRENT_LIST_DIR}/${SOURCE_DIR}" ABSOLUTE)
+get_filename_component(SOURCE_DIR_PATH "${CMAKE_CURRENT_LIST_DIR}/${SOURCE_DIR}" ABSOLUTE)
 file(WRITE "${CMAKE_BINARY_DIR}/SourceDir.txt" "${SOURCE_DIR_PATH}/")
 
 #
