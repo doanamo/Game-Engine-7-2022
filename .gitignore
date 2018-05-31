@@ -1,0 +1,2 @@
+# Ignore CMake build directories.
+Build/CMake-*/
