@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "Precompiled.hpp"
+#include <string>
+#include <vector>
+#include <algorithm>
 
 /*
     Utility
@@ -51,22 +53,13 @@ namespace Utility
     std::vector<std::string> TokenizeString(std::string text, char character = ' ');
 
     // Removes leading characters in a string.
-    inline std::string StringTrimLeft(std::string& text, const char* characters = " ")
-    {
-        return text.erase(0, text.find_first_not_of(characters));
-    }
+    std::string StringTrimLeft(std::string& text, const char* characters = " ");
 
     // Removes trailing character in a string.
-    inline std::string StringTrimRight(std::string& text, const char* characters = " ")
-    {
-        return text.erase(text.find_last_not_of(characters) + 1);
-    }
+    std::string StringTrimRight(std::string& text, const char* characters = " ");
 
     // Removes characters from both ends of a string.
-    inline std::string StringTrim(std::string& text, const char* characters = " ")
-    {
-        return StringTrimLeft(StringTrimRight(text, characters), characters);
-    }
+    std::string StringTrim(std::string& text, const char* characters = " ");
 
     // Reorders a vector using an array of indices.
     template<typename Type>
@@ -78,7 +71,7 @@ namespace Utility
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);
 
-        // Rearange the values.
+        // Rearange values in a vector.
         for(std::size_t i = 0; i < values.size() - 1; ++i)
         {
             std::size_t desired = order[i];

@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Utility.hpp"
+#include "Common/Utility.hpp"
 
 std::string Utility::GetFileDirectory(std::string filePath)
 {
@@ -91,4 +91,19 @@ std::vector<std::string> Utility::TokenizeString(std::string text, char delimete
     }
 
     return result;
+}
+
+std::string Utility::StringTrimLeft(std::string& text, const char* characters)
+{
+    return text.erase(0, text.find_first_not_of(characters));
+}
+
+std::string Utility::StringTrimRight(std::string& text, const char* characters)
+{
+    return text.erase(text.find_last_not_of(characters) + 1);
+}
+
+std::string Utility::StringTrim(std::string& text, const char* characters)
+{
+    return StringTrimLeft(StringTrimRight(text, characters), characters);
 }

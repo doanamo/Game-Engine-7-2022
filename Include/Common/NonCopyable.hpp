@@ -8,7 +8,7 @@
     Non-Copyable
 
     Prevents an instance of a derived class from being copied.
-    
+
     Example usage:
         class Object : private NonCopyable
         {

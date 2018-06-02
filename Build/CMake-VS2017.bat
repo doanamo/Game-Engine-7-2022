@@ -1,14 +1,17 @@
+rem
+rem Copyright (c) 2018 Piotr Doan. All rights reserved.
+rem
+
 @echo off
 
-rem Remove existing directory.
-rd /s /q "CMake-VS2017" >nul 2>&1
-
 rem Create an empty directory.
-mkdir "CMake-VS2017"
+mkdir "CMake-VS2017" >nul 2>&1
 cd "CMake-VS2017"
 
 rem Generate solution files.
-cmake -G "Visual Studio 15" ./..
+cmake -G "Visual Studio 15" ./../..
 
-rem Prevent console from closing.
+rem Open the solution file.
+echo -- Opening the solution file...
+for /r ./ %%a in (*.sln) do start "" "%%a"
 pause
