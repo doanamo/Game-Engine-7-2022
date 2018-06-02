@@ -1,8 +1,8 @@
+@echo off
+
 rem
 rem Copyright (c) 2018 Piotr Doan. All rights reserved.
 rem
-
-@echo off
 
 rem Create an empty directory.
 mkdir "CMake-VS2017" >nul 2>&1
