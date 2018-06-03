@@ -35,8 +35,8 @@ set(SOURCE_FILES
 )
 
 # Keep folder structure of include and source files in Visual Studio.
-source_group(TREE ${INCLUDE_DIR} PREFIX "Include" FILES ${INCLUDE_FILES})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source" FILES ${SOURCE_FILES})
+source_group(TREE ${INCLUDE_DIR} PREFIX "Include Files" FILES ${INCLUDE_FILES})
+source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 #
 # Target
