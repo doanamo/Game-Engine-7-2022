@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.11.2)
 #
 
 # Define our project.
-project("Engine")
+project("Game Engine")
 add_subdirectory("Source")
 
 # Enable source folders in Visual Studio.
