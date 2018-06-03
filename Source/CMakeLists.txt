@@ -2,8 +2,7 @@
 # Copyright (c) 2018 Piotr Doan. All rights reserved.
 #
 
-# CMake version that was used to write this configuration file.
-# This is important to set in order to establish policies for many commands.
+# Specify minimum CMake version required.
 cmake_minimum_required(VERSION 3.11.2)
 
 #

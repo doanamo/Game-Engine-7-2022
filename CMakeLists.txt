@@ -13,6 +13,7 @@ cmake_minimum_required(VERSION 3.11.2)
 # Define our project.
 project("Game Engine")
 add_subdirectory("Source")
+add_subdirectory("Examples")
 
 # Enable source folders in Visual Studio.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
