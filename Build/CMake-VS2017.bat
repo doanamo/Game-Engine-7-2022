@@ -12,6 +12,5 @@ rem Generate solution files.
 cmake -G "Visual Studio 15" ./../..
 
 rem Open the solution file.
-echo -- Opening the solution file...
-for /r ./ %%a in (*.sln) do start "" "%%a"
-pause
+echo -- Opening the solution file..
+start "" "Game Engine.sln"
