@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.11.2)
 #
 
 # Define our project.
-project("Game Engine")
+project("GameEngine")
 add_subdirectory("Source")
 add_subdirectory("Examples")
 

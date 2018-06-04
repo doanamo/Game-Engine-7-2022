@@ -13,4 +13,4 @@ cmake -G "Visual Studio 15" ./../..
 
 rem Open the solution file.
 echo -- Opening the solution file..
-start "" "Game Engine.sln"
+start "" "GameEngine.sln"
