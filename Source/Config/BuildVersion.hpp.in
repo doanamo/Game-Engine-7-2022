@@ -1,0 +1,13 @@
+/*
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
+*/
+
+#pragma once
+
+namespace BuildVersion
+{
+    const char* ChangeNumber = "${GIT_CHANGE_NUMBER}";
+    const char* CommitHash = "${GIT_COMMIT_HASH}";
+    const char* CommitDate = "${GIT_COMMIT_DATE}";
+    const char* BranchName = "${GIT_BRANCH_NAME}";
+}

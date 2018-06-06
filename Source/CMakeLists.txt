@@ -46,6 +46,32 @@ add_library("Engine" STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 include_directories("./" ${INCLUDE_DIR})
 
 #
+# Config
+#
+
+# Run Git commands to retrieve and save information about current build version.
+find_package("Git")
+
+add_custom_command(
+    TARGET "Engine" PRE_BUILD
+    COMMAND ${CMAKE_COMMAND}
+        -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+        -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in"
+        -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.cmake"
+)
+
+# Add file with generated build version to engine sources.
+# We have to create a dummy file as it will not be generated yet.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
+
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in")
+source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in")
+
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
+source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
+
+#
 # Platform
 #
 
@@ -63,12 +89,3 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         OBJECT_DEPENDS "${PRECOMPILED_BINARY}"
     )
 endif()
-
-#
-# Debug
-#
-
-# Save build information that will be later read in runtime.
-file(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${CMAKE_BINARY_DIR}/")
-file(WRITE "${CMAKE_BINARY_DIR}/IncludeDir.txt" "${INCLUDE_DIR}/")
-file(WRITE "${CMAKE_BINARY_DIR}/SourceDir.txt" "${SOURCE_DIR}/")
