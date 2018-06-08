@@ -5,32 +5,39 @@
 #include "Precompiled.hpp"
 #include "Common/Build.hpp"
 #include "Common/Utility.hpp"
+#include "Config/BuildInfo.hpp"
 
-namespace
+std::string Build::GetBuildDir()
 {
-    std::string workingDir;
-    std::string sourceDir;
-    std::string includeDir;
-}
-
-void Build::Initialize()
-{
-    workingDir = Utility::GetTextFileContent("WorkingDir.txt");
-    includeDir = Utility::GetTextFileContent("IncludeDir.txt");
-    sourceDir = Utility::GetTextFileContent("SourceDir.txt");
-}
-
-std::string Build::GetWorkingDir()
-{
-    return workingDir;
+    return BuildInfo::BuildDir;
 }
 
 std::string Build::GetIncludeDir()
 {
-    return includeDir;
+    return BuildInfo::IncludeDir;
 }
 
 std::string Build::GetSourceDir()
 {
-    return sourceDir;
+    return BuildInfo::SourceDir;
+}
+
+std::string Build::GetChangeNumber()
+{
+    return BuildInfo::ChangeNumber;
+}
+
+std::string Build::GetChangeHash()
+{
+    return BuildInfo::CommitHash;
+}
+
+std::string Build::GetChangeDate()
+{
+    return BuildInfo::CommitDate;
+}
+
+std::string Build::GetBranchName()
+{
+    return BuildInfo::BranchName;
 }

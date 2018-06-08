@@ -43,7 +43,7 @@ source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 # Declare a statically linked library target.
 add_library("Engine" STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
-include_directories("./" ${INCLUDE_DIR})
+include_directories("./" ${INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 #
 # Config
@@ -52,24 +52,32 @@ include_directories("./" ${INCLUDE_DIR})
 # Run Git commands to retrieve and save information about current build version.
 find_package("Git")
 
-add_custom_command(
-    TARGET "Engine" PRE_BUILD
+add_custom_target("Configure"
     COMMAND ${CMAKE_COMMAND}
+        -D BUILD_DIR="${CMAKE_BINARY_DIR}/"
+        -D INCLUDE_DIR="${INCLUDE_DIR}/"
+        -D SOURCE_DIR="${SOURCE_DIR}/"
         -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
-        -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in"
-        -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.cmake"
+        -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in"
+        -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake"
 )
 
+add_dependencies("Engine" "Configure")
+
 # Add file with generated build version to engine sources.
+# Only the output header file is needed for the build process.
 # We have to create a dummy file as it will not be generated yet.
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in")
-source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildVersion.hpp.in")
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in")
+source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
-source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildVersion.hpp")
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake")
+source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake")
+
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
+source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 
 #
 # Platform

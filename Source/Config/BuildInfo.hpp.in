@@ -4,8 +4,11 @@
 
 #pragma once
 
-namespace BuildVersion
+namespace BuildInfo
 {
+    const char* BuildDir = "${BUILD_DIR}";
+    const char* IncludeDir = "${INCLUDE_DIR}";
+    const char* SourceDir = "${SOURCE_DIR}";
     const char* ChangeNumber = "${GIT_CHANGE_NUMBER}";
     const char* CommitHash = "${GIT_COMMIT_HASH}";
     const char* CommitDate = "${GIT_COMMIT_DATE}";
