@@ -83,8 +83,16 @@ source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/Bu
 # Platform
 #
 
-# Use precompiled header for quicker compilation of static headers.
+# Microsoft Visual Studio
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # Restore default main() entry instead of WinMain().
+    set_property(TARGET "Engine" APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
+
+    # Disable Standard C++ Library warnings.
+    set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
+    set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
+    
+    # Use precompiled header for quicker compilation of static headers.
     set(PRECOMPILED_BINARY "Precompiled.pch")
 
     set_source_files_properties(${SOURCE_FILES} PROPERTIES
