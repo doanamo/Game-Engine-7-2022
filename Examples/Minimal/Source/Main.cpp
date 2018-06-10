@@ -7,14 +7,18 @@
 int main()
 {
     Debug::Initialize();
+    Logger::Initialize();
 
-    std::cout << Build::GetBuildDir() << std::endl;
-    std::cout << Build::GetIncludeDir() << std::endl;
-    std::cout << Build::GetSourceDir() << std::endl;
-    std::cout << Build::GetChangeNumber() << std::endl;
-    std::cout << Build::GetChangeHash() << std::endl;
-    std::cout << Build::GetChangeDate() << std::endl;
-    std::cout << Build::GetBranchName() << std::endl;
+    {
+        LOG() << "Build info:" << LOG_INDENT();
+        LOG() << "Build directory: " << Build::GetBuildDir();
+        LOG() << "Include directory: " << Build::GetIncludeDir();
+        LOG() << "Source directory: " << Build::GetSourceDir();
+        LOG() << "Change number: " << Build::GetChangeNumber();
+        LOG() << "Change hash: " << Build::GetChangeHash();
+        LOG() << "Change date: " << Build::GetChangeDate();
+        LOG() << "Branch name: " << Build::GetBranchName();
+    }
 
     std::cin.get();
 }

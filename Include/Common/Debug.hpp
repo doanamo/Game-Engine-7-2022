@@ -5,6 +5,7 @@
 #pragma once
 
 #include <iostream>
+#include "Logger/Logger.hpp"
 
 /*
     Platform Defines
@@ -37,15 +38,8 @@ namespace Debug
 */
 
 #define DEBUG_EXPAND_MACRO(x) x
-
-#if defined(LOGGER_ENABLED)
-    #define DEBUG_PRINT(message) \
-        Logger::ScopedMessage(Logger::GetGlobalSink()).
-        SetSource(__FILE__).SetLine(__LINE__) << message;
-#else
-    #define DEBUG_PRINT(message) \
-        std::cout << message << " {" << __FILE__ << ":" << __LINE__ << "}";
-#endif
+#define DEBUG_BREAKPOINT() __debugbreak();
+#define DEBUG_PRINT(message) LOG_DEBUG() << message;
 
 /*
     Assert Macros
@@ -70,14 +64,14 @@ namespace Debug
         if(!(expression))                       \
         {                                       \
             ASSERT_PRINT(#expression);          \
-            __debugbreak();                     \
+            DEBUG_BREAKPOINT();                 \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
         if(!(expression))                       \
         {                                       \
             ASSERT_PRINT(#expression, message); \
-            __debugbreak();                     \
+            DEBUG_BREAKPOINT();                 \
         }
 #else
     #define ASSERT_SIMPLE(expression) ((void)0)
@@ -111,14 +105,14 @@ namespace Debug
     if(!(expression))                       \
     {                                       \
         VERIFY_PRINT(#expression);          \
-        __debugbreak();                     \
+        DEBUG_BREAKPOINT();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
     if(!(expression))                       \
     {                                       \
         VERIFY_PRINT(#expression, message); \
-        __debugbreak();                     \
+        DEBUG_BREAKPOINT();                 \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, ...) arg3

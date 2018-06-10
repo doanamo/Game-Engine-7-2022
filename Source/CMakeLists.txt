@@ -22,6 +22,12 @@ set(INCLUDE_FILES
     "${INCLUDE_DIR}/Common/NonCopyable.hpp"
     "${INCLUDE_DIR}/Common/ScopeGuard.hpp"
     "${INCLUDE_DIR}/Common/Utility.hpp"
+
+    "${INCLUDE_DIR}/Logger/Logger.hpp"
+    "${INCLUDE_DIR}/Logger/Message.hpp"
+    "${INCLUDE_DIR}/Logger/Sink.hpp"
+    "${INCLUDE_DIR}/Logger/Format.hpp"
+    "${INCLUDE_DIR}/Logger/Output.hpp"
 )
 
 set(SOURCE_FILES
@@ -31,6 +37,12 @@ set(SOURCE_FILES
     "${SOURCE_DIR}/Common/Build.cpp"
     "${SOURCE_DIR}/Common/Debug.cpp"
     "${SOURCE_DIR}/Common/Utility.cpp"
+
+    "${SOURCE_DIR}/Logger/Logger.cpp"
+    "${SOURCE_DIR}/Logger/Message.cpp"
+    "${SOURCE_DIR}/Logger/Sink.cpp"
+    "${SOURCE_DIR}/Logger/Format.cpp"
+    "${SOURCE_DIR}/Logger/Output.cpp"
 )
 
 # Keep folder structure of include and source files in Visual Studio.

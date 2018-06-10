@@ -9,3 +9,4 @@
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"
 #include "Common/Utility.hpp"
+#include "Logger/Logger.hpp"
