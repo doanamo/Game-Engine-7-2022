@@ -13,6 +13,11 @@ cmake_minimum_required(VERSION 3.11.2)
 # Define our project.
 project("GameEngine")
 add_subdirectory("Source")
+
+# Include tests in the build process.
+add_subdirectory("Tests")
+
+# Include examples in the build process.
 add_subdirectory("Examples")
 
 # Enable source folders in Visual Studio.
