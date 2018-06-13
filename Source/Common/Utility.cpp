@@ -7,15 +7,37 @@
 
 std::string Utility::GetFileDirectory(std::string filePath)
 {
-    std::string path;
+    std::string directory;
 
     std::size_t it = filePath.find_last_of("/\\");
     if(it != std::string::npos)
     {
-        path = filePath.substr(0, it + 1);
+        directory = filePath.substr(0, it + 1);
     }
 
-    return path;
+    return directory;
+}
+
+std::string Utility::GetFileName(std::string filePath)
+{
+    std::size_t begin = filePath.find_last_of("/\\");
+    std::size_t end = filePath.find_last_of(".");
+
+    if(begin == std::string::npos)
+    {
+        begin = 0;
+    }
+    else
+    {
+        begin += 1;
+    }
+
+    if(end == std::string::npos)
+    {
+        end = filePath.size();
+    }
+
+    return filePath.substr(begin, end - begin);
 }
 
 std::string Utility::GetFileExtension(std::string filePath)
