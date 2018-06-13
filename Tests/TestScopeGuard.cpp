@@ -1,4 +1,4 @@
-#include "Common/ScopeGuard.hpp"
+#include <Common/ScopeGuard.hpp>
 
 bool TestMakeScopeGuard()
 {
@@ -96,13 +96,20 @@ bool TestConditionalBracedScopeGuardMacro()
 
 int main()
 {
-    bool result = true;
+    if(!TestMakeScopeGuard())
+        return 1;
 
-    result &= TestMakeScopeGuard();
-    result &= TestScopeGuardMacro();
-    result &= TestConditionalScopeGuardMacro();
-    result &= TestBracedScopeGuardMacro();
-    result &= TestConditionalBracedScopeGuardMacro();
+    if(!TestScopeGuardMacro())
+        return 1;
 
-    return result ? 0 : 1;
+    if(!TestConditionalScopeGuardMacro())
+        return 1;
+
+    if(!TestBracedScopeGuardMacro())
+        return 1;
+
+    if(!TestConditionalBracedScopeGuardMacro())
+        return 1;
+
+    return 0;
 }

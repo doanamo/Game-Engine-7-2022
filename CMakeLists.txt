@@ -15,6 +15,7 @@ project("GameEngine")
 add_subdirectory("Source")
 
 # Include tests in the build process.
+enable_testing()
 add_subdirectory("Tests")
 
 # Include examples in the build process.
