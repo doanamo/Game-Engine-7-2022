@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include "Common/Debug.hpp"
 
 /*
@@ -67,24 +68,26 @@ namespace Utility
 
     // Reorders a vector using an array of indices.
     template<typename Type>
-    void Reorder(std::vector<Type>& values, const std::vector<std::size_t>& order)
+    void ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
     {
-        ASSERT(values.size() == order.size(), "Array sizes must match!");
+        VERIFY(elements.size() == order.size(), "Array sizes must match!");
 
         // Create an array of indices.
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);
 
         // Rearange values in a vector.
-        for(std::size_t i = 0; i < values.size() - 1; ++i)
+        for(std::size_t i = 0; i < elements.size() - 1; ++i)
         {
             std::size_t desired = order[i];
 
-            for(std::size_t j = i; j < values.size(); ++j)
+            ASSERT(desired < elements.size(), "Desired index higher than vector size will produce incorrect results!");
+
+            for(std::size_t j = i; j < elements.size(); ++j)
             {
                 if(desired == indices[j])
                 {
-                    std::swap(values[i], values[j]);
+                    std::swap(elements[i], elements[j]);
                     std::swap(indices[i], indices[j]);
                     break;
                 }
