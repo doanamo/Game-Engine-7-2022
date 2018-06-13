@@ -57,13 +57,13 @@ namespace Utility
     std::vector<std::string> TokenizeString(std::string text, char character = ' ');
 
     // Removes leading characters in a string.
-    std::string StringTrimLeft(std::string& text, const char* characters = " ");
+    std::string StringTrimLeft(std::string text, const char* characters = " ");
 
     // Removes trailing character in a string.
-    std::string StringTrimRight(std::string& text, const char* characters = " ");
+    std::string StringTrimRight(std::string text, const char* characters = " ");
 
     // Removes characters from both ends of a string.
-    std::string StringTrim(std::string& text, const char* characters = " ");
+    std::string StringTrim(std::string text, const char* characters = " ");
 
     // Reorders a vector using an array of indices.
     template<typename Type>
