@@ -103,14 +103,14 @@ ScopeGuard<Type> MakeScopeGuard(Type function)
 }
 
 // Utility macros.
+#define SCOPE_GUARD_STRING(line) scopeGuardLine ## line
+#define SCOPE_GUARD_NAME(line) SCOPE_GUARD_STRING(line)
+
 #define SCOPE_GUARD_BEGIN(...) auto SCOPE_GUARD_NAME(__LINE__) = MakeScopeGuard([&]() { if(ScopeGuard<void>::Condition(__VA_ARGS__)) { 
 #define SCOPE_GUARD_END() } });
 
-#define SCOPE_GUARD(code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_MAKE(code)
 #define SCOPE_GUARD_MAKE(code) MakeScopeGuard([&]() { code; })
+#define SCOPE_GUARD(code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_MAKE(code)
 
-#define SCOPE_GUARD_IF(condition, code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_IF_MAKE(condition, code)
 #define SCOPE_GUARD_IF_MAKE(condition, code) MakeScopeGuard([&]() { if(condition) { code; } })
-
-#define SCOPE_GUARD_NAME(line) SCOPE_GUARD_STRING(line)
-#define SCOPE_GUARD_STRING(line) scopeGuardLine ## line
+#define SCOPE_GUARD_IF(condition, code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_IF_MAKE(condition, code)
