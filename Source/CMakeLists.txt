@@ -39,6 +39,8 @@ set(INCLUDE_FILES
     "Logger/Sink.hpp"
     "Logger/Format.hpp"
     "Logger/Output.hpp"
+
+    "System/Platform.hpp"
 )
 
 append_directory_path(${INCLUDE_DIR} "INCLUDE_FILES")
@@ -56,6 +58,8 @@ set(SOURCE_FILES
     "Logger/Sink.cpp"
     "Logger/Format.cpp"
     "Logger/Output.cpp"
+
+    "System/Platform.cpp"
 )
 
 append_directory_path(${SOURCE_DIR} "SOURCE_FILES")

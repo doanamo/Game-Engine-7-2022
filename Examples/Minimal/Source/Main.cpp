@@ -3,6 +3,7 @@
 */
 
 #include <Engine.hpp>
+#include <System/Platform.hpp>
 
 int main()
 {
@@ -19,6 +20,10 @@ int main()
         LOG() << "Change date: " << Build::GetChangeDate();
         LOG() << "Branch name: " << Build::GetBranchName();
     }
+
+    System::Platform platform;
+    if(!platform.Initialize())
+        return 1;
 
     std::cin.get();
 }
