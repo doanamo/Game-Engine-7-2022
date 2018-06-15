@@ -132,3 +132,20 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         OBJECT_DEPENDS "${PRECOMPILED_BINARY}"
     )
 endif()
+
+#
+# External
+#
+
+# Add GLFW library.
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+set(GLFW_INSTALL OFF CACHE BOOL "")
+
+add_subdirectory("../External/GLFW-3.2.1" "GLFW" EXCLUDE_FROM_ALL)
+include_directories("../External/GLFW-3.2.1/include")
+target_link_libraries("Engine" "glfw")
+
+set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
+set_property(TARGET "glfw" PROPERTY FOLDER "External")

@@ -15,6 +15,8 @@
 #define WIN32_LEAD_AND_MEAN
 #include <windows.h>
 
+#include <GLFW/glfw3.h>
+
 #include "Common/Debug.hpp"
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"
