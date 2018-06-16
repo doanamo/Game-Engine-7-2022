@@ -34,6 +34,8 @@ set(INCLUDE_FILES
     "Common/ScopeGuard.hpp"
     "Common/Utility.hpp"
 
+    "Events/Delegate.hpp"
+
     "Logger/Logger.hpp"
     "Logger/Message.hpp"
     "Logger/Sink.hpp"
