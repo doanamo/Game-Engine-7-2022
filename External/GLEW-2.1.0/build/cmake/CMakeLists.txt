@@ -144,6 +144,8 @@ else()
   set(MAYBE_EXPORT EXPORT glew-targets)
 endif()
 
+# Doan: Do not create an install target.
+#[[
 set(targets_to_install "")
 if(NOT DEFINED BUILD_SHARED_LIBS OR BUILD_SHARED_LIBS)
   list(APPEND targets_to_install glew)
@@ -160,6 +162,7 @@ install ( TARGETS ${targets_to_install}
           ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
           FRAMEWORK DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
+]]
 
 if (BUILD_UTILS)
   set (GLEWINFO_SRC_FILES ${GLEW_DIR}/src/glewinfo.c)
@@ -182,8 +185,11 @@ if (BUILD_UTILS)
     target_link_libraries(visualinfo ${X11_LIBRARIES})
   endif ()
 
+  # Doan: Do not create an install target.
+  #[[
   install ( TARGETS glewinfo visualinfo
             DESTINATION ${CMAKE_INSTALL_BINDIR})
+  ]]
 endif ()
 
 set (prefix ${CMAKE_INSTALL_PREFIX})
@@ -202,6 +208,8 @@ endif ()
 
 configure_file (${GLEW_DIR}/glew.pc.in ${GLEW_DIR}/glew.pc @ONLY)
 
+# Doan: Do not create an install target.
+#[[
 install(FILES ${GLEW_DIR}/glew.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
@@ -239,3 +247,4 @@ if(NOT TARGET uninstall)
       COMMAND ${CMAKE_COMMAND} -P
       ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
+]]
