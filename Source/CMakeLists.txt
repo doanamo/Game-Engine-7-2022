@@ -46,6 +46,7 @@ set(INCLUDE_FILES
     "Logger/Output.hpp"
 
     "System/Platform.hpp"
+    "System/Window.hpp"
 )
 
 append_directory_path(${INCLUDE_DIR} "INCLUDE_FILES")
@@ -65,6 +66,7 @@ set(SOURCE_FILES
     "Logger/Output.cpp"
 
     "System/Platform.cpp"
+    "System/Window.cpp"
 )
 
 append_directory_path(${SOURCE_DIR} "SOURCE_FILES")

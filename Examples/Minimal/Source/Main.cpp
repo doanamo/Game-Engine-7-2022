@@ -4,6 +4,7 @@
 
 #include <Engine.hpp>
 #include <System/Platform.hpp>
+#include <System/Window.hpp>
 
 int main()
 {
@@ -25,5 +26,14 @@ int main()
     if(!platform.Initialize())
         return 1;
 
-    std::cin.get();
+    System::Window window;
+    if(!window.Open())
+        return 1;
+
+    while(window.IsOpen())
+    {
+        window.ProcessEvents();
+
+        window.Present();
+    }
 }
