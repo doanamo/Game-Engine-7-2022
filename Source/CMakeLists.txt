@@ -36,6 +36,8 @@ set(INCLUDE_FILES
 
     "Events/Delegate.hpp"
     "Events/Collector.hpp"
+    "Events/Dispatcher.hpp"
+    "Events/Receiver.hpp"
 
     "Logger/Logger.hpp"
     "Logger/Message.hpp"
