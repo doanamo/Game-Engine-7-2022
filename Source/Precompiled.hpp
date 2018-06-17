@@ -15,6 +15,7 @@
 #define WIN32_LEAD_AND_MEAN
 #include <windows.h>
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Common/Debug.hpp"

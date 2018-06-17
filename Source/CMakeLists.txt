@@ -148,6 +148,20 @@ endif()
 # External
 #
 
+# Add OpenGL library.
+find_package(OpenGL REQUIRED)
+target_link_libraries("Engine" ${OPENGL_GL_LIBRARY})
+
+# Add GLEW library.
+set(BUILD_UTILS OFF CACHE BOOL "")
+
+add_subdirectory("../External/GLEW-2.1.0/build/cmake" "GLEW" EXCLUDE_FROM_ALL)
+include_directories("../External/GLEW-2.1.0/include")
+target_link_libraries("Engine" "glew_s")
+
+set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")
+set_property(TARGET "glew_s" PROPERTY FOLDER "External")
+
 # Add GLFW library.
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
