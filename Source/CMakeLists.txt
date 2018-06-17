@@ -148,6 +148,9 @@ endif()
 # External
 #
 
+# Add GLM library.
+include_directories("../External/GLM-0.9.9.0")
+
 # Add OpenGL library.
 find_package(OpenGL REQUIRED)
 target_link_libraries("Engine" ${OPENGL_GL_LIBRARY})
