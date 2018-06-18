@@ -149,7 +149,7 @@ endif()
 #
 
 # Add GLM library.
-include_directories("../External/GLM-0.9.9.0")
+target_include_directories("Engine" PUBLIC "../External/GLM-0.9.9.0")
 
 # Add OpenGL library.
 find_package(OpenGL REQUIRED)
@@ -159,7 +159,7 @@ target_link_libraries("Engine" ${OPENGL_GL_LIBRARY})
 set(BUILD_UTILS OFF CACHE BOOL "")
 
 add_subdirectory("../External/GLEW-2.1.0/build/cmake" "GLEW" EXCLUDE_FROM_ALL)
-include_directories("../External/GLEW-2.1.0/include")
+target_include_directories("Engine" PUBLIC "../External/GLEW-2.1.0/include")
 target_link_libraries("Engine" "glew_s")
 
 set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")
@@ -172,7 +172,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
 set(GLFW_INSTALL OFF CACHE BOOL "")
 
 add_subdirectory("../External/GLFW-3.2.1" "GLFW" EXCLUDE_FROM_ALL)
-include_directories("../External/GLFW-3.2.1/include")
+target_include_directories("Engine" PUBLIC "../External/GLFW-3.2.1/include")
 target_link_libraries("Engine" "glfw")
 
 set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
