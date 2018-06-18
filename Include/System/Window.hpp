@@ -62,6 +62,7 @@ namespace System
         int width;
         int height;
         bool vsync;
+        bool visible;
 
         int minWidth;
         int minHeight;
@@ -91,14 +92,11 @@ namespace System
         // Closes the window.
         void Close();
 
-        // Checks if the window is open.
-        bool IsOpen() const;
-
-        // Checks if the window is focused.
-        bool IsFocused() const;
-
         // Sets the window's title.
         void SetTitle(std::string title);
+
+        // Sets the window's visibility.
+        void SetVisibility(bool show);
 
         // Gets the window's title.
         std::string GetTitle() const;
@@ -108,6 +106,12 @@ namespace System
 
         // Gets the window's height.
         int GetHeight() const;
+
+        // Checks if the window is open.
+        bool IsOpen() const;
+
+        // Checks if the window is focused.
+        bool IsFocused() const;
 
         // Gets the window's private handle.
         GLFWwindow* GetPrivateHandle();

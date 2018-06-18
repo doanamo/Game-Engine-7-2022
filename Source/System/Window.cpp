@@ -11,6 +11,7 @@ WindowInfo::WindowInfo() :
     width(1024),
     height(576),
     vsync(true),
+    visible(true),
     minWidth(GLFW_DONT_CARE),
     minHeight(GLFW_DONT_CARE),
     maxWidth(GLFW_DONT_CARE),
@@ -77,8 +78,11 @@ bool Window::Open(const WindowInfo& info)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // Show or hide the window after creation.
+    glfwWindowHint(GLFW_VISIBLE, info.visible ? 1 : 0);
+
     // Create a window.
-    // This function call can randomly take twice as much memory after a system call to SetPixelFormat().
+    // Bug: This function call can randomly take twice as much memory after a system call to SetPixelFormat().
     m_window = glfwCreateWindow(info.width, info.height, info.title.c_str(), nullptr, nullptr);
 
     if(m_window == nullptr)
@@ -370,20 +374,19 @@ void Window::SetTitle(std::string title)
     m_title = title;
 }
 
-bool Window::IsOpen() const
+void Window::SetVisibility(bool show)
 {
     VERIFY(m_window != nullptr, "Window instance is not initialized!");
 
-    // Window is considered open as long as there was no request made to close it.
-    return glfwWindowShouldClose(m_window) == 0;
-}
-
-bool Window::IsFocused() const
-{
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
-
-    // Check if the window is currently in the foreground.
-    return glfwGetWindowAttrib(m_window, GLFW_FOCUSED) > 0;
+    // Toggle visibility state.
+    if(show)
+    {
+        glfwShowWindow(m_window);
+    }
+    else
+    {
+        glfwHideWindow(m_window);
+    }
 }
 
 std::string Window::GetTitle() const
@@ -412,6 +415,22 @@ int Window::GetHeight() const
     int height = 0;
     glfwGetFramebufferSize(m_window, nullptr, &height);
     return height;
+}
+
+bool Window::IsOpen() const
+{
+    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+
+    // Window is considered open as long as there was no request made to close it.
+    return glfwWindowShouldClose(m_window) == 0;
+}
+
+bool Window::IsFocused() const
+{
+    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+
+    // Check if the window is currently in the foreground.
+    return glfwGetWindowAttrib(m_window, GLFW_FOCUSED) > 0;
 }
 
 GLFWwindow* Window::GetPrivateHandle()
