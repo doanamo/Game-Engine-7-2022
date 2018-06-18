@@ -5,7 +5,6 @@
 #pragma once
 
 #include <string>
-#include <GLFW/glfw3.h>
 #include "Common/NonCopyable.hpp"
 #include "Events/Dispatcher.hpp"
 
