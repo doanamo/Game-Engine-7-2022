@@ -25,62 +25,53 @@ set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include")
 set(SOURCE_DIR "${PROJECT_SOURCE_DIR}/Source")
 set(PRECOMPILED_HEADER "Precompiled")
 
-set(INCLUDE_FILES
-    "Engine.hpp"
+set(TARGET_FILES
+    "Include/Engine.hpp"
+    "Source/${PRECOMPILED_HEADER}.hpp"
+    "Source/${PRECOMPILED_HEADER}.cpp"
 
-    "Common/Build.hpp"
-    "Common/Debug.hpp"
-    "Common/NonCopyable.hpp"
-    "Common/ScopeGuard.hpp"
-    "Common/Utility.hpp"
+    "Include/Common/Build.hpp"
+    "Source/Common/Build.cpp"
+    "Include/Common/Debug.hpp"
+    "Source/Common/Debug.cpp"
+    "Include/Common/NonCopyable.hpp"
+    "Include/Common/ScopeGuard.hpp"
+    "Include/Common/Utility.hpp"
+    "Source/Common/Utility.cpp"
 
-    "Events/Delegate.hpp"
-    "Events/Collector.hpp"
-    "Events/Dispatcher.hpp"
-    "Events/Receiver.hpp"
+    "Include/Events/Delegate.hpp"
+    "Include/Events/Collector.hpp"
+    "Include/Events/Dispatcher.hpp"
+    "Include/Events/Receiver.hpp"
 
-    "Logger/Logger.hpp"
-    "Logger/Message.hpp"
-    "Logger/Sink.hpp"
-    "Logger/Format.hpp"
-    "Logger/Output.hpp"
+    "Include/Logger/Logger.hpp"
+    "Source/Logger/Logger.cpp"
+    "Include/Logger/Message.hpp"
+    "Source/Logger/Message.cpp"
+    "Include/Logger/Sink.hpp"
+    "Source/Logger/Sink.cpp"
+    "Include/Logger/Format.hpp"
+    "Source/Logger/Format.cpp"
+    "Include/Logger/Output.hpp"
+    "Source/Logger/Output.cpp"
 
-    "System/Platform.hpp"
-    "System/Window.hpp"
+    "Include/System/Platform.hpp"
+    "Source/System/Platform.cpp"
+    "Include/System/Window.hpp"
+    "Source/System/Window.cpp"
 )
 
-append_directory_path(${INCLUDE_DIR} "INCLUDE_FILES")
-
-set(SOURCE_FILES
-    "${PRECOMPILED_HEADER}.hpp"
-    "${PRECOMPILED_HEADER}.cpp"
-
-    "Common/Build.cpp"
-    "Common/Debug.cpp"
-    "Common/Utility.cpp"
-
-    "Logger/Logger.cpp"
-    "Logger/Message.cpp"
-    "Logger/Sink.cpp"
-    "Logger/Format.cpp"
-    "Logger/Output.cpp"
-
-    "System/Platform.cpp"
-    "System/Window.cpp"
-)
-
-append_directory_path(${SOURCE_DIR} "SOURCE_FILES")
+append_directory_path("${PROJECT_SOURCE_DIR}" "TARGET_FILES")
 
 # Keep folder structure of include and source files in Visual Studio.
-source_group(TREE ${INCLUDE_DIR} PREFIX "Include Files" FILES ${INCLUDE_FILES})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${TARGET_FILES})
 
 #
 # Target
 #
 
 # Declare a statically linked library target.
-add_library("Engine" STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
+add_library("Engine" STATIC ${TARGET_FILES})
 include_directories("./" ${INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 #
@@ -109,13 +100,13 @@ add_dependencies("Engine" "Configure")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 
 target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in")
-source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in")
+source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.hpp.in")
 
 target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake")
-source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake")
+source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInfo.cmake")
 
 target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
-source_group("Source Files\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
+source_group("Source\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 
 #
 # Platform
