@@ -74,11 +74,12 @@ int main()
     if(!inputLayout.Create(inputLayoutInfo))
         return 1;
 
-    glBindVertexArray(inputLayout.GetHandle());
-
     while(window.IsOpen())
     {
         window.ProcessEvents();
+
+        glBindVertexArray(inputLayout.GetHandle());
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         window.Present();
     }
