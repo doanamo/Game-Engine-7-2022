@@ -59,6 +59,9 @@ set(TARGET_FILES
     "Source/System/Platform.cpp"
     "Include/System/Window.hpp"
     "Source/System/Window.cpp"
+
+    "Include/Graphics/Buffer.hpp"
+    "Source/Graphics/Buffer.cpp"
 )
 
 append_directory_path("${PROJECT_SOURCE_DIR}" "TARGET_FILES")

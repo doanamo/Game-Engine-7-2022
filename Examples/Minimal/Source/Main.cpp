@@ -5,6 +5,7 @@
 #include <Engine.hpp>
 #include <System/Platform.hpp>
 #include <System/Window.hpp>
+#include <Graphics/Buffer.hpp>
 
 int main()
 {
@@ -35,6 +36,28 @@ int main()
     System::Window window;
     if(!window.Open(windowInfo))
         return 1;
+
+    struct Vertex
+    {
+        glm::vec3 position;
+        glm::vec4 color;
+    };
+
+    const Vertex vertices[] =
+    {
+        { glm::vec3( 0.0f,  0.433f,  0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { glm::vec3( 0.5f, -0.433f,  0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { glm::vec3(-0.5f, -0.433f,  0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+    };
+
+    Graphics::BufferInfo bufferInfo;
+    bufferInfo.elementSize = sizeof(Vertex);
+    bufferInfo.elementCount = Utility::StaticArraySize(vertices);
+    bufferInfo.data = &vertices[0];
+
+    Graphics::VertexBuffer vertexBuffer;
+    if(!vertexBuffer.Create(bufferInfo))
+        return -1;
 
     while(window.IsOpen())
     {
