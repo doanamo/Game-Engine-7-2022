@@ -26,8 +26,14 @@ int main()
     if(!platform.Initialize())
         return 1;
 
+    System::WindowInfo windowInfo;
+    windowInfo.width = 1024;
+    windowInfo.height = 576;
+    windowInfo.vsync = false;
+    windowInfo.visible = true;
+
     System::Window window;
-    if(!window.Open())
+    if(!window.Open(windowInfo))
         return 1;
 
     while(window.IsOpen())
