@@ -6,6 +6,7 @@
 #include <System/Platform.hpp>
 #include <System/Window.hpp>
 #include <Graphics/Buffer.hpp>
+#include <Graphics/InputLayout.hpp>
 
 int main()
 {
@@ -57,7 +58,23 @@ int main()
 
     Graphics::VertexBuffer vertexBuffer;
     if(!vertexBuffer.Create(bufferInfo))
-        return -1;
+        return 1;
+
+    const Graphics::InputAttribute inputAttributes[] =
+    {
+        { &vertexBuffer, Graphics::InputAttributeTypes::Float3 },
+        { &vertexBuffer, Graphics::InputAttributeTypes::Float4 },
+    };
+
+    Graphics::InputLayoutInfo inputLayoutInfo;
+    inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
+    inputLayoutInfo.attributes = &inputAttributes[0];
+
+    Graphics::InputLayout inputLayout;
+    if(!inputLayout.Create(inputLayoutInfo))
+        return 1;
+
+    glBindVertexArray(inputLayout.GetHandle());
 
     while(window.IsOpen())
     {
@@ -65,4 +82,6 @@ int main()
 
         window.Present();
     }
+
+    return 0;
 }

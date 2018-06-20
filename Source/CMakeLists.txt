@@ -62,6 +62,8 @@ set(TARGET_FILES
 
     "Include/Graphics/Buffer.hpp"
     "Source/Graphics/Buffer.cpp"
+    "Include/Graphics/InputLayout.hpp"
+    "Source/Graphics/InputLayout.cpp"
 )
 
 append_directory_path("${PROJECT_SOURCE_DIR}" "TARGET_FILES")

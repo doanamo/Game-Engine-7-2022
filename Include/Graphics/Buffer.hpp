@@ -30,7 +30,7 @@
         // Describe buffer info.
         Graphics::BufferInfo bufferInfo;
         bufferInfo.elementSize = sizeof(Vertex);
-        bufferInfo.elementCount = Utility::ArraySize(vertices);
+        bufferInfo.elementCount = Utility::StaticArraySize(vertices);
         bufferInfo.data = &vertices[0];
         
         // Create a vertex buffer.
