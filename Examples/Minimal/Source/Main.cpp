@@ -10,6 +10,7 @@
 
 int main()
 {
+    Build::Initialize();
     Debug::Initialize();
     Logger::Initialize();
 

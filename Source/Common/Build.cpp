@@ -7,6 +7,21 @@
 #include "Common/Utility.hpp"
 #include "Config/BuildInfo.hpp"
 
+namespace
+{
+    std::string MountDir;
+}
+
+void Build::Initialize()
+{
+    MountDir = Utility::GetTextFileContent("MountDirectory.txt");
+}
+
+std::string Build::GetMountDir()
+{
+    return MountDir;
+}
+
 std::string Build::GetBuildDir()
 {
     return BuildInfo::BuildDir;
