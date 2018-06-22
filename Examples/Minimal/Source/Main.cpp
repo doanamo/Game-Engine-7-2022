@@ -7,6 +7,7 @@
 #include <System/Window.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
+#include <Graphics/Shader.hpp>
 
 int main()
 {
@@ -75,9 +76,20 @@ int main()
     if(!inputLayout.Create(inputLayoutInfo))
         return 1;
 
+    Graphics::Shader shader;
+    if(!shader.Load(Build::GetMountDir() + "Shaders/Color.shader"))
+        return 1;
+
     while(window.IsOpen())
     {
         window.ProcessEvents();
+
+        glClearDepth(1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(shader.GetHandle());
+        glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
         glBindVertexArray(inputLayout.GetHandle());
         glDrawArrays(GL_TRIANGLES, 0, 3);
