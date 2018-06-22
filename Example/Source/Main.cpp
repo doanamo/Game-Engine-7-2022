@@ -77,7 +77,7 @@ int main()
         return 1;
 
     Graphics::Shader shader;
-    if(!shader.Load(Build::GetMountDir() + "Shaders/Color.shader"))
+    if(!shader.Load(Build::GetMountDir() + "Data/Shaders/Color.shader"))
         return 1;
 
     while(window.IsOpen())

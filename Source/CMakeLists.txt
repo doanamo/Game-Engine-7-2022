@@ -115,10 +115,6 @@ source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Config/BuildInf
 target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 source_group("Source\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInfo.hpp")
 
-# Write a file pointing at extra mount directories.
-get_filename_component(FILESYSTEM_MOUNT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Data" ABSOLUTE)
-file(WRITE "${CMAKE_BINARY_DIR}/MountDirectory.txt" "${FILESYSTEM_MOUNT_DIR}/")
-
 #
 # Platform
 #
