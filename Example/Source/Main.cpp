@@ -40,6 +40,11 @@ int main()
     if(!window.Open(windowInfo))
         return 1;
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(window.GetPrivateHandle(), false);
+    ImGui_ImplOpenGL3_Init();
+
     struct Vertex
     {
         glm::vec3 position;
@@ -84,6 +89,13 @@ int main()
     {
         window.ProcessEvents();
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        bool showDemoWindow = true;
+        ImGui::ShowDemoWindow(&showDemoWindow);
+
         glClearDepth(1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,8 +106,15 @@ int main()
         glBindVertexArray(inputLayout.GetHandle());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         window.Present();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

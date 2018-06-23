@@ -29,6 +29,11 @@
 // GLFW
 #include <glfw/glfw3.h>
 
+// ImGUI
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 // Project
 #include "Common/Build.hpp"
 #include "Common/Debug.hpp"

@@ -175,3 +175,11 @@ target_link_libraries("Engine" "glfw")
 
 set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
 set_property(TARGET "glfw" PROPERTY FOLDER "External")
+
+# Add ImGui library.
+add_subdirectory("../External/ImGui-1.62" "ImGui" EXCLUDE_FROM_ALL)
+target_include_directories("ImGui" PRIVATE "../External/GLFW-3.2.1/include")
+target_include_directories("ImGui" PRIVATE "../External/GLEW-2.1.0/include")
+target_link_libraries("Engine" "ImGui")
+
+set_property(TARGET "ImGui" PROPERTY FOLDER "External")
