@@ -23,127 +23,130 @@
     }
 */
 
-// Default collector.
-template<typename ReturnType>
-class CollectLast;
-
-template<typename Type>
-class CollectDefault : public CollectLast<Type>
+namespace Common
 {
-public:
-    CollectDefault(Type defaultResult) :
-        CollectLast<Type>(defaultResult)
+    // Default collector.
+    template<typename ReturnType>
+    class CollectLast;
+
+    template<typename Type>
+    class CollectDefault : public CollectLast<Type>
     {
-    }
-};
-
-// Default collector specialized for dealing with void return type.
-template<>
-class CollectDefault<void>
-{
-public:
-    CollectDefault(void)
-    {
-    }
-
-    void ConsumeResult(void)
-    {
-    }
-
-    bool ShouldContinue()
-    {
-        return true;
-    }
-
-    void GetResult() const
-    {
-    }
-};
-
-// Collector that returns the result of the last receiver invocation.
-template<typename ReturnType>
-class CollectLast
-{
-public:
-    CollectLast(ReturnType initialResult) :
-        m_result(initialResult)
-    {
-    }
-
-    void ConsumeResult(ReturnType result)
-    {
-        m_result = result;
-    }
-
-    bool ShouldContinue()
-    {
-        return true;
-    }
-
-    ReturnType GetResult() const
-    {
-        return m_result;
-    }
-
-private:
-    ReturnType m_result;
-};
-
-// Collector that continues dispatcher propagation while receiver invocations return true.
-template<typename ReturnType = bool>
-class CollectWhileTrue
-{
-public:
-    CollectWhileTrue(ReturnType initialResult) :
-        m_result(initialResult)
-    {
-    }
-
-    void ConsumeResult(ReturnType result)
-    {
-        m_result = result;
-    }
-
-    bool ShouldContinue()
-    {
-        return m_result;
-    }
-
-    ReturnType GetResult() const
-    {
-        return m_result;
-    }
-
-private:
-    ReturnType m_result;
-};
-
-// Collector that continues dispatcher propagation while receiver invocations return false.
-template<typename ReturnType = bool>
-class CollectWhileFalse
-{
-public:
     public:
-    CollectWhileFalse(ReturnType initialResult) :
-        m_result(initialResult)
-    {
-    }
+        CollectDefault(Type defaultResult) :
+            CollectLast<Type>(defaultResult)
+        {
+        }
+    };
 
-    void ConsumeResult(ReturnType result)
+    // Default collector specialized for dealing with void return type.
+    template<>
+    class CollectDefault<void>
     {
-        m_result = result;
-    }
+    public:
+        CollectDefault(void)
+        {
+        }
 
-    bool ShouldContinue()
+        void ConsumeResult(void)
+        {
+        }
+
+        bool ShouldContinue()
+        {
+            return true;
+        }
+
+        void GetResult() const
+        {
+        }
+    };
+
+    // Collector that returns the result of the last receiver invocation.
+    template<typename ReturnType>
+    class CollectLast
     {
-        return !m_result;
-    }
+    public:
+        CollectLast(ReturnType initialResult) :
+            m_result(initialResult)
+        {
+        }
 
-    ReturnType GetResult() const
+        void ConsumeResult(ReturnType result)
+        {
+            m_result = result;
+        }
+
+        bool ShouldContinue()
+        {
+            return true;
+        }
+
+        ReturnType GetResult() const
+        {
+            return m_result;
+        }
+
+    private:
+        ReturnType m_result;
+    };
+
+    // Collector that continues dispatcher propagation while receiver invocations return true.
+    template<typename ReturnType = bool>
+    class CollectWhileTrue
     {
-        return m_result;
-    }
+    public:
+        CollectWhileTrue(ReturnType initialResult) :
+            m_result(initialResult)
+        {
+        }
 
-private:
-    ReturnType m_result;
-};
+        void ConsumeResult(ReturnType result)
+        {
+            m_result = result;
+        }
+
+        bool ShouldContinue()
+        {
+            return m_result;
+        }
+
+        ReturnType GetResult() const
+        {
+            return m_result;
+        }
+
+    private:
+        ReturnType m_result;
+    };
+
+    // Collector that continues dispatcher propagation while receiver invocations return false.
+    template<typename ReturnType = bool>
+    class CollectWhileFalse
+    {
+    public:
+    public:
+        CollectWhileFalse(ReturnType initialResult) :
+            m_result(initialResult)
+        {
+        }
+
+        void ConsumeResult(ReturnType result)
+        {
+            m_result = result;
+        }
+
+        bool ShouldContinue()
+        {
+            return !m_result;
+        }
+
+        ReturnType GetResult() const
+        {
+            return m_result;
+        }
+
+    private:
+        ReturnType m_result;
+    };
+}

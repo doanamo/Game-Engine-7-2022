@@ -59,11 +59,11 @@ namespace Engine
         System::Window* m_window;
 
         // Window event callbacks.
-        Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
-        Receiver<void(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
-        Receiver<void(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
-        Receiver<void(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
-        Receiver<void(const System::Window::Events::TextInput&)> m_receiverTextInput;
+        Common::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
+        Common::Receiver<void(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
+        Common::Receiver<void(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
+        Common::Receiver<void(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
+        Common::Receiver<void(const System::Window::Events::TextInput&)> m_receiverTextInput;
 
         // Initialization state.
         bool m_initialized;

@@ -61,101 +61,104 @@
     Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 */
 
-template<typename Type>
-class Delegate;
-
-template<typename ReturnType, typename... Arguments>
-class Delegate<ReturnType(Arguments...)>
+namespace Common
 {
-private:
-    // Type declarations.
-    typedef void* InstancePtr;
-    typedef ReturnType (*FunctionPtr)(InstancePtr, Arguments...);
+    template<typename Type>
+    class Delegate;
 
-    // Compile time invocation stubs.
-    template<ReturnType (*Function)(Arguments...)>
-    static ReturnType FunctionStub(InstancePtr instance, Arguments... arguments)
+    template<typename ReturnType, typename... Arguments>
+    class Delegate<ReturnType(Arguments...)>
     {
-        return (Function)(std::forward<Arguments>(arguments)...);
-    }
+    private:
+        // Type declarations.
+        typedef void* InstancePtr;
+        typedef ReturnType(*FunctionPtr)(InstancePtr, Arguments...);
 
-    template<class InstanceType, ReturnType (InstanceType::*Function)(Arguments...)>
-    static ReturnType MethodStub(InstancePtr instance, Arguments... arguments)
-    {
-        return (static_cast<InstanceType*>(instance)->*Function)(std::forward<Arguments>(arguments)...);
-    }
+        // Compile time invocation stubs.
+        template<ReturnType(*Function)(Arguments...)>
+        static ReturnType FunctionStub(InstancePtr instance, Arguments... arguments)
+        {
+            return (Function)(std::forward<Arguments>(arguments)...);
+        }
 
-    template<class InstanceType>
-    static ReturnType FunctorStub(InstancePtr instance, Arguments... arguments)
-    {
-        return (*static_cast<InstanceType*>(instance))(std::forward<Arguments>(arguments)...);
-    }
+        template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
+        static ReturnType MethodStub(InstancePtr instance, Arguments... arguments)
+        {
+            return (static_cast<InstanceType*>(instance)->*Function)(std::forward<Arguments>(arguments)...);
+        }
 
-public:
-    Delegate() :
-        m_instance(nullptr),
-        m_function(nullptr)
-    {
-    }
+        template<class InstanceType>
+        static ReturnType FunctorStub(InstancePtr instance, Arguments... arguments)
+        {
+            return (*static_cast<InstanceType*>(instance))(std::forward<Arguments>(arguments)...);
+        }
 
-    virtual ~Delegate()
-    {
-    }
+    public:
+        Delegate() :
+            m_instance(nullptr),
+            m_function(nullptr)
+        {
+        }
 
-    // Unbinds the delegate.
-    void Bind(std::nullptr_t)
-    {
-        m_instance = nullptr;
-        m_function = nullptr;
-    }
+        virtual ~Delegate()
+        {
+        }
 
-    // Binds a function.
-    template<ReturnType (*Function)(Arguments...)>
-    void Bind()
-    {
-        m_instance = nullptr;
-        m_function = &FunctionStub<Function>;
-    }
+        // Unbinds the delegate.
+        void Bind(std::nullptr_t)
+        {
+            m_instance = nullptr;
+            m_function = nullptr;
+        }
 
-    // Binds a functor object.
-    template<class InstanceType>
-    void Bind(InstanceType* instance)
-    {
-        ASSERT(instance != nullptr, "Received nullptr as functor instance!");
+        // Binds a function.
+        template<ReturnType(*Function)(Arguments...)>
+        void Bind()
+        {
+            m_instance = nullptr;
+            m_function = &FunctionStub<Function>;
+        }
 
-        m_instance = instance;
-        m_function = &FunctorStub<InstanceType>;
-    }
+        // Binds a functor object.
+        template<class InstanceType>
+        void Bind(InstanceType* instance)
+        {
+            ASSERT(instance != nullptr, "Received nullptr as functor instance!");
 
-    // Binds an instance method.
-    template<class InstanceType, ReturnType (InstanceType::*Function)(Arguments...)>
-    void Bind(InstanceType* instance)
-    {
-        ASSERT(instance != nullptr, "Received nullptr as method instance!");
+            m_instance = instance;
+            m_function = &FunctorStub<InstanceType>;
+        }
 
-        m_instance = instance;
-        m_function = &MethodStub<InstanceType, Function>;
-    }
+        // Binds an instance method.
+        template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
+        void Bind(InstanceType* instance)
+        {
+            ASSERT(instance != nullptr, "Received nullptr as method instance!");
 
-    // Invokes the delegate.
-    ReturnType Invoke(Arguments... arguments)
-    {
-        VERIFY(m_function != nullptr, "Attempting to invoke a delegate without a bound function!");
-        return m_function(m_instance, std::forward<Arguments>(arguments)...);
-    }
+            m_instance = instance;
+            m_function = &MethodStub<InstanceType, Function>;
+        }
 
-    // Checks if the delegate is bound.
-    bool IsBound()
-    {
-        return m_function != nullptr;
-    }
+        // Invokes the delegate.
+        ReturnType Invoke(Arguments... arguments)
+        {
+            VERIFY(m_function != nullptr, "Attempting to invoke a delegate without a bound function!");
+            return m_function(m_instance, std::forward<Arguments>(arguments)...);
+        }
 
-private:
-    // Pointer to an instance of the delegate.
-    // Will be nullptr for standalone functions.
-    InstancePtr m_instance;
+        // Checks if the delegate is bound.
+        bool IsBound()
+        {
+            return m_function != nullptr;
+        }
 
-    // Pointer to a function generated from one of the three specialized
-    // templates (either for raw functions, methods and functors).
-    FunctionPtr m_function;
-};
+    private:
+        // Pointer to an instance of the delegate.
+        // Will be nullptr for standalone functions.
+        InstancePtr m_instance;
+
+        // Pointer to a function generated from one of the three specialized
+        // templates (either for raw functions, methods and functors).
+        FunctionPtr m_function;
+    };
+}
