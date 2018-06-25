@@ -5,6 +5,7 @@
 #include <Engine.hpp>
 #include <System/Platform.hpp>
 #include <System/Window.hpp>
+#include <System/Timer.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
 #include <Graphics/Shader.hpp>
@@ -40,6 +41,8 @@ int main()
     System::Window window;
     if(!window.Open(windowInfo))
         return 1;
+
+    System::Timer timer;
 
     Engine::Editor editor;
     if(!editor.Initialize(&window))
@@ -85,11 +88,15 @@ int main()
     if(!shader.Load(Build::GetMountDir() + "Data/Shaders/Color.shader"))
         return 1;
 
+    timer.Reset();
+
     while(window.IsOpen())
     {
+        float deltaTime = timer.CalculateFrameDelta();
+
         window.ProcessEvents();
 
-        editor.Update(1.0f / 60.0f);
+        editor.Update(deltaTime);
 
         glClearDepth(1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -104,6 +111,8 @@ int main()
         editor.Draw();
 
         window.Present();
+
+        timer.Tick();
     }
 
     return 0;
