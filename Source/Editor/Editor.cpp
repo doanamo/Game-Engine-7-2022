@@ -144,14 +144,14 @@ bool Editor::Initialize(System::Window* window)
     return m_initialized = true;
 }
 
-void Editor::Update(float dt)
+void Editor::Update(float deltaTime)
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_context);
     ImGuiIO& io = ImGui::GetIO();
 
     // Set current delta time.
-    io.DeltaTime = dt;
+    io.DeltaTime = deltaTime;
 
     // Set current display size.
     io.DisplaySize.x = (float)m_window->GetWidth();

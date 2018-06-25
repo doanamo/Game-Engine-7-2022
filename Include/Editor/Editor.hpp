@@ -26,7 +26,7 @@ namespace Engine
         bool Initialize(System::Window* window);
 
         // Updates the editor interface.
-        void Update(float dt);
+        void Update(float deltaTime);
 
         // Draws the editor interface.
         void Draw();
