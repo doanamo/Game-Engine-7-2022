@@ -8,6 +8,7 @@
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
 #include <Graphics/Shader.hpp>
+#include <Editor/Editor.hpp>
 
 int main()
 {
@@ -40,10 +41,9 @@ int main()
     if(!window.Open(windowInfo))
         return 1;
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window.GetPrivateHandle(), false);
-    ImGui_ImplOpenGL3_Init();
+    Engine::Editor editor;
+    if(!editor.Initialize(&window))
+        return 1;
 
     struct Vertex
     {
@@ -89,12 +89,7 @@ int main()
     {
         window.ProcessEvents();
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        bool showDemoWindow = true;
-        ImGui::ShowDemoWindow(&showDemoWindow);
+        editor.Update(1.0f / 60.0f);
 
         glClearDepth(1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -106,15 +101,10 @@ int main()
         glBindVertexArray(inputLayout.GetHandle());
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        editor.Draw();
 
         window.Present();
     }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 
     return 0;
 }
