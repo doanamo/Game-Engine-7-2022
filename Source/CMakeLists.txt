@@ -62,6 +62,8 @@ set(TARGET_FILES
     "Include/System/Timer.hpp"
     "Source/System/Timer.cpp"
 
+    "Include/Graphics/ScreenSpace.hpp"
+    "Source/Graphics/ScreenSpace.cpp"
     "Include/Graphics/Buffer.hpp"
     "Source/Graphics/Buffer.cpp"
     "Include/Graphics/InputLayout.hpp"

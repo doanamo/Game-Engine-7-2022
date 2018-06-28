@@ -6,6 +6,7 @@
 #include <System/Platform.hpp>
 #include <System/Window.hpp>
 #include <System/Timer.hpp>
+#include <Graphics/ScreenSpace.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
 #include <Graphics/Shader.hpp>
@@ -47,6 +48,9 @@ int main()
     Engine::Editor editor;
     if(!editor.Initialize(&window))
         return 1;
+
+    Graphics::ScreenSpace screenSpace;
+    screenSpace.SetSourceSize(2.0f, 2.0f);
 
     struct Vertex
     {
@@ -98,12 +102,18 @@ int main()
 
         editor.Update(deltaTime);
 
+        glViewport(0, 0, window.GetWidth(), window.GetHeight());
+        screenSpace.SetTargetSize(window.GetWidth(), window.GetHeight());
+
         glClearDepth(1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 transform = screenSpace.GetTransform();
+        transform = glm::translate(transform, glm::vec3(-screenSpace.GetOffsetFromCenter(), 0.0f));
+
         glUseProgram(shader.GetHandle());
-        glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
 
         glBindVertexArray(inputLayout.GetHandle());
         glDrawArrays(GL_TRIANGLES, 0, 3);
