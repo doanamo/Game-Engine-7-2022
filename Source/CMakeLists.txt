@@ -189,3 +189,18 @@ target_include_directories("ImGui" PRIVATE "../External/GLEW-2.1.0/include")
 target_link_libraries("Engine" "ImGui")
 
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")
+
+# Add zlib library.
+set(SKIP_INSTALL_ALL ON CACHE BOOL "")
+
+add_subdirectory("../External/zlib-1.2.11" "zlib" EXCLUDE_FROM_ALL)
+target_include_directories("Engine" PUBLIC "../External/zlib-1.2.11")
+target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+target_link_libraries("Engine" "zlibstatic")
+
+set_property(TARGET "zlibstatic" PROPERTY PROJECT_LABEL "zlib")
+set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
+
+set(ZLIB_ROOT "../External/zlib-1.2.11")
+set(ZLIB_INCLUDE_DIR "../External/zlib-1.2.11")
+set(ZLIB_LIBRARY "zlibstatic")

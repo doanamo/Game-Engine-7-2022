@@ -34,6 +34,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+// zlib
+#include <zlib.h>
+
 // Project
 #include "Common/Build.hpp"
 #include "Common/Debug.hpp"
