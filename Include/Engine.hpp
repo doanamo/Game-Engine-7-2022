@@ -37,6 +37,9 @@
 // zlib
 #include <zlib.h>
 
+// libpng
+#include <png.h>
+
 // Project
 #include "Common/Build.hpp"
 #include "Common/Debug.hpp"

@@ -204,3 +204,22 @@ set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
 set(ZLIB_ROOT "../External/zlib-1.2.11")
 set(ZLIB_INCLUDE_DIR "../External/zlib-1.2.11")
 set(ZLIB_LIBRARY "zlibstatic")
+
+# Add libpng library.
+Set(PNG_SHARED OFF CACHE BOOL "")
+Set(PNG_STATIC ON CACHE BOOL "")
+Set(PNG_TESTS OFF CACHE BOOL "")
+Set(SKIP_INSTALL_ALL ON CACHE BOOL "")
+
+add_subdirectory("../External/libpng-1.6.34" "libpng" EXCLUDE_FROM_ALL)
+target_include_directories("png_static" PRIVATE "../External/zlib-1.2.11")
+target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+target_include_directories("Engine" PUBLIC "../External/libpng-1.6.34")
+target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/libpng")
+target_link_libraries("Engine" "png_static")
+
+set_property(TARGET "png_static" PROPERTY PROJECT_LABEL "libpng")
+set_property(TARGET "png_static" PROPERTY FOLDER "External")
+
+set_property(TARGET "genfiles" PROPERTY PROJECT_LABEL "libpngconf")
+set_property(TARGET "genfiles" PROPERTY FOLDER "External")
