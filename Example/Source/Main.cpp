@@ -35,6 +35,7 @@ int main()
         return 1;
 
     System::WindowInfo windowInfo;
+    windowInfo.title = "Engine Example";
     windowInfo.width = 1024;
     windowInfo.height = 576;
     windowInfo.vsync = false;
