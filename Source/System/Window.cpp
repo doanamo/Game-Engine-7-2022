@@ -193,6 +193,8 @@ void Window::Present()
 
         LOG_WARNING() << "Found uncaught OpenGL error in the last frame (code 0x" << stream.str() << ")!";
     }
+
+    ASSERT(error == GL_NO_ERROR, "Uncaught OpenGL error(s) encountered!");
 }
 
 void Window::Close()
