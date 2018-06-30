@@ -70,6 +70,8 @@ set(TARGET_FILES
     "Source/Graphics/InputLayout.cpp"
     "Include/Graphics/Texture.hpp"
     "Source/Graphics/Texture.cpp"
+    "Include/Graphics/Sampler.hpp"
+    "Source/Graphics/Sampler.cpp"
     "Include/Graphics/Shader.hpp"
     "Source/Graphics/Shader.cpp"
 
