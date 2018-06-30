@@ -68,6 +68,8 @@ set(TARGET_FILES
     "Source/Graphics/Buffer.cpp"
     "Include/Graphics/InputLayout.hpp"
     "Source/Graphics/InputLayout.cpp"
+    "Include/Graphics/Texture.hpp"
+    "Source/Graphics/Texture.cpp"
     "Include/Graphics/Shader.hpp"
     "Source/Graphics/Shader.cpp"
 

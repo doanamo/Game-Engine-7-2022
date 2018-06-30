@@ -9,6 +9,7 @@
 #include <Graphics/ScreenSpace.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
+#include <Graphics/Texture.hpp>
 #include <Graphics/Shader.hpp>
 #include <Editor/Editor.hpp>
 
@@ -55,14 +56,16 @@ int main()
     struct Vertex
     {
         glm::vec3 position;
+        glm::vec2 texture;
         glm::vec4 color;
     };
 
     const Vertex vertices[] =
     {
-        { glm::vec3( 0.0f,  0.433f,  0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { glm::vec3( 0.5f, -0.433f,  0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { glm::vec3(-0.5f, -0.433f,  0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
     };
 
     Graphics::BufferInfo bufferInfo;
@@ -77,6 +80,7 @@ int main()
     const Graphics::InputAttribute inputAttributes[] =
     {
         { &vertexBuffer, Graphics::InputAttributeTypes::Float3 },
+        { &vertexBuffer, Graphics::InputAttributeTypes::Float2 },
         { &vertexBuffer, Graphics::InputAttributeTypes::Float4 },
     };
 
@@ -88,8 +92,12 @@ int main()
     if(!inputLayout.Create(inputLayoutInfo))
         return 1;
 
+    Graphics::Texture texture;
+    if(!texture.Load(Build::GetMountDir() + "Data/Textures/Checker.png"))
+        return 1;
+
     Graphics::Shader shader;
-    if(!shader.Load(Build::GetMountDir() + "Data/Shaders/Color.shader"))
+    if(!shader.Load(Build::GetMountDir() + "Data/Shaders/Textured.shader"))
         return 1;
 
     timer.Reset();
@@ -114,9 +122,13 @@ int main()
 
         glUseProgram(shader.GetHandle());
         glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.GetHandle());
+        glUniform1i(shader.GetUniform("textureDiffuse"), 0);
 
         glBindVertexArray(inputLayout.GetHandle());
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         editor.Draw();
 
