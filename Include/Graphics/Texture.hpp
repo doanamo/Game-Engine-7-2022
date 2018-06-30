@@ -17,6 +17,11 @@
         
         // Retrieve the OpenGL handle.
         GLuint handle = texture.GetHandle();
+
+        // Enable a texture unit.
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, handle);
+        glUniform1i(shader.GetUniform("texture"), 0);
     }
 */
 
