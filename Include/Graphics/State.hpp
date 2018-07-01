@@ -13,7 +13,7 @@ namespace Graphics
     // OpenGL API enumerations and values.
     namespace OpenGL
     {
-        // Invalid handle.
+        // Constant definitions.
         const GLuint InvalidHandle = 0;
         const GLenum InvalidEnum = GL_INVALID_ENUM;
 
