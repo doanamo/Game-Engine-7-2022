@@ -20,7 +20,7 @@ WindowInfo::WindowInfo() :
 }
 
 Window::Window() :
-    m_window(nullptr),
+    m_handle(nullptr),
     m_title(""),
     m_sizeChanged(false)
 {
@@ -35,10 +35,10 @@ Window::~Window()
 void Window::DestroyWindow()
 {
     // Destroy the window.
-    if(m_window != nullptr)
+    if(m_handle != nullptr)
     {
-        glfwDestroyWindow(m_window);
-        m_window = nullptr;
+        glfwDestroyWindow(m_handle);
+        m_handle = nullptr;
     }
 }
 
@@ -47,7 +47,7 @@ bool Window::Open(const WindowInfo& info)
     LOG() << "Opening window..." << LOG_INDENT();
 
     // Check if instance is already initialized.
-    VERIFY(m_window == nullptr, "Window instance is already initialized!");
+    VERIFY(m_handle == nullptr, "Window instance is already initialized!");
 
     // Setup a cleanup guard variable.
     bool initialized = false;
@@ -83,9 +83,9 @@ bool Window::Open(const WindowInfo& info)
 
     // Create a window.
     // Bug: This function call can randomly take twice as much memory after a system call to SetPixelFormat().
-    m_window = glfwCreateWindow(info.width, info.height, info.title.c_str(), nullptr, nullptr);
+    m_handle = glfwCreateWindow(info.width, info.height, info.title.c_str(), nullptr, nullptr);
 
-    if(m_window == nullptr)
+    if(m_handle == nullptr)
     {
         LOG_ERROR() << "Could not create a window!";
         return false;
@@ -94,25 +94,25 @@ bool Window::Open(const WindowInfo& info)
     SCOPE_GUARD_IF(!initialized, this->DestroyWindow());
 
     // Set window size limits.
-    glfwSetWindowSizeLimits(m_window, info.minWidth, info.minHeight, info.maxWidth, info.maxHeight);
+    glfwSetWindowSizeLimits(m_handle, info.minWidth, info.minHeight, info.maxWidth, info.maxHeight);
 
     // Set window user data.
-    glfwSetWindowUserPointer(m_window, this);
+    glfwSetWindowUserPointer(m_handle, this);
 
     // Add event callbacks.
-    glfwSetWindowPosCallback(m_window, Window::MoveCallback);
-    glfwSetFramebufferSizeCallback(m_window, Window::ResizeCallback);
-    glfwSetWindowFocusCallback(m_window, Window::FocusCallback);
-    glfwSetWindowCloseCallback(m_window, Window::CloseCallback);
-    glfwSetKeyCallback(m_window, Window::KeyboardKeyCallback);
-    glfwSetCharCallback(m_window, Window::TextInputCallback);
-    glfwSetMouseButtonCallback(m_window, Window::MouseButtonCallback);
-    glfwSetScrollCallback(m_window, Window::MouseScrollCallback);
-    glfwSetCursorPosCallback(m_window, Window::CursorPositionCallback);
-    glfwSetCursorEnterCallback(m_window, Window::CursorEnterCallback);
+    glfwSetWindowPosCallback(m_handle, Window::MoveCallback);
+    glfwSetFramebufferSizeCallback(m_handle, Window::ResizeCallback);
+    glfwSetWindowFocusCallback(m_handle, Window::FocusCallback);
+    glfwSetWindowCloseCallback(m_handle, Window::CloseCallback);
+    glfwSetKeyCallback(m_handle, Window::KeyboardKeyCallback);
+    glfwSetCharCallback(m_handle, Window::TextInputCallback);
+    glfwSetMouseButtonCallback(m_handle, Window::MouseButtonCallback);
+    glfwSetScrollCallback(m_handle, Window::MouseScrollCallback);
+    glfwSetCursorPosCallback(m_handle, Window::CursorPositionCallback);
+    glfwSetCursorEnterCallback(m_handle, Window::CursorEnterCallback);
 
     // Make window context current.
-    glfwMakeContextCurrent(m_window);
+    glfwMakeContextCurrent(m_handle);
 
     // Set the swap interval.
     glfwSwapInterval((int)info.vsync);
@@ -131,13 +131,13 @@ bool Window::Open(const WindowInfo& info)
 
     // Log created window info.
     int windowWidth, windowHeight;
-    glfwGetFramebufferSize(m_window, &windowWidth, &windowHeight);
+    glfwGetFramebufferSize(m_handle, &windowWidth, &windowHeight);
 
     LOG_INFO() << "Resolution is " << windowWidth << "x" << windowHeight << ".";
 
     // Log created OpenGL context.
-    int glMajor = glfwGetWindowAttrib(m_window, GLFW_CONTEXT_VERSION_MAJOR);
-    int glMinor = glfwGetWindowAttrib(m_window, GLFW_CONTEXT_VERSION_MINOR);
+    int glMajor = glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MAJOR);
+    int glMinor = glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MINOR);
 
     LOG_INFO() << "Using OpenGL " << glMajor << "." << glMinor << " context.";
 
@@ -152,15 +152,15 @@ bool Window::Open(const WindowInfo& info)
 
 void Window::MakeContextCurrent()
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Mark associated OpenGL context as current.
-    glfwMakeContextCurrent(m_window);
+    glfwMakeContextCurrent(m_handle);
 }
 
 void Window::ProcessEvents()
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Poll and process events using callbacks.
     glfwPollEvents();
@@ -169,7 +169,7 @@ void Window::ProcessEvents()
     if(m_sizeChanged)
     {
         int windowWidth, windowHeight;
-        glfwGetFramebufferSize(m_window, &windowWidth, &windowHeight);
+        glfwGetFramebufferSize(m_handle, &windowWidth, &windowHeight);
 
         LOG_INFO() << "Window has been resized to " << windowWidth << "x" << windowHeight << ".";
 
@@ -179,10 +179,10 @@ void Window::ProcessEvents()
 
 void Window::Present()
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Swap framebuffers.
-    glfwSwapBuffers(m_window);
+    glfwSwapBuffers(m_handle);
 
     // Check if there are any uncaught OpenGL errors.
     GLenum error;
@@ -199,10 +199,10 @@ void Window::Present()
 
 void Window::Close()
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Force the window to close.
-    glfwSetWindowShouldClose(m_window, GL_TRUE);
+    glfwSetWindowShouldClose(m_handle, GL_TRUE);
 }
 
 void Window::MoveCallback(GLFWwindow* window, int x, int y)
@@ -367,10 +367,10 @@ void Window::CursorEnterCallback(GLFWwindow* window, int entered)
 
 void Window::SetTitle(std::string title)
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Set the window's new title.
-    glfwSetWindowTitle(m_window, title.c_str());
+    glfwSetWindowTitle(m_handle, title.c_str());
 
     // Cache the window's title as it cannot be retrieved back via GLFW.
     m_title = title;
@@ -378,22 +378,22 @@ void Window::SetTitle(std::string title)
 
 void Window::SetVisibility(bool show)
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Toggle visibility state.
     if(show)
     {
-        glfwShowWindow(m_window);
+        glfwShowWindow(m_handle);
     }
     else
     {
-        glfwHideWindow(m_window);
+        glfwHideWindow(m_handle);
     }
 }
 
 std::string Window::GetTitle() const
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Return the cached window's title.
     return m_title;
@@ -401,44 +401,49 @@ std::string Window::GetTitle() const
 
 int Window::GetWidth() const
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Return the current framebuffer's width.
     int width = 0;
-    glfwGetFramebufferSize(m_window, &width, nullptr);
+    glfwGetFramebufferSize(m_handle, &width, nullptr);
     return width;
 }
 
 int Window::GetHeight() const
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Return the current framebuffer's height.
     int height = 0;
-    glfwGetFramebufferSize(m_window, nullptr, &height);
+    glfwGetFramebufferSize(m_handle, nullptr, &height);
     return height;
 }
 
 bool Window::IsOpen() const
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Window is considered open as long as there was no request made to close it.
-    return glfwWindowShouldClose(m_window) == 0;
+    return glfwWindowShouldClose(m_handle) == 0;
 }
 
 bool Window::IsFocused() const
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Check if the window is currently in the foreground.
-    return glfwGetWindowAttrib(m_window, GLFW_FOCUSED) > 0;
+    return glfwGetWindowAttrib(m_handle, GLFW_FOCUSED) > 0;
+}
+
+bool Window::IsValid() const
+{
+    return m_handle != nullptr;
 }
 
 GLFWwindow* Window::GetPrivateHandle()
 {
-    VERIFY(m_window != nullptr, "Window instance is not initialized!");
+    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
     // Return the private window handle.
-    return m_window;
+    return m_handle;
 }
