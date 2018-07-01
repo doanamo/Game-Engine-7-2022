@@ -6,6 +6,7 @@
 #include <System/Context.hpp>
 #include <System/Window.hpp>
 #include <System/Timer.hpp>
+#include <Graphics/Context.hpp>
 #include <Graphics/ScreenSpace.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/InputLayout.hpp>
@@ -21,15 +22,17 @@ int main()
     Debug::Initialize();
     Logger::Initialize();
 
+    // Print build info.
     {
-        LOG() << "Build info:" << LOG_INDENT();
-        LOG() << "Build directory: " << Build::GetBuildDir();
-        LOG() << "Include directory: " << Build::GetIncludeDir();
-        LOG() << "Source directory: " << Build::GetSourceDir();
-        LOG() << "Change number: " << Build::GetChangeNumber();
-        LOG() << "Change hash: " << Build::GetChangeHash();
-        LOG() << "Change date: " << Build::GetChangeDate();
-        LOG() << "Branch name: " << Build::GetBranchName();
+        LOG_INFO() << "Build info:" << LOG_INDENT();
+        LOG_INFO() << "Build directory: " << Build::GetBuildDir();
+        LOG_INFO() << "Working directory: " << Build::GetWorkingDir();
+        LOG_INFO() << "Include directory: " << Build::GetIncludeDir();
+        LOG_INFO() << "Source directory: " << Build::GetSourceDir();
+        LOG_INFO() << "Change number: " << Build::GetChangeNumber();
+        LOG_INFO() << "Change hash: " << Build::GetChangeHash();
+        LOG_INFO() << "Change date: " << Build::GetChangeDate();
+        LOG_INFO() << "Branch name: " << Build::GetBranchName();
     }
 
     // Initialize the system context.
@@ -52,13 +55,16 @@ int main()
     // Create a timer.
     System::Timer timer;
 
-    Engine::Editor editor;
-    if(!editor.Initialize(&window))
-        return 1;
+    // Create the graphics context.
+    Graphics::Context graphics;
+    if(!graphics.Initialize(&window))
+        return -1;
 
+    // Create the rendering screen space.
     Graphics::ScreenSpace screenSpace;
     screenSpace.SetSourceSize(2.0f, 2.0f);
 
+    // Create a vertex buffer.
     struct Vertex
     {
         glm::vec3 position;
@@ -79,7 +85,7 @@ int main()
     bufferInfo.elementCount = Utility::StaticArraySize(vertices);
     bufferInfo.data = &vertices[0];
 
-    Graphics::VertexBuffer vertexBuffer;
+    Graphics::VertexBuffer vertexBuffer(&graphics);
     if(!vertexBuffer.Create(bufferInfo))
         return 1;
 
@@ -108,6 +114,10 @@ int main()
 
     Graphics::Shader shader;
     if(!shader.Load(Build::GetWorkingDir() + "Data/Shaders/Textured.shader"))
+        return 1;
+
+    Engine::Editor editor(&graphics);
+    if(!editor.Initialize(&window))
         return 1;
 
     timer.Reset();

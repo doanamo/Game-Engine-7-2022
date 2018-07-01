@@ -62,6 +62,10 @@ set(TARGET_FILES
     "Include/System/Timer.hpp"
     "Source/System/Timer.cpp"
 
+    "Include/Graphics/Context.hpp"
+    "Source/Graphics/Context.cpp"
+    "Include/Graphics/State.hpp"
+    "Source/Graphics/State.cpp"
     "Include/Graphics/ScreenSpace.hpp"
     "Source/Graphics/ScreenSpace.cpp"
     "Include/Graphics/Buffer.hpp"

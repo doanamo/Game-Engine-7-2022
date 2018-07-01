@@ -2,9 +2,9 @@
     Copyright (c) 2018 Piotr Doan. All rights reserved.
 */
 
-
 #include "Precompiled.hpp"
 #include "Graphics/Buffer.hpp"
+#include "Graphics/Context.hpp"
 using namespace Graphics;
 
 namespace
@@ -26,13 +26,15 @@ BufferInfo::BufferInfo() :
 {
 }
 
-Buffer::Buffer(GLenum type) :
+Buffer::Buffer(Context* context, GLenum type) :
+    m_context(context),
     m_type(type),
     m_usage(GL_INVALID_ENUM),
     m_handle(InvalidHandle),
     m_elementSize(0),
     m_elementCount(0)
 {
+    VERIFY(m_context && m_context->IsValid(), "Graphics context is invalid!");
 }
 
 Buffer::~Buffer()
@@ -86,7 +88,7 @@ bool Buffer::Create(const BufferInfo& info)
     {
         glBindBuffer(m_type, m_handle);
         glBufferData(m_type, bufferSize, info.data, info.usage);
-        glBindBuffer(m_type, 0);
+        glBindBuffer(m_type, m_context->GetState().GetBindBuffer(m_type));
     }
 
     // Save buffer parameters.
@@ -111,12 +113,10 @@ void Buffer::Update(const void* data, int elementCount)
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);
     glBufferData(m_type, m_elementSize * elementCount, data, m_usage);
+    glBindBuffer(m_type, m_context->GetState().GetBindBuffer(m_type));
 
     GLenum error = glGetError();
     ASSERT(error == GL_NO_ERROR, "Failed to upload buffer data!");
-
-    // Unbind the buffer.
-    glBindBuffer(m_type, 0);
 }
 
 GLenum Buffer::GetType() const
@@ -168,8 +168,8 @@ bool Buffer::IsInstanced() const
     Vertex Buffer
 */
 
-VertexBuffer::VertexBuffer() :
-    Buffer(GL_ARRAY_BUFFER)
+VertexBuffer::VertexBuffer(Context* context) :
+    Buffer(context, GL_ARRAY_BUFFER)
 {
 }
 
@@ -182,8 +182,8 @@ const char* VertexBuffer::GetName() const
     Index Buffer
 */
 
-IndexBuffer::IndexBuffer() :
-    Buffer(GL_ELEMENT_ARRAY_BUFFER)
+IndexBuffer::IndexBuffer(Context* context) :
+    Buffer(context, GL_ELEMENT_ARRAY_BUFFER)
 {
 }
 
@@ -213,8 +213,8 @@ GLenum IndexBuffer::GetElementType() const
     Instance Buffer
 */
 
-InstanceBuffer::InstanceBuffer() :
-    Buffer(GL_ARRAY_BUFFER)
+InstanceBuffer::InstanceBuffer(Context* context) :
+    Buffer(context, GL_ARRAY_BUFFER)
 {
 }
 
