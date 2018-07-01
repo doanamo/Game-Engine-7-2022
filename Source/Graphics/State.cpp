@@ -8,11 +8,19 @@ using namespace Graphics;
 
 State::State()
 {
-    // Bound buffers (glBindBuffer).
+    // glBindVertexArray
+    m_bindVertexArray = OpenGL::InvalidHandle;
+
+    // glBindBuffer
     for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
-        bindBuffer[i] = 0;
+        m_bindBuffer[i] = OpenGL::InvalidHandle;
     }
+}
+
+GLint State::GetBindVertexArray() const
+{
+    return m_bindVertexArray;
 }
 
 int State::GetBindBuffer(GLenum target) const
@@ -20,7 +28,7 @@ int State::GetBindBuffer(GLenum target) const
     for(int i = 1; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(OpenGL::BufferBindingTargets[i] == target)
-            return bindBuffer[i];
+            return m_bindBuffer[i];
     }
 
     VERIFY(false, "Unknown or unsupported buffer binding target has been provided!");

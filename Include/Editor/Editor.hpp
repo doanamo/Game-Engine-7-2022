@@ -9,7 +9,7 @@
 #include "System/Window.hpp"
 #include "Graphics/Context.hpp"
 #include "Graphics/Buffer.hpp"
-#include "Graphics/InputLayout.hpp"
+#include "Graphics/VertexArray.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Shader.hpp"
 
@@ -76,7 +76,7 @@ namespace Engine
         // User interface rendering.
         Graphics::VertexBuffer m_vertexBuffer;
         Graphics::IndexBuffer m_indexBuffer;
-        Graphics::InputLayout m_inputLayout;
+        Graphics::VertexArray m_vertexArray;
         Graphics::Texture m_fontTexture;
         Graphics::Shader m_shader;
 

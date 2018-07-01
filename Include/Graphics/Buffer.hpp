@@ -10,7 +10,7 @@
     Generic buffer base class that can handle different types of OpenGL buffers.
     Supported buffer types include vertex buffer, index buffer and instance buffer.
     
-    void ExampleGraphicsBuffer()
+    void ExampleGraphicsBuffer(Graphics::Context* graphics)
     {
         // Define vertex structure.
         struct Vertex

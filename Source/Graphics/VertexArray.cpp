@@ -3,62 +3,63 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/InputLayout.hpp"
+#include "Graphics/VertexArray.hpp"
+#include "Graphics/Context.hpp"
 #include "Graphics/Buffer.hpp"
 using namespace Graphics;
 
 namespace
 {
-    // Gets the row size of an input storage type.
-    int GetInputStorageTypeRowElements(InputStorageTypes storage)
+    // Gets the row size of a vertex attribute type.
+    int GetVertexAttributeTypeRowElements(VertexAttributeType type)
     {
-        switch(storage)
+        switch(type)
         {
-        case InputStorageTypes::Value:
+        case VertexAttributeType::Value:
             return 1;
 
-        case InputStorageTypes::Vector2:
+        case VertexAttributeType::Vector2:
             return 2;
 
-        case InputStorageTypes::Vector3:
+        case VertexAttributeType::Vector3:
             return 3;
 
-        case InputStorageTypes::Vector4:
+        case VertexAttributeType::Vector4:
             return 4;
 
-        case InputStorageTypes::Matrix4x4:
+        case VertexAttributeType::Matrix4x4:
             return 4;
 
         default:
-            ASSERT(false, "Unknown input storage type!");
+            ASSERT(false, "Unknown vertex attribute type!");
             return 0;
         }
     }
 
-    // Gets the row count of an input storage type.
-    int GetInputStorageTypeRowCount(InputStorageTypes storage)
+    // Gets the row count of a vertex attribute type.
+    int GetVertexAttributeTypeRowCount(VertexAttributeType type)
     {
-        switch(storage)
+        switch(type)
         {
-        case InputStorageTypes::Value:
-        case InputStorageTypes::Vector2:
-        case InputStorageTypes::Vector3:
-        case InputStorageTypes::Vector4:
+        case VertexAttributeType::Value:
+        case VertexAttributeType::Vector2:
+        case VertexAttributeType::Vector3:
+        case VertexAttributeType::Vector4:
             return 1;
 
-        case InputStorageTypes::Matrix4x4:
+        case VertexAttributeType::Matrix4x4:
             return 4;
 
         default:
-            ASSERT(false, "Unknown input storage type!");
+            ASSERT(false, "Unknown vertex attribute type!");
             return 0;
         }
     }
 
     // Gets the size of an input data type.
-    int GetInputDataTypeBytes(GLint type)
+    int GetVertexAttributeValueBytes(GLint value)
     {
-        switch(type)
+        switch(value)
         {
         case GL_BYTE:
         case GL_UNSIGNED_BYTE:
@@ -83,64 +84,62 @@ namespace
             return 0;
         }
     }
-
-    // Constant definitions.
-    const GLuint InvalidHandle = 0;
 }
 
-InputAttribute::InputAttribute() :
+VertexAttribute::VertexAttribute() :
     buffer(nullptr),
-    storage(InputStorageTypes::Invalid),
-    type(GL_INVALID_ENUM),
+    type(VertexAttributeType::Invalid),
+    value(OpenGL::InvalidEnum),
     normalize(false)
 {
 }
 
-InputAttribute::InputAttribute(const Buffer* buffer, InputStorageTypes storage, GLenum type, bool normalize) :
+VertexAttribute::VertexAttribute(const Buffer* buffer, VertexAttributeType type, GLenum value, bool normalize) :
     buffer(buffer),
-    storage(storage),
     type(type),
+    value(value),
     normalize(normalize)
 {
 }
 
-InputLayoutInfo::InputLayoutInfo() :
+VertexArrayInfo::VertexArrayInfo() :
     attributes(nullptr),
     attributeCount(0)
 {
 }
 
-InputLayoutInfo::InputLayoutInfo(const InputAttribute* attributes, int attributeCount) :
+VertexArrayInfo::VertexArrayInfo(const VertexAttribute* attributes, int attributeCount) :
     attributes(attributes), attributeCount(attributeCount)
 {
 }
 
-InputLayout::InputLayout() :
-    m_handle(InvalidHandle)
+VertexArray::VertexArray(Context* context) :
+    m_context(context),
+    m_handle(OpenGL::InvalidHandle)
 {
 }
 
-InputLayout::~InputLayout()
+VertexArray::~VertexArray()
 {
     this->DestroyHandle();
 }
 
-void InputLayout::DestroyHandle()
+void VertexArray::DestroyHandle()
 {
     // Release the vertex array handle.
-    if(m_handle != InvalidHandle)
+    if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteVertexArrays(1, &m_handle);
-        m_handle = InvalidHandle;
+        m_handle = OpenGL::InvalidHandle;
     }
 }
 
-bool InputLayout::Create(const InputLayoutInfo& info)
+bool VertexArray::Create(const VertexArrayInfo& info)
 {
     LOG() << "Creating vertex input..." << LOG_INDENT();
 
     // Check if handle has been already created.
-    VERIFY(m_handle == InvalidHandle, "Input layout instance has been already initialized!");
+    VERIFY(m_handle == OpenGL::InvalidHandle, "Vertex array instance has been already initialized!");
 
     // Validate arguments.
     if(info.attributeCount <= 0)
@@ -157,7 +156,7 @@ bool InputLayout::Create(const InputLayoutInfo& info)
 
     for(int i = 0; i < info.attributeCount; ++i)
     {
-        const InputAttribute& attribute = info.attributes[i];
+        const VertexAttribute& attribute = info.attributes[i];
 
         if(attribute.buffer == nullptr)
         {
@@ -177,13 +176,13 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             return false;
         }
 
-        if(attribute.storage == InputStorageTypes::Invalid)
+        if(attribute.type == VertexAttributeType::Invalid)
         {
             LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].storage\" is invalid!";
             return false;
         }
 
-        if(attribute.type == GL_INVALID_ENUM)
+        if(attribute.value == OpenGL::InvalidEnum)
         {
             LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].type\" is invalid!";
             return false;
@@ -207,8 +206,8 @@ bool InputLayout::Create(const InputLayoutInfo& info)
     // Prepare a cleanup guard.
     SCOPE_GUARD_BEGIN();
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        glBindVertexArray(m_context->GetState().GetBindVertexArray());
+        glBindBuffer(GL_ARRAY_BUFFER, m_context->GetState().GetBindBuffer(GL_ARRAY_BUFFER));
     }
     SCOPE_GUARD_END();
 
@@ -223,7 +222,7 @@ bool InputLayout::Create(const InputLayoutInfo& info)
 
     for(int i = 0; i < info.attributeCount; ++i)
     {
-        const InputAttribute& attribute = info.attributes[i];
+        const VertexAttribute& attribute = info.attributes[i];
 
         // Bind a vertex buffer.
         if(currentBuffer != attribute.buffer)
@@ -235,7 +234,7 @@ bool InputLayout::Create(const InputLayoutInfo& info)
         }
 
         // Setup vertex attributes for each row of an input storage.
-        for(int l = 0; l < GetInputStorageTypeRowCount(attribute.storage); ++l)
+        for(int l = 0; l < GetVertexAttributeTypeRowCount(attribute.type); ++l)
         {
             // Enable vertex attribute.
             glEnableVertexAttribArray(currentLocation);
@@ -243,8 +242,8 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             // Set vertex attribute pointer.
             glVertexAttribPointer(
                 currentLocation,
-                GetInputStorageTypeRowElements(attribute.storage),
-                attribute.type,
+                GetVertexAttributeTypeRowElements(attribute.type),
+                attribute.value,
                 attribute.normalize ? GL_TRUE : GL_FALSE,
                 attribute.buffer->GetElementSize(),
                 (void*)currentOffset
@@ -260,7 +259,7 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             currentLocation += 1;
 
             // Increment current offset.
-            currentOffset += GetInputDataTypeBytes(attribute.type) * GetInputStorageTypeRowElements(attribute.storage);
+            currentOffset += GetVertexAttributeValueBytes(attribute.value) * GetVertexAttributeTypeRowElements(attribute.type);
         }
     }
 
@@ -270,14 +269,14 @@ bool InputLayout::Create(const InputLayoutInfo& info)
     return initialized = true;
 }
 
-GLuint InputLayout::GetHandle() const
+GLuint VertexArray::GetHandle() const
 {
-    ASSERT(m_handle != InvalidHandle, "Vertex array handle has not been created!");
+    ASSERT(m_handle != OpenGL::InvalidHandle, "Vertex array handle has not been created!");
 
     return m_handle;
 }
 
-bool InputLayout::IsValid() const
+bool VertexArray::IsValid() const
 {
-    return m_handle != InvalidHandle;
+    return m_handle != OpenGL::InvalidHandle;
 }

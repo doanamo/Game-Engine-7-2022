@@ -13,6 +13,10 @@ namespace Graphics
     // OpenGL API enumerations and values.
     namespace OpenGL
     {
+        // Invalid handle.
+        const GLuint InvalidHandle = 0;
+        const GLenum InvalidEnum = GL_INVALID_ENUM;
+
         // List of buffer binding targets.
         static const GLenum BufferBindingTargets[] =
         {
@@ -37,11 +41,16 @@ namespace Graphics
     }
 
     // State structure.
-    struct State
+    class State
     {
+    public:
         State();
 
-        GLint bindBuffer[OpenGL::BufferBindingTargetCount];
+        GLint GetBindVertexArray() const;
         GLint GetBindBuffer(GLenum target) const;
+
+    private:
+        GLint m_bindVertexArray;
+        GLint m_bindBuffer[OpenGL::BufferBindingTargetCount];
     };
 }

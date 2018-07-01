@@ -27,6 +27,7 @@ Editor::Editor(Graphics::Context* graphics) :
     m_graphics(graphics),
     m_vertexBuffer(graphics),
     m_indexBuffer(graphics),
+    m_vertexArray(graphics),
     m_interface(nullptr),
     m_window(nullptr),
     m_initialized(false)
@@ -154,21 +155,21 @@ bool Editor::Initialize(System::Window* window)
     SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer(m_graphics));
 
     // Create an input layout.
-    const Graphics::InputAttribute inputAttributes[] =
+    const Graphics::VertexAttribute inputAttributes[] =
     {
-        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT,         false }, // Position
-        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT,         false }, // Texture
-        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector4, GL_UNSIGNED_BYTE, true  }, // Color
+        { &m_vertexBuffer, Graphics::VertexAttributeType::Vector2, GL_FLOAT,         false }, // Position
+        { &m_vertexBuffer, Graphics::VertexAttributeType::Vector2, GL_FLOAT,         false }, // Texture
+        { &m_vertexBuffer, Graphics::VertexAttributeType::Vector4, GL_UNSIGNED_BYTE, true  }, // Color
     };
 
-    Graphics::InputLayoutInfo inputLayoutInfo;
+    Graphics::VertexArrayInfo inputLayoutInfo;
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    if(!m_inputLayout.Create(inputLayoutInfo))
+    if(!m_vertexArray.Create(inputLayoutInfo))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_inputLayout = Graphics::InputLayout());
+    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray(m_graphics));
 
     // Create a font texture.
     unsigned char* fontData = nullptr;
@@ -288,7 +289,7 @@ void Editor::Draw()
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)drawCommand->TextureId);
 
-                glBindVertexArray(m_inputLayout.GetHandle());
+                glBindVertexArray(m_vertexArray.GetHandle());
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
                 glDrawElements(GL_TRIANGLES, (GLsizei)drawCommand->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, indexBufferOffset);
             }

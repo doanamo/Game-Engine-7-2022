@@ -9,7 +9,7 @@
 #include <Graphics/Context.hpp>
 #include <Graphics/ScreenSpace.hpp>
 #include <Graphics/Buffer.hpp>
-#include <Graphics/InputLayout.hpp>
+#include <Graphics/VertexArray.hpp>
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sampler.hpp>
 #include <Graphics/Shader.hpp>
@@ -89,19 +89,20 @@ int main()
     if(!vertexBuffer.Create(bufferInfo))
         return 1;
 
-    const Graphics::InputAttribute inputAttributes[] =
+    // Create a vertex array.
+    const Graphics::VertexAttribute inputAttributes[] =
     {
-        { &vertexBuffer, Graphics::InputStorageTypes::Vector3, GL_FLOAT, false },
-        { &vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT, false },
-        { &vertexBuffer, Graphics::InputStorageTypes::Vector4, GL_FLOAT, false },
+        { &vertexBuffer, Graphics::VertexAttributeType::Vector3, GL_FLOAT, false },
+        { &vertexBuffer, Graphics::VertexAttributeType::Vector2, GL_FLOAT, false },
+        { &vertexBuffer, Graphics::VertexAttributeType::Vector4, GL_FLOAT, false },
     };
 
-    Graphics::InputLayoutInfo inputLayoutInfo;
+    Graphics::VertexArrayInfo inputLayoutInfo;
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    Graphics::InputLayout inputLayout;
-    if(!inputLayout.Create(inputLayoutInfo))
+    Graphics::VertexArray vertexArray(&graphics);
+    if(!vertexArray.Create(inputLayoutInfo))
         return 1;
 
     Graphics::Texture texture;
@@ -148,7 +149,7 @@ int main()
         glBindSampler(0, sampler.GetHandle());
         glUniform1i(shader.GetUniform("textureDiffuse"), 0);
 
-        glBindVertexArray(inputLayout.GetHandle());
+        glBindVertexArray(vertexArray.GetHandle());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         editor.Draw();
