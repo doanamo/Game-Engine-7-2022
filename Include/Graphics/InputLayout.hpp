@@ -37,17 +37,18 @@ namespace Graphics
     // Forward declarations.
     class Buffer;
 
-    // Input attribute types.
-    enum class InputAttributeTypes
+    // Input storage.
+    enum class InputStorageTypes
     {
         Invalid,
 
-        Float1,
-        Float2,
-        Float3,
-        Float4,
+        Value,
+        
+        Vector2,
+        Vector3,
+        Vector4,
 
-        Float4x4,
+        Matrix4x4,
 
         Count,
     };
@@ -56,10 +57,12 @@ namespace Graphics
     struct InputAttribute
     {
         InputAttribute();
-        InputAttribute(const Buffer* buffer, InputAttributeTypes type);
+        InputAttribute(const Buffer* buffer, InputStorageTypes storage, GLenum type, bool normalized);
 
         const Buffer* buffer;
-        InputAttributeTypes type;
+        InputStorageTypes storage;
+        GLenum type;
+        bool normalize;
     };
 
     // Input layout info structure.

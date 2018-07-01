@@ -7,6 +7,10 @@
 #include "Common/NonCopyable.hpp"
 #include "Events/Receiver.hpp"
 #include "System/Window.hpp"
+#include "Graphics/Buffer.hpp"
+#include "Graphics/InputLayout.hpp"
+#include "Graphics/Texture.hpp"
+#include "Graphics/Shader.hpp"
 
 /*
     Editor
@@ -64,6 +68,13 @@ namespace Engine
         Common::Receiver<void(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
         Common::Receiver<void(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
         Common::Receiver<void(const System::Window::Events::TextInput&)> m_receiverTextInput;
+
+        // User interface rendering.
+        Graphics::VertexBuffer m_vertexBuffer;
+        Graphics::IndexBuffer m_indexBuffer;
+        Graphics::InputLayout m_inputLayout;
+        Graphics::Texture m_fontTexture;
+        Graphics::Shader m_shader;
 
         // Initialization state.
         bool m_initialized;

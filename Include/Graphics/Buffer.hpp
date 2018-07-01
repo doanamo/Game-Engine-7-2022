@@ -100,6 +100,7 @@ namespace Graphics
     protected:
         // Buffer handle.
         GLenum m_type;
+        GLenum m_usage;
         GLuint m_handle;
 
         // Buffer parameters.

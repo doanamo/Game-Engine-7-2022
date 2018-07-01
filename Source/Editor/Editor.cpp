@@ -132,8 +132,68 @@ bool Editor::Initialize(System::Window* window)
         return false;
     }
 
-    // Initialize the rendering implementation.
-    ImGui_ImplOpenGL3_Init();
+    // Create a vertex buffer.
+    Graphics::BufferInfo vertexBufferInfo;
+    vertexBufferInfo.usage = GL_STREAM_DRAW;
+    vertexBufferInfo.elementSize = sizeof(ImDrawVert);
+
+    if(!m_vertexBuffer.Create(vertexBufferInfo))
+        return false;
+
+    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer());
+
+    // Create an index buffer.
+    Graphics::BufferInfo indexBufferInfo;
+    indexBufferInfo.usage = GL_STREAM_DRAW;
+    indexBufferInfo.elementSize = sizeof(ImDrawIdx);
+
+    if(!m_indexBuffer.Create(indexBufferInfo))
+        return false;
+
+    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer());
+
+    // Create an input layout.
+    const Graphics::InputAttribute inputAttributes[] =
+    {
+        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT,         false }, // Position
+        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT,         false }, // Texture
+        { &m_vertexBuffer, Graphics::InputStorageTypes::Vector4, GL_UNSIGNED_BYTE, true  }, // Color
+    };
+
+    Graphics::InputLayoutInfo inputLayoutInfo;
+    inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
+    inputLayoutInfo.attributes = &inputAttributes[0];
+
+    if(!m_inputLayout.Create(inputLayoutInfo))
+        return false;
+
+    SCOPE_GUARD_IF(!m_initialized, m_inputLayout = Graphics::InputLayout());
+
+    // Create a font texture.
+    unsigned char* fontData = nullptr;
+    int fontWidth = 0;
+    int fontHeight = 0;
+
+    io.Fonts->GetTexDataAsRGBA32(&fontData, &fontWidth, &fontHeight);
+    
+    if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
+    {
+        LOG_ERROR() << "Could not retrieve font data!";
+        return false;
+    }
+
+    if(!m_fontTexture.Create(fontWidth, fontHeight, GL_RGBA, (void*)fontData))
+        return false;
+
+    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture());
+
+    io.Fonts->TexID = (void *)(intptr_t)m_fontTexture.GetHandle();
+
+    // Load a shader.
+    if(!m_shader.Load(Build::GetWorkingDir() + "Data/Shaders/Interface.shader"))
+        return false;
+
+    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader());
 
     // Save window reference.
     m_window = window;
@@ -157,9 +217,6 @@ void Editor::Update(float deltaTime)
     io.DisplaySize.x = (float)m_window->GetWidth();
     io.DisplaySize.y = (float)m_window->GetHeight();
 
-    // Begin a new rendering frame.
-    ImGui_ImplOpenGL3_NewFrame();
-
     // Start a new interface frame.
     ImGui::NewFrame();
 
@@ -172,13 +229,72 @@ void Editor::Draw()
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_context);
+    ImGuiIO& io = ImGui::GetIO();
 
     // End our interface frame.
     ImGui::EndFrame();
     ImGui::Render();
 
-    // Draw our rendered interface frame.
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImDrawData* drawData = ImGui::GetDrawData();
+
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    glViewport(0, 0, m_window->GetWidth(), m_window->GetHeight());
+    glm::mat4 transform = glm::ortho(0.0f, (float)m_window->GetWidth(), (float)m_window->GetHeight(), 0.0f);
+
+    glUseProgram(m_shader.GetHandle());
+    glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
+    glUniform1i(m_shader.GetUniform("textureDiffuse"), 0);
+
+    ImVec2 position = drawData->DisplayPos;
+    for(int list = 0; list < drawData->CmdListsCount; ++list)
+    {
+        const ImDrawList* commandList = drawData->CmdLists[list];
+        const ImDrawIdx* indexBufferOffset = 0;
+
+        m_vertexBuffer.Update(commandList->VtxBuffer.Data, commandList->VtxBuffer.Size);
+        m_indexBuffer.Update(commandList->IdxBuffer.Data, commandList->IdxBuffer.Size);
+
+        for(int command = 0; command < commandList->CmdBuffer.Size; ++command)
+        {
+            const ImDrawCmd* drawCommand = &commandList->CmdBuffer[command];
+
+            if(drawCommand->UserCallback)
+            {
+                drawCommand->UserCallback(commandList, drawCommand);
+            }
+            else
+            {
+                ImVec4 clipRect;
+                clipRect.x = drawCommand->ClipRect.x - position.x;
+                clipRect.y = drawCommand->ClipRect.y - position.y;
+                clipRect.z = drawCommand->ClipRect.z - position.x;
+                clipRect.w = drawCommand->ClipRect.w - position.y;
+
+                glScissor(
+                    (int)clipRect.x,
+                    (int)(m_window->GetHeight() - clipRect.w),
+                    (int)(clipRect.z - clipRect.x),
+                    (int)(clipRect.w - clipRect.y)
+                );
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)drawCommand->TextureId);
+
+                glBindVertexArray(m_inputLayout.GetHandle());
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
+                glDrawElements(GL_TRIANGLES, (GLsizei)drawCommand->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, indexBufferOffset);
+            }
+
+            indexBufferOffset += drawCommand->ElemCount;
+        }
+    }
 }
 
 void Editor::CursorPositionCallback(const System::Window::Events::CursorPosition& event)

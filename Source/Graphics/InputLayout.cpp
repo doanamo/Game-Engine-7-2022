@@ -9,93 +9,78 @@ using namespace Graphics;
 
 namespace
 {
-    // Gets the row size of a input attribute type.
-    int GetInputAttributeTypeRowSize(InputAttributeTypes type)
+    // Gets the row size of an input storage type.
+    int GetInputStorageTypeRowElements(InputStorageTypes storage)
     {
-        switch(type)
+        switch(storage)
         {
-        case InputAttributeTypes::Float1:
+        case InputStorageTypes::Value:
             return 1;
 
-        case InputAttributeTypes::Float2:
+        case InputStorageTypes::Vector2:
             return 2;
 
-        case InputAttributeTypes::Float3:
+        case InputStorageTypes::Vector3:
             return 3;
 
-        case InputAttributeTypes::Float4:
+        case InputStorageTypes::Vector4:
             return 4;
 
-        case InputAttributeTypes::Float4x4:
+        case InputStorageTypes::Matrix4x4:
             return 4;
 
         default:
-            ASSERT(false, "Unknown attribute type!");
+            ASSERT(false, "Unknown input storage type!");
             return 0;
         }
     }
 
-    // Gets the row count of a input attribute type.
-    int GetInputAttributeTypeRowCount(InputAttributeTypes type)
+    // Gets the row count of an input storage type.
+    int GetInputStorageTypeRowCount(InputStorageTypes storage)
     {
-        switch(type)
+        switch(storage)
         {
-        case InputAttributeTypes::Float1:
-        case InputAttributeTypes::Float2:
-        case InputAttributeTypes::Float3:
-        case InputAttributeTypes::Float4:
+        case InputStorageTypes::Value:
+        case InputStorageTypes::Vector2:
+        case InputStorageTypes::Vector3:
+        case InputStorageTypes::Vector4:
             return 1;
 
-        case InputAttributeTypes::Float4x4:
+        case InputStorageTypes::Matrix4x4:
             return 4;
 
         default:
-            ASSERT(false, "Unknown attribute type!");
+            ASSERT(false, "Unknown input storage type!");
             return 0;
         }
     }
 
-    // Gets the row offset of a input attribute type.
-    int GetInputAttributeTypeRowOffset(InputAttributeTypes type)
+    // Gets the size of an input data type.
+    int GetInputDataTypeBytes(GLint type)
     {
         switch(type)
         {
-        case InputAttributeTypes::Float1:
-            return sizeof(float) * 1;
+        case GL_BYTE:
+        case GL_UNSIGNED_BYTE:
+            return 1;
+            
+        case GL_SHORT:
+        case GL_UNSIGNED_SHORT:
+            return 2;
+            
+        case GL_INT:
+        case GL_UNSIGNED_INT:
+            return 4;
 
-        case InputAttributeTypes::Float2:
-            return sizeof(float) * 2;
+        case GL_FLOAT:
+            return 4;
 
-        case InputAttributeTypes::Float3:
-            return sizeof(float) * 3;
-
-        case InputAttributeTypes::Float4:
-            return sizeof(float) * 4;
-
-        case InputAttributeTypes::Float4x4:
-            return sizeof(float) * 4;
+        case GL_DOUBLE:
+            return 8;
 
         default:
-            ASSERT(false, "Unknown attribute type!");
+            ASSERT(false, "Unknown input data type!");
             return 0;
-        }
-    }
-
-    // Gets OpenGL type enum of a input attribute type.
-    GLenum GetInputAttributeTypeEnum(InputAttributeTypes type)
-    {
-        switch(type)
-        {
-        case InputAttributeTypes::Float1:
-        case InputAttributeTypes::Float2:
-        case InputAttributeTypes::Float3:
-        case InputAttributeTypes::Float4:
-        case InputAttributeTypes::Float4x4:
-            return GL_FLOAT;
-
-        default:
-            ASSERT(false, "Unknown attribute type!");
-            return GL_INVALID_ENUM;
         }
     }
 
@@ -104,12 +89,18 @@ namespace
 }
 
 InputAttribute::InputAttribute() :
-    buffer(nullptr), type(InputAttributeTypes::Invalid)
+    buffer(nullptr),
+    storage(InputStorageTypes::Invalid),
+    type(GL_INVALID_ENUM),
+    normalize(false)
 {
 }
 
-InputAttribute::InputAttribute(const Buffer* buffer, InputAttributeTypes type) :
-    buffer(buffer), type(type)
+InputAttribute::InputAttribute(const Buffer* buffer, InputStorageTypes storage, GLenum type, bool normalize) :
+    buffer(buffer),
+    storage(storage),
+    type(type),
+    normalize(normalize)
 {
 }
 
@@ -186,7 +177,13 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             return false;
         }
 
-        if(attribute.type == InputAttributeTypes::Invalid)
+        if(attribute.storage == InputStorageTypes::Invalid)
+        {
+            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].storage\" is invalid!";
+            return false;
+        }
+
+        if(attribute.type == GL_INVALID_ENUM)
         {
             LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].type\" is invalid!";
             return false;
@@ -237,8 +234,8 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             currentOffset = 0;
         }
 
-        // Setup vertex attributes for each row of an input attribute.
-        for(int l = 0; l < GetInputAttributeTypeRowCount(attribute.type); ++l)
+        // Setup vertex attributes for each row of an input storage.
+        for(int l = 0; l < GetInputStorageTypeRowCount(attribute.storage); ++l)
         {
             // Enable vertex attribute.
             glEnableVertexAttribArray(currentLocation);
@@ -246,9 +243,9 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             // Set vertex attribute pointer.
             glVertexAttribPointer(
                 currentLocation,
-                GetInputAttributeTypeRowSize(attribute.type),
-                GetInputAttributeTypeEnum(attribute.type),
-                GL_FALSE,
+                GetInputStorageTypeRowElements(attribute.storage),
+                attribute.type,
+                attribute.normalize ? GL_TRUE : GL_FALSE,
                 attribute.buffer->GetElementSize(),
                 (void*)currentOffset
             );
@@ -263,7 +260,7 @@ bool InputLayout::Create(const InputLayoutInfo& info)
             currentLocation += 1;
 
             // Increment current offset.
-            currentOffset += GetInputAttributeTypeRowOffset(attribute.type);
+            currentOffset += GetInputDataTypeBytes(attribute.type) * GetInputStorageTypeRowElements(attribute.storage);
         }
     }
 

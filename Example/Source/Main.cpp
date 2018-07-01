@@ -81,9 +81,9 @@ int main()
 
     const Graphics::InputAttribute inputAttributes[] =
     {
-        { &vertexBuffer, Graphics::InputAttributeTypes::Float3 },
-        { &vertexBuffer, Graphics::InputAttributeTypes::Float2 },
-        { &vertexBuffer, Graphics::InputAttributeTypes::Float4 },
+        { &vertexBuffer, Graphics::InputStorageTypes::Vector3, GL_FLOAT, false },
+        { &vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT, false },
+        { &vertexBuffer, Graphics::InputStorageTypes::Vector4, GL_FLOAT, false },
     };
 
     Graphics::InputLayoutInfo inputLayoutInfo;

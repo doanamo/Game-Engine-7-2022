@@ -28,6 +28,7 @@ BufferInfo::BufferInfo() :
 
 Buffer::Buffer(GLenum type) :
     m_type(type),
+    m_usage(GL_INVALID_ENUM),
     m_handle(InvalidHandle),
     m_elementSize(0),
     m_elementCount(0)
@@ -56,16 +57,11 @@ bool Buffer::Create(const BufferInfo& info)
     // Check if the handle has been already created.
     VERIFY(m_handle == InvalidHandle, "Buffer instance has been already initialized!");
 
-    // Validate buffer info.
+    // Validate that element size is not zero.
+    // Element count can be zero for uninitialized buffers.
     if(info.elementSize == 0)
     {
         LOG_ERROR() << "Invalid argument - \"elementSize\" is 0!";
-        return false;
-    }
-
-    if(info.elementCount == 0)
-    {
-        LOG_ERROR() << "Invalid argument - \"elementCount\" is 0!";
         return false;
     }
 
@@ -86,13 +82,17 @@ bool Buffer::Create(const BufferInfo& info)
     // Allocate buffer memory.
     unsigned int bufferSize = info.elementSize * info.elementCount;
 
-    glBindBuffer(m_type, m_handle);
-    glBufferData(m_type, bufferSize, info.data, info.usage);
-    glBindBuffer(m_type, 0);
+    if(bufferSize != 0)
+    {
+        glBindBuffer(m_type, m_handle);
+        glBufferData(m_type, bufferSize, info.data, info.usage);
+        glBindBuffer(m_type, 0);
+    }
 
     // Save buffer parameters.
     m_elementSize = info.elementSize;
     m_elementCount = info.elementCount;
+    m_usage = info.usage;
 
     LOG_INFO() << "Buffer size is " << bufferSize << " bytes.";
 
@@ -110,7 +110,12 @@ void Buffer::Update(const void* data, int elementCount)
 
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);
-    glBufferSubData(m_type, 0, m_elementSize * elementCount, data);
+    glBufferData(m_type, m_elementSize * elementCount, data, m_usage);
+
+    GLenum error = glGetError();
+    ASSERT(error == GL_NO_ERROR, "Failed to upload buffer data!");
+
+    // Unbind the buffer.
     glBindBuffer(m_type, 0);
 }
 
