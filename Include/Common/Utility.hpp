@@ -27,7 +27,7 @@ namespace Utility
 
     // Gets the size of a static array.
     template<typename Type, size_t Size>
-    size_t StaticArraySize(const Type(&)[Size])
+    constexpr size_t StaticArraySize(const Type(&)[Size])
     {
         return Size;
     }
