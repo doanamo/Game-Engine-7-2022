@@ -9,17 +9,17 @@
 
 namespace
 {
-    std::string MountDir;
+    std::string WorkingDir;
 }
 
 void Build::Initialize()
 {
-    MountDir = Utility::GetTextFileContent("MountDirectory.txt");
+    WorkingDir = Utility::GetTextFileContent("WorkingDir.txt");
 }
 
-std::string Build::GetMountDir()
+std::string Build::GetWorkingDir()
 {
-    return MountDir;
+    return WorkingDir;
 }
 
 std::string Build::GetBuildDir()

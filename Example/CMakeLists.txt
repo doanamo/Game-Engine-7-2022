@@ -26,6 +26,6 @@ include_directories("./../Include")
 # Set main build directory as the working directory.
 set_target_properties("Example" PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-# Write a file pointing at extra mount directories.
-get_filename_component(FILESYSTEM_MOUNT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
-file(WRITE "${CMAKE_BINARY_DIR}/MountDirectory.txt" "${FILESYSTEM_MOUNT_DIR}/")
+# Write a file pointing at the working directory.
+get_filename_component(WORKING_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
+file(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WORKING_DIR}/")
