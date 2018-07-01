@@ -14,9 +14,9 @@
         // Define the layout of input attributes.
         const Graphics::InputAttribute inputAttributes[] =
         {
-            { &vertexBuffer, Graphics::InputAttributeTypes::Float2 }, // Position
-            { &vertexBuffer, Graphics::InputAttributeTypes::Float2 }, // Texture
-            { &vertexBuffer, Graphics::InputAttributeTypes::Float4 }, // Color
+            { &vertexBuffer, Graphics::InputStorageTypes::Vector3, GL_FLOAT,         false }, // Position
+            { &vertexBuffer, Graphics::InputStorageTypes::Vector2, GL_FLOAT,         false }, // Texture
+            { &vertexBuffer, Graphics::InputStorageTypes::Vector4, GL_UNSIGNED_BYTE, true  }, // Color
         };
 
         Graphics::InputLayoutInfo inputLayoutInfo;
