@@ -38,6 +38,7 @@ namespace Debug
 */
 
 #define DEBUG_EXPAND_MACRO(x) x
+#define DEBUG_STRINGIFY(expression) #expression
 #define DEBUG_BREAKPOINT() __debugbreak();
 #define DEBUG_PRINT(message) LOG_DEBUG() << message;
 
@@ -57,21 +58,18 @@ namespace Debug
 */
 
 #ifndef NDEBUG
-    #define ASSERT_PRINT(expression, message) \
-        DEBUG_PRINT("Assertion failed: " ## expression ## " - " ## message)
-
-    #define ASSERT_SIMPLE(expression)           \
-        if(!(expression))                       \
-        {                                       \
-            ASSERT_PRINT(#expression);          \
-            DEBUG_BREAKPOINT();                 \
+    #define ASSERT_SIMPLE(expression) \
+        if(!(expression)) \
+        { \
+            DEBUG_PRINT("Assertion failed: " ## DEBUG_STRINGIFY(expression)); \
+            DEBUG_BREAKPOINT(); \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
-        if(!(expression))                       \
-        {                                       \
-            ASSERT_PRINT(#expression, message); \
-            DEBUG_BREAKPOINT();                 \
+        if(!(expression)) \
+        { \
+            DEBUG_PRINT("Assertion failed: " ## DEBUG_STRINGIFY(expression) ## " - " ## message); \
+            DEBUG_BREAKPOINT(); \
         }
 #else
     #define ASSERT_SIMPLE(expression) ((void)0)
@@ -98,21 +96,18 @@ namespace Debug
         VERIFY(instance != nullptr, "Invalid instance.");
 */
 
-#define VERIFY_PRINT(expression, message) \
-    DEBUG_PRINT("Verify failed: " ## expression ## " - " ## message)
-
-#define VERIFY_SIMPLE(expression)           \
-    if(!(expression))                       \
-    {                                       \
-        VERIFY_PRINT(#expression);          \
+#define VERIFY_SIMPLE(expression) \
+    if(!(expression)) \
+    { \
+        DEBUG_PRINT("Verifiaction failed: " ## DEBUG_STRINGIFY(expression)) \
         DEBUG_BREAKPOINT();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
-    if(!(expression))                       \
-    {                                       \
-        VERIFY_PRINT(#expression, message); \
-        DEBUG_BREAKPOINT();                 \
+    if(!(expression)) \
+    { \
+        DEBUG_PRINT("Verifiaction failed: " ## DEBUG_STRINGIFY(expression) ## " - " ## message) \
+        DEBUG_BREAKPOINT(); \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, ...) arg3
