@@ -3,7 +3,7 @@
 */
 
 #include <Engine.hpp>
-#include <System/Context.hpp>
+#include <System/Platform.hpp>
 #include <System/Window.hpp>
 #include <System/Timer.hpp>
 #include <Graphics/Context.hpp>
@@ -35,9 +35,9 @@ int main()
         LOG_INFO() << "Branch name: " << Build::GetBranchName();
     }
 
-    // Initialize the system context.
-    System::Context system;
-    if(!system.Initialize())
+    // Initialize the platform context.
+    System::Platform platform;
+    if(!platform.Initialize())
         return 1;
 
     // Open a window.

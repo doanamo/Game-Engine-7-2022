@@ -55,8 +55,8 @@ set(TARGET_FILES
     "Include/Logger/Output.hpp"
     "Source/Logger/Output.cpp"
 
-    "Include/System/Context.hpp"
-    "Source/System/Context.cpp"
+    "Include/System/Platform.hpp"
+    "Source/System/Platform.cpp"
     "Include/System/Window.hpp"
     "Source/System/Window.cpp"
     "Include/System/Timer.hpp"
