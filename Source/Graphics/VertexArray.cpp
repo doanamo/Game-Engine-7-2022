@@ -113,8 +113,8 @@ VertexArrayInfo::VertexArrayInfo(const VertexAttribute* attributes, int attribut
 {
 }
 
-VertexArray::VertexArray(RenderContext* context) :
-    m_context(context),
+VertexArray::VertexArray(RenderContext* renderContext) :
+    m_renderContext(renderContext),
     m_handle(OpenGL::InvalidHandle)
 {
 }
@@ -130,6 +130,8 @@ void VertexArray::DestroyHandle()
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteVertexArrays(1, &m_handle);
+        OpenGL::CheckErrors();
+
         m_handle = OpenGL::InvalidHandle;
     }
 }
@@ -196,23 +198,23 @@ bool VertexArray::Create(const VertexArrayInfo& info)
     SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
 
     glGenVertexArrays(1, &m_handle);
+    OpenGL::CheckErrors();
 
-    if(m_handle == 0)
+    if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR() << "Could not create a vertex array handle!";
         return false;
     }
 
-    // Prepare a cleanup guard.
-    SCOPE_GUARD_BEGIN();
-    {
-        glBindVertexArray(m_context->GetState().GetBindVertexArray());
-        glBindBuffer(GL_ARRAY_BUFFER, m_context->GetState().GetBindBuffer(GL_ARRAY_BUFFER));
-    }
-    SCOPE_GUARD_END();
-
     // Bind the vertex array handle.
     glBindVertexArray(m_handle);
+
+    SCOPE_GUARD_BEGIN();
+    {
+        glBindVertexArray(m_renderContext->GetState().GetVertexArrayBinding());
+        glBindBuffer(GL_ARRAY_BUFFER, m_renderContext->GetState().GetBufferBinding(GL_ARRAY_BUFFER));
+    }
+    SCOPE_GUARD_END();
 
     // Setup the vertex attribute array.
     const Buffer* currentBuffer = nullptr;
@@ -228,6 +230,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
         if(currentBuffer != attribute.buffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER, attribute.buffer->GetHandle());
+            OpenGL::CheckErrors();
 
             currentBuffer = attribute.buffer;
             currentOffset = 0;
@@ -238,6 +241,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
         {
             // Enable vertex attribute.
             glEnableVertexAttribArray(currentLocation);
+            OpenGL::CheckErrors();
 
             // Set vertex attribute pointer.
             glVertexAttribPointer(
@@ -249,10 +253,13 @@ bool VertexArray::Create(const VertexArrayInfo& info)
                 (void*)currentOffset
             );
 
+            OpenGL::CheckErrors();
+
             // Make input location instanced.
             if(attribute.buffer->IsInstanced())
             {
                 glVertexAttribDivisor(currentLocation, 1);
+                OpenGL::CheckErrors();
             }
 
             // Increment current location.

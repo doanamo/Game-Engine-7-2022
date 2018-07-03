@@ -56,13 +56,9 @@ int main()
     System::Timer timer;
 
     // Create the graphics context.
-    Graphics::RenderContext graphics;
-    if(!graphics.Initialize(&window))
+    Graphics::RenderContext renderContext;
+    if(!renderContext.Initialize(&window))
         return 1;
-
-    // Create the rendering screen space.
-    Graphics::ScreenSpace screenSpace;
-    screenSpace.SetSourceSize(2.0f, 2.0f);
 
     // Create a vertex buffer.
     struct Vertex
@@ -85,7 +81,7 @@ int main()
     bufferInfo.elementCount = Utility::StaticArraySize(vertices);
     bufferInfo.data = &vertices[0];
 
-    Graphics::VertexBuffer vertexBuffer(&graphics);
+    Graphics::VertexBuffer vertexBuffer(&renderContext);
     if(!vertexBuffer.Create(bufferInfo))
         return 1;
 
@@ -101,12 +97,12 @@ int main()
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    Graphics::VertexArray vertexArray(&graphics);
+    Graphics::VertexArray vertexArray(&renderContext);
     if(!vertexArray.Create(inputLayoutInfo))
         return 1;
 
     // Load a texture.
-    Graphics::Texture texture(&graphics);
+    Graphics::Texture texture(&renderContext);
     if(!texture.Load(Build::GetWorkingDir() + "Data/Textures/Checker.png"))
         return 1;
 
@@ -119,7 +115,11 @@ int main()
     if(!shader.Load(Build::GetWorkingDir() + "Data/Shaders/Textured.shader"))
         return 1;
 
-    Engine::Editor editor(&graphics);
+    // Create the rendering screen space.
+    Graphics::ScreenSpace screenSpace;
+    screenSpace.SetSourceSize(2.0f, 2.0f);
+
+    Engine::Editor editor(&renderContext);
     if(!editor.Initialize(&window))
         return 1;
 

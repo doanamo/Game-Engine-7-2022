@@ -15,6 +15,9 @@ namespace Graphics
     // OpenGL API enumerations and values.
     namespace OpenGL
     {
+        // Error checking method and macro.
+        void CheckErrors();
+
         // Constant definitions.
         const GLuint InvalidHandle = 0;
         const GLenum InvalidEnum = GL_INVALID_ENUM;
@@ -91,15 +94,22 @@ namespace Graphics
     public:
         RenderState();
 
-        GLuint GetBindVertexArray() const;
-        GLuint GetBindBuffer(GLenum target) const;
-        GLuint GetBindTexture(GLenum target) const;
-        GLint GetPixelStore(GLenum parameter) const;
+        void BindVertexArray(GLuint array);
+        GLuint GetVertexArrayBinding() const;
+
+        void BindBuffer(GLenum target, GLuint buffer);
+        GLuint GetBufferBinding(GLenum target) const;
+
+        void BindTexture(GLenum target, GLuint texture);
+        GLuint GetTextureBinding(GLenum target) const;
+
+        void PixelStore(GLenum pname, GLint param);
+        GLint GetPixelStore(GLenum pname) const;
 
     private:
-        GLuint m_bindVertexArray;
-        GLuint m_bindBuffer[OpenGL::BufferBindingTargetCount];
-        GLuint m_bindTexture[OpenGL::TextureBindingTargetCount];
+        GLuint m_vertexArrayBinding;
+        GLuint m_bufferBinding[OpenGL::BufferBindingTargetCount];
+        GLuint m_textureBinding[OpenGL::TextureBindingTargetCount];
         GLint m_pixelStore[OpenGL::PixelStoreParameterCount];
     };
 }

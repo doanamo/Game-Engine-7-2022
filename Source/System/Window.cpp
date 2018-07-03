@@ -141,7 +141,7 @@ bool Window::Open(const WindowInfo& info)
 
     LOG_INFO() << "Using OpenGL " << glMajor << "." << glMinor << " context.";
 
-    // Store window's title as it cannot be retrived back via GLFW.
+    // Store window's title as it cannot be retrieved back via GLFW.
     m_title = info.title;
 
     // Success!
@@ -181,7 +181,7 @@ void Window::Present()
 {
     VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
-    // Swap framebuffers.
+    // Swap frame buffers.
     glfwSwapBuffers(m_handle);
 
     // Check if there are any uncaught OpenGL errors.

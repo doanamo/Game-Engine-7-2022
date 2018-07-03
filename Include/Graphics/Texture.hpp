@@ -9,10 +9,10 @@
     
     Encapsulates an OpenGL texture object which can be loaded from PNG file.
     
-    void ExampleGraphicsTexture(Graphics::RenderContext* context)
+    void ExampleGraphicsTexture(Graphics::RenderContext* renderContext)
     {
         // Load a texture from file.
-        Graphics::Texture texture(context);
+        Graphics::Texture texture(renderContext);
         texture.Load("image.png");
         
         // Retrieve the OpenGL handle.
@@ -34,7 +34,7 @@ namespace Graphics
     class Texture
     {
     public:
-        Texture(RenderContext* context);
+        Texture(RenderContext* renderContext);
         ~Texture();
 
         // Loads the texture from a file.
@@ -63,14 +63,14 @@ namespace Graphics
         void DestroyHandle();
 
     private:
-        // Graphics context.
-        RenderContext* m_context;
+        // Render context.
+        RenderContext* m_renderContext;
 
         // Texture handle.
         GLuint m_handle;
+        GLenum m_format;
 
         // Texture parameters.
-        GLenum m_format;
         int m_width;
         int m_height;
     };

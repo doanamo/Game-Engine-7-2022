@@ -8,7 +8,7 @@
 using namespace Graphics;
 
 Texture::Texture(RenderContext* context) :
-    m_context(context),
+    m_renderContext(context),
     m_handle(OpenGL::InvalidHandle),
     m_format(OpenGL::InvalidEnum),
     m_width(0),
@@ -28,6 +28,8 @@ void Texture::DestroyHandle()
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteTextures(1, &m_handle);
+        OpenGL::CheckErrors();
+
         m_handle = OpenGL::InvalidHandle;
     }
 }
@@ -155,7 +157,7 @@ bool Texture::Load(std::string filePath)
             png_set_palette_to_rgb(png_read_ptr);
             channels = 3;
 
-            // Create alpha channel if pallete has transparency.
+            // Create alpha channel if palette has transparency.
             if(png_get_valid(png_read_ptr, png_info_ptr, PNG_INFO_tRNS))
             {
                 png_set_tRNS_to_alpha(png_read_ptr);
@@ -272,6 +274,7 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
     SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
 
     glGenTextures(1, &m_handle);
+    OpenGL::CheckErrors();
 
     if(m_handle == OpenGL::InvalidHandle)
     {
@@ -281,16 +284,18 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
 
     // Bind the texture.
     glBindTexture(GL_TEXTURE_2D, m_handle);
+    OpenGL::CheckErrors();
 
-    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, m_context->GetState().GetBindTexture(GL_TEXTURE_2D)));
+    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, m_renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
 
-    // Set packing aligment for provided data.
+    // Set packing alignment for provided data.
     if(format == GL_R || format == GL_RED)
     {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        OpenGL::CheckErrors();
     }
 
-    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT, m_context->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
+    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT, m_renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
 
     // Allocated a texture surface on the hardware.
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -317,7 +322,8 @@ void Texture::Update(const void* data)
     // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
-    glBindTexture(GL_TEXTURE_2D, m_context->GetState().GetBindTexture(GL_TEXTURE_2D));
+    glBindTexture(GL_TEXTURE_2D, m_renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D));
+    OpenGL::CheckErrors();
 }
 
 GLuint Texture::GetHandle() const

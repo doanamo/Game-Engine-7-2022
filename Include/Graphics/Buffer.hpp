@@ -10,7 +10,7 @@
     Generic buffer base class that can handle different types of OpenGL buffers.
     Supported buffer types include vertex buffer, index buffer and instance buffer.
     
-    void ExampleGraphicsBuffer(Graphics::RenderContext* graphics)
+    void ExampleGraphicsBuffer(Graphics::RenderContext* renderContext)
     {
         // Define vertex structure.
         struct Vertex
@@ -34,7 +34,7 @@
         bufferInfo.data = &vertices[0];
         
         // Create a vertex buffer.
-        Graphics::VertexBuffer vertexBuffer(&graphics);
+        Graphics::VertexBuffer vertexBuffer(renderContext);
         vertexBuffer.Create(bufferInfo);
 
         // Retrieve an OpenGL handle.
@@ -101,8 +101,8 @@ namespace Graphics
         void DestroyHandle();
 
     protected:
-        // Graphics context.
-        RenderContext* m_context;
+        // Render context.
+        RenderContext* m_renderContext;
 
         // Buffer handle.
         GLenum m_type;
@@ -124,7 +124,7 @@ namespace Graphics
     class VertexBuffer : public Buffer
     {
     public:
-        VertexBuffer(RenderContext* context);
+        VertexBuffer(RenderContext* renderContext);
 
         // Returns the buffer's name.
         const char* GetName() const override;
@@ -140,7 +140,7 @@ namespace Graphics
     class IndexBuffer : public Buffer
     {
     public:
-        IndexBuffer(RenderContext* context);
+        IndexBuffer(RenderContext* renderContext);
 
         // Gets the type of index indices.
         GLenum GetElementType() const override;
@@ -159,7 +159,7 @@ namespace Graphics
     class InstanceBuffer : public Buffer
     {
     public:
-        InstanceBuffer(RenderContext* context);
+        InstanceBuffer(RenderContext* renderContext);
 
         // Returns the buffer's name.
         const char* GetName() const override;
