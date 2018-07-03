@@ -4,7 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Buffer.hpp"
-#include "Graphics/Context.hpp"
+#include "Graphics/RenderContext.hpp"
 using namespace Graphics;
 
 /*
@@ -19,7 +19,7 @@ BufferInfo::BufferInfo() :
 {
 }
 
-Buffer::Buffer(Context* context, GLenum type) :
+Buffer::Buffer(RenderContext* context, GLenum type) :
     m_context(context),
     m_type(type),
     m_usage(OpenGL::InvalidEnum),
@@ -161,7 +161,7 @@ bool Buffer::IsInstanced() const
     Vertex Buffer
 */
 
-VertexBuffer::VertexBuffer(Context* context) :
+VertexBuffer::VertexBuffer(RenderContext* context) :
     Buffer(context, GL_ARRAY_BUFFER)
 {
 }
@@ -175,7 +175,7 @@ const char* VertexBuffer::GetName() const
     Index Buffer
 */
 
-IndexBuffer::IndexBuffer(Context* context) :
+IndexBuffer::IndexBuffer(RenderContext* context) :
     Buffer(context, GL_ELEMENT_ARRAY_BUFFER)
 {
 }
@@ -206,7 +206,7 @@ GLenum IndexBuffer::GetElementType() const
     Instance Buffer
 */
 
-InstanceBuffer::InstanceBuffer(Context* context) :
+InstanceBuffer::InstanceBuffer(RenderContext* context) :
     Buffer(context, GL_ARRAY_BUFFER)
 {
 }

@@ -4,10 +4,10 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Texture.hpp"
-#include "Graphics/Context.hpp"
+#include "Graphics/RenderContext.hpp"
 using namespace Graphics;
 
-Texture::Texture(Context* context) :
+Texture::Texture(RenderContext* context) :
     m_context(context),
     m_handle(OpenGL::InvalidHandle),
     m_format(OpenGL::InvalidEnum),

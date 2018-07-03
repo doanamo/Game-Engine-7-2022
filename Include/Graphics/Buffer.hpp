@@ -10,7 +10,7 @@
     Generic buffer base class that can handle different types of OpenGL buffers.
     Supported buffer types include vertex buffer, index buffer and instance buffer.
     
-    void ExampleGraphicsBuffer(Graphics::Context* graphics)
+    void ExampleGraphicsBuffer(Graphics::RenderContext* graphics)
     {
         // Define vertex structure.
         struct Vertex
@@ -45,7 +45,7 @@
 namespace Graphics
 {
     // Forward declarations.
-    class Context;
+    class RenderContext;
 
     // Buffer info structure.
     struct BufferInfo
@@ -62,7 +62,7 @@ namespace Graphics
     class Buffer
     {
     protected:
-        Buffer(Context* context, GLenum type);
+        Buffer(RenderContext* context, GLenum type);
         virtual ~Buffer();
 
     public:
@@ -102,7 +102,7 @@ namespace Graphics
 
     protected:
         // Graphics context.
-        Context* m_context;
+        RenderContext* m_context;
 
         // Buffer handle.
         GLenum m_type;
@@ -124,7 +124,7 @@ namespace Graphics
     class VertexBuffer : public Buffer
     {
     public:
-        VertexBuffer(Context* context);
+        VertexBuffer(RenderContext* context);
 
         // Returns the buffer's name.
         const char* GetName() const override;
@@ -140,7 +140,7 @@ namespace Graphics
     class IndexBuffer : public Buffer
     {
     public:
-        IndexBuffer(Context* context);
+        IndexBuffer(RenderContext* context);
 
         // Gets the type of index indices.
         GLenum GetElementType() const override;
@@ -159,7 +159,7 @@ namespace Graphics
     class InstanceBuffer : public Buffer
     {
     public:
-        InstanceBuffer(Context* context);
+        InstanceBuffer(RenderContext* context);
 
         // Returns the buffer's name.
         const char* GetName() const override;

@@ -4,7 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/VertexArray.hpp"
-#include "Graphics/Context.hpp"
+#include "Graphics/RenderContext.hpp"
 #include "Graphics/Buffer.hpp"
 using namespace Graphics;
 
@@ -113,7 +113,7 @@ VertexArrayInfo::VertexArrayInfo(const VertexAttribute* attributes, int attribut
 {
 }
 
-VertexArray::VertexArray(Context* context) :
+VertexArray::VertexArray(RenderContext* context) :
     m_context(context),
     m_handle(OpenGL::InvalidHandle)
 {

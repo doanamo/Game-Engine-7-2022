@@ -23,7 +23,7 @@ namespace
     }
 }
 
-Editor::Editor(Graphics::Context* graphics) :
+Editor::Editor(Graphics::RenderContext* graphics) :
     m_graphics(graphics),
     m_vertexBuffer(graphics),
     m_indexBuffer(graphics),

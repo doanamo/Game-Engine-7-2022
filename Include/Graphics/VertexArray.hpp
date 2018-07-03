@@ -9,7 +9,7 @@
 
     Creates a vertex array that binds buffers to shader inputs on the pipeline.
 
-    void ExampleGraphicsVertexArray(Graphics::Context* graphics)
+    void ExampleGraphicsVertexArray(Graphics::RenderContext* graphics)
     {
         // Define the layout of input attributes.
         const Graphics::VertexAttribute inputAttributes[] =
@@ -35,7 +35,7 @@
 namespace Graphics
 {
     // Forward declarations.
-    class Context;
+    class RenderContext;
     class Buffer;
 
     // Vertex attribute type.
@@ -80,7 +80,7 @@ namespace Graphics
     class VertexArray
     {
     public:
-        VertexArray(Context* context);
+        VertexArray(RenderContext* context);
         ~VertexArray();
 
         // Initializes the vertex array instance.
@@ -98,7 +98,7 @@ namespace Graphics
 
     private:
         // Graphics context.
-        Context* m_context;
+        RenderContext* m_context;
 
         // Vertex array handle.
         GLuint m_handle;
