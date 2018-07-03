@@ -48,7 +48,7 @@ namespace Debug
     Ensures that a given expression is true.
     Use as a sanity check to guard against programming errors.
     
-    Behaviour in different build configurations:
+    Behavior in different build configurations:
     - Debug: Triggers a breakpoint
     - Release: Check is stripped
     
@@ -61,14 +61,14 @@ namespace Debug
     #define ASSERT_SIMPLE(expression) \
         if(!(expression)) \
         { \
-            DEBUG_PRINT("Assertion failed: " ## DEBUG_STRINGIFY(expression)); \
+            DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression)); \
             DEBUG_BREAKPOINT(); \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
         if(!(expression)) \
         { \
-            DEBUG_PRINT("Assertion failed: " ## DEBUG_STRINGIFY(expression) ## " - " ## message); \
+            DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message); \
             DEBUG_BREAKPOINT(); \
         }
 #else
@@ -87,7 +87,7 @@ namespace Debug
     Ensures that a given expression is true.
     Use as a safety measure in case of runtime errors.
 
-    Behaviour in different build configurations:
+    Behavior in different build configurations:
     - Debug: Triggers a breakpoint
     - Release: Triggers a breakpoint
     
@@ -99,14 +99,14 @@ namespace Debug
 #define VERIFY_SIMPLE(expression) \
     if(!(expression)) \
     { \
-        DEBUG_PRINT("Verifiaction failed: " ## DEBUG_STRINGIFY(expression)) \
+        DEBUG_PRINT("Verifiaction failed: " DEBUG_STRINGIFY(expression)) \
         DEBUG_BREAKPOINT();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
     if(!(expression)) \
     { \
-        DEBUG_PRINT("Verifiaction failed: " ## DEBUG_STRINGIFY(expression) ## " - " ## message) \
+        DEBUG_PRINT("Verifiaction failed: " DEBUG_STRINGIFY(expression) " - " message) \
         DEBUG_BREAKPOINT(); \
     }
 
