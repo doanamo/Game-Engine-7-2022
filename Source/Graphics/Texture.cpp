@@ -4,21 +4,17 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Texture.hpp"
+#include "Graphics/Context.hpp"
 using namespace Graphics;
 
-namespace
-{
-    // Invalid types.
-    const GLuint InvalidHandle = 0;
-    const GLenum InvalidEnum = 0;
-}
-
-Texture::Texture() :
-    m_handle(InvalidHandle),
-    m_format(InvalidEnum),
+Texture::Texture(Context* context) :
+    m_context(context),
+    m_handle(OpenGL::InvalidHandle),
+    m_format(OpenGL::InvalidEnum),
     m_width(0),
     m_height(0)
 {
+    VERIFY(context && context->IsValid(), "Graphics context is invalid!");
 }
 
 Texture::~Texture()
@@ -29,10 +25,10 @@ Texture::~Texture()
 void Texture::DestroyHandle()
 {
     // Destroy the texture handle.
-    if(m_handle != InvalidHandle)
+    if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteTextures(1, &m_handle);
-        m_handle = InvalidHandle;
+        m_handle = OpenGL::InvalidHandle;
     }
 }
 
@@ -41,7 +37,7 @@ bool Texture::Load(std::string filePath)
     LOG() << "Loading texture from \"" << filePath << "\" file..." << LOG_INDENT();
 
     // Check if handle has been already created.
-    VERIFY(m_handle == InvalidHandle, "Texture instance has been already initialized!");
+    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
 
     // Validate arguments.
     if(filePath.empty())
@@ -254,7 +250,7 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
     LOG() << "Creating texture..." << LOG_INDENT();
 
     // Check if handle has been already created.
-    VERIFY(m_handle == InvalidHandle, "Texture instance has been already initialized!");
+    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
 
     // Setup a cleanup guard.
     bool initialized = false;
@@ -277,7 +273,7 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
 
     glGenTextures(1, &m_handle);
 
-    if(m_handle == InvalidHandle)
+    if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR() << "Could not create a texture!";
         return false;
@@ -286,22 +282,21 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
     // Bind the texture.
     glBindTexture(GL_TEXTURE_2D, m_handle);
 
+    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, m_context->GetState().GetBindTexture(GL_TEXTURE_2D)));
+
     // Set packing aligment for provided data.
-    /*
     if(format == GL_R || format == GL_RED)
     {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     }
-    */
+
+    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT, m_context->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
 
     // Allocated a texture surface on the hardware.
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
     // Generate texture mipmap.
     glGenerateMipmap(GL_TEXTURE_2D);
-
-    // Unbind the texture.
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Save texture parameters.
     m_format = format;
@@ -316,37 +311,37 @@ bool Texture::Create(int width, int height, GLenum format, const void* data)
 
 void Texture::Update(const void* data)
 {
-    VERIFY(m_handle != InvalidHandle, "Texture handle has not been created!");
+    VERIFY(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
     VERIFY(data != nullptr, "Invalid argument - \"data\" is null!");
 
     // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, m_context->GetState().GetBindTexture(GL_TEXTURE_2D));
 }
 
 GLuint Texture::GetHandle() const
 {
-    ASSERT(m_handle != InvalidHandle, "Texture handle has not been created!");
+    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
 
     return m_handle;
 }
 
 int Texture::GetWidth() const
 {
-    ASSERT(m_handle != InvalidHandle, "Texture handle has not been created!");
+    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
 
     return m_width;
 }
 
 int Texture::GetHeight() const
 {
-    ASSERT(m_handle != InvalidHandle, "Texture handle has not been created!");
+    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
 
     return m_height;
 }
 
 bool Texture::IsValid() const
 {
-    return m_handle != InvalidHandle;
+    return m_handle != OpenGL::InvalidHandle;
 }

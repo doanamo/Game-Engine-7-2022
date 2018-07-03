@@ -28,6 +28,7 @@ Editor::Editor(Graphics::Context* graphics) :
     m_vertexBuffer(graphics),
     m_indexBuffer(graphics),
     m_vertexArray(graphics),
+    m_fontTexture(graphics),
     m_interface(nullptr),
     m_window(nullptr),
     m_initialized(false)
@@ -187,7 +188,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_fontTexture.Create(fontWidth, fontHeight, GL_RGBA, (void*)fontData))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture());
+    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_graphics));
 
     io.Fonts->TexID = (void *)(intptr_t)m_fontTexture.GetHandle();
 
