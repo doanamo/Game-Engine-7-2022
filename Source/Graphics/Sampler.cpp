@@ -4,13 +4,8 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Sampler.hpp"
+#include "Graphics/RenderContext.hpp"
 using namespace Graphics;
-
-namespace
-{
-    // Invalid types.
-    const GLuint InvalidHandle = 0;
-}
 
 SamplerInfo::SamplerInfo() :
     textureBorderColor(0.0f, 0.0f, 0.0f, 0.0f),
@@ -28,8 +23,9 @@ SamplerInfo::SamplerInfo() :
 {
 }
 
-Sampler::Sampler() :
-    m_handle(InvalidHandle)
+Graphics::Sampler::Sampler(RenderContext* renderContext) :
+    m_renderContext(renderContext),
+    m_handle(OpenGL::InvalidHandle)
 {
 }
 
@@ -41,10 +37,12 @@ Sampler::~Sampler()
 void Sampler::DestroyHandle()
 {
     // Release sampler handle.
-    if(m_handle != InvalidHandle)
+    if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteSamplers(1, &m_handle);
-        m_handle = InvalidHandle;
+        OpenGL::CheckErrors();
+
+        m_handle = OpenGL::InvalidHandle;
     }
 }
 
@@ -53,7 +51,7 @@ bool Sampler::Create(const SamplerInfo& info)
     LOG() << "Creating sampler..." << LOG_INDENT();
 
     // Check if handle has been already created.
-    VERIFY(m_handle == InvalidHandle, "Sampler instance has been already initialized!");
+    VERIFY(m_handle == OpenGL::InvalidHandle, "Sampler instance has been already initialized!");
 
     // Setup a cleanup guard.
     bool initialized = false;
@@ -62,15 +60,16 @@ bool Sampler::Create(const SamplerInfo& info)
     SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
     
     glGenSamplers(1, &m_handle);
+    OpenGL::CheckErrors();
 
-    if(m_handle == InvalidHandle)
+    if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR() << "Could not create a sampler!";
         return false;
     }
 
     // Set sampling parameters.
-    glSamplerParameterfv(m_handle, GL_TEXTURE_BORDER_COLOR, &info.textureBorderColor[0]);
+    glSamplerParameterfv(m_handle, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(info.textureBorderColor));
     glSamplerParameteri(m_handle, GL_TEXTURE_MIN_FILTER, info.textureMinFilter);
     glSamplerParameteri(m_handle, GL_TEXTURE_MAG_FILTER, info.textureMagFilter);
     glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_S, info.textureWrapS);
@@ -91,12 +90,12 @@ bool Sampler::Create(const SamplerInfo& info)
 
 GLuint Sampler::GetHandle() const
 {
-    ASSERT(m_handle != InvalidHandle, "Sampler handle has not been created!");
+    ASSERT(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
 
     return m_handle;
 }
 
 bool Sampler::IsValid() const
 {
-    return m_handle != InvalidHandle;
+    return m_handle != OpenGL::InvalidHandle;
 }

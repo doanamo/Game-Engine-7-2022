@@ -28,27 +28,40 @@ RenderState::RenderState()
     OpenGL::CheckErrors();
 
     // glBindBuffer
-    m_bufferBinding[0] = OpenGL::InvalidHandle;
-
-    for(int i = 1; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
-        glGetIntegerv(std::get<1>(OpenGL::BufferBindingTargets[i]), (GLint*)&m_bufferBinding[i]);
+        glGetIntegerv(std::get<1>(OpenGL::BufferBindingTargets[i]), (GLint*)&m_bufferBindings[i]);
         OpenGL::CheckErrors();
     }
+
+    // glActiveTexture
+    glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&m_activeTexture);
+    OpenGL::CheckErrors();
 
     // glBindTexture
-    m_textureBinding[0] = OpenGL::InvalidHandle;
-
-    for(int i = 1; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
-        glGetIntegerv(std::get<1>(OpenGL::TextureBindingTargets[i]), (GLint*)&m_textureBinding[i]);
+        glGetIntegerv(std::get<1>(OpenGL::TextureBindingTargets[i]), (GLint*)&m_textureBindings[i]);
         OpenGL::CheckErrors();
     }
 
-    // glPixelStore
-    m_pixelStore[0] = 0;
+    // glBindSampler
+    int SamplerBindingUnitCount = 0;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &SamplerBindingUnitCount);
+    m_samplerBindings.resize(SamplerBindingUnitCount, OpenGL::InvalidHandle);
 
-    for(int i = 1; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(size_t i = 0; i < m_samplerBindings.size(); ++i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glGetIntegerv(GL_SAMPLER_BINDING, (GLint*)&m_samplerBindings[i]);
+        OpenGL::CheckErrors();
+    }
+
+    glActiveTexture(m_activeTexture);
+    OpenGL::CheckErrors();
+
+    // glPixelStore
+    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         glGetIntegerv(OpenGL::PixelStoreParameters[i], &m_pixelStore[i]);
         OpenGL::CheckErrors();
@@ -76,7 +89,7 @@ GLuint RenderState::GetVertexArrayBinding() const
 
 void RenderState::BindBuffer(GLenum target, GLuint buffer)
 {
-    ASSERT(target != GL_INVALID_ENUM, "Unsupported buffer binding target!");
+    ASSERT(target != OpenGL::InvalidEnum, "Unsupported buffer binding target!");
 
     // Check if states match.
     if(GetBufferBinding(target) == buffer)
@@ -87,29 +100,50 @@ void RenderState::BindBuffer(GLenum target, GLuint buffer)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 1; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
-            m_bufferBinding[i] = buffer;
+            m_bufferBindings[i] = buffer;
     }
 }
 
 GLuint RenderState::GetBufferBinding(GLenum target) const
 {
-    ASSERT(target != GL_INVALID_ENUM, "Unsupported buffer binding target!");
+    ASSERT(target != OpenGL::InvalidEnum, "Unsupported buffer binding target!");
 
-    for(int i = 1; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
-            return m_bufferBinding[i];
+            return m_bufferBindings[i];
     }
 
-    return m_bufferBinding[0];
+    return OpenGL::InvalidHandle;
+}
+
+void RenderState::ActiveTexture(GLenum texture)
+{
+    ASSERT(texture >= GL_TEXTURE0 && texture < GL_TEXTURE0 + m_samplerBindings.size(), "Unsupported texture unit!");
+
+    // Check if states match.
+    if(GetActiveTexture() == texture)
+        return;
+
+    // Call OpenGL function.
+    glActiveTexture(texture);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_activeTexture = texture;
+}
+
+GLenum RenderState::GetActiveTexture() const
+{
+    return m_activeTexture;
 }
 
 void RenderState::BindTexture(GLenum target, GLuint texture)
 {
-    ASSERT(target != GL_INVALID_ENUM, "Unsupported texture binding target!");
+    ASSERT(target != OpenGL::InvalidEnum, "Unsupported texture binding target!");
 
     // Check if states match.
     if(GetTextureBinding(target) == texture)
@@ -120,29 +154,54 @@ void RenderState::BindTexture(GLenum target, GLuint texture)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 1; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
-            m_textureBinding[i] = texture;
+            m_textureBindings[i] = texture;
     }
 }
 
 GLuint RenderState::GetTextureBinding(GLenum target) const
 {
-    ASSERT(target != GL_INVALID_ENUM, "Unsupported texture binding target!");
+    ASSERT(target != OpenGL::InvalidEnum, "Unsupported texture binding target!");
 
     for(int i = 1; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
-            return m_textureBinding[i];
+            return m_textureBindings[i];
     }
 
-    return m_textureBinding[0];
+    return OpenGL::InvalidHandle;
+}
+
+void RenderState::BindSampler(GLuint unit, GLuint sampler)
+{
+    ASSERT(!m_samplerBindings.empty(), "Sampler bindings array is empty!");
+    VERIFY(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
+
+    // Check if states match.
+    if(GetSamplerBinding(unit) == sampler)
+        return;
+
+    // Call OpenGL function.
+    glBindSampler(unit, sampler);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_samplerBindings[unit] = sampler;
+}
+
+GLuint RenderState::GetSamplerBinding(GLuint unit) const
+{
+    ASSERT(!m_samplerBindings.empty(), "Sampler bindings array is empty!");
+    VERIFY(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
+
+    return m_samplerBindings[unit];
 }
 
 void RenderState::PixelStore(GLenum pname, GLint param)
 {
-    ASSERT(pname != GL_INVALID_ENUM, "Unsupported pixel store parameter!");
+    ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
     // Check if states match.
     if(GetTextureBinding(pname) == param)
@@ -162,7 +221,7 @@ void RenderState::PixelStore(GLenum pname, GLint param)
 
 GLint RenderState::GetPixelStore(GLenum pname) const
 {
-    ASSERT(pname != GL_INVALID_ENUM, "Unsupported pixel store parameter!");
+    ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
     for(int i = 1; i < OpenGL::PixelStoreParameterCount; ++i)
     {

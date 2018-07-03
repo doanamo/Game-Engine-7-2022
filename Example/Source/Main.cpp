@@ -106,10 +106,10 @@ int main()
     if(!texture.Load(Build::GetWorkingDir() + "Data/Textures/Checker.png"))
         return 1;
 
-    //
-    Graphics::Sampler sampler;
+    // Create a sampler.
+    Graphics::Sampler sampler(&renderContext);
     if(!sampler.Create())
-        return -1;
+        return 1;
 
     Graphics::Shader shader;
     if(!shader.Load(Build::GetWorkingDir() + "Data/Shaders/Textured.shader"))

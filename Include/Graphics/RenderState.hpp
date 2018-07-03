@@ -25,7 +25,6 @@ namespace Graphics
         // List of buffer binding targets.
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =
         {
-            { GL_INVALID_ENUM, GL_INVALID_ENUM },
             { GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING },
             { GL_ATOMIC_COUNTER_BUFFER, GL_ATOMIC_COUNTER_BUFFER_BINDING },
             { GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING },
@@ -47,7 +46,6 @@ namespace Graphics
         // List of texture binding targets.
         static const std::tuple<GLenum, GLenum> TextureBindingTargets[] =
         {
-            { GL_INVALID_ENUM, GL_INVALID_ENUM },
             { GL_TEXTURE_1D, GL_TEXTURE_BINDING_1D },
             { GL_TEXTURE_2D, GL_TEXTURE_BINDING_2D },
             { GL_TEXTURE_3D, GL_TEXTURE_BINDING_3D },
@@ -63,10 +61,9 @@ namespace Graphics
 
         const int TextureBindingTargetCount = Utility::StaticArraySize(TextureBindingTargets);
 
-        // glPixelStore
+        // List of pixel store parameters.
         static const GLenum PixelStoreParameters[] =
         {
-            GL_INVALID_ENUM,
             GL_PACK_SWAP_BYTES,
             GL_PACK_LSB_FIRST,
             GL_PACK_ROW_LENGTH,
@@ -100,16 +97,35 @@ namespace Graphics
         void BindBuffer(GLenum target, GLuint buffer);
         GLuint GetBufferBinding(GLenum target) const;
 
+        void ActiveTexture(GLenum texture);
+        GLenum GetActiveTexture() const;
+
         void BindTexture(GLenum target, GLuint texture);
         GLuint GetTextureBinding(GLenum target) const;
+
+        void BindSampler(GLuint unit, GLuint sampler);
+        GLuint GetSamplerBinding(GLuint unit) const;
 
         void PixelStore(GLenum pname, GLint param);
         GLint GetPixelStore(GLenum pname) const;
 
     private:
+        // glBindVertexArray
         GLuint m_vertexArrayBinding;
-        GLuint m_bufferBinding[OpenGL::BufferBindingTargetCount];
-        GLuint m_textureBinding[OpenGL::TextureBindingTargetCount];
+
+        // glBindBuffer
+        GLuint m_bufferBindings[OpenGL::BufferBindingTargetCount];
+
+        // glActiveTexture
+        GLenum m_activeTexture;
+        
+        // glBindTexture
+        GLuint m_textureBindings[OpenGL::TextureBindingTargetCount];
+
+        // glBindSampler
+        std::vector<GLuint> m_samplerBindings;
+
+        // glPixelStore
         GLint m_pixelStore[OpenGL::PixelStoreParameterCount];
     };
 }
