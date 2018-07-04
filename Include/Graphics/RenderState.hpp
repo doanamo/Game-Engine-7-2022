@@ -111,6 +111,9 @@ namespace Graphics
         void PixelStore(GLenum pname, GLint param);
         GLint GetPixelStore(GLenum pname) const;
 
+        void UseProgram(GLuint program);
+        GLuint GetCurrentProgram() const;
+
         void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
         std::tuple<GLint, GLint, GLsizei, GLsizei> GetViewport() const;
 
@@ -140,6 +143,9 @@ namespace Graphics
 
         // glPixelStore
         GLint m_pixelStore[OpenGL::PixelStoreParameterCount];
+
+        // glUseProgram
+        GLuint m_currentProgram;
 
         // glViewport
         std::tuple<GLint, GLint, GLsizei, GLsizei> m_viewport;

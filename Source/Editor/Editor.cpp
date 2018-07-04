@@ -253,8 +253,8 @@ void Editor::Draw()
     glm::mat4 transform = glm::ortho(0.0f, (float)m_window->GetWidth(), (float)m_window->GetHeight(), 0.0f);
 
     glUseProgram(m_shader.GetHandle());
-    glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-    glUniform1i(m_shader.GetUniform("textureDiffuse"), 0);
+    glUniformMatrix4fv(m_shader.GetUniformIndex("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
+    glUniform1i(m_shader.GetUniformIndex("textureDiffuse"), 0);
 
     ImVec2 position = drawData->DisplayPos;
     for(int list = 0; list < drawData->CmdListsCount; ++list)

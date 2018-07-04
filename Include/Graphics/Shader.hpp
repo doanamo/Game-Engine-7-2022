@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Graphics/RenderContext.hpp"
+
 /*
     Graphics Shader
     
@@ -18,7 +20,7 @@
 
         // Use the created shader in our rendering pipeline.
         glUseProgram(shader.GetHandle());
-        glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniformMatrix4fv(shader.GetUniformIndex("vertexTransform"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
     }
 
     ExampleShader.glsl
@@ -65,13 +67,17 @@ namespace Graphics
         // Compiles the shader from code.
         bool Compile(std::string shaderCode);
 
+        // Sets an uniform shader variable.
+        template<typename Type>
+        void SetUniform(std::string name, const Type& value);
+
         // Gets an attribute index from the shader program.
-        GLint GetAttribute(std::string name) const;
+        GLint GetAttributeIndex(std::string name) const;
 
         // Gets an uniform index from the shader program.
-        GLint GetUniform(std::string name) const;
+        GLint GetUniformIndex(std::string name) const;
 
-        // Gets the shader's program handle.
+        // Gets the shader program handle.
         GLuint GetHandle() const;
 
         // Checks if the shader is valid.
@@ -88,4 +94,36 @@ namespace Graphics
         // Program handle.
         GLuint m_handle;
     };
+
+    template<>
+    inline void Graphics::Shader::SetUniform(std::string name, const GLint& value)
+    {
+        VERIFY(m_handle != OpenGL::InvalidHandle);
+
+        // Change shader program and restore previous at the end of scope.
+        GLuint previousProgram = m_renderContext->GetState().GetCurrentProgram();
+        m_renderContext->GetState().UseProgram(GetHandle());
+
+        SCOPE_GUARD(m_renderContext->GetState().UseProgram(previousProgram));
+
+        // Set the uniform variable.
+        glUniform1i(GetUniformIndex(name), value);
+        OpenGL::CheckErrors();
+    }
+
+    template<>
+    inline void Graphics::Shader::SetUniform(std::string name, const glm::mat4& value)
+    {
+        VERIFY(m_handle != OpenGL::InvalidHandle);
+
+        // Change shader program and restore previous at the end of scope.
+        GLuint previousProgram = m_renderContext->GetState().GetCurrentProgram();
+        m_renderContext->GetState().UseProgram(GetHandle());
+
+        SCOPE_GUARD(m_renderContext->GetState().UseProgram(previousProgram));
+
+        // Set the uniform variable.
+        glUniformMatrix4fv(GetUniformIndex(name), 1, GL_FALSE, glm::value_ptr(value));
+        OpenGL::CheckErrors();
+    }
 }

@@ -144,28 +144,33 @@ int main()
         renderState.Viewport(0, 0, window.GetWidth(), window.GetHeight());
         screenSpace.SetTargetSize(window.GetWidth(), window.GetHeight());
 
+        // Calculate combined view and projection matrix.
+        glm::mat4 transform = screenSpace.GetTransform();
+        transform = glm::translate(transform, glm::vec3(-screenSpace.GetOffsetFromCenter(), 0.0f));
+
+        // Render a rectangle.
         renderState.ClearDepth(1.0f);
         renderState.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         renderState.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 transform = screenSpace.GetTransform();
-        transform = glm::translate(transform, glm::vec3(-screenSpace.GetOffsetFromCenter(), 0.0f));
+        renderState.ActiveTexture(GL_TEXTURE0);
+        renderState.BindTexture(GL_TEXTURE_2D, texture.GetHandle());
+        renderState.BindSampler(0, sampler.GetHandle());
 
-        glUseProgram(shader.GetHandle());
-        glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-        
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.GetHandle());
-        glBindSampler(0, sampler.GetHandle());
-        glUniform1i(shader.GetUniform("textureDiffuse"), 0);
+        renderState.UseProgram(shader.GetHandle());
+        shader.SetUniform("vertexTransform", transform);
+        shader.SetUniform("textureDiffuse", 0);
 
-        glBindVertexArray(vertexArray.GetHandle());
+        renderState.BindVertexArray(vertexArray.GetHandle());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
+        // Draw the editor interface.
         editor.Draw();
 
+        // Present window content.
         window.Present();
 
+        // Tick the timer.
         timer.Tick();
     }
 

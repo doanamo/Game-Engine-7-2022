@@ -271,7 +271,7 @@ bool Shader::Compile(std::string shaderCode)
     return initialized = true;
 }
 
-GLint Shader::GetAttribute(std::string name) const
+GLint Shader::GetAttributeIndex(std::string name) const
 {
     ASSERT(m_handle != OpenGL::InvalidHandle, "Shader program handle has not been created!");
     ASSERT(!name.empty(), "Attribute name cannot be empty!");
@@ -281,7 +281,7 @@ GLint Shader::GetAttribute(std::string name) const
     return location;
 }
 
-GLint Shader::GetUniform(std::string name) const
+GLint Shader::GetUniformIndex(std::string name) const
 {
     ASSERT(m_handle != OpenGL::InvalidHandle, "Shader program handle has not been created!");
     ASSERT(!name.empty(), "Uniform name cannot be empty!");
