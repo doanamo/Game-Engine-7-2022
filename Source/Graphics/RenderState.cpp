@@ -249,13 +249,14 @@ void RenderState::BindBuffer(GLenum target, GLuint buffer)
 GLuint RenderState::GetBufferBinding(GLenum target) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(target != OpenGL::InvalidEnum, "Unsupported buffer binding target!");
 
     for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
             return m_bufferBindings[i];
     }
+
+    ASSERT(false, "Unsupported buffer binding target!");
 
     return OpenGL::InvalidHandle;
 }
@@ -308,13 +309,14 @@ void RenderState::BindTexture(GLenum target, GLuint texture)
 GLuint RenderState::GetTextureBinding(GLenum target) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(target != OpenGL::InvalidEnum, "Unsupported texture binding target!");
-
+    
     for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
             return m_textureBindings[i];
     }
+
+    ASSERT(false, "Unsupported texture binding target!");
 
     return OpenGL::InvalidHandle;
 }
@@ -370,13 +372,14 @@ void RenderState::PixelStore(GLenum pname, GLint param)
 GLint RenderState::GetPixelStore(GLenum pname) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
     for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
             return m_pixelStore[i];
     }
+
+    ASSERT(false, "Unsupported pixel store parameter!");
 
     return 0;
 }
