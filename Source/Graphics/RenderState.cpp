@@ -352,7 +352,7 @@ void RenderState::PixelStore(GLenum pname, GLint param)
     ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
     // Check if states match.
-    if(GetTextureBinding(pname) == param)
+    if(GetPixelStore(pname) == param)
         return;
 
     // Call OpenGL function.
