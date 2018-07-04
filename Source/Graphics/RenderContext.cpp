@@ -19,13 +19,17 @@ RenderContext::~RenderContext()
 
 bool RenderContext::Initialize(System::Window* window)
 {
+    LOG() << "Initializing a rendering context..." << LOG_INDENT();
+
+    // Make sure that the instance is not initialized.
+    VERIFY(!m_initialized, "Render context has already been initialized!");
+
     // Make selected window's OpenGL context current.
     window->MakeContextCurrent();
 
-    // We need the initial state.
-    m_states.push_back(RenderState());
-
-    SCOPE_GUARD_IF(!m_initialized, Utility::ClearContainer(m_states));
+    // Initialize the initial state.
+    if(!m_currentState.Initialize())
+        return false;
 
     // Save window reference.
     m_window = window;
@@ -38,16 +42,37 @@ bool RenderContext::Initialize(System::Window* window)
 
 void RenderContext::MakeCurrent()
 {
+    VERIFY(m_initialized, "Render context is not initialized!");
     VERIFY(m_window != nullptr, "Window instance is null!");
 
     m_window->MakeContextCurrent();
 }
 
+void RenderContext::PushState()
+{
+    VERIFY(m_initialized, "Render context is not initialized!");
+
+    // Push a copy of the current state.
+    m_pushedStates.emplace(m_currentState);
+}
+
+void RenderContext::PopState()
+{
+    VERIFY(m_initialized, "Render context is not initialized!");
+    VERIFY(!m_pushedStates.empty(), "Trying to pop a non existing render state!");
+
+    // Apply changes from the stack below.
+    m_currentState.Apply(m_pushedStates.top());
+
+    // Remove the applied state.
+    m_pushedStates.pop();
+}
+
 RenderState& RenderContext::GetState()
 {
-    VERIFY(!m_states.empty(), "Array of render states is empty!");
+    VERIFY(m_initialized, "Render context is not initialized!");
 
-    return m_states.back();
+    return m_currentState;
 }
 
 bool RenderContext::IsValid() const

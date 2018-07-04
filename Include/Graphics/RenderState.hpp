@@ -92,7 +92,15 @@ namespace Graphics
     {
     public:
         RenderState();
+        RenderState(RenderState&) = default;
 
+        // Initializes the render state.
+        bool Initialize();
+
+        // Apply changes from another state.
+        void Apply(RenderState& other);
+
+        // Functions that change OpenGL state.
         void BindVertexArray(GLuint array);
         GLuint GetVertexArrayBinding() const;
 
@@ -123,11 +131,14 @@ namespace Graphics
         void ClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
         std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> GetClearColor() const;
 
+        // Functions that perform OpenGL operations.
         void Clear(GLbitfield mask);
-
         void DrawArrays(GLenum mode, GLint first, GLsizei count);
 
     private:
+        // Initialization state.
+        bool m_initialized;
+
         // glBindVertexArray
         GLuint m_vertexArrayBinding;
 

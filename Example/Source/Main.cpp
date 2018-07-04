@@ -149,20 +149,25 @@ int main()
         transform = glm::translate(transform, glm::vec3(-screenSpace.GetOffsetFromCenter(), 0.0f));
 
         // Render a rectangle.
-        renderState.ClearDepth(1.0f);
-        renderState.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        renderState.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        {
+            renderContext.PushState();
+            SCOPE_GUARD(renderContext.PopState());
 
-        renderState.ActiveTexture(GL_TEXTURE0);
-        renderState.BindTexture(GL_TEXTURE_2D, texture.GetHandle());
-        renderState.BindSampler(0, sampler.GetHandle());
+            renderState.ClearDepth(1.0f);
+            renderState.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            renderState.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        renderState.UseProgram(shader.GetHandle());
-        shader.SetUniform("vertexTransform", transform);
-        shader.SetUniform("textureDiffuse", 0);
+            renderState.ActiveTexture(GL_TEXTURE0);
+            renderState.BindTexture(GL_TEXTURE_2D, texture.GetHandle());
+            renderState.BindSampler(0, sampler.GetHandle());
 
-        renderState.BindVertexArray(vertexArray.GetHandle());
-        renderState.DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            renderState.UseProgram(shader.GetHandle());
+            shader.SetUniform("vertexTransform", transform);
+            shader.SetUniform("textureDiffuse", 0);
+
+            renderState.BindVertexArray(vertexArray.GetHandle());
+            renderState.DrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        }
 
         // Draw the editor interface.
         editor.Draw();

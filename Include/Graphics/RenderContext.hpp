@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <stack>
 #include "Graphics/RenderState.hpp"
 
 namespace System
@@ -46,8 +47,11 @@ namespace Graphics
         // Window instance.
         System::Window* m_window;
 
-        // Stack of states.
-        std::vector<RenderState> m_states;
+        // Current render state.
+        RenderState m_currentState;
+
+        // Stack of render states.
+        std::stack<RenderState> m_pushedStates;
 
         // Initialization state.
         bool m_initialized;
