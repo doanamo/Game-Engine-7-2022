@@ -125,6 +125,8 @@ namespace Graphics
 
         void Clear(GLbitfield mask);
 
+        void DrawArrays(GLenum mode, GLint first, GLsizei count);
+
     private:
         // glBindVertexArray
         GLuint m_vertexArrayBinding;

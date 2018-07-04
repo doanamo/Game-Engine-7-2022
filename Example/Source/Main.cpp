@@ -162,7 +162,7 @@ int main()
         shader.SetUniform("textureDiffuse", 0);
 
         renderState.BindVertexArray(vertexArray.GetHandle());
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        renderState.DrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         // Draw the editor interface.
         editor.Draw();

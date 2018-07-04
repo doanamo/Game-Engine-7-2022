@@ -338,3 +338,9 @@ void RenderState::Clear(GLbitfield mask)
     OpenGL::CheckErrors();
 }
 
+void RenderState::DrawArrays(GLenum mode, GLint first, GLsizei count)
+{
+    // Call OpenGL function.
+    glDrawArrays(mode, first, count);
+    OpenGL::CheckErrors();
+}
