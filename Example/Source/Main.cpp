@@ -52,9 +52,6 @@ int main()
     if(!window.Open(windowInfo))
         return 1;
 
-    // Create a timer.
-    System::Timer timer;
-
     // Create the graphics context.
     Graphics::RenderContext renderContext;
     if(!renderContext.Initialize(&window))
@@ -116,30 +113,40 @@ int main()
     if(!shader.Load(Build::GetWorkingDir() + "Data/Shaders/Textured.shader"))
         return 1;
 
-    // Create the rendering screen space.
+    // Create a screen space.
     Graphics::ScreenSpace screenSpace;
     screenSpace.SetSourceSize(2.0f, 2.0f);
 
+    // Initialize the editor.
     Engine::Editor editor(&renderContext);
     if(!editor.Initialize(&window))
         return 1;
 
-    timer.Reset();
+    // Create a timer.
+    System::Timer timer;
 
+    // Main processing loop.
     while(window.IsOpen())
     {
+        // Calculate frame delta time.
         float deltaTime = timer.CalculateFrameDelta();
 
+        // Process window events.
         window.ProcessEvents();
 
+        // Update the editor interface.
         editor.Update(deltaTime);
 
-        glViewport(0, 0, window.GetWidth(), window.GetHeight());
+        // Get the render state.
+        Graphics::RenderState& renderState = renderContext.GetState();
+
+        // Create a viewport.
+        renderState.Viewport(0, 0, window.GetWidth(), window.GetHeight());
         screenSpace.SetTargetSize(window.GetWidth(), window.GetHeight());
 
-        glClearDepth(1.0f);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderState.ClearDepth(1.0f);
+        renderState.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        renderState.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 transform = screenSpace.GetTransform();
         transform = glm::translate(transform, glm::vec3(-screenSpace.GetOffsetFromCenter(), 0.0f));

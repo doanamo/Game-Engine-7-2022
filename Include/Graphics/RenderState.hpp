@@ -111,6 +111,17 @@ namespace Graphics
         void PixelStore(GLenum pname, GLint param);
         GLint GetPixelStore(GLenum pname) const;
 
+        void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
+        std::tuple<GLint, GLint, GLsizei, GLsizei> GetViewport() const;
+
+        void ClearDepth(GLdouble depth);
+        GLdouble GetClearDepth() const;
+
+        void ClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+        std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> GetClearColor() const;
+
+        void Clear(GLbitfield mask);
+
     private:
         // glBindVertexArray
         GLuint m_vertexArrayBinding;
@@ -129,5 +140,14 @@ namespace Graphics
 
         // glPixelStore
         GLint m_pixelStore[OpenGL::PixelStoreParameterCount];
+
+        // glViewport
+        std::tuple<GLint, GLint, GLsizei, GLsizei> m_viewport;
+
+        // glClearDepth
+        GLdouble m_clearDepth;
+
+        // glClearColor
+        std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> m_clearColor;
     };
 }

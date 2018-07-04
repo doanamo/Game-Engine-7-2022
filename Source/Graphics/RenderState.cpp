@@ -67,6 +67,24 @@ RenderState::RenderState()
         glGetIntegerv(OpenGL::PixelStoreParameters[i], &m_pixelStore[i]);
         OpenGL::CheckErrors();
     }
+
+    // glViewport
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, &viewport[0]);
+    OpenGL::CheckErrors();
+
+    m_viewport = std::tie(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // glClearDeapth
+    glGetDoublev(GL_DEPTH_CLEAR_VALUE, &m_clearDepth);
+    OpenGL::CheckErrors();
+
+    // glClearColor
+    GLfloat clearColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, &clearColor[0]);
+    OpenGL::CheckErrors();
+
+    m_clearColor = std::tie(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 }
 
 void RenderState::BindVertexArray(GLuint array)
@@ -231,4 +249,68 @@ GLint RenderState::GetPixelStore(GLenum pname) const
     }
 
     return m_pixelStore[0];
+}
+
+void RenderState::Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+{
+    // Check if state changed.
+    if(GetViewport() == std::tie(x, y, width, height))
+        return;
+
+    // Call OpenGL function.
+    glViewport(x, y, width, height);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_viewport = std::tie(x, y, width, height);
+}
+
+std::tuple<GLint, GLint, GLsizei, GLsizei> RenderState::GetViewport() const
+{
+    return m_viewport;
+}
+
+void RenderState::ClearDepth(GLdouble depth)
+{
+    // Check if state changed.
+    if(GetClearDepth() == depth)
+        return;
+
+    // Call OpenGL function.
+    glClearDepth(depth);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_clearDepth = depth;
+}
+
+GLdouble RenderState::GetClearDepth() const
+{
+    return m_clearDepth;
+}
+
+void RenderState::ClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+    // Check if state changed.
+    if(GetClearColor() == std::tie(red, green, blue, alpha))
+        return;
+
+    // Call OpenGL function.
+    glClearColor(red, green, blue, alpha);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_clearColor = std::tie(red, green, blue, alpha);
+}
+
+std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> RenderState::GetClearColor() const
+{
+    return m_clearColor;
+}
+
+void RenderState::Clear(GLbitfield mask)
+{
+    // Call OpenGL function.
+    glClear(mask);
+    OpenGL::CheckErrors();
 }

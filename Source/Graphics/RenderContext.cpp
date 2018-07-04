@@ -43,7 +43,7 @@ void RenderContext::MakeCurrent()
     m_window->MakeContextCurrent();
 }
 
-const RenderState& RenderContext::GetState() const
+RenderState& RenderContext::GetState()
 {
     VERIFY(!m_states.empty(), "Array of render states is empty!");
 

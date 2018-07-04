@@ -37,7 +37,7 @@ namespace Graphics
         void PopState();
 
         // Gets the current state on top of the stack.
-        const RenderState& GetState() const;
+        RenderState& GetState();
 
         // Checks if the instance is valid.
         bool IsValid() const;
