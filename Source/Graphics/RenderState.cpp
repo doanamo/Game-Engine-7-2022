@@ -18,7 +18,7 @@ void OpenGL::CheckErrors()
             LOG_WARNING() << "Encountered OpenGL error with code 0x" << stream.str() << "!";
         }
 
-        ASSERT(error != GL_NO_ERROR, "Breaking due to encountered OpenGL error!");
+        ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error!");
     #endif
 }
 
