@@ -19,8 +19,10 @@ namespace Graphics
         void CheckErrors();
 
         // Constant definitions.
-        const GLuint InvalidHandle = 0;
         const GLenum InvalidEnum = GL_INVALID_ENUM;
+        const GLuint InvalidHandle = 0;
+        const GLuint InvalidAttribute = -1;
+        const GLuint InvalidUniform = -1;
 
         // List of buffer binding targets.
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =

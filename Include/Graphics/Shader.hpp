@@ -10,10 +10,10 @@
     Loads and links GLSL shaders into an OpenGL program object.
     Supports geometry, vertex and fragment shaders.
     
-    void ExampleGraphicsShader()
+    void ExampleGraphicsShader(Graphics::RenderContext* renderContext)
     {
         // Create a shader instance.
-        Graphics::Shader shader;
+        Graphics::Shader shader(renderContext);
         shader.Load("Data/Shader.glsl");
 
         // Use the created shader in our rendering pipeline.
@@ -49,11 +49,14 @@
 
 namespace Graphics
 {
+    // Forward declarations.
+    class RenderContext;
+
     // Shader class.
     class Shader
     {
     public:
-        Shader();
+        Shader(RenderContext* renderContext);
         ~Shader();
 
         // Loads the shader from a file.
@@ -79,6 +82,9 @@ namespace Graphics
         void DestroyHandle();
 
     private:
+        // Render context.
+        RenderContext* m_renderContext;
+
         // Program handle.
         GLuint m_handle;
     };

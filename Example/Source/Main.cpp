@@ -111,7 +111,8 @@ int main()
     if(!sampler.Create())
         return 1;
 
-    Graphics::Shader shader;
+    // Load a shader.
+    Graphics::Shader shader(&renderContext);
     if(!shader.Load(Build::GetWorkingDir() + "Data/Shaders/Textured.shader"))
         return 1;
 

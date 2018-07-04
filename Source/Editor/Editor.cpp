@@ -29,6 +29,7 @@ Editor::Editor(Graphics::RenderContext* graphics) :
     m_indexBuffer(graphics),
     m_vertexArray(graphics),
     m_fontTexture(graphics),
+    m_shader(graphics),
     m_interface(nullptr),
     m_window(nullptr),
     m_initialized(false)
@@ -196,7 +197,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_shader.Load(Build::GetWorkingDir() + "Data/Shaders/Interface.shader"))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader());
+    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_graphics));
 
     // Save window reference.
     m_window = window;
