@@ -193,7 +193,7 @@ GLuint RenderState::GetTextureBinding(GLenum target) const
 {
     ASSERT(target != OpenGL::InvalidEnum, "Unsupported texture binding target!");
 
-    for(int i = 1; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
             return m_textureBindings[i];
@@ -240,7 +240,7 @@ void RenderState::PixelStore(GLenum pname, GLint param)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 1; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
             m_pixelStore[i] = param;
@@ -251,13 +251,13 @@ GLint RenderState::GetPixelStore(GLenum pname) const
 {
     ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
-    for(int i = 1; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
             return m_pixelStore[i];
     }
 
-    return m_pixelStore[0];
+    return 0;
 }
 
 void RenderState::UseProgram(GLuint program)
