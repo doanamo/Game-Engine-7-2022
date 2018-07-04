@@ -23,18 +23,18 @@ namespace
     }
 }
 
-Editor::Editor(Graphics::RenderContext* graphics) :
-    m_graphics(graphics),
-    m_vertexBuffer(graphics),
-    m_indexBuffer(graphics),
-    m_vertexArray(graphics),
-    m_fontTexture(graphics),
-    m_shader(graphics),
+Editor::Editor(Graphics::RenderContext* renderContext) :
+    m_renderContext(renderContext),
+    m_vertexBuffer(renderContext),
+    m_indexBuffer(renderContext),
+    m_vertexArray(renderContext),
+    m_fontTexture(renderContext),
+    m_shader(renderContext),
     m_interface(nullptr),
     m_window(nullptr),
     m_initialized(false)
 {
-    VERIFY(graphics && graphics->IsValid(), "Graphics context is invalid!");
+    VERIFY(renderContext && renderContext->IsValid(), "Render context is invalid!");
 
     // Bind event receivers.
     m_receiverCursorPosition.Bind<Editor, &Editor::CursorPositionCallback>(this);
@@ -144,7 +144,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_vertexBuffer.Create(vertexBufferInfo))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer(m_graphics));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer(m_renderContext));
 
     // Create an index buffer.
     Graphics::BufferInfo indexBufferInfo;
@@ -154,7 +154,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_indexBuffer.Create(indexBufferInfo))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer(m_graphics));
+    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer(m_renderContext));
 
     // Create an input layout.
     const Graphics::VertexAttribute inputAttributes[] =
@@ -171,7 +171,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_vertexArray.Create(inputLayoutInfo))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray(m_graphics));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray(m_renderContext));
 
     // Create a font texture.
     unsigned char* fontData = nullptr;
@@ -189,7 +189,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_fontTexture.Create(fontWidth, fontHeight, GL_RGBA, (void*)fontData))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_graphics));
+    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
 
     io.Fonts->TexID = (void *)(intptr_t)m_fontTexture.GetHandle();
 
@@ -197,7 +197,7 @@ bool Editor::Initialize(System::Window* window)
     if(!m_shader.Load(Build::GetWorkingDir() + "Data/Shaders/Interface.shader"))
         return false;
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_graphics));
+    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_renderContext));
 
     // Save window reference.
     m_window = window;
@@ -235,27 +235,35 @@ void Editor::Draw()
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // End our interface frame.
+    // End our rendering frame.
     ImGui::EndFrame();
     ImGui::Render();
 
+    // Get interface render data.
     ImDrawData* drawData = ImGui::GetDrawData();
 
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    glViewport(0, 0, m_window->GetWidth(), m_window->GetHeight());
+    // Calculate rendering transform.
     glm::mat4 transform = glm::ortho(0.0f, (float)m_window->GetWidth(), (float)m_window->GetHeight(), 0.0f);
 
-    glUseProgram(m_shader.GetHandle());
-    glUniformMatrix4fv(m_shader.GetUniformIndex("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-    glUniform1i(m_shader.GetUniformIndex("textureDiffuse"), 0);
+    // Push a rendering state.
+    m_renderContext->PushState();
+    SCOPE_GUARD(m_renderContext->PopState());
 
+    // Prepare rendering state.
+    Graphics::RenderState& renderState = m_renderContext->GetState();
+
+    renderState.Enable(GL_BLEND);
+    renderState.BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    renderState.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    renderState.Enable(GL_SCISSOR_TEST);
+
+    renderState.Viewport(0, 0, m_window->GetWidth(), m_window->GetHeight());
+
+    renderState.UseProgram(m_shader.GetHandle());
+    m_shader.SetUniform("vertexTransform", transform);
+    m_shader.SetUniform("textureDiffuse", 0);
+
+    // Process draw data.
     ImVec2 position = drawData->DisplayPos;
     for(int list = 0; list < drawData->CmdListsCount; ++list)
     {
@@ -281,19 +289,19 @@ void Editor::Draw()
                 clipRect.z = drawCommand->ClipRect.z - position.x;
                 clipRect.w = drawCommand->ClipRect.w - position.y;
 
-                glScissor(
+                renderState.Scissor(
                     (int)clipRect.x,
                     (int)(m_window->GetHeight() - clipRect.w),
                     (int)(clipRect.z - clipRect.x),
                     (int)(clipRect.w - clipRect.y)
                 );
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)drawCommand->TextureId);
+                renderState.ActiveTexture(GL_TEXTURE0);
+                renderState.BindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)drawCommand->TextureId);
 
-                glBindVertexArray(m_vertexArray.GetHandle());
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
-                glDrawElements(GL_TRIANGLES, (GLsizei)drawCommand->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, indexBufferOffset);
+                renderState.BindVertexArray(m_vertexArray.GetHandle());
+                renderState.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
+                renderState.DrawElements(GL_TRIANGLES, (GLsizei)drawCommand->ElemCount, GL_UNSIGNED_SHORT, indexBufferOffset);
             }
 
             indexBufferOffset += drawCommand->ElemCount;

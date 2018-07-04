@@ -30,6 +30,12 @@ bool Graphics::OpenGL::CheckErrors()
 RenderState::RenderState() :
     m_initialized(false)
 {
+    // glEnable
+    for(GLboolean& capability : m_capabilities)
+    {
+        capability = GL_FALSE;
+    }
+
     // glBindVertexArray
     m_vertexArrayBinding = OpenGL::InvalidHandle;
 
@@ -65,11 +71,27 @@ RenderState::RenderState() :
 
     // glClearColor
     m_clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    // glBlendFuncSeparate
+    m_blendFuncSeparate = { GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO };
+
+    // glBlendEquationSeparate
+    m_blendEquationSeparate = { GL_ZERO, GL_ZERO };
+
+    // glScissor
+    m_scissorBox = { 0, 0, 0, 0 };
 }
 
 bool Graphics::RenderState::Initialize()
 {
     LOG() << "Initializing a rendering state..." << LOG_INDENT();
+
+    // glEnable
+    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    {
+        m_capabilities[i] = glIsEnabled(OpenGL::Capabilities[i]);
+        OpenGL::CheckErrors();
+    }
 
     // glBindVertexArray
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&m_vertexArrayBinding);
@@ -137,6 +159,37 @@ bool Graphics::RenderState::Initialize()
 
     m_clearColor = std::tie(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 
+    // glBlendFuncSeparate
+    GLenum blendSrcRGB;
+    glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&blendSrcRGB);
+
+    GLenum blendDstRGB;
+    glGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&blendDstRGB);
+
+    GLenum blendSrcAlpha;
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&blendSrcAlpha);
+
+    GLenum blendDstAlpha;
+    glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&blendDstAlpha);
+
+    m_blendFuncSeparate = std::tie(blendSrcRGB, blendDstRGB, blendSrcAlpha, blendDstAlpha);
+
+    // glBlendEquationSeparate
+    GLenum blendEquationRGB;
+    glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&blendEquationRGB);
+
+    GLenum blendEquationAlpha;
+    glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&blendEquationAlpha);
+
+    m_blendEquationSeparate = std::tie(blendEquationRGB, blendEquationAlpha);
+
+    // glScissor
+    GLint scissorBox[4];
+    glGetIntegerv(GL_SCISSOR_BOX, &scissorBox[0]);
+    OpenGL::CheckErrors();
+
+    m_scissorBox = std::tie(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+
     // Success!
     LOG_INFO() << "Success!";
 
@@ -146,6 +199,19 @@ bool Graphics::RenderState::Initialize()
 void RenderState::Apply(RenderState& other)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
+
+    // glEnable
+    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    {
+        if(other.m_capabilities[i] == GL_TRUE)
+        {
+            Enable(OpenGL::Capabilities[i]);
+        }
+        else
+        {
+            Disable(OpenGL::Capabilities[i]);
+        }
+    }
 
     // glBindVertexArray
     BindVertexArray(other.m_vertexArrayBinding);
@@ -200,6 +266,89 @@ void RenderState::Apply(RenderState& other)
         std::get<2>(other.m_clearColor),
         std::get<3>(other.m_clearColor)
     );
+
+    // glBlendFuncSeparate
+    BlendFuncSeparate(
+        std::get<0>(other.m_blendFuncSeparate),
+        std::get<1>(other.m_blendFuncSeparate),
+        std::get<2>(other.m_blendFuncSeparate),
+        std::get<3>(other.m_blendFuncSeparate)
+    );
+
+    // glBlendEquationSeparate
+    BlendEquationSeparate(
+        std::get<0>(other.m_blendEquationSeparate),
+        std::get<1>(other.m_blendEquationSeparate)
+    );
+
+    // glScissor
+    Scissor(
+        std::get<0>(other.m_scissorBox),
+        std::get<1>(other.m_scissorBox),
+        std::get<2>(other.m_scissorBox),
+        std::get<3>(other.m_scissorBox)
+    );
+}
+
+void RenderState::Enable(GLenum cap)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if states match.
+    if(IsEnabled(cap))
+        return;
+
+    // Call OpenGL function.
+    glEnable(cap);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    {
+        if(OpenGL::Capabilities[i] == cap)
+        {
+            m_capabilities[i] = GL_TRUE;
+            break;
+        }
+    }
+}
+
+void RenderState::Disable(GLenum cap)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if states match.
+    if(!IsEnabled(cap))
+        return;
+
+    // Call OpenGL function.
+    glDisable(cap);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    {
+        if(OpenGL::Capabilities[i] == cap)
+        {
+            m_capabilities[i] = GL_FALSE;
+            break;
+        }
+    }
+}
+
+GLboolean RenderState::IsEnabled(GLenum cap) const
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    {
+        if(OpenGL::Capabilities[i] == cap)
+            return m_capabilities[i];
+    }
+
+    ASSERT(false, "Unsupported capability!");
+
+    return GL_FALSE;
 }
 
 void RenderState::BindVertexArray(GLuint array)
@@ -228,7 +377,6 @@ GLuint RenderState::GetVertexArrayBinding() const
 void RenderState::BindBuffer(GLenum target, GLuint buffer)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(target != OpenGL::InvalidEnum, "Unsupported buffer binding target!");
 
     // Check if states match.
     if(GetBufferBinding(target) == buffer)
@@ -242,7 +390,10 @@ void RenderState::BindBuffer(GLenum target, GLuint buffer)
     for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
+        {
             m_bufferBindings[i] = buffer;
+            break;
+        }
     }
 }
 
@@ -264,7 +415,6 @@ GLuint RenderState::GetBufferBinding(GLenum target) const
 void RenderState::ActiveTexture(GLenum texture)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(texture >= GL_TEXTURE0 && texture < GL_TEXTURE0 + m_samplerBindings.size(), "Unsupported texture unit!");
 
     // Check if states match.
     if(GetActiveTexture() == texture)
@@ -288,7 +438,6 @@ GLenum RenderState::GetActiveTexture() const
 void RenderState::BindTexture(GLenum target, GLuint texture)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(target != OpenGL::InvalidEnum, "Unsupported texture binding target!");
 
     // Check if states match.
     if(GetTextureBinding(target) == texture)
@@ -302,7 +451,10 @@ void RenderState::BindTexture(GLenum target, GLuint texture)
     for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
+        {
             m_textureBindings[i] = texture;
+            break;
+        }
     }
 }
 
@@ -324,8 +476,6 @@ GLuint RenderState::GetTextureBinding(GLenum target) const
 void RenderState::BindSampler(GLuint unit, GLuint sampler)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(!m_samplerBindings.empty(), "Sampler bindings array is empty!");
-    VERIFY(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
 
     // Check if states match.
     if(GetSamplerBinding(unit) == sampler)
@@ -351,7 +501,6 @@ GLuint RenderState::GetSamplerBinding(GLuint unit) const
 void RenderState::PixelStore(GLenum pname, GLint param)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
-    ASSERT(pname != OpenGL::InvalidEnum, "Unsupported pixel store parameter!");
 
     // Check if states match.
     if(GetPixelStore(pname) == param)
@@ -365,7 +514,10 @@ void RenderState::PixelStore(GLenum pname, GLint param)
     for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
+        {
             m_pixelStore[i] = param;
+            break;
+        }
     }
 }
 
@@ -476,6 +628,75 @@ std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> RenderState::GetClearColor() cons
     return m_clearColor;
 }
 
+void RenderState::BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if state changed.
+    if(GetBlendFuncSeparate() == std::tie(srcRGB, dstRGB, srcAlpha, dstAlpha))
+        return;
+
+    // Call OpenGL function.
+    glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_blendFuncSeparate = std::tie(srcRGB, dstRGB, srcAlpha, dstAlpha);
+}
+
+std::tuple<GLenum, GLenum, GLenum, GLenum> RenderState::GetBlendFuncSeparate() const
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    return m_blendFuncSeparate;
+}
+
+void RenderState::BlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if state changed.
+    if(GetBlendEquationSeperate() == std::tie(modeRGB, modeAlpha))
+        return;
+
+    // Call OpenGL function.
+    glBlendEquationSeparate(modeRGB, modeAlpha);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_blendEquationSeparate = std::tie(modeRGB, modeAlpha);
+}
+
+std::tuple<GLenum, GLenum> RenderState::GetBlendEquationSeperate() const
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    return m_blendEquationSeparate;
+}
+
+void RenderState::Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if state changed.
+    if(GetScissorBox() == std::tie(x, y, width, height))
+        return;
+
+    // Call OpenGL function.
+    glScissor(x, y, width, height);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_scissorBox = std::tie(x, y, width, height);
+}
+
+std::tuple<GLint, GLint, GLsizei, GLsizei> RenderState::GetScissorBox() const
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    return m_scissorBox;
+}
+
 void RenderState::Clear(GLbitfield mask)
 {
     ASSERT(m_initialized, "Render state is not initialized!");
@@ -491,5 +712,14 @@ void RenderState::DrawArrays(GLenum mode, GLint first, GLsizei count)
     
     // Call OpenGL function.
     glDrawArrays(mode, first, count);
+    OpenGL::CheckErrors();
+}
+
+void RenderState::DrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Call OpenGL function.
+    glDrawElements(mode, count, type, indices);
     OpenGL::CheckErrors();
 }

@@ -24,7 +24,7 @@ namespace Engine
     class Editor : private NonCopyable
     {
     public:
-        Editor(Graphics::RenderContext* graphics);
+        Editor(Graphics::RenderContext* renderContext);
         ~Editor();
 
         // Initializes the editor system.
@@ -57,8 +57,8 @@ namespace Engine
         void DestroyContext();
 
     private:
-        // Graphics context.
-        Graphics::RenderContext* m_graphics;
+        // Render context.
+        Graphics::RenderContext* m_renderContext;
 
         // User interface context.
         ImGuiContext* m_interface;
