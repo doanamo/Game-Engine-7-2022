@@ -6,20 +6,25 @@
 #include "Graphics/RenderState.hpp"
 using namespace Graphics;
 
-void OpenGL::CheckErrors()
+bool Graphics::OpenGL::CheckErrors()
 {
-    #ifndef NDEBUG
-        GLenum error;
-        while((error = glGetError()) != GL_NO_ERROR)
-        {
+    bool errorFound = false;
+
+    GLenum error = GL_NO_ERROR;
+    while((error = glGetError()) != GL_NO_ERROR)
+    {
+        errorFound = true;
+
+        #ifndef NDEBUG
             std::stringstream stream;
             stream << std::hex << std::setfill('0') << std::setw(4) << error;
 
             LOG_WARNING() << "Encountered OpenGL error with code 0x" << stream.str() << "!";
-        }
+            ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error!");
+        #endif
+    }
 
-        ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error!");
-    #endif
+    return errorFound != true;
 }
 
 RenderState::RenderState()

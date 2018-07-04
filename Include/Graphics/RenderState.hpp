@@ -16,7 +16,7 @@ namespace Graphics
     namespace OpenGL
     {
         // Error checking method and macro.
-        void CheckErrors();
+        bool CheckErrors();
 
         // Constant definitions.
         const GLenum InvalidEnum = GL_INVALID_ENUM;
