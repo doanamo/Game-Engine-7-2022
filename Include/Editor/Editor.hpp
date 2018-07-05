@@ -11,6 +11,7 @@
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Texture.hpp"
+#include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
 
 /*
@@ -78,6 +79,7 @@ namespace Engine
         Graphics::IndexBuffer m_indexBuffer;
         Graphics::VertexArray m_vertexArray;
         Graphics::Texture m_fontTexture;
+        Graphics::Sampler m_sampler;
         Graphics::Shader m_shader;
 
         // Initialization state.

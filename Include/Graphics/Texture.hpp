@@ -30,6 +30,18 @@ namespace Graphics
     // Forward declarations.
     class RenderContext;
 
+    // Texture info structure.
+    struct TextureInfo
+    {
+        TextureInfo();
+
+        int width;
+        int height;
+        GLenum format;
+        bool mipmaps;
+        const void* data;
+    };
+
     // Texture class.
     class Texture
     {
@@ -41,7 +53,7 @@ namespace Graphics
         bool Load(std::string filePath);
 
         // Initializes the texture instance.
-        bool Create(int width, int height, GLenum format, const void* data);
+        bool Create(const TextureInfo& info);
 
         // Updates the texture data.
         void Update(const void* data);

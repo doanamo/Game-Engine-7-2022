@@ -29,6 +29,7 @@ Editor::Editor(Graphics::RenderContext* renderContext) :
     m_indexBuffer(renderContext),
     m_vertexArray(renderContext),
     m_fontTexture(renderContext),
+    m_sampler(renderContext),
     m_shader(renderContext),
     m_interface(nullptr),
     m_window(nullptr),
@@ -186,12 +187,28 @@ bool Editor::Initialize(System::Window* window)
         return false;
     }
 
-    if(!m_fontTexture.Create(fontWidth, fontHeight, GL_RGBA, (void*)fontData))
+    Graphics::TextureInfo textureInfo;
+    textureInfo.width = fontWidth;
+    textureInfo.height = fontHeight;
+    textureInfo.format = GL_RGBA;
+    textureInfo.mipmaps = false;
+    textureInfo.data = fontData;
+
+    if(!m_fontTexture.Create(textureInfo))
         return false;
 
     SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
 
     io.Fonts->TexID = (void *)(intptr_t)m_fontTexture.GetHandle();
+
+    // Create a sampler.
+    // Set linear filtering otherwise textures without mipmaps will be black.
+    Graphics::SamplerInfo samplerInfo;
+    samplerInfo.textureMinFilter = GL_LINEAR;
+    samplerInfo.textureMagFilter = GL_LINEAR;
+
+    if(!m_sampler.Create(samplerInfo))
+        return false;
 
     // Load a shader.
     if(!m_shader.Load(Build::GetWorkingDir() + "Data/Shaders/Interface.shader"))
@@ -262,6 +279,8 @@ void Editor::Draw()
     renderState.UseProgram(m_shader.GetHandle());
     m_shader.SetUniform("vertexTransform", transform);
     m_shader.SetUniform("textureDiffuse", 0);
+
+    renderState.BindSampler(0, m_sampler.GetHandle());
 
     // Process draw data.
     ImVec2 position = drawData->DisplayPos;
