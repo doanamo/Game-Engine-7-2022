@@ -13,9 +13,6 @@ set(IMGUI_FILES
     "stb_rect_pack.h"
     "stb_textedit.h"
     "stb_truetype.h"
-
-    "examples/imgui_impl_opengl3.h"
-    "examples/imgui_impl_opengl3.cpp"
 )
 
 # Create a static library.
