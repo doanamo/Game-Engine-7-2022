@@ -7,23 +7,79 @@
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;
 
-SamplerInfo::SamplerInfo() :
-    textureBorderColor(0.0f, 0.0f, 0.0f, 0.0f),
-    textureMinFilter(GL_NEAREST_MIPMAP_LINEAR),
-    textureMagFilter(GL_LINEAR),
-    textureWrapS(GL_REPEAT),
-    textureWrapT(GL_REPEAT),
-    textureWrapR(GL_REPEAT),
-    textureMinLOD(-1000.0f),
-    textureMaxLOD(1000.0f),
-    textureLODBias(0.0f),
-    textureCompareMode(GL_NONE),
-    textureCompareFunc(GL_LEQUAL),
-    textureMaxAniso(1.0f)   
+namespace
 {
+    // Default parameters retrieved from OpenGL.
+    glm::vec4 DefaultTextureBorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+    GLint DefaultTextureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
+    GLint DefaultTextureMagFilter = GL_LINEAR;
+    GLint DefaultTextureWrapS = GL_REPEAT;
+    GLint DefaultTextureWrapT = GL_REPEAT;
+    GLint DefaultTextureWrapR = GL_REPEAT;
+    GLfloat DefaultTextureMinLOD = -1000.0f;
+    GLfloat DefaultTextureMaxLOD = 1000.0f;
+    GLfloat DefaultTextureLODBias = 0.0f;
+    GLint DefaultTextureCompareMode = GL_NONE;
+    GLint DefaultTextureCompareFunc = GL_LEQUAL;
+    GLfloat DefaultTextureMaxAniso = 1.0f;
+
+    bool DefaultsInitialized = false;
 }
 
-Graphics::Sampler::Sampler(RenderContext* renderContext) :
+void Graphics::Sampler::InitializeDefaults()
+{
+    // Check if already initialized.
+    if(DefaultsInitialized)
+        return;
+
+    // Create a temporary sampler.
+    GLuint defaultSampler = OpenGL::InvalidHandle;
+    glGenSamplers(1, &defaultSampler);
+    OpenGL::CheckErrors();
+
+    VERIFY(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
+
+    SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
+
+    // Read default parameters.
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_BORDER_COLOR, &DefaultTextureBorderColor[0]);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_T, &DefaultTextureWrapT);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_LOD_BIAS, &DefaultTextureLODBias);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
+
+    // Finish initialization.
+    DefaultsInitialized = true;
+}
+
+SamplerInfo::SamplerInfo()
+{
+    // Initialize default values.
+    Sampler::InitializeDefaults();
+
+    // Initialize member variables.
+    textureBorderColor = DefaultTextureBorderColor;
+    textureMinFilter = DefaultTextureMinFilter;
+    textureMagFilter = DefaultTextureMagFilter;
+    textureWrapS = DefaultTextureWrapS;
+    textureWrapT = DefaultTextureWrapT;
+    textureWrapR = DefaultTextureWrapR;
+    textureMinLOD = DefaultTextureMinLOD;
+    textureMaxLOD = DefaultTextureMaxLOD;
+    textureLODBias = DefaultTextureLODBias;
+    textureCompareMode = DefaultTextureCompareMode;
+    textureCompareFunc = DefaultTextureCompareFunc;
+    textureMaxAniso = DefaultTextureMaxAniso;
+}
+
+Sampler::Sampler(RenderContext* renderContext) :
     m_renderContext(renderContext),
     m_handle(OpenGL::InvalidHandle)
 {
@@ -69,18 +125,65 @@ bool Sampler::Create(const SamplerInfo& info)
     }
 
     // Set sampling parameters.
-    glSamplerParameterfv(m_handle, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(info.textureBorderColor));
-    glSamplerParameteri(m_handle, GL_TEXTURE_MIN_FILTER, info.textureMinFilter);
-    glSamplerParameteri(m_handle, GL_TEXTURE_MAG_FILTER, info.textureMagFilter);
-    glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_S, info.textureWrapS);
-    glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_T, info.textureWrapT);
-    glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_R, info.textureWrapR);
-    glSamplerParameterf(m_handle, GL_TEXTURE_MIN_LOD, info.textureMinLOD);
-    glSamplerParameterf(m_handle, GL_TEXTURE_MAX_LOD, info.textureMaxLOD);
-    glSamplerParameterf(m_handle, GL_TEXTURE_LOD_BIAS, info.textureLODBias);
-    glSamplerParameteri(m_handle, GL_TEXTURE_COMPARE_MODE, info.textureCompareMode);
-    glSamplerParameteri(m_handle, GL_TEXTURE_COMPARE_FUNC, info.textureCompareFunc);
-    glSamplerParameterf(m_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, info.textureMaxAniso);
+    if(DefaultTextureBorderColor != info.textureBorderColor)
+    {
+        glSamplerParameterfv(m_handle, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(info.textureBorderColor));
+    }
+
+    if(DefaultTextureMinFilter != info.textureMinFilter)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_MIN_FILTER, info.textureMinFilter);
+    }
+
+    if(DefaultTextureMagFilter != info.textureMagFilter)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_MAG_FILTER, info.textureMagFilter);
+    }
+
+    if(DefaultTextureWrapS != info.textureWrapS)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_S, info.textureWrapS);
+    }
+
+    if(DefaultTextureWrapT != info.textureWrapT)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_T, info.textureWrapT);
+    }
+
+    if(DefaultTextureWrapR != info.textureWrapR)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_R, info.textureWrapR);
+    }
+
+    if(DefaultTextureMinLOD != info.textureMinLOD)
+    {
+        glSamplerParameterf(m_handle, GL_TEXTURE_MIN_LOD, info.textureMinLOD);
+    }
+
+    if(DefaultTextureMaxLOD != info.textureMaxLOD)
+    {
+        glSamplerParameterf(m_handle, GL_TEXTURE_MAX_LOD, info.textureMaxLOD);
+    }
+
+    if(DefaultTextureLODBias != info.textureLODBias)
+    {
+        glSamplerParameterf(m_handle, GL_TEXTURE_LOD_BIAS, info.textureLODBias);
+    }
+
+    if(DefaultTextureCompareMode != info.textureCompareMode)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_COMPARE_MODE, info.textureCompareMode);
+    }
+
+    if(DefaultTextureCompareFunc != info.textureCompareFunc)
+    {
+        glSamplerParameteri(m_handle, GL_TEXTURE_COMPARE_FUNC, info.textureCompareFunc);
+    }
+
+    if(DefaultTextureMaxAniso != info.textureMaxAniso)
+    {
+        glSamplerParameterf(m_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, info.textureMaxAniso);
+    }
 
     // Success!
     LOG_INFO() << "Success!";

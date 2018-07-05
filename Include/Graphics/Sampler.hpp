@@ -63,6 +63,9 @@ namespace Graphics
         Sampler(RenderContext* renderContext);
         ~Sampler();
 
+        // Initializes default parameters.
+        static void InitializeDefaults();
+
         // Initializes the sampler object.
         bool Create(const SamplerInfo& info = SamplerInfo());
 
