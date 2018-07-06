@@ -81,8 +81,10 @@ bool Editor::Initialize(System::Window* window)
 
     SCOPE_GUARD_IF(!m_initialized, this->DestroyContext());
 
-    // Setup user interface input.
+    // Setup user interface.
     ImGuiIO& io = ImGui::GetIO();
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
@@ -174,7 +176,7 @@ bool Editor::Initialize(System::Window* window)
 
     SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray(m_renderContext));
 
-    // Create a font texture.
+    // Retrieve built in font data.
     unsigned char* fontData = nullptr;
     int fontWidth = 0;
     int fontHeight = 0;
@@ -187,6 +189,7 @@ bool Editor::Initialize(System::Window* window)
         return false;
     }
 
+    // Create a font texture.
     Graphics::TextureInfo textureInfo;
     textureInfo.width = fontWidth;
     textureInfo.height = fontHeight;
@@ -199,7 +202,7 @@ bool Editor::Initialize(System::Window* window)
 
     SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
 
-    io.Fonts->TexID = (void *)(intptr_t)m_fontTexture.GetHandle();
+    io.Fonts->TexID = (void*)m_fontTexture.GetHandle();
 
     // Create a sampler.
     // Set linear filtering otherwise textures without mipmaps will be black.
@@ -241,9 +244,35 @@ void Editor::Update(float deltaTime)
     // Start a new interface frame.
     ImGui::NewFrame();
 
-    // Show a demo window.
-    bool showDemoWindow = true;
-    ImGui::ShowDemoWindow(&showDemoWindow);
+    // Define interface.
+    if(ImGui::BeginMainMenuBar())
+    {
+        if(ImGui::BeginMenu("Engine"))
+        {
+            ImGui::Separator();
+
+            if(ImGui::MenuItem("Exit"))
+            {
+                m_window->Close();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::Separator();
+
+        if(ImGui::BeginMenu("View"))
+        {
+            ImGui::EndMenu();
+        }
+
+        if(ImGui::BeginMenu("Debug"))
+        {
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
 }
 
 void Editor::Draw()
