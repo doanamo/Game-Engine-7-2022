@@ -258,15 +258,15 @@ void EntitySystem::FreeHandle(int handleIndex, HandleEntry& handleEntry)
     else
     {
         // Retrieve last free handle entry on the free list.
-        int freeHandleIndex = m_freeListEnqueue - StartingIdentifier;
-        HandleEntry& freeHandleEntry = m_handles[freeHandleIndex];
+        int lastFreeIndex = m_freeListEnqueue - StartingIdentifier;
+        HandleEntry& lastFreeEntry = m_handles[lastFreeIndex];
 
         // Make sure the last element in the queue does not point at another free element.
-        ASSERT(freeHandleEntry.nextFree == InvalidIdentifier);
+        ASSERT(lastFreeEntry.nextFree == InvalidIdentifier);
 
         // If there are other elements in the queue,
         // add the element to the end of the queue chain.
-        freeHandleEntry.nextFree = handleEntry.handle.identifier;
+        lastFreeEntry.nextFree = handleEntry.handle.identifier;
         m_freeListEnqueue = handleEntry.handle.identifier;
     }
 }
