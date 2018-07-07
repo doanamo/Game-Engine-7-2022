@@ -117,6 +117,8 @@ EntityHandle EntitySystem::CreateEntity()
     {
         // If there were more than a single element in the queue,
         // set the beginning of the queue to the next free element.
+        ASSERT(handleEntry.nextFree != InvalidIdentifier, "Handle entry is missing next free identifier!");
+
         m_freeListDequeue = handleEntry.nextFree;
         handleEntry.nextFree = InvalidIdentifier;
     }
