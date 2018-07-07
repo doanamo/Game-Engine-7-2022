@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "Precompiled.hpp"
-
 /*
     Entity Handle
 
