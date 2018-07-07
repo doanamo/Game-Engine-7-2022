@@ -125,7 +125,7 @@ namespace Game
         };
 
         // Type declarations.
-        typedef std::deque<HandleEntry> HandleList;
+        typedef std::vector<HandleEntry> HandleList;
         typedef std::queue<EntityCommand> CommandList;
 
     private:
