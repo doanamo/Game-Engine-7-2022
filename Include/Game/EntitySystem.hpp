@@ -100,6 +100,8 @@ namespace Game
         // Handle entry structure.
         struct HandleEntry
         {
+            HandleEntry(EntityHandle::ValueType identifier);
+
             EntityHandle handle;
             HandleFlags::Type flags;
             EntityHandle::ValueType nextFree;

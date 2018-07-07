@@ -19,6 +19,14 @@ EntitySystem::Events::Events()
 {
 }
 
+EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
+    handle(),
+    flags(HandleFlags::Unused),
+    nextFree(InvalidIdentifier)
+{
+    handle.identifier = identifier;
+}
+
 EntitySystem::EntitySystem() :
     m_entityCount(0),
     m_freeListDequeue(InvalidIdentifier),
@@ -82,21 +90,15 @@ EntityHandle EntitySystem::CreateEntity()
     // Create a new handle if the free list queue is empty.
     if(m_freeListDequeue == InvalidIdentifier)
     {
-        // Create an entity handle.
-        EntityHandle handle;
-        handle.identifier = StartingIdentifier + m_handles.size();
-        handle.version = 0;
+        // Calculate next unused identifier.
+        EntityHandle::ValueType identifier = StartingIdentifier + m_handles.size();
 
-        // Create a handle entry.
-        HandleEntry entry;
-        entry.handle = handle;
-        entry.nextFree = InvalidIdentifier;
-        entry.flags = HandleFlags::Unused;
-        m_handles.push_back(entry);
+        // Create a new handle entry.
+        m_handles.emplace_back(identifier);
 
         // Add new handle entry to the free list queue.
-        m_freeListDequeue = handle.identifier;
-        m_freeListEnqueue = handle.identifier;
+        m_freeListDequeue = identifier;
+        m_freeListEnqueue = identifier;
     }
 
     // Retrieve an unused handle from the free list.
