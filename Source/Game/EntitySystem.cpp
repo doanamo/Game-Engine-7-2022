@@ -118,10 +118,8 @@ EntityHandle EntitySystem::CreateEntity()
         // If there were more than a single element in the queue,
         // set the beginning of the queue to the next free element.
         m_freeListDequeue = handleEntry.nextFree;
+        handleEntry.nextFree = InvalidIdentifier;
     }
-
-    // Clear the next free identifier on the handle.
-    handleEntry.nextFree = InvalidIdentifier;
 
     // Mark handle as created.
     handleEntry.flags |= HandleFlags::Created;
