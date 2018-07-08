@@ -18,7 +18,12 @@ include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
-enable_testing()
+
+option(ENABLE_TESTS OFF "Enable testing")
+
+if(ENABLE_TESTS)
+	enable_testing()
+endif()
 
 check_include_file(sys/types.h HAVE_SYS_TYPES_H)
 check_include_file(stdint.h    HAVE_STDINT_H)
@@ -230,9 +235,11 @@ endif()
 # Example binaries
 #============================================================================
 
-add_executable(example test/example.c)
-target_link_libraries(example zlib)
-add_test(example example)
+if(ENABLE_TESTS)
+	add_executable(example test/example.c)
+	target_link_libraries(example zlib)
+	add_test(example example)
+endif()
 
 add_executable(minigzip test/minigzip.c)
 target_link_libraries(minigzip zlib)
