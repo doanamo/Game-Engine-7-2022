@@ -18,12 +18,6 @@ add_subdirectory("Source")
 enable_testing()
 add_subdirectory("Tests")
 
-# Include example in the build process.
-add_subdirectory("Example")
-
 # Enable source folders in Visual Studio.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
-
-# Set default project for Visual Studio.
-set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "Example")

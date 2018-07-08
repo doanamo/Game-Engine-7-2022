@@ -6,10 +6,25 @@
 cmake_minimum_required(VERSION 3.11.2)
 
 #
+# Config
+#
+
+# Project names.
+set(PROJECT_NAME "GameEngine")
+set(TARGET_NAME "Example")
+
+# Project settings.
+set(ENABLE_TESTS ON)
+
+# Project directories.
+set(WORKING_DIR "Deploy/")
+set(ENGINE_DIR "../")
+
+#
 # Source
 #
 
-# Source files that will partake in the compilation process.
+# List of source files.
 set(SOURCE_FILES
     "Source/Main.cpp"
 )
@@ -18,14 +33,34 @@ set(SOURCE_FILES
 # Target
 #
 
-# Declare an executable target that depends on the engine library.
-add_executable("Example" ${SOURCE_FILES})
-target_link_libraries("Example" "Engine")
-include_directories("./../Include")
+# Define project and executable target.
+project(${PROJECT_NAME})
+add_executable(${TARGET_NAME} ${SOURCE_FILES})
 
 # Set main build directory as the working directory.
-set_target_properties("Example" PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 # Write a file pointing at the working directory.
-get_filename_component(WORKING_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
-file(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WORKING_DIR}/")
+get_filename_component(ABSOLUTE_WORKING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${WORKING_DIR}" ABSOLUTE)
+file(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${ABSOLUTE_WORKING_DIR}/")
+
+# Set default project for Visual Studio.
+set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
+
+#
+# Tests
+#
+
+# Enable testing.
+if(${ENABLE_TESTS})
+	enable_testing()
+endif()
+
+#
+# External
+#
+
+# Link main dependency to the game engine.
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/${ENGINE_DIR}/" "Engine")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/${ENGINE_DIR}/Include/")
+target_link_libraries(${TARGET_NAME} "Engine")
