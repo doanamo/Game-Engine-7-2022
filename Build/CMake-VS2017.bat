@@ -17,5 +17,11 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 rem Open the solution file.
+for /f %%f in ('dir /b "*.sln"') do (
+    set solution=%%f
+    goto found
+)
+:found
+
 echo -- Opening the solution file..
-start "" "GameEngine.sln"
+start "" "%solution%"
