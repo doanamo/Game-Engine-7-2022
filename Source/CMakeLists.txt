@@ -87,6 +87,8 @@ set(TARGET_FILES
     "Source/Game/EntitySystem.cpp"
     "Include/Game/Component.hpp"
     "Include/Game/ComponentPool.hpp"
+    "Include/Game/ComponentSystem.hpp"
+    "Source/Game/ComponentSystem.cpp"
 )
 
 append_directory_path("${PROJECT_SOURCE_DIR}" "TARGET_FILES")
