@@ -144,9 +144,6 @@ source_group("Source\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Config/BuildInf
 
 # Microsoft Visual Studio
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    # Restore default main() entry instead of WinMain().
-    set_property(TARGET "Engine" APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
-
     # Disable Standard C++ Library warnings.
     set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
     set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
