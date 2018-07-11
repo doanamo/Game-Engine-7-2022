@@ -143,8 +143,13 @@ namespace Common
     class Dispatcher<ReturnType(Arguments...), Collector> : public DispatcherBase<ReturnType(Arguments...)>
     {
     public:
-        // Default contructor.
+        // Default constructor.
         Dispatcher(ReturnType defaultResult);
+
+        // Disallow copying and moving as registered
+        // receivers will hold references to dispatcher.
+        Dispatcher(Dispatcher&&) = delete;
+        Dispatcher& operator=(Dispatcher&&) = delete;
 
         // Invokes receivers with following arguments.
         ReturnType Dispatch(Arguments... arguments);

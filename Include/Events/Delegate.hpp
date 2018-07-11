@@ -104,6 +104,11 @@ namespace Common
         {
         }
 
+        // Disallow copying and moving as we may be holding
+        // a raw pointer to an outside object and its method.
+        Delegate(Delegate&&) = delete;
+        Delegate& operator=(Delegate&&) = delete;
+
         // Unbinds the delegate.
         void Bind(std::nullptr_t)
         {
