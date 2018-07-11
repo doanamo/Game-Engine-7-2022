@@ -99,14 +99,14 @@ namespace Debug
 #define VERIFY_SIMPLE(expression) \
     if(!(expression)) \
     { \
-        DEBUG_PRINT("Verifiaction failed: " DEBUG_STRINGIFY(expression)) \
+        DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression)) \
         DEBUG_BREAKPOINT();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
     if(!(expression)) \
     { \
-        DEBUG_PRINT("Verifiaction failed: " DEBUG_STRINGIFY(expression) " - " message) \
+        DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression) " - " message) \
         DEBUG_BREAKPOINT(); \
     }
 
