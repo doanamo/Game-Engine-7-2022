@@ -153,12 +153,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Use precompiled header for quicker compilation of static headers.
     set_source_files_properties(${SOURCE_FILES} PROPERTIES
         COMPILE_FLAGS "/Yu\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch\""
-        OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch"
     )
 
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch\""
-        OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch"
     )
 endif()
 
