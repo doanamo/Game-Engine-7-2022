@@ -121,6 +121,7 @@ std::string DefaultFormat::ComposeSessionEnd()
     stream << std::setw(2) << timeInfo->tm_hour        << ":";
     stream << std::setw(2) << timeInfo->tm_min         << ":";
     stream << std::setw(2) << timeInfo->tm_sec;
+    stream << "\n\n";
 
     // Return a composed string.
     return stream.str();

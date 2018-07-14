@@ -39,8 +39,14 @@ namespace Debug
 
 #define DEBUG_EXPAND_MACRO(x) x
 #define DEBUG_STRINGIFY(expression) #expression
-#define DEBUG_BREAKPOINT() __debugbreak();
 #define DEBUG_PRINT(message) LOG_DEBUG() << message;
+
+#ifdef _MSC_VER
+    #define DEBUG_BREAK() __debugbreak();
+#else
+    #include <sys/signal.h>
+    #define DEBUG_BREAK() raise(SIGTRAP);
+#endif
 
 /*
     Assert Macros
@@ -62,14 +68,14 @@ namespace Debug
         if(!(expression)) \
         { \
             DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression)); \
-            DEBUG_BREAKPOINT(); \
+            DEBUG_BREAK(); \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
         if(!(expression)) \
         { \
             DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message); \
-            DEBUG_BREAKPOINT(); \
+            DEBUG_BREAK(); \
         }
 #else
     #define ASSERT_SIMPLE(expression) ((void)0)
@@ -100,14 +106,14 @@ namespace Debug
     if(!(expression)) \
     { \
         DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression)) \
-        DEBUG_BREAKPOINT();                 \
+        DEBUG_BREAK();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
     if(!(expression)) \
     { \
         DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression) " - " message) \
-        DEBUG_BREAKPOINT(); \
+        DEBUG_BREAK(); \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, ...) arg3

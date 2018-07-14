@@ -48,7 +48,7 @@ void Logger::Write(const Logger::Message& message)
     if(!initialized)
     {
         std::cerr << "Default logger has not been initialized yet!";
-        DEBUG_BREAKPOINT();
+        DEBUG_BREAK();
     }
 
     sink.Write(message);
@@ -59,7 +59,7 @@ int Logger::AdvanceFrameReference()
     if (!initialized)
     {
         std::cerr << "Default logger has not been initialized yet!";
-        DEBUG_BREAKPOINT();
+        DEBUG_BREAK();
     }
 
     return sink.AdvanceFrameReference();
@@ -75,7 +75,7 @@ Logger::Sink& Logger::GetGlobalSink()
     if (!initialized)
     {
         std::cerr << "Default logger has not been initialized yet!";
-        DEBUG_BREAKPOINT();
+        DEBUG_BREAK();
     }
 
     return sink;

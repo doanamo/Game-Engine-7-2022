@@ -138,6 +138,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^powerpc*" OR
 endif()
 
 # set definitions and sources for intel
+#[[ Doan: Commented out due to improper check on Ubuntu
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i?86" OR
 	CMAKE_SYSTEM_PROCESSOR MATCHES "^x86_64*" )
   set(PNG_INTEL_SSE_POSSIBLE_VALUES on off)
@@ -160,6 +161,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i?86" OR
     add_definitions(-DPNG_INTEL_SSE_OPT=0)
   endif()
 endif()
+]]
 
 # set definitions and sources for MIPS
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "mipsel*" OR
@@ -258,7 +260,8 @@ if(UNIX)
   symbol_prefix()
 endif()
 
-find_program(AWK NAMES gawk awk)
+# Doan: Has to be commented due to faulty libpng detection down below.
+#find_program(AWK NAMES gawk awk)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

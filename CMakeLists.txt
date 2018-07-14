@@ -4,7 +4,7 @@
 
 # CMake version that was used to write this configuration file.
 # This is important to set in order to establish policies for many commands.
-cmake_minimum_required(VERSION 3.11.2)
+cmake_minimum_required(VERSION 3.10)
 
 #
 # Project
@@ -91,6 +91,9 @@ set(SOURCE_FILES
 # Declare a statically linked library target.
 add_library("Engine" STATIC ${SOURCE_FILES})
 
+# Declare compiler features.
+target_compile_features("Engine" PUBLIC cxx_std_17)
+
 # Declare include directories.
 target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 target_include_directories("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
@@ -158,6 +161,9 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch\""
     )
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # Explicitly specific languege version to avoid errors.
+    set(CMAKE_CXX_FLAGS "-std=c++17")
 endif()
 
 # Keep folder structure of include and source files in Visual Studio.
@@ -224,10 +230,10 @@ set(ZLIB_INCLUDE_DIR "External/zlib-1.2.11")
 set(ZLIB_LIBRARY "zlibstatic")
 
 # Add libpng library.
-Set(PNG_SHARED OFF CACHE BOOL "")
-Set(PNG_STATIC ON CACHE BOOL "")
-Set(PNG_TESTS OFF CACHE BOOL "")
-Set(SKIP_INSTALL_ALL ON CACHE BOOL "")
+set(PNG_SHARED OFF CACHE BOOL "")
+set(PNG_STATIC ON CACHE BOOL "")
+set(PNG_TESTS OFF CACHE BOOL "")
+set(SKIP_INSTALL_ALL ON CACHE BOOL "")
 
 add_subdirectory("External/libpng-1.6.34" "External/libpng" EXCLUDE_FROM_ALL)
 target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/External/zlib-1.2.11")

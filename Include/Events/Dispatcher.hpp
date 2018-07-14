@@ -91,48 +91,47 @@ namespace Common
         // Double linked list of receivers.
         Receiver<ReturnType(Arguments...)>* m_begin;
         Receiver<ReturnType(Arguments...)>* m_end;
+    };
 
-    private:
-        // Receiver invoker template class helper.
-        template<typename Type>
-        class ReceiverInvoker;
+    // Receiver invoker template class helper.
+    template<typename Type>
+    class ReceiverInvoker;
 
-        template<typename ReturnType, typename... Arguments>
-        class ReceiverInvoker<ReturnType(Arguments...)>
+    template<typename ReturnType, typename... Arguments>
+    class ReceiverInvoker<ReturnType(Arguments...)>
+    {
+    protected:
+        ReturnType Dispatch(Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
         {
-        protected:
-            ReturnType Dispatch(Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
-            {
-                ASSERT(receiver != nullptr, "Receiver is nullptr!");
-                return receiver->Receive(std::forward<Arguments>(arguments)...);
-            }
-        };
+            ASSERT(receiver != nullptr, "Receiver is nullptr!");
+            return receiver->Receive(std::forward<Arguments>(arguments)...);
+        }
+    };
 
-        // Collector dispatcher template class helper.
-        template<typename Collector, typename Type>
-        class CollectorDispatcher;
+    // Collector dispatcher template class helper.
+    template<typename Collector, typename Type>
+    class CollectorDispatcher;
 
-        template<class Collector, typename ReturnType, typename... Arguments>
-        class CollectorDispatcher<Collector, ReturnType(Arguments...)> : public ReceiverInvoker<ReturnType(Arguments...)>
+    template<class Collector, typename ReturnType, typename... Arguments>
+    class CollectorDispatcher<Collector, ReturnType(Arguments...)> : public ReceiverInvoker<ReturnType(Arguments...)>
+    {
+    public:
+        void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
         {
-        public:
-            void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
-            {
-                ASSERT(receiver != nullptr, "Receiver is nullptr!");
-                collector.ConsumeResult(this->Dispatch(receiver, std::forward<Arguments>(arguments)...));
-            }
-        };
+            ASSERT(receiver != nullptr, "Receiver is nullptr!");
+            collector.ConsumeResult(this->Dispatch(receiver, std::forward<Arguments>(arguments)...));
+        }
+    };
 
-        template<class Collector, typename... Arguments>
-        class CollectorDispatcher<Collector, void(Arguments...)> : public ReceiverInvoker<void(Arguments...)>
+    template<class Collector, typename... Arguments>
+    class CollectorDispatcher<Collector, void(Arguments...)> : public ReceiverInvoker<void(Arguments...)>
+    {
+    public:
+        void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments... arguments)
         {
-        public:
-            void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments... arguments)
-            {
-                ASSERT(receiver != nullptr, "Receiver is nullptr!");
-                this->Dispatch(receiver, std::forward<Arguments>(arguments)...);
-            }
-        };
+            ASSERT(receiver != nullptr, "Receiver is nullptr!");
+            this->Dispatch(receiver, std::forward<Arguments>(arguments)...);
+        }
     };
 
     // Dispatcher template class.
@@ -166,7 +165,7 @@ namespace Common
     class Dispatcher<void(Arguments...), Collector> : public DispatcherBase<void(Arguments...)>
     {
     public:
-        // Default contructor.
+        // Default constructor.
         Dispatcher();
 
         // Invokes receivers with following arguments.
@@ -356,7 +355,7 @@ namespace Common
         Collector collector(m_defaultResult);
 
         // Dispatch to receivers.
-        DispatcherBase<ReturnType(Arguments...)>::Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+        DispatcherBase<ReturnType(Arguments...)>::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
 
         // Return collected result.
         return collector.GetResult();
@@ -380,7 +379,7 @@ namespace Common
         CollectDefault<void> collector;
 
         // Dispatch to receivers.
-        DispatcherBase<void(Arguments...)>::Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+        DispatcherBase<void(Arguments...)>::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
     }
 
     template<typename Collector, typename... Arguments>

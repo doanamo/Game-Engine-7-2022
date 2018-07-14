@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <utility>
+#include <memory>
 #include "Common/NonCopyable.hpp"
 
 /*
@@ -36,7 +38,7 @@
         }
         SCOPE_GUARD_END();
 
-    Using braced conditonal scope guard macros:
+    Using braced conditional scope guard macros:
         bool cleanup = true;
         int* array = new int[10];
         SCOPE_GUARD_BEGIN(cleanup);
@@ -57,9 +59,15 @@ public:
     {
     }
 
-    ScopeGuard(ScopeGuard<Type>&& other)
+    ScopeGuard(ScopeGuard<Type>&& other) :
+        m_function(std::move(other.m_function))
+    {
+    }
+
+    ScopeGuard<Type>& operator=(ScopeGuard<Type>&& other)
     {
         m_function = std::move(other.m_function);
+        return *this;
     }
 
     ~ScopeGuard()
@@ -69,7 +77,11 @@ public:
 
 private:
     Type m_function;
+};
 
+template<>
+class ScopeGuard<void> : private NonCopyable
+{
 public:
     // Helper condition wrapper.
     class Condition

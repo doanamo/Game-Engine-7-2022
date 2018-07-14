@@ -3,7 +3,7 @@
 #
 
 # Specify minimum CMake version required.
-cmake_minimum_required(VERSION 3.11.2)
+cmake_minimum_required(VERSION 3.10)
 
 #
 # Tests
