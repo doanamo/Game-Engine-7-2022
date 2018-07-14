@@ -161,9 +161,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled.pch\""
     )
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # Explicitly specific languege version to avoid errors.
-    set(CMAKE_CXX_FLAGS "-std=c++17")
 endif()
 
 # Keep folder structure of include and source files in Visual Studio.

@@ -51,10 +51,8 @@ set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT
 # Tests
 #
 
-# Enable testing.
-if(${ENABLE_TESTS})
-	enable_testing()
-endif()
+# Enable tests.
+enable_testing()
 
 #
 # External
