@@ -7,7 +7,7 @@
 #include <memory>
 #include <typeindex>
 #include "Events/Receiver.hpp"
-#include "Game/EntityHandle.hpp"
+#include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 
 /*
