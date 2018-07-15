@@ -271,7 +271,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
     }
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return initialized = true;
 }

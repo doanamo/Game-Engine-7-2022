@@ -76,7 +76,7 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
     // Write message indent.
     for(int i = 0; i < context.messageIndent; ++i)
     {
-        stream << "  ";
+        stream << " ";
     }
 
     // Write message text.

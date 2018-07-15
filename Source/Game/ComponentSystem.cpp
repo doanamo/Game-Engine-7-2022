@@ -33,7 +33,7 @@ bool ComponentSystem::Initialize(EntitySystem& entitySystem)
     }
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return m_initialized = true;
 }

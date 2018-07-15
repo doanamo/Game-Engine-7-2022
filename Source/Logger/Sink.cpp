@@ -40,6 +40,12 @@ void Sink::RemoveOutput(Logger::Output* output)
 
 void Sink::Write(const Logger::Message& message)
 {
+    // Do not print messages of severity debug if not in debug configuration.
+#ifdef NDEBUG
+    if(message.GetSeverity() == Severity::Debug)
+        return;
+#endif
+
     // Write a message to all outputs.
     for(auto output : m_outputs)
     {

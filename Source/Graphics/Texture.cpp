@@ -258,7 +258,7 @@ bool Texture::Load(std::string filePath)
     }
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return true;
 }
@@ -338,7 +338,7 @@ bool Texture::Create(const TextureInfo& info)
     m_height = info.height;
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return initialized = true;
 }

@@ -191,7 +191,7 @@ bool Graphics::RenderState::Initialize()
     m_scissorBox = std::tie(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return m_initialized = true;
 }

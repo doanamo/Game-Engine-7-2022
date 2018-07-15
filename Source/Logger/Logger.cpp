@@ -6,6 +6,7 @@
 #include "Logger/Logger.hpp"
 #include "Logger/Output.hpp"
 #include "Logger/Sink.hpp"
+#include "Logger/Message.hpp"
 
 namespace
 {

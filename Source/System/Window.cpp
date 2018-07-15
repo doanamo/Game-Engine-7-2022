@@ -145,7 +145,7 @@ bool Window::Open(const WindowInfo& info)
     m_title = info.title;
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return initialized = true;
 }

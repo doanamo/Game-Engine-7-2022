@@ -111,7 +111,7 @@ namespace Logger
         LOG() << "Initializing nothingness..." << LOG_INDENT();
 
         // Write a log message.
-        LOG_INFO() << "Success!";
+        LOG_DEBUG() << "Success!";
     }
 */
 

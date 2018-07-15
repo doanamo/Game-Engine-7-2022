@@ -70,7 +70,7 @@ bool Shader::Load(std::string filePath)
     }
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return true;
 }
@@ -266,7 +266,7 @@ bool Shader::Compile(std::string shaderCode)
     LOG_INFO() << "Linked a shader program.";
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return initialized = true;
 }

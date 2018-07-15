@@ -186,7 +186,7 @@ bool Sampler::Create(const SamplerInfo& info)
     }
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return initialized = true;
 }

@@ -223,7 +223,7 @@ bool Editor::Initialize(System::Window* window)
     m_window = window;
 
     // Success!
-    LOG_INFO() << "Success!";
+    LOG_DEBUG() << "Success!";
 
     return m_initialized = true;
 }
