@@ -14,7 +14,34 @@ namespace
 
 void Build::Initialize()
 {
+    // Retrieve the working directory path.
     WorkingDir = Utility::GetTextFileContent("WorkingDir.txt");
+
+    // Print retrieved build info.
+    PrintInfo();
+}
+
+void Build::PrintInfo()
+{
+    LOG_INFO() << "Printing retrieved build info..." << LOG_INDENT();
+    LOG_INFO() << "Working directory: " << (Build::GetWorkingDir().empty() ? "default" : Build::GetWorkingDir());
+
+    {
+        LOG_INFO() << "Engine build info:" << LOG_INDENT();
+        LOG_INFO() << "Change number - " << Build::GetEngineChangeNumber();
+        LOG_INFO() << "Commit hash   - " << Build::GetEngineChangeHash();
+        LOG_INFO() << "Commit date   - " << Build::GetEngineChangeDate();
+        LOG_INFO() << "Branch name   - " << Build::GetEngineBranchName();
+    }
+
+    {
+        LOG_INFO() << "Project build info:" << LOG_INDENT();
+        LOG_INFO() << "Change number - " << Build::GetProjectChangeNumber();
+        LOG_INFO() << "Commit hash   - " << Build::GetProjectChangeHash();
+        LOG_INFO() << "Commit date   - " << Build::GetProjectChangeDate();
+        LOG_INFO() << "Branch name   - " << Build::GetProjectBranchName();
+    }
+    
 }
 
 std::string Build::GetWorkingDir()
@@ -22,37 +49,42 @@ std::string Build::GetWorkingDir()
     return WorkingDir;
 }
 
-std::string Build::GetBuildDir()
+std::string Build::GetEngineChangeNumber()
 {
-    return BuildInfo::BuildDir;
+    return BuildInfo::Engine::ChangeNumber;
 }
 
-std::string Build::GetIncludeDir()
+std::string Build::GetEngineChangeHash()
 {
-    return BuildInfo::IncludeDir;
+    return BuildInfo::Engine::CommitHash;
 }
 
-std::string Build::GetSourceDir()
+std::string Build::GetEngineChangeDate()
 {
-    return BuildInfo::SourceDir;
+    return BuildInfo::Engine::CommitDate;
 }
 
-std::string Build::GetChangeNumber()
+std::string Build::GetEngineBranchName()
 {
-    return BuildInfo::ChangeNumber;
+    return BuildInfo::Engine::BranchName;
 }
 
-std::string Build::GetChangeHash()
+std::string Build::GetProjectChangeNumber()
 {
-    return BuildInfo::CommitHash;
+    return BuildInfo::Project::ChangeNumber;
 }
 
-std::string Build::GetChangeDate()
+std::string Build::GetProjectChangeHash()
 {
-    return BuildInfo::CommitDate;
+    return BuildInfo::Project::CommitHash;
 }
 
-std::string Build::GetBranchName()
+std::string Build::GetProjectChangeDate()
 {
-    return BuildInfo::BranchName;
+    return BuildInfo::Project::CommitDate;
+}
+
+std::string Build::GetProjectBranchName()
+{
+    return BuildInfo::Project::BranchName;
 }

@@ -108,10 +108,9 @@ find_package("Git")
 
 add_custom_target("Configure"
     COMMAND ${CMAKE_COMMAND}
-        -D BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}"
-        -D INCLUDE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/Include"
-        -D SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/Source"
         -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
+        -D ENGINE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+        -D PROJECT_DIR="${CMAKE_SOURCE_DIR}"
         -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.hpp.in"
         -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.cmake"
