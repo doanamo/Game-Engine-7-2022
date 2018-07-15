@@ -84,7 +84,7 @@ RenderState::RenderState() :
 
 bool Graphics::RenderState::Initialize()
 {
-    LOG() << "Initializing a rendering state..." << LOG_INDENT();
+    LOG() << "Initializing rendering state..." << LOG_INDENT();
 
     // glEnable
     for(int i = 0; i < OpenGL::CapabilityCount; ++i)
@@ -191,8 +191,6 @@ bool Graphics::RenderState::Initialize()
     m_scissorBox = std::tie(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
 
     // Success!
-    LOG_DEBUG() << "Success!";
-
     return m_initialized = true;
 }
 

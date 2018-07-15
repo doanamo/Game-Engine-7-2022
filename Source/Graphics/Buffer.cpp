@@ -73,7 +73,7 @@ bool Buffer::Create(const BufferInfo& info)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Could not create a buffer handle!";
+        LOG_ERROR() << "Buffer handle could not be created!";
         return false;
     }
 
@@ -82,6 +82,8 @@ bool Buffer::Create(const BufferInfo& info)
 
     if(bufferSize != 0)
     {
+        LOG_INFO() << "Uploading " << bufferSize << " bytes of buffer data...";
+
         glBindBuffer(m_type, m_handle);
         glBufferData(m_type, bufferSize, info.data, info.usage);
         glBindBuffer(m_type, m_renderContext->GetState().GetBufferBinding(m_type));
@@ -93,11 +95,7 @@ bool Buffer::Create(const BufferInfo& info)
     m_elementCount = info.elementCount;
     m_usage = info.usage;
 
-    LOG_INFO() << "Buffer size is " << bufferSize << " bytes.";
-
     // Success!
-    LOG_DEBUG() << "Success!";
-
     return initialized = true;
 }
 

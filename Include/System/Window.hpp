@@ -23,7 +23,7 @@
 
         // Open a new window.
         System::Window window;
-        if(!window.Open(windowInfo))
+        if(!window.Initialize(windowInfo))
             return;
 
         // Run a window loop.
@@ -76,8 +76,8 @@ namespace System
         Window();
         ~Window();
 
-        // Opens the window.
-        bool Open(const WindowInfo& info = WindowInfo());
+        // Initializes the window.
+        bool Initialize(const WindowInfo& info = WindowInfo());
 
         // Makes the window's context current.
         void MakeContextCurrent();

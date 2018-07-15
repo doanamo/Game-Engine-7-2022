@@ -202,7 +202,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Could not create a vertex array handle!";
+        LOG_ERROR() << "Vertex array handle could not be created!";
         return false;
     }
 
@@ -271,8 +271,6 @@ bool VertexArray::Create(const VertexArrayInfo& info)
     }
 
     // Success!
-    LOG_DEBUG() << "Success!";
-
     return initialized = true;
 }
 

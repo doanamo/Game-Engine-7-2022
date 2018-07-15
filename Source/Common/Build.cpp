@@ -23,25 +23,20 @@ void Build::Initialize()
 
 void Build::PrintInfo()
 {
-    LOG_INFO() << "Printing retrieved build info..." << LOG_INDENT();
-    LOG_INFO() << "Working directory: " << (Build::GetWorkingDir().empty() ? "default" : Build::GetWorkingDir());
+    LOG_INFO() << "Printing build info..." << LOG_INDENT();
+    LOG_INFO() << "Working directory: \"" << (Build::GetWorkingDir().empty() ? "default" : Build::GetWorkingDir()) << "\"";
 
-    {
-        LOG_INFO() << "Engine build info:" << LOG_INDENT();
-        LOG_INFO() << "Change number - " << Build::GetEngineChangeNumber();
-        LOG_INFO() << "Commit hash   - " << Build::GetEngineChangeHash();
-        LOG_INFO() << "Commit date   - " << Build::GetEngineChangeDate();
-        LOG_INFO() << "Branch name   - " << Build::GetEngineBranchName();
-    }
+    LOG_INFO() << "Engine repository: "
+        << Build::GetEngineChangeNumber() << "-"
+        << Build::GetEngineChangeHash()   << "-"
+        << Build::GetEngineBranchName()   << " ("
+        << Build::GetEngineChangeDate()   << ")";
 
-    {
-        LOG_INFO() << "Project build info:" << LOG_INDENT();
-        LOG_INFO() << "Change number - " << Build::GetProjectChangeNumber();
-        LOG_INFO() << "Commit hash   - " << Build::GetProjectChangeHash();
-        LOG_INFO() << "Commit date   - " << Build::GetProjectChangeDate();
-        LOG_INFO() << "Branch name   - " << Build::GetProjectBranchName();
-    }
-    
+    LOG_INFO() << "Project repository: "
+        << Build::GetProjectChangeNumber() << "-"
+        << Build::GetProjectChangeHash()   << "-"
+        << Build::GetProjectBranchName()   << " ("
+        << Build::GetProjectChangeDate()   << ")";
 }
 
 std::string Build::GetWorkingDir()

@@ -70,12 +70,14 @@ bool Editor::Initialize(System::Window* window)
     // Check if the provided arguments are valid.
     VERIFY(window && window->IsValid(), "Invalid argument - \"window\" is invalid!");
 
-    // Create the user interface context.
+    // Create ImGui context.
+    LOG() << "Creating interface context...";
+
     m_interface = ImGui::CreateContext();
 
     if(m_interface == nullptr)
     {
-        LOG_ERROR() << "Failed to initialize the user interface context!";
+        LOG_ERROR() << "Failed to initialize user interface context!";
         return false;
     }
 
@@ -135,7 +137,7 @@ bool Editor::Initialize(System::Window* window)
 
     if(!subscriptionResults)
     {
-        LOG_ERROR() << "Failed to subscribe event receivers!";
+        LOG_ERROR() << "Failed to subscribe to event receivers!";
         return false;
     }
 
@@ -181,7 +183,7 @@ bool Editor::Initialize(System::Window* window)
     int fontWidth = 0;
     int fontHeight = 0;
 
-    io.Fonts->GetTexDataAsRGBA32(&fontData, &fontWidth, &fontHeight);
+    ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&fontData, &fontWidth, &fontHeight);
     
     if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
     {
@@ -202,7 +204,7 @@ bool Editor::Initialize(System::Window* window)
 
     SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
 
-    io.Fonts->TexID = (void*)m_fontTexture.GetHandle();
+    ImGui::GetIO().Fonts->TexID = (void*)m_fontTexture.GetHandle();
 
     // Create a sampler.
     // Set linear filtering otherwise textures without mipmaps will be black.
@@ -214,7 +216,7 @@ bool Editor::Initialize(System::Window* window)
         return false;
 
     // Load a shader.
-    if(!m_shader.Load(Build::GetWorkingDir() + "Data/Shaders/Interface.shader"))
+    if(!m_shader.Load("Data/Shaders/Interface.shader"))
         return false;
 
     SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_renderContext));
@@ -223,8 +225,6 @@ bool Editor::Initialize(System::Window* window)
     m_window = window;
 
     // Success!
-    LOG_DEBUG() << "Success!";
-
     return m_initialized = true;
 }
 
