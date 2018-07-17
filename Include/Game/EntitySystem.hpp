@@ -6,7 +6,7 @@
 
 #include <queue>
 #include "Events/Dispatcher.hpp"
-#include "Memory/SlotArray.hpp"
+#include "Game/EntityHandle.hpp"
 
 /*
     Entity System
@@ -41,6 +41,44 @@ namespace Game
     class EntitySystem
     {
     public:
+        EntitySystem();
+        ~EntitySystem();
+
+        // Creates an entity.
+        EntityHandle CreateEntity();
+
+        // Destroys an entity.
+        void DestroyEntity(const EntityHandle& entity);
+
+        // Destroys all entities.
+        void DestroyAllEntities();
+
+        // Process entity commands.
+        void ProcessCommands();
+
+        // Checks if an entity handle is valid.
+        bool IsHandleValid(const EntityHandle& entity) const;
+
+        // Returns the number of active entities.
+        unsigned int GetEntityCount() const
+        {
+            return m_entityCount;
+        }
+
+    public:
+        // Event that are dispatched on ProcessCommands() call.
+        struct Events
+        {
+            Events();
+
+            typedef Common::Dispatcher<void(EntityHandle)> EntityCreatedDispatcher;
+            typedef Common::Dispatcher<void(EntityHandle)> EntityDestroyedDispatcher;
+
+            EntityCreatedDispatcher entityCreated;
+            EntityDestroyedDispatcher entityDestroyed;
+        } events;
+
+    private:
         // Handle flags.
         struct HandleFlags
         {
@@ -56,52 +94,19 @@ namespace Game
                 Destroy = 1 << 1,
             };
 
-            using Type = unsigned int;
+            typedef unsigned int Type;
         };
 
-        // Type declarations.
-        using EntityArray = Common::SlotArray<HandleFlags::Type>;
-        using EntityHandle = typename EntitySystem::EntityArray::HandleType;
-        
-    public:
-        EntitySystem();
-        ~EntitySystem();
-
-        // Creates an entity.
-        EntityHandle CreateEntity();
-
-        // Destroys an entity.
-        void DestroyEntity(const EntityHandle& entityHandle);
-
-        // Destroys all entities.
-        void DestroyAllEntities();
-
-        // Process entity commands.
-        void ProcessCommands();
-
-        // Checks if an entity handle is valid.
-        bool IsHandleValid(const EntityHandle& entityHandle) const;
-
-        // Returns the number of active entities.
-        unsigned int GetEntityCount() const
+        // Handle entry structure.
+        struct HandleEntry
         {
-            return m_entities.GetSize();
-        }
+            HandleEntry(EntityHandle::ValueType identifier);
 
-    public:
-        // Event that are dispatched on ProcessCommands() call.
-        struct Events
-        {
-            Events();
+            EntityHandle handle;
+            HandleFlags::Type flags;
+            EntityHandle::ValueType nextFree;
+        };
 
-            using EntityCreatedDispatcher = Common::Dispatcher<void(EntityHandle)>;
-            using EntityDestroyedDispatcher = Common::Dispatcher<void(EntityHandle)>;
-
-            EntityCreatedDispatcher entityCreated;
-            EntityDestroyedDispatcher entityDestroyed;
-        } events;
-
-    private:
         // Entity command types.
         struct EntityCommands
         {
@@ -121,16 +126,26 @@ namespace Game
             EntityHandle handle;
         };
 
-        using CommandList = std::queue<EntityCommand>;
+        // Type declarations.
+        typedef std::vector<HandleEntry> HandleList;
+        typedef std::queue<EntityCommand> CommandList;
 
     private:
+        // Frees an entity handle.
+        void FreeHandle(int handleIndex, HandleEntry& handleEntry);
+
+    private:
+        // Number of active entities.
+        unsigned int m_entityCount;
+        
         // List of commands.
         CommandList m_commands;
 
         // List of entity handles.
-        EntityArray m_entities;
-    };
+        HandleList m_handles;
 
-    // Declare an entity handle in Game namespace.
-    using EntityHandle = typename EntitySystem::EntityHandle;
+        // List of free handle identifiers.
+        EntityHandle::ValueType m_freeListDequeue;
+        EntityHandle::ValueType m_freeListEnqueue;
+    };
 }

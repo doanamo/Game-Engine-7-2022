@@ -5,8 +5,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "Memory/SlotArray.hpp"
-#include "Game/EntitySystem.hpp"
+#include "Game/EntityHandle.hpp"
 #include "Game/Component.hpp"
 
 /*
@@ -42,11 +41,25 @@ namespace Game
         // Check template type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
+        // Component entry structure.
+        typedef std::size_t ComponentIndex;
+
+        struct ComponentEntry
+        {
+            ComponentEntry();
+
+            bool created;
+            ComponentType component;
+            ComponentIndex nextFree;
+        };
+
         // Type declarations.
-        using ComponentArray = Common::SlotArray<ComponentType>;
-        using ComponentIterator = typename ComponentArray::Iterator;
-        using ComponentHandle = typename ComponentArray::HandleType;
-        using ComponentLookup = std::unordered_map<EntityHandle, ComponentHandle>;
+        typedef std::unordered_map<EntityHandle, ComponentIndex> ComponentDictionary;
+        typedef std::vector<ComponentEntry> ComponentList;
+        typedef typename ComponentList::iterator ComponentIterator;
+
+        // Constant definitions.
+        static const ComponentIndex InvalidIndex = -1;
 
     public:
         ComponentPool();
@@ -54,15 +67,15 @@ namespace Game
 
         // Creates a component.
         // Returns nullptr if component could not be created.
-        ComponentType* CreateComponent(EntityHandle entityHandle);
+        ComponentType* CreateComponent(EntityHandle handle);
 
         // Lookups a component.
         // Returns nullptr if component could not be found.
-        ComponentType* LookupComponent(EntityHandle entityHandle);
+        ComponentType* LookupComponent(EntityHandle handle);
 
         // Destroys a component.
         // Returns true if component was found and destroyed.
-        bool DestroyComponent(EntityHandle entityHandle) override;
+        bool DestroyComponent(EntityHandle handle) override;
 
         // Get the begin iterator.
         ComponentIterator Begin();
@@ -72,13 +85,27 @@ namespace Game
 
     private:
         // List of components.
-        ComponentArray m_components;
-        ComponentLookup m_lookup;
+        ComponentDictionary m_dictionary;
+        ComponentList m_components;
+
+        // List of free component entries.
+        ComponentIndex m_freeListDequeue;
+        ComponentIndex m_freeListEnqueue;
     };
 
     // Template definitions.
     template<typename ComponentType>
-    ComponentPool<ComponentType>::ComponentPool()
+    ComponentPool<ComponentType>::ComponentEntry::ComponentEntry() :
+        created(false),
+        component(),
+        nextFree(InvalidIndex)
+    {
+    }
+
+    template<typename ComponentType>
+    ComponentPool<ComponentType>::ComponentPool() :
+        m_freeListEnqueue(InvalidIndex),
+        m_freeListDequeue(InvalidIndex)
     {
     }
 
@@ -88,49 +115,104 @@ namespace Game
     }
 
     template<typename ComponentType>
-    ComponentType* ComponentPool<ComponentType>::CreateComponent(EntityHandle entityHandle)
+    ComponentType* ComponentPool<ComponentType>::CreateComponent(EntityHandle handle)
     {
         // Make sure that there is no component with this entity handle.
-        if(m_lookup.find(entityHandle) != m_lookup.end())
+        if(m_dictionary.find(handle) != m_dictionary.end())
             return nullptr;
 
-        // Create a new component.
-        ComponentHandle componentHandle = m_components.Create();
+        // Create a new component entry if the free list is empty.
+        if(m_freeListDequeue == InvalidIndex)
+        {
+            // Create a new component entry.
+            m_components.emplace_back();
+
+            // Make a new entry the only element in the free list.
+            m_freeListDequeue = m_freeListEnqueue = m_components.size() - 1;
+        }
+
+        // Retrieve a free component entry and remove it from the free list.
+        ComponentIndex componentIndex = m_freeListDequeue;
+        ComponentEntry& componentEntry = m_components[componentIndex];
+
+        if(m_freeListDequeue == m_freeListEnqueue)
+        {
+            // Remove the only entry from the free list.
+            m_freeListDequeue = InvalidIndex;
+            m_freeListEnqueue = InvalidIndex;
+        }
+        else
+        {
+            // Remove from the beginning of the free list.
+            ASSERT(componentEntry.nextFree != InvalidIndex, "Component entry is missing next free index!");
+
+            m_freeListDequeue = componentEntry.nextFree;
+            componentEntry.nextFree = InvalidIndex;
+        }
 
         // Add newly created component to the lookup dictionary.
-        auto result = m_lookup.emplace(entityHandle, componentHandle);
+        auto result = m_dictionary.emplace(std::piecewise_construct, std::forward_as_tuple(handle), std::forward_as_tuple(componentIndex));
         ASSERT(result.second, "Failed to add a component to the dictionary!");
 
+        // Mark component as created.
+        ASSERT(!componentEntry.created, "Component is already marked as created!");
+        componentEntry.created = true;
+
         // Return newly created component
-        return m_components.Lookup(componentHandle);
+        return &componentEntry.component;
     }
 
     template<typename ComponentType>
-    ComponentType* ComponentPool<ComponentType>::LookupComponent(EntityHandle entityHandle)
+    ComponentType* ComponentPool<ComponentType>::LookupComponent(EntityHandle handle)
     {
         // Find the component.
-        auto it = m_lookup.find(entityHandle);
-        if(it == m_lookup.end())
+        auto it = m_dictionary.find(handle);
+        if(it == m_dictionary.end())
             return nullptr;
 
+        // Retrieve the component entry.
+        ComponentEntry& componentEntry = m_components[it->second];
+
         // Return a pointer to the component.
-        return m_components.Lookup(it->second);
+        return &componentEntry.component;
     }
 
     template<typename ComponentType>
     bool ComponentPool<ComponentType>::DestroyComponent(EntityHandle handle)
     {
         // Find the component.
-        auto it = m_lookup.find(handle);
-        if(it == m_lookup.end())
+        auto it = m_dictionary.find(handle);
+        if(it == m_dictionary.end())
             return false;
 
-        // Remove component entry from the array.
-        bool result = m_components.Remove(it->second);
-        ASSERT(result, "Failed to remove a known component from the array!");
+        // Retrieve the component entry.
+        ComponentEntry& componentEntry = m_components[it->second];
 
-        // Remove component entry from the lookup.
-        m_lookup.erase(it);
+        // Mark component as not created.
+        ASSERT(componentEntry.created, "Destroying component that is not marked as created!");
+        componentEntry.created = false;
+
+        // Reset component instance to its default state.
+        componentEntry.component = ComponentType();
+
+        // Add component entry to the free list.
+        if(m_freeListDequeue == m_freeListEnqueue)
+        {
+            // Make component entry index as the only element in the free list. 
+            m_freeListDequeue = it->second;
+            m_freeListEnqueue = it->second;
+        }
+        else
+        {
+            // Add component entry index at the end of the free list.
+            ComponentEntry& lastFreeEntry = m_components[m_freeListEnqueue];
+
+            lastFreeEntry.nextFree = it->second;
+            m_freeListEnqueue = it->second;
+        }
+
+        // Remove component entry from the dictionary.
+        m_dictionary.erase(it);
 
         return true;
     }
@@ -138,12 +220,12 @@ namespace Game
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentPool<ComponentType>::Begin()
     {
-        return m_components.Begin();
+        return m_components.begin();
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentPool<ComponentType>::End()
     {
-        return m_components.End();
+        return m_components.end();
     }
 }

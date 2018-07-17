@@ -37,8 +37,6 @@ set(SOURCE_FILES
     "Include/Events/Dispatcher.hpp"
     "Include/Events/Receiver.hpp"
 
-    "Include/Memory/SlotArray.hpp"
-
     "Include/Logger/Logger.hpp"
     "Source/Logger/Logger.cpp"
     "Include/Logger/Message.hpp"
@@ -77,6 +75,7 @@ set(SOURCE_FILES
     "Include/Editor/Editor.hpp"
     "Source/Editor/Editor.cpp"
 
+    "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"
     "Source/Game/EntitySystem.cpp"
     "Include/Game/Component.hpp"
