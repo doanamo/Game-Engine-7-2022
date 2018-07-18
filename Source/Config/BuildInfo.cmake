@@ -11,16 +11,16 @@ execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${ENGINE_DIR}" log -1 --format=%
 execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${ENGINE_DIR}" rev-parse --abbrev-ref HEAD
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE GIT_ENGINE_BRANCH_NAME)
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJEC_DIR}" rev-list --count --first-parent HEAD
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJECT_DIR}" rev-list --count --first-parent HEAD
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE GIT_PROJECT_CHANGE_NUMBER)
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJEC_DIR}" log -1 --format=%h
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJECT_DIR}" log -1 --format=%h
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE GIT_PROJECT_COMMIT_HASH)
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJEC_DIR}" log -1 --format=%ci
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJECT_DIR}" log -1 --format=%ci
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE GIT_PROJECT_COMMIT_DATE)
 
-execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJEC_DIR}" rev-parse --abbrev-ref HEAD
+execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${PROJECT_DIR}" rev-parse --abbrev-ref HEAD
     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE GIT_PROJECT_BRANCH_NAME)
 
 # Save retrieved information as a config file.
