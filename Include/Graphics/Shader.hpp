@@ -25,7 +25,7 @@
 
     ExampleShader.glsl
     [
-        #version 330
+        \#version 330
         
         #if defined(VERTEX_SHADER)
             uniform mat4 vertexTransform;
