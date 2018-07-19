@@ -71,8 +71,8 @@ namespace Game
         {
             Events();
 
-            typedef Common::Dispatcher<void(EntityHandle)> EntityCreatedDispatcher;
-            typedef Common::Dispatcher<void(EntityHandle)> EntityDestroyedDispatcher;
+            using EntityCreatedDispatcher = Common::Dispatcher<void(EntityHandle)>;
+            using EntityDestroyedDispatcher = Common::Dispatcher<void(EntityHandle)>;
 
             EntityCreatedDispatcher entityCreated;
             EntityDestroyedDispatcher entityDestroyed;
@@ -94,7 +94,7 @@ namespace Game
                 Destroy = 1 << 1,
             };
 
-            typedef unsigned int Type;
+            using Type = unsigned int;
         };
 
         // Handle entry structure.
@@ -126,9 +126,9 @@ namespace Game
         };
 
         // Type declarations.
-        typedef std::vector<HandleEntry> HandleList;
-        typedef std::queue<HandleEntry*> FreeList;
-        typedef std::queue<EntityCommand> CommandList;
+        using EntryList = std::vector<HandleEntry>;
+        using FreeList = std::queue<HandleEntry*>;
+        using CommandList = std::queue<EntityCommand>;
 
     private:
         // Frees an entity handle.
@@ -142,7 +142,7 @@ namespace Game
         CommandList m_commands;
 
         // List of entity handles.
-        HandleList m_handleEntries;
+        EntryList m_handleEntries;
 
         // List of free entity handles.
         FreeList m_freeHandles;
