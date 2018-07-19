@@ -1,0 +1,27 @@
+image: braintwister/ubuntu-18.04-cmake-3.11-gcc-8
+
+stages:
+    - build
+    - test
+
+build:
+    stage: build
+    before_script:
+        - apt-get update --yes
+        - apt-get install --yes xorg-dev libglu1-mesa-dev
+    script:
+        - mkdir cmake-build
+        - cd cmake-build
+        - cmake ..
+        - cmake --build . --config Debug
+    artifacts:
+        paths:
+            - cmake-build/
+
+test:
+    stage: test
+    dependencies:
+        - build
+    script:
+        - cd cmake-build
+        - ctest -C Debug
