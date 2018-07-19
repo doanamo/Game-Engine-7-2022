@@ -18,9 +18,8 @@
     #include <stdlib.h>
     #include <crtdbg.h>
 
-    // Override new operator (breaks placement new).
+    // Override new operator to store additional info about an allocation.
     #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-    #define new DEBUG_NEW
 #endif
 
 /*
