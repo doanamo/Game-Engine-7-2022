@@ -204,7 +204,7 @@ bool Editor::Initialize(System::Window* window)
 
     SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
 
-    ImGui::GetIO().Fonts->TexID = (void*)m_fontTexture.GetHandle();
+    ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)m_fontTexture.GetHandle();
 
     // Create a sampler.
     // Set linear filtering otherwise textures without mipmaps will be black.
