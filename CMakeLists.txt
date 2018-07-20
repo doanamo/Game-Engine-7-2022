@@ -4,7 +4,7 @@
 
 # CMake version that was used to write this configuration file.
 # This is important to set in order to establish policies for many commands.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 
 #
 # Project
