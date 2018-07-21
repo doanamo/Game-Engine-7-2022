@@ -18,6 +18,7 @@
     {
         // Create an entity system.
         Game::EntitySystem entitySystem;
+        entitySystem.Initialize();
     
         // Create a new entity.
         EntityHandle entity = entitySystem.CreateEntity();
@@ -43,6 +44,9 @@ namespace Game
     public:
         EntitySystem();
         ~EntitySystem();
+
+        // Initializes the entity system.
+        bool Initialize();
 
         // Creates an entity.
         EntityHandle CreateEntity();
@@ -135,6 +139,9 @@ namespace Game
         void FreeHandle(int handleIndex, HandleEntry& handleEntry);
 
     private:
+        // Initialization state.
+        bool m_initialized;
+
         // Number of active entities.
         unsigned int m_entityCount;
         
