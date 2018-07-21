@@ -57,6 +57,14 @@ float Timer::CalculateFrameDelta()
     return frameDeltaSeconds;
 }
 
+double Timer::GetCurrentTime() const
+{
+    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+
+    // Return time in seconds since the application start.
+    return m_currentTimeCounter * (1.0 / m_timerFrequency);
+}
+
 void Timer::SetMaxFrameDelta(float value)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");

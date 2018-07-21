@@ -47,6 +47,9 @@ namespace System
         // Calculates a frame delta time in seconds between last two ticks.
         float CalculateFrameDelta();
 
+        // Gets the current time in seconds since the application start.
+        double GetCurrentTime() const;
+
         // Sets the maximum frame delta in seconds that can be returned.
         void SetMaxFrameDelta(float value);
 
