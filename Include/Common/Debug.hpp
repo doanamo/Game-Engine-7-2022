@@ -52,11 +52,11 @@ namespace Debug
 
     Ensures that a given expression is true.
     Use as a sanity check to guard against programming errors.
-    
+
     Behavior in different build configurations:
     - Debug: Triggers a breakpoint
     - Release: Check is stripped
-    
+
     Example usage:
         ASSERT(m_initialized);
         ASSERT(instance != nullptr, "Invalid instance.");
@@ -64,14 +64,14 @@ namespace Debug
 
 #ifndef NDEBUG
     #define ASSERT_SIMPLE(expression) \
-        if(!(expression)) \
+        if(expression) { } else \
         { \
             DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression)); \
             DEBUG_BREAK(); \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
-        if(!(expression)) \
+        if(expression) { } else \
         { \
             DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message); \
             DEBUG_BREAK(); \
@@ -88,28 +88,28 @@ namespace Debug
 
 /*
     Verify Macro
-    
+
     Ensures that a given expression is true.
     Use as a safety measure in case of runtime errors.
 
     Behavior in different build configurations:
     - Debug: Triggers a breakpoint
     - Release: Triggers a breakpoint
-    
+
     Example usage:
         VERIFY(m_initialized);
         VERIFY(instance != nullptr, "Invalid instance.");
 */
 
 #define VERIFY_SIMPLE(expression) \
-    if(!(expression)) \
+    if(expression) { } else \
     { \
         DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression)) \
         DEBUG_BREAK();                 \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
-    if(!(expression)) \
+    if(expression) { } else \
     { \
         DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression) " - " message) \
         DEBUG_BREAK(); \
