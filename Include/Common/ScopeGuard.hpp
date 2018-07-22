@@ -66,7 +66,11 @@ public:
 
     ScopeGuard<Type>& operator=(ScopeGuard<Type>&& other)
     {
-        m_function = std::move(other.m_function);
+        if(this != &other)
+        {
+            m_function = std::move(other.m_function);
+        }
+
         return *this;
     }
 
