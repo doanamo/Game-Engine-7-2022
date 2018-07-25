@@ -58,11 +58,11 @@ namespace Graphics
     struct VertexAttribute
     {
         VertexAttribute();
-        VertexAttribute(const Buffer* buffer, VertexAttributeType type, GLenum value, bool normalized);
+        VertexAttribute(const Buffer* buffer, VertexAttributeType attributeType, GLenum valueType, bool normalized);
 
         const Buffer* buffer;
-        VertexAttributeType type;
-        GLenum value;
+        VertexAttributeType attributeType;
+        GLenum valueType;
         bool normalize;
     };
 

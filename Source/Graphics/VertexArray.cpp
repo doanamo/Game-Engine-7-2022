@@ -88,16 +88,16 @@ namespace
 
 VertexAttribute::VertexAttribute() :
     buffer(nullptr),
-    type(VertexAttributeType::Invalid),
-    value(OpenGL::InvalidEnum),
+    attributeType(VertexAttributeType::Invalid),
+    valueType(OpenGL::InvalidEnum),
     normalize(false)
 {
 }
 
 VertexAttribute::VertexAttribute(const Buffer* buffer, VertexAttributeType type, GLenum value, bool normalize) :
     buffer(buffer),
-    type(type),
-    value(value),
+    attributeType(type),
+    valueType(value),
     normalize(normalize)
 {
 }
@@ -178,13 +178,13 @@ bool VertexArray::Create(const VertexArrayInfo& info)
             return false;
         }
 
-        if(attribute.type == VertexAttributeType::Invalid)
+        if(attribute.attributeType == VertexAttributeType::Invalid)
         {
             LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].storage\" is invalid!";
             return false;
         }
 
-        if(attribute.value == OpenGL::InvalidEnum)
+        if(attribute.valueType == OpenGL::InvalidEnum)
         {
             LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].type\" is invalid!";
             return false;
@@ -237,7 +237,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
         }
 
         // Setup vertex attributes for each row of an input storage.
-        for(int l = 0; l < GetVertexAttributeTypeRowCount(attribute.type); ++l)
+        for(int l = 0; l < GetVertexAttributeTypeRowCount(attribute.attributeType); ++l)
         {
             // Enable vertex attribute.
             glEnableVertexAttribArray(currentLocation);
@@ -246,8 +246,8 @@ bool VertexArray::Create(const VertexArrayInfo& info)
             // Set vertex attribute pointer.
             glVertexAttribPointer(
                 currentLocation,
-                GetVertexAttributeTypeRowElements(attribute.type),
-                attribute.value,
+                GetVertexAttributeTypeRowElements(attribute.attributeType),
+                attribute.valueType,
                 attribute.normalize ? GL_TRUE : GL_FALSE,
                 attribute.buffer->GetElementSize(),
                 (void*)(intptr_t)currentOffset
@@ -266,7 +266,7 @@ bool VertexArray::Create(const VertexArrayInfo& info)
             currentLocation += 1;
 
             // Increment current offset.
-            currentOffset += GetVertexAttributeValueBytes(attribute.value) * GetVertexAttributeTypeRowElements(attribute.type);
+            currentOffset += GetVertexAttributeValueBytes(attribute.valueType) * GetVertexAttributeTypeRowElements(attribute.attributeType);
         }
     }
 
