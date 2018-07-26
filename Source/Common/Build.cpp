@@ -10,12 +10,14 @@
 namespace
 {
     std::string WorkingDir;
+    std::string EngineDir;
 }
 
 void Build::Initialize()
 {
-    // Retrieve the working directory path.
+    // Retrieve directory path.
     WorkingDir = Utility::GetTextFileContent("WorkingDir.txt");
+    EngineDir = Utility::GetTextFileContent("EngineDir.txt");
 
     // Print retrieved build info.
     PrintInfo();
@@ -42,6 +44,11 @@ void Build::PrintInfo()
 std::string Build::GetWorkingDir()
 {
     return WorkingDir;
+}
+
+std::string Build::GetEngineDir()
+{
+    return EngineDir;
 }
 
 std::string Build::GetEngineChangeNumber()

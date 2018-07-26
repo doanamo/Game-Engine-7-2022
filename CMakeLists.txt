@@ -134,6 +134,10 @@ source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/B
 target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
 source_group("Source\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
 
+# Write a file pointing at the engine directory.
+get_filename_component(ABSOLUTE_ENGINE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Deploy" ABSOLUTE)
+file(WRITE "${CMAKE_BINARY_DIR}/EngineDir.txt" "${ABSOLUTE_ENGINE_DIR}/")
+
 #
 # Tests
 #

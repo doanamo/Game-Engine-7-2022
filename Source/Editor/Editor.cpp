@@ -216,7 +216,7 @@ bool Editor::Initialize(System::Window* window)
         return false;
 
     // Load a shader.
-    if(!m_shader.Load("Data/Shaders/Interface.shader"))
+    if(!m_shader.Load(Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader"))
         return false;
 
     SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_renderContext));

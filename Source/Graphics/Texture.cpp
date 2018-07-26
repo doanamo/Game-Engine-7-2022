@@ -58,7 +58,7 @@ bool Texture::Load(std::string filePath)
     }
 
     // Open the file stream.
-    std::ifstream file(Build::GetWorkingDir() + filePath, std::ios::binary);
+    std::ifstream file(filePath, std::ios::binary);
 
     if(!file.is_open())
     {

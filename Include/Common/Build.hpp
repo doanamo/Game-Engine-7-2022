@@ -20,8 +20,11 @@ namespace Build
     // Prints retrieved build info to log.
     void PrintInfo();
 
-    // Gets the working directory.
+    // Gets the directory where application data is located.
     std::string GetWorkingDir();
+
+    // Gets the directory where engine data is located.
+    std::string GetEngineDir();
 
     // Build info retrieved from engine's repository.
     std::string GetEngineChangeNumber();
