@@ -209,6 +209,10 @@ namespace Graphics
         void ClearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
         std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> GetClearColor() const;
 
+        void DepthMask(GLboolean flag);
+        GLboolean GetDepthMask() const;
+
+        void BlendFunc(GLenum sfactor, GLenum dfactor);
         void BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
         std::tuple<GLenum, GLenum, GLenum, GLenum> GetBlendFuncSeparate() const;
 
@@ -259,6 +263,9 @@ namespace Graphics
 
         // glClearColor
         std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> m_clearColor;
+
+        // glDepthMask
+        GLboolean m_depthMask;
 
         // glBlendFuncSeparate
         std::tuple<GLenum, GLenum, GLenum, GLenum> m_blendFuncSeparate;

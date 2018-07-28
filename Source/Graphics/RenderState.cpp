@@ -6,7 +6,7 @@
 #include "Graphics/RenderState.hpp"
 using namespace Graphics;
 
-bool Graphics::OpenGL::CheckErrors()
+bool OpenGL::CheckErrors()
 {
     bool errorFound = false;
 
@@ -72,6 +72,9 @@ RenderState::RenderState() :
     // glClearColor
     m_clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+    // glDepthMask
+    m_depthMask = GL_TRUE;
+
     // glBlendFuncSeparate
     m_blendFuncSeparate = { GL_ZERO, GL_ZERO, GL_ZERO, GL_ZERO };
 
@@ -82,7 +85,7 @@ RenderState::RenderState() :
     m_scissorBox = { 0, 0, 0, 0 };
 }
 
-bool Graphics::RenderState::Initialize()
+bool RenderState::Initialize()
 {
     LOG() << "Initializing rendering state..." << LOG_INDENT();
 
@@ -118,6 +121,8 @@ bool Graphics::RenderState::Initialize()
     // glBindSampler
     int SamplerBindingUnitCount = 0;
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &SamplerBindingUnitCount);
+    OpenGL::CheckErrors();
+
     m_samplerBindings.resize(SamplerBindingUnitCount, OpenGL::InvalidHandle);
 
     for(size_t i = 0; i < m_samplerBindings.size(); ++i)
@@ -159,27 +164,37 @@ bool Graphics::RenderState::Initialize()
 
     m_clearColor = std::tie(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 
+    // glDepthMask
+    glGetIntegerv(GL_DEPTH_WRITEMASK, (GLint*)&m_depthMask);
+    OpenGL::CheckErrors();
+
     // glBlendFuncSeparate
     GLenum blendSrcRGB;
     glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&blendSrcRGB);
+    OpenGL::CheckErrors();
 
     GLenum blendDstRGB;
     glGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&blendDstRGB);
+    OpenGL::CheckErrors();
 
     GLenum blendSrcAlpha;
     glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&blendSrcAlpha);
+    OpenGL::CheckErrors();
 
     GLenum blendDstAlpha;
     glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&blendDstAlpha);
+    OpenGL::CheckErrors();
 
     m_blendFuncSeparate = std::tie(blendSrcRGB, blendDstRGB, blendSrcAlpha, blendDstAlpha);
 
     // glBlendEquationSeparate
     GLenum blendEquationRGB;
     glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&blendEquationRGB);
+    OpenGL::CheckErrors();
 
     GLenum blendEquationAlpha;
     glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&blendEquationAlpha);
+    OpenGL::CheckErrors();
 
     m_blendEquationSeparate = std::tie(blendEquationRGB, blendEquationAlpha);
 
@@ -203,51 +218,52 @@ void RenderState::Apply(RenderState& other)
     {
         if(other.m_capabilities[i] == GL_TRUE)
         {
-            Enable(OpenGL::Capabilities[i]);
+            this->Enable(OpenGL::Capabilities[i]);
         }
         else
         {
-            Disable(OpenGL::Capabilities[i]);
+            this->Disable(OpenGL::Capabilities[i]);
         }
     }
 
     // glBindVertexArray
-    BindVertexArray(other.m_vertexArrayBinding);
+    this->BindVertexArray(other.m_vertexArrayBinding);
 
     // glBindBuffer
     for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
-        BindBuffer(std::get<0>(OpenGL::BufferBindingTargets[i]), other.m_bufferBindings[i]);
+        this->BindBuffer(std::get<0>(OpenGL::BufferBindingTargets[i]), other.m_bufferBindings[i]);
     }
 
     // glActiveTexture
-    ActiveTexture(other.m_activeTexture);
+    this->ActiveTexture(other.m_activeTexture);
 
     // glBindTexture
     for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
-        BindTexture(std::get<0>(OpenGL::TextureBindingTargets[i]), other.m_textureBindings[i]);
+        this->BindTexture(std::get<0>(OpenGL::TextureBindingTargets[i]), other.m_textureBindings[i]);
     }
 
     // glBindSampler
-    ASSERT(m_samplerBindings.size() == other.m_samplerBindings.size(), "Different sampler binding array sizes between states!");
+    ASSERT(m_samplerBindings.size() == other.m_samplerBindings.size(), 
+        "Different sampler binding array sizes between states!");
 
     for(size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        BindSampler(i, other.m_samplerBindings[i]);
+        this->BindSampler(i, other.m_samplerBindings[i]);
     }
 
     // glPixelStore
     for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
-        PixelStore(OpenGL::PixelStoreParameters[i], other.m_pixelStore[i]);
+        this->PixelStore(OpenGL::PixelStoreParameters[i], other.m_pixelStore[i]);
     }
 
     // glUseProgram
-    UseProgram(other.m_currentProgram);
+    this->UseProgram(other.m_currentProgram);
 
     // glViewport
-    Viewport(
+    this->Viewport(
         std::get<0>(other.m_viewport),
         std::get<1>(other.m_viewport),
         std::get<2>(other.m_viewport),
@@ -255,18 +271,21 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glClearDepth
-    ClearDepth(other.m_clearDepth);
+    this->ClearDepth(other.m_clearDepth);
 
     // glClearColor
-    ClearColor(
+    this->ClearColor(
         std::get<0>(other.m_clearColor),
         std::get<1>(other.m_clearColor),
         std::get<2>(other.m_clearColor),
         std::get<3>(other.m_clearColor)
     );
 
+    // glDepthMask
+    this->DepthMask(m_depthMask);
+
     // glBlendFuncSeparate
-    BlendFuncSeparate(
+    this->BlendFuncSeparate(
         std::get<0>(other.m_blendFuncSeparate),
         std::get<1>(other.m_blendFuncSeparate),
         std::get<2>(other.m_blendFuncSeparate),
@@ -274,13 +293,13 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glBlendEquationSeparate
-    BlendEquationSeparate(
+    this->BlendEquationSeparate(
         std::get<0>(other.m_blendEquationSeparate),
         std::get<1>(other.m_blendEquationSeparate)
     );
 
     // glScissor
-    Scissor(
+    this->Scissor(
         std::get<0>(other.m_scissorBox),
         std::get<1>(other.m_scissorBox),
         std::get<2>(other.m_scissorBox),
@@ -293,7 +312,7 @@ void RenderState::Enable(GLenum cap)
     ASSERT(m_initialized, "Render state is not initialized!");
 
     // Check if states match.
-    if(IsEnabled(cap))
+    if(this->IsEnabled(cap))
         return;
 
     // Call OpenGL function.
@@ -624,6 +643,37 @@ std::tuple<GLfloat, GLfloat, GLfloat, GLfloat> RenderState::GetClearColor() cons
     ASSERT(m_initialized, "Render state is not initialized!");
     
     return m_clearColor;
+}
+
+void RenderState::DepthMask(GLboolean flag)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Check if state will changed.
+    if(GetDepthMask() == flag)
+        return;
+
+    // Call OpenGL function.
+    glDepthMask(flag);
+    OpenGL::CheckErrors();
+
+    // Save changed state.
+    m_depthMask = flag;
+}
+
+GLboolean RenderState::GetDepthMask() const
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    return m_depthMask;
+}
+
+void RenderState::BlendFunc(GLenum sfactor, GLenum dfactor)
+{
+    ASSERT(m_initialized, "Render state is not initialized!");
+
+    // Call aliased OpenGL function.
+    this->BlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
 }
 
 void RenderState::BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
