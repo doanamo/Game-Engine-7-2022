@@ -71,6 +71,12 @@ set(SOURCE_FILES
     "Source/Graphics/Sampler.cpp"
     "Include/Graphics/Shader.hpp"
     "Source/Graphics/Shader.cpp"
+    "Include/Graphics/Sprite.hpp"
+    "Source/Graphics/Sprite.cpp"
+    "Include/Graphics/SpriteList.hpp"
+    "Source/Graphics/SpriteList.cpp"
+    "Include/Graphics/SpriteRenderer.hpp"
+    "Source/Graphics/SpriteRenderer.cpp"
 
     "Include/Editor/Editor.hpp"
     "Source/Editor/Editor.cpp"
