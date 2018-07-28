@@ -91,7 +91,7 @@ Message& Message::SetSource(std::string source)
                 CaseInsensitiveCharacterComparison
             );
 
-            if(reverseIt != includeDir.rend())
+            if(reverseIt != m_source.rend())
             {
                 reverseIt += includeDir.length();
             }
