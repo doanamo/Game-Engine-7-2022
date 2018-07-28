@@ -165,7 +165,7 @@ bool RenderState::Initialize()
     m_clearColor = std::tie(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 
     // glDepthMask
-    glGetIntegerv(GL_DEPTH_WRITEMASK, (GLint*)&m_depthMask);
+    glGetBooleanv(GL_DEPTH_WRITEMASK, &m_depthMask);
     OpenGL::CheckErrors();
 
     // glBlendFuncSeparate
@@ -282,7 +282,7 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glDepthMask
-    this->DepthMask(m_depthMask);
+    this->DepthMask(other.m_depthMask);
 
     // glBlendFuncSeparate
     this->BlendFuncSeparate(
