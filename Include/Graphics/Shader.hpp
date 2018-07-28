@@ -100,7 +100,7 @@ namespace Graphics
     {
         VERIFY(m_handle != OpenGL::InvalidHandle);
 
-        // Change shader program and restore previous at the end of scope.
+        // Change shader program.
         GLuint previousProgram = m_renderContext->GetState().GetCurrentProgram();
         m_renderContext->GetState().UseProgram(GetHandle());
 
@@ -112,11 +112,27 @@ namespace Graphics
     }
 
     template<>
+    inline void Graphics::Shader::SetUniform(std::string name, const glm::vec2& value)
+    {
+        VERIFY(m_handle != OpenGL::InvalidHandle);
+
+        // Change shader program.
+        GLuint previousProgram = m_renderContext->GetState().GetCurrentProgram();
+        m_renderContext->GetState().UseProgram(GetHandle());
+
+        SCOPE_GUARD(m_renderContext->GetState().UseProgram(previousProgram));
+
+        // Set the uniform variable.
+        glUniform2fv(GetUniformIndex(name), 1, glm::value_ptr(value));
+        OpenGL::CheckErrors();
+    }
+
+    template<>
     inline void Graphics::Shader::SetUniform(std::string name, const glm::mat4& value)
     {
         VERIFY(m_handle != OpenGL::InvalidHandle);
 
-        // Change shader program and restore previous at the end of scope.
+        // Change shader program.
         GLuint previousProgram = m_renderContext->GetState().GetCurrentProgram();
         m_renderContext->GetState().UseProgram(GetHandle());
 
