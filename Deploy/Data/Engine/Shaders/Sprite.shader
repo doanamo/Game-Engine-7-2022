@@ -10,13 +10,13 @@
     out vec2 fragmentTexture;
     out vec4 fragmentColor;
 
-    uniform mat4 viewTransform;
+    uniform mat4 vertexTransform;
     uniform vec2 textureSizeInv;
 
     void main()
     {
         vec4 position = vec4(vertexPosition, 0.0f, 1.0f);
-        vec2 texture = vertexTexture;
+        vec2 textureCoord = vertexTexture;
 
         // Scale vertex position by sprite size.
         // Size can be negative for mirrored sprites.
@@ -24,18 +24,18 @@
 
         // Apply transformation.
         position = instanceTransform * position;
-        position = viewTransform * position;
+        position = vertexTransform * position;
 
         // Normalize texture coordinates.
-        texture *= instanceRectangle.zw * textureSizeInv;
-        texture += instanceRectangle.xy * textureSizeInv;
+        textureCoord *= instanceRectangle.zw * textureSizeInv;
+        textureCoord += instanceRectangle.xy * textureSizeInv;
 
         // Move texture origin from top left corner to bottom left.
-        texture.y -= instanceRectangle.w * textureSizeInv.y;
+        textureCoord.y -= instanceRectangle.w * textureSizeInv.y;
 
         // Output a sprite vertex.
         gl_Position = position;
-        fragmentTexture = texture;
+        fragmentTexture = textureCoord;
         fragmentColor = instanceColor;
     }
 #endif
