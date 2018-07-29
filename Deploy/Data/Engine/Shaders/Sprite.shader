@@ -1,5 +1,9 @@
 #version 330
 
+/*
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
+*/
+
 #if defined(VERTEX_SHADER)
     layout(location = 0) in vec2 vertexPosition;
     layout(location = 1) in vec2 vertexTexture;

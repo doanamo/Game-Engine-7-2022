@@ -1,5 +1,9 @@
 #version 330
 
+/*
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
+*/
+
 #if defined(VERTEX_SHADER)
     uniform mat4 vertexTransform;
 
