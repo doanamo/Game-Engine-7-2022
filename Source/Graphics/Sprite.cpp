@@ -25,7 +25,8 @@ bool Sprite::Info::operator!=(const Info& other) const
 
 Sprite::Data::Data() :
     transform(1.0f),
-    rectangle(0.0f, 0.0f, 1.0f, 1.0f),
+    spriteRectangle(0.0f, 0.0f, 1.0f, 1.0f),
+    textureRectangle(0.0f, 0.0f, 1.0f, 1.0f),
     color(1.0f, 1.0f, 1.0f, 1.0f)
 {
 }

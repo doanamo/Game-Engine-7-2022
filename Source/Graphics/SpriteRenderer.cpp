@@ -94,7 +94,8 @@ bool SpriteRenderer::Initialize(int spriteBatchSize)
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Position
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Texture
         { &m_instanceBuffer, VertexAttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Sprite Rectangle
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Texture Rectangle
         { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
     };
 

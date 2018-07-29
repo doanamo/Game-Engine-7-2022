@@ -23,7 +23,8 @@
         sprite.info.transparent = true;
         sprite.info.filter = false;
         sprite.data.transform = glm::mat4(1.0f);
-        sprite.data.rectangle = glm::vec4(0.0f, 0.0f, width, height);
+        sprite.data.spriteRectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
+        sprite.data.textureRectangle = glm::vec4(0.0f, 0.0f, width, height);
         sprite.data.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 */
@@ -58,7 +59,8 @@ namespace Graphics
 
             // Unique instance data.
             glm::mat4 transform;
-            glm::vec4 rectangle;
+            glm::vec4 spriteRectangle;
+            glm::vec4 textureRectangle;
             glm::vec4 color;
         } data;
     };
