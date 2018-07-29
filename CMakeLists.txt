@@ -145,6 +145,17 @@ get_filename_component(ABSOLUTE_ENGINE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Deploy" 
 file(WRITE "${CMAKE_BINARY_DIR}/EngineDir.txt" "${ABSOLUTE_ENGINE_DIR}/")
 
 #
+# Data
+#
+
+# Add shader files to solution's folder structure.
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
+source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
+
+target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
+source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
+
+#
 # Tests
 #
 
