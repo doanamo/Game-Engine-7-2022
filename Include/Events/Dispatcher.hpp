@@ -87,7 +87,7 @@ namespace Common
         template<typename Collector>
         void Dispatch(Collector& collector, Arguments... arguments);
 
-    private:
+    protected:
         // Double linked list of receivers.
         Receiver<ReturnType(Arguments...)>* m_begin;
         Receiver<ReturnType(Arguments...)>* m_end;
@@ -150,8 +150,8 @@ namespace Common
         Dispatcher& operator=(const Dispatcher& other) = delete;
 
         // Move operations.
-        Dispatcher(Dispatcher&&);
-        Dispatcher& operator=(Dispatcher&&);
+        Dispatcher(Dispatcher&& other);
+        Dispatcher& operator=(Dispatcher&& other);
 
         // Invokes receivers with following arguments.
         ReturnType Dispatch(Arguments... arguments);
@@ -363,22 +363,23 @@ namespace Common
     Dispatcher<ReturnType(Arguments...), Collector>&
         Dispatcher<ReturnType(Arguments...), Collector>::operator=(Dispatcher&& other)
     {
-        // Swap primitive types.
+        // Swap class members.
+        // We have to use this pointer to access protected members of the derived class.
         std::swap(m_defaultResult, other.m_defaultResult);
-        std::swap(m_begin, other.m_begin);
-        std::swap(m_end, other.m_end);
+        std::swap(this->m_begin, other.m_begin);
+        std::swap(this->m_end, other.m_end);
 
         // Fix pointers of subscribed receivers.
-        if(m_begin != nullptr)
+        if(this->m_begin != nullptr)
         {
-            ASSERT(m_end != nullptr, "Broken linked list pointers!");
-            Receiver<ReturnType(Arguments...)>* receiver = m_begin;
+            ASSERT(this->m_end != nullptr, "Broken linked list pointers!");
+            Receiver<ReturnType(Arguments...)>* receiver = this->m_begin;
 
             while(receiver != nullptr)
             {
                 // Assign a new pointer and move to the next receiver.
                 receiver->m_dispatcher = this;
-                receiver = receiver->m_next
+                receiver = receiver->m_next;
             }
         }
 
@@ -391,7 +392,7 @@ namespace Common
             {
                 // Assign a new pointer and move to the next receiver.
                 receiver->m_dispatcher = &other;
-                receiver = receiver->m_next
+                receiver = receiver->m_next;
             }
         }
 
