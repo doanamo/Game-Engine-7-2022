@@ -62,7 +62,7 @@ namespace Common
     class DispatcherBase<ReturnType(Arguments...)>
     {
     protected:
-        // Can only be contructed via Dispatcher template class.
+        // Can only be constructed via Dispatcher template class.
         DispatcherBase();
 
         // Virtual destructor for derived Dispatcher template class.
@@ -145,10 +145,13 @@ namespace Common
         // Default constructor.
         Dispatcher(ReturnType defaultResult);
 
-        // Disallow copying and moving as registered
-        // receivers will hold references to dispatcher.
-        Dispatcher(Dispatcher&&) = delete;
-        Dispatcher& operator=(Dispatcher&&) = delete;
+        // Disallow copying operations.
+        Dispatcher(const Dispatcher& other) = delete;
+        Dispatcher& operator=(const Dispatcher& other) = delete;
+
+        // Move operations.
+        Dispatcher(Dispatcher&&);
+        Dispatcher& operator=(Dispatcher&&);
 
         // Invokes receivers with following arguments.
         ReturnType Dispatch(Arguments... arguments);
@@ -349,13 +352,61 @@ namespace Common
     }
 
     template<typename Collector, typename ReturnType, typename... Arguments>
+    Dispatcher<ReturnType(Arguments...), Collector>::Dispatcher(Dispatcher&& other) :
+        Dispatcher(other.m_defaultResult)
+    {
+        // Invoke a move operation.
+        *this = std::move(other);
+    }
+
+    template<typename Collector, typename ReturnType, typename... Arguments>
+    Dispatcher<ReturnType(Arguments...), Collector>&
+        Dispatcher<ReturnType(Arguments...), Collector>::operator=(Dispatcher&& other)
+    {
+        // Swap primitive types.
+        std::swap(m_defaultResult, other.m_defaultResult);
+        std::swap(m_begin, other.m_begin);
+        std::swap(m_end, other.m_end);
+
+        // Fix pointers of subscribed receivers.
+        if(m_begin != nullptr)
+        {
+            ASSERT(m_end != nullptr, "Broken linked list pointers!");
+            Receiver<ReturnType(Arguments...)>* receiver = m_begin;
+
+            while(receiver != nullptr)
+            {
+                // Assign a new pointer and move to the next receiver.
+                receiver->m_dispatcher = this;
+                receiver = receiver->m_next
+            }
+        }
+
+        if(other.m_begin != nullptr)
+        {
+            ASSERT(other.m_end != nullptr, "Broken linked list pointers!");
+            Receiver<ReturnType(Arguments...)>* receiver = other.m_begin;
+
+            while(receiver != nullptr)
+            {
+                // Assign a new pointer and move to the next receiver.
+                receiver->m_dispatcher = &other;
+                receiver = receiver->m_next
+            }
+        }
+
+        return *this;
+    }
+
+    template<typename Collector, typename ReturnType, typename... Arguments>
     ReturnType Dispatcher<ReturnType(Arguments...), Collector>::Dispatch(Arguments... arguments)
     {
         // Create a result collector.
         Collector collector(m_defaultResult);
 
         // Dispatch to receivers.
-        DispatcherBase<ReturnType(Arguments...)>::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+        DispatcherBase<ReturnType(Arguments...)>::template 
+            Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
 
         // Return collected result.
         return collector.GetResult();

@@ -104,10 +104,29 @@ namespace Common
         {
         }
 
-        // Disallow copying and moving as we may be holding
-        // a raw pointer to an outside object and its method.
-        Delegate(Delegate&&) = delete;
-        Delegate& operator=(Delegate&&) = delete;
+        // Disallow copying.
+        Delegate(const Delegate&) = delete;
+        Delegate& operator=(const Delegate&) = delete;
+
+        // Copy operations.
+        // Performing a move of a delegate is very dangerous,
+        // as they hold references to instances they are referring.
+        // Most often it is preferred to omit moving a delegate.
+        Delegate(Delegate&& other) :
+            Delegate()
+        {
+            // Call the move operator.
+            *this = std::move(other);
+        }
+
+        Delegate& operator=(Delegate&& other)
+        {
+            // Swap class members.
+            std::swap(m_instance, other.m_instance);
+            std::swap(m_function, other.m_function);
+
+            return *this;
+        }
 
         // Unbinds the delegate.
         void Bind(std::nullptr_t)

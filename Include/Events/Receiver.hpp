@@ -56,10 +56,30 @@ namespace Common
             this->Unsubscribe();
         }
 
-        // Disallow copying and moving as receivers contain
-        // intrusive links and reference subscribed dispatcher.
-        Receiver(Receiver&&) = delete;
-        Receiver& operator=(Receiver&&) = delete;
+        // Disallow copying.
+        Receiver(const Receiver& other) = delete;
+        Receiver& operator=(const Receiver& other) = delete;
+
+        // Move operations.
+        Receiver(Receiver&& other) :
+            Receiver()
+        {
+            // Call the assignment operator.
+            *this = std::move(other);
+        }
+
+        Receiver& operator=(Receiver&& other)
+        {
+            // Swap class members.
+            std::swap(m_dispatcher, other.m_dispatcher);
+            std::swap(m_previous, other.m_previous);
+            std::swap(m_next, other.m_next);
+
+            // Do not swap the underlying delegate.
+            // We only want to swap the dispatcher subscription.
+            
+            return *this;
+        }
 
         // Subscribes to a dispatcher.
         bool Subscribe(DispatcherBase<ReturnType(Arguments...)>& dispatcher, bool unsubscribeReceiver = true)
