@@ -113,8 +113,8 @@ VertexArrayInfo::VertexArrayInfo(const VertexAttribute* attributes, int attribut
 {
 }
 
-VertexArray::VertexArray(RenderContext* renderContext) :
-    m_renderContext(renderContext),
+VertexArray::VertexArray() :
+    m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
 {
 }
@@ -122,6 +122,21 @@ VertexArray::VertexArray(RenderContext* renderContext) :
 VertexArray::~VertexArray()
 {
     this->DestroyHandle();
+}
+
+VertexArray::VertexArray(VertexArray&& other)
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+VertexArray& VertexArray::operator=(VertexArray&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_handle, other.m_handle);
+
+    return *this;
 }
 
 void VertexArray::DestroyHandle()
@@ -136,7 +151,7 @@ void VertexArray::DestroyHandle()
     }
 }
 
-bool VertexArray::Create(const VertexArrayInfo& info)
+bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
 {
     LOG() << "Creating vertex input..." << LOG_INDENT();
 
@@ -144,6 +159,12 @@ bool VertexArray::Create(const VertexArrayInfo& info)
     VERIFY(m_handle == OpenGL::InvalidHandle, "Vertex array instance has been already initialized!");
 
     // Validate arguments.
+    if(renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
+
     if(info.attributeCount <= 0)
     {
         LOG_ERROR() << "Invalid argument - \"count\" is zero!";
@@ -211,8 +232,8 @@ bool VertexArray::Create(const VertexArrayInfo& info)
 
     SCOPE_GUARD_BEGIN();
     {
-        glBindVertexArray(m_renderContext->GetState().GetVertexArrayBinding());
-        glBindBuffer(GL_ARRAY_BUFFER, m_renderContext->GetState().GetBufferBinding(GL_ARRAY_BUFFER));
+        glBindVertexArray(renderContext->GetState().GetVertexArrayBinding());
+        glBindBuffer(GL_ARRAY_BUFFER, renderContext->GetState().GetBufferBinding(GL_ARRAY_BUFFER));
     }
     SCOPE_GUARD_END();
 
@@ -269,6 +290,9 @@ bool VertexArray::Create(const VertexArrayInfo& info)
             currentOffset += GetVertexAttributeValueBytes(attribute.valueType) * GetVertexAttributeTypeRowElements(attribute.attributeType);
         }
     }
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return initialized = true;

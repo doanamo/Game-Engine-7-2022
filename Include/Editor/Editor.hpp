@@ -25,11 +25,11 @@ namespace Engine
     class Editor : private NonCopyable
     {
     public:
-        Editor(Graphics::RenderContext* renderContext);
+        Editor();
         ~Editor();
 
         // Initializes the editor system.
-        bool Initialize(System::Window* window);
+        bool Initialize(System::Window* window, Graphics::RenderContext* renderContext);
 
         // Updates the editor interface.
         void Update(float deltaTime);
@@ -58,14 +58,14 @@ namespace Engine
         void DestroyContext();
 
     private:
+        // Window reference.
+        System::Window* m_window;
+
         // Render context.
         Graphics::RenderContext* m_renderContext;
 
         // User interface context.
         ImGuiContext* m_interface;
-
-        // Window reference.
-        System::Window* m_window;
 
         // Window event callbacks.
         Common::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;

@@ -24,8 +24,8 @@
         vertexArrayInfo.attributes = &inputAttributes[0];
     
         // Create a vertex array instance.
-        Graphics::VertexArray vertexArray(renderContext);
-        vertexArray.Create(vertexArrayInfo);
+        Graphics::VertexArray vertexArray();
+        vertexArray.Initialize(renderContext, vertexArrayInfo);
     
         // Bind a vertex array.
         glBindVertexArray(vertexArray.GetHandle());
@@ -80,11 +80,19 @@ namespace Graphics
     class VertexArray
     {
     public:
-        VertexArray(RenderContext* renderContext);
+        VertexArray();
         ~VertexArray();
 
+        // Disallow copying.
+        VertexArray(const VertexArray& other) = delete;
+        VertexArray& operator=(const VertexArray& other) = delete;
+
+        // Move constructor and assignment.
+        VertexArray(VertexArray&& other);
+        VertexArray& operator=(VertexArray&& other);
+
         // Initializes the vertex array instance.
-        bool Create(const VertexArrayInfo& info);
+        bool Initialize(RenderContext* renderContext, const VertexArrayInfo& info);
 
         // Gets the vertex array object handle.
         GLuint GetHandle() const;

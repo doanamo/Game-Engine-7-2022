@@ -7,7 +7,13 @@
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;
 
-TextureInfo::TextureInfo() :
+TextureLoadInfo::TextureLoadInfo() :
+    filePath(""),
+    mipmaps(true)
+{
+}
+
+TextureCreateInfo::TextureCreateInfo() :
     width(0),
     height(0),
     format(GL_INVALID_ENUM),
@@ -16,20 +22,39 @@ TextureInfo::TextureInfo() :
 {
 }
 
-Texture::Texture(RenderContext* context) :
-    m_renderContext(context),
+Texture::Texture() :
+    m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle),
     m_format(OpenGL::InvalidEnum),
     m_width(0),
     m_height(0)
 {
-    VERIFY(context && context->IsValid(), "Graphics context is invalid!");
 }
 
 Texture::~Texture()
 {
     this->DestroyHandle();
 }
+
+Texture::Texture(Texture&& other) :
+    Texture()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+Texture& Texture::operator=(Texture&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_handle, other.m_handle);
+    std::swap(m_format, other.m_format);
+    std::swap(m_width, other.m_width);
+    std::swap(m_height, other.m_height);
+
+    return *this;
+}
+
 
 void Texture::DestroyHandle()
 {
@@ -43,22 +68,22 @@ void Texture::DestroyHandle()
     }
 }
 
-bool Texture::Load(std::string filePath)
+bool Texture::Initialize(RenderContext* renderContext, const TextureLoadInfo& info)
 {
-    LOG() << "Loading texture from \"" << filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Loading texture from \"" << info.filePath << "\" file..." << LOG_INDENT();
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
 
     // Validate arguments.
-    if(filePath.empty())
+    if(info.filePath.empty())
     {
-        LOG_ERROR() << "Invalid argument - \"filePath\" is empty!";
+        LOG_ERROR() << "Invalid argument - \"info.filePath\" is empty!";
         return false;
     }
 
     // Open the file stream.
-    std::ifstream file(filePath, std::ios::binary);
+    std::ifstream file(info.filePath, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -244,16 +269,16 @@ bool Texture::Load(std::string filePath)
     }
 
     // Call the initialization method.
-    TextureInfo textureInfo;
+    TextureCreateInfo textureInfo;
     textureInfo.width = width;
     textureInfo.height = height;
     textureInfo.format = textureFormat;
-    textureInfo.mipmaps = true;
+    textureInfo.mipmaps = info.mipmaps;
     textureInfo.data = png_data_ptr;
 
-    if(!this->Create(textureInfo))
+    if(!this->Initialize(renderContext, textureInfo))
     {
-        LOG_ERROR() << "Texture could not be created!";
+        LOG_ERROR() << "Could not initialize texture!";
         return false;
     }
 
@@ -261,7 +286,7 @@ bool Texture::Load(std::string filePath)
     return true;
 }
 
-bool Texture::Create(const TextureInfo& info)
+bool Texture::Initialize(RenderContext* renderContext, const TextureCreateInfo& info)
 {
     LOG() << "Creating texture..." << LOG_INDENT();
 
@@ -306,8 +331,8 @@ bool Texture::Create(const TextureInfo& info)
     glBindTexture(GL_TEXTURE_2D, m_handle);
     OpenGL::CheckErrors();
 
-    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, 
-        m_renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
+    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D,
+        renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
 
     // Set packing alignment for provided data.
     if(info.format == GL_R || info.format == GL_RED)
@@ -316,8 +341,8 @@ bool Texture::Create(const TextureInfo& info)
         OpenGL::CheckErrors();
     }
 
-    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT, 
-        m_renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
+    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT,
+        renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
 
     // Allocated a texture surface on the hardware.
     glTexImage2D(GL_TEXTURE_2D, 0, info.format, info.width, info.height,
@@ -334,6 +359,9 @@ bool Texture::Create(const TextureInfo& info)
     m_format = info.format;
     m_width = info.width;
     m_height = info.height;
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return initialized = true;

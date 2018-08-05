@@ -19,8 +19,8 @@
         samplerInfo.textureWrapR = GL_REPEAT;
 
         // Create a sampler instance.
-        Graphics::Sampler sampler(renderContext);
-        sampler.Create(samplerInfo);
+        Graphics::Sampler sampler();
+        sampler.Initialize(renderContext, samplerInfo);
         
         // Modify parameters after creation.
         sampler.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -60,14 +60,19 @@ namespace Graphics
     class Sampler
     {
     public:
-        Sampler(RenderContext* renderContext);
+        Sampler();
         ~Sampler();
 
-        // Initializes default parameters.
-        static void InitializeDefaults();
+        // Disallow copying.
+        Sampler(const Sampler& other) = delete;
+        Sampler& operator=(const Sampler& other) = delete;
+
+        // Move constructor and assignment.
+        Sampler(Sampler&& other);
+        Sampler& operator=(Sampler&& other);
 
         // Initializes the sampler object.
-        bool Create(const SamplerInfo& info = SamplerInfo());
+        bool Initialize(RenderContext* renderContext, const SamplerInfo& info = SamplerInfo());
 
         // Sets a sampler's parameter.
         template<typename Type>
@@ -78,6 +83,11 @@ namespace Graphics
 
         // Checks if the instance valid.
         bool IsValid() const;
+
+    public:
+        // Initializes default parameters.
+        // Does not have to be called (sampler info calls it itself).
+        static void InitializeDefaults();
 
     private:
         // Destroys the internal handle.

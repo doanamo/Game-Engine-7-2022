@@ -18,25 +18,41 @@ namespace
     };
 }
 
-SpriteRenderer::SpriteRenderer(RenderContext* renderContext) :
-    m_renderContext(renderContext),
-    m_vertexBuffer(renderContext),
-    m_instanceBuffer(renderContext),
-    m_vertexArray(renderContext),
-    m_nearestSampler(renderContext),
-    m_linearSampler(renderContext),
-    m_shader(renderContext),
+SpriteRenderer::SpriteRenderer() :
+    m_renderContext(nullptr),
     m_spriteBatchSize(0),
     m_initialized(false)
 {
-    ASSERT(renderContext != nullptr, "Received render context is null!");
 }
 
 SpriteRenderer::~SpriteRenderer()
 {
 }
 
-bool SpriteRenderer::Initialize(int spriteBatchSize)
+SpriteRenderer::SpriteRenderer(SpriteRenderer&& other) :
+    SpriteRenderer()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_vertexBuffer, other.m_vertexBuffer);
+    std::swap(m_instanceBuffer, other.m_instanceBuffer);
+    std::swap(m_vertexArray, other.m_vertexArray);
+    std::swap(m_nearestSampler, other.m_nearestSampler);
+    std::swap(m_linearSampler, other.m_linearSampler);
+    std::swap(m_shader, other.m_shader);
+    std::swap(m_spriteBatchSize, other.m_spriteBatchSize);
+    std::swap(m_initialized, other.m_initialized);
+
+    return *this;
+}
+
+bool SpriteRenderer::Initialize(RenderContext* renderContext, int spriteBatchSize)
 {
     LOG() << "Initializing sprite renderer..." << LOG_INDENT();
 
@@ -44,6 +60,12 @@ bool SpriteRenderer::Initialize(int spriteBatchSize)
     ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");
 
     // Validate arguments.
+    if(renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
+
     if(spriteBatchSize <= 0)
     {
         LOG_ERROR() << "Invalid argument - \"spriteBatchSize\" is zero or less!";
@@ -65,13 +87,13 @@ bool SpriteRenderer::Initialize(int spriteBatchSize)
     vertexBufferInfo.elementCount = Utility::StaticArraySize(SpriteVertices);
     vertexBufferInfo.data = &SpriteVertices[0];
 
-    if(!m_vertexBuffer.Create(vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(renderContext, vertexBufferInfo))
     {
         LOG_ERROR() << "Could not create vertex buffer!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = VertexBuffer(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = VertexBuffer());
 
     // Create the instance buffer.
     BufferInfo instanceBufferInfo;
@@ -80,13 +102,13 @@ bool SpriteRenderer::Initialize(int spriteBatchSize)
     instanceBufferInfo.elementCount = spriteBatchSize;
     instanceBufferInfo.data = nullptr;
 
-    if(!m_instanceBuffer.Create(instanceBufferInfo))
+    if(!m_instanceBuffer.Initialize(renderContext, instanceBufferInfo))
     {
         LOG_ERROR() << "Could not create instance buffer!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_instanceBuffer = InstanceBuffer(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_instanceBuffer = InstanceBuffer());
 
     // Create the vertex array.
     const VertexAttribute vertexAttributes[] =
@@ -103,51 +125,57 @@ bool SpriteRenderer::Initialize(int spriteBatchSize)
     vertexArrayInfo.attributeCount = Utility::StaticArraySize(vertexAttributes);
     vertexArrayInfo.attributes = &vertexAttributes[0];
 
-    if(!m_vertexArray.Create(vertexArrayInfo))
+    if(!m_vertexArray.Initialize(renderContext, vertexArrayInfo))
     {
         LOG_ERROR() << "Could not create vertex array!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = VertexArray(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = VertexArray());
 
     // Create a nearest sampler.
     SamplerInfo nearestSamplerInfo;
     nearestSamplerInfo.textureMinFilter = GL_NEAREST;
     nearestSamplerInfo.textureMagFilter = GL_NEAREST;
 
-    if(!m_nearestSampler.Create(nearestSamplerInfo))
+    if(!m_nearestSampler.Initialize(renderContext, nearestSamplerInfo))
     {
         LOG_ERROR() << "Could not create a nearest sampler!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_nearestSampler = Sampler(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_nearestSampler = Sampler());
 
     // Create a linear sampler.
     SamplerInfo linearSamplerInfo;
     linearSamplerInfo.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     linearSamplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_linearSampler.Create(linearSamplerInfo))
+    if(!m_linearSampler.Initialize(renderContext, linearSamplerInfo))
     {
         LOG_ERROR() << "Could not create linear sampler!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_linearSampler = Sampler(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_linearSampler = Sampler());
 
     // Load the shader.
-    if(!m_shader.Load(Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader"))
+    ShaderLoadInfo shaderInfo;
+    shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader";
+
+    if(!m_shader.Initialize(renderContext, shaderInfo))
     {
         LOG_ERROR() << "Could not load sprite shader!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Shader(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_shader = Shader());
 
     // Remember the sprite batch size.
     m_spriteBatchSize = spriteBatchSize;
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return m_initialized = true;

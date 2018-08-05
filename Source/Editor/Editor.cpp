@@ -23,20 +23,11 @@ namespace
     }
 }
 
-Editor::Editor(Graphics::RenderContext* renderContext) :
-    m_renderContext(renderContext),
-    m_vertexBuffer(renderContext),
-    m_indexBuffer(renderContext),
-    m_vertexArray(renderContext),
-    m_fontTexture(renderContext),
-    m_sampler(renderContext),
-    m_shader(renderContext),
-    m_interface(nullptr),
+Editor::Editor() :
     m_window(nullptr),
+    m_interface(nullptr),
     m_initialized(false)
 {
-    VERIFY(renderContext && renderContext->IsValid(), "Render context is invalid!");
-
     // Bind event receivers.
     m_receiverCursorPosition.Bind<Editor, &Editor::CursorPositionCallback>(this);
     m_receiverMouseButton.Bind<Editor, &Editor::MouseButtonCallback>(this);
@@ -60,15 +51,25 @@ void Editor::DestroyContext()
     }
 }
 
-bool Editor::Initialize(System::Window* window)
+bool Editor::Initialize(System::Window* window, Graphics::RenderContext* renderContext)
 {
     LOG() << "Initializing editor..." << LOG_INDENT();
 
     // Check if the instance is already initialized.
     VERIFY(!m_initialized, "Editor instance is already initialized!");
 
-    // Check if the provided arguments are valid.
-    VERIFY(window && window->IsValid(), "Invalid argument - \"window\" is invalid!");
+    // Validate arguments.
+    if(window == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"window\" is null!";
+        return false;
+    }
+
+    if(renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
 
     // Create ImGui context.
     LOG() << "Creating interface context...";
@@ -146,20 +147,26 @@ bool Editor::Initialize(System::Window* window)
     vertexBufferInfo.usage = GL_STREAM_DRAW;
     vertexBufferInfo.elementSize = sizeof(ImDrawVert);
 
-    if(!m_vertexBuffer.Create(vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(renderContext, vertexBufferInfo))
+    {
+        LOG_ERROR() << "Could not initialize vertex buffer!";
         return false;
+    }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer());
 
     // Create an index buffer.
     Graphics::BufferInfo indexBufferInfo;
     indexBufferInfo.usage = GL_STREAM_DRAW;
     indexBufferInfo.elementSize = sizeof(ImDrawIdx);
 
-    if(!m_indexBuffer.Create(indexBufferInfo))
+    if(!m_indexBuffer.Initialize(renderContext, indexBufferInfo))
+    {
+        LOG_ERROR() << "Could not initialize index buffer!";
         return false;
+    }
 
-    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer());
 
     // Create an input layout.
     const Graphics::VertexAttribute inputAttributes[] =
@@ -173,10 +180,13 @@ bool Editor::Initialize(System::Window* window)
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    if(!m_vertexArray.Create(inputLayoutInfo))
+    if(!m_vertexArray.Initialize(renderContext, inputLayoutInfo))
+    {
+        LOG_ERROR() << "Could not initialize vertex array!";
         return false;
+    }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray());
 
     // Retrieve built in font data.
     unsigned char* fontData = nullptr;
@@ -192,17 +202,20 @@ bool Editor::Initialize(System::Window* window)
     }
 
     // Create a font texture.
-    Graphics::TextureInfo textureInfo;
+    Graphics::TextureCreateInfo textureInfo;
     textureInfo.width = fontWidth;
     textureInfo.height = fontHeight;
     textureInfo.format = GL_RGBA;
     textureInfo.mipmaps = false;
     textureInfo.data = fontData;
 
-    if(!m_fontTexture.Create(textureInfo))
+    if(!m_fontTexture.Initialize(renderContext, textureInfo))
+    {
+        LOG_ERROR() << "Could not initialize font texture!";
         return false;
+    }
 
-    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture(m_renderContext));
+    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture());
 
     ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)m_fontTexture.GetHandle();
 
@@ -212,17 +225,29 @@ bool Editor::Initialize(System::Window* window)
     samplerInfo.textureMinFilter = GL_LINEAR;
     samplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_sampler.Create(samplerInfo))
+    if(!m_sampler.Initialize(renderContext, samplerInfo))
+    {
+        LOG_ERROR() << "Could not initialize sampler!";
         return false;
+    }
 
     // Load a shader.
-    if(!m_shader.Load(Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader"))
-        return false;
+    Graphics::ShaderLoadInfo shaderInfo;
+    shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader(m_renderContext));
+    if(!m_shader.Initialize(renderContext, shaderInfo))
+    {
+        LOG_ERROR() << "Could not initialize shader!";
+        return false;
+    }
+
+    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader());
 
     // Save window reference.
     m_window = window;
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return m_initialized = true;

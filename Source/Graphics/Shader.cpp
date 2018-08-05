@@ -26,8 +26,8 @@ namespace
     };
 }
 
-Graphics::Shader::Shader(RenderContext* renderContext) :
-    m_renderContext(renderContext),
+Graphics::Shader::Shader() :
+    m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
 {
 }
@@ -35,6 +35,22 @@ Graphics::Shader::Shader(RenderContext* renderContext) :
 Shader::~Shader()
 {
     this->DestroyHandle();
+}
+
+Shader::Shader(Shader&& other) :
+    Shader()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+Shader& Shader::operator=(Shader&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_handle, other.m_handle);
+
+    return *this;
 }
 
 void Shader::DestroyHandle()
@@ -49,12 +65,12 @@ void Shader::DestroyHandle()
     }
 }
 
-bool Shader::Load(std::string filePath)
+bool Shader::Initialize(RenderContext* renderContext, const ShaderLoadInfo& info)
 {
-    LOG() << "Loading shader from \"" << filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Loading shader from \"" << info.filePath << "\" file..." << LOG_INDENT();
 
     // Load the shader code from a file.
-    std::string shaderCode = Utility::GetTextFileContent(filePath);
+    std::string shaderCode = Utility::GetTextFileContent(info.filePath);
 
     if(shaderCode.empty())
     {
@@ -63,7 +79,10 @@ bool Shader::Load(std::string filePath)
     }
 
     // Call the compile method.
-    if(!this->Compile(shaderCode))
+    ShaderCompileInfo compileInfo;
+    compileInfo.shaderCode = std::move(shaderCode);
+
+    if(!this->Initialize(renderContext, compileInfo))
     {
         LOG_ERROR() << "Shader code could not be compiled!";
         return false;
@@ -73,7 +92,7 @@ bool Shader::Load(std::string filePath)
     return true;
 }
 
-bool Shader::Compile(std::string shaderCode)
+bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& info)
 {
     LOG() << "Compiling shader code..." << LOG_INDENT();
 
@@ -81,9 +100,15 @@ bool Shader::Compile(std::string shaderCode)
     VERIFY(m_handle == OpenGL::InvalidHandle, "Shader instance has been already initialized!");
 
     // Validate arguments.
-    if(shaderCode.empty())
+    if(renderContext == nullptr)
     {
-        LOG_ERROR() << "Shader code cannot be empty!";
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
+
+    if(info.shaderCode.empty())
+    {
+        LOG_ERROR() << "Invalid argument - \"info.shaderCode\" is empty!";
         return false;
     }
 
@@ -102,6 +127,9 @@ bool Shader::Compile(std::string shaderCode)
         }
     }
     SCOPE_GUARD_END();
+
+    // Create a mutable copy of the provided shader code.
+    std::string shaderCode = info.shaderCode;
 
     // Extract shader version.
     std::string shaderVersion;
@@ -262,6 +290,9 @@ bool Shader::Compile(std::string shaderCode)
 
         return false;
     }
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return initialized = true;

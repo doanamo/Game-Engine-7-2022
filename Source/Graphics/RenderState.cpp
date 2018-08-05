@@ -85,6 +85,40 @@ RenderState::RenderState() :
     m_scissorBox = { 0, 0, 0, 0 };
 }
 
+RenderState::~RenderState()
+{
+}
+
+RenderState::RenderState(RenderState&& other) noexcept :
+    RenderState()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+RenderState& RenderState::operator=(RenderState&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(m_capabilities, other.m_capabilities);
+    std::swap(m_vertexArrayBinding, other.m_vertexArrayBinding);
+    std::swap(m_bufferBindings, other.m_bufferBindings);
+    std::swap(m_activeTexture, other.m_activeTexture);
+    std::swap(m_textureBindings, other.m_textureBindings);
+    std::swap(m_samplerBindings, other.m_samplerBindings);
+    std::swap(m_pixelStore, other.m_pixelStore);
+    std::swap(m_currentProgram, other.m_currentProgram);
+    std::swap(m_viewport, other.m_viewport);
+    std::swap(m_clearDepth, other.m_clearDepth);
+    std::swap(m_clearColor, other.m_clearColor);
+    std::swap(m_depthMask, other.m_depthMask);
+    std::swap(m_blendFuncSeparate, other.m_blendFuncSeparate);
+    std::swap(m_blendEquationSeparate, other.m_blendEquationSeparate);
+    std::swap(m_scissorBox, other.m_scissorBox);
+
+    return *this;
+}
+
 bool RenderState::Initialize()
 {
     LOG() << "Initializing rendering state..." << LOG_INDENT();

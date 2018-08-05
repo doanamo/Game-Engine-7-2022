@@ -17,6 +17,24 @@ RenderContext::~RenderContext()
 {
 }
 
+RenderContext::RenderContext(RenderContext&& other) :
+    RenderContext()
+{
+    // Call the move assignment operator.
+    *this = std::move(other);
+}
+
+RenderContext& RenderContext::operator=(RenderContext&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(m_window, other.m_window);
+    std::swap(m_currentState, other.m_currentState);
+    std::swap(m_pushedStates, other.m_pushedStates);
+
+    return *this;
+}
+
 bool RenderContext::Initialize(System::Window* window)
 {
     LOG() << "Initializing rendering context..." << LOG_INDENT();

@@ -25,14 +25,22 @@ namespace Graphics
     class SpriteRenderer
     {
     public:
-        SpriteRenderer(RenderContext* renderContext);
+        SpriteRenderer();
         ~SpriteRenderer();
 
+        // Disallow copying.
+        SpriteRenderer(const SpriteRenderer& other) = delete;
+        SpriteRenderer& operator=(const SpriteRenderer& other) = delete;
+
+        // Move constructor and assignment.
+        SpriteRenderer(SpriteRenderer&& other);
+        SpriteRenderer& operator=(SpriteRenderer&& other);
+
         // Initializes the sprite renderer.
-        bool Initialize(int spriteBatchSize);
+        bool Initialize(RenderContext* renderContext, int spriteBatchSize);
 
         // Draws a batch of sprites.
-        // Very efficient rendering is array of sprites is already sorted to reduces state changes.
+        // Very efficient rendering if array of sprites is already sorted to reduces state changes.
         void DrawSprites(const SpriteList& sprites, const glm::mat4& transform);
 
     private:

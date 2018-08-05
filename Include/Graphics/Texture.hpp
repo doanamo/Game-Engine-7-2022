@@ -12,8 +12,11 @@
     void ExampleGraphicsTexture(Graphics::RenderContext* renderContext)
     {
         // Load a texture from file.
-        Graphics::Texture texture(renderContext);
-        texture.Load("image.png");
+        Graphics::TextureLoadInfo textureInfo;
+        textureLoadInfo.filePath = "image.png";
+
+        Graphics::Texture texture;
+        texture.Initialize(renderContext, textureInfo);
         
         // Retrieve the OpenGL handle.
         GLuint handle = texture.GetHandle();
@@ -30,10 +33,18 @@ namespace Graphics
     // Forward declarations.
     class RenderContext;
 
-    // Texture info structure.
-    struct TextureInfo
+    // Texture info structures.
+    struct TextureLoadInfo
     {
-        TextureInfo();
+        TextureLoadInfo();
+
+        std::string filePath;
+        bool mipmaps;
+    };
+
+    struct TextureCreateInfo
+    {
+        TextureCreateInfo();
 
         int width;
         int height;
@@ -46,14 +57,22 @@ namespace Graphics
     class Texture
     {
     public:
-        Texture(RenderContext* renderContext);
+        Texture();
         ~Texture();
 
-        // Loads the texture from a file.
-        bool Load(std::string filePath);
+        // Disallow copying.
+        Texture(const Texture& other) = delete;
+        Texture& operator=(const Texture& other) = delete;
 
-        // Initializes the texture instance.
-        bool Create(const TextureInfo& info);
+        // Move constructor and operator.
+        Texture(Texture&& other);
+        Texture& operator=(Texture&& other);
+
+        // Loads the texture from a file.
+        bool Initialize(RenderContext* renderContext, const TextureLoadInfo& info);
+
+        // Creates a texture instance from memory.
+        bool Initialize(RenderContext* renderContext, const TextureCreateInfo& info);
 
         // Updates the texture data.
         void Update(const void* data);

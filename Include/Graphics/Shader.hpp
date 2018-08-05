@@ -15,8 +15,11 @@
     void ExampleGraphicsShader(Graphics::RenderContext* renderContext)
     {
         // Create a shader instance.
-        Graphics::Shader shader(renderContext);
-        shader.Load("Data/Shader.glsl");
+        ShaderLoadInfo info;
+        info.filePath = "Data/Shader.glsl";
+
+        Graphics::Shader shader;
+        shader.Initialize(renderContext, info);
 
         // Use the created shader in our rendering pipeline.
         glUseProgram(shader.GetHandle());
@@ -54,18 +57,38 @@ namespace Graphics
     // Forward declarations.
     class RenderContext;
 
+    // Shader load info.
+    struct ShaderLoadInfo
+    {
+        std::string filePath;
+    };
+
+    // Shader compile info.
+    struct ShaderCompileInfo
+    {
+        std::string shaderCode;
+    };
+
     // Shader class.
     class Shader
     {
     public:
-        Shader(RenderContext* renderContext);
+        Shader();
         ~Shader();
 
+        // Disallow copying.
+        Shader(const Shader& other) = delete;
+        Shader& operator=(const Shader& other) = delete;
+
+        // Move constructor and assignment.
+        Shader(Shader&& other);
+        Shader& operator=(Shader&& other);
+
         // Loads the shader from a file.
-        bool Load(std::string filePath);
+        bool Initialize(RenderContext* renderContext, const ShaderLoadInfo& info);
 
         // Compiles the shader from code.
-        bool Compile(std::string shaderCode);
+        bool Initialize(RenderContext* renderContext, const ShaderCompileInfo& info);
 
         // Sets an uniform shader variable.
         template<typename Type>

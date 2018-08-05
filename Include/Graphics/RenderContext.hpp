@@ -27,6 +27,14 @@ namespace Graphics
         RenderContext();
         ~RenderContext();
 
+        // Disallow copying.
+        RenderContext(const RenderContext& other) = delete;
+        RenderContext& operator=(const RenderContext& other) = delete;
+
+        // Move constructor and destructor.
+        RenderContext(RenderContext&& other);
+        RenderContext& operator=(RenderContext&& other);
+
         // Initialize the graphics context.
         bool Initialize(System::Window* window);
 

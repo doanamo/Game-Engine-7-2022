@@ -19,15 +19,34 @@ BufferInfo::BufferInfo() :
 {
 }
 
-Buffer::Buffer(RenderContext* context, GLenum type) :
-    m_renderContext(context),
+Buffer::Buffer(GLenum type) :
+    m_renderContext(nullptr),
     m_type(type),
     m_usage(OpenGL::InvalidEnum),
     m_handle(OpenGL::InvalidHandle),
     m_elementSize(0),
     m_elementCount(0)
 {
-    VERIFY(m_renderContext && m_renderContext->IsValid(), "Render context is invalid!");
+}
+
+Buffer::Buffer(Buffer&& other) :
+    Buffer(other.m_type)
+{
+    // Call the assignment operator.
+    *this = std::move(other);
+}
+
+Buffer& Buffer::operator=(Buffer&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_type, other.m_type);
+    std::swap(m_usage, other.m_usage);
+    std::swap(m_handle, other.m_handle);
+    std::swap(m_elementSize, other.m_elementSize);
+    std::swap(m_elementCount, other.m_elementCount);
+
+    return *this;
 }
 
 Buffer::~Buffer()
@@ -47,15 +66,21 @@ void Buffer::DestroyHandle()
     }
 }
 
-bool Buffer::Create(const BufferInfo& info)
+bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
     LOG() << "Creating " << this->GetName() << "..." << LOG_INDENT();
 
     // Check if the handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Buffer instance has been already initialized!");
 
-    // Validate that element size is not zero.
+    // Validate arguments.
     // Element count can be zero for uninitialized buffers.
+    if(renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
+
     if(info.elementSize == 0)
     {
         LOG_ERROR() << "Invalid argument - \"elementSize\" is 0!";
@@ -86,7 +111,7 @@ bool Buffer::Create(const BufferInfo& info)
 
         glBindBuffer(m_type, m_handle);
         glBufferData(m_type, bufferSize, info.data, info.usage);
-        glBindBuffer(m_type, m_renderContext->GetState().GetBufferBinding(m_type));
+        glBindBuffer(m_type, renderContext->GetState().GetBufferBinding(m_type));
         OpenGL::CheckErrors();
     }
 
@@ -94,6 +119,9 @@ bool Buffer::Create(const BufferInfo& info)
     m_elementSize = info.elementSize;
     m_elementCount = info.elementCount;
     m_usage = info.usage;
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return initialized = true;
@@ -161,9 +189,20 @@ bool Buffer::IsInstanced() const
     Vertex Buffer
 */
 
-VertexBuffer::VertexBuffer(RenderContext* renderContext) :
-    Buffer(renderContext, GL_ARRAY_BUFFER)
+VertexBuffer::VertexBuffer() :
+    Buffer(GL_ARRAY_BUFFER)
 {
+}
+
+VertexBuffer::VertexBuffer(VertexBuffer&& other) :
+    Buffer(std::move(other))
+{
+}
+
+VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other)
+{
+    Buffer::operator=(std::move(other));
+    return *this;
 }
 
 const char* VertexBuffer::GetName() const
@@ -175,9 +214,20 @@ const char* VertexBuffer::GetName() const
     Index Buffer
 */
 
-IndexBuffer::IndexBuffer(RenderContext* renderContext) :
-    Buffer(renderContext, GL_ELEMENT_ARRAY_BUFFER)
+IndexBuffer::IndexBuffer() :
+    Buffer(GL_ELEMENT_ARRAY_BUFFER)
 {
+}
+
+IndexBuffer::IndexBuffer(IndexBuffer&& other) :
+    Buffer(std::move(other))
+{
+}
+
+IndexBuffer& IndexBuffer::operator=(IndexBuffer&& other)
+{
+    Buffer::operator=(std::move(other));
+    return *this;
 }
 
 const char* IndexBuffer::GetName() const
@@ -206,10 +256,22 @@ GLenum IndexBuffer::GetElementType() const
     Instance Buffer
 */
 
-InstanceBuffer::InstanceBuffer(RenderContext* renderContext) :
-    Buffer(renderContext, GL_ARRAY_BUFFER)
+InstanceBuffer::InstanceBuffer() :
+    Buffer(GL_ARRAY_BUFFER)
 {
 }
+
+InstanceBuffer::InstanceBuffer(InstanceBuffer&& other) :
+    Buffer(std::move(other))
+{
+}
+
+InstanceBuffer& InstanceBuffer::operator=(InstanceBuffer&& other)
+{
+    Buffer::operator=(std::move(other));
+    return *this;
+}
+
 
 const char* InstanceBuffer::GetName() const
 {

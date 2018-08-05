@@ -54,6 +54,7 @@ void Graphics::Sampler::InitializeDefaults()
     glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
     glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
     glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
+    OpenGL::CheckErrors();
 
     // Finish initialization.
     DefaultsInitialized = true;
@@ -79,8 +80,8 @@ SamplerInfo::SamplerInfo()
     textureMaxAniso = DefaultTextureMaxAniso;
 }
 
-Sampler::Sampler(RenderContext* renderContext) :
-    m_renderContext(renderContext),
+Sampler::Sampler() :
+    m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
 {
 }
@@ -88,6 +89,22 @@ Sampler::Sampler(RenderContext* renderContext) :
 Sampler::~Sampler()
 {
     this->DestroyHandle();
+}
+
+Sampler::Sampler(Sampler&& other) :
+    Sampler()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+Sampler& Sampler::operator=(Sampler&& other)
+{
+    // Swap class members.
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_handle, other.m_handle);
+    
+    return *this;
 }
 
 void Sampler::DestroyHandle()
@@ -102,12 +119,19 @@ void Sampler::DestroyHandle()
     }
 }
 
-bool Sampler::Create(const SamplerInfo& info)
+bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 {
     LOG() << "Creating sampler..." << LOG_INDENT();
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Sampler instance has been already initialized!");
+
+    // Validate arguments.
+    if(renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        return false;
+    }
 
     // Setup a cleanup guard.
     bool initialized = false;
@@ -184,6 +208,9 @@ bool Sampler::Create(const SamplerInfo& info)
     {
         glSamplerParameterf(m_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, info.textureMaxAniso);
     }
+
+    // Save render context reference.
+    m_renderContext = renderContext;
 
     // Success!
     return initialized = true;

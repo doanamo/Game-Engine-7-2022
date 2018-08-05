@@ -166,7 +166,16 @@ namespace Graphics
     {
     public:
         RenderState();
-        RenderState(RenderState&) = default;
+        ~RenderState();
+
+        // Copy constructor and operator.
+        // We can use defaults as we are only using copyable primitive types.
+        RenderState(const RenderState& other) = default;
+        RenderState& operator=(const RenderState& other) = default;
+
+        // Move constructor and operator.
+        RenderState(RenderState&& other) noexcept;
+        RenderState& operator=(RenderState&& other);
 
         // Initializes the render state.
         bool Initialize();

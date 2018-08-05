@@ -34,8 +34,8 @@
         bufferInfo.data = &vertices[0];
         
         // Create a vertex buffer.
-        Graphics::VertexBuffer vertexBuffer(renderContext);
-        vertexBuffer.Create(bufferInfo);
+        Graphics::VertexBuffer vertexBuffer();
+        vertexBuffer.Initialize(renderContext, bufferInfo);
 
         // Retrieve an OpenGL handle.
         GLuint handle = vertexBuffer.GetHandle();
@@ -62,12 +62,20 @@ namespace Graphics
     class Buffer
     {
     protected:
-        Buffer(RenderContext* context, GLenum type);
+        Buffer(GLenum type);
         virtual ~Buffer();
+
+        // Disallow copying.
+        Buffer(const Buffer& other) = delete;
+        Buffer& operator=(const Buffer& other) = delete;
+
+        // Move constructor and assignment.
+        Buffer(Buffer&& other);
+        Buffer& operator=(Buffer&& other);
 
     public:
         // Initializes the buffer instance.
-        bool Create(const BufferInfo& info);
+        bool Initialize(RenderContext* renderContext, const BufferInfo& info);
 
         // Updates the buffer's data.
         void Update(const void* data, int elementCount);
@@ -124,7 +132,11 @@ namespace Graphics
     class VertexBuffer : public Buffer
     {
     public:
-        VertexBuffer(RenderContext* renderContext);
+        VertexBuffer();
+
+        // Move constructor and assignment.
+        VertexBuffer(VertexBuffer&& other);
+        VertexBuffer& operator=(VertexBuffer&& other);
 
         // Returns the buffer's name.
         const char* GetName() const override;
@@ -140,7 +152,11 @@ namespace Graphics
     class IndexBuffer : public Buffer
     {
     public:
-        IndexBuffer(RenderContext* renderContext);
+        IndexBuffer();
+
+        // Move constructor and assignment.
+        IndexBuffer(IndexBuffer&& other);
+        IndexBuffer& operator=(IndexBuffer&& other);
 
         // Gets the type of index indices.
         GLenum GetElementType() const override;
@@ -159,7 +175,11 @@ namespace Graphics
     class InstanceBuffer : public Buffer
     {
     public:
-        InstanceBuffer(RenderContext* renderContext);
+        InstanceBuffer();
+
+        // Move constructor and assignment.
+        InstanceBuffer(InstanceBuffer&& other);
+        InstanceBuffer& operator=(InstanceBuffer&& other);
 
         // Returns the buffer's name.
         const char* GetName() const override;
