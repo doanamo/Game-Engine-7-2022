@@ -66,6 +66,14 @@ namespace System
         InputState();
         ~InputState();
 
+        // Disallow copying.
+        InputState(const InputState& other) = delete;
+        InputState& operator=(const InputState& other) = delete;
+
+        // Move constructor and operator.
+        InputState(InputState&& other);
+        InputState& operator=(InputState&& other);
+
         // Initializes the input state.
         bool Initialize(Window& window);
 
@@ -92,7 +100,7 @@ namespace System
     private:
         // Event receivers.
         Common::Receiver<void(const Window::Events::KeyboardKey&)> m_keyboardKey;
-        Common::Receiver<void(const Window::Events::Focus&)>       m_windowFocus;
+        Common::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
         
         // States of keyboard keys.
         KeyboardKeyStates::Type m_keyboardState[KeyboardKeyCount];

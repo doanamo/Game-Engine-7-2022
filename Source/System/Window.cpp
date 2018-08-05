@@ -32,6 +32,24 @@ Window::~Window()
     this->DestroyWindow();
 }
 
+Window::Window(Window&& other) :
+    Window()
+{
+    // Call the assignment operator to perform a swap.
+    *this = std::move(other);
+}
+
+Window& Window::operator=(Window&& other)
+{
+    // Perform a swap for this non performance critical operation.
+    std::swap(events, other.events);
+    std::swap(m_title, other.m_title);
+    std::swap(m_handle, other.m_handle);
+    std::swap(m_sizeChanged, other.m_sizeChanged);
+
+    return *this;
+}
+
 void Window::DestroyWindow()
 {
     // Destroy the window.
@@ -401,7 +419,7 @@ int Window::GetWidth() const
 {
     VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
-    // Return the current framebuffer's width.
+    // Return the current frame buffer's width.
     int width = 0;
     glfwGetFramebufferSize(m_handle, &width, nullptr);
     return width;
@@ -411,7 +429,7 @@ int Window::GetHeight() const
 {
     VERIFY(m_handle != nullptr, "Window instance is not initialized!");
 
-    // Return the current framebuffer's height.
+    // Return the current frame buffer's height.
     int height = 0;
     glfwGetFramebufferSize(m_handle, nullptr, &height);
     return height;

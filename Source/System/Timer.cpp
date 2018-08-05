@@ -21,6 +21,24 @@ Timer::~Timer()
 {
 }
 
+Timer::Timer(Timer&& other) :
+    Timer()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+Timer& Timer::operator=(Timer&& other)
+{
+    // Swap class members.
+    std::swap(m_timerFrequency, other.m_timerFrequency);
+    std::swap(m_currentTimeCounter, other.m_currentTimeCounter);
+    std::swap(m_previousTimeCounter, other.m_previousTimeCounter);
+    std::swap(m_maxFrameDeltaSeconds, other.m_maxFrameDeltaSeconds);
+
+    return *this;
+}
+
 void Timer::Reset()
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");

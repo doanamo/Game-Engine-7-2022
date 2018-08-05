@@ -32,11 +32,19 @@
 namespace System
 {
     // Platform class.
-    class Platform : private NonCopyable
+    class Platform
     {
     public:
         Platform();
         ~Platform();
+
+        // Disallow copy operations.
+        Platform(const Platform& other) = delete;
+        Platform& operator=(const Platform& other) = delete;
+
+        // Implement move operations.
+        Platform(Platform&& other);
+        Platform& operator=(Platform&& other);
 
         // Initializes the platform context.
         bool Initialize();

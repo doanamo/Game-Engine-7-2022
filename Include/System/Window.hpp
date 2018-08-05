@@ -70,11 +70,19 @@ namespace System
     };
 
     // Window class.
-    class Window : private NonCopyable
+    class Window
     {
     public:
         Window();
         ~Window();
+
+        // Disallow copy operations.
+        Window(const Window& other) = delete;
+        Window& operator=(const Window& other) = delete;
+
+        // Move operations.
+        Window(Window&& other);
+        Window& operator=(Window&& other);
 
         // Initializes the window.
         bool Initialize(const WindowInfo& info = WindowInfo());

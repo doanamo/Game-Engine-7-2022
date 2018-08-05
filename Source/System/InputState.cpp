@@ -21,6 +21,33 @@ InputState::~InputState()
 {
 }
 
+InputState::InputState(InputState&& other) :
+    InputState()
+{
+    // Call move operator.
+    *this = std::move(other);
+}
+
+InputState& InputState::operator=(InputState&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(m_keyboardState, other.m_keyboardState);
+    std::swap(m_keyboardKey, other.m_keyboardKey);
+    std::swap(m_windowFocus, other.m_windowFocus);
+
+    return *this;
+}
+
+void InputState::Reset()
+{
+    // Set all keys to their untouched state.
+    for(auto& i : m_keyboardState)
+    {
+        i = KeyboardKeyStates::ReleasedRepeat;
+    }
+}
+
 bool InputState::Initialize(Window& window)
 {
     LOG() << "Initializing input state..." << LOG_INDENT();
@@ -84,15 +111,6 @@ void InputState::Prepare()
         {
             state = KeyboardKeyStates::ReleasedRepeat;
         }
-    }
-}
-
-void InputState::Reset()
-{
-    // Set all keys to their untouched state.
-    for(auto & i : m_keyboardState)
-    {
-        i = KeyboardKeyStates::ReleasedRepeat;
     }
 }
 

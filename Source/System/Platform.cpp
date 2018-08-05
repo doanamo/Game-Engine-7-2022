@@ -8,6 +8,25 @@ using namespace System;
 
 namespace
 {
+    // Number of times GLFW has been initialized.
+    static int GLFWRefCounter = 0;
+
+    // Terminates GLFW instance.
+    void TerminateGLFW()
+    {
+        // Decrement the reference counter.
+        GLFWRefCounter--;
+
+        // Release GLFW library when the counter reaches zero.
+        if(GLFWRefCounter == 0)
+        {
+            glfwTerminate();
+        }
+    }
+}
+
+namespace
+{
     // Callback error function.
     void ErrorCallback(int error, const char* description)
     {
@@ -25,8 +44,23 @@ Platform::~Platform()
     // Release GLFW library.
     if(m_initialized)
     {
-        glfwTerminate();
+        TerminateGLFW();
     }
+}
+
+Platform::Platform(Platform&& other) :
+    Platform()
+{
+    // Call the assignment operator to perform a swap.
+    *this = std::move(other);
+}
+
+Platform& Platform::operator=(Platform&& other)
+{
+    // Perform a swap for this non performance critical operation.
+    std::swap(m_initialized, other.m_initialized);
+
+    return *this;
 }
 
 bool Platform::Initialize()
@@ -36,14 +70,20 @@ bool Platform::Initialize()
     // Check if system context is already initialized.
     ASSERT(!m_initialized, "Platform is already initialized!");
 
-    // Set a callback function for future GLFW errors.
-    glfwSetErrorCallback(ErrorCallback);
-
-    // Initialize GLFW library.
-    if(!glfwInit())
+    // Initialize GLFW library only once when the reference counter is zero.
+    if(GLFWRefCounter == 0)
     {
-        LOG_ERROR() << "Could not initialize GLFW library!";
-        return false;
+        // Set a callback function for future GLFW errors.
+        glfwSetErrorCallback(ErrorCallback);
+
+        // Initialize GLFW library.
+        if(!glfwInit())
+        {
+            LOG_ERROR() << "Could not initialize GLFW library!";
+            return false;
+        }
+
+        GLFWRefCounter++;
     }
 
     // Write GLFW details to log.
