@@ -74,4 +74,4 @@ namespace Logger
 #define LOG_WARNING() LOG().SetSeverity(Logger::Severity::Warning)
 #define LOG_ERROR()   LOG().SetSeverity(Logger::Severity::Error)
 
-#define LOG_INDENT() ""; Logger::ScopedIndent loggerIndent ## line(&Logger::GetGlobalSink())
+#define LOG_INDENT() ""; Logger::ScopedIndent loggerIndent ## __LINE__(&Logger::GetGlobalSink())
