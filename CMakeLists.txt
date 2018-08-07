@@ -19,9 +19,11 @@ project("GameEngine")
 
 # List of source files.
 set(SOURCE_FILES
-    "Include/Engine.hpp"
+    "Include/EnginePublic.hpp"
     "Source/Precompiled.hpp"
     "Source/Precompiled.cpp"
+    "Include/Engine.hpp"
+    "Source/Engine.cpp"
 
     "Include/Common/Build.hpp"
     "Source/Common/Build.cpp"

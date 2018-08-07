@@ -4,48 +4,66 @@
 
 #pragma once
 
-// Standard
-#include <string>
-#include <vector>
-#include <memory>
+#include "EnginePublic.hpp"
+#include "System/Platform.hpp"
+#include "System/Window.hpp"
+#include "System/InputState.hpp"
+#include "System/Timer.hpp"
+#include "Graphics/RenderContext.hpp"
+#include "Graphics/SpriteRenderer.hpp"
+#include "Game/EntitySystem.hpp"
+#include "Game/ComponentSystem.hpp"
+#include "Game/IdentitySystem.hpp"
+#include "Editor/Editor.hpp"
 
-// Windows
-#ifdef WIN32
-    #define WIN32_LEAD_AND_MEAN
-    #define NOMINMAX
-    #include <windows.h>
-#endif
+/*
+    Game Engine
+*/
 
-// GLM
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/norm.hpp>
+namespace Engine
+{
+    // Root class.
+    class Root
+    {
+    public:
+        Root();
+        ~Root();
 
-// GLEW
-#include <GL/glew.h>
+        // Disallow copying and moving.
+        Root(const Root& other) = delete;
+        Root& operator=(const Root& other) = delete;
 
-// GLFW
-#include <GLFW/glfw3.h>
+        // Moving constructor and assignment.
+        Root(Root&& other);
+        Root& operator=(Root&& other);
 
-// ImGUI
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+        // Initializes the engine instance.
+        bool Initialize();
 
-// zlib
-#include <zlib.h>
+        // Checks if the engine instance is initialized.
+        bool IsInitialized() const;
 
-// libpng
-#include <png.h>
+    public:
+        // Platform systems.
+        System::Platform platform;
+        System::Window window;
+        System::InputState inputState;
+        System::Timer timer;
 
-// Project
-#include "Common/Build.hpp"
-#include "Common/Debug.hpp"
-#include "Common/NonCopyable.hpp"
-#include "Common/ScopeGuard.hpp"
-#include "Common/Utility.hpp"
-#include "Events/Delegate.hpp"
-#include "Logger/Logger.hpp"
+        // Graphics systems.
+        Graphics::RenderContext renderContext;
+        Graphics::SpriteRenderer spriteRenderer;
+
+        // Game systems.
+        Game::EntitySystem entitySystem;
+        Game::ComponentSystem componentSystem;
+        Game::IdentitySystem identitySystem;
+
+        // Engine systems.
+        Engine::Editor editor;
+
+    private:
+        // Initialization state.
+        bool m_initialized;
+    };
+}
