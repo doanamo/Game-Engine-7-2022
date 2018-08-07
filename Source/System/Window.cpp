@@ -41,11 +41,22 @@ Window::Window(Window&& other) :
 
 Window& Window::operator=(Window&& other)
 {
-    // Perform a swap for this non performance critical operation.
+    // Swap class members.
     std::swap(events, other.events);
     std::swap(m_title, other.m_title);
     std::swap(m_handle, other.m_handle);
     std::swap(m_sizeChanged, other.m_sizeChanged);
+
+    // Update user data pointers.
+    if(m_handle)
+    {
+        glfwSetWindowUserPointer(m_handle, this);
+    }
+
+    if(other.m_handle)
+    {
+        glfwSetWindowUserPointer(other.m_handle, &other);
+    }
 
     return *this;
 }
