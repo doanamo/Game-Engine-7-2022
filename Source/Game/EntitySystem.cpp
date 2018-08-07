@@ -32,6 +32,26 @@ EntitySystem::EntitySystem() :
 {
 }
 
+EntitySystem::EntitySystem(EntitySystem&& other) :
+    EntitySystem()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+EntitySystem& EntitySystem::operator=(EntitySystem&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(events, other.events);
+    std::swap(m_entityCount, other.m_entityCount);
+    std::swap(m_commands, other.m_commands);
+    std::swap(m_handleEntries, other.m_handleEntries);
+    std::swap(m_freeHandles, other.m_freeHandles);
+
+    return *this;
+}
+
 EntitySystem::~EntitySystem()
 {
     if(m_initialized)

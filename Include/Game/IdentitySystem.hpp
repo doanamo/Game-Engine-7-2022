@@ -34,12 +34,13 @@ namespace Game
         IdentitySystem();
         ~IdentitySystem();
 
-        // Disable copy and move operations.
-        IdentitySystem(const IdentitySystem&) = delete;
-        IdentitySystem& operator=(const IdentitySystem&) = delete;
+        // Disable copying.
+        IdentitySystem(const IdentitySystem& other) = delete;
+        IdentitySystem& operator=(const IdentitySystem& other) = delete;
 
-        IdentitySystem(IdentitySystem&&) = delete;
-        IdentitySystem& operator=(IdentitySystem&&) = delete;
+        // Move constructor and assignment.
+        IdentitySystem(IdentitySystem&& other);
+        IdentitySystem& operator=(IdentitySystem&& other);
 
         // Initializes the identity system.
         bool Initialize(EntitySystem& entitySystem);

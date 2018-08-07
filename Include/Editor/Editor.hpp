@@ -28,6 +28,14 @@ namespace Engine
         Editor();
         ~Editor();
 
+        // Disallow copying.
+        Editor(const Editor& other) = delete;
+        Editor& operator=(const Editor& other) = delete;
+
+        // Move constructor and assignment.
+        Editor(Editor&& other);
+        Editor& operator=(Editor&& other);
+
         // Initializes the editor system.
         bool Initialize(System::Window* window, Graphics::RenderContext* renderContext);
 

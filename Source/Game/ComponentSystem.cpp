@@ -18,6 +18,23 @@ ComponentSystem::~ComponentSystem()
 {
 }
 
+ComponentSystem::ComponentSystem(ComponentSystem&& other) :
+    ComponentSystem()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+ComponentSystem& ComponentSystem::operator=(ComponentSystem&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(m_pools, other.m_pools);
+    std::swap(m_entityDestroyed, other.m_entityDestroyed);
+
+    return *this;
+}
+
 bool ComponentSystem::Initialize(EntitySystem& entitySystem)
 {   
     LOG() << "Initializing component system..." << LOG_INDENT();

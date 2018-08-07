@@ -61,6 +61,14 @@ namespace Game
         ComponentSystem();
         ~ComponentSystem();
 
+        // Disallow copying.
+        ComponentSystem(const ComponentSystem& other) = delete;
+        ComponentSystem& operator=(const ComponentSystem& other) = delete;
+
+        // Move constructor and operator.
+        ComponentSystem(ComponentSystem&& other);
+        ComponentSystem& operator=(ComponentSystem&& other);
+
         // Initializes the component system.
         bool Initialize(EntitySystem& entitySystem);
 

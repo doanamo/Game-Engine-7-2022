@@ -41,6 +41,38 @@ Editor::~Editor()
     this->DestroyContext();
 }
 
+Editor::Editor(Editor&& other) :
+    Editor()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+Editor& Editor::operator=(Editor&& other)
+{
+    // Swap class members.
+    std::swap(m_window, other.m_window);
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_interface, other.m_interface);
+
+    std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
+    std::swap(m_receiverMouseButton, other.m_receiverMouseButton);
+    std::swap(m_receiverMouseScroll, other.m_receiverMouseScroll);
+    std::swap(m_receiverKeyboardKey, other.m_receiverKeyboardKey);
+    std::swap(m_receiverTextInput, other.m_receiverTextInput);
+
+    std::swap(m_vertexBuffer, other.m_vertexBuffer);
+    std::swap(m_indexBuffer, other.m_indexBuffer);
+    std::swap(m_vertexArray, other.m_vertexArray);
+    std::swap(m_fontTexture, other.m_fontTexture);
+    std::swap(m_sampler, other.m_sampler);
+    std::swap(m_shader, other.m_shader);
+
+    std::swap(m_initialized, other.m_initialized);
+
+    return *this;
+}
+
 void Editor::DestroyContext()
 {
     // Destroy the user interface context.

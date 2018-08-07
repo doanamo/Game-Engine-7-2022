@@ -45,6 +45,14 @@ namespace Game
         EntitySystem();
         ~EntitySystem();
 
+        // Disallow copying.
+        EntitySystem(const EntitySystem& other) = delete;
+        EntitySystem& operator=(const EntitySystem& other) = delete;
+
+        // Move constructor and assignment.
+        EntitySystem(EntitySystem&& other);
+        EntitySystem& operator=(EntitySystem&& other);
+
         // Initializes the entity system.
         bool Initialize();
 

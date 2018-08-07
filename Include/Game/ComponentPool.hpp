@@ -63,6 +63,14 @@ namespace Game
         ComponentPool();
         ~ComponentPool();
 
+        // Disallow copying.
+        ComponentPool(const ComponentPool& other) = delete;
+        ComponentPool& operator=(const ComponentPool& other) = delete;
+
+        // Move constructor and assignment.
+        ComponentPool(ComponentPool&& other);
+        ComponentPool& operator=(ComponentPool&& other);
+
         // Creates a component.
         // Returns nullptr if component could not be created.
         ComponentType* CreateComponent(EntityHandle entity);
@@ -109,6 +117,25 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>::~ComponentPool()
     {
+    }
+
+    template<typename ComponentType>
+    ComponentPool<ComponentType>::ComponentPool(ComponentPool&& other) :
+        CompoentPool<ComponentType>()
+    {
+        // Call the move assignment.
+        *this = std::move(other);
+    }
+
+    template<typename ComponentType>
+    ComponentPool<ComponentType>& ComponentPool<ComponentType>::operator=(ComponentPool&& other)
+    {
+        // Swap class members.
+        std::swap(m_entries, other.m_entries);
+        std::swap(m_lookup, other.m_lookup);
+        std::swap(m_freeList, other.m_freeList);
+
+        return *this;/
     }
 
     template<typename ComponentType>

@@ -18,6 +18,24 @@ IdentitySystem::~IdentitySystem()
 {
 }
 
+IdentitySystem::IdentitySystem(IdentitySystem&& other) :
+    IdentitySystem()
+{
+    // Call the move assignment.
+    *this = std::move(other);
+}
+
+IdentitySystem& IdentitySystem::operator=(IdentitySystem&& other)
+{
+    // Swap class members.
+    std::swap(m_initialized, other.m_initialized);
+    std::swap(m_entityLookup, other.m_entityLookup);
+    std::swap(m_nameLookup, other.m_nameLookup);
+    std::swap(m_entityDestroyedReceiver, other.m_entityDestroyedReceiver);
+
+    return *this;
+}
+
 bool IdentitySystem::Initialize(EntitySystem& entitySystem)
 {
     LOG() << "Initializing identity system...";
