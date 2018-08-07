@@ -121,7 +121,7 @@ namespace Game
 
     template<typename ComponentType>
     ComponentPool<ComponentType>::ComponentPool(ComponentPool&& other) :
-        CompoentPool<ComponentType>()
+        ComponentPool<ComponentType>()
     {
         // Call the move assignment.
         *this = std::move(other);
@@ -135,7 +135,7 @@ namespace Game
         std::swap(m_lookup, other.m_lookup);
         std::swap(m_freeList, other.m_freeList);
 
-        return *this;/
+        return *this;
     }
 
     template<typename ComponentType>
