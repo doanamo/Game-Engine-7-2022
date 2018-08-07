@@ -7,14 +7,11 @@
 using namespace System;
 
 Timer::Timer() :
-    m_timerFrequency(glfwGetTimerFrequency()),
-    m_currentTimeCounter(glfwGetTimerValue()),
-    m_previousTimeCounter(m_currentTimeCounter),
+    m_timerFrequency(0),
+    m_currentTimeCounter(0),
+    m_previousTimeCounter(0),
     m_maxFrameDeltaSeconds(std::numeric_limits<float>::max())
 {
-    // Check if the timer's frequency is valid.
-    // Assertion's failure may indicate improperly initialized GLFW library.
-    VERIFY(m_timerFrequency != 0, "Failed to retrieve a valid timer frequency!");
 }
 
 Timer::~Timer()
@@ -37,6 +34,30 @@ Timer& Timer::operator=(Timer&& other)
     std::swap(m_maxFrameDeltaSeconds, other.m_maxFrameDeltaSeconds);
 
     return *this;
+}
+
+bool Timer::Initialize()
+{
+    LOG() << "Initializing timer..." << LOG_INDENT();
+
+    // Check if instance is already initialized.
+    ASSERT(m_timerFrequency == 0, "Time instance has already been initialized!");
+
+    // Retrieve timer frequency.
+    m_timerFrequency = glfwGetTimerFrequency();
+
+    if(m_timerFrequency == 0)
+    {
+        LOG_ERROR() << "Could not retrieve timer frequency!";
+        return false;
+    }
+
+    // Retrieve current times.
+    m_currentTimeCounter = glfwGetTimerValue();
+    m_previousTimeCounter = m_currentTimeCounter;
+
+    // Success!
+    return true;
 }
 
 void Timer::Reset()

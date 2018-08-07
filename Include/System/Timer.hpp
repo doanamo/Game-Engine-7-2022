@@ -14,6 +14,7 @@
     {
         // Create a timer instance.
         System::Timer timer;
+        timer.Initialize();
 
         // Run a loop that will measure delta time.
         while(true)
@@ -45,6 +46,9 @@ namespace System
         // Move constructor and operator.
         Timer(Timer&& other);
         Timer& operator=(Timer&& other);
+
+        // Initializes the timer instance.
+        bool Initialize();
 
         // Resets the timer.
         void Reset();
