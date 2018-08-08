@@ -28,8 +28,8 @@ Root& Root::operator=(Root&& other)
     // Swap class members.
     std::swap(platform, other.platform);
     std::swap(window, other.window);
-    std::swap(inputState, other.inputState);
     std::swap(timer, other.timer);
+    std::swap(inputState, other.inputState);
 
     std::swap(renderContext, other.renderContext);
     std::swap(spriteRenderer, other.spriteRenderer);
@@ -91,6 +91,16 @@ bool Root::Initialize()
 
     SCOPE_GUARD_IF(!m_initialized, window = System::Window());
 
+    // Initialize the main timer.
+    // There can be many timers but this one will be used to calculate frame time.
+    if(!timer.Initialize())
+    {
+        LOG_ERROR() << "Could not initialize timer!";
+        return false;
+    }
+
+    SCOPE_GUARD_IF(!m_initialized, timer = System::Timer());
+
     // Initialize the input state.
     // Collects and caches input state that can be later pooled.
     if(!inputState.Initialize(window))
@@ -100,14 +110,6 @@ bool Root::Initialize()
     }
 
     SCOPE_GUARD_IF(!m_initialized, inputState = System::InputState());
-
-    // Initialize the main timer.
-    // There can be many timers but this one will be used to calculate frame time.
-    if(!timer.Initialize())
-    {
-        LOG_ERROR() << "Could not initialize timer!";
-        return false;
-    }
 
     // Initialize the graphics context.
     // Manages the rendering context created along with the window.
