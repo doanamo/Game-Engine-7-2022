@@ -96,7 +96,7 @@ void InputState::OnWindowFocus(const Window::Events::Focus& event)
     }
 }
 
-void InputState::Prepare()
+void InputState::PrepareForEvents()
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
 
