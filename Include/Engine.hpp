@@ -9,6 +9,7 @@
 #include "System/Window.hpp"
 #include "System/Timer.hpp"
 #include "System/InputState.hpp"
+#include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/SpriteRenderer.hpp"
 #include "Game/EntitySystem.hpp"
@@ -53,6 +54,7 @@ namespace Engine
         System::Window window;
         System::Timer timer;
         System::InputState inputState;
+        System::ResourceManager resourceManager;
 
         // Graphics systems.
         Graphics::RenderContext renderContext;

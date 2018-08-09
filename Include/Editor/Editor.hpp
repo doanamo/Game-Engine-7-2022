@@ -14,6 +14,12 @@
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
 
+// Forward declarations.
+namespace System
+{
+    class ResourceManager;
+};
+
 /*
     Editor
 
@@ -37,7 +43,7 @@ namespace Engine
         Editor& operator=(Editor&& other);
 
         // Initializes the editor system.
-        bool Initialize(System::Window* window, Graphics::RenderContext* renderContext);
+        bool Initialize(System::Window* window, System::ResourceManager* resourceManager, Graphics::RenderContext* renderContext);
 
         // Updates the editor interface.
         void Update(float deltaTime);
@@ -88,7 +94,7 @@ namespace Engine
         Graphics::VertexArray m_vertexArray;
         Graphics::Texture m_fontTexture;
         Graphics::Sampler m_sampler;
-        Graphics::Shader m_shader;
+        std::shared_ptr<Graphics::Shader> m_shader;
 
         // Initialization state.
         bool m_initialized;

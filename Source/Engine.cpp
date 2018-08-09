@@ -30,6 +30,7 @@ Root& Root::operator=(Root&& other)
     std::swap(window, other.window);
     std::swap(timer, other.timer);
     std::swap(inputState, other.inputState);
+    std::swap(resourceManager, other.resourceManager);
 
     std::swap(renderContext, other.renderContext);
     std::swap(spriteRenderer, other.spriteRenderer);
@@ -111,6 +112,16 @@ bool Root::Initialize()
 
     SCOPE_GUARD_IF(!m_initialized, inputState = System::InputState());
 
+    // Initialize the resource manager.
+    // Resource manager will help avoid duplication of resources.
+    if(!resourceManager.Initialize())
+    {
+        LOG_ERROR() << "Could not initialize resource manager!";
+        return false;
+    }
+
+    SCOPE_GUARD_IF(!m_initialized, resourceManager = System::ResourceManager());
+
     // Initialize the graphics context.
     // Manages the rendering context created along with the window.
     if(!renderContext.Initialize(&window))
@@ -123,7 +134,7 @@ bool Root::Initialize()
 
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
-    if(!spriteRenderer.Initialize(&renderContext, 128))
+    if(!spriteRenderer.Initialize(&resourceManager, &renderContext, 128))
     {
         LOG_ERROR() << "Could not initialize sprite renderer!";
         return false;
@@ -163,7 +174,7 @@ bool Root::Initialize()
 
     // Initialize the editor.
     // Built in editor for creating and modifying content within a game.
-    if(!editor.Initialize(&window, &renderContext))
+    if(!editor.Initialize(&window, &resourceManager, &renderContext))
     {
         LOG_ERROR() << "Could not initialize editor!";
         return false;
@@ -191,6 +202,9 @@ bool Root::Update()
 
         // Tick the timer.
         timer.Tick();
+
+        // Release unused resources.
+        resourceManager.ReleaseUnused();
     }
 
     // Reset the timer before the first update, as a large

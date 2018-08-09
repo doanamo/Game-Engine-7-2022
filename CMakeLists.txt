@@ -58,6 +58,9 @@ set(SOURCE_FILES
     "Source/System/Timer.cpp"
     "Include/System/InputState.hpp"
     "Source/System/InputState.cpp"
+    "Include/System/ResourcePool.hpp"
+    "Include/System/ResourceManager.hpp"
+    "Source/System/ResourceManager.cpp"
 
     "Include/Graphics/RenderContext.hpp"
     "Source/Graphics/RenderContext.cpp"

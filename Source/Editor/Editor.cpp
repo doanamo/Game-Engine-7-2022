@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Editor/Editor.hpp"
+#include "System/ResourceManager.hpp"
 using namespace Engine;
 
 namespace
@@ -83,7 +84,7 @@ void Editor::DestroyContext()
     }
 }
 
-bool Editor::Initialize(System::Window* window, Graphics::RenderContext* renderContext)
+bool Editor::Initialize(System::Window* window, System::ResourceManager* resourceManager, Graphics::RenderContext* renderContext)
 {
     LOG() << "Initializing editor..." << LOG_INDENT();
 
@@ -94,6 +95,12 @@ bool Editor::Initialize(System::Window* window, Graphics::RenderContext* renderC
     if(window == nullptr)
     {
         LOG_ERROR() << "Invalid argument - \"window\" is null!";
+        return false;
+    }
+
+    if(resourceManager == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"resourceManager\" is null!";
         return false;
     }
 
@@ -267,13 +274,15 @@ bool Editor::Initialize(System::Window* window, Graphics::RenderContext* renderC
     Graphics::ShaderLoadInfo shaderInfo;
     shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
 
-    if(!m_shader.Initialize(renderContext, shaderInfo))
+    m_shader = resourceManager->Acquire<Graphics::Shader>(shaderInfo.filePath, renderContext, shaderInfo);
+
+    if(m_shader == nullptr)
     {
         LOG_ERROR() << "Could not initialize shader!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Graphics::Shader());
+    SCOPE_GUARD_IF(!m_initialized, m_shader.reset());
 
     // Save window reference.
     m_window = window;
@@ -362,9 +371,9 @@ void Editor::Draw()
 
     renderState.Viewport(0, 0, m_window->GetWidth(), m_window->GetHeight());
 
-    renderState.UseProgram(m_shader.GetHandle());
-    m_shader.SetUniform("vertexTransform", transform);
-    m_shader.SetUniform("textureDiffuse", 0);
+    renderState.UseProgram(m_shader->GetHandle());
+    m_shader->SetUniform("vertexTransform", transform);
+    m_shader->SetUniform("textureDiffuse", 0);
 
     renderState.BindSampler(0, m_sampler.GetHandle());
 

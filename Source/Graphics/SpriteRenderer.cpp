@@ -6,6 +6,7 @@
 #include "Graphics/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
+#include "System/ResourceManager.hpp"
 using namespace Graphics;
 
 namespace
@@ -52,7 +53,7 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
     return *this;
 }
 
-bool SpriteRenderer::Initialize(RenderContext* renderContext, int spriteBatchSize)
+bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, RenderContext* renderContext, int spriteBatchSize)
 {
     LOG() << "Initializing sprite renderer..." << LOG_INDENT();
 
@@ -60,6 +61,12 @@ bool SpriteRenderer::Initialize(RenderContext* renderContext, int spriteBatchSiz
     ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");
 
     // Validate arguments.
+    if(resourceManager == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"resourceManager\" is null!";
+        return false;
+    }
+
     if(renderContext == nullptr)
     {
         LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
@@ -163,13 +170,15 @@ bool SpriteRenderer::Initialize(RenderContext* renderContext, int spriteBatchSiz
     ShaderLoadInfo shaderInfo;
     shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader";
 
-    if(!m_shader.Initialize(renderContext, shaderInfo))
+    m_shader = resourceManager->Acquire<Shader>(shaderInfo.filePath, renderContext, shaderInfo);
+
+    if(m_shader == nullptr)
     {
         LOG_ERROR() << "Could not load sprite shader!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_shader = Shader());
+    SCOPE_GUARD_IF(!m_initialized, m_shader.reset());
 
     // Remember the sprite batch size.
     m_spriteBatchSize = spriteBatchSize;
@@ -195,11 +204,11 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
     // Set initial render state.
     renderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderState.BindVertexArray(m_vertexArray.GetHandle());
-    renderState.UseProgram(m_shader.GetHandle());
+    renderState.UseProgram(m_shader->GetHandle());
 
     // Set shader uniforms.
-    m_shader.SetUniform("vertexTransform", transform);
-    m_shader.SetUniform("textureDiffuse", 0);
+    m_shader->SetUniform("vertexTransform", transform);
+    m_shader->SetUniform("textureDiffuse", 0);
 
     // Get sprite info and data arrays.
     const auto& spriteInfo = sprites.GetSpriteInfo();
@@ -255,7 +264,7 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
             textureInvSize.x = 1.0f / batchInfo.texture->GetWidth();
             textureInvSize.y = 1.0f / batchInfo.texture->GetHeight();
 
-            m_shader.SetUniform("textureSizeInv", textureInvSize);
+            m_shader->SetUniform("textureSizeInv", textureInvSize);
 
             // Bind texture unit.
             renderState.ActiveTexture(GL_TEXTURE0);
