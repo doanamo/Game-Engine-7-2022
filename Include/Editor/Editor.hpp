@@ -94,7 +94,7 @@ namespace Engine
         Graphics::VertexArray m_vertexArray;
         Graphics::Texture m_fontTexture;
         Graphics::Sampler m_sampler;
-        std::shared_ptr<Graphics::Shader> m_shader;
+        Graphics::ShaderPtr m_shader;
 
         // Initialization state.
         bool m_initialized;

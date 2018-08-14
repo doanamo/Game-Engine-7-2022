@@ -105,4 +105,7 @@ namespace Graphics
         int m_width;
         int m_height;
     };
+    
+    // Pointer type.
+    using TexturePtr = std::shared_ptr<Texture>;
 }

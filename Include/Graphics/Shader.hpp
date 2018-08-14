@@ -118,6 +118,10 @@ namespace Graphics
         GLuint m_handle;
     };
 
+    // Pointer type.
+    using ShaderPtr = std::shared_ptr<Shader>;
+
+    // Template implementations.
     template<>
     inline void Graphics::Shader::SetUniform(std::string name, const GLint& value)
     {
