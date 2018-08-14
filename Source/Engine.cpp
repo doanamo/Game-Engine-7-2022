@@ -7,8 +7,7 @@
 using namespace Engine;
 
 Root::Root() :
-    m_initialized(false),
-    m_firstUpdate(true)
+    m_initialized(false)
 {
 }
 
@@ -38,11 +37,11 @@ Root& Root::operator=(Root&& other)
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
     std::swap(identitySystem, other.identitySystem);
+    std::swap(sceneSystem, other.sceneSystem);
 
     std::swap(editor, other.editor);
 
     std::swap(m_initialized, other.m_initialized);
-    std::swap(m_firstUpdate, other.m_firstUpdate);
 
     return *this;
 }
@@ -172,6 +171,16 @@ bool Root::Initialize()
 
     SCOPE_GUARD_IF(!m_initialized, identitySystem = Game::IdentitySystem());
 
+    // Initialize the scene system.
+    // Allows game scenes to be switched and manages them.
+    if(!sceneSystem.Initialize(this))
+    {
+        LOG_ERROR() << "Could not initialize scene system!";
+        return false;
+    }
+
+    SCOPE_GUARD_IF(!m_initialized, sceneSystem = Game::SceneSystem());
+
     // Initialize the editor.
     // Built in editor for creating and modifying content within a game.
     if(!editor.Initialize(&window, &resourceManager, &renderContext))
@@ -186,58 +195,52 @@ bool Root::Initialize()
     return m_initialized = true;
 }
 
-bool Root::Update()
+int Root::Run()
 {
     ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Following code should usually be called at the end of
-    // the loop, so do not call it during the first update.
-    if(!m_firstUpdate)
+    // Reset the timer before the first update, as a large
+    // value may have accumulated after a long initialization.
+    timer.Reset();
+
+    // Run the main application loop.
+    while(window.IsOpen())
     {
+        // Calculate frame delta time.
+        float timeDelta = timer.CalculateFrameDelta();
+
+        // Prepare input state for being processed.
+        inputState.PrepareForEvents();
+
+        // Process window events.
+        window.ProcessEvents();
+
+        // Process entity commands.
+        entitySystem.ProcessCommands();
+
+        // Update the current scene.
+        sceneSystem.UpdateScene(timeDelta);
+
+        // Update the editor interface.
+        editor.Update(timeDelta);
+
+        // Draw the current scene.
+        sceneSystem.DrawScene(1.0f);
+
         // Draw the editor interface.
         editor.Draw();
 
         // Present the window content.
         window.Present();
 
-        // Tick the timer.
-        timer.Tick();
-
         // Release unused resources.
         resourceManager.ReleaseUnused();
+
+        // Tick the timer.
+        timer.Tick();
     }
 
-    // Reset the timer before the first update, as a large
-    // value may have accumulated after a long initialization.
-    if(m_firstUpdate)
-    {
-        timer.Reset();
-    }
-
-    // Abort executing the main loop when the main window closes.
-    if(!window.IsOpen())
-        return false;
-
-    // Calculate frame delta time.
-    float deltaTime = timer.CalculateFrameDelta();
-
-    // Prepare input state for being processed.
-    inputState.PrepareForEvents();
-
-    // Process window events.
-    window.ProcessEvents();
-
-    // Process entity commands.
-    entitySystem.ProcessCommands();
-
-    // Update the editor interface.
-    editor.Update(deltaTime);
-
-    // We have completed our first engine update.
-    m_firstUpdate = false;
-
-    // Continue executing the main loop.
-    return true;
+    return 0;
 }
 
 bool Root::IsInitialized() const

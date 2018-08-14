@@ -15,6 +15,7 @@
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/IdentitySystem.hpp"
+#include "Game/SceneSystem.hpp"
 #include "Editor/Editor.hpp"
 
 /*
@@ -41,9 +42,8 @@ namespace Engine
         // Initializes the engine instance.
         bool Initialize();
 
-        // Updates the engine before starting a new frame.
-        // Must be called at the beginning of the main loop.
-        bool Update();
+        // Run the main game loop.
+        int Run();
 
         // Checks if the engine instance is initialized.
         bool IsInitialized() const;
@@ -64,6 +64,7 @@ namespace Engine
         Game::EntitySystem entitySystem;
         Game::ComponentSystem componentSystem;
         Game::IdentitySystem identitySystem;
+        Game::SceneSystem sceneSystem;
 
         // Engine systems.
         Engine::Editor editor;
@@ -71,8 +72,5 @@ namespace Engine
     private:
         // Initialization state.
         bool m_initialized;
-
-        // Track first update call.
-        bool m_firstUpdate;
     };
 }
