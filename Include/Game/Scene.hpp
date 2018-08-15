@@ -15,15 +15,11 @@ namespace Game
     {
     protected:
         // Protected constructor.
-        Scene()
-        {
-        }
+        Scene() = default;
 
     public:
         // Virtual destructor.
-        virtual ~Scene()
-        {
-        }
+        virtual ~Scene() = default;
 
         // Called when the scene is about to enter.
         virtual void OnSceneEnter()
