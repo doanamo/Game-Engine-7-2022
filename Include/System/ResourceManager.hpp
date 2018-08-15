@@ -69,7 +69,7 @@ namespace System
 
         // Sets the default resource.
         template<typename Type>
-        void SetDefault(std::shared_ptr<Type> default);
+        void SetDefault(std::shared_ptr<Type> resource);
 
         // Gets the default resource.
         template<typename Type>
@@ -102,7 +102,7 @@ namespace System
 
     // Template definitions.
     template<typename Type>
-    void ResourceManager::SetDefault(std::shared_ptr<Type> default)
+    void ResourceManager::SetDefault(std::shared_ptr<Type> resource)
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
@@ -111,7 +111,7 @@ namespace System
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
         // Set the default resource.
-        pool->SetDefault(default);
+        pool->SetDefault(resource);
     }
 
     template<typename Type>

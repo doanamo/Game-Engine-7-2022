@@ -98,7 +98,7 @@ namespace System
 
     private:
         // Default resource.
-        std::shared_ptr<Type> m_default;
+        std::shared_ptr<Type> m_defaultResource;
 
         // List of resources.
         ResourceList m_resources;
@@ -107,7 +107,7 @@ namespace System
     // Template definitions.
     template<typename Type>
     ResourcePool<Type>::ResourcePool() :
-        m_default(std::make_shared<Type>())
+        m_defaultResource(std::make_shared<Type>())
     {
     }
 
@@ -130,7 +130,7 @@ namespace System
     ResourcePool<Type>& ResourcePool<Type>::operator=(ResourcePool&& other)
     {
         // Swap class members.
-        std::swap(m_default, other.m_default);
+        std::swap(m_defaultResource, other.m_defaultResource);
         std::swap(m_resources, other.m_resources);
 
         return *this;
@@ -139,13 +139,13 @@ namespace System
     template<typename Type>
     void ResourcePool<Type>::SetDefault(std::shared_ptr<Type> resource)
     {
-        m_default = resource;
+        m_defaultResource = resource;
     }
 
     template<typename Type>
     std::shared_ptr<Type> ResourcePool<Type>::GetDefault() const
     {
-        return m_default;
+        return m_defaultResource;
     }
 
     template<typename Type>
@@ -165,7 +165,7 @@ namespace System
         // Create a new named resource instance.
         std::shared_ptr<Type> resource = std::make_shared<Type>();
         if(!resource->Initialize(std::forward<Arguments>(arguments)...))
-            return m_default;
+            return m_defaultResource;
 
         // Add resource to the list.
         auto result = m_resources.emplace(name, std::move(resource));
