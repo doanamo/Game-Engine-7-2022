@@ -76,7 +76,7 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     }
 }
 
-void SceneSystem::UpdateScene(float timeDelta)
+void Game::SceneSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
@@ -87,7 +87,7 @@ void SceneSystem::UpdateScene(float timeDelta)
     }
 }
 
-void SceneSystem::DrawScene(float timeAlpha)
+void Game::SceneSystem::Draw(float timeAlpha)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 

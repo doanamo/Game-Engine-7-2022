@@ -46,7 +46,7 @@ namespace Engine
         bool Initialize(System::Window* window, System::ResourceManager* resourceManager, Graphics::RenderContext* renderContext);
 
         // Updates the editor interface.
-        void Update(float deltaTime);
+        void Update(float timeDelta);
 
         // Draws the editor interface.
         void Draw();

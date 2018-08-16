@@ -218,14 +218,14 @@ int Root::Run()
         // Process entity commands.
         entitySystem.ProcessCommands();
 
-        // Update the current scene.
-        sceneSystem.UpdateScene(timeDelta);
-
         // Update the editor interface.
         editor.Update(timeDelta);
 
+        // Update the current scene.
+        sceneSystem.Update(timeDelta);
+
         // Draw the current scene.
-        sceneSystem.DrawScene(1.0f);
+        sceneSystem.Draw(1.0f);
 
         // Draw the editor interface.
         editor.Draw();

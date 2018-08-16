@@ -43,10 +43,10 @@ namespace Game
         void ChangeScene(std::shared_ptr<Scene> scene);
 
         // Updates the scene.
-        void UpdateScene(float timeDelta);
+        void Update(float timeDelta);
 
         // Draws the scene.
-        void DrawScene(float timeAlpha);
+        void Draw(float timeAlpha);
 
     private:
         // Engine reference.
