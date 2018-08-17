@@ -18,6 +18,7 @@ namespace Common
     class ListNode
     {
     public:
+        // Constructor.
         ListNode() :
             m_reference(nullptr),
             m_previous(this),

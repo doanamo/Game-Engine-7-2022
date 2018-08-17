@@ -5,7 +5,7 @@
 #pragma once
 
 #include <functional>
-#include "Common/Debug.hpp"
+#include "Common/LinkedList.hpp"
 #include "Events/Collector.hpp"
 #include "Events/Receiver.hpp"
 
@@ -61,12 +61,24 @@ namespace Common
     template<typename ReturnType, typename... Arguments>
     class DispatcherBase<ReturnType(Arguments...)>
     {
+    public:
+        // Type declarations.
+        using ReceiverListNode = ListNode<Receiver<ReturnType(Arguments...)>>;
+
     protected:
         // Can only be constructed via Dispatcher template class.
         DispatcherBase();
 
         // Virtual destructor for derived Dispatcher template class.
         virtual ~DispatcherBase();
+
+        // Disallow copying operations.
+        DispatcherBase(const DispatcherBase& other) = delete;
+        DispatcherBase& operator=(const DispatcherBase& other) = delete;
+
+        // Move constructor and assignment.
+        DispatcherBase(DispatcherBase&& other);
+        DispatcherBase& operator=(DispatcherBase&& other);
 
     public:
         // Subscribes a receiver.
@@ -88,9 +100,8 @@ namespace Common
         void Dispatch(Collector& collector, Arguments... arguments);
 
     protected:
-        // Double linked list of receivers.
-        Receiver<ReturnType(Arguments...)>* m_begin;
-        Receiver<ReturnType(Arguments...)>* m_end;
+        // Circular linked list of receivers.
+        ReceiverListNode m_receiverList;
     };
 
     // Receiver invoker template class helper.
@@ -145,10 +156,6 @@ namespace Common
         // Default constructor.
         Dispatcher(ReturnType defaultResult);
 
-        // Disallow copying operations.
-        Dispatcher(const Dispatcher& other) = delete;
-        Dispatcher& operator=(const Dispatcher& other) = delete;
-
         // Move operations.
         Dispatcher(Dispatcher&& other);
         Dispatcher& operator=(Dispatcher&& other);
@@ -171,6 +178,10 @@ namespace Common
         // Default constructor.
         Dispatcher();
 
+        // Allow move operations.
+        Dispatcher(Dispatcher&& other) = default;
+        Dispatcher& operator=(Dispatcher&& other) = default;
+
         // Invokes receivers with following arguments.
         void Dispatch(Arguments... arguments);
 
@@ -180,9 +191,7 @@ namespace Common
 
     // Template definitions.
     template<typename ReturnType, typename... Arguments>
-    DispatcherBase<ReturnType(Arguments...)>::DispatcherBase() :
-        m_begin(nullptr),
-        m_end(nullptr)
+    DispatcherBase<ReturnType(Arguments...)>::DispatcherBase()
     {
     }
 
@@ -193,35 +202,79 @@ namespace Common
     }
 
     template<typename ReturnType, typename... Arguments>
-    void DispatcherBase<ReturnType(Arguments...)>::UnsubscribeAll()
+    DispatcherBase<ReturnType(Arguments...)>::DispatcherBase(DispatcherBase&& other) :
+        DispatcherBase()
     {
-        // Iterate through the double linked list to unsubscribe all receivers.
-        Receiver<ReturnType(Arguments...)>* iterator = m_begin;
+        // Invoke a move operation.
+        *this = std::move(other);
+    }
 
-        while(iterator != nullptr)
+    template<typename ReturnType, typename... Arguments>
+    DispatcherBase<ReturnType(Arguments...)>& DispatcherBase<ReturnType(Arguments...)>::operator=(DispatcherBase&& other)
+    {
+        // Swap class members.
+        std::swap(this->m_receiverList, other.m_receiverList);
+
+        // Fix pointers of subscribed receivers.
+        ReceiverListNode* iterator = this->m_receiverList.GetNext();
+
+        while(iterator != &this->m_receiverList)
         {
-            // Get the receiver instance.
-            Receiver<ReturnType(Arguments...)>* receiver = iterator;
-            ASSERT(receiver->m_dispatcher != nullptr, "Receiver's dispatcher is nullptr!");
+            // Retrieve a receiver instance.
+            Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
+            ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
 
-            // Advance to the next receiver.
-            iterator = iterator->m_next;
+            // Assign a new dispatcher reference
+            receiver->m_dispatcher = this;
 
-            // Unsubscribe a receiver.
-            receiver->m_dispatcher = nullptr;
-            receiver->m_previous = nullptr;
-            receiver->m_next = nullptr;
+            // Move to the next receiver.
+            iterator = iterator->GetNext();
         }
 
-        m_begin = nullptr;
-        m_end = nullptr;
+        ReceiverListNode* otherIterator = other.m_receiverList.GetNext();
+
+        while(otherIterator != &other.m_receiverList)
+        {
+            // Retrieve a receiver instance.
+            Receiver<ReturnType(Arguments...)>* receiver = otherIterator->GetReference();
+            ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
+
+            // Assign a new dispatcher reference
+            receiver->m_dispatcher = &other;
+
+            // Move to the next receiver.
+            otherIterator = otherIterator->GetNext();
+        }
+ 
+        return *this;
+    }
+
+    template<typename ReturnType, typename... Arguments>
+    void DispatcherBase<ReturnType(Arguments...)>::UnsubscribeAll()
+    {
+        // Iterate through the linked list to unsubscribe all receivers.
+        ReceiverListNode* iterator = m_receiverList.GetNext();
+
+        while(iterator != &m_receiverList)
+        {
+            // Get the receiver instance.
+            Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
+            ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
+
+            // Advance to the next receiver.
+            // Do this here before receiver node gets removed.
+            iterator = iterator->GetNext();
+
+            // Unsubscribe a receiver.
+            receiver->Unsubscribe();
+        }
     }
 
     template<typename ReturnType, typename... Arguments>
     bool DispatcherBase<ReturnType(Arguments...)>::Subscribe(Receiver<ReturnType(Arguments...)>& receiver, bool unsubscribeReceiver)
     {
         // Check if receiver is already subscribed somewhere else.
-        if(receiver.m_dispatcher != nullptr)
+        if(!receiver.m_listNode.IsFree())
         {
             // Check if receiver is already subscribed to this dispatcher.
             if(receiver.m_dispatcher == this)
@@ -235,29 +288,10 @@ namespace Common
             receiver.Unsubscribe();
         }
 
-        ASSERT(receiver.m_previous == nullptr, "Receiver's previous list element is not nullptr!");
-        ASSERT(receiver.m_next == nullptr, "Receiver's next list element is not nullptr!");
+        // Add receiver node to the end of the receiver list.
+        receiver.m_listNode.Insert(m_receiverList.GetPrevious());
 
-        // Add receiver to the linked list.
-        if(m_begin == nullptr)
-        {
-            ASSERT(m_end == nullptr, "Linked list's beginning element is nullptr but the ending is not!");
-
-            // Add as the only element on the list.
-            m_begin = &receiver;
-            m_end = &receiver;
-        }
-        else
-        {
-            ASSERT(m_end != nullptr, "Linked list's ending element is nullptr but the beginning is not!");
-
-            // Add to the end of the list.
-            m_end->m_next = &receiver;
-            receiver.m_previous = m_end;
-            m_end = &receiver;
-        }
-
-        // Set dispatcher's reference.
+        // Set dispatcher reference.
         receiver.m_dispatcher = this;
 
         return true;
@@ -269,52 +303,11 @@ namespace Common
         // Check if receiver is subscribed to this dispatcher.
         VERIFY(receiver.m_dispatcher == this, "Attempting to unsubscribe a receiver that is not subscribed to this dispatcher!");
 
-        // Remove receiver from the linked list.
-        if(m_begin == &receiver)
-        {
-            // Receiver is first on the list.
-            if(m_end == &receiver)
-            {
-                // Remove as the only element on the list.
-                m_begin = nullptr;
-                m_end = nullptr;
-            }
-            else
-            {
-                ASSERT(receiver.m_next != nullptr, "Receiver's next list element is nullptr!");
-
-                // Remove from the beginning of the list.
-                m_begin = receiver.m_next;
-                m_begin->m_previous = nullptr;
-            }
-        }
-        else
-        {
-            // Receiver is not first on the list.
-            if(m_end == &receiver)
-            {
-                ASSERT(receiver.m_previous != nullptr, "Receiver's previous list element is nullptr!");
-
-                // Removing from the end of the list.
-                m_end = receiver.m_previous;
-                m_end->m_next = nullptr;
-
-            }
-            else
-            {
-                ASSERT(receiver.m_previous != nullptr, "Receiver's previous list element is nullptr!");
-                ASSERT(receiver.m_next != nullptr, "Receiver's next list element is nullptr!");
-
-                // Removing in the middle of the list.
-                receiver.m_previous->m_next = receiver.m_next;
-                receiver.m_next->m_previous = receiver.m_previous;
-            }
-        }
-
-        // Clear receiver's members.
+        // Remove receiver node.
+        receiver.m_listNode.Remove();
+        
+        // Clear dispatcher reference.
         receiver.m_dispatcher = nullptr;
-        receiver.m_previous = nullptr;
-        receiver.m_next = nullptr;
     }
 
     template<typename ReturnType, typename... Arguments>
@@ -322,10 +315,14 @@ namespace Common
     void DispatcherBase<ReturnType(Arguments...)>::Dispatch(Collector& collector, Arguments... arguments)
     {
         // Send a dispatch event to all receivers.
-        Receiver<ReturnType(Arguments...)>* receiver = m_begin;
+        ReceiverListNode* iterator = m_receiverList.GetNext();
 
-        while(receiver != nullptr)
+        while(iterator != &m_receiverList)
         {
+            // Retrieve receiver instance.
+            Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
+            ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
+
             // Check is we should continue processing receivers.
             if(!collector.ShouldContinue())
                 break;
@@ -335,7 +332,7 @@ namespace Common
             invocation(collector, receiver, std::forward<Arguments>(arguments)...);
 
             // Advance to the next receiver.
-            receiver = receiver->m_next;
+            iterator = iterator->GetNext();
         }
     }
 
@@ -364,37 +361,8 @@ namespace Common
         Dispatcher<ReturnType(Arguments...), Collector>::operator=(Dispatcher&& other)
     {
         // Swap class members.
-        // We have to use this pointer to access protected members of the derived class.
-        std::swap(m_defaultResult, other.m_defaultResult);
-        std::swap(this->m_begin, other.m_begin);
-        std::swap(this->m_end, other.m_end);
-
-        // Fix pointers of subscribed receivers.
-        if(this->m_begin != nullptr)
-        {
-            ASSERT(this->m_end != nullptr, "Broken linked list pointers!");
-            Receiver<ReturnType(Arguments...)>* receiver = this->m_begin;
-
-            while(receiver != nullptr)
-            {
-                // Assign a new pointer and move to the next receiver.
-                receiver->m_dispatcher = this;
-                receiver = receiver->m_next;
-            }
-        }
-
-        if(other.m_begin != nullptr)
-        {
-            ASSERT(other.m_end != nullptr, "Broken linked list pointers!");
-            Receiver<ReturnType(Arguments...)>* receiver = other.m_begin;
-
-            while(receiver != nullptr)
-            {
-                // Assign a new pointer and move to the next receiver.
-                receiver->m_dispatcher = &other;
-                receiver = receiver->m_next;
-            }
-        }
+        DispatcherBase::operator=(std::move(other));
+        std::swap(this->m_defaultResult, other.m_defaultResult);
 
         return *this;
     }

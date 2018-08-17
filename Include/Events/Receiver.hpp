@@ -40,13 +40,16 @@ namespace Common
         friend DispatcherBase<ReturnType(Arguments...)>;
         friend ReceiverInvoker<ReturnType(Arguments...)>;
 
+        // Type declarations.
+        using ReceiverListNode = typename DispatcherBase<ReturnType(Arguments...)>::ReceiverListNode;
+
     public:
         // Constructor.
         Receiver() :
-            m_dispatcher(nullptr),
-            m_previous(nullptr),
-            m_next(nullptr)
+            m_dispatcher(nullptr)
         {
+            // Set a strong reference to this node.
+            m_listNode.SetReference(this);
         }
 
         // Destructor.
@@ -71,13 +74,9 @@ namespace Common
         Receiver& operator=(Receiver&& other)
         {
             // Swap class members.
+            std::swap(m_listNode, other.m_listNode);
             std::swap(m_dispatcher, other.m_dispatcher);
-            std::swap(m_previous, other.m_previous);
-            std::swap(m_next, other.m_next);
-
-            // Do not swap the underlying delegate.
-            // We only want to swap the dispatcher subscription.
-            
+ 
             return *this;
         }
 
@@ -93,11 +92,10 @@ namespace Common
             if(m_dispatcher != nullptr)
             {
                 m_dispatcher->Unsubscribe(*this);
-
-                ASSERT(m_dispatcher == nullptr, "Dispatcher did not unsubscribe this receiver properly!");
-                ASSERT(m_previous == nullptr, "Dispatcher did not unsubscribe this receiver properly!");
-                ASSERT(m_next == nullptr, "Dispatcher did not unsubscribe this receiver properly!");
             }
+
+            ASSERT(m_dispatcher == nullptr, "Dispatcher did not unsubscribe this receiver properly!");
+            ASSERT(m_listNode.IsFree(), "Dispatcher did not unsubscribe this receiver properly!");
         }
 
     private:
@@ -116,9 +114,10 @@ namespace Common
         }
 
     private:
-        // Intrusive double linked list element.
+        // Receiver linked list node.
+        ReceiverListNode m_listNode;
+
+        // Subscribed dispatcher reference.
         DispatcherBase<ReturnType(Arguments...)>* m_dispatcher;
-        Receiver<ReturnType(Arguments...)>*       m_previous;
-        Receiver<ReturnType(Arguments...)>*       m_next;
     };
 }
