@@ -33,6 +33,7 @@ set(SOURCE_FILES
     "Include/Common/ScopeGuard.hpp"
     "Include/Common/Utility.hpp"
     "Source/Common/Utility.cpp"
+    "Include/Common/LinkedList.hpp"
 
     "Include/Events/Delegate.hpp"
     "Include/Events/Collector.hpp"
