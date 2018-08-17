@@ -339,7 +339,7 @@ namespace Common
     template<typename ReturnType, typename... Arguments>
     bool DispatcherBase<ReturnType(Arguments...)>::HasSubscribers() const
     {
-        return m_begin != nullptr;
+        return !m_receiverList.IsFree();
     }
 
     template<typename Collector, typename ReturnType, typename... Arguments>
@@ -361,7 +361,7 @@ namespace Common
         Dispatcher<ReturnType(Arguments...), Collector>::operator=(Dispatcher&& other)
     {
         // Swap class members.
-        DispatcherBase::operator=(std::move(other));
+        DispatcherBase<ReturnType(Arguments...)>::operator=(std::move(other));
         std::swap(this->m_defaultResult, other.m_defaultResult);
 
         return *this;
