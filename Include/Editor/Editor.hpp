@@ -15,6 +15,11 @@
 #include "Graphics/Shader.hpp"
 
 // Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 namespace System
 {
     class ResourceManager;
@@ -43,7 +48,7 @@ namespace Engine
         Editor& operator=(Editor&& other);
 
         // Initializes the editor system.
-        bool Initialize(System::Window* window, System::ResourceManager* resourceManager, Graphics::RenderContext* renderContext);
+        bool Initialize(Engine::Root* engine);
 
         // Updates the editor interface.
         void Update(float timeDelta);
@@ -72,11 +77,8 @@ namespace Engine
         void DestroyContext();
 
     private:
-        // Window reference.
-        System::Window* m_window;
-
-        // Render context.
-        Graphics::RenderContext* m_renderContext;
+        // Editor reference.
+        Engine::Root* m_engine;
 
         // User interface context.
         ImGuiContext* m_interface;

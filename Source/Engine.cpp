@@ -183,7 +183,7 @@ bool Root::Initialize()
 
     // Initialize the editor.
     // Built in editor for creating and modifying content within a game.
-    if(!editor.Initialize(&window, &resourceManager, &renderContext))
+    if(!editor.Initialize(this))
     {
         LOG_ERROR() << "Could not initialize editor!";
         return false;

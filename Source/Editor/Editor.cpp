@@ -5,6 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/Editor.hpp"
 #include "System/ResourceManager.hpp"
+#include "Engine.hpp"
 using namespace Engine;
 
 namespace
@@ -25,7 +26,7 @@ namespace
 }
 
 Editor::Editor() :
-    m_window(nullptr),
+    m_engine(nullptr),
     m_interface(nullptr),
     m_initialized(false)
 {
@@ -52,8 +53,7 @@ Editor::Editor(Editor&& other) :
 Editor& Editor::operator=(Editor&& other)
 {
     // Swap class members.
-    std::swap(m_window, other.m_window);
-    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_engine, other.m_engine);
     std::swap(m_interface, other.m_interface);
 
     std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
@@ -84,31 +84,25 @@ void Editor::DestroyContext()
     }
 }
 
-bool Editor::Initialize(System::Window* window, System::ResourceManager* resourceManager, Graphics::RenderContext* renderContext)
+bool Editor::Initialize(Engine::Root* engine)
 {
     LOG() << "Initializing editor..." << LOG_INDENT();
 
     // Check if the instance is already initialized.
     VERIFY(!m_initialized, "Editor instance is already initialized!");
 
+    // Reset class instance if initialization fails.
+    SCOPE_GUARD_IF(!m_initialized, *this = Editor());
+
     // Validate arguments.
-    if(window == nullptr)
+    if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"window\" is null!";
+        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
         return false;
     }
 
-    if(resourceManager == nullptr)
-    {
-        LOG_ERROR() << "Invalid argument - \"resourceManager\" is null!";
-        return false;
-    }
-
-    if(renderContext == nullptr)
-    {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
-        return false;
-    }
+    // Save engine reference.
+    m_engine = engine;
 
     // Create ImGui context.
     LOG() << "Creating interface context...";
@@ -120,8 +114,6 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
         LOG_ERROR() << "Failed to initialize user interface context!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, this->DestroyContext());
 
     // Setup user interface.
     ImGuiIO& io = ImGui::GetIO();
@@ -155,25 +147,15 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
 
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = window->GetPrivateHandle();
+    io.ClipboardUserData = m_engine->window.GetPrivateHandle();
 
     // Subscribe window event receivers.
-    SCOPE_GUARD_BEGIN(!m_initialized);
-    {
-        m_receiverCursorPosition.Unsubscribe();
-        m_receiverMouseButton.Unsubscribe();
-        m_receiverMouseScroll.Unsubscribe();
-        m_receiverKeyboardKey.Unsubscribe();
-        m_receiverTextInput.Unsubscribe();
-    }
-    SCOPE_GUARD_END();
-
     bool subscriptionResults = true;
-    subscriptionResults |= window->events.cursorPosition.Subscribe(m_receiverCursorPosition);
-    subscriptionResults |= window->events.mouseButton.Subscribe(m_receiverMouseButton);
-    subscriptionResults |= window->events.mouseScroll.Subscribe(m_receiverMouseScroll);
-    subscriptionResults |= window->events.keyboardKey.Subscribe(m_receiverKeyboardKey);
-    subscriptionResults |= window->events.textInput.Subscribe(m_receiverTextInput);
+    subscriptionResults |= m_engine->window.events.cursorPosition.Subscribe(m_receiverCursorPosition);
+    subscriptionResults |= m_engine->window.events.mouseButton.Subscribe(m_receiverMouseButton);
+    subscriptionResults |= m_engine->window.events.mouseScroll.Subscribe(m_receiverMouseScroll);
+    subscriptionResults |= m_engine->window.events.keyboardKey.Subscribe(m_receiverKeyboardKey);
+    subscriptionResults |= m_engine->window.events.textInput.Subscribe(m_receiverTextInput);
 
     if(!subscriptionResults)
     {
@@ -186,26 +168,22 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
     vertexBufferInfo.usage = GL_STREAM_DRAW;
     vertexBufferInfo.elementSize = sizeof(ImDrawVert);
 
-    if(!m_vertexBuffer.Initialize(renderContext, vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(&m_engine->renderContext, vertexBufferInfo))
     {
         LOG_ERROR() << "Could not initialize vertex buffer!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = Graphics::VertexBuffer());
 
     // Create an index buffer.
     Graphics::BufferInfo indexBufferInfo;
     indexBufferInfo.usage = GL_STREAM_DRAW;
     indexBufferInfo.elementSize = sizeof(ImDrawIdx);
 
-    if(!m_indexBuffer.Initialize(renderContext, indexBufferInfo))
+    if(!m_indexBuffer.Initialize(&m_engine->renderContext, indexBufferInfo))
     {
         LOG_ERROR() << "Could not initialize index buffer!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_indexBuffer = Graphics::IndexBuffer());
 
     // Create an input layout.
     const Graphics::VertexAttribute inputAttributes[] =
@@ -219,13 +197,11 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    if(!m_vertexArray.Initialize(renderContext, inputLayoutInfo))
+    if(!m_vertexArray.Initialize(&m_engine->renderContext, inputLayoutInfo))
     {
         LOG_ERROR() << "Could not initialize vertex array!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = Graphics::VertexArray());
 
     // Retrieve built in font data.
     unsigned char* fontData = nullptr;
@@ -248,13 +224,11 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
     textureInfo.mipmaps = false;
     textureInfo.data = fontData;
 
-    if(!m_fontTexture.Initialize(renderContext, textureInfo))
+    if(!m_fontTexture.Initialize(&m_engine->renderContext, textureInfo))
     {
         LOG_ERROR() << "Could not initialize font texture!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_fontTexture = Graphics::Texture());
 
     ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)m_fontTexture.GetHandle();
 
@@ -264,7 +238,7 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
     samplerInfo.textureMinFilter = GL_LINEAR;
     samplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_sampler.Initialize(renderContext, samplerInfo))
+    if(!m_sampler.Initialize(&m_engine->renderContext, samplerInfo))
     {
         LOG_ERROR() << "Could not initialize sampler!";
         return false;
@@ -274,21 +248,14 @@ bool Editor::Initialize(System::Window* window, System::ResourceManager* resourc
     Graphics::ShaderLoadInfo shaderInfo;
     shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
 
-    m_shader = resourceManager->Acquire<Graphics::Shader>(shaderInfo.filePath, renderContext, shaderInfo);
+    m_shader = m_engine->resourceManager.Acquire<Graphics::Shader>(
+        shaderInfo.filePath, &m_engine->renderContext, shaderInfo);
 
     if(m_shader == nullptr)
     {
         LOG_ERROR() << "Could not initialize shader!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_shader.reset());
-
-    // Save window reference.
-    m_window = window;
-
-    // Save render context reference.
-    m_renderContext = renderContext;
 
     // Success!
     return m_initialized = true;
@@ -304,8 +271,8 @@ void Engine::Editor::Update(float timeDelta)
     io.DeltaTime = timeDelta;
 
     // Set current display size.
-    io.DisplaySize.x = (float)m_window->GetWidth();
-    io.DisplaySize.y = (float)m_window->GetHeight();
+    io.DisplaySize.x = (float)m_engine->window.GetWidth();
+    io.DisplaySize.y = (float)m_engine->window.GetHeight();
 
     // Start a new interface frame.
     ImGui::NewFrame();
@@ -319,7 +286,7 @@ void Engine::Editor::Update(float timeDelta)
 
             if(ImGui::MenuItem("Exit"))
             {
-                m_window->Close();
+                m_engine->window.Close();
             }
 
             ImGui::EndMenu();
@@ -355,21 +322,24 @@ void Editor::Draw()
     ImDrawData* drawData = ImGui::GetDrawData();
 
     // Calculate rendering transform.
-    glm::mat4 transform = glm::ortho(0.0f, (float)m_window->GetWidth(), (float)m_window->GetHeight(), 0.0f);
+    glm::mat4 transform = glm::ortho(
+        0.0f, (float)m_engine->window.GetWidth(), 
+        (float)m_engine->window.GetHeight(), 0.0f
+    );
 
     // Push a rendering state.
-    m_renderContext->PushState();
-    SCOPE_GUARD(m_renderContext->PopState());
+    m_engine->renderContext.PushState();
+    SCOPE_GUARD(m_engine->renderContext.PopState());
 
     // Prepare rendering state.
-    Graphics::RenderState& renderState = m_renderContext->GetState();
+    Graphics::RenderState& renderState = m_engine->renderContext.GetState();
 
     renderState.Enable(GL_BLEND);
     renderState.BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderState.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     renderState.Enable(GL_SCISSOR_TEST);
 
-    renderState.Viewport(0, 0, m_window->GetWidth(), m_window->GetHeight());
+    renderState.Viewport(0, 0, m_engine->window.GetWidth(), m_engine->window.GetHeight());
 
     renderState.UseProgram(m_shader->GetHandle());
     m_shader->SetUniform("vertexTransform", transform);
@@ -405,7 +375,7 @@ void Editor::Draw()
 
                 renderState.Scissor(
                     (int)clipRect.x,
-                    (int)(m_window->GetHeight() - clipRect.w),
+                    (int)(m_engine->window.GetHeight() - clipRect.w),
                     (int)(clipRect.z - clipRect.x),
                     (int)(clipRect.w - clipRect.y)
                 );
