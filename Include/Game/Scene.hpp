@@ -40,5 +40,11 @@ namespace Game
         virtual void OnDraw(float timeAlpha)
         {
         }
+
+        // Checks if scene implements a custom editor.
+        virtual bool HasCustomEditor() const
+        {
+            return false;
+        }
     };
 }

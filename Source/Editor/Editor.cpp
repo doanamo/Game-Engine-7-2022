@@ -261,7 +261,7 @@ bool Editor::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void Engine::Editor::Update(float timeDelta)
+void Editor::Update(float timeDelta)
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
@@ -277,34 +277,41 @@ void Engine::Editor::Update(float timeDelta)
     // Start a new interface frame.
     ImGui::NewFrame();
 
-    // Define interface.
-    if(ImGui::BeginMainMenuBar())
-    {
-        if(ImGui::BeginMenu("Engine"))
-        {
-            ImGui::Separator();
+    // Show demo window.
+    bool showDemoWindow = true;
+    ImGui::ShowDemoWindow(&showDemoWindow);
 
-            if(ImGui::MenuItem("Exit"))
+    // Display standard editor interface if no custom one is used.
+    if(!m_engine->sceneSystem.HasCustomEditor())
+    {
+        if(ImGui::BeginMainMenuBar())
+        {
+            if(ImGui::BeginMenu("Engine"))
             {
-                m_engine->window.Close();
+                ImGui::Separator();
+
+                if(ImGui::MenuItem("Exit"))
+                {
+                    m_engine->window.Close();
+                }
+
+                ImGui::EndMenu();
             }
 
-            ImGui::EndMenu();
+            ImGui::Separator();
+
+            if(ImGui::BeginMenu("View"))
+            {
+                ImGui::EndMenu();
+            }
+
+            if(ImGui::BeginMenu("Debug"))
+            {
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
         }
-
-        ImGui::Separator();
-
-        if(ImGui::BeginMenu("View"))
-        {
-            ImGui::EndMenu();
-        }
-
-        if(ImGui::BeginMenu("Debug"))
-        {
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
     }
 }
 

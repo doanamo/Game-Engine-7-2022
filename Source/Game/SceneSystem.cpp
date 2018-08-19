@@ -9,7 +9,7 @@ using namespace Game;
 
 SceneSystem::SceneSystem() :
     m_engine(nullptr),
-    m_scene(nullptr),
+    m_currentScene(nullptr),
     m_initialized(false)
 {
 }
@@ -29,7 +29,7 @@ SceneSystem& SceneSystem::operator=(SceneSystem&& other)
 {
     // Swap class members.
     std::swap(m_engine, other.m_engine);
-    std::swap(m_scene, other.m_scene);
+    std::swap(m_currentScene, other.m_currentScene);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -61,18 +61,18 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
     // Notify previous scene about the change.
-    if(m_scene)
+    if(m_currentScene)
     {
-        m_scene->OnSceneExit();
+        m_currentScene->OnSceneExit();
     }
     
     // Change the current scene.
-    m_scene = scene;
+    m_currentScene = scene;
 
     // Notify new scene about the change.
-    if(m_scene)
+    if(m_currentScene)
     {
-        m_scene->OnSceneEnter();
+        m_currentScene->OnSceneEnter();
     }
 }
 
@@ -81,9 +81,9 @@ void Game::SceneSystem::Update(float timeDelta)
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
     // Update the current scene.
-    if(m_scene)
+    if(m_currentScene)
     {
-        m_scene->OnUpdate(timeDelta);
+        m_currentScene->OnUpdate(timeDelta);
     }
 }
 
@@ -92,8 +92,21 @@ void Game::SceneSystem::Draw(float timeAlpha)
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
     // Draw the current scene.
-    if(m_scene)
+    if(m_currentScene)
     {
-        m_scene->OnDraw(timeAlpha);
+        m_currentScene->OnDraw(timeAlpha);
     }
+}
+
+bool Game::SceneSystem::HasCustomEditor() const
+{
+    ASSERT(m_initialized, "Scene system has not been initialized yet!");
+
+    // Check if the current scene has a custom editor implemented.
+    if(m_currentScene)
+    {
+        return m_currentScene->HasCustomEditor();
+    }
+
+    return false;
 }

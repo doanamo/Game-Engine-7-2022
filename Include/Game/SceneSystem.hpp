@@ -48,12 +48,15 @@ namespace Game
         // Draws the scene.
         void Draw(float timeAlpha);
 
+        // Checks if current scene has a custom editor implemented.
+        bool HasCustomEditor() const;
+
     private:
         // Engine reference.
         Engine::Root* m_engine;
 
         // Current scene.
-        std::shared_ptr<Scene> m_scene;
+        std::shared_ptr<Scene> m_currentScene;
 
         // Initialization state.
         bool m_initialized;
