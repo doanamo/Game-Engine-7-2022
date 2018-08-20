@@ -64,12 +64,15 @@ void RenderContext::MakeCurrent()
     m_window->MakeContextCurrent();
 }
 
-void RenderContext::PushState()
+RenderState& RenderContext::PushState()
 {
     VERIFY(m_initialized, "Render context is not initialized!");
 
     // Push a copy of the current state.
     m_pushedStates.emplace(m_currentState);
+
+    // Return the current state for conveniance.
+    return m_currentState;
 }
 
 void RenderContext::PopState()

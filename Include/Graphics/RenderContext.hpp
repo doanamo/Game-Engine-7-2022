@@ -42,7 +42,7 @@ namespace Graphics
         void MakeCurrent();
 
         // Pushes a copy of the state on the top of the stack.
-        void PushState();
+        RenderState& PushState();
 
         // Pops the current state at the top of the stack.
         void PopState();
