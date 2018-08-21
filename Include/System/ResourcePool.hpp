@@ -107,7 +107,7 @@ namespace System
     // Template definitions.
     template<typename Type>
     ResourcePool<Type>::ResourcePool() :
-        m_defaultResource(std::make_shared<Type>())
+        m_defaultResource(nullptr)
     {
     }
 
