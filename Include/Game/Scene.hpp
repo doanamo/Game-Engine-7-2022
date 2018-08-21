@@ -22,12 +22,12 @@ namespace Game
         virtual ~Scene() = default;
 
         // Called when the scene is about to enter.
-        virtual void OnSceneEnter()
+        virtual void OnEnter()
         {
         }
 
         // Called when the scene is about to exit.
-        virtual void OnSceneExit()
+        virtual void OnExit()
         {
         }
 
@@ -40,6 +40,9 @@ namespace Game
         virtual void OnDraw(float timeAlpha)
         {
         }
+        
+        // Returns the scene's printable name.
+        virtual const char* GetName() const = 0;
 
         // Checks if scene implements a custom editor.
         virtual bool HasCustomEditor() const

@@ -60,10 +60,16 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
+    // Inform about scene being changed.
+    const char* oldSceneName = m_currentScene ? m_currentScene->GetName() : "None";
+    const char* newSceneName = scene ? scene->GetName() : "None";
+
+    LOG_INFO() << "Changing scene: " << oldSceneName << " -> " << newSceneName;
+
     // Notify previous scene about the change.
     if(m_currentScene)
     {
-        m_currentScene->OnSceneExit();
+        m_currentScene->OnExit();
     }
     
     // Change the current scene.
@@ -72,7 +78,7 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     // Notify new scene about the change.
     if(m_currentScene)
     {
-        m_currentScene->OnSceneEnter();
+        m_currentScene->OnEnter();
     }
 }
 
