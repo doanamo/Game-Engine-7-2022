@@ -14,11 +14,11 @@ namespace BuildInfo
         const char* BranchName = "${GIT_ENGINE_BRANCH_NAME}";
     }
 
-    namespace Project
+    namespace Game
     {
-        const char* ChangeNumber = "${GIT_PROJECT_CHANGE_NUMBER}";
-        const char* CommitHash = "${GIT_PROJECT_COMMIT_HASH}";
-        const char* CommitDate = "${GIT_PROJECT_COMMIT_DATE}";
-        const char* BranchName = "${GIT_PROJECT_BRANCH_NAME}";
+        const char* ChangeNumber = "${GIT_GAME_CHANGE_NUMBER}";
+        const char* CommitHash = "${GIT_GAME_COMMIT_HASH}";
+        const char* CommitDate = "${GIT_GAME_COMMIT_DATE}";
+        const char* BranchName = "${GIT_GAME_BRANCH_NAME}";
     }
 }

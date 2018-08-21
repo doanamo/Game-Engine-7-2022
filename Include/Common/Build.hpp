@@ -20,9 +20,6 @@ namespace Build
     // Prints retrieved build info to log.
     void PrintInfo();
 
-    // Gets the directory where application data is located.
-    std::string GetWorkingDir();
-
     // Gets the directory where engine data is located.
     std::string GetEngineDir();
 
@@ -32,9 +29,12 @@ namespace Build
     std::string GetEngineChangeDate();
     std::string GetEngineBranchName();
 
-    // Build info retrieved from project's repository.
-    std::string GetProjectChangeNumber();
-    std::string GetProjectChangeHash();
-    std::string GetProjectChangeDate();
-    std::string GetProjectBranchName();
+    // Gets the directory where game data is located.
+    std::string GetGameDir();
+
+    // Build info retrieved from game's repository.
+    std::string GetGameChangeNumber();
+    std::string GetGameChangeHash();
+    std::string GetGameChangeDate();
+    std::string GetGameBranchName();
 }

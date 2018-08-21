@@ -9,15 +9,21 @@
 
 namespace
 {
-    std::string WorkingDir;
+    std::string GameDir;
     std::string EngineDir;
 }
 
 void Build::Initialize()
 {
     // Retrieve directory path.
-    WorkingDir = Utility::GetTextFileContent("WorkingDir.txt");
+    GameDir = Utility::GetTextFileContent("GameDir.txt");
     EngineDir = Utility::GetTextFileContent("EngineDir.txt");
+
+    // Set engine directory to be the same as game directory if not specified.
+    if(EngineDir.empty())
+    {
+        EngineDir = GameDir;
+    }
 
     // Print retrieved build info.
     PrintInfo();
@@ -26,24 +32,25 @@ void Build::Initialize()
 void Build::PrintInfo()
 {
     LOG_INFO() << "Printing build info..." << LOG_INDENT();
-    LOG_INFO() << "Working directory: \"" << (Build::GetWorkingDir().empty() ? "default" : Build::GetWorkingDir()) << "\"";
 
+    LOG_INFO() << "Engine directory: \"" << (EngineDir.empty() ? "Default" : EngineDir) << "\"";
     LOG_INFO() << "Engine repository: "
         << Build::GetEngineChangeNumber() << "-"
         << Build::GetEngineChangeHash()   << "-"
         << Build::GetEngineBranchName()   << " ("
         << Build::GetEngineChangeDate()   << ")";
 
-    LOG_INFO() << "Project repository: "
-        << Build::GetProjectChangeNumber() << "-"
-        << Build::GetProjectChangeHash()   << "-"
-        << Build::GetProjectBranchName()   << " ("
-        << Build::GetProjectChangeDate()   << ")";
+    LOG_INFO() << "Game directory: \"" << (GameDir.empty() ? "Default" : GameDir) << "\"";
+    LOG_INFO() << "Game repository: "
+        << Build::GetGameChangeNumber() << "-"
+        << Build::GetGameChangeHash()   << "-"
+        << Build::GetGameBranchName()   << " ("
+        << Build::GetGameChangeDate()   << ")";
 }
 
-std::string Build::GetWorkingDir()
+std::string Build::GetGameDir()
 {
-    return WorkingDir;
+    return GameDir;
 }
 
 std::string Build::GetEngineDir()
@@ -71,22 +78,22 @@ std::string Build::GetEngineBranchName()
     return BuildInfo::Engine::BranchName;
 }
 
-std::string Build::GetProjectChangeNumber()
+std::string Build::GetGameChangeNumber()
 {
-    return BuildInfo::Project::ChangeNumber;
+    return BuildInfo::Game::ChangeNumber;
 }
 
-std::string Build::GetProjectChangeHash()
+std::string Build::GetGameChangeHash()
 {
-    return BuildInfo::Project::CommitHash;
+    return BuildInfo::Game::CommitHash;
 }
 
-std::string Build::GetProjectChangeDate()
+std::string Build::GetGameChangeDate()
 {
-    return BuildInfo::Project::CommitDate;
+    return BuildInfo::Game::CommitDate;
 }
 
-std::string Build::GetProjectBranchName()
+std::string Build::GetGameBranchName()
 {
-    return BuildInfo::Project::BranchName;
+    return BuildInfo::Game::BranchName;
 }
