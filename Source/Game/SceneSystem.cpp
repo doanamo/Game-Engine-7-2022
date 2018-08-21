@@ -64,7 +64,7 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     const char* oldSceneName = m_currentScene ? m_currentScene->GetName() : "None";
     const char* newSceneName = scene ? scene->GetName() : "None";
 
-    LOG_INFO() << "Changing scene: " << oldSceneName << " -> " << newSceneName;
+    LOG_INFO() << "Changing scene from \"" << oldSceneName << "\" to \"" << newSceneName << "\".";
 
     // Notify previous scene about the change.
     if(m_currentScene)
