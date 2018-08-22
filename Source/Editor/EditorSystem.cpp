@@ -3,10 +3,11 @@
 */
 
 #include "Precompiled.hpp"
-#include "Editor/Editor.hpp"
+#include "Editor/EditorSystem.hpp"
 #include "System/ResourceManager.hpp"
+#include "Editor/TextureViewer.hpp"
 #include "Engine.hpp"
-using namespace Engine;
+using namespace Editor;
 
 namespace
 {
@@ -25,32 +26,32 @@ namespace
     }
 }
 
-Editor::Editor() :
+EditorSystem::EditorSystem() :
     m_engine(nullptr),
     m_interface(nullptr),
     m_initialized(false)
 {
     // Bind event receivers.
-    m_receiverCursorPosition.Bind<Editor, &Editor::CursorPositionCallback>(this);
-    m_receiverMouseButton.Bind<Editor, &Editor::MouseButtonCallback>(this);
-    m_receiverMouseScroll.Bind<Editor, &Editor::MouseScrollCallback>(this);
-    m_receiverKeyboardKey.Bind<Editor, &Editor::KeyboardKeyCallback>(this);
-    m_receiverTextInput.Bind<Editor, &Editor::TextInputCallback>(this);
+    m_receiverCursorPosition.Bind<EditorSystem, &EditorSystem::CursorPositionCallback>(this);
+    m_receiverMouseButton.Bind<EditorSystem, &EditorSystem::MouseButtonCallback>(this);
+    m_receiverMouseScroll.Bind<EditorSystem, &EditorSystem::MouseScrollCallback>(this);
+    m_receiverKeyboardKey.Bind<EditorSystem, &EditorSystem::KeyboardKeyCallback>(this);
+    m_receiverTextInput.Bind<EditorSystem, &EditorSystem::TextInputCallback>(this);
 }
 
-Editor::~Editor()
+EditorSystem::~EditorSystem()
 {
     this->DestroyContext();
 }
 
-Editor::Editor(Editor&& other) :
-    Editor()
+EditorSystem::EditorSystem(EditorSystem&& other) :
+    EditorSystem()
 {
     // Call the move assignment.
     *this = std::move(other);
 }
 
-Editor& Editor::operator=(Editor&& other)
+EditorSystem& EditorSystem::operator=(EditorSystem&& other)
 {
     // Swap class members.
     std::swap(m_engine, other.m_engine);
@@ -74,7 +75,7 @@ Editor& Editor::operator=(Editor&& other)
     return *this;
 }
 
-void Editor::DestroyContext()
+void EditorSystem::DestroyContext()
 {
     // Destroy the user interface context.
     if(m_interface)
@@ -84,15 +85,15 @@ void Editor::DestroyContext()
     }
 }
 
-bool Editor::Initialize(Engine::Root* engine)
+bool EditorSystem::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing editor..." << LOG_INDENT();
+    LOG() << "Initializing editor system..." << LOG_INDENT();
 
     // Check if the instance is already initialized.
-    VERIFY(!m_initialized, "Editor instance is already initialized!");
+    VERIFY(!m_initialized, "Editor system instance is already initialized!");
 
     // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = Editor());
+    SCOPE_GUARD_IF(!m_initialized, *this = EditorSystem());
 
     // Validate arguments.
     if(engine == nullptr)
@@ -261,8 +262,10 @@ bool Editor::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void Editor::Update(float timeDelta)
+void EditorSystem::Update(float timeDelta)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -278,16 +281,28 @@ void Editor::Update(float timeDelta)
     ImGui::NewFrame();
 
     // Show demo window.
+    /*
     bool showDemoWindow = true;
     ImGui::ShowDemoWindow(&showDemoWindow);
+    */
 
     // Display standard editor interface if no custom one is used.
     if(!m_engine->sceneSystem.HasCustomEditor())
     {
         if(ImGui::BeginMainMenuBar())
         {
-            if(ImGui::BeginMenu("Engine"))
+            if(ImGui::BeginMenu("Editor"))
             {
+                if(ImGui::MenuItem("Texture Viewer"))
+                {
+                    auto textureViewer = std::make_shared<TextureViewer>();
+
+                    if(textureViewer->Initialize(m_engine))
+                    {
+                        m_engine->sceneSystem.ChangeScene(textureViewer);
+                    }
+                }
+
                 ImGui::Separator();
 
                 if(ImGui::MenuItem("Exit"))
@@ -315,8 +330,10 @@ void Editor::Update(float timeDelta)
     }
 }
 
-void Editor::Draw()
+void EditorSystem::Draw()
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -335,12 +352,10 @@ void Editor::Draw()
     );
 
     // Push a rendering state.
-    m_engine->renderContext.PushState();
+    auto& renderState = m_engine->renderContext.PushState();
     SCOPE_GUARD(m_engine->renderContext.PopState());
 
     // Prepare rendering state.
-    Graphics::RenderState& renderState = m_engine->renderContext.GetState();
-
     renderState.Enable(GL_BLEND);
     renderState.BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderState.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -400,8 +415,10 @@ void Editor::Draw()
     }
 }
 
-void Editor::CursorPositionCallback(const System::Window::Events::CursorPosition& event)
+void EditorSystem::CursorPositionCallback(const System::Window::Events::CursorPosition& event)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -411,8 +428,10 @@ void Editor::CursorPositionCallback(const System::Window::Events::CursorPosition
     io.MousePos.y = (float)event.y;
 }
 
-void Editor::MouseButtonCallback(const System::Window::Events::MouseButton& event)
+void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton& event)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -429,8 +448,10 @@ void Editor::MouseButtonCallback(const System::Window::Events::MouseButton& even
     io.MouseDown[event.button] = event.action == GLFW_PRESS;
 }
 
-void Editor::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
+void EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -439,18 +460,20 @@ void Editor::MouseScrollCallback(const System::Window::Events::MouseScroll& even
     io.MouseWheel = (float)event.offset;
 }
 
-void Editor::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event)
+void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
     // Make sure that the array is of an expected size.
-    const int MaxKeyCount = 512;
-    ASSERT(Utility::StaticArraySize(io.KeysDown) == MaxKeyCount, "Unexpected array size!");
+    ASSERT(Utility::StaticArraySize(io.KeysDown) >= GLFW_KEY_LAST + 1, "Insufficient input array size!");
+    ASSERT(event.key >= 0 && event.key < GLFW_KEY_LAST + 1, "Unexpected key input index!");
 
     // We can only handle a specific number of keys.
-    if(event.key < 0 || event.key >= MaxKeyCount)
+    if(event.key < 0 || event.key >= GLFW_KEY_LAST + 1)
         return;
 
     // Change key state.
@@ -463,8 +486,10 @@ void Editor::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& even
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 }
 
-void Editor::TextInputCallback(const System::Window::Events::TextInput& event)
+void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)
 {
+    ASSERT(m_initialized, "Editor system has not been initialized!");
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();

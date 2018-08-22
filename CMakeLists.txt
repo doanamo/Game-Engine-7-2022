@@ -86,8 +86,10 @@ set(SOURCE_FILES
     "Include/Graphics/SpriteRenderer.hpp"
     "Source/Graphics/SpriteRenderer.cpp"
 
-    "Include/Editor/Editor.hpp"
-    "Source/Editor/Editor.cpp"
+    "Include/Editor/EditorSystem.hpp"
+    "Source/Editor/EditorSystem.cpp"
+    "Include/Editor/TextureViewer.hpp"
+    "Source/Editor/TextureViewer.cpp"
 
     "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"

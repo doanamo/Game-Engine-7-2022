@@ -39,7 +39,7 @@ Root& Root::operator=(Root&& other)
     std::swap(identitySystem, other.identitySystem);
     std::swap(sceneSystem, other.sceneSystem);
 
-    std::swap(editor, other.editor);
+    std::swap(editorSystem, other.editorSystem);
 
     std::swap(m_initialized, other.m_initialized);
 
@@ -181,15 +181,15 @@ bool Root::Initialize()
 
     SCOPE_GUARD_IF(!m_initialized, sceneSystem = Game::SceneSystem());
 
-    // Initialize the editor.
+    // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
-    if(!editor.Initialize(this))
+    if(!editorSystem.Initialize(this))
     {
-        LOG_ERROR() << "Could not initialize editor!";
+        LOG_ERROR() << "Could not initialize editor system!";
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, editor = Engine::Editor());
+    SCOPE_GUARD_IF(!m_initialized, editorSystem = Editor::EditorSystem());
 
     // Success!
     return m_initialized = true;
@@ -218,8 +218,8 @@ int Root::Run()
         // Process entity commands.
         entitySystem.ProcessCommands();
 
-        // Update the editor interface.
-        editor.Update(timeDelta);
+        // Update the editor system.
+        editorSystem.Update(timeDelta);
 
         // Update the current scene.
         sceneSystem.Update(timeDelta);
@@ -227,8 +227,8 @@ int Root::Run()
         // Draw the current scene.
         sceneSystem.Draw(1.0f);
 
-        // Draw the editor interface.
-        editor.Draw();
+        // Draw the editor system.
+        editorSystem.Draw();
 
         // Present the window content.
         window.Present();

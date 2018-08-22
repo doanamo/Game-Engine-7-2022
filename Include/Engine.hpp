@@ -16,7 +16,7 @@
 #include "Game/ComponentSystem.hpp"
 #include "Game/IdentitySystem.hpp"
 #include "Game/SceneSystem.hpp"
-#include "Editor/Editor.hpp"
+#include "Editor/EditorSystem.hpp"
 
 /*
     Game Engine
@@ -67,7 +67,7 @@ namespace Engine
         Game::SceneSystem sceneSystem;
 
         // Engine systems.
-        Engine::Editor editor;
+        Editor::EditorSystem editorSystem;
 
     private:
         // Initialization state.

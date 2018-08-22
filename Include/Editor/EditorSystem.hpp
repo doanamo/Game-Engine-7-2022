@@ -26,26 +26,28 @@ namespace System
 };
 
 /*
-    Editor
+    Editor System
 
-    Displays and handles built in editor UI system.
+    Displays and handles different editor interfaces.
 */
 
-namespace Engine
+namespace Editor
+
 {
-    class Editor : private NonCopyable
+    // Editor system class.
+    class EditorSystem
     {
     public:
-        Editor();
-        ~Editor();
+        EditorSystem();
+        ~EditorSystem();
 
         // Disallow copying.
-        Editor(const Editor& other) = delete;
-        Editor& operator=(const Editor& other) = delete;
+        EditorSystem(const EditorSystem& other) = delete;
+        EditorSystem& operator=(const EditorSystem& other) = delete;
 
         // Move constructor and assignment.
-        Editor(Editor&& other);
-        Editor& operator=(Editor&& other);
+        EditorSystem(EditorSystem&& other);
+        EditorSystem& operator=(EditorSystem&& other);
 
         // Initializes the editor system.
         bool Initialize(Engine::Root* engine);
