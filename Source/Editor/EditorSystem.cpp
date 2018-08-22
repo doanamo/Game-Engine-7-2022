@@ -119,8 +119,13 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     // Setup user interface.
     ImGuiIO& io = ImGui::GetIO();
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    // Disable writing of INI file in the working directory.
+    // This file would hold the layout of windows, but we plan
+    // on doing it differently and reading it elsewhere.
+    io.IniFilename = nullptr;
 
+    // Setup interface input.
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
