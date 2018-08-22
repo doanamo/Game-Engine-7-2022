@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include "System/ResourceManager.hpp"
-#include "Editor/TextureViewer.hpp"
+#include "Editor/TextureEditor.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
@@ -119,7 +119,7 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     // Setup user interface.
     ImGuiIO& io = ImGui::GetIO();
 
-    // Disable writing of INI file in the working directory.
+    // Disable writing of INI config in the working directory.
     // This file would hold the layout of windows, but we plan
     // on doing it differently and reading it elsewhere.
     io.IniFilename = nullptr;
@@ -298,9 +298,9 @@ void EditorSystem::Update(float timeDelta)
         {
             if(ImGui::BeginMenu("Editor"))
             {
-                if(ImGui::MenuItem("Texture Viewer"))
+                if(ImGui::MenuItem("Texture Editor"))
                 {
-                    auto textureViewer = std::make_shared<TextureViewer>();
+                    auto textureViewer = std::make_shared<TextureEditor>();
 
                     if(textureViewer->Initialize(m_engine))
                     {

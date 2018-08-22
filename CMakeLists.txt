@@ -88,8 +88,8 @@ set(SOURCE_FILES
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"
-    "Include/Editor/TextureViewer.hpp"
-    "Source/Editor/TextureViewer.cpp"
+    "Include/Editor/TextureEditor.hpp"
+    "Source/Editor/TextureEditor.cpp"
 
     "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"

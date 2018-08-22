@@ -3,28 +3,28 @@
 */
 
 #include "Precompiled.hpp"
-#include "Editor/TextureViewer.hpp"
+#include "Editor/TextureEditor.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
-TextureViewer::TextureViewer() :
+TextureEditor::TextureEditor() :
     m_engine(nullptr),
     m_initialized(false)
 {
 }
 
-TextureViewer::~TextureViewer()
+TextureEditor::~TextureEditor()
 {
 }
 
-TextureViewer::TextureViewer(TextureViewer&& other) :
-    TextureViewer()
+TextureEditor::TextureEditor(TextureEditor&& other) :
+    TextureEditor()
 {
     // Call the move assignment.
     *this = std::move(other);
 }
 
-TextureViewer& TextureViewer::operator=(TextureViewer&& other)
+TextureEditor& TextureEditor::operator=(TextureEditor&& other)
 {
     // Swap class members.
     std::swap(m_engine, other.m_engine);
@@ -35,7 +35,7 @@ TextureViewer& TextureViewer::operator=(TextureViewer&& other)
     return *this;
 }
 
-bool TextureViewer::Initialize(Engine::Root* engine)
+bool TextureEditor::Initialize(Engine::Root* engine)
 {
     LOG() << "Initializing texture viewer...";
 
@@ -43,7 +43,7 @@ bool TextureViewer::Initialize(Engine::Root* engine)
     VERIFY(!m_initialized, "Texture viewer instance has already been initialized!");
 
     // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = TextureViewer());
+    SCOPE_GUARD_IF(!m_initialized, *this = TextureEditor());
 
     // Validate and save engine reference.
     if(engine == nullptr || !engine->IsInitialized())
@@ -69,7 +69,7 @@ bool TextureViewer::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void TextureViewer::OnUpdate(float timeDelta)
+void TextureEditor::OnUpdate(float timeDelta)
 {
     ASSERT(m_initialized, "Texture viever instance has not been initialized!");
 
@@ -77,7 +77,7 @@ void TextureViewer::OnUpdate(float timeDelta)
 
 }
 
-void TextureViewer::OnDraw(float timeAlpha)
+void TextureEditor::OnDraw(float timeAlpha)
 {
     ASSERT(m_initialized, "Texture viever instance has not been initialized!");
 
@@ -115,12 +115,12 @@ void TextureViewer::OnDraw(float timeAlpha)
     }
 }
 
-const char* TextureViewer::GetName() const
+const char* TextureEditor::GetName() const
 {
-    return "Texture Viewer";
+    return "Texture Editor";
 }
 
-bool TextureViewer::HasCustomEditor() const
+bool TextureEditor::HasCustomEditor() const
 {
     return true;
 }
