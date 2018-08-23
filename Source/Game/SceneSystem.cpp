@@ -18,6 +18,11 @@ SceneSystem::SceneSystem() :
 
 SceneSystem::~SceneSystem()
 {
+    // Exit the current scene before destruction.
+    if(m_currentScene)
+    {
+        m_currentScene->OnExit();
+    }
 }
 
 SceneSystem::SceneSystem(SceneSystem&& other) :
