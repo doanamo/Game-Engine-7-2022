@@ -5,6 +5,8 @@
 #include "Precompiled.hpp"
 #include "Game/SceneSystem.hpp"
 #include "Game/Scene.hpp"
+#include "Game/EntitySystem.hpp"
+#include "Engine.hpp"
 using namespace Game;
 
 SceneSystem::SceneSystem() :
@@ -71,6 +73,9 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     {
         m_currentScene->OnExit();
     }
+
+    // Clear all entities.
+    m_engine->entitySystem.DestroyAllEntities();
     
     // Change the current scene.
     m_currentScene = scene;
