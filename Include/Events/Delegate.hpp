@@ -71,8 +71,8 @@ namespace Common
     {
     private:
         // Type declarations.
-        typedef void* InstancePtr;
-        typedef ReturnType(*FunctionPtr)(InstancePtr, Arguments...);
+        using InstancePtr = void*;
+        using FunctionPtr = ReturnType(*)(InstancePtr, Arguments...);
 
         // Compile time invocation stubs.
         template<ReturnType(*Function)(Arguments...)>
@@ -104,18 +104,30 @@ namespace Common
         {
         }
 
-        // Disallow copying.
-        Delegate(const Delegate&) = delete;
-        Delegate& operator=(const Delegate&) = delete;
+        // Copy operators.
+        Delegate(const Delegate& other)
+        {
+            // Call the copy assignment.
+            this->operator=(other);
+        }
 
-        // Copy operations.
+        Delegate& operator=(const Delegate& other)
+        {
+            // Copy class members.
+            m_instance = other.m_instance;
+            m_function = other.m_function;
+
+            return *this;
+        }
+
+        // Move operations.
         // Performing a move of a delegate is very dangerous,
         // as they hold references to instances they are referring.
         // Most often it is preferred to omit moving a delegate.
         Delegate(Delegate&& other) :
             Delegate()
         {
-            // Call the move operator.
+            // Call the move assignment.
             *this = std::move(other);
         }
 
@@ -163,11 +175,40 @@ namespace Common
             m_function = &MethodStub<InstanceType, Function>;
         }
 
+        // Binds a lambda.
+        template<typename Lambda>
+        Delegate(const Lambda& lambda)
+        {
+            // Call the assignment operator.
+            this->operator=(lambda);
+        }
+
+        template<typename Lambda>
+        Delegate& operator=(const Lambda& lambda)
+        {
+            // Every lambda has different type. We can abuse
+            // this to create a static instance for every
+            // permutation of this methods called with
+            // a different lambda type. Feels dirty.
+            static Lambda staticLambda = lambda;
+
+            m_instance = (void*)&staticLambda;
+            m_function = &FunctorStub<Lambda>;
+
+            return *this;
+        }
+
         // Invokes the delegate.
         ReturnType Invoke(Arguments... arguments)
         {
             VERIFY(m_function != nullptr, "Attempting to invoke a delegate without a bound function!");
             return m_function(m_instance, std::forward<Arguments>(arguments)...);
+        }
+
+        // Call operator for invoking the delegate.
+        ReturnType operator()(Arguments... arguments)
+        {
+            return this->Invoke(std::forward<Arguments>(arguments)...);
         }
 
         // Checks if the delegate is bound.

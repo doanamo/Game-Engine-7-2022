@@ -82,6 +82,27 @@ bool TestDelegate()
     if(delegate.Invoke("Hello world!", 6) != 'r')
         return false;
 
+    // Lambda binding via constructor.
+    {
+        int counter = 0;
+
+        Common::Delegate<void()> delegate1([&counter, add = 2]()
+        {
+            counter += add;
+        });
+
+        Common::Delegate<void()> delegate2([&counter, add = 4]()
+        {
+            counter += add;
+        });
+
+        delegate1();
+        delegate2();
+
+        if(counter != 6)
+            return false;
+    }
+
     // Delegate unbinding.
     delegate.Bind(nullptr);
 
