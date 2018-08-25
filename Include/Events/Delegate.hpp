@@ -147,7 +147,7 @@ namespace Common
             m_function = nullptr;
         }
 
-        // Binds a function.
+        // Binds a plain function.
         template<ReturnType(*Function)(Arguments...)>
         void Bind()
         {
@@ -155,7 +155,7 @@ namespace Common
             m_function = &FunctionStub<Function>;
         }
 
-        // Binds a functor object.
+        // Binds a functor object with a reference.
         template<class InstanceType>
         void Bind(InstanceType* instance)
         {
@@ -165,7 +165,7 @@ namespace Common
             m_function = &FunctorStub<InstanceType>;
         }
 
-        // Binds an instance method.
+        // Binds an instance method with a reference.
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
         void Bind(InstanceType* instance)
         {
@@ -175,16 +175,22 @@ namespace Common
             m_function = &MethodStub<InstanceType, Function>;
         }
 
-        // Binds a lambda.
+        // Binds a lambda with or without capture.
         template<typename Lambda>
         Delegate(const Lambda& lambda)
         {
-            // Call the assignment operator.
-            this->operator=(lambda);
+            this->Bind(lambda);
         }
 
         template<typename Lambda>
         Delegate& operator=(const Lambda& lambda)
+        {
+            this->Bind(lambda);
+            return *this;
+        }
+
+        template<typename Lambda>
+        void Bind(const Lambda& lambda)
         {
             // Every lambda has different type. We can abuse
             // this to create a static instance for every
@@ -192,10 +198,11 @@ namespace Common
             // a different lambda type. Feels dirty.
             static Lambda staticLambda = lambda;
 
+            // Any functor can be bound this way, as long
+            // as an object provides a call operator. This
+            // may be unintended when a static copy is created.
             m_instance = static_cast<void*>(&staticLambda);
             m_function = &FunctorStub<Lambda>;
-
-            return *this;
         }
 
         // Invokes the delegate.
