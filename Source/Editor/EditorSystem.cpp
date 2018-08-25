@@ -70,6 +70,8 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
     std::swap(m_sampler, other.m_sampler);
     std::swap(m_shader, other.m_shader);
 
+    std::swap(m_editors, other.m_editors);
+
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -263,8 +265,21 @@ bool EditorSystem::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Register built in scene editors.
+    this->RegisterEditorScene("Texture Editor", [](Engine::Root* engine)
+    {
+        auto scene = std::make_shared<TextureEditor>();
+        return scene->Initialize(engine) ? scene : nullptr;
+    });
+
     // Success!
     return m_initialized = true;
+}
+
+void Editor::EditorSystem::RegisterEditorScene(std::string editorName, CreateEditorCallback createEditorCallback)
+{
+    // Add editor scene to the list of registered editors.
+    m_editors.emplace_back(std::move(editorName), std::move(createEditorCallback));
 }
 
 void EditorSystem::Update(float timeDelta)
@@ -296,15 +311,26 @@ void EditorSystem::Update(float timeDelta)
     {
         if(ImGui::BeginMainMenuBar())
         {
-            if(ImGui::BeginMenu("Editor"))
+            if(ImGui::BeginMenu("Scenes"))
             {
-                if(ImGui::MenuItem("Texture Editor"))
+                for(auto it = m_editors.rbegin(); it != m_editors.rend(); ++it)
                 {
-                    auto textureViewer = std::make_shared<TextureEditor>();
+                    auto& registeredEditor = *it;
 
-                    if(textureViewer->Initialize(m_engine))
+                    if(ImGui::MenuItem(registeredEditor.name.c_str()))
                     {
-                        m_engine->sceneSystem.ChangeScene(textureViewer);
+                        // Create a new editor scene.
+                        auto editorScene = registeredEditor.callback(m_engine);
+
+                        // Set the new editor scene.
+                        if(editorScene)
+                        {
+                            m_engine->sceneSystem.ChangeScene(editorScene);
+                        }
+                        else
+                        {
+                            LOG_ERROR() << "Could not set \"" << registeredEditor.name << "\" registered editor!";
+                        }
                     }
                 }
 

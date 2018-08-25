@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Common/NonCopyable.hpp"
 #include "Events/Receiver.hpp"
 #include "System/Window.hpp"
 #include "Graphics/RenderContext.hpp"
@@ -25,6 +24,11 @@ namespace System
     class ResourceManager;
 };
 
+namespace Game
+{
+    class Scene;
+};
+
 /*
     Editor System
 
@@ -32,11 +36,15 @@ namespace System
 */
 
 namespace Editor
-
 {
     // Editor system class.
     class EditorSystem
     {
+    public:
+        // Type of editor scene creation function.
+        using ScenePtr = std::shared_ptr<Game::Scene>;
+        using CreateEditorCallback = Common::Delegate<ScenePtr(Engine::Root*)>;
+
     public:
         EditorSystem();
         ~EditorSystem();
@@ -51,6 +59,9 @@ namespace Editor
 
         // Initializes the editor system.
         bool Initialize(Engine::Root* engine);
+
+        // Registers an editor scene.
+        void RegisterEditorScene(std::string editorName, CreateEditorCallback createEditorCallback);
 
         // Updates the editor interface.
         void Update(float timeDelta);
@@ -99,6 +110,18 @@ namespace Editor
         Graphics::Texture m_fontTexture;
         Graphics::Sampler m_sampler;
         Graphics::ShaderPtr m_shader;
+
+        // List of editors.
+        struct RegisteredEditor
+        {
+            RegisteredEditor(std::string&& name, CreateEditorCallback&& callback) :
+                name(std::move(name)), callback(std::move(callback)) { }
+
+            std::string name;
+            CreateEditorCallback callback;
+        };
+
+        std::vector<RegisteredEditor> m_editors;
 
         // Initialization state.
         bool m_initialized;

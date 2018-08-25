@@ -114,13 +114,3 @@ void TextureEditor::OnDraw(float timeAlpha)
         m_engine->spriteRenderer.DrawSprites(spriteList, vertexTransform);
     }
 }
-
-const char* TextureEditor::GetName() const
-{
-    return "Texture Editor";
-}
-
-bool TextureEditor::HasCustomEditor() const
-{
-    return true;
-}

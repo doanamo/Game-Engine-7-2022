@@ -45,10 +45,16 @@ namespace Editor
         void OnDraw(float timeAlpha) override;
 
         // Returns the scene's name.
-        const char* GetName() const override;
+        const char* GetName() const override
+        {
+            return "Texture Editor";
+        }
 
         // This scene implements a custom editor.
-        bool HasCustomEditor() const override;
+        bool HasCustomEditor() const override
+        {
+            return false;
+        }
 
     private:
         // Engine reference.
