@@ -192,7 +192,7 @@ namespace Common
             // a different lambda type. Feels dirty.
             static Lambda staticLambda = lambda;
 
-            m_instance = (void*)&staticLambda;
+            m_instance = static_cast<void*>(&staticLambda);
             m_function = &FunctorStub<Lambda>;
 
             return *this;
