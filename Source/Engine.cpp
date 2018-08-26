@@ -176,6 +176,9 @@ int Root::Run()
         // Update the current scene.
         sceneSystem.Update(timeDelta);
 
+        // Clear the frame buffer.
+        renderContext.GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         // Draw the current scene.
         sceneSystem.Draw(1.0f);
 

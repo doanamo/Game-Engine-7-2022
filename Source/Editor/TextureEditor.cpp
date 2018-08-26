@@ -60,7 +60,6 @@ bool TextureEditor::Initialize(Engine::Root* engine)
     // Load default texture.
     Graphics::TextureLoadInfo textureInfo;
     textureInfo.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
-    textureInfo.mipmaps = false;
 
     m_texture = m_engine->resourceManager.Acquire<Graphics::Texture>(
         textureInfo.filePath, &m_engine->renderContext, textureInfo);
@@ -88,9 +87,6 @@ void TextureEditor::OnDraw(float timeAlpha)
     // Create a viewport.
     renderState.Viewport(0, 0, m_engine->window.GetWidth(), m_engine->window.GetHeight());
     m_screenSpace.SetTargetSize(m_engine->window.GetWidth(), m_engine->window.GetHeight());
-
-    // Clear the frame buffer.
-    renderState.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Calculate combined view and projection matrix.
     glm::mat4 vertexTransform = m_screenSpace.GetTransform();

@@ -194,11 +194,8 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
 {
     ASSERT(m_initialized, "Sprite renderer has not been initialized!");
 
-    // Get the render state.
-    RenderState& renderState = m_renderContext->GetState();
-
     // Push render state.
-    m_renderContext->PushState();
+    auto& renderState = m_renderContext->PushState();
     SCOPE_GUARD(m_renderContext->PopState());
 
     // Set initial render state.
