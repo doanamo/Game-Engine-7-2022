@@ -67,12 +67,6 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
-    // Inform about scene being changed.
-    const char* oldSceneName = m_currentScene ? m_currentScene->GetName() : "None";
-    const char* newSceneName = scene ? scene->GetName() : "None";
-
-    LOG_INFO() << "Changing scene from \"" << oldSceneName << "\" to \"" << newSceneName << "\".";
-
     // Notify previous scene about the change.
     if(m_currentScene)
     {
@@ -112,17 +106,4 @@ void Game::SceneSystem::Draw(float timeAlpha)
     {
         m_currentScene->OnDraw(timeAlpha);
     }
-}
-
-bool Game::SceneSystem::HasCustomEditor() const
-{
-    ASSERT(m_initialized, "Scene system has not been initialized yet!");
-
-    // Check if the current scene has a custom editor implemented.
-    if(m_currentScene)
-    {
-        return m_currentScene->HasCustomEditor();
-    }
-
-    return false;
 }

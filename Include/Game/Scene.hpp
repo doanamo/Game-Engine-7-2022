@@ -10,17 +10,10 @@
 
 namespace Game
 {
-    // Scene base class.
+    // Scene interface.
     class Scene
     {
-    protected:
-        // Protected constructor.
-        Scene() = default;
-
     public:
-        // Virtual destructor.
-        virtual ~Scene() = default;
-
         // Called when the scene is about to enter.
         virtual void OnEnter()
         {
@@ -39,15 +32,6 @@ namespace Game
         // Called when the scene needs to be drawn.
         virtual void OnDraw(float timeAlpha)
         {
-        }
-        
-        // Returns the scene's printable name.
-        virtual const char* GetName() const = 0;
-
-        // Checks if scene implements a custom editor.
-        virtual bool HasCustomEditor() const
-        {
-            return false;
         }
     };
 }

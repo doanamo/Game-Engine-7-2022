@@ -48,9 +48,6 @@ namespace Game
         // Draws the scene.
         void Draw(float timeAlpha);
 
-        // Checks if current scene has a custom editor implemented.
-        bool HasCustomEditor() const;
-
     private:
         // Engine reference.
         Engine::Root* m_engine;

@@ -307,57 +307,54 @@ void EditorSystem::Update(float timeDelta)
     */
 
     // Display standard editor interface if no custom one is used.
-    if(!m_engine->sceneSystem.HasCustomEditor())
+    if(ImGui::BeginMainMenuBar())
     {
-        if(ImGui::BeginMainMenuBar())
+        if(ImGui::BeginMenu("Scenes"))
         {
-            if(ImGui::BeginMenu("Scenes"))
+            for(auto it = m_editors.rbegin(); it != m_editors.rend(); ++it)
             {
-                for(auto it = m_editors.rbegin(); it != m_editors.rend(); ++it)
+                auto& registeredEditor = *it;
+
+                if(ImGui::MenuItem(registeredEditor.name.c_str()))
                 {
-                    auto& registeredEditor = *it;
+                    // Create a new editor scene.
+                    auto editorScene = registeredEditor.callback(m_engine);
 
-                    if(ImGui::MenuItem(registeredEditor.name.c_str()))
+                    // Set the new editor scene.
+                    if(editorScene)
                     {
-                        // Create a new editor scene.
-                        auto editorScene = registeredEditor.callback(m_engine);
-
-                        // Set the new editor scene.
-                        if(editorScene)
-                        {
-                            m_engine->sceneSystem.ChangeScene(editorScene);
-                        }
-                        else
-                        {
-                            LOG_ERROR() << "Could not set \"" << registeredEditor.name << "\" registered editor!";
-                        }
+                        m_engine->sceneSystem.ChangeScene(editorScene);
+                    }
+                    else
+                    {
+                        LOG_ERROR() << "Could not set \"" << registeredEditor.name << "\" registered editor!";
                     }
                 }
-
-                ImGui::Separator();
-
-                if(ImGui::MenuItem("Exit"))
-                {
-                    m_engine->window.Close();
-                }
-
-                ImGui::EndMenu();
             }
 
             ImGui::Separator();
 
-            if(ImGui::BeginMenu("View"))
+            if(ImGui::MenuItem("Exit"))
             {
-                ImGui::EndMenu();
+                m_engine->window.Close();
             }
 
-            if(ImGui::BeginMenu("Debug"))
-            {
-                ImGui::EndMenu();
-            }
-
-            ImGui::EndMainMenuBar();
+            ImGui::EndMenu();
         }
+
+        ImGui::Separator();
+
+        if(ImGui::BeginMenu("View"))
+        {
+            ImGui::EndMenu();
+        }
+
+        if(ImGui::BeginMenu("Debug"))
+        {
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
     }
 }
 
