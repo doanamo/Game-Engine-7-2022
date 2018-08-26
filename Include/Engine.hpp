@@ -12,9 +12,6 @@
 #include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/SpriteRenderer.hpp"
-#include "Game/EntitySystem.hpp"
-#include "Game/ComponentSystem.hpp"
-#include "Game/IdentitySystem.hpp"
 #include "Game/SceneSystem.hpp"
 #include "Editor/EditorSystem.hpp"
 
@@ -61,9 +58,6 @@ namespace Engine
         Graphics::SpriteRenderer spriteRenderer;
 
         // Game systems.
-        Game::EntitySystem entitySystem;
-        Game::ComponentSystem componentSystem;
-        Game::IdentitySystem identitySystem;
         Game::SceneSystem sceneSystem;
 
         // Engine systems.

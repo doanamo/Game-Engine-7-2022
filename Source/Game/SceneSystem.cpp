@@ -73,9 +73,6 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
         m_currentScene->OnExit();
     }
 
-    // Clear all entities.
-    m_engine->entitySystem.DestroyAllEntities();
-    
     // Change the current scene.
     m_currentScene = scene;
 

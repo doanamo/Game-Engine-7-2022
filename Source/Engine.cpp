@@ -34,11 +34,7 @@ Root& Root::operator=(Root&& other)
     std::swap(renderContext, other.renderContext);
     std::swap(spriteRenderer, other.spriteRenderer);
     
-    std::swap(entitySystem, other.entitySystem);
-    std::swap(componentSystem, other.componentSystem);
-    std::swap(identitySystem, other.identitySystem);
     std::swap(sceneSystem, other.sceneSystem);
-
     std::swap(editorSystem, other.editorSystem);
 
     std::swap(m_initialized, other.m_initialized);
@@ -63,6 +59,9 @@ bool Root::Initialize()
     // After low level system have been initialized, begin initializing other systems.
     LOG() << "Initializing engine..." << LOG_INDENT();
 
+    // Reset class instance on initialization failure.
+    SCOPE_GUARD_IF(!m_initialized, *this = Root());
+
     // Initialize the system platform context.
     // This will allow us to create and use platform systems such as window or input.
     if(!platform.Initialize())
@@ -70,8 +69,6 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize platform!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, platform = System::Platform());
 
     // Initialize the main window.
     // We will be collecting input and then drawing into this window.
@@ -89,8 +86,6 @@ bool Root::Initialize()
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, window = System::Window());
-
     // Initialize the main timer.
     // There can be many timers but this one will be used to calculate frame time.
     if(!timer.Initialize())
@@ -98,8 +93,6 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize timer!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, timer = System::Timer());
 
     // Initialize the input state.
     // Collects and caches input state that can be later pooled.
@@ -109,8 +102,6 @@ bool Root::Initialize()
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, inputState = System::InputState());
-
     // Initialize the resource manager.
     // Resource manager will help avoid duplication of resources.
     if(!resourceManager.Initialize())
@@ -118,8 +109,6 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize resource manager!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, resourceManager = System::ResourceManager());
 
     // Initialize the graphics context.
     // Manages the rendering context created along with the window.
@@ -129,8 +118,6 @@ bool Root::Initialize()
         return false;
     }
     
-    SCOPE_GUARD_IF(!m_initialized, renderContext = Graphics::RenderContext());
-
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
     if(!spriteRenderer.Initialize(&resourceManager, &renderContext, 128))
@@ -138,38 +125,6 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize sprite renderer!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, spriteRenderer = Graphics::SpriteRenderer());
-
-    // Initialize the entity system.
-    // Assigns unique identifiers that all other systems use to identify objects in a game.
-    if(!entitySystem.Initialize())
-    {
-        LOG_ERROR() << "Could not initialize entity system!";
-        return false;
-    }
-
-    SCOPE_GUARD_IF(!m_initialized, entitySystem = Game::EntitySystem());
-
-    // Initialize the component system.
-    // Stores and manages components that entities have.
-    if(!componentSystem.Initialize(entitySystem))
-    {
-        LOG_ERROR() << "Could not initialize component system!";
-        return false;
-    }
-
-    SCOPE_GUARD_IF(!m_initialized, componentSystem = Game::ComponentSystem());
-
-    // Initialize the identity system.
-    // Allows readable names to be assigned to entities.
-    if(!identitySystem.Initialize(entitySystem))
-    {
-        LOG_ERROR() << "Could not initialize identity system!";
-        return false;
-    }
-
-    SCOPE_GUARD_IF(!m_initialized, identitySystem = Game::IdentitySystem());
 
     // Initialize the scene system.
     // Allows game scenes to be switched and manages them.
@@ -214,9 +169,6 @@ int Root::Run()
 
         // Process window events.
         window.ProcessEvents();
-
-        // Process entity commands.
-        entitySystem.ProcessCommands();
 
         // Update the editor system.
         editorSystem.Update(timeDelta);
