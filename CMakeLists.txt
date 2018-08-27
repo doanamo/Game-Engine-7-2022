@@ -105,6 +105,9 @@ set(SOURCE_FILES
     "Source/Game/GameScene.cpp"
     "Include/Game/SceneSystem.hpp"
     "Source/Game/SceneSystem.cpp"
+
+    "Include/Components/Transform.hpp"
+    "Source/Components/Transform.cpp"
 )
 
 #
