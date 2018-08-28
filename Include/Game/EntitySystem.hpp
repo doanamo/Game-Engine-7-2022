@@ -99,11 +99,19 @@ namespace Game
                 // Entity handle has been allocated but cannot be used.
                 Unused = 0,
 
-                // Entity handle has been created and can be used.
-                Created = 1 << 0,
+                // Entity handle exists and can be referenced.
+                // Systems may not acknowledge this entity yet and its
+                // components may be still in uninitialized state.
+                Exists = 1 << 0,
+
+                // Entity handle exists and has been officially created.
+                // Important difference is that other systems have been
+                // informed about an entity being created, resulting in
+                // its components being initialized as well.
+                Created = 1 << 1,
 
                 // Entity handle has been scheduled to be destroyed.
-                Destroy = 1 << 1,
+                Destroy = 1 << 2,
             };
 
             using Type = unsigned int;
@@ -125,7 +133,7 @@ namespace Game
             {
                 Invalid,
 
-                Created,
+                Create,
                 Destroy,
             };
         };
@@ -147,12 +155,6 @@ namespace Game
         void FreeHandle(int handleIndex, HandleEntry& handleEntry);
 
     private:
-        // Initialization state.
-        bool m_initialized;
-
-        // Number of active entities.
-        unsigned int m_entityCount;
-        
         // List of commands.
         CommandList m_commands;
 
@@ -161,5 +163,11 @@ namespace Game
 
         // List of free entity handles.
         FreeList m_freeHandles;
+
+        // Number of active entities.
+        unsigned int m_entityCount;
+        
+        // Initialization state.
+        bool m_initialized;
     };
 }

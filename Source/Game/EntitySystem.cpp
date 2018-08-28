@@ -20,15 +20,14 @@ EntitySystem::Events::Events()
 }
 
 EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
-    handle(),
-    flags(HandleFlags::Unused)
+    handle(), flags(HandleFlags::Unused)
 {
     handle.identifier = identifier;
 }
 
 EntitySystem::EntitySystem() :
-    m_initialized(false),
-    m_entityCount(0)
+    m_entityCount(0),
+    m_initialized(false)
 {
 }
 
@@ -42,12 +41,14 @@ EntitySystem::EntitySystem(EntitySystem&& other) :
 EntitySystem& EntitySystem::operator=(EntitySystem&& other)
 {
     // Swap class members.
-    std::swap(m_initialized, other.m_initialized);
     std::swap(events, other.events);
-    std::swap(m_entityCount, other.m_entityCount);
+
     std::swap(m_commands, other.m_commands);
     std::swap(m_handleEntries, other.m_handleEntries);
     std::swap(m_freeHandles, other.m_freeHandles);
+    std::swap(m_entityCount, other.m_entityCount);
+    
+    std::swap(m_initialized, other.m_initialized);
 
     return *this;
 }
@@ -96,7 +97,7 @@ EntityHandle EntitySystem::CreateEntity()
         {
             // Do not use this handle anymore.
             // Discarding a handle will waste memory.
-            // #todo: We should maintain a larger space of available handles 
+            // #todo: We should maintain a larger pool of available handles 
             // at once to prevent entities in front from expiring too fast.
             m_freeHandles.pop();
 
@@ -125,12 +126,12 @@ EntityHandle EntitySystem::CreateEntity()
     HandleEntry* handleEntry = m_freeHandles.front();
     m_freeHandles.pop();
 
-    // Mark handle as created.
-    handleEntry->flags |= HandleFlags::Created;
+    // Mark handle as existing.
+    handleEntry->flags |= HandleFlags::Exists;
 
-    // Notify about a created entity.
+    // Process further with entity creation.
     EntityCommand command;
-    command.type = EntityCommands::Created;
+    command.type = EntityCommands::Create;
     command.handle = handleEntry->handle;
     m_commands.push(command);
 
@@ -174,7 +175,7 @@ void EntitySystem::DestroyAllEntities()
     // Invalidate all handle entries.
     for(HandleEntry& handleEntry : m_handleEntries)
     {
-        if(handleEntry.flags & HandleFlags::Created)
+        if(handleEntry.flags & HandleFlags::Exists)
         {
             DestroyEntity(handleEntry.handle);
         }
@@ -197,16 +198,22 @@ void EntitySystem::ProcessCommands()
         // Process entity command.
         switch(command.type)
         {
-            case EntityCommands::Created:
+            case EntityCommands::Create:
             {
                 // Locate the handle entry.
                 int handleIndex = command.handle.identifier - StartingIdentifier;
                 HandleEntry& handleEntry = m_handleEntries[handleIndex];
                 ASSERT(command.handle == handleEntry.handle);
 
-                // Inform that a  new entity was created
+                // Inform that a new entity was created
                 // since last time commands were processed.
+                // This will allow systems to acknowledge this
+                // entity and initialize its components.
                 this->events.entityCreated(handleEntry.handle);
+
+                // Mark entity as officially created.
+                ASSERT(handleEntry.flags & HandleFlags::Exists);
+                handleEntry.flags |= HandleFlags::Created;
 
                 // Increment the counter of active entities.
                 m_entityCount += 1;
@@ -247,6 +254,7 @@ void EntitySystem::FreeHandle(int handleIndex, HandleEntry& handleEntry)
     ASSERT(&m_handleEntries[handleIndex] == &handleEntry);
 
     // Make sure that flags are correct.
+    ASSERT(handleEntry.flags & HandleFlags::Exists);
     ASSERT(handleEntry.flags & HandleFlags::Created);
 
     // Increment the handle version to invalidate it.
@@ -274,7 +282,7 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
     const HandleEntry& handleEntry = m_handleEntries[handleIndex];
 
     // Make sure queried handle is valid.
-    ASSERT(handleEntry.flags & HandleFlags::Created, "Queried entity handle is not marked as created!");
+    ASSERT(handleEntry.flags & HandleFlags::Exists, "Queried entity handle is not marked as existing!");
     
     // Check if handle versions match.
     if(handleEntry.handle.version != entity.version)
