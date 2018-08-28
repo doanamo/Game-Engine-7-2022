@@ -278,14 +278,19 @@ namespace Common
     {
     public:
         // Default constructor.
-        Dispatcher(ReturnType defaultResult) :
-            m_defaultResult(defaultResult)
+        Dispatcher() :
+            m_defaultCollector()
+        {
+        }
+
+        Dispatcher(Collector defaultCollector) :
+            m_defaultCollector(defaultCollector)
         {
         }
 
         // Move constructor.
         Dispatcher(Dispatcher&& other) :
-            Dispatcher(other.m_defaultResult)
+            Dispatcher(other.m_defaultCollector)
         {
             // Invoke a move operation.
             *this = std::move(other);
@@ -296,7 +301,7 @@ namespace Common
         {
             // Swap class members.
             DispatcherBase<ReturnType(Arguments...)>::operator=(std::move(other));
-            std::swap(this->m_defaultResult, other.m_defaultResult);
+            std::swap(this->m_defaultCollector, other.m_defaultCollector);
 
             return *this;
         }
@@ -305,7 +310,7 @@ namespace Common
         ReturnType Dispatch(Arguments... arguments)
         {
             // Create a result collector.
-            Collector collector(m_defaultResult);
+            Collector collector(m_defaultCollector);
 
             // Dispatch to receivers.
             DispatcherBase<ReturnType(Arguments...)>::template
@@ -323,7 +328,7 @@ namespace Common
 
     private:
         // Default collector value for returns.
-        ReturnType m_defaultResult;
+        Collector m_defaultCollector;
     };
 
     template<typename Collector, typename... Arguments>

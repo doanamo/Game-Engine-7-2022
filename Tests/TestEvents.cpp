@@ -156,7 +156,7 @@ bool TestCollector()
     if(collectLast.GetResult() != 4)
         return false;
 
-    Common::CollectWhileTrue<bool> collectWhileTrue(true);
+    Common::CollectWhileTrue collectWhileTrue(true);
 
     if(collectWhileTrue.GetResult() != true)
         return false;
@@ -175,7 +175,7 @@ bool TestCollector()
     if(collectWhileTrue.GetResult() != false)
         return false;
 
-    Common::CollectWhileFalse<bool> collectWhileFalse(false);
+    Common::CollectWhileFalse collectWhileFalse(false);
 
     if(collectWhileFalse.GetResult() != false)
         return false;
@@ -319,7 +319,7 @@ bool TestDispatcher()
         Common::Receiver<bool(int*)> receiverDummy;
         receiverDummy.Bind<DispatcherClass, &DispatcherClass::FunctionDummy>(&dispatcherClass);
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileTrue<>> dispatcherWhileTrue(true);
+        Common::Dispatcher<bool(int*), Common::CollectWhileTrue> dispatcherWhileTrue(true);
 
         if(dispatcherWhileTrue.Dispatch(&i) != true)
             return false;
@@ -353,7 +353,7 @@ bool TestDispatcher()
 
         int y = 0;
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileFalse<>> dispatcherWhileFalse(false);
+        Common::Dispatcher<bool(int*), Common::CollectWhileFalse> dispatcherWhileFalse(false);
 
         if(dispatcherWhileFalse.Dispatch(&y) != false)
             return false;
@@ -396,7 +396,7 @@ bool TestDispatcher()
         Common::Receiver<bool(int*)> receiverFalse;
         receiverFalse.Bind<DispatcherClass, &DispatcherClass::FunctionFalse>(&dispatcherClass);
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileTrue<>> dispatcherWhileTrue(false);
+        Common::Dispatcher<bool(int*), Common::CollectWhileTrue> dispatcherWhileTrue(false);
 
         if(dispatcherWhileTrue.Dispatch(&i) != false)
             return false;
@@ -412,7 +412,7 @@ bool TestDispatcher()
         if(i != 0)
             return false;
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileFalse<>> dispatcherWhileFalse(true);
+        Common::Dispatcher<bool(int*), Common::CollectWhileFalse> dispatcherWhileFalse(true);
 
         if(dispatcherWhileFalse.Dispatch(&i) != true)
             return false;

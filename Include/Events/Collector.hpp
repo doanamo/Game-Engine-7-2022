@@ -92,16 +92,15 @@ namespace Common
     };
 
     // Collector that continues dispatcher propagation while receiver invocations return true.
-    template<typename ReturnType = bool>
     class CollectWhileTrue
     {
     public:
-        CollectWhileTrue(ReturnType initialResult) :
+        CollectWhileTrue(bool initialResult = true) :
             m_result(initialResult)
         {
         }
 
-        void ConsumeResult(ReturnType result)
+        void ConsumeResult(bool result)
         {
             m_result = result;
         }
@@ -111,27 +110,25 @@ namespace Common
             return m_result;
         }
 
-        ReturnType GetResult() const
+        bool GetResult() const
         {
             return m_result;
         }
 
     private:
-        ReturnType m_result;
+        bool m_result;
     };
 
     // Collector that continues dispatcher propagation while receiver invocations return false.
-    template<typename ReturnType = bool>
     class CollectWhileFalse
     {
     public:
-    public:
-        CollectWhileFalse(ReturnType initialResult) :
+        CollectWhileFalse(bool initialResult = false) :
             m_result(initialResult)
         {
         }
 
-        void ConsumeResult(ReturnType result)
+        void ConsumeResult(bool result)
         {
             m_result = result;
         }
@@ -141,12 +138,12 @@ namespace Common
             return !m_result;
         }
 
-        ReturnType GetResult() const
+        bool GetResult() const
         {
             return m_result;
         }
 
     private:
-        ReturnType m_result;
+        bool m_result;
     };
 }
