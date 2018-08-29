@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Game/EntityHandle.hpp"
+
 /*
     Component
 
@@ -12,14 +14,18 @@
 
 namespace Game
 {
-    // Forward declaration.
+    // Forward declarations.
+    struct EntityHandle;
     class ComponentSystem;
 
     // Component base class.
     class Component
     {
+    protected:
+        Component() = default;
+
     public:
-        virtual bool Initialize(ComponentSystem* componentSystem)
+        virtual bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
         {
             return true;
         }

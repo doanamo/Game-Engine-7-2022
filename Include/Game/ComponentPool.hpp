@@ -242,9 +242,12 @@ namespace Game
         ASSERT(componentEntry.flags & ComponentFlags::Exists);
         ASSERT(!(componentEntry.flags & ComponentFlags::Initialized));
 
-        // Initialize component and return result.
+        // Get base component interface.
+        Component& componentInterface = componentEntry.component;
+
+        // OnInitialize component and return result.
         ASSERT(m_componentSystem != nullptr, "Component system cannot be null!");
-        return componentEntry.component.Initialize(m_componentSystem);
+        return componentInterface.OnInitialize(m_componentSystem, entity);
     }
 
     template<typename ComponentType>
