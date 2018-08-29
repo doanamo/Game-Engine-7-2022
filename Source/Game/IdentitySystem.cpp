@@ -11,7 +11,7 @@ IdentitySystem::IdentitySystem() :
     m_initialized(false)
 {
     // Bind event receivers.
-    m_entityDestroyedReceiver.Bind<IdentitySystem, &IdentitySystem::OnEntityDestroyed>(this);
+    m_entityDestroyReceiver.Bind<IdentitySystem, &IdentitySystem::OnEntityDestroyed>(this);
 }
 
 IdentitySystem::~IdentitySystem()
@@ -33,7 +33,7 @@ IdentitySystem& IdentitySystem::operator=(IdentitySystem&& other)
     std::swap(m_entityLookup, other.m_entityLookup);
     std::swap(m_nameLookup, other.m_nameLookup);
 
-    std::swap(m_entityDestroyedReceiver, other.m_entityDestroyedReceiver);
+    std::swap(m_entityDestroyReceiver, other.m_entityDestroyReceiver);
 
     return *this;
 }
@@ -46,7 +46,7 @@ bool IdentitySystem::Initialize(EntitySystem& entitySystem)
     ASSERT(!m_initialized, "Identity system instance has already been initialized!");
 
     // Subscribe event receiver.
-    m_entityDestroyedReceiver.Subscribe(entitySystem.events.entityDestroyed);
+    m_entityDestroyReceiver.Subscribe(entitySystem.events.entityDestroy);
 
     // Success!
     return m_initialized = true;;

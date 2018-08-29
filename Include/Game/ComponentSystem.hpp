@@ -53,9 +53,9 @@ namespace Game
     {
     public:
         // ComponentType declarations.
-        typedef std::unique_ptr<ComponentPoolInterface> ComponentPoolPtr;
-        typedef std::unordered_map<std::type_index, ComponentPoolPtr> ComponentPoolList;
-        typedef ComponentPoolList::value_type ComponentPoolPair;
+        using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
+        using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
+        using ComponentPoolPair = ComponentPoolList::value_type;
 
     public:
         ComponentSystem();
@@ -101,6 +101,10 @@ namespace Game
         template<typename ComponentType>
         ComponentPool<ComponentType>* CreatePool();
 
+        // Called when an entity is about to be created.
+        // Used to initialize components that entity contains.
+        bool OnEntityCreate(EntityHandle handle);
+
         // Called when an entity is about to be destroyed.
         void OnEntityDestroy(EntityHandle handle);
 
@@ -112,7 +116,8 @@ namespace Game
         ComponentPoolList m_pools;
 
         // Event receivers.
-        Common::Receiver<void(EntityHandle)> m_entityDestroyed;
+        Common::Receiver<bool(EntityHandle)> m_entityCreate;
+        Common::Receiver<void(EntityHandle)> m_entityDestroy;
     };
 
     // Template definitions.
@@ -173,7 +178,7 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Create and add pool to the collection.
-        auto pool = std::make_unique<ComponentPool<ComponentType>>();
+        auto pool = std::make_unique<ComponentPool<ComponentType>>(this);
         auto result = m_pools.emplace(std::piecewise_construct,
             std::forward_as_tuple(typeid(ComponentType)),
             std::forward_as_tuple(std::move(pool))

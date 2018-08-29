@@ -68,6 +68,6 @@ namespace Game
         NameLookup m_nameLookup;
 
         // Event receiver.
-        Common::Receiver<void(EntityHandle)> m_entityDestroyedReceiver;
+        Common::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
     };
 }

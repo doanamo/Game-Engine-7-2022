@@ -6,6 +6,7 @@
 
 #include <queue>
 #include "Events/Dispatcher.hpp"
+#include "Events/Collector.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -83,11 +84,11 @@ namespace Game
         {
             Events();
 
-            using EntityCreatedDispatcher = Common::Dispatcher<void(EntityHandle)>;
-            using EntityDestroyedDispatcher = Common::Dispatcher<void(EntityHandle)>;
+            using EntityCreateDispatcher = Common::Dispatcher<bool(EntityHandle), Common::CollectWhileTrue>;
+            using EntityDestroyDispatcher = Common::Dispatcher<void(EntityHandle)>;
 
-            EntityCreatedDispatcher entityCreated;
-            EntityDestroyedDispatcher entityDestroyed;
+            EntityCreateDispatcher entityCreate;
+            EntityDestroyDispatcher entityDestroy;
         } events;
 
     private:

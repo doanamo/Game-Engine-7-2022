@@ -18,6 +18,9 @@
 
 namespace Game
 {
+    // Forward declaration.
+    class ComponentSystem;
+
     // Component pool interface class.
     class ComponentPoolInterface
     {
@@ -31,6 +34,7 @@ namespace Game
         {
         }
 
+        virtual bool InitializeComponent(EntityHandle handle) = 0;
         virtual bool DestroyComponent(EntityHandle handle) = 0;
     };
 
@@ -42,12 +46,29 @@ namespace Game
         // Check template type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
+        // Component entry flags
+        struct ComponentFlags
+        {
+            enum
+            {
+                Unused = 0,
+
+                // Component exists and can be accessed.
+                Exists = 1 << 0,
+
+                // Component has been initialized.
+                Initialized = 1 << 1,
+            };
+
+            using Type = unsigned int;
+        };
+
         // Component entry structure.
         struct ComponentEntry
         {
             ComponentEntry();
 
-            bool exists;
+            typename ComponentFlags::Type flags;
             EntityHandle entity;
             ComponentType component;
         };
@@ -60,7 +81,7 @@ namespace Game
         using ComponentLookup = std::unordered_map<EntityHandle, ComponentIndex>;
 
     public:
-        ComponentPool();
+        ComponentPool(ComponentSystem* componentSystem);
         ~ComponentPool();
 
         // Disallow copying.
@@ -79,6 +100,10 @@ namespace Game
         // Returns nullptr if component could not be found.
         ComponentType* LookupComponent(EntityHandle entity);
 
+        // Initializes a component.
+        // Returns true if component was successfully initialized.
+        bool InitializeComponent(EntityHandle entity) override;
+
         // Destroys a component.
         // Returns true if component was found and destroyed.
         bool DestroyComponent(EntityHandle entity) override;
@@ -90,6 +115,9 @@ namespace Game
         ComponentIterator End();
 
     private:
+        // Component system reference.
+        ComponentSystem* m_componentSystem;
+
         // List of components.
         ComponentList m_entries;
 
@@ -103,15 +131,17 @@ namespace Game
     // Template definitions.
     template<typename ComponentType>
     ComponentPool<ComponentType>::ComponentEntry::ComponentEntry() :
-        exists(false),
+        flags(ComponentFlags::Unused),
         entity(),
         component()
     {
     }
 
     template<typename ComponentType>
-    ComponentPool<ComponentType>::ComponentPool()
+    ComponentPool<ComponentType>::ComponentPool(ComponentSystem* componentSystem) :
+        m_componentSystem(componentSystem)
     {
+        ASSERT(m_componentSystem != nullptr, "Component system cannot be null!");
     }
 
     template<typename ComponentType>
@@ -131,6 +161,7 @@ namespace Game
     ComponentPool<ComponentType>& ComponentPool<ComponentType>::operator=(ComponentPool&& other)
     {
         // Swap class members.
+        std::swap(m_componentSystem, other.m_componentSystem);
         std::swap(m_entries, other.m_entries);
         std::swap(m_lookup, other.m_lookup);
         std::swap(m_freeList, other.m_freeList);
@@ -166,9 +197,9 @@ namespace Game
         // Retrieve a component entry.
         ComponentEntry& componentEntry = m_entries[componentIndex];
 
-        // Mark component as created.
-        ASSERT(!componentEntry.exists, "Creating component that is alrady marked as existing!");
-        componentEntry.exists = true;
+        // Mark component as existing.
+        ASSERT(componentEntry.flags == ComponentFlags::Unused);
+        componentEntry.flags = ComponentFlags::Exists;
 
         // Return newly created component
         return &componentEntry.component;
@@ -187,15 +218,18 @@ namespace Game
         // Retrieve the component entry.
         ComponentEntry& componentEntry = m_entries[componentIndex];
 
+        // Validate component entry state.
+        ASSERT(componentEntry.flags & ComponentFlags::Exists);
+
         // Return a pointer to the component.
         return &componentEntry.component;
     }
 
     template<typename ComponentType>
-    bool ComponentPool<ComponentType>::DestroyComponent(EntityHandle handle)
+    bool ComponentPool<ComponentType>::InitializeComponent(EntityHandle entity)
     {
         // Find the component index.
-        auto it = m_lookup.find(handle);
+        auto it = m_lookup.find(entity);
         if(it == m_lookup.end())
             return false;
 
@@ -204,9 +238,31 @@ namespace Game
         // Retrieve the component entry.
         ComponentEntry& componentEntry = m_entries[componentIndex];
 
-        // Mark component as not created.
-        ASSERT(componentEntry.exists, "Destroying component that is not marked as existing!");
-        componentEntry.exists = false;
+        // Make sure that component's state is valid.
+        ASSERT(componentEntry.flags & ComponentFlags::Exists);
+        ASSERT(!(componentEntry.flags & ComponentFlags::Initialized));
+
+        // Initialize component and return result.
+        ASSERT(m_componentSystem != nullptr, "Component system cannot be null!");
+        return componentEntry.component.Initialize(m_componentSystem);
+    }
+
+    template<typename ComponentType>
+    bool ComponentPool<ComponentType>::DestroyComponent(EntityHandle entity)
+    {
+        // Find the component index.
+        auto it = m_lookup.find(entity);
+        if(it == m_lookup.end())
+            return false;
+
+        ComponentIndex componentIndex = it->second;
+
+        // Retrieve the component entry.
+        ComponentEntry& componentEntry = m_entries[componentIndex];
+
+        // Mark component as unused.
+        ASSERT(componentEntry.flags & ComponentFlags::Exists);
+        componentEntry.flags = ComponentFlags::Unused;
 
         // Recreate component instance to trigger a destructor and create a new element.
         ComponentType* component = &componentEntry.component;

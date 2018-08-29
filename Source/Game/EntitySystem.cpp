@@ -209,7 +209,14 @@ void EntitySystem::ProcessCommands()
                 // since last time commands were processed.
                 // This will allow systems to acknowledge this
                 // entity and initialize its components.
-                this->events.entityCreated(handleEntry.handle);
+                if(!this->events.entityCreate(handleEntry.handle))
+                {
+                    // Some system failed to initialize this entity.
+                    // Destroy the entity immediately and also inform
+                    // systems that may have already processed it.
+                    this->events.entityDestroy(handleEntry.handle);
+                    this->FreeHandle(handleIndex, handleEntry);
+                }
 
                 // Mark entity as officially created.
                 ASSERT(handleEntry.flags & HandleFlags::Exists);
@@ -229,7 +236,7 @@ void EntitySystem::ProcessCommands()
 
                 // Inform about an entity being destroyed
                 // since last time commands were processed.
-                this->events.entityDestroyed(handleEntry.handle);
+                this->events.entityDestroy(handleEntry.handle);
 
                 // Decrement the counter of active entities.
                 m_entityCount -= 1;
@@ -254,8 +261,8 @@ void EntitySystem::FreeHandle(int handleIndex, HandleEntry& handleEntry)
     ASSERT(&m_handleEntries[handleIndex] == &handleEntry);
 
     // Make sure that flags are correct.
+    // Does not have to be created yet, as creation process may fail.
     ASSERT(handleEntry.flags & HandleFlags::Exists);
-    ASSERT(handleEntry.flags & HandleFlags::Created);
 
     // Increment the handle version to invalidate it.
     handleEntry.handle.version += 1;

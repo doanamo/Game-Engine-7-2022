@@ -12,13 +12,16 @@
 
 namespace Game
 {
+    // Forward declaration.
+    class ComponentSystem;
+
     // Component base class.
     class Component
     {
-    protected:
-        Component() = default;
-
     public:
-        virtual ~Component() = default;
+        virtual bool Initialize(ComponentSystem* componentSystem)
+        {
+            return true;
+        }
     };
 }
