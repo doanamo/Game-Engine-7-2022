@@ -127,6 +127,7 @@ EntityHandle EntitySystem::CreateEntity()
     m_freeHandles.pop();
 
     // Mark handle as existing.
+    ASSERT(handleEntry->flags == HandleFlags::Unused);
     handleEntry->flags |= HandleFlags::Exists;
 
     // Process further with entity creation.
@@ -216,6 +217,7 @@ void EntitySystem::ProcessCommands()
                     // systems that may have already processed it.
                     this->events.entityDestroy(handleEntry.handle);
                     this->FreeHandle(handleIndex, handleEntry);
+                    break;
                 }
 
                 // Mark entity as officially created.
