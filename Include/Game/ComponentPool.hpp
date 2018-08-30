@@ -230,12 +230,13 @@ namespace Game
     {
         // Find the component index.
         auto it = m_lookup.find(entity);
-        if(it == m_lookup.end())
-            return false;
 
-        ComponentIndex componentIndex = it->second;
+        // Return true if there is no such component to initialize.
+        if(it == m_lookup.end())
+            return true;
 
         // Retrieve the component entry.
+        ComponentIndex componentIndex = it->second;
         ComponentEntry& componentEntry = m_entries[componentIndex];
 
         // Make sure that component's state is valid.
