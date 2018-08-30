@@ -43,7 +43,13 @@ bool ComponentSystem::Initialize(EntitySystem& entitySystem)
     // Make sure we are not initializing twice.
     ASSERT(!m_initialized, "Component system instance has already been initialized!");
 
-    // Receive events about destroyed entities.
+    // Receive events from the entity system.
+    if(!m_entityCreate.Subscribe(entitySystem.events.entityCreate))
+    {
+        LOG_ERROR() << "Failed to subscribe to entity system!";
+        return false;
+    }
+
     if(!m_entityDestroy.Subscribe(entitySystem.events.entityDestroy))
     {
         LOG_ERROR() << "Failed to subscribe to entity system!";
