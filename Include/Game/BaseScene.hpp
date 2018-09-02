@@ -21,23 +21,23 @@ namespace Engine
 
 namespace Game
 {
-    // Game scene base class.
-    class GameScene : public Scene
+    // Base scene base class.
+    class BaseScene : public Scene
     {
     protected:
         // Base constructor.
-        GameScene();
+        BaseScene();
 
         // Virtual destructor.
-        virtual ~GameScene();
+        virtual ~BaseScene();
 
         // Disallow copying.
-        GameScene(const GameScene& other) = delete;
-        GameScene& operator=(const GameScene& other) = delete;
+        BaseScene(const BaseScene& other) = delete;
+        BaseScene& operator=(const BaseScene& other) = delete;
 
         // Move constructor and assignment.
-        GameScene(GameScene&& other);
-        GameScene& operator=(GameScene&& other);
+        BaseScene(BaseScene&& other);
+        BaseScene& operator=(BaseScene&& other);
 
         // Initializes the game scene.
         bool Initialize(Engine::Root* engine);

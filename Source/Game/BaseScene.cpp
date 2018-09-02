@@ -3,26 +3,26 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/GameScene.hpp"
+#include "Game/BaseScene.hpp"
 using namespace Game;
 
-GameScene::GameScene() :
+BaseScene::BaseScene() :
     m_engine(nullptr),
     m_initialized(false)
 {
 }
 
-GameScene::~GameScene()
+BaseScene::~BaseScene()
 {
 }
 
-GameScene::GameScene(GameScene&& other)
+BaseScene::BaseScene(BaseScene&& other)
 {
     // Call the move assignment.
     *this = std::move(other);
 }
 
-GameScene& GameScene::operator=(GameScene&& other)
+BaseScene& BaseScene::operator=(BaseScene&& other)
 {
     // Swap class members.
     std::swap(m_entitySystem, other.m_entitySystem);
@@ -35,7 +35,7 @@ GameScene& GameScene::operator=(GameScene&& other)
     return *this;
 }
 
-bool GameScene::Initialize(Engine::Root* engine)
+bool BaseScene::Initialize(Engine::Root* engine)
 {
     LOG() << "Initializing base game scene..." << LOG_INDENT();
 
@@ -43,7 +43,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     ASSERT(!m_initialized, "Base game scene class has been already initialized!");
 
     // Reset class instance on initialization failure.
-    SCOPE_GUARD_IF(!m_initialized, *this = GameScene());
+    SCOPE_GUARD_IF(!m_initialized, *this = BaseScene());
 
     // Validate engine reference.
     if(engine == nullptr)
@@ -82,17 +82,17 @@ bool GameScene::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void GameScene::OnUpdate(float timeDelta)
+void BaseScene::OnUpdate(float timeDelta)
 {
     // Process entity commands.
     m_entitySystem.ProcessCommands();
 }
 
-void GameScene::OnDraw(float timeAlpha)
+void BaseScene::OnDraw(float timeAlpha)
 {
 }
 
-Engine::Root* GameScene::GetEngine() const
+Engine::Root* BaseScene::GetEngine() const
 {
     ASSERT(m_initialized, "Base game scene class has not been initialized!");
 

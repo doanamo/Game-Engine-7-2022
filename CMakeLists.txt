@@ -101,8 +101,8 @@ set(SOURCE_FILES
     "Include/Game/IdentitySystem.hpp"
     "Source/Game/IdentitySystem.cpp"
     "Include/Game/Scene.hpp"
-    "Include/Game/GameScene.hpp"
-    "Source/Game/GameScene.cpp"
+    "Include/Game/BaseScene.hpp"
+    "Source/Game/BaseScene.cpp"
     "Include/Game/SceneSystem.hpp"
     "Source/Game/SceneSystem.cpp"
 
