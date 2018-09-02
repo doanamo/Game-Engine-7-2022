@@ -71,11 +71,11 @@ namespace Graphics
         // Needs to be updated every time the target resizes.
         void SetTargetSize(int width, int height);
 
-        // Gets the target size.
-        const glm::vec2& GetTargetSize() const;
-
         // Gets the source size.
         const glm::vec2& GetSourceSize() const;
+
+        // Gets the target size.
+        const glm::vec2& GetTargetSize() const;
 
         // Gets the visible range of source coordinates from the center of the target.
         // Returns a rectangle [left, right, bottom, top] with offsets from the center to each side.

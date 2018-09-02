@@ -108,6 +108,8 @@ set(SOURCE_FILES
 
     "Include/Components/Transform.hpp"
     "Source/Components/Transform.cpp"
+    "Include/Components/Camera.hpp"
+    "Source/Components/Camera.cpp"
 )
 
 #
