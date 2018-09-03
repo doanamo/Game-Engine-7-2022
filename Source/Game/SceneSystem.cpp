@@ -83,7 +83,31 @@ void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
     }
 }
 
-void Game::SceneSystem::Update(float timeDelta)
+void SceneSystem::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
+{
+    ASSERT(m_initialized, "Scene system has not been initialized yet!");
+
+    // Draw scene with provided parameters.
+    if(scene)
+    {
+        // Push the render state.
+        auto& renderState = m_engine->renderContext.PushState();
+        SCOPE_GUARD(m_engine->renderContext.PopState());
+
+        // Setup the drawing viewport.
+        renderState.Viewport(
+            drawParams.viewportRect.x,
+            drawParams.viewportRect.y,
+            drawParams.viewportRect.z,
+            drawParams.viewportRect.w
+        );
+
+        // Call the drawing method.
+        scene->OnDraw(drawParams);
+    }
+}
+
+void SceneSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
@@ -94,13 +118,18 @@ void Game::SceneSystem::Update(float timeDelta)
     }
 }
 
-void Game::SceneSystem::Draw(float timeAlpha)
+void SceneSystem::Draw(float timeAlpha)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 
     // Draw the current scene.
     if(m_currentScene)
     {
-        m_currentScene->OnDraw(timeAlpha);
+        SceneDrawParams drawParams;
+        drawParams.viewportRect.z = m_engine->window.GetWidth();
+        drawParams.viewportRect.w = m_engine->window.GetHeight();
+        drawParams.timeAlpha = timeAlpha;
+
+        this->DrawScene(m_currentScene.get(), drawParams);
     }
 }

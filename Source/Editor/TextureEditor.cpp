@@ -76,17 +76,16 @@ void TextureEditor::OnUpdate(float timeDelta)
 
 }
 
-void TextureEditor::OnDraw(float timeAlpha)
+void TextureEditor::OnDraw(const Game::SceneDrawParams& drawParams)
 {
     ASSERT(m_initialized, "Texture viever instance has not been initialized!");
 
     // Push a new render state.
-    auto& renderState = m_engine->renderContext.PushState();
-    SCOPE_GUARD(m_engine->renderContext.PopState());
+    auto& renderState = m_engine->renderContext.GetState();
 
-    // Create a viewport.
-    renderState.Viewport(0, 0, m_engine->window.GetWidth(), m_engine->window.GetHeight());
-    m_screenSpace.SetTargetSize(m_engine->window.GetWidth(), m_engine->window.GetHeight());
+    // Define screen space size.
+    glm::ivec2 viewportSize = drawParams.GetViewportSize();
+    m_screenSpace.SetTargetSize(viewportSize.x, viewportSize.y);
 
     // Calculate combined view and projection matrix.
     glm::mat4 vertexTransform = m_screenSpace.GetTransform();

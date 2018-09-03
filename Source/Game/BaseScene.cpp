@@ -88,7 +88,7 @@ void BaseScene::OnUpdate(float timeDelta)
     m_entitySystem.ProcessCommands();
 }
 
-void BaseScene::OnDraw(float timeAlpha)
+void BaseScene::OnDraw(const SceneDrawParams& drawParams)
 {
 }
 

@@ -10,6 +10,25 @@
 
 namespace Game
 {
+    // Scene draw parameters structure.
+    struct SceneDrawParams
+    {
+        SceneDrawParams();
+
+        // Returns the viewport size.
+        glm::ivec2 GetViewportSize() const;
+
+        // Name of camera entity.
+        std::string cameraName;
+
+        // Viewport rectangle in pixels.
+        glm::ivec4 viewportRect;
+
+        // Time alpha between frames.
+        // Used for interpolation calculations.
+        float timeAlpha;
+    };
+
     // Scene interface.
     class Scene
     {
@@ -30,7 +49,7 @@ namespace Game
         }
 
         // Called when the scene needs to be drawn.
-        virtual void OnDraw(float timeAlpha)
+        virtual void OnDraw(const SceneDrawParams& drawParams)
         {
         }
     };

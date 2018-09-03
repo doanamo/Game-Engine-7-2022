@@ -42,7 +42,7 @@ namespace Editor
         void OnUpdate(float timeDelta) override;
 
         // Draws the scene.
-        void OnDraw(float timeAlpha) override;
+        void OnDraw(const Game::SceneDrawParams& drawParams) override;
 
     private:
         // Engine reference.

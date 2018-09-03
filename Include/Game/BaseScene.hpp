@@ -47,7 +47,7 @@ namespace Game
         virtual void OnUpdate(float timeDelta) override;
 
         // Draws the game scene.
-        virtual void OnDraw(float timeAlpha) override;
+        virtual void OnDraw(const SceneDrawParams& drawParams) override;
 
         // Gets the engine reference.
         Engine::Root* GetEngine() const;

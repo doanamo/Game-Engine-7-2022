@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include "Game/Scene.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -42,10 +43,13 @@ namespace Game
         // Changes the current scene.
         void ChangeScene(std::shared_ptr<Scene> scene);
 
-        // Updates the scene.
+        // Draws a scene.
+        void DrawScene(Scene* scene, const SceneDrawParams& drawParams);
+
+        // Updates the current scene.
         void Update(float timeDelta);
 
-        // Draws the scene.
+        // Draws the current scene.
         void Draw(float timeAlpha);
 
     private:
