@@ -11,7 +11,7 @@
 
 /*
     Component Pool
-    
+
     Manages a pool for a single type of a component.
     See ComponentSystem for more context.
 */
