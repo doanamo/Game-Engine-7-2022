@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include "System/ResourceManager.hpp"
-#include "Editor/TextureEditor.hpp"
+#include "Editor/TextureViewer.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
@@ -266,9 +266,9 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     }
 
     // Register built in scene editors.
-    this->RegisterEditorScene("Texture Editor", [](Engine::Root* engine)
+    this->RegisterEditorScene("Texture Viewer", [](Engine::Root* engine)
     {
-        auto scene = std::make_shared<TextureEditor>();
+        auto scene = std::make_shared<TextureViewer>();
         return scene->Initialize(engine) ? scene : nullptr;
     });
 

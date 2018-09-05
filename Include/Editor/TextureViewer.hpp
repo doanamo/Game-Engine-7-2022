@@ -15,25 +15,25 @@ namespace Engine
 }
 
 /*
-    Texture Editor
+    Texture Viewer
 */
 
 namespace Editor
 {
     // Texture editor class.
-    class TextureEditor : public Game::Scene
+    class TextureViewer : public Game::Scene
     {
     public:
-        TextureEditor();
-        ~TextureEditor();
+        TextureViewer();
+        ~TextureViewer();
 
         // Disallow copying.
-        TextureEditor(const TextureEditor& other) = delete;
-        TextureEditor& operator=(const TextureEditor& other) = delete;
+        TextureViewer(const TextureViewer& other) = delete;
+        TextureViewer& operator=(const TextureViewer& other) = delete;
 
         // Move constructor and assignment.
-        TextureEditor(TextureEditor&& other);
-        TextureEditor& operator=(TextureEditor&& other);
+        TextureViewer(TextureViewer&& other);
+        TextureViewer& operator=(TextureViewer&& other);
 
         // Initializes the editor scene.
         bool Initialize(Engine::Root* engine);

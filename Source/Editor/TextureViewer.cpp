@@ -3,28 +3,28 @@
 */
 
 #include "Precompiled.hpp"
-#include "Editor/TextureEditor.hpp"
+#include "Editor/TextureViewer.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
-TextureEditor::TextureEditor() :
+TextureViewer::TextureViewer() :
     m_engine(nullptr),
     m_initialized(false)
 {
 }
 
-TextureEditor::~TextureEditor()
+TextureViewer::~TextureViewer()
 {
 }
 
-TextureEditor::TextureEditor(TextureEditor&& other) :
-    TextureEditor()
+TextureViewer::TextureViewer(TextureViewer&& other) :
+    TextureViewer()
 {
     // Call the move assignment.
     *this = std::move(other);
 }
 
-TextureEditor& TextureEditor::operator=(TextureEditor&& other)
+TextureViewer& TextureViewer::operator=(TextureViewer&& other)
 {
     // Swap class members.
     std::swap(m_engine, other.m_engine);
@@ -35,7 +35,7 @@ TextureEditor& TextureEditor::operator=(TextureEditor&& other)
     return *this;
 }
 
-bool TextureEditor::Initialize(Engine::Root* engine)
+bool TextureViewer::Initialize(Engine::Root* engine)
 {
     LOG() << "Initializing texture viewer...";
 
@@ -43,7 +43,7 @@ bool TextureEditor::Initialize(Engine::Root* engine)
     VERIFY(!m_initialized, "Texture viewer instance has already been initialized!");
 
     // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = TextureEditor());
+    SCOPE_GUARD_IF(!m_initialized, *this = TextureViewer());
 
     // Validate and save engine reference.
     if(engine == nullptr || !engine->IsInitialized())
@@ -68,7 +68,7 @@ bool TextureEditor::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void TextureEditor::OnUpdate(float timeDelta)
+void TextureViewer::OnUpdate(float timeDelta)
 {
     ASSERT(m_initialized, "Texture viever instance has not been initialized!");
 
@@ -76,7 +76,7 @@ void TextureEditor::OnUpdate(float timeDelta)
 
 }
 
-void TextureEditor::OnDraw(const Game::SceneDrawParams& drawParams)
+void TextureViewer::OnDraw(const Game::SceneDrawParams& drawParams)
 {
     ASSERT(m_initialized, "Texture viever instance has not been initialized!");
 
