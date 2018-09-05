@@ -20,7 +20,7 @@ namespace Engine
 
 namespace Editor
 {
-    // Texture editor class.
+    // Texture viewer class.
     class TextureViewer : public Game::Scene
     {
     public:
