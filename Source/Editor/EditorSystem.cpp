@@ -6,6 +6,7 @@
 #include "Editor/EditorSystem.hpp"
 #include "System/ResourceManager.hpp"
 #include "Editor/TextureViewer.hpp"
+#include "Editor/ModelViewer.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
@@ -269,6 +270,12 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     this->RegisterEditorScene("Texture Viewer", [](Engine::Root* engine)
     {
         auto scene = std::make_shared<TextureViewer>();
+        return scene->Initialize(engine) ? scene : nullptr;
+    });
+
+    this->RegisterEditorScene("Model Viewer", [](Engine::Root* engine)
+    {
+        auto scene = std::make_shared<ModelViewer>();
         return scene->Initialize(engine) ? scene : nullptr;
     });
 

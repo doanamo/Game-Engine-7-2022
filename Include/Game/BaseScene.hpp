@@ -40,7 +40,7 @@ namespace Game
         BaseScene& operator=(BaseScene&& other);
 
         // Initializes the game scene.
-        bool Initialize(Engine::Root* engine);
+        virtual bool Initialize(Engine::Root* engine);
 
     public:
         // Updates the game scene.
