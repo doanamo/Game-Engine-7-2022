@@ -48,9 +48,9 @@ bool BaseScene::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = BaseScene());
 
     // Validate engine reference.
-    if(engine == nullptr || engine->IsInitialized())
+    if(engine == nullptr || !engine->IsInitialized())
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is nvalidi!";
+        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
         return false;
     }
 
