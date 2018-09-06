@@ -46,15 +46,15 @@ bool ModelViewer::Initialize(Engine::Root* engine)
     // Make sure instance is not initialized.
     VERIFY(!m_initialized, "Model viewer instance has already been initialized!");
 
-    // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = ModelViewer());
-
     // Initialize the base class.
     if(!Game::BaseScene::Initialize(engine))
     {
         LOG_ERROR() << "Could not initialize the base game scene!";
         return false;
     }
+
+    // Reset class instance if initialization fails.
+    SCOPE_GUARD_IF(!m_initialized, *this = ModelViewer());
 
     // Load the texture.
     Graphics::TextureLoadInfo textureInfo;

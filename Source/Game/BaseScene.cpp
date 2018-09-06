@@ -44,7 +44,6 @@ bool BaseScene::Initialize(Engine::Root* engine)
     ASSERT(!m_initialized, "Base game scene class has been already initialized!");
 
     // Reset class instance on initialization failure.
-    // Derived class should be the one cleaning up, but it won't hurt to be safe.
     SCOPE_GUARD_IF(!m_initialized, *this = BaseScene());
 
     // Validate engine reference.
