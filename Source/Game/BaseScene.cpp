@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Game/BaseScene.hpp"
+#include "Engine.hpp"
 using namespace Game;
 
 BaseScene::BaseScene() :
@@ -43,12 +44,13 @@ bool BaseScene::Initialize(Engine::Root* engine)
     ASSERT(!m_initialized, "Base game scene class has been already initialized!");
 
     // Reset class instance on initialization failure.
+    // Derived class should be the one cleaning up, but it won't hurt to be safe.
     SCOPE_GUARD_IF(!m_initialized, *this = BaseScene());
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(engine == nullptr || engine->IsInitialized())
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR() << "Invalid argument - \"engine\" is nvalidi!";
         return false;
     }
 
