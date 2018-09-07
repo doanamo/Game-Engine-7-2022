@@ -43,9 +43,6 @@ namespace Game
         // Changes the current scene.
         void ChangeScene(std::shared_ptr<Scene> scene);
 
-        // Draws a scene.
-        void DrawScene(Scene* scene, const SceneDrawParams& drawParams);
-
         // Updates the current scene.
         void Update(float timeDelta);
 

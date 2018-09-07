@@ -13,6 +13,7 @@
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/SpriteRenderer.hpp"
 #include "Game/SceneSystem.hpp"
+#include "Game/SceneRenderer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/IdentitySystem.hpp"
@@ -62,6 +63,7 @@ namespace Engine
 
         // Game systems.
         Game::SceneSystem sceneSystem;
+        Game::SceneRenderer sceneRenderer;
 
         // Engine systems.
         Editor::EditorSystem editorSystem;

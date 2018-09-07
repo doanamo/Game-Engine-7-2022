@@ -108,6 +108,8 @@ set(SOURCE_FILES
     "Source/Game/BaseScene.cpp"
     "Include/Game/SceneSystem.hpp"
     "Source/Game/SceneSystem.cpp"
+    "Include/Game/SceneRenderer.hpp"
+    "Source/Game/SceneRenderer.cpp"
 
     "Include/Components/Transform.hpp"
     "Source/Components/Transform.cpp"

@@ -35,6 +35,8 @@ Root& Root::operator=(Root&& other)
     std::swap(spriteRenderer, other.spriteRenderer);
     
     std::swap(sceneSystem, other.sceneSystem);
+    std::swap(sceneRenderer, other.sceneRenderer);
+
     std::swap(editorSystem, other.editorSystem);
 
     std::swap(m_initialized, other.m_initialized);
@@ -134,7 +136,13 @@ bool Root::Initialize()
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, sceneSystem = Game::SceneSystem());
+    // Initialize the scene renderer.
+    // Renders a scene described in its components.
+    if(!sceneRenderer.Initialize(this))
+    {
+        LOG_ERROR() << "Could not initialize scene renderer!";
+        return false;
+    }
 
     // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
@@ -143,8 +151,6 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize editor system!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, editorSystem = Editor::EditorSystem());
 
     // Success!
     return m_initialized = true;
