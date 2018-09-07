@@ -41,7 +41,7 @@ ModelViewer& ModelViewer::operator=(ModelViewer&& other)
 
 bool ModelViewer::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing model viewer...";
+    LOG() << "Initializing model viewer..." << LOG_INDENT();
 
     // Make sure instance is not initialized.
     VERIFY(!m_initialized, "Model viewer instance has already been initialized!");
