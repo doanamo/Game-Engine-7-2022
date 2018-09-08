@@ -111,10 +111,10 @@ set(SOURCE_FILES
     "Include/Game/SceneRenderer.hpp"
     "Source/Game/SceneRenderer.cpp"
 
-    "Include/Components/Transform.hpp"
-    "Source/Components/Transform.cpp"
-    "Include/Components/Camera.hpp"
-    "Source/Components/Camera.cpp"
+    "Include/Components/TransformComponent.hpp"
+    "Source/Components/TransformComponent.cpp"
+    "Include/Components/CameraComponent.hpp"
+    "Source/Components/CameraComponent.cpp"
 )
 
 #

@@ -3,10 +3,10 @@
 */
 
 #include "Precompiled.hpp"
-#include "System/ResourceManager.hpp"
 #include "Editor/ModelViewer.hpp"
-#include "Components/Transform.hpp"
-#include "Components/Camera.hpp"
+#include "System/ResourceManager.hpp"
+#include "Components/TransformComponent.hpp"
+#include "Components/CameraComponent.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 

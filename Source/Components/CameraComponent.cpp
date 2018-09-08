@@ -3,9 +3,9 @@
 */
 
 #include "Precompiled.hpp"
-#include "Components/Camera.hpp"
-#include "Components/Transform.hpp"
-#include <Game/ComponentSystem.hpp>
+#include "Components/CameraComponent.hpp"
+#include "Components/TransformComponent.hpp"
+#include "Game/ComponentSystem.hpp"
 using namespace Components;
 
 Camera::Camera() :

@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Components/Transform.hpp"
+#include "Components/TransformComponent.hpp"
 using namespace Components;
 
 Transform::Transform() :
