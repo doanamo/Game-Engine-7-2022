@@ -6,13 +6,13 @@
 
 #if defined(VERTEX_SHADER)
     layout(location = 0) in vec2 vertexPosition;
-    layout(location = 1) in vec2 vertexTexture;
-    layout(location = 2) in mat4 instanceTransform;
-    layout(location = 6) in vec4 instanceSpriteRectangle;
-    layout(location = 7) in vec4 instanceTextureRectangle;
-    layout(location = 8) in vec4 instanceColor;
+    layout(location = 1) in vec2 vertexCoords;
+    layout(location = 2) in vec4 dataRectangle;
+    layout(location = 3) in vec4 dataCoords;
+    layout(location = 4) in vec4 dataColor;
+    layout(location = 5) in mat4 instanceTransform;
 
-    out vec2 fragmentTexture;
+    out vec2 fragmentCoords;
     out vec4 fragmentColor;
 
     uniform mat4 vertexTransform;
@@ -23,14 +23,14 @@
         // Calculate sprite rectangle size.
         vec2 spriteRectangleSize;
 
-        spriteRectangleSize.x = instanceSpriteRectangle.z - instanceSpriteRectangle.x;
-        spriteRectangleSize.y = instanceSpriteRectangle.w - instanceSpriteRectangle.y;
+        spriteRectangleSize.x = dataRectangle.z - dataRectangle.x;
+        spriteRectangleSize.y = dataRectangle.w - dataRectangle.y;
 
         // Transform basic sprite vertex by sprite rectangle.
         vec4 position = vec4(vertexPosition, 0.0f, 1.0f);
 
         position.xy *= spriteRectangleSize;
-        position.xy += instanceSpriteRectangle.xy;
+        position.xy += dataRectangle.xy;
 
         // Apply vertex transformations.
         position = instanceTransform * position;
@@ -39,27 +39,27 @@
         // Calculate texture rectangle size.
         vec2 textureRectangleSize;
 
-        textureRectangleSize.x = instanceTextureRectangle.z - instanceTextureRectangle.x;
-        textureRectangleSize.y = instanceTextureRectangle.w - instanceTextureRectangle.y;
+        textureRectangleSize.x = dataCoords.z - dataCoords.x;
+        textureRectangleSize.y = dataCoords.w - dataCoords.y;
 
         // Transform basic sprite texture coords by texture rectangle.
-        vec2 textureCoords = vertexTexture;
+        vec2 textureCoords = vertexCoords;
 
         textureCoords *= textureRectangleSize * textureSizeInv;
-        textureCoords += instanceTextureRectangle.xy * textureSizeInv;
+        textureCoords += dataCoords.xy * textureSizeInv;
 
         // Move texture origin from top left corner to bottom left.
         textureCoords.y -= textureRectangleSize.y * textureSizeInv.y;
 
         // Output a sprite vertex.
         gl_Position = position;
-        fragmentTexture = textureCoords;
-        fragmentColor = instanceColor;
+        fragmentCoords = textureCoords;
+        fragmentColor = dataColor;
     }
 #endif
 
 #if defined(FRAGMENT_SHADER)
-    in  vec2 fragmentTexture;
+    in  vec2 fragmentCoords;
     in  vec4 fragmentColor;
     out vec4 finalColor;
 
@@ -67,6 +67,6 @@
 
     void main()
     {
-        finalColor = texture(textureDiffuse, fragmentTexture) * fragmentColor;
+        finalColor = texture(textureDiffuse, fragmentCoords) * fragmentColor;
     }
 #endif

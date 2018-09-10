@@ -116,10 +116,10 @@ void ModelViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     sprite.info.transparent = false;
     sprite.info.texture = m_texture.get();
     sprite.info.filter = true;
-    sprite.data.transform = glm::mat4(1.0f);
-    sprite.data.spriteRectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
-    sprite.data.textureRectangle = glm::vec4(0.0f, 0.0f, m_texture->GetWidth(), m_texture->GetHeight());
+    sprite.data.rectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
+    sprite.data.coords = glm::vec4(0.0f, 0.0f, m_texture->GetWidth(), m_texture->GetHeight());
     sprite.data.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    sprite.instance.transform = glm::mat4(1.0f);
 
     Graphics::SpriteList spriteList;
     spriteList.AddSprite(sprite);

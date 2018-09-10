@@ -42,6 +42,7 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
     // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_vertexBuffer, other.m_vertexBuffer);
+    std::swap(m_dataBuffer, other.m_dataBuffer);
     std::swap(m_instanceBuffer, other.m_instanceBuffer);
     std::swap(m_vertexArray, other.m_vertexArray);
     std::swap(m_nearestSampler, other.m_nearestSampler);
@@ -59,6 +60,9 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
 
     // Make sure that the instance is not already initialized.
     ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");
+
+    // Reset class instance on failed initialization.
+    SCOPE_GUARD_IF(!m_initialized, *this = SpriteRenderer());
 
     // Validate arguments.
     if(resourceManager == nullptr)
@@ -100,12 +104,23 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexBuffer = VertexBuffer());
+    // Create the data buffer.
+    BufferInfo dataBufferInfo;
+    dataBufferInfo.usage = GL_STREAM_DRAW;
+    dataBufferInfo.elementSize = sizeof(Sprite::Data);
+    dataBufferInfo.elementCount = spriteBatchSize;
+    dataBufferInfo.data = nullptr;
+
+    if(!m_dataBuffer.Initialize(renderContext, dataBufferInfo))
+    {
+        LOG_ERROR() << "Could not create data buffer!";
+        return false;
+    }
 
     // Create the instance buffer.
     BufferInfo instanceBufferInfo;
     instanceBufferInfo.usage = GL_STREAM_DRAW;
-    instanceBufferInfo.elementSize = sizeof(Sprite::Data);
+    instanceBufferInfo.elementSize = sizeof(Sprite::Instance);
     instanceBufferInfo.elementCount = spriteBatchSize;
     instanceBufferInfo.data = nullptr;
 
@@ -115,17 +130,15 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_instanceBuffer = InstanceBuffer());
-
     // Create the vertex array.
     const VertexAttribute vertexAttributes[] =
     {
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Position
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Texture
+        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
+        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coords
+        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
         { &m_instanceBuffer, VertexAttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Sprite Rectangle
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Texture Rectangle
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
     };
 
     Graphics::VertexArrayInfo vertexArrayInfo;
@@ -138,8 +151,6 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_vertexArray = VertexArray());
-
     // Create a nearest sampler.
     SamplerInfo nearestSamplerInfo;
     nearestSamplerInfo.textureMinFilter = GL_NEAREST;
@@ -150,8 +161,6 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         LOG_ERROR() << "Could not create a nearest sampler!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_nearestSampler = Sampler());
 
     // Create a linear sampler.
     SamplerInfo linearSamplerInfo;
@@ -164,8 +173,6 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         return false;
     }
 
-    SCOPE_GUARD_IF(!m_initialized, m_linearSampler = Sampler());
-
     // Load the shader.
     ShaderLoadInfo shaderInfo;
     shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader";
@@ -177,8 +184,6 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         LOG_ERROR() << "Could not load sprite shader!";
         return false;
     }
-
-    SCOPE_GUARD_IF(!m_initialized, m_shader.reset());
 
     // Remember the sprite batch size.
     m_spriteBatchSize = spriteBatchSize;
@@ -210,6 +215,7 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
     // Get sprite info and data arrays.
     const auto& spriteInfo = sprites.GetSpriteInfo();
     const auto& spriteData = sprites.GetSpriteData();
+    const auto& spriteInstance = sprites.GetSpriteInstance();
 
     // Render sprite batches.
     std::size_t spritesDrawn = 0;
@@ -239,8 +245,9 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
             ++spritesBatched;
         }
 
-        // Update instance buffer with sprite data.
-        m_instanceBuffer.Update(&spriteData[spritesDrawn], spritesBatched);
+        // Update buffer with sprite data and instances.
+        m_dataBuffer.Update(&spriteData[spritesDrawn], spritesBatched);
+        m_instanceBuffer.Update(&spriteInstance[spritesDrawn], spritesBatched);
 
         // Set batch render state.
         if(batchInfo.transparent)

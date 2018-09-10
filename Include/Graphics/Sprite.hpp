@@ -23,8 +23,8 @@
         sprite.info.transparent = true;
         sprite.info.filter = false;
         sprite.data.transform = glm::mat4(1.0f);
-        sprite.data.spriteRectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
-        sprite.data.textureRectangle = glm::vec4(0.0f, 0.0f, width, height);
+        sprite.data.rectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
+        sprite.data.coords = glm::vec4(0.0f, 0.0f, width, height);
         sprite.data.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 */
@@ -46,22 +46,30 @@ namespace Graphics
             bool operator==(const Info& other) const;
             bool operator!=(const Info& other) const;
 
-            // Shared batch data.
+            // Shared batch info.
             const Texture* texture;
             bool transparent;
             bool filter;
         } info;
 
-        // Data structure defined per instance.
+        // Data structure defined per sprite.
         struct Data
         {
             Data();
 
-            // Unique instance data.
-            glm::mat4 transform;
-            glm::vec4 spriteRectangle;
-            glm::vec4 textureRectangle;
+            // Sprite data.
+            glm::vec4 rectangle;
+            glm::vec4 coords;
             glm::vec4 color;
         } data;
+
+        // Instance structure defined per sprite.
+        struct Instance
+        {
+            Instance();
+
+            // Sprite instance.
+            glm::mat4 transform;
+        } instance;
     };
 }

@@ -53,10 +53,14 @@ namespace Graphics
         // Returns the sprite data vector.
         const std::vector<Sprite::Data>& GetSpriteData() const;
 
+        // Returns the sprite instance vector.
+        const std::vector<Sprite::Instance>& GetSpriteInstance() const;
+
     private:
-        // Separate vectors for holding sprite info and data.
+        // Separate vectors for holding sprites.
         std::vector<Sprite::Info> m_spriteInfo;
         std::vector<Sprite::Data> m_spriteData;
+        std::vector<Sprite::Instance> m_spriteInstance;
 
         // List of sprite indices used for sorting.
         std::vector<std::size_t> m_spriteSort;
