@@ -73,11 +73,15 @@ namespace Utility
     {
         VERIFY(elements.size() == order.size(), "Array sizes must match!");
 
+        // Returns if there are no elements to sort.
+        if(elements.size() == 0)
+            return;
+
         // Create an array of indices.
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);
 
-        // Rearange values in a vector.
+        // Rearrange values in a vector.
         for(std::size_t i = 0; i < elements.size() - 1; ++i)
         {
             std::size_t desired = order[i];
