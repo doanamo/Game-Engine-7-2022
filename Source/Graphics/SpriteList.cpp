@@ -41,7 +41,8 @@ void SpriteList::ClearSprites()
 
 void SpriteList::SortSprites()
 {
-    ASSERT(m_spriteInfo.size() == m_spriteData.size() == m_spriteInstance.size(),
+    ASSERT(m_spriteInfo.size() == m_spriteData.size() &&
+        m_spriteInfo.size() == m_spriteInstance.size(),
         "Arrays of sprite info and data have different size!");
 
     // Define a sorting function.
@@ -93,7 +94,8 @@ void SpriteList::SortSprites()
 
 std::size_t Graphics::SpriteList::GetSpriteCount() const
 {
-    ASSERT(m_spriteInfo.size() == m_spriteData.size() == m_spriteInstance.size(),
+    ASSERT(m_spriteInfo.size() == m_spriteData.size() &&
+        m_spriteInfo.size() == m_spriteInstance.size(),
         "Arrays of sprite info and data have different size!");
 
     return m_spriteInfo.size();

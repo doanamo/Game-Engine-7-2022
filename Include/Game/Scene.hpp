@@ -52,5 +52,11 @@ namespace Game
         virtual void OnDraw(const SceneDrawParams& drawParams)
         {
         }
+
+        // Returns the scene name.
+        virtual const char* GetDebugName() const
+        {
+            return "Unnamed";
+        }
     };
 }

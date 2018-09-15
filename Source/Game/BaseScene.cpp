@@ -26,9 +26,9 @@ BaseScene::BaseScene(BaseScene&& other)
 BaseScene& BaseScene::operator=(BaseScene&& other)
 {
     // Swap class members.
-    std::swap(m_entitySystem, other.m_entitySystem);
-    std::swap(m_componentSystem, other.m_componentSystem);
-    std::swap(m_identitySystem, other.m_identitySystem);
+    std::swap(entitySystem, other.entitySystem);
+    std::swap(componentSystem, other.componentSystem);
+    std::swap(identitySystem, other.identitySystem);
 
     std::swap(m_engine, other.m_engine);
     std::swap(m_initialized, other.m_initialized);
@@ -57,7 +57,7 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
     // Initialize the entity system.
     // Assigns unique identifiers that all other systems use to identify objects in a game.
-    if(!m_entitySystem.Initialize())
+    if(!entitySystem.Initialize())
     {
         LOG_ERROR() << "Could not initialize entity system!";
         return false;
@@ -65,7 +65,7 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
     // Initialize the component system.
     // Stores and manages components that entities have.
-    if(!m_componentSystem.Initialize(m_entitySystem))
+    if(!componentSystem.Initialize(entitySystem))
     {
         LOG_ERROR() << "Could not initialize component system!";
         return false;
@@ -73,7 +73,7 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
     // Initialize the identity system.
     // Allows readable names to be assigned to entities.
-    if(!m_identitySystem.Initialize(m_entitySystem))
+    if(!identitySystem.Initialize(entitySystem))
     {
         LOG_ERROR() << "Could not initialize identity system!";
         return false;
@@ -86,7 +86,7 @@ bool BaseScene::Initialize(Engine::Root* engine)
 void BaseScene::OnUpdate(float timeDelta)
 {
     // Process entity commands.
-    m_entitySystem.ProcessCommands();
+    entitySystem.ProcessCommands();
 }
 
 void BaseScene::OnDraw(const SceneDrawParams& drawParams)

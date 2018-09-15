@@ -3,7 +3,7 @@
 using namespace Game;
 
 SceneDrawParams::SceneDrawParams() :
-    cameraName("DefaultCamera"),
+    cameraName("Camera"),
     viewportRect(0.0f, 0.0f, 0.0f, 0.0f),
     timeAlpha(1.0f)
 {

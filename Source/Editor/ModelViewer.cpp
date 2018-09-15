@@ -65,16 +65,16 @@ bool ModelViewer::Initialize(Engine::Root* engine)
 
     // Create camera entity.
     {
-        Game::EntityHandle cameraEntity = m_entitySystem.CreateEntity();
-        m_identitySystem.SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = entitySystem.CreateEntity();
+        identitySystem.SetEntityName(cameraEntity, "Camera");
 
-        auto* transform = m_componentSystem.Create<Components::Transform>(cameraEntity);
+        auto* transform = componentSystem.Create<Components::Transform>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         transform->position = glm::vec3(0.0f, 0.0f, 4.0f);
         transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-        auto* camera = m_componentSystem.Create<Components::Camera>(cameraEntity);
+        auto* camera = componentSystem.Create<Components::Camera>(cameraEntity);
         ASSERT(camera != nullptr, "Could not create a camera component!");
 
         camera->SetupPerspective(90.0f, 0.1f, 1000.0f);
@@ -103,9 +103,9 @@ void ModelViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     auto& renderState = GetEngine()->renderContext.GetState();
 
     // Retrieve camera entity component.
-    Game::EntityHandle cameraEntity = m_identitySystem.GetEntityByName("Camera");
+    Game::EntityHandle cameraEntity = identitySystem.GetEntityByName("Camera");
 
-    auto camera = m_componentSystem.Lookup<Components::Camera>(cameraEntity);
+    auto camera = componentSystem.Lookup<Components::Camera>(cameraEntity);
     ASSERT(camera != nullptr, "Could not retrieve camera component!");
 
     // Calculate combined view and projection matrix.

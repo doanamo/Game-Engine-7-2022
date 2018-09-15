@@ -47,6 +47,8 @@ namespace Graphics
             bool operator!=(const Info& other) const;
 
             // Shared batch info.
+            // #todo: Sprite should hold a shared pointer to the texture resource,
+            // as we are using this info struct inside Sprite component class.
             const Texture* texture;
             bool transparent;
             bool filter;

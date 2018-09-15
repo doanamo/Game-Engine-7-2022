@@ -5,6 +5,9 @@
 #include "Precompiled.hpp"
 #include "Game/SceneRenderer.hpp"
 #include "Game/BaseScene.hpp"
+#include "Components/TransformComponent.hpp"
+#include "Components/CameraComponent.hpp"
+#include "Components/SpriteComponent.hpp"
 #include "Engine.hpp"
 using namespace Game;
 
@@ -80,10 +83,72 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
     scene->OnDraw(drawParams);
 
     // Check if scene is a base scene.
+    // #todo: Can we abstract it in a batter way than just casting?
     BaseScene* baseScene = dynamic_cast<BaseScene*>(scene);
 
     if(baseScene)
     {
-        // #todo: Draw the scene components.
+        // Get entity system references.
+        auto& entitySystem = baseScene->entitySystem;
+        auto& componentSystem = baseScene->componentSystem;
+        auto& identitySystem = baseScene->identitySystem;
+
+        // Base camera transform.
+        glm::mat4 cameraTransform(1.0f);
+
+        // Retrieve transform from camera entity.
+        Game::EntityHandle cameraEntity = identitySystem.GetEntityByName(drawParams.cameraName);
+
+        if(entitySystem.IsHandleValid(cameraEntity))
+        {
+            auto cameraComponent = componentSystem.Lookup<Components::Camera>(cameraEntity);
+
+            if(cameraComponent != nullptr)
+            {
+                // Calculate the camera transform.
+                glm::ivec2 viewportSize = drawParams.GetViewportSize();
+                cameraTransform = cameraComponent->CalculateTransform(viewportSize);
+            }
+            else
+            {
+                LOG_WARNING() << "Could not retrieve camera component from \"" << drawParams.cameraName
+                    << "\" entity in \"" << baseScene->GetDebugName() << "\" scene.";
+            }
+        }
+        else
+        {
+            LOG_WARNING() << "Could not retrieve \"" << drawParams.cameraName
+                << "\" camera entity from \"" << baseScene->GetDebugName() << "\" scene.";
+        }
+        
+        // Create a list of sprites that will be drawn.
+        Graphics::SpriteList spriteList;
+
+        // Get all sprite components.
+        auto* spriteComponentPool = componentSystem.GetPool<Components::Sprite>();
+        ASSERT(spriteComponentPool != nullptr, "Received a null component pool!");
+
+        for(auto& spriteComponentEntry : *spriteComponentPool)
+        {
+            // Get entity components.
+            // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
+            Components::Sprite& spriteComponent = spriteComponentEntry.component;
+            Components::Transform* transformComponent = spriteComponent.GetTransform();
+            ASSERT(transformComponent != nullptr, "Required component is missing!");
+
+            // Add a sprite to the draw list.
+            Graphics::Sprite sprite;
+            sprite.info = spriteComponent.info;
+            sprite.data = spriteComponent.data;
+            sprite.instance.transform = transformComponent->CalculateMatrix();
+
+            spriteList.AddSprite(sprite);
+        }
+
+        // Sort the sprite draw list.
+        spriteList.SortSprites();
+
+        // Draw sprite components.
+        m_engine->spriteRenderer.DrawSprites(spriteList, cameraTransform);
     }
 }

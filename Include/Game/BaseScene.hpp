@@ -52,11 +52,11 @@ namespace Game
         // Gets the engine reference.
         Engine::Root* GetEngine() const;
 
-    protected:
+    public:
         // Base game systems.
-        Game::EntitySystem m_entitySystem;
-        Game::ComponentSystem m_componentSystem;
-        Game::IdentitySystem m_identitySystem;
+        Game::EntitySystem entitySystem;
+        Game::ComponentSystem componentSystem;
+        Game::IdentitySystem identitySystem;
 
     private:
         // Engine reference.

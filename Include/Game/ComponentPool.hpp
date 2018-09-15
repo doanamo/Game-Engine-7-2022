@@ -51,6 +51,7 @@ namespace Game
         {
             enum
             {
+                // Components is unused and wait in the free list.
                 Unused = 0,
 
                 // Component exists and can be accessed.
@@ -293,5 +294,17 @@ namespace Game
     typename ComponentPool<ComponentType>::ComponentIterator ComponentPool<ComponentType>::End()
     {
         return m_entries.end();
+    }
+
+    template<typename ComponentType>
+    typename ComponentPool<ComponentType>::ComponentIterator begin(ComponentPool<ComponentType>& pool)
+    {
+        return pool.Begin();
+    }
+
+    template<typename ComponentType>
+    typename ComponentPool<ComponentType>::ComponentIterator end(ComponentPool<ComponentType>& pool)
+    {
+        return pool.End();
     }
 }

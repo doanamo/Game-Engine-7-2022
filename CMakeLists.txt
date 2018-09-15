@@ -115,6 +115,8 @@ set(SOURCE_FILES
     "Source/Components/TransformComponent.cpp"
     "Include/Components/CameraComponent.hpp"
     "Source/Components/CameraComponent.cpp"
+    "Include/Components/SpriteComponent.hpp"
+    "Source/Components/SpriteComponent.cpp"
 )
 
 #
