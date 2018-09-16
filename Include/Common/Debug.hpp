@@ -105,7 +105,7 @@ namespace Debug
     if(expression) { } else \
     { \
         DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression)) \
-        DEBUG_BREAK();                 \
+        DEBUG_BREAK(); \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
