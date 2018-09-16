@@ -196,7 +196,7 @@ add_subdirectory("Tests")
 # Platform
 #
 
-# Microsoft Visual Studio
+# Compiler specific settings.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Disable Standard C++ Library warnings.
     set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
@@ -210,12 +210,15 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\""
     )
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # Enable additional warnings.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif()
 
-# Keep folder structure of include and source files in Visual Studio.
+# Keep folder structure of include and source files.
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
 
-# Enable source folders in Visual Studio.
+# Enable source folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
