@@ -187,9 +187,11 @@ namespace System
             // Mouse button event.
             struct MouseButton
             {
-                int button;
-                int action;
-                int mods;
+                // #improvement: Use enumerations to store button,
+                // action and mod types instead of plain integers.
+                int button; // GLFW_MOUSE_BUTTON_1, GLFW_MOUSE_BUTTON_LEFT etc.
+                int action; // GLFW_RELEASE, GLFW_PRESS, GLFW_REPEAT
+                int mods; // GLFW_MOD_SHIFT, GLFW_MOD_CONTROL, GLFW_MOD_ALT etc.
             };
 
             Common::Dispatcher<void(const MouseButton&)> mouseButton;
