@@ -42,7 +42,10 @@ namespace Utility
     {
         static_assert(std::is_integral<Target>::value, "Target type is not an integral type!");
         static_assert(std::is_integral<Source>::value, "Source type is not an integral type!");
-        ASSERT(static_cast<Target>(value) == value, "Numerical conversion failed due to data loss!");
+
+        ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
+            "Numerical conversion failed due to data loss!");
+
         return static_cast<Target>(value);
     }
 
