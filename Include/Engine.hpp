@@ -14,9 +14,6 @@
 #include "Graphics/SpriteRenderer.hpp"
 #include "Game/SceneSystem.hpp"
 #include "Game/SceneRenderer.hpp"
-#include "Game/EntitySystem.hpp"
-#include "Game/ComponentSystem.hpp"
-#include "Game/IdentitySystem.hpp"
 #include "Editor/EditorSystem.hpp"
 
 /*
