@@ -11,6 +11,9 @@ generate_cmake32:
         - mkdir cmake-build32
         - cd cmake-build32
         - cmake ..
+    artifacts:
+        paths:
+            - cmake-build32/
         
 generate_cmake64:
     stage: generate
@@ -18,6 +21,9 @@ generate_cmake64:
         - mkdir cmake-build64
         - cd cmake-build64
         - cmake ..
+    artifacts:
+        paths:
+            - cmake-build64/
     
 build_debug32:
     stage: build
