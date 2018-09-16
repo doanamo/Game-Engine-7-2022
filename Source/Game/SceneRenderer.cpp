@@ -82,8 +82,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
     // Call the drawing method.
     scene->OnDraw(drawParams);
 
-    // Check if scene is a base scene.
-    // #todo: Can we abstract it in a batter way than just casting?
+    // Check if current scene is a base scene (one that has an entity system).
     BaseScene* baseScene = dynamic_cast<BaseScene*>(scene);
 
     if(baseScene)

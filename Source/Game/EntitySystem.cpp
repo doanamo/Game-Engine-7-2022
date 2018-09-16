@@ -97,15 +97,17 @@ EntityHandle EntitySystem::CreateEntity()
         {
             // Do not use this handle anymore.
             // Discarding a handle will waste memory.
-            // #todo: We should maintain a larger pool of available handles 
-            // at once to prevent entities in front from expiring too fast.
+            // #improvement: We should maintain a larger pool of available handles 
+            // at once to prevent entities in front from expiring too fast. This will
+            // not cause any problems in real scenarios other than just wasting some
+            // memory whenever such thing happens.
             m_freeHandles.pop();
 
             // Attempt to find another candidate for a new entity handle.
             continue;
         }
 
-        // Found a good candidate for a new entity handle.
+        // Found a good candidate or did not find any at all.
         break;
     }
 
