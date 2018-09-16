@@ -53,6 +53,7 @@ IF(NOT PNG_BUILD_ZLIB)
   include_directories(${ZLIB_INCLUDE_DIR})
 ENDIF(NOT PNG_BUILD_ZLIB)
 
+#[[ Doan: Commented out due to improper check on Ubuntu
 if(NOT WIN32)
   find_library(M_LIBRARY
     NAMES m
@@ -65,6 +66,7 @@ else()
   # not needed on windows
   set(M_LIBRARY "")
 endif()
+]]
 
 # COMMAND LINE OPTIONS
 option(PNG_SHARED "Build shared lib" ON)
