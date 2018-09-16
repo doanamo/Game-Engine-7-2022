@@ -270,7 +270,7 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
                 GetVertexAttributeTypeRowElements(attribute.attributeType),
                 attribute.valueType,
                 attribute.normalize ? GL_TRUE : GL_FALSE,
-                attribute.buffer->GetElementSize(),
+                Utility::NumericalCast<GLsizei>(attribute.buffer->GetElementSize()),
                 (void*)(intptr_t)currentOffset
             );
 

@@ -103,7 +103,7 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
     }
 
     // Allocate buffer memory.
-    unsigned int bufferSize = info.elementSize * info.elementCount;
+    std::size_t bufferSize = info.elementSize * info.elementCount;
 
     if(bufferSize != 0)
     {
@@ -127,7 +127,7 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
     return initialized = true;
 }
 
-void Buffer::Update(const void* data, int elementCount)
+void Graphics::Buffer::Update(const void* data, std::size_t elementCount)
 {
     VERIFY(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
     VERIFY(data != nullptr, "Invalid argument - \"data\" is null!");
@@ -154,14 +154,14 @@ GLuint Buffer::GetHandle() const
     return m_handle;
 }
 
-unsigned int Buffer::GetElementSize() const
+std::size_t Graphics::Buffer::GetElementSize() const
 {
     ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
 
     return m_elementSize;
 }
 
-unsigned int Buffer::GetElementCount() const
+std::size_t Graphics::Buffer::GetElementCount() const
 {
     ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
 

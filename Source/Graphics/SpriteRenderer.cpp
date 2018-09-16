@@ -292,7 +292,8 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
         }
 
         // Draw instanced sprite batch.
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, spritesBatched);
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4,
+            Utility::NumericalCast<GLsizei>(spritesBatched));
         OpenGL::CheckErrors();
 
         // Update the counter of drawn sprites.

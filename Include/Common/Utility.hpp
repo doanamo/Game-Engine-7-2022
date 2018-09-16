@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <limits>
 #include "Common/Debug.hpp"
 
 /*
@@ -26,10 +27,23 @@ namespace Utility
     }
 
     // Gets the size of a static array.
-    template<typename Type, size_t Size>
-    constexpr size_t StaticArraySize(const Type(&)[Size])
+    template<typename Type, std::size_t Size>
+    constexpr auto StaticArraySize(const Type(&)[Size])
     {
         return Size;
+    }
+
+    // Casts a number of one type into another.
+    // Checks in debug if conversion will lead to any loss of data.
+    // This is useful when dealing with libraries which do not fully
+    // convert from 32bit to 64bit types on their own (e.g. OpenGL).
+    template<typename Target, typename Source>
+    Target NumericalCast(const Source& value)
+    {
+        static_assert(std::is_integral<Target>::value, "Target type is not an integral type!");
+        static_assert(std::is_integral<Source>::value, "Source type is not an integral type!");
+        ASSERT(static_cast<Target>(value) == value, "Numerical conversion failed due to data loss!");
+        return static_cast<Target>(value);
     }
 
     // Frees container's memory by swapping it with an empty container.

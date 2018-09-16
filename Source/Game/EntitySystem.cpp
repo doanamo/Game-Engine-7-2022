@@ -115,7 +115,8 @@ EntityHandle EntitySystem::CreateEntity()
     if(m_freeHandles.empty())
     {
         // Calculate next unused identifier.
-        EntityHandle::ValueType identifier = StartingIdentifier + m_handleEntries.size();
+        std::size_t calculatedIdentifier = StartingIdentifier + m_handleEntries.size();
+        auto identifier = Utility::NumericalCast<EntityHandle::ValueType>(calculatedIdentifier);
 
         // Create a new handle entry.
         m_handleEntries.emplace_back(identifier);

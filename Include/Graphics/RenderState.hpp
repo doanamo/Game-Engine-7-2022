@@ -96,7 +96,7 @@ namespace Graphics
             // GL_VERTEX_PROGRAM_TWO_SIDE,
         };
 
-        const int CapabilityCount = Utility::StaticArraySize(Capabilities);
+        const std::size_t CapabilityCount = Utility::StaticArraySize(Capabilities);
 
         // List of buffer binding targets.
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =
@@ -117,7 +117,7 @@ namespace Graphics
             // { GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING },
         };
 
-        const int BufferBindingTargetCount = Utility::StaticArraySize(BufferBindingTargets);
+        const std::size_t BufferBindingTargetCount = Utility::StaticArraySize(BufferBindingTargets);
 
         // List of texture binding targets.
         static const std::tuple<GLenum, GLenum> TextureBindingTargets[] =
@@ -135,7 +135,7 @@ namespace Graphics
             // { GL_TEXTURE_2D_MULTISAMPLE_ARRAY, GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY },
         };
 
-        const int TextureBindingTargetCount = Utility::StaticArraySize(TextureBindingTargets);
+        const std::size_t TextureBindingTargetCount = Utility::StaticArraySize(TextureBindingTargets);
 
         // List of pixel store parameters.
         static const GLenum PixelStoreParameters[] =
@@ -158,7 +158,7 @@ namespace Graphics
             GL_UNPACK_ALIGNMENT,
         };
 
-        const int PixelStoreParameterCount = Utility::StaticArraySize(PixelStoreParameters);
+        const std::size_t PixelStoreParameterCount = Utility::StaticArraySize(PixelStoreParameters);
     }
 
     // Render state structure.

@@ -159,9 +159,9 @@ bool RenderState::Initialize()
 
     m_samplerBindings.resize(SamplerBindingUnitCount, OpenGL::InvalidHandle);
 
-    for(size_t i = 0; i < m_samplerBindings.size(); ++i)
+    for(std::size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        glActiveTexture(GL_TEXTURE0 + i);
+        glActiveTexture(Utility::NumericalCast<GLenum>(GL_TEXTURE0 + i));
         glGetIntegerv(GL_SAMPLER_BINDING, (GLint*)&m_samplerBindings[i]);
         OpenGL::CheckErrors();
     }
@@ -170,7 +170,7 @@ bool RenderState::Initialize()
     OpenGL::CheckErrors();
 
     // glPixelStore
-    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         glGetIntegerv(OpenGL::PixelStoreParameters[i], &m_pixelStore[i]);
         OpenGL::CheckErrors();
@@ -248,7 +248,7 @@ void RenderState::Apply(RenderState& other)
     ASSERT(m_initialized, "Render state is not initialized!");
 
     // glEnable
-    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)
     {
         if(other.m_capabilities[i] == GL_TRUE)
         {
@@ -264,7 +264,7 @@ void RenderState::Apply(RenderState& other)
     this->BindVertexArray(other.m_vertexArrayBinding);
 
     // glBindBuffer
-    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         this->BindBuffer(std::get<0>(OpenGL::BufferBindingTargets[i]), other.m_bufferBindings[i]);
     }
@@ -282,13 +282,13 @@ void RenderState::Apply(RenderState& other)
     ASSERT(m_samplerBindings.size() == other.m_samplerBindings.size(), 
         "Different sampler binding array sizes between states!");
 
-    for(size_t i = 0; i < m_samplerBindings.size(); ++i)
+    for(std::size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        this->BindSampler(i, other.m_samplerBindings[i]);
+        this->BindSampler(Utility::NumericalCast<GLuint>(i), other.m_samplerBindings[i]);
     }
 
     // glPixelStore
-    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         this->PixelStore(OpenGL::PixelStoreParameters[i], other.m_pixelStore[i]);
     }

@@ -53,8 +53,8 @@ namespace Graphics
         BufferInfo();
 
         GLenum usage;
-        unsigned int elementSize;
-        unsigned int elementCount;
+        std::size_t elementSize;
+        std::size_t elementCount;
         const void* data;
     };
 
@@ -78,7 +78,7 @@ namespace Graphics
         bool Initialize(RenderContext* renderContext, const BufferInfo& info);
 
         // Updates the buffer's data.
-        void Update(const void* data, int elementCount);
+        void Update(const void* data, std::size_t elementCount);
 
         // Gets the buffer's type.
         GLenum GetType() const;
@@ -90,10 +90,10 @@ namespace Graphics
         GLuint GetHandle() const;
 
         // Gets the buffer's element size.
-        unsigned int GetElementSize() const;
+        std::size_t GetElementSize() const;
 
         // Gets the buffer's element count.
-        unsigned int GetElementCount() const;
+        std::size_t GetElementCount() const;
 
         // Gets the buffer's element type.
         virtual GLenum GetElementType() const;
@@ -118,8 +118,8 @@ namespace Graphics
         GLuint m_handle;
 
         // Buffer parameters.
-        unsigned int m_elementSize;
-        unsigned int m_elementCount;
+        std::size_t m_elementSize;
+        std::size_t m_elementCount;
     };
 }
 

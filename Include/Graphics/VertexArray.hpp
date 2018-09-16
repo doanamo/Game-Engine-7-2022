@@ -73,7 +73,7 @@ namespace Graphics
         VertexArrayInfo(const VertexAttribute* attributes, int attributeCount);
 
         const VertexAttribute* attributes;
-        int attributeCount;
+        std::size_t attributeCount;
     };
 
     // Vertex array class.

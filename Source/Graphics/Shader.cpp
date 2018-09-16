@@ -181,10 +181,11 @@ bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& i
                 shaderCode.c_str(),
             };
 
+            const std::size_t shaderCodeSegmentCount = Utility::StaticArraySize(shaderCodeSegments);
+
             glShaderSource(shaderObject,
-                Utility::StaticArraySize(shaderCodeSegments),
-                (const GLchar**)&shaderCodeSegments, nullptr
-            );
+                Utility::NumericalCast<GLsizei>(shaderCodeSegmentCount),
+                (const GLchar**)&shaderCodeSegments, nullptr);
             OpenGL::CheckErrors();
 
             glCompileShader(shaderObject);
