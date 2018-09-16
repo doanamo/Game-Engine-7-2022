@@ -1,27 +1,96 @@
-image: braintwister/ubuntu-18.04-cmake-3.11-gcc-8
+image: gunstarpl/game-engine-linux-dev
 
 stages:
+    - generate
     - build
     - test
 
-build:
-    stage: build
-    before_script:
-        - apt-get update --yes
-        - apt-get install --yes xorg-dev libglu1-mesa-dev
+generate_cmake32:
+    stage: generate
     script:
-        - mkdir cmake-build
-        - cd cmake-build
+        - mkdir cmake-build32
+        - cd cmake-build32
         - cmake ..
+        
+generate_cmake64:
+    stage: generate
+    script:
+        - mkdir cmake-build64
+        - cd cmake-build64
+        - cmake ..
+    
+build_debug32:
+    stage: build
+    dependencies:
+        - generate_cmake32
+    script:
+        - cd cmake-build32
+        - cmake --build . --config Debug -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32"
+    artifacts:
+        paths:
+            - cmake-build32/
+            
+build_release32:
+    stage: build
+    dependencies:
+        - generate_cmake32
+    script:
+        - cd cmake-build32
+        - cmake --build . --config Release -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32"
+    artifacts:
+        paths:
+            - cmake-build32/
+
+build_debug64:
+    stage: build
+    dependencies:
+        - generate_cmake64
+    script:
+        - cd cmake-build64
         - cmake --build . --config Debug
     artifacts:
         paths:
-            - cmake-build/
-
-test:
+            - cmake-build64/
+            
+build_release64:
+    stage: build
+    dependencies:
+        - generate_cmake64
+    script:
+        - cd cmake-build64
+        - cmake --build . --config Release
+    artifacts:
+        paths:
+            - cmake-build64/
+            
+test_debug32:
     stage: test
     dependencies:
-        - build
+        - build_debug32
     script:
-        - cd cmake-build
+        - cd cmake-build32
         - ctest -C Debug
+        
+test_release32:
+    stage: test
+    dependencies:
+        - build_release32
+    script:
+        - cd cmake-build32
+        - ctest -C Release
+        
+test_debug64:
+    stage: test
+    dependencies:
+        - build_debug64
+    script:
+        - cd cmake-build64
+        - ctest -C Debug
+        
+test_release64:
+    stage: test
+    dependencies:
+        - build_release64
+    script:
+        - cd cmake-build64
+        - ctest -C Release
