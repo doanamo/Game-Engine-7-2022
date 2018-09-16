@@ -10,7 +10,7 @@ generate_cmake32:
     script:
         - mkdir cmake-build32
         - cd cmake-build32
-        - cmake ..
+        - cmake .. --DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32" --DCMAKE_C_FLAGS="${CMAKE_CXX_FLAGS} -m32"
     artifacts:
         paths:
             - cmake-build32/
@@ -31,7 +31,7 @@ build_debug32:
         - generate_cmake32
     script:
         - cd cmake-build32
-        - cmake --build . --config Debug -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32"
+        - cmake --build . --config Debug
     artifacts:
         paths:
             - cmake-build32/
@@ -42,7 +42,7 @@ build_release32:
         - generate_cmake32
     script:
         - cd cmake-build32
-        - cmake --build . --config Release -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32"
+        - cmake --build . --config Release
     artifacts:
         paths:
             - cmake-build32/
