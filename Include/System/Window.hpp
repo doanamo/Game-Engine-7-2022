@@ -177,6 +177,8 @@ namespace System
             // Text input event.
             struct TextInput
             {
+                // Character is stored in UTF32 format here and can be
+                // converted to any other code point as the user wishes.
                 unsigned int character;
             };
 
