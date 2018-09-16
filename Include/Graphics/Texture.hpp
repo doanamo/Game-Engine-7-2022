@@ -108,4 +108,5 @@ namespace Graphics
     
     // Pointer type.
     using TexturePtr = std::shared_ptr<Texture>;
+    using ConstTexturePtr = std::shared_ptr<const Texture>;
 }

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Graphics/Texture.hpp"
+
 /*
     Graphics Sprite
 
@@ -31,9 +33,6 @@
 
 namespace Graphics
 {
-    // Forward declarations.
-    class Texture;
-
     // Sprite structure.
     struct Sprite
     {
@@ -47,9 +46,7 @@ namespace Graphics
             bool operator!=(const Info& other) const;
 
             // Shared batch info.
-            // #todo: Sprite should hold a shared pointer to the texture resource,
-            // as we are using this info struct inside Sprite component class.
-            const Texture* texture;
+            ConstTexturePtr texture;
             bool transparent;
             bool filter;
         } info;

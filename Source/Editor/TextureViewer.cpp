@@ -96,7 +96,7 @@ void TextureViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     {   
         Graphics::Sprite sprite;
         sprite.info.transparent = false;
-        sprite.info.texture = m_texture.get();
+        sprite.info.texture = m_texture;
         sprite.info.filter = true;
         sprite.data.rectangle = glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f);
         sprite.data.coords = glm::vec4(0.0f, 0.0f, m_texture->GetWidth(), m_texture->GetHeight());
