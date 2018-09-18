@@ -177,7 +177,7 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
         return false;
     }
 
-    for(int i = 0; i < info.attributeCount; ++i)
+    for(std::size_t i = 0; i < info.attributeCount; ++i)
     {
         const VertexAttribute& attribute = info.attributes[i];
 
@@ -243,7 +243,7 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
     int currentLocation = 0;
     int currentOffset = 0;
 
-    for(int i = 0; i < info.attributeCount; ++i)
+    for(std::size_t i = 0; i < info.attributeCount; ++i)
     {
         const VertexAttribute& attribute = info.attributes[i];
 
