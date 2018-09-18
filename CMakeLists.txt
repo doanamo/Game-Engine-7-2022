@@ -199,8 +199,8 @@ add_subdirectory("Tests")
 # Compiler specific settings.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Disable Standard C++ Library warnings.
-    set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
-    set_property(TARGET "Engine" APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
+    target_compile_definitions("Engine" PUBLIC "_CRT_SECURE_NO_WARNINGS")
+    target_compile_definitions("Engine" PUBLIC "_SCL_SECURE_NO_WARNINGS")
     
     # Use precompiled header for quicker compilation of static headers.
     set_source_files_properties(${SOURCE_FILES} PROPERTIES
@@ -210,9 +210,16 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\""
     )
+
+    # Disable exceptions.
+    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    target_compile_definitions("Engine" PUBLIC "_HAS_EXCEPTIONS=0")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Enable additional warnings.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    target_compile_options("Engine" PUBLIC "-Wall")
+    
+    # Disable exceptions.
+    target_compile_options("Engine" PUBLIC "-fno-exceptions")
 endif()
 
 # Keep folder structure of include and source files.
