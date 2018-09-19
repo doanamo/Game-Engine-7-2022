@@ -123,7 +123,7 @@ namespace Graphics
 
     // Template implementations.
     template<>
-    inline void Graphics::Shader::SetUniform(std::string name, const GLint& value)
+    inline void Shader::SetUniform(std::string name, const GLint& value)
     {
         VERIFY(m_handle != OpenGL::InvalidHandle);
 
@@ -139,7 +139,7 @@ namespace Graphics
     }
 
     template<>
-    inline void Graphics::Shader::SetUniform(std::string name, const glm::vec2& value)
+    inline void Shader::SetUniform(std::string name, const glm::vec2& value)
     {
         VERIFY(m_handle != OpenGL::InvalidHandle);
 
@@ -155,7 +155,7 @@ namespace Graphics
     }
 
     template<>
-    inline void Graphics::Shader::SetUniform(std::string name, const glm::mat4& value)
+    inline void Shader::SetUniform(std::string name, const glm::mat4& value)
     {
         VERIFY(m_handle != OpenGL::InvalidHandle);
 
