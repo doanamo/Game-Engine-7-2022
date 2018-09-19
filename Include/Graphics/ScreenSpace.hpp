@@ -58,6 +58,14 @@ namespace Graphics
         ScreenSpace();
         ~ScreenSpace();
 
+        // Disallow copying.
+        ScreenSpace(const ScreenSpace& other) = delete;
+        ScreenSpace& operator=(const ScreenSpace& other) = delete;
+
+        // Move constructor and assignment.
+        ScreenSpace(ScreenSpace&& other);
+        ScreenSpace& operator=(ScreenSpace&& other);
+
         // Sets the source size.
         // Needs to be set once to define maintained screen space size.
         void SetSourceSize(float width, float height);
