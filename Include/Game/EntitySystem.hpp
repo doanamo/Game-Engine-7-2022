@@ -42,55 +42,6 @@ namespace Game
     // Entity system class.
     class EntitySystem
     {
-    public:
-        EntitySystem();
-        ~EntitySystem();
-
-        // Disallow copying.
-        EntitySystem(const EntitySystem& other) = delete;
-        EntitySystem& operator=(const EntitySystem& other) = delete;
-
-        // Move constructor and assignment.
-        EntitySystem(EntitySystem&& other);
-        EntitySystem& operator=(EntitySystem&& other);
-
-        // Initializes the entity system.
-        bool Initialize();
-
-        // Creates an entity.
-        EntityHandle CreateEntity();
-
-        // Destroys an entity.
-        void DestroyEntity(const EntityHandle& entity);
-
-        // Destroys all entities.
-        void DestroyAllEntities();
-
-        // Process entity commands.
-        void ProcessCommands();
-
-        // Checks if an entity handle is valid.
-        bool IsHandleValid(const EntityHandle& entity) const;
-
-        // Returns the number of active entities.
-        unsigned int GetEntityCount() const
-        {
-            return m_entityCount;
-        }
-
-    public:
-        // Event that are dispatched on ProcessCommands() call.
-        struct Events
-        {
-            Events();
-
-            using EntityCreateDispatcher = Common::Dispatcher<bool(EntityHandle), Common::CollectWhileTrue>;
-            using EntityDestroyDispatcher = Common::Dispatcher<void(EntityHandle)>;
-
-            EntityCreateDispatcher entityCreate;
-            EntityDestroyDispatcher entityDestroy;
-        } events;
-
     private:
         // Handle flags.
         struct HandleFlags
@@ -151,9 +102,65 @@ namespace Game
         using FreeList = std::queue<HandleEntry*>;
         using CommandList = std::queue<EntityCommand>;
 
+    public:
+        EntitySystem();
+        ~EntitySystem();
+
+        // Disallow copying.
+        EntitySystem(const EntitySystem& other) = delete;
+        EntitySystem& operator=(const EntitySystem& other) = delete;
+
+        // Move constructor and assignment.
+        EntitySystem(EntitySystem&& other);
+        EntitySystem& operator=(EntitySystem&& other);
+
+        // Initializes the entity system.
+        bool Initialize();
+
+        // Creates an entity.
+        EntityHandle CreateEntity();
+
+        // Destroys an entity.
+        void DestroyEntity(const EntityHandle& entity);
+
+        // Destroys all entities.
+        void DestroyAllEntities();
+
+        // Process entity commands.
+        void ProcessCommands();
+
+        // Checks if an entity handle is valid.
+        bool IsHandleValid(const EntityHandle& entity) const;
+
+        // Returns current entity's flags.
+        HandleFlags::Type GetEntityFlags(const EntityHandle& entity);
+
+        // Returns the number of active entities.
+        unsigned int GetEntityCount() const
+        {
+            return m_entityCount;
+        }
+
+    public:
+        // Event that are dispatched on ProcessCommands() call.
+        struct Events
+        {
+            Events();
+
+            using EntityCreateDispatcher = Common::Dispatcher<bool(EntityHandle), Common::CollectWhileTrue>;
+            using EntityDestroyDispatcher = Common::Dispatcher<void(EntityHandle)>;
+
+            EntityCreateDispatcher entityCreate;
+            EntityDestroyDispatcher entityDestroy;
+        } events;
+
     private:
+        // Returns a handle entry.
+        const HandleEntry& GetHandleEntry(const EntityHandle& entity) const;
+        HandleEntry& GetHandleEntry(const EntityHandle& entity);
+
         // Frees an entity handle.
-        void FreeHandle(int handleIndex, HandleEntry& handleEntry);
+        void FreeHandle(HandleEntry& handleEntry);
 
     private:
         // List of commands.

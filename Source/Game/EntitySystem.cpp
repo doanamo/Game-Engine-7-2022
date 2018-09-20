@@ -151,9 +151,8 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
     if(!IsHandleValid(entity))
         return;
 
-    // Locate the handle entry.
-    int handleIndex = entity.identifier - StartingIdentifier;
-    HandleEntry& handleEntry = m_handleEntries[handleIndex];
+    // Retrieve the handle entry.
+    HandleEntry& handleEntry = this->GetHandleEntry(entity);
 
     // Check if entity is already marked to be destroyed.
     if(handleEntry.flags & HandleFlags::Destroy)
@@ -204,9 +203,8 @@ void EntitySystem::ProcessCommands()
         {
             case EntityCommands::Create:
             {
-                // Locate the handle entry.
-                int handleIndex = command.handle.identifier - StartingIdentifier;
-                HandleEntry& handleEntry = m_handleEntries[handleIndex];
+                // Retrieve the handle entry.
+                HandleEntry& handleEntry = this->GetHandleEntry(command.handle);
                 ASSERT(command.handle == handleEntry.handle);
 
                 // Inform that a new entity was created
@@ -219,7 +217,7 @@ void EntitySystem::ProcessCommands()
                     // Destroy the entity immediately and also inform
                     // systems that may have already processed it.
                     this->events.entityDestroy(handleEntry.handle);
-                    this->FreeHandle(handleIndex, handleEntry);
+                    this->FreeHandle(handleEntry);
                     break;
                 }
 
@@ -234,9 +232,8 @@ void EntitySystem::ProcessCommands()
 
             case EntityCommands::Destroy:
             {
-                // Locate the handle entry.
-                int handleIndex = command.handle.identifier - StartingIdentifier;
-                HandleEntry& handleEntry = m_handleEntries[handleIndex];
+                // Retrieve the handle entry.
+                HandleEntry& handleEntry = this->GetHandleEntry(command.handle);
                 ASSERT(command.handle == handleEntry.handle);
 
                 // Inform about an entity being destroyed
@@ -248,7 +245,7 @@ void EntitySystem::ProcessCommands()
 
                 // Free the entity handle and return it to the pool.
                 ASSERT(handleEntry.flags & HandleFlags::Destroy);
-                this->FreeHandle(handleIndex, handleEntry);
+                this->FreeHandle(handleEntry);
             }
             break;
         }
@@ -258,12 +255,64 @@ void EntitySystem::ProcessCommands()
     }
 }
 
-void EntitySystem::FreeHandle(int handleIndex, HandleEntry& handleEntry)
+bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
 {
     ASSERT(m_initialized, "Entity system has not been initialized!");
 
-    // Make sure we got the matching index.
-    ASSERT(&m_handleEntries[handleIndex] == &handleEntry);
+    // Retrieve the handle entry.
+    const HandleEntry& handleEntry = this->GetHandleEntry(entity);
+
+    // Make sure queried handle exists.
+    ASSERT(handleEntry.flags & HandleFlags::Exists,
+        "Queried entity handle is not marked as existing!");
+    
+    // Check if handle versions match.
+    if(handleEntry.handle.version != entity.version)
+        return false;
+
+    return true;
+}
+
+EntitySystem::HandleFlags::Type EntitySystem::GetEntityFlags(const EntityHandle& entity)
+{
+    ASSERT(m_initialized, "Entity system has not been initialized!");
+
+    // Retrieve the handle entry.
+    const HandleEntry& handleEntry = this->GetHandleEntry(entity);
+
+    // Check if handle versions match.
+    if(handleEntry.handle.version != entity.version)
+        return HandleFlags::Unused;
+    
+    // Return handle flags.
+    return handleEntry.flags;
+}
+
+const EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity) const
+{
+    ASSERT(m_initialized, "Entity system has not been initialized!");
+
+    // Calculate entity handle entry index.
+    int handleIndex = entity.identifier - StartingIdentifier;
+
+    // Make sure handle index is withing the expected range.
+    ASSERT(handleIndex >= 0, "Invalid entity handle identifier!");
+    ASSERT(handleIndex < (int)m_handleEntries.size(), "Invalid entity handle identifier!");
+
+    // Retrieve the handle entry.
+    return m_handleEntries[handleIndex];
+}
+
+EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity)
+{
+    ASSERT(m_initialized, "Entity system has not been initialized!");
+
+    return const_cast<HandleEntry&>(const_cast<const EntitySystem*>(this)->GetHandleEntry(entity));
+}
+
+void EntitySystem::FreeHandle(HandleEntry& handleEntry)
+{
+    ASSERT(m_initialized, "Entity system has not been initialized!");
 
     // Make sure that flags are correct.
     // Does not have to be created yet, as creation process may fail.
@@ -277,28 +326,4 @@ void EntitySystem::FreeHandle(int handleIndex, HandleEntry& handleEntry)
 
     // Add the handle entry to the free list queue.
     m_freeHandles.emplace(&handleEntry);
-}
-
-bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
-{
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
-    // Calculate entity handle entry index.
-    int handleIndex = entity.identifier - StartingIdentifier;
-
-    // Make sure handle index is withing the expected range.
-    ASSERT(handleIndex >= 0, "Invalid entity handle identifier!");
-    ASSERT(handleIndex < (int)m_handleEntries.size(), "Invalid entity handle identifier!");
-
-    // Retrieve the handle entry.
-    const HandleEntry& handleEntry = m_handleEntries[handleIndex];
-
-    // Make sure queried handle is valid.
-    ASSERT(handleEntry.flags & HandleFlags::Exists, "Queried entity handle is not marked as existing!");
-    
-    // Check if handle versions match.
-    if(handleEntry.handle.version != entity.version)
-        return false;
-
-    return true;
 }
