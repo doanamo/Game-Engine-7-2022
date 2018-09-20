@@ -14,6 +14,8 @@
 
     Manages a pool for a single type of a component.
     See ComponentSystem for more context.
+
+    #todo: Add a way to iterate over a list of components in a pool using for each loop.
 */
 
 namespace Game

@@ -8,7 +8,8 @@
 using namespace Game;
 
 ComponentSystem::ComponentSystem() :
-    m_initialized(false)
+    m_initialized(false),
+    m_entitySystem(nullptr)
 {
     // Bind event receiver.
     m_entityCreate.Bind<ComponentSystem, &ComponentSystem::OnEntityCreate>(this);
@@ -30,27 +31,40 @@ ComponentSystem& ComponentSystem::operator=(ComponentSystem&& other)
 {
     // Swap class members.
     std::swap(m_initialized, other.m_initialized);
+    std::swap(m_entitySystem, other.m_entitySystem);
     std::swap(m_pools, other.m_pools);
     std::swap(m_entityDestroy, other.m_entityDestroy);
 
     return *this;
 }
 
-bool ComponentSystem::Initialize(EntitySystem& entitySystem)
-{   
+bool ComponentSystem::Initialize(EntitySystem* entitySystem)
+{
     LOG() << "Initializing component system..." << LOG_INDENT();
 
     // Make sure we are not initializing twice.
     ASSERT(!m_initialized, "Component system instance has already been initialized!");
 
+    // Reset class instance if initialization fails.
+    SCOPE_GUARD_IF(!m_initialized, *this = ComponentSystem());
+
+    // Save entity system reference.
+    if(entitySystem == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"entitySystem\" is null!";
+        return false;
+    }
+
+    m_entitySystem = entitySystem;
+
     // Receive events from the entity system.
-    if(!m_entityCreate.Subscribe(entitySystem.events.entityCreate))
+    if(!m_entityCreate.Subscribe(entitySystem->events.entityCreate))
     {
         LOG_ERROR() << "Failed to subscribe to entity system!";
         return false;
     }
 
-    if(!m_entityDestroy.Subscribe(entitySystem.events.entityDestroy))
+    if(!m_entityDestroy.Subscribe(entitySystem->events.entityDestroy))
     {
         LOG_ERROR() << "Failed to subscribe to entity system!";
         return false;
@@ -86,4 +100,9 @@ void ComponentSystem::OnEntityDestroy(EntityHandle handle)
         auto& pool = pair.second;
         pool->DestroyComponent(handle);
     }
+}
+
+EntitySystem* ComponentSystem::GetEntitySystem() const
+{
+    return m_entitySystem;
 }

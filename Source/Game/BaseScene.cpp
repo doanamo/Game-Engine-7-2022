@@ -65,7 +65,7 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
     // Initialize the component system.
     // Stores and manages components that entities have.
-    if(!componentSystem.Initialize(entitySystem))
+    if(!componentSystem.Initialize(&entitySystem))
     {
         LOG_ERROR() << "Could not initialize component system!";
         return false;

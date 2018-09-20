@@ -69,7 +69,7 @@ namespace Game
         ComponentSystem& operator=(ComponentSystem&& other);
 
         // Initializes the component system.
-        bool Initialize(EntitySystem& entitySystem);
+        bool Initialize(EntitySystem* entitySystem);
 
         // Creates a component.
         template<typename ComponentType>
@@ -83,10 +83,6 @@ namespace Game
         template<typename ComponentType>
         bool Destroy(EntityHandle handle);
 
-        // Gets a component pool.
-        template<typename ComponentType>
-        ComponentPool<ComponentType>* GetPool();
-
         // Gets the begin iterator.
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator Begin();
@@ -95,7 +91,14 @@ namespace Game
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator End();
 
+        // Gets the entity system reference.
+        EntitySystem* GetEntitySystem() const;
+
     private:
+        // Gets a component pool.
+        template<typename ComponentType>
+        ComponentPool<ComponentType>* GetPool();
+
         // Creates a component type.
         template<typename ComponentType>
         ComponentPool<ComponentType>* CreatePool();
@@ -110,6 +113,9 @@ namespace Game
     private:
         // Initialization state.
         bool m_initialized;
+
+        // Entity system.
+        EntitySystem* m_entitySystem;
 
         // Component pools.
         ComponentPoolList m_pools;

@@ -124,14 +124,13 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         Graphics::SpriteList spriteList;
 
         // Get all sprite components.
-        auto* spriteComponentPool = componentSystem.GetPool<Components::Sprite>();
-        ASSERT(spriteComponentPool != nullptr, "Received a null component pool!");
-
-        for(auto& spriteComponentEntry : *spriteComponentPool)
+        for(auto it = componentSystem.Begin<Components::Sprite>(); 
+            it != componentSystem.End<Components::Sprite>(); ++it)
         {
             // Get entity components.
             // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
-            Components::Sprite& spriteComponent = spriteComponentEntry.component;
+            // We can modify a component handle and cause undefined behaviour if we want.
+            Components::Sprite& spriteComponent = it->component;
             Components::Transform* transformComponent = spriteComponent.GetTransform();
             ASSERT(transformComponent != nullptr, "Required component is missing!");
 
