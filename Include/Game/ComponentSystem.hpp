@@ -7,6 +7,7 @@
 #include <memory>
 #include <typeindex>
 #include "Events/Receiver.hpp"
+#include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 
 /*
@@ -145,7 +146,7 @@ namespace Game
         if(component != nullptr)
         {
             // Check if entity has already been created and has its components initialized.
-            // If yes, initialize the created component right away.
+            // If entity has already been created, initialize the component right away.
             EntitySystem::HandleFlags::Type entityFlags = m_entitySystem->GetEntityFlags(handle);
 
             if(entityFlags & EntitySystem::HandleFlags::Created)
