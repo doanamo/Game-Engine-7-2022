@@ -79,10 +79,6 @@ namespace Game
         template<typename ComponentType>
         ComponentType* Lookup(EntityHandle handle);
 
-        // Destroys a component.
-        template<typename ComponentType>
-        bool Destroy(EntityHandle handle);
-
         // Gets the begin iterator.
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator Begin();
@@ -95,6 +91,11 @@ namespace Game
         EntitySystem* GetEntitySystem() const;
 
     private:
+        // Destroys a component.
+        // Cannot be called freely when a component is alive.
+        template<typename ComponentType>
+        bool Destroy(EntityHandle handle);
+
         // Gets a component pool.
         template<typename ComponentType>
         ComponentPool<ComponentType>* GetPool();
@@ -138,8 +139,30 @@ namespace Game
         ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
         ASSERT(pool != nullptr, "Retrieved a null component pool!");
 
-        // Create and return a new component.
-        return pool->CreateComponent(handle);
+        // Create a new component.
+        ComponentType* component = pool->CreateComponent(handle);
+
+        if(component != nullptr)
+        {
+            // Check if entity has already been created and has its components initialized.
+            // If yes, initialize the created component right away.
+            EntitySystem::HandleFlags::Type entityFlags = m_entitySystem->GetEntityFlags(handle);
+
+            if(entityFlags & EntitySystem::HandleFlags::Created)
+            {
+                // Initialize the component.
+                if(!pool->InitializeComponent(handle))
+                {
+                    // Destroy component if initialization fails.
+                    bool destroyResult = pool->DestroyComponent(handle);
+                    ASSERT(destroyResult, "Could not destroy a known component!");
+                    return nullptr;
+                }
+            }
+        }
+
+        // Return the created component.
+        return component;
     }
 
     template<typename ComponentType>
@@ -175,6 +198,26 @@ namespace Game
     }
 
     template<typename ComponentType>
+    ComponentPool<ComponentType>* ComponentSystem::GetPool()
+    {
+        ASSERT(m_initialized, "Component system instance is not initialized!");
+
+        // Validate component type.
+        static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
+
+        // Find pool by component type.
+        auto it = m_pools.find(typeid(ComponentType));
+        if(it == m_pools.end())
+        {
+            // Create a new component pool.
+            return this->CreatePool<ComponentType>();
+        }
+
+        // Cast and return the pointer that we already know is a component pool.
+        return reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
+    }
+
+    template<typename ComponentType>
     ComponentPool<ComponentType>* ComponentSystem::CreatePool()
     {
         ASSERT(m_initialized, "Component system instance is not initialized!");
@@ -193,26 +236,6 @@ namespace Game
 
         // Return the created pool.
         return reinterpret_cast<ComponentPool<ComponentType>*>(result.first->second.get());
-    }
-
-    template<typename ComponentType>
-    ComponentPool<ComponentType>* ComponentSystem::GetPool()
-    {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
-        // Validate component type.
-        static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
-
-        // Find pool by component type.
-        auto it = m_pools.find(typeid(ComponentType));
-        if(it == m_pools.end())
-        {
-            // Create a new component pool.
-            return this->CreatePool<ComponentType>();
-        }
-
-        // Cast and return the pointer that we already know is a component pool.
-        return reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
     }
 
     template<typename ComponentType>

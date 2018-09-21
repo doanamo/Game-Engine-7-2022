@@ -42,7 +42,7 @@ namespace Game
     // Entity system class.
     class EntitySystem
     {
-    private:
+    public:
         // Handle flags.
         struct HandleFlags
         {
@@ -69,6 +69,7 @@ namespace Game
             using Type = unsigned int;
         };
 
+    private:
         // Handle entry structure.
         struct HandleEntry
         {

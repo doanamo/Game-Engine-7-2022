@@ -129,7 +129,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         {
             // Get entity components.
             // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
-            // We can modify a component handle and cause undefined behaviour if we want.
+            // We can modify a component handle and cause undefined behavior if we want.
             Components::Sprite& spriteComponent = it->component;
             Components::Transform* transformComponent = spriteComponent.GetTransform();
             ASSERT(transformComponent != nullptr, "Required component is missing!");
