@@ -303,3 +303,10 @@ set_property(TARGET "png_static" PROPERTY FOLDER "External")
 
 set_property(TARGET "genfiles" PROPERTY PROJECT_LABEL "libpngconf")
 set_property(TARGET "genfiles" PROPERTY FOLDER "External")
+
+# Add Lua library.
+add_subdirectory("External/Lua-5.3.5" "External/Lua" EXCLUDE_FROM_ALL)
+target_link_libraries("Engine" "lua_static")
+
+set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "Lua")
+set_property(TARGET "lua_static" PROPERTY FOLDER "External")
