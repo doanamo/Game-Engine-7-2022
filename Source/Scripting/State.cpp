@@ -187,3 +187,15 @@ bool State::CollectGarbage(bool singleStep)
         return false;
     }
 }
+
+bool State::IsValid() const
+{
+    return m_initialized;
+}
+
+State::operator lua_State*()
+{
+    VERIFY(m_initialized, "Scripting state has not been initialized!");
+
+    return m_state;
+}

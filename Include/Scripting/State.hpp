@@ -57,6 +57,13 @@ namespace Scripting
         // Returns whether there is more garbage left to collect.
         bool CollectGarbage(bool singleStep);
 
+        // Checks if instance is valid.
+        bool IsValid() const;
+
+        // Conversion operator.
+        // Allows instance of this class to be used with Lua C functions.
+        operator lua_State*();
+
     private:
         // Lua scripting state.
         lua_State* m_state;
