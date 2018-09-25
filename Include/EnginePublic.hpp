@@ -41,6 +41,9 @@
 // libpng
 #include <png.h>
 
+// Lua
+#include <lua.hpp>
+
 // Project
 #include "Common/Build.hpp"
 #include "Common/Debug.hpp"
