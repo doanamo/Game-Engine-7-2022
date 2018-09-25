@@ -50,6 +50,13 @@ namespace Scripting
         // Prints and pops an error on the stack.
         void PrintError();
 
+        // Discards remaining objects on the stack.
+        void CleanStack();
+
+        // Collects memory garbage.
+        // Returns whether there is more garbage left to collect.
+        bool CollectGarbage(bool singleStep);
+
     private:
         // Lua scripting state.
         lua_State* m_state;

@@ -156,3 +156,34 @@ void State::PrintError()
     // Pop error string from the stack.
     lua_pop(m_state, 1);
 }
+
+void State::CleanStack()
+{
+    VERIFY(m_initialized, "Scripting state has not been initialized!");
+
+    // Discard remaining objects on the stack.
+    int size = lua_gettop(m_state);
+
+    if(size != 0)
+    {
+        LOG_DEBUG() << "Cleaning " << size << " remaining objects on the stack...";
+        lua_settop(m_state, 0);
+    }
+}
+
+bool State::CollectGarbage(bool singleStep)
+{
+    VERIFY(m_initialized, "Scripting state has not been initialized!");
+
+    if(singleStep)
+    {
+        // Perform only one step of the garbage collection process.
+        return lua_gc(m_state, LUA_GCSTEP, 0) == 0;
+    }
+    else
+    {
+        // Immediately collect all garbage at once.
+        lua_gc(m_state, LUA_GCCOLLECT, 0);
+        return false;
+    }
+}
