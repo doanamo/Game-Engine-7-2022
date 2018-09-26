@@ -3,9 +3,11 @@
 */
 
 #include "Precompiled.hpp"
-#include "Components/CameraComponent.hpp"
-#include "Components/TransformComponent.hpp"
+#include "Game/Components/CameraComponent.hpp"
+#include "Game/Components/TransformComponent.hpp"
 #include "Game/ComponentSystem.hpp"
+
+using namespace Game;
 using namespace Components;
 
 Camera::Camera() :
@@ -21,7 +23,7 @@ Camera::~Camera()
 {
 }
 
-bool Camera::OnInitialize(Game::ComponentSystem* componentSystem, const Game::EntityHandle& entitySelf)
+bool Camera::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
     // Retrieve the transform component.
     m_transform = componentSystem->Lookup<Transform>(entitySelf);

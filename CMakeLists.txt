@@ -114,12 +114,12 @@ set(SOURCE_FILES
     "Include/Game/SceneRenderer.hpp"
     "Source/Game/SceneRenderer.cpp"
 
-    "Include/Components/TransformComponent.hpp"
-    "Source/Components/TransformComponent.cpp"
-    "Include/Components/CameraComponent.hpp"
-    "Source/Components/CameraComponent.cpp"
-    "Include/Components/SpriteComponent.hpp"
-    "Source/Components/SpriteComponent.cpp"
+    "Include/Game/Components/TransformComponent.hpp"
+    "Source/Game/Components/TransformComponent.cpp"
+    "Include/Game/Components/CameraComponent.hpp"
+    "Source/Game/Components/CameraComponent.cpp"
+    "Include/Game/Components/SpriteComponent.hpp"
+    "Source/Game/Components/SpriteComponent.cpp"
 )
 
 #

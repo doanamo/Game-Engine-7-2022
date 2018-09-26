@@ -5,9 +5,9 @@
 #include "Precompiled.hpp"
 #include "Game/SceneRenderer.hpp"
 #include "Game/BaseScene.hpp"
-#include "Components/TransformComponent.hpp"
-#include "Components/CameraComponent.hpp"
-#include "Components/SpriteComponent.hpp"
+#include "Game/Components/TransformComponent.hpp"
+#include "Game/Components/CameraComponent.hpp"
+#include "Game/Components/SpriteComponent.hpp"
 #include "Engine.hpp"
 using namespace Game;
 

@@ -3,9 +3,11 @@
 */
 
 #include "Precompiled.hpp"
-#include "Components/SpriteComponent.hpp"
-#include "Components/TransformComponent.hpp"
+#include "Game/Components/SpriteComponent.hpp"
+#include "Game/Components/TransformComponent.hpp"
 #include "Game/ComponentSystem.hpp"
+
+using namespace Game;
 using namespace Components;
 
 Sprite::Sprite() :
@@ -17,9 +19,9 @@ Sprite::~Sprite()
 {
 }
 
-bool Sprite::OnInitialize(Game::ComponentSystem* componentSystem, const Game::EntityHandle& entitySelf)
+bool Sprite::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
-    m_transform = componentSystem->Lookup<Components::Transform>(entitySelf);
+    m_transform = componentSystem->Lookup<Transform>(entitySelf);
     if(m_transform == nullptr) return false;
 
     return true;

@@ -3,7 +3,9 @@
 */
 
 #include "Precompiled.hpp"
-#include "Components/Transform.hpp"
+#include "Game/Components/TransformComponent.hpp"
+
+using namespace Game;
 using namespace Components;
 
 Transform::Transform() :
