@@ -5,15 +5,15 @@
 #pragma once
 
 /*
-    Scripting State
+    Script State
 
     Holds and manages Lua scripting state.
 */
 
-namespace Scripting
+namespace Scripts
 {
     // Scripting state class.
-    class State
+    class ScriptState
     {
     public:
         // Loads state from a text.
@@ -29,14 +29,14 @@ namespace Scripting
         };
 
     public:
-        State();
-        ~State();
+        ScriptState();
+        ~ScriptState();
 
-        State(const State& other) = delete;
-        State& operator=(const State& other) = delete;
+        ScriptState(const ScriptState& other) = delete;
+        ScriptState& operator=(const ScriptState& other) = delete;
 
-        State(State&& other);
-        State& operator=(State&& other);
+        ScriptState(ScriptState&& other);
+        ScriptState& operator=(ScriptState&& other);
 
         // Initializes the scripting state.
         bool Initialize();

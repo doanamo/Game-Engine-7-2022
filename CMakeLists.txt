@@ -86,8 +86,8 @@ set(SOURCE_FILES
     "Include/Graphics/SpriteRenderer.hpp"
     "Source/Graphics/SpriteRenderer.cpp"
 
-    "Include/Scripting/State.hpp"
-    "Source/Scripting/State.cpp"
+    "Include/Scripts/ScriptState.hpp"
+    "Source/Scripts/ScriptState.cpp"
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"

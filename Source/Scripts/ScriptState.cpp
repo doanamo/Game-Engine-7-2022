@@ -3,8 +3,8 @@
 */
 
 #include "Precompiled.hpp"
-#include "Scripting/State.hpp"
-using namespace Scripting;
+#include "Scripts/ScriptState.hpp"
+using namespace Scripts;
 
 namespace
 {
@@ -25,13 +25,13 @@ namespace
     }
 }
 
-State::State() :
+ScriptState::ScriptState() :
     m_state(nullptr),
     m_initialized(false)
 {
 }
 
-State::~State()
+ScriptState::~ScriptState()
 {
     if(m_state != nullptr)
     {
@@ -39,13 +39,13 @@ State::~State()
     }
 }
 
-State::State(State&& other)
+ScriptState::ScriptState(ScriptState&& other)
 {
     // Call the move assignment operator.
     *this = std::move(other);
 }
 
-State& State::operator=(State&& other)
+ScriptState& ScriptState::operator=(ScriptState&& other)
 {
     // Swap class members.
     std::swap(m_state, other.m_state);
@@ -54,15 +54,15 @@ State& State::operator=(State&& other)
     return *this;
 }
 
-bool State::Initialize()
+bool ScriptState::Initialize()
 {
-    LOG() << "Initializing scripting state..." << LOG_INDENT();
+    LOG() << "Initializing script state..." << LOG_INDENT();
 
     // Check if state has already been initialized.
-    VERIFY(!m_initialized, "Scripting state has already been initialized!");
+    VERIFY(!m_initialized, "Script state has already been initialized!");
 
     // Setup a cleanup guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = State());
+    SCOPE_GUARD_IF(!m_initialized, *this = ScriptState());
 
     // Create Lua state.
     m_state = luaL_newstate();
@@ -95,9 +95,9 @@ bool State::Initialize()
     return m_initialized = true;
 }
 
-bool State::Initialize(const LoadFromText& parameters)
+bool ScriptState::Initialize(const LoadFromText& parameters)
 {
-    LOG() << "Loading scripting state from text..." << LOG_INDENT();
+    LOG() << "Loading script state from text..." << LOG_INDENT();
 
     // Call the main initialization methods.
     if(!this->Initialize())
@@ -105,7 +105,7 @@ bool State::Initialize(const LoadFromText& parameters)
 
     // Setup a cleanup method.
     bool initialized = false;
-    SCOPE_GUARD_IF(!initialized, *this = State());
+    SCOPE_GUARD_IF(!initialized, *this = ScriptState());
 
     // Parse the text string.
     if(luaL_dostring(m_state, parameters.scriptText.c_str()) != 0)
@@ -119,9 +119,9 @@ bool State::Initialize(const LoadFromText& parameters)
     return initialized = true;
 }
 
-bool State::Initialize(const LoadFromFile& parameters)
+bool ScriptState::Initialize(const LoadFromFile& parameters)
 {
-    LOG() << "Loading scripting state from \"" << parameters.filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Loading script state from \"" << parameters.filePath << "\" file..." << LOG_INDENT();
 
     // Call the main initialization methods.
     if(!this->Initialize())
@@ -129,7 +129,7 @@ bool State::Initialize(const LoadFromFile& parameters)
 
     // Setup a cleanup method.
     bool initialized = false;
-    SCOPE_GUARD_IF(!initialized, *this = State());
+    SCOPE_GUARD_IF(!initialized, *this = ScriptState());
 
     // Parse the text file.
     if(luaL_dofile(m_state, parameters.filePath.c_str()) != 0)
@@ -143,7 +143,7 @@ bool State::Initialize(const LoadFromFile& parameters)
     return initialized = true;
 }
 
-void State::PrintError()
+void ScriptState::PrintError()
 {
     VERIFY(m_initialized, "Scripting state has not been initialized!");
 
@@ -157,7 +157,7 @@ void State::PrintError()
     lua_pop(m_state, 1);
 }
 
-void State::CleanStack()
+void ScriptState::CleanStack()
 {
     VERIFY(m_initialized, "Scripting state has not been initialized!");
 
@@ -171,9 +171,9 @@ void State::CleanStack()
     }
 }
 
-bool State::CollectGarbage(bool singleStep)
+bool ScriptState::CollectGarbage(bool singleStep)
 {
-    VERIFY(m_initialized, "Scripting state has not been initialized!");
+    VERIFY(m_initialized, "Script state has not been initialized!");
 
     if(singleStep)
     {
@@ -188,14 +188,14 @@ bool State::CollectGarbage(bool singleStep)
     }
 }
 
-bool State::IsValid() const
+bool ScriptState::IsValid() const
 {
     return m_initialized;
 }
 
-State::operator lua_State*()
+ScriptState::operator lua_State*()
 {
-    VERIFY(m_initialized, "Scripting state has not been initialized!");
+    VERIFY(m_initialized, "Script state has not been initialized!");
 
     return m_state;
 }
