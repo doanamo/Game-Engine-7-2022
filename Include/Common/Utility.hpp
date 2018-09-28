@@ -33,15 +33,16 @@ namespace Utility
         return Size;
     }
 
-    // Casts a number of one type into another.
+    // Safely casts numerical types without any data loss.
     // Checks in debug if conversion will lead to any loss of data.
     // This is useful when dealing with libraries which do not fully
     // convert from 32bit to 64bit types on their own (e.g. OpenGL).
     template<typename Target, typename Source>
     Target NumericalCast(const Source& value)
     {
-        static_assert(std::is_integral<Target>::value, "Target type is not an integral type!");
-        static_assert(std::is_integral<Source>::value, "Source type is not an integral type!");
+        // This should work with floating point numbers as well.
+        //static_assert(std::is_integral<Target>::value, "Target type is not an integral type!");
+        //static_assert(std::is_integral<Source>::value, "Source type is not an integral type!");
 
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
             "Numerical conversion failed due to data loss!");
