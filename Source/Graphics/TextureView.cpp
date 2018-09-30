@@ -17,9 +17,25 @@ TextureView::~TextureView()
 {
 }
 
+TextureView::TextureView(TexturePtr texture)
+{
+    this->SetTexture(texture);
+}
+
+TextureView::TextureView(TexturePtr texture, glm::ivec4 rectangle)
+{
+    this->SetTexture(texture);
+    this->SetRectangle(rectangle);
+}
+
+TextureView::TextureView(TexturePtr texture, glm::vec4 coordinates)
+{
+    this->SetTexture(texture);
+    this->SetCoordinates(coordinates);
+}
+
 TextureView::TextureView(const TextureView& other)
 {
-    // Call the assignment.
     *this = other;
 }
 
@@ -33,7 +49,6 @@ TextureView& TextureView::operator=(const TextureView& other)
 
 TextureView::TextureView(TextureView&& other)
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
@@ -61,6 +76,10 @@ void TextureView::SetRectangle(const glm::ivec4 rect)
         m_coordinates.z = (float)rect.z / m_texture->GetWidth();
         m_coordinates.w = (float)rect.w / m_texture->GetHeight();
     }
+    else
+    {
+        m_coordinates = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    }
 }
 
 void TextureView::SetCoordinates(const glm::vec4 coords)
@@ -77,7 +96,7 @@ glm::ivec4 TextureView::GetRectangle() const
 {
     ASSERT(m_texture != nullptr, "Cannot get texture view rectangle without texture!");
 
-    glm::ivec4 rectangle(0);
+    glm::ivec4 rectangle(0, 0, 0, 0);
 
     if(m_texture)
     {

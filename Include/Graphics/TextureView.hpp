@@ -26,6 +26,10 @@ namespace Graphics
         TextureView();
         ~TextureView();
 
+        TextureView(TexturePtr texture);
+        TextureView(TexturePtr texture, glm::ivec4 rectangle);
+        TextureView(TexturePtr texture, glm::vec4 coordinates);
+
         TextureView(const TextureView& other);
         TextureView& operator=(const TextureView& other);
 
