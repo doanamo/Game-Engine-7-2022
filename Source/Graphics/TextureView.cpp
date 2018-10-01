@@ -17,18 +17,21 @@ TextureView::~TextureView()
 {
 }
 
-TextureView::TextureView(TexturePtr texture)
+TextureView::TextureView(ConstTexturePtr texture) :
+    TextureView()
 {
     this->SetTexture(texture);
 }
 
-TextureView::TextureView(TexturePtr texture, glm::ivec4 rectangle)
+TextureView::TextureView(ConstTexturePtr texture, glm::ivec4 rectangle) :
+    TextureView()
 {
     this->SetTexture(texture);
     this->SetRectangle(rectangle);
 }
 
-TextureView::TextureView(TexturePtr texture, glm::vec4 coordinates)
+TextureView::TextureView(ConstTexturePtr texture, glm::vec4 coordinates) :
+    TextureView()
 {
     this->SetTexture(texture);
     this->SetCoordinates(coordinates);
@@ -60,7 +63,7 @@ TextureView& TextureView::operator=(TextureView&& other)
     return *this;
 }
 
-void TextureView::SetTexture(TexturePtr texture)
+void TextureView::SetTexture(ConstTexturePtr texture)
 {
     m_texture = texture;
 }
@@ -87,7 +90,7 @@ void TextureView::SetCoordinates(const glm::vec4 coords)
     m_coordinates = coords;
 }
 
-TextureView::TexturePtr TextureView::GetTexture() const
+TextureView::ConstTexturePtr TextureView::GetTexture() const
 {
     return m_texture;
 }

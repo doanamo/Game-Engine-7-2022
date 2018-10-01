@@ -20,15 +20,15 @@ namespace Graphics
     {
     public:
         // Type declarations.
-        using TexturePtr = std::shared_ptr<const Texture>;
+        using ConstTexturePtr = std::shared_ptr<const Texture>;
 
     public:
         TextureView();
         ~TextureView();
 
-        TextureView(TexturePtr texture);
-        TextureView(TexturePtr texture, glm::ivec4 rectangle);
-        TextureView(TexturePtr texture, glm::vec4 coordinates);
+        TextureView(ConstTexturePtr texture);
+        TextureView(ConstTexturePtr texture, glm::ivec4 rectangle);
+        TextureView(ConstTexturePtr texture, glm::vec4 coordinates);
 
         TextureView(const TextureView& other);
         TextureView& operator=(const TextureView& other);
@@ -37,7 +37,7 @@ namespace Graphics
         TextureView& operator=(TextureView&& other);
 
         // Sets the texture reference.
-        void SetTexture(TexturePtr texture);
+        void SetTexture(ConstTexturePtr texture);
 
         // Sets the texture rectangle in pixel space.
         void SetRectangle(const glm::ivec4 rect);
@@ -46,7 +46,7 @@ namespace Graphics
         void SetCoordinates(const glm::vec4 coords);
 
         // Gets the texture reference.
-        TexturePtr GetTexture() const;
+        ConstTexturePtr GetTexture() const;
 
         // Gets the texture rectangle in pixel space.
         glm::ivec4 GetRectangle() const;
@@ -56,7 +56,7 @@ namespace Graphics
 
     private:
         // Texture reference.
-        TexturePtr m_texture;
+        ConstTexturePtr m_texture;
 
         // Texture coordinates.
         glm::vec4 m_coordinates;
