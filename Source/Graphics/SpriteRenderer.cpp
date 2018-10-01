@@ -42,7 +42,6 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
     // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_vertexBuffer, other.m_vertexBuffer);
-    std::swap(m_dataBuffer, other.m_dataBuffer);
     std::swap(m_instanceBuffer, other.m_instanceBuffer);
     std::swap(m_vertexArray, other.m_vertexArray);
     std::swap(m_nearestSampler, other.m_nearestSampler);
@@ -104,23 +103,10 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         return false;
     }
 
-    // Create the data buffer.
-    BufferInfo dataBufferInfo;
-    dataBufferInfo.usage = GL_STREAM_DRAW;
-    dataBufferInfo.elementSize = sizeof(Sprite::Data);
-    dataBufferInfo.elementCount = spriteBatchSize;
-    dataBufferInfo.data = nullptr;
-
-    if(!m_dataBuffer.Initialize(renderContext, dataBufferInfo))
-    {
-        LOG_ERROR() << "Could not create data buffer!";
-        return false;
-    }
-
     // Create the instance buffer.
     BufferInfo instanceBufferInfo;
     instanceBufferInfo.usage = GL_STREAM_DRAW;
-    instanceBufferInfo.elementSize = sizeof(Sprite::Instance);
+    instanceBufferInfo.elementSize = sizeof(Sprite::Data);
     instanceBufferInfo.elementCount = spriteBatchSize;
     instanceBufferInfo.data = nullptr;
 
@@ -135,10 +121,10 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     {
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Position
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Texture
-        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
-        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coords
-        { &m_dataBuffer,     VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
         { &m_instanceBuffer, VertexAttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coords
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
     };
 
     Graphics::VertexArrayInfo vertexArrayInfo;
@@ -215,7 +201,6 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
     // Get sprite info and data arrays.
     const auto& spriteInfo = sprites.GetSpriteInfo();
     const auto& spriteData = sprites.GetSpriteData();
-    const auto& spriteInstance = sprites.GetSpriteInstance();
 
     // Render sprite batches.
     std::size_t spritesDrawn = 0;
@@ -246,8 +231,7 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
         }
 
         // Update buffer with sprite data and instances.
-        m_dataBuffer.Update(&spriteData[spritesDrawn], spritesBatched);
-        m_instanceBuffer.Update(&spriteInstance[spritesDrawn], spritesBatched);
+        m_instanceBuffer.Update(&spriteData[spritesDrawn], spritesBatched);
 
         // Set batch render state.
         if(batchInfo.transparent)
@@ -275,7 +259,7 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
             renderState.BindTexture(GL_TEXTURE_2D, batchInfo.texture->GetHandle());
 
             // Bind texture sampler.
-            if(batchInfo.filter)
+            if(batchInfo.filtered)
             {
                 renderState.BindSampler(0, m_linearSampler.GetHandle());
             }

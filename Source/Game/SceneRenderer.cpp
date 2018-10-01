@@ -127,18 +127,24 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         for(auto it = componentSystem.Begin<Components::Sprite>(); 
             it != componentSystem.End<Components::Sprite>(); ++it)
         {
-            // Get entity components.
+            // Get the sprite component.
             // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
             // We can modify a component handle and cause undefined behavior if we want.
             Components::Sprite& spriteComponent = it->component;
-            Components::Transform* transformComponent = spriteComponent.GetTransform();
-            ASSERT(transformComponent != nullptr, "Required component is missing!");
+
+            // Get the transform component.
+            Components::Transform* transformComponent = spriteComponent.GetTransformComponent();
+            ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
             // Add a sprite to the draw list.
             Graphics::Sprite sprite;
-            sprite.info = spriteComponent.info;
-            sprite.data = spriteComponent.data;
-            sprite.instance.transform = transformComponent->CalculateMatrix();
+            sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
+            sprite.info.transparent = spriteComponent.IsTransparent();
+            sprite.info.filtered = spriteComponent.IsFiltered();
+            sprite.data.transform = transformComponent->CalculateMatrix();
+            sprite.data.rectangle = spriteComponent.GetRectangle();
+            sprite.data.coords = spriteComponent.GetTextureView().GetPixelRect();
+            sprite.data.color = spriteComponent.GetColor();
 
             spriteList.AddSprite(sprite);
         }

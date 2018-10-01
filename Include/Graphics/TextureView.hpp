@@ -27,8 +27,8 @@ namespace Graphics
         ~TextureView();
 
         TextureView(ConstTexturePtr texture);
-        TextureView(ConstTexturePtr texture, glm::ivec4 rectangle);
-        TextureView(ConstTexturePtr texture, glm::vec4 coordinates);
+        TextureView(ConstTexturePtr texture, glm::ivec4 pixelRect);
+        TextureView(ConstTexturePtr texture, glm::vec4 normalRect);
 
         TextureView(const TextureView& other);
         TextureView& operator=(const TextureView& other);
@@ -40,25 +40,28 @@ namespace Graphics
         void SetTexture(ConstTexturePtr texture);
 
         // Sets the texture rectangle in pixel space.
-        void SetRectangle(const glm::ivec4 rect);
+        void SetPixelRect(const glm::ivec4 pixelRect);
 
-        // Sets the texture coordinates in texture space.
-        void SetCoordinates(const glm::vec4 coords);
+        // Sets the texture rectangle in normalized space.
+        void SetNormalRect(const glm::vec4 normalRect);
 
         // Gets the texture reference.
         ConstTexturePtr GetTexture() const;
 
-        // Gets the texture rectangle in pixel space.
-        glm::ivec4 GetRectangle() const;
+        // Gets the texture pointer.
+        const Texture* GetTexturePtr() const;
 
-        // Gets the texture coordinates in texture space.
-        glm::vec4 GetCoordinates() const;
+        // Gets the texture rectangle coordinates in pixel space.
+        glm::ivec4 GetPixelRect() const;
+
+        // Gets the texture rectangle coordinates in normalized space.
+        glm::vec4 GetNormalRect() const;
 
     private:
         // Texture reference.
         ConstTexturePtr m_texture;
 
-        // Texture coordinates.
-        glm::vec4 m_coordinates;
+        // Texture rectangle coordinates in normalized space.
+        glm::vec4 m_normalRect;
     };
 }

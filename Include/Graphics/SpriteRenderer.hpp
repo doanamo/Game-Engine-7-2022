@@ -55,7 +55,6 @@ namespace Graphics
 
         // Graphics objects.
         VertexBuffer m_vertexBuffer;
-        InstanceBuffer m_dataBuffer;
         InstanceBuffer m_instanceBuffer;
         VertexArray m_vertexArray;
         Sampler m_nearestSampler;

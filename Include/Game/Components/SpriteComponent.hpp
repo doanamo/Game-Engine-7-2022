@@ -6,6 +6,7 @@
 
 #include "Game/Component.hpp"
 #include "Graphics/Sprite.hpp"
+#include "Graphics/TextureView.hpp"
 
 /*
     Sprite Component
@@ -25,13 +26,38 @@ namespace Game
             Sprite();
             ~Sprite();
 
-            // Return the transform component.
-            Transform* GetTransform() const;
+            // Sets sprite texture.
+            void SetTextureView(Graphics::TextureView texture);
 
-        public:
-            // Sprite info and data.
-            Graphics::Sprite::Info info;
-            Graphics::Sprite::Data data;
+            // Sets sprite rectangle.
+            void SetRectangle(const glm::vec4& rectangle);
+
+            // Sets sprite color.
+            void SetColor(const glm::vec4& color);
+
+            // Sets sprite transparency.
+            void SetTransparent(bool toggle);
+
+            // Sets sprite filtering.
+            void SetFiltered(bool toggle);
+
+            // Gets sprite texture.
+            const Graphics::TextureView& GetTextureView() const;
+
+            // Gets sprite rectangle.
+            glm::vec4 GetRectangle() const;
+
+            // Gets sprite color.
+            glm::vec4 GetColor() const;
+
+            // Gets sprite transparency.
+            bool IsTransparent() const;
+
+            // Gets sprite filtering.
+            bool IsFiltered() const;
+
+            // Returns the transform component.
+            Transform* GetTransformComponent() const;
 
         protected:
             // Called on component initialization.
@@ -39,7 +65,16 @@ namespace Game
 
         private:
             // Transform component reference.
-            Transform* m_transform;
+            Components::Transform* m_transformComponent;
+
+            // Sprite texture.
+            Graphics::TextureView m_textureView;
+
+            // Sprite description.
+            glm::vec4 m_rectangle;
+            glm::vec4 m_color;
+            bool m_transparent;
+            bool m_filtered;
         };
     }
 }

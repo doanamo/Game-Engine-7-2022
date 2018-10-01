@@ -9,28 +9,24 @@ using namespace Graphics;
 Sprite::Info::Info() :
     texture(nullptr),
     transparent(false),
-    filter(true)
+    filtered(true)
 {
 }
 
 bool Sprite::Info::operator==(const Info& other) const
 {
-    return texture == other.texture && transparent == other.transparent && filter == other.filter;
+    return texture == other.texture && transparent == other.transparent && filtered == other.filtered;
 }
 
 bool Sprite::Info::operator!=(const Info& other) const
 {
-    return texture != other.texture || transparent != other.transparent || filter != other.filter;
+    return texture != other.texture || transparent != other.transparent || filtered != other.filtered;
 }
 
 Sprite::Data::Data() :
+    transform(1.0f),
     rectangle(0.0f, 0.0f, 1.0f, 1.0f),
     coords(0.0f, 0.0f, 1.0f, 1.0f),
     color(1.0f, 1.0f, 1.0f, 1.0f)
-{
-}
-
-Sprite::Instance::Instance() :
-    transform(1.0f)
 {
 }
