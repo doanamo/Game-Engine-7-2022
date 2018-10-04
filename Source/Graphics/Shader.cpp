@@ -26,7 +26,7 @@ namespace
     };
 }
 
-Graphics::Shader::Shader() :
+Shader::Shader() :
     m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
 {
@@ -65,34 +65,7 @@ void Shader::DestroyHandle()
     }
 }
 
-bool Shader::Initialize(RenderContext* renderContext, const ShaderLoadInfo& info)
-{
-    LOG() << "Loading shader from \"" << info.filePath << "\" file..." << LOG_INDENT();
-
-    // Load the shader code from a file.
-    std::string shaderCode = Utility::GetTextFileContent(info.filePath);
-
-    if(shaderCode.empty())
-    {
-        LOG_ERROR() << "File could not be read!";
-        return false;
-    }
-
-    // Call the compile method.
-    ShaderCompileInfo compileInfo;
-    compileInfo.shaderCode = std::move(shaderCode);
-
-    if(!this->Initialize(renderContext, compileInfo))
-    {
-        LOG_ERROR() << "Shader code could not be compiled!";
-        return false;
-    }
-
-    // Success!
-    return true;
-}
-
-bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& info)
+bool Shader::Initialize(RenderContext* renderContext, const LoadFromString& params)
 {
     LOG() << "Compiling shader code..." << LOG_INDENT();
 
@@ -106,9 +79,9 @@ bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& i
         return false;
     }
 
-    if(info.shaderCode.empty())
+    if(params.shaderCode.empty())
     {
-        LOG_ERROR() << "Invalid argument - \"info.shaderCode\" is empty!";
+        LOG_ERROR() << "Invalid argument - \"params.shaderCode\" is empty!";
         return false;
     }
 
@@ -129,7 +102,7 @@ bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& i
     SCOPE_GUARD_END();
 
     // Create a mutable copy of the provided shader code.
-    std::string shaderCode = info.shaderCode;
+    std::string shaderCode = params.shaderCode;
 
     // Extract shader version.
     std::string shaderVersion;
@@ -297,6 +270,33 @@ bool Shader::Initialize(RenderContext* renderContext, const ShaderCompileInfo& i
 
     // Success!
     return initialized = true;
+}
+
+bool Shader::Initialize(RenderContext* renderContext, const LoadFromFile& params)
+{
+    LOG() << "Loading shader from \"" << params.filePath << "\" file..." << LOG_INDENT();
+
+    // Load the shader code from a file.
+    std::string shaderCode = Utility::GetTextFileContent(params.filePath);
+
+    if(shaderCode.empty())
+    {
+        LOG_ERROR() << "File could not be read!";
+        return false;
+    }
+
+    // Call the compile method.
+    LoadFromString compileParams;
+    compileParams.shaderCode = std::move(shaderCode);
+
+    if(!this->Initialize(renderContext, compileParams))
+    {
+        LOG_ERROR() << "Shader code could not be compiled!";
+        return false;
+    }
+
+    // Success!
+    return true;
 }
 
 GLint Shader::GetAttributeIndex(std::string name) const

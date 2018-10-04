@@ -16,13 +16,13 @@ namespace Scripts
     class ScriptState
     {
     public:
-        // Loads state from a text.
+        // Load script state from a text.
         struct LoadFromText
         {
             std::string scriptText;
         };
 
-        // Loads state from a file.
+        // Load script state from a file.
         struct LoadFromFile
         {
             std::string filePath;

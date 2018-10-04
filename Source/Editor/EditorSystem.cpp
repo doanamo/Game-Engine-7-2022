@@ -226,14 +226,14 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     }
 
     // Create a font texture.
-    Graphics::TextureCreateInfo textureInfo;
-    textureInfo.width = fontWidth;
-    textureInfo.height = fontHeight;
-    textureInfo.format = GL_RGBA;
-    textureInfo.mipmaps = false;
-    textureInfo.data = fontData;
+    Graphics::Texture::CreateFromParams textureParams;
+    textureParams.width = fontWidth;
+    textureParams.height = fontHeight;
+    textureParams.format = GL_RGBA;
+    textureParams.mipmaps = false;
+    textureParams.data = fontData;
 
-    if(!m_fontTexture.Initialize(&m_engine->renderContext, textureInfo))
+    if(!m_fontTexture.Initialize(&m_engine->renderContext, textureParams))
     {
         LOG_ERROR() << "Could not initialize font texture!";
         return false;
@@ -254,11 +254,11 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     }
 
     // Load a shader.
-    Graphics::ShaderLoadInfo shaderInfo;
-    shaderInfo.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
+    Graphics::Shader::LoadFromFile shaderParams;
+    shaderParams.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
 
     m_shader = m_engine->resourceManager.Acquire<Graphics::Shader>(
-        shaderInfo.filePath, &m_engine->renderContext, shaderInfo);
+        shaderParams.filePath, &m_engine->renderContext, shaderParams);
 
     if(m_shader == nullptr)
     {

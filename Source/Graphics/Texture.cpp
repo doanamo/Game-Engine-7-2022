@@ -7,18 +7,18 @@
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;
 
-TextureLoadInfo::TextureLoadInfo() :
-    filePath(""),
-    mipmaps(true)
-{
-}
-
-TextureCreateInfo::TextureCreateInfo() :
+Texture::CreateFromParams::CreateFromParams() :
     width(0),
     height(0),
     format(GL_INVALID_ENUM),
     mipmaps(true),
     data(nullptr)
+{
+}
+
+Texture::LoadFromFile::LoadFromFile() :
+    filePath(""),
+    mipmaps(true)
 {
 }
 
@@ -68,22 +68,103 @@ void Texture::DestroyHandle()
     }
 }
 
-bool Texture::Initialize(RenderContext* renderContext, const TextureLoadInfo& info)
+bool Texture::Initialize(RenderContext* renderContext, const CreateFromParams& params)
 {
-    LOG() << "Loading texture from \"" << info.filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Creating texture..." << LOG_INDENT();
+
+    // Check if handle has been already created.
+    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
+
+    // Setup a cleanup guard.
+    bool initialized = false;
+
+    // Validate arguments.
+    if(params.width <= 0)
+    {
+        LOG_ERROR() << "Invalid argument - \"width\" is invalid.";
+        return false;
+    }
+
+    if(params.height <= 0)
+    {
+        LOG_ERROR() << "Invalid argument - \"height\" is invalid.";
+        return false;
+    }
+
+    if(params.format == GL_INVALID_ENUM)
+    {
+        LOG_ERROR() << "Invalid argument - \"format\" is invalid.";
+        return false;
+    }
+
+    // Create a texture handle.
+    SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
+
+    glGenTextures(1, &m_handle);
+    OpenGL::CheckErrors();
+
+    if(m_handle == OpenGL::InvalidHandle)
+    {
+        LOG_ERROR() << "Texture could not be created!";
+        return false;
+    }
+
+    // Bind the texture.
+    glBindTexture(GL_TEXTURE_2D, m_handle);
+    OpenGL::CheckErrors();
+
+    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D,
+        renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
+
+    // Set packing alignment for provided data.
+    if(params.format == GL_R || params.format == GL_RED)
+    {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        OpenGL::CheckErrors();
+    }
+
+    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT,
+        renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
+
+    // Allocated a texture surface on the hardware.
+    glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height,
+        0, params.format, GL_UNSIGNED_BYTE, params.data);
+
+    // Generate texture mipmap.
+    if(params.mipmaps)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+        OpenGL::CheckErrors();
+    }
+
+    // Save texture parameters.
+    m_format = params.format;
+    m_width = params.width;
+    m_height = params.height;
+
+    // Save render context reference.
+    m_renderContext = renderContext;
+
+    // Success!
+    return initialized = true;
+}
+
+bool Texture::Initialize(RenderContext* renderContext, const LoadFromFile& params)
+{
+    LOG() << "Loading texture from \"" << params.filePath << "\" file..." << LOG_INDENT();
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
 
     // Validate arguments.
-    if(info.filePath.empty())
+    if(params.filePath.empty())
     {
         LOG_ERROR() << "Invalid argument - \"info.filePath\" is empty!";
         return false;
     }
 
     // Open the file stream.
-    std::ifstream file(info.filePath, std::ios::binary);
+    std::ifstream file(params.filePath, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -269,14 +350,14 @@ bool Texture::Initialize(RenderContext* renderContext, const TextureLoadInfo& in
     }
 
     // Call the initialization method.
-    TextureCreateInfo textureInfo;
-    textureInfo.width = width;
-    textureInfo.height = height;
-    textureInfo.format = textureFormat;
-    textureInfo.mipmaps = info.mipmaps;
-    textureInfo.data = png_data_ptr;
+    CreateFromParams createParams;
+    createParams.width = width;
+    createParams.height = height;
+    createParams.format = textureFormat;
+    createParams.mipmaps = params.mipmaps;
+    createParams.data = png_data_ptr;
 
-    if(!this->Initialize(renderContext, textureInfo))
+    if(!this->Initialize(renderContext, createParams))
     {
         LOG_ERROR() << "Could not initialize texture!";
         return false;
@@ -284,87 +365,6 @@ bool Texture::Initialize(RenderContext* renderContext, const TextureLoadInfo& in
 
     // Success!
     return true;
-}
-
-bool Texture::Initialize(RenderContext* renderContext, const TextureCreateInfo& info)
-{
-    LOG() << "Creating texture..." << LOG_INDENT();
-
-    // Check if handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
-
-    // Setup a cleanup guard.
-    bool initialized = false;
-
-    // Validate arguments.
-    if(info.width <= 0)
-    {
-        LOG_ERROR() << "Invalid argument - \"width\" is invalid.";
-        return false;
-    }
-
-    if(info.height <= 0)
-    {
-        LOG_ERROR() << "Invalid argument - \"height\" is invalid.";
-        return false;
-    }
-
-    if(info.format == GL_INVALID_ENUM)
-    {
-        LOG_ERROR() << "Invalid argument - \"format\" is invalid.";
-        return false;
-    }
-
-    // Create a texture handle.
-    SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
-
-    glGenTextures(1, &m_handle);
-    OpenGL::CheckErrors();
-
-    if(m_handle == OpenGL::InvalidHandle)
-    {
-        LOG_ERROR() << "Texture could not be created!";
-        return false;
-    }
-
-    // Bind the texture.
-    glBindTexture(GL_TEXTURE_2D, m_handle);
-    OpenGL::CheckErrors();
-
-    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D,
-        renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
-
-    // Set packing alignment for provided data.
-    if(info.format == GL_R || info.format == GL_RED)
-    {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        OpenGL::CheckErrors();
-    }
-
-    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT,
-        renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
-
-    // Allocated a texture surface on the hardware.
-    glTexImage2D(GL_TEXTURE_2D, 0, info.format, info.width, info.height,
-        0, info.format, GL_UNSIGNED_BYTE, info.data);
-
-    // Generate texture mipmap.
-    if(info.mipmaps)
-    {
-        glGenerateMipmap(GL_TEXTURE_2D);
-        OpenGL::CheckErrors();
-    }
-
-    // Save texture parameters.
-    m_format = info.format;
-    m_width = info.width;
-    m_height = info.height;
-
-    // Save render context reference.
-    m_renderContext = renderContext;
-
-    // Success!
-    return initialized = true;
 }
 
 void Texture::Update(const void* data)

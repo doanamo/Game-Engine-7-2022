@@ -58,11 +58,11 @@ bool TextureViewer::Initialize(Engine::Root* engine)
     m_screenSpace.SetSourceSize(2.0f, 2.0f);
 
     // Load default texture.
-    Graphics::TextureLoadInfo textureInfo;
-    textureInfo.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
+    Graphics::Texture::LoadFromFile textureParams;
+    textureParams.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
 
     m_texture = m_engine->resourceManager.Acquire<Graphics::Texture>(
-        textureInfo.filePath, &m_engine->renderContext, textureInfo);
+        textureParams.filePath, &m_engine->renderContext, textureParams);
 
     // Success!
     return m_initialized = true;

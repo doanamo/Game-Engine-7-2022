@@ -33,29 +33,31 @@ namespace Graphics
     // Forward declarations.
     class RenderContext;
 
-    // Texture info structures.
-    struct TextureLoadInfo
-    {
-        TextureLoadInfo();
-
-        std::string filePath;
-        bool mipmaps;
-    };
-
-    struct TextureCreateInfo
-    {
-        TextureCreateInfo();
-
-        int width;
-        int height;
-        GLenum format;
-        bool mipmaps;
-        const void* data;
-    };
-
     // Texture class.
     class Texture
     {
+    public:
+        // Create texture from params.
+        struct CreateFromParams
+        {
+            CreateFromParams();
+
+            int width;
+            int height;
+            GLenum format;
+            bool mipmaps;
+            const void* data;
+        };
+
+        // Load texture from a file.
+        struct LoadFromFile
+        {
+            LoadFromFile();
+
+            std::string filePath;
+            bool mipmaps;
+        };
+
     public:
         Texture();
         ~Texture();
@@ -68,11 +70,11 @@ namespace Graphics
         Texture(Texture&& other);
         Texture& operator=(Texture&& other);
 
-        // Loads the texture from a file.
-        bool Initialize(RenderContext* renderContext, const TextureLoadInfo& info);
+        // Creates a texture instance from parameters.
+        bool Initialize(RenderContext* renderContext, const CreateFromParams& params);
 
-        // Creates a texture instance from memory.
-        bool Initialize(RenderContext* renderContext, const TextureCreateInfo& info);
+        // Loads the texture from a file.
+        bool Initialize(RenderContext* renderContext, const LoadFromFile& params);
 
         // Updates the texture data.
         void Update(const void* data);
@@ -106,7 +108,7 @@ namespace Graphics
         int m_height;
     };
     
-    // Pointer type.
+    // Type declarations.
     using TexturePtr = std::shared_ptr<Texture>;
     using ConstTexturePtr = std::shared_ptr<const Texture>;
 }

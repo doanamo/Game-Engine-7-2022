@@ -57,21 +57,22 @@ namespace Graphics
     // Forward declarations.
     class RenderContext;
 
-    // Shader load info.
-    struct ShaderLoadInfo
-    {
-        std::string filePath;
-    };
-
-    // Shader compile info.
-    struct ShaderCompileInfo
-    {
-        std::string shaderCode;
-    };
-
     // Shader class.
     class Shader
     {
+    public:
+        // Load shader from a string.
+        struct LoadFromString
+        {
+            std::string shaderCode;
+        };
+
+        // Load shader from a file.
+        struct LoadFromFile
+        {
+            std::string filePath;
+        };
+
     public:
         Shader();
         ~Shader();
@@ -84,11 +85,11 @@ namespace Graphics
         Shader(Shader&& other);
         Shader& operator=(Shader&& other);
 
-        // Loads the shader from a file.
-        bool Initialize(RenderContext* renderContext, const ShaderLoadInfo& info);
+        // Compiles the shader from a string.
+        bool Initialize(RenderContext* renderContext, const LoadFromString& params);
 
-        // Compiles the shader from code.
-        bool Initialize(RenderContext* renderContext, const ShaderCompileInfo& info);
+        // Loads the shader from a file.
+        bool Initialize(RenderContext* renderContext, const LoadFromFile& params);
 
         // Sets an uniform shader variable.
         template<typename Type>
