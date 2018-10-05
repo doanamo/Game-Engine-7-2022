@@ -161,9 +161,10 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
 
     // Load the shader.
     Shader::LoadFromFile shaderParams;
+    shaderParams.renderContext = renderContext;
     shaderParams.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader";
 
-    m_shader = resourceManager->Acquire<Shader>(shaderParams.filePath, renderContext, shaderParams);
+    m_shader = resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
 
     if(m_shader == nullptr)
     {

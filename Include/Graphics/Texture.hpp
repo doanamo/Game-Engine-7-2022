@@ -42,6 +42,7 @@ namespace Graphics
         {
             CreateFromParams();
 
+            RenderContext* renderContext;
             int width;
             int height;
             GLenum format;
@@ -54,6 +55,7 @@ namespace Graphics
         {
             LoadFromFile();
 
+            RenderContext* renderContext;
             std::string filePath;
             bool mipmaps;
         };
@@ -71,10 +73,10 @@ namespace Graphics
         Texture& operator=(Texture&& other);
 
         // Creates a texture instance from parameters.
-        bool Initialize(RenderContext* renderContext, const CreateFromParams& params);
+        bool Initialize(const CreateFromParams& params);
 
         // Loads the texture from a file.
-        bool Initialize(RenderContext* renderContext, const LoadFromFile& params);
+        bool Initialize(const LoadFromFile& params);
 
         // Updates the texture data.
         void Update(const void* data);

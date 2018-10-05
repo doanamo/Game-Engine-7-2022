@@ -64,12 +64,18 @@ namespace Graphics
         // Load shader from a string.
         struct LoadFromString
         {
+            LoadFromString();
+
+            RenderContext* renderContext;
             std::string shaderCode;
         };
 
         // Load shader from a file.
         struct LoadFromFile
         {
+            LoadFromFile();
+
+            RenderContext* renderContext;
             std::string filePath;
         };
 
@@ -86,10 +92,10 @@ namespace Graphics
         Shader& operator=(Shader&& other);
 
         // Compiles the shader from a string.
-        bool Initialize(RenderContext* renderContext, const LoadFromString& params);
+        bool Initialize(const LoadFromString& params);
 
         // Loads the shader from a file.
-        bool Initialize(RenderContext* renderContext, const LoadFromFile& params);
+        bool Initialize(const LoadFromFile& params);
 
         // Sets an uniform shader variable.
         template<typename Type>

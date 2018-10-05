@@ -26,6 +26,16 @@ namespace
     };
 }
 
+Shader::LoadFromString::LoadFromString() :
+    renderContext(nullptr)
+{
+}
+
+Shader::LoadFromFile::LoadFromFile() :
+    renderContext(nullptr)
+{
+}
+
 Shader::Shader() :
     m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
@@ -65,15 +75,20 @@ void Shader::DestroyHandle()
     }
 }
 
-bool Shader::Initialize(RenderContext* renderContext, const LoadFromString& params)
+bool Shader::Initialize(const LoadFromString& params)
 {
     LOG() << "Compiling shader code..." << LOG_INDENT();
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Shader instance has been already initialized!");
 
+    // Setup a cleanup guard.
+    bool initialized = false;
+    
+    SCOPE_GUARD_IF(!initialized, *this = Shader());
+
     // Validate arguments.
-    if(renderContext == nullptr)
+    if(params.renderContext == nullptr)
     {
         LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
         return false;
@@ -85,8 +100,7 @@ bool Shader::Initialize(RenderContext* renderContext, const LoadFromString& para
         return false;
     }
 
-    // Setup a cleanup guard.
-    bool initialized = false;
+    m_renderContext = params.renderContext;
 
     // Create an array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -265,14 +279,11 @@ bool Shader::Initialize(RenderContext* renderContext, const LoadFromString& para
         return false;
     }
 
-    // Save render context reference.
-    m_renderContext = renderContext;
-
     // Success!
     return initialized = true;
 }
 
-bool Shader::Initialize(RenderContext* renderContext, const LoadFromFile& params)
+bool Shader::Initialize(const LoadFromFile& params)
 {
     LOG() << "Loading shader from \"" << params.filePath << "\" file..." << LOG_INDENT();
 
@@ -287,9 +298,10 @@ bool Shader::Initialize(RenderContext* renderContext, const LoadFromFile& params
 
     // Call the compile method.
     LoadFromString compileParams;
+    compileParams.renderContext = params.renderContext;
     compileParams.shaderCode = std::move(shaderCode);
 
-    if(!this->Initialize(renderContext, compileParams))
+    if(!this->Initialize(compileParams))
     {
         LOG_ERROR() << "Shader code could not be compiled!";
         return false;

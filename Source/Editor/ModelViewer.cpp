@@ -58,10 +58,11 @@ bool ModelViewer::Initialize(Engine::Root* engine)
 
     // Load the texture.
     Graphics::Texture::LoadFromFile textureParams;
+    textureParams.renderContext = &engine->renderContext;
     textureParams.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
 
     m_texture = GetEngine()->resourceManager.Acquire<Graphics::Texture>(
-        textureParams.filePath, &engine->renderContext, textureParams);
+        textureParams.filePath, textureParams);
 
     // Create camera entity.
     {
