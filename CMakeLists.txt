@@ -77,6 +77,8 @@ set(SOURCE_FILES
     "Source/Graphics/Texture.cpp"
     "Include/Graphics/TextureView.hpp"
     "Source/Graphics/TextureView.cpp"
+    "Include/Graphics/TextureAtlas.hpp"
+    "Source/Graphics/TextureAtlas.cpp"
     "Include/Graphics/Sampler.hpp"
     "Source/Graphics/Sampler.cpp"
     "Include/Graphics/Shader.hpp"
