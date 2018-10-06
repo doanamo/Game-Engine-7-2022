@@ -10,6 +10,12 @@
 #include "Scripts/ScriptState.hpp"
 using namespace Graphics;
 
+TextureAtlas::LoadFromFile::LoadFromFile() :
+    resourceManager(nullptr),
+    renderContext(nullptr)
+{
+}
+
 TextureAtlas::TextureAtlas() :
     m_texture(nullptr),
     m_initialized(false)
@@ -45,7 +51,7 @@ bool TextureAtlas::Initialize()
     SCOPE_GUARD_IF(!m_initialized, *this = TextureAtlas());
 
     // Success!
-    return false;
+    return m_initialized = true;
 }
 
 bool TextureAtlas::Initialize(const LoadFromFile& params)
@@ -55,8 +61,30 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     // Make sure that instance has not been initialized yet.
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");
 
+    // Initialize texture atlas instance.
+    if(this->Initialize())
+    {
+        LOG_ERROR() << "Could not initialize texture atlas!";
+        return false;
+    }
+
     // Create a scoped guard in case initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = TextureAtlas());
+    bool initialized = false;
+
+    SCOPE_GUARD_IF(!initialized, *this = TextureAtlas());
+
+    // Validate parameters.
+    if(params.resourceManager == nullptr)
+    {
+        LOG_ERROR() << "Invalid parameter - \"resourceManager\" is null!";
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR() << "Invalid parameter - \"renderContext\" is null!";
+        return false;
+    }
 
     // Load texture atlas from file using script state.
     Scripts::ScriptState::LoadFromFile scriptParams;
@@ -92,8 +120,13 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     textureParams.filePath = lua_tostring(scriptState, -1);
     textureParams.mipmaps = true;
 
-    m_texture = params.resourceManager.Acquire<Graphics::Texture>(
+    m_texture = params.resourceManager->Acquire<Graphics::Texture>(
         textureParams.filePath, textureParams);
+
+    if(m_texture == nullptr)
+    {
+        LOG_WARNING() << "Could not load texture!";
+    }
 
     lua_pop(scriptState, 1);
 
@@ -147,7 +180,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     lua_pop(scriptState, 1);
     
     // Success!
-    return m_initialized = true;
+    return initialized = true;
 }
 
 bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)

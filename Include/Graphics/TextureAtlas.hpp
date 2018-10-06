@@ -30,7 +30,9 @@ namespace Graphics
         // Load texture atlas from a file.
         struct LoadFromFile
         {
-            System::ResourceManager& resourceManager;
+            LoadFromFile();
+
+            System::ResourceManager* resourceManager;
             RenderContext* renderContext;
             std::string filePath;
         };
