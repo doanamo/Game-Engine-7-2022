@@ -62,7 +62,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");
 
     // Initialize texture atlas instance.
-    if(this->Initialize())
+    if(!this->Initialize())
     {
         LOG_ERROR() << "Could not initialize texture atlas!";
         return false;
