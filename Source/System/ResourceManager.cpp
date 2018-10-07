@@ -36,7 +36,10 @@ bool ResourceManager::Initialize()
     LOG() << "Initializing resource manager..." << LOG_INDENT();
 
     // Check if resource manager has already been initialized.
-    ASSERT(!m_initialized, "Resource manager has already been initialized!");
+    VERIFY(!m_initialized, "Resource manager has already been initialized!");
+
+    // Setup a cleanup guard.
+    SCOPE_GUARD_IF(!m_initialized, *this = ResourceManager());
 
     // Success!
     return m_initialized = true;

@@ -4,6 +4,12 @@
 
 #pragma once
 
+// Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 /*
     Script State
 
@@ -25,6 +31,7 @@ namespace Scripts
         // Load script state from a file.
         struct LoadFromFile
         {
+            Engine::Root* engine;
             std::string filePath;
         };
 
@@ -42,10 +49,10 @@ namespace Scripts
         bool Initialize();
 
         // Initializes the scripting state from text.
-        bool Initialize(const LoadFromText& parameters);
+        bool Initialize(const LoadFromText& params);
 
         // Initializes the scripting state from file.
-        bool Initialize(const LoadFromFile& parameters);
+        bool Initialize(const LoadFromFile& params);
 
         // Prints and pops an error on the stack.
         void PrintError();

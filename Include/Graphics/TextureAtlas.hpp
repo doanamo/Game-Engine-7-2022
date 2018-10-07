@@ -5,6 +5,11 @@
 #pragma once
 
 // Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 namespace System
 {
     class ResourceManager;
@@ -32,8 +37,7 @@ namespace Graphics
         {
             LoadFromFile();
 
-            System::ResourceManager* resourceManager;
-            RenderContext* renderContext;
+            Engine::Root* engine;
             std::string filePath;
         };
 

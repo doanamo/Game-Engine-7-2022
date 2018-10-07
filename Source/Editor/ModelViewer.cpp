@@ -58,8 +58,8 @@ bool ModelViewer::Initialize(Engine::Root* engine)
 
     // Load the texture.
     Graphics::Texture::LoadFromFile textureParams;
-    textureParams.renderContext = &engine->renderContext;
-    textureParams.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
+    textureParams.engine = engine;
+    textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
     m_texture = GetEngine()->resourceManager.Acquire<Graphics::Texture>(
         textureParams.filePath, textureParams);

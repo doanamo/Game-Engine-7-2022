@@ -4,6 +4,8 @@
 
 #include "Precompiled.hpp"
 #include "Scripts/ScriptState.hpp"
+#include "System/FileSystem.hpp"
+#include "Engine.hpp"
 using namespace Scripts;
 
 namespace
@@ -95,7 +97,7 @@ bool ScriptState::Initialize()
     return m_initialized = true;
 }
 
-bool ScriptState::Initialize(const LoadFromText& parameters)
+bool ScriptState::Initialize(const LoadFromText& params)
 {
     LOG() << "Loading script state from text..." << LOG_INDENT();
 
@@ -107,8 +109,15 @@ bool ScriptState::Initialize(const LoadFromText& parameters)
     bool initialized = false;
     SCOPE_GUARD_IF(!initialized, *this = ScriptState());
 
+    // Validate arguments.
+    if(params.scriptText.empty())
+    {
+        LOG_ERROR() << "Invalid parameter - \"scriptText\" is empty!";
+        return false;
+    }
+
     // Parse the text string.
-    if(luaL_dostring(m_state, parameters.scriptText.c_str()) != 0)
+    if(luaL_dostring(m_state, params.scriptText.c_str()) != 0)
     {
         LOG_ERROR() << "Could not process text string!";
         this->PrintError();
@@ -119,9 +128,9 @@ bool ScriptState::Initialize(const LoadFromText& parameters)
     return initialized = true;
 }
 
-bool ScriptState::Initialize(const LoadFromFile& parameters)
+bool ScriptState::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading script state from \"" << parameters.filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Loading script state from \"" << params.filePath << "\" file..." << LOG_INDENT();
 
     // Call the main initialization methods.
     if(!this->Initialize())
@@ -131,8 +140,24 @@ bool ScriptState::Initialize(const LoadFromFile& parameters)
     bool initialized = false;
     SCOPE_GUARD_IF(!initialized, *this = ScriptState());
 
+    // Validate arguments.
+    if(params.engine == nullptr)
+    {
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        return false;
+    }
+
+    if(params.filePath.empty())
+    {
+        LOG_ERROR() << "Invalid parameter - \"filePath\" is null!";
+        return false;
+    }
+
+    // Resolve file path.
+    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+
     // Parse the text file.
-    if(luaL_dofile(m_state, parameters.filePath.c_str()) != 0)
+    if(luaL_dofile(m_state, resolvedFilePath.c_str()) != 0)
     {
         LOG_ERROR() << "Could not process text file!";
         this->PrintError();

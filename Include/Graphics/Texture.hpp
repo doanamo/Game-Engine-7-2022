@@ -4,6 +4,12 @@
 
 #pragma once
 
+// Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 /*
     Graphics Texture
     
@@ -42,7 +48,7 @@ namespace Graphics
         {
             CreateFromParams();
 
-            RenderContext* renderContext;
+            Engine::Root* engine;
             int width;
             int height;
             GLenum format;
@@ -55,7 +61,7 @@ namespace Graphics
         {
             LoadFromFile();
 
-            RenderContext* renderContext;
+            Engine::Root* engine;
             std::string filePath;
             bool mipmaps;
         };

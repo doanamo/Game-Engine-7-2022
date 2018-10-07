@@ -6,6 +6,7 @@
 
 #include "EnginePublic.hpp"
 #include "System/Platform.hpp"
+#include "System/FileSystem.hpp"
 #include "System/Window.hpp"
 #include "System/Timer.hpp"
 #include "System/InputState.hpp"
@@ -49,6 +50,7 @@ namespace Engine
     public:
         // Platform systems.
         System::Platform platform;
+        System::FileSystem fileSystem;
         System::Window window;
         System::Timer timer;
         System::InputState inputState;

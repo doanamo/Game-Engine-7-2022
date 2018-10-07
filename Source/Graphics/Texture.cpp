@@ -5,10 +5,12 @@
 #include "Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
+#include "System/FileSystem.hpp"
+#include "Engine.hpp"
 using namespace Graphics;
 
 Texture::CreateFromParams::CreateFromParams() :
-    renderContext(nullptr),
+    engine(nullptr),
     width(0),
     height(0),
     format(GL_INVALID_ENUM),
@@ -18,7 +20,7 @@ Texture::CreateFromParams::CreateFromParams() :
 }
 
 Texture::LoadFromFile::LoadFromFile() :
-    renderContext(nullptr),
+    engine(nullptr),
     filePath(""),
     mipmaps(true)
 {
@@ -83,32 +85,32 @@ bool Texture::Initialize(const CreateFromParams& params)
     SCOPE_GUARD_IF(!initialized, *this = Texture());
 
     // Validate arguments.
+    if(params.engine == nullptr)
+    {
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        return false;
+    }
+
     if(params.width <= 0)
     {
-        LOG_ERROR() << "Invalid argument - \"width\" is invalid!";
+        LOG_ERROR() << "Invalid parameter - \"width\" is invalid!";
         return false;
     }
 
     if(params.height <= 0)
     {
-        LOG_ERROR() << "Invalid argument - \"height\" is invalid!";
+        LOG_ERROR() << "Invalid parameter - \"height\" is invalid!";
         return false;
     }
 
     if(params.format == GL_INVALID_ENUM)
     {
-        LOG_ERROR() << "Invalid argument - \"format\" is invalid!";
+        LOG_ERROR() << "Invalid parameter - \"format\" is invalid!";
         return false;
     }
 
     // Save the render context reference.
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
-        return false;
-    }
-
-    m_renderContext = params.renderContext;
+    m_renderContext = &params.engine->renderContext;
 
     // Create a texture handle.
     glGenTextures(1, &m_handle);
@@ -165,14 +167,23 @@ bool Texture::Initialize(const LoadFromFile& params)
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
 
     // Validate arguments.
-    if(params.filePath.empty())
+    if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"info.filePath\" is empty!";
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
         return false;
     }
 
+    if(params.filePath.empty())
+    {
+        LOG_ERROR() << "Invalid parameter - \"filePath\" is empty!";
+        return false;
+    }
+
+    // Resolve file path.
+    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+
     // Open the file stream.
-    std::ifstream file(params.filePath, std::ios::binary);
+    std::ifstream file(resolvedFilePath, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -359,7 +370,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     // Call the initialization method.
     CreateFromParams createParams;
-    createParams.renderContext = params.renderContext;
+    createParams.engine = params.engine;
     createParams.width = width;
     createParams.height = height;
     createParams.format = textureFormat;

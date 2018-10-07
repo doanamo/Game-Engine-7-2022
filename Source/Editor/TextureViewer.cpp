@@ -59,8 +59,8 @@ bool TextureViewer::Initialize(Engine::Root* engine)
 
     // Load default texture.
     Graphics::Texture::LoadFromFile textureParams;
-    textureParams.renderContext = &m_engine->renderContext;
-    textureParams.filePath = Build::GetEngineDir() + "Data/Engine/Textures/Checker.png";
+    textureParams.engine = m_engine;
+    textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
     m_texture = m_engine->resourceManager.Acquire<Graphics::Texture>(
         textureParams.filePath, textureParams);

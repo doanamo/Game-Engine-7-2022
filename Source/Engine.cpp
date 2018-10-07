@@ -26,6 +26,7 @@ Root& Root::operator=(Root&& other)
 {
     // Swap class members.
     std::swap(platform, other.platform);
+    std::swap(fileSystem, other.fileSystem);
     std::swap(window, other.window);
     std::swap(timer, other.timer);
     std::swap(inputState, other.inputState);
@@ -70,6 +71,24 @@ bool Root::Initialize()
     {
         LOG_ERROR() << "Could not initialize platform!";
         return false;
+    }
+
+    // Initialize the file system.
+    if(!fileSystem.Initialize())
+    {
+        LOG_ERROR() << "Could not initialize file system!";
+        return false;
+    }
+
+    // Mount file system directories (order affects the resolve order).
+    if(!Build::GetEngineDir().empty())
+    {
+        fileSystem.MountDirectory(Build::GetEngineDir());
+    }
+    
+    if(!Build::GetGameDir().empty())
+    {
+        fileSystem.MountDirectory(Build::GetGameDir());
     }
 
     // Initialize the main window.
@@ -122,7 +141,7 @@ bool Root::Initialize()
     
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
-    if(!spriteRenderer.Initialize(&resourceManager, &renderContext, 128))
+    if(!spriteRenderer.Initialize(this, 128))
     {
         LOG_ERROR() << "Could not initialize sprite renderer!";
         return false;

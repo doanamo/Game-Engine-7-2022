@@ -5,6 +5,8 @@
 #include "Precompiled.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
+#include "System/FileSystem.hpp"
+#include "Engine.hpp"
 using namespace Graphics;
 
 namespace
@@ -27,12 +29,12 @@ namespace
 }
 
 Shader::LoadFromString::LoadFromString() :
-    renderContext(nullptr)
+    engine(nullptr)
 {
 }
 
 Shader::LoadFromFile::LoadFromFile() :
-    renderContext(nullptr)
+    engine(nullptr)
 {
 }
 
@@ -88,9 +90,9 @@ bool Shader::Initialize(const LoadFromString& params)
     SCOPE_GUARD_IF(!initialized, *this = Shader());
 
     // Validate arguments.
-    if(params.renderContext == nullptr)
+    if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
         return false;
     }
 
@@ -100,7 +102,7 @@ bool Shader::Initialize(const LoadFromString& params)
         return false;
     }
 
-    m_renderContext = params.renderContext;
+    m_renderContext = &params.engine->renderContext;
 
     // Create an array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -287,8 +289,18 @@ bool Shader::Initialize(const LoadFromFile& params)
 {
     LOG() << "Loading shader from \"" << params.filePath << "\" file..." << LOG_INDENT();
 
+    // Validate arguments.
+    if(params.engine == nullptr)
+    {
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        return false;
+    }
+
+    // Resolve the file path.
+    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+
     // Load the shader code from a file.
-    std::string shaderCode = Utility::GetTextFileContent(params.filePath);
+    std::string shaderCode = Utility::GetTextFileContent(resolvedFilePath);
 
     if(shaderCode.empty())
     {
@@ -298,7 +310,7 @@ bool Shader::Initialize(const LoadFromFile& params)
 
     // Call the compile method.
     LoadFromString compileParams;
-    compileParams.renderContext = params.renderContext;
+    compileParams.engine = params.engine;
     compileParams.shaderCode = std::move(shaderCode);
 
     if(!this->Initialize(compileParams))

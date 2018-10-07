@@ -7,6 +7,7 @@
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
 #include "System/ResourceManager.hpp"
+#include "Engine.hpp"
 using namespace Graphics;
 
 namespace
@@ -53,7 +54,7 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
     return *this;
 }
 
-bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, RenderContext* renderContext, int spriteBatchSize)
+bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 {
     LOG() << "Initializing sprite renderer..." << LOG_INDENT();
 
@@ -64,15 +65,9 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     SCOPE_GUARD_IF(!m_initialized, *this = SpriteRenderer());
 
     // Validate arguments.
-    if(resourceManager == nullptr)
+    if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"resourceManager\" is null!";
-        return false;
-    }
-
-    if(renderContext == nullptr)
-    {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
         return false;
     }
 
@@ -97,7 +92,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     vertexBufferInfo.elementCount = Utility::StaticArraySize(SpriteVertices);
     vertexBufferInfo.data = &SpriteVertices[0];
 
-    if(!m_vertexBuffer.Initialize(renderContext, vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(&engine->renderContext, vertexBufferInfo))
     {
         LOG_ERROR() << "Could not create vertex buffer!";
         return false;
@@ -110,7 +105,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     instanceBufferInfo.elementCount = spriteBatchSize;
     instanceBufferInfo.data = nullptr;
 
-    if(!m_instanceBuffer.Initialize(renderContext, instanceBufferInfo))
+    if(!m_instanceBuffer.Initialize(&engine->renderContext, instanceBufferInfo))
     {
         LOG_ERROR() << "Could not create instance buffer!";
         return false;
@@ -123,7 +118,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Texture
         { &m_instanceBuffer, VertexAttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
         { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coords
+        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coordinates
         { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
     };
 
@@ -131,7 +126,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     vertexArrayInfo.attributeCount = Utility::StaticArraySize(vertexAttributes);
     vertexArrayInfo.attributes = &vertexAttributes[0];
 
-    if(!m_vertexArray.Initialize(renderContext, vertexArrayInfo))
+    if(!m_vertexArray.Initialize(&engine->renderContext, vertexArrayInfo))
     {
         LOG_ERROR() << "Could not create vertex array!";
         return false;
@@ -142,7 +137,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     nearestSamplerInfo.textureMinFilter = GL_NEAREST;
     nearestSamplerInfo.textureMagFilter = GL_NEAREST;
 
-    if(!m_nearestSampler.Initialize(renderContext, nearestSamplerInfo))
+    if(!m_nearestSampler.Initialize(&engine->renderContext, nearestSamplerInfo))
     {
         LOG_ERROR() << "Could not create a nearest sampler!";
         return false;
@@ -153,7 +148,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     linearSamplerInfo.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     linearSamplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_linearSampler.Initialize(renderContext, linearSamplerInfo))
+    if(!m_linearSampler.Initialize(&engine->renderContext, linearSamplerInfo))
     {
         LOG_ERROR() << "Could not create linear sampler!";
         return false;
@@ -161,10 +156,11 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
 
     // Load the shader.
     Shader::LoadFromFile shaderParams;
-    shaderParams.renderContext = renderContext;
-    shaderParams.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Sprite.shader";
+    shaderParams.engine = engine;
+    shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
 
-    m_shader = resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
+    m_shader = engine->resourceManager.Acquire<Shader>(
+        shaderParams.filePath, shaderParams);
 
     if(m_shader == nullptr)
     {
@@ -176,7 +172,7 @@ bool SpriteRenderer::Initialize(System::ResourceManager* resourceManager, Render
     m_spriteBatchSize = spriteBatchSize;
 
     // Save render context reference.
-    m_renderContext = renderContext;
+    m_renderContext = &engine->renderContext;
 
     // Success!
     return m_initialized = true;

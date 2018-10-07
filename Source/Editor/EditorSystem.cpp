@@ -227,7 +227,7 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     // Create a font texture.
     Graphics::Texture::CreateFromParams textureParams;
-    textureParams.renderContext = &m_engine->renderContext;
+    textureParams.engine = m_engine;
     textureParams.width = fontWidth;
     textureParams.height = fontHeight;
     textureParams.format = GL_RGBA;
@@ -256,8 +256,8 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     // Load a shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.renderContext = &m_engine->renderContext;
-    shaderParams.filePath = Build::GetEngineDir() + "Data/Engine/Shaders/Interface.shader";
+    shaderParams.engine = m_engine;
+    shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
 
     m_shader = m_engine->resourceManager.Acquire<Graphics::Shader>(
         shaderParams.filePath, shaderParams);

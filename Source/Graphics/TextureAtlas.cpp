@@ -8,11 +8,11 @@
 #include "Graphics/Texture.hpp"
 #include "System/ResourceManager.hpp"
 #include "Scripts/ScriptState.hpp"
+#include "Engine.hpp"
 using namespace Graphics;
 
 TextureAtlas::LoadFromFile::LoadFromFile() :
-    resourceManager(nullptr),
-    renderContext(nullptr)
+    engine(nullptr)
 {
 }
 
@@ -74,20 +74,15 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     SCOPE_GUARD_IF(!initialized, *this = TextureAtlas());
 
     // Validate parameters.
-    if(params.resourceManager == nullptr)
+    if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"resourceManager\" is null!";
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR() << "Invalid parameter - \"renderContext\" is null!";
+        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
         return false;
     }
 
     // Load texture atlas from file using script state.
     Scripts::ScriptState::LoadFromFile scriptParams;
+    scriptParams.engine = params.engine;
     scriptParams.filePath = params.filePath;
 
     Scripts::ScriptState scriptState;
@@ -116,11 +111,11 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     }
 
     Texture::LoadFromFile textureParams;
-    textureParams.renderContext = params.renderContext;
+    textureParams.engine = params.engine;
     textureParams.filePath = lua_tostring(scriptState, -1);
     textureParams.mipmaps = true;
 
-    m_texture = params.resourceManager->Acquire<Graphics::Texture>(
+    m_texture = params.engine->resourceManager.Acquire<Graphics::Texture>(
         textureParams.filePath, textureParams);
 
     if(m_texture == nullptr)

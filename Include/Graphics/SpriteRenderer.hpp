@@ -13,6 +13,11 @@
 #include "Graphics/SpriteList.hpp"
 
 // Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 namespace System
 {
     class ResourceManager;
@@ -43,7 +48,7 @@ namespace Graphics
         SpriteRenderer& operator=(SpriteRenderer&& other);
 
         // Initializes the sprite renderer.
-        bool Initialize(System::ResourceManager* resourceManager, RenderContext* renderContext, int spriteBatchSize);
+        bool Initialize(Engine::Root* engine, int spriteBatchSize);
 
         // Draws a batch of sprites.
         // Very efficient rendering if array of sprites is already sorted to reduces state changes.

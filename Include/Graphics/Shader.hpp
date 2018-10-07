@@ -6,6 +6,12 @@
 
 #include "Graphics/RenderContext.hpp"
 
+// Forward declarations.
+namespace Engine
+{
+    class Root;
+}
+
 /*
     Graphics Shader
     
@@ -66,7 +72,7 @@ namespace Graphics
         {
             LoadFromString();
 
-            RenderContext* renderContext;
+            Engine::Root* engine;
             std::string shaderCode;
         };
 
@@ -75,7 +81,7 @@ namespace Graphics
         {
             LoadFromFile();
 
-            RenderContext* renderContext;
+            Engine::Root* engine;
             std::string filePath;
         };
 
