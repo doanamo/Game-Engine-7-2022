@@ -38,10 +38,10 @@ BaseScene& BaseScene::operator=(BaseScene&& other)
 
 bool BaseScene::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing base game scene..." << LOG_INDENT();
+    LOG() << "Initializing base scene..." << LOG_INDENT();
 
     // Check if base game scene class has been already initialized.
-    ASSERT(!m_initialized, "Base game scene class has been already initialized!");
+    VERIFY(!m_initialized, "Base scene has already been initialized!");
 
     // Reset class instance on initialization failure.
     SCOPE_GUARD_IF(!m_initialized, *this = BaseScene());
@@ -95,7 +95,7 @@ void BaseScene::OnDraw(const SceneDrawParams& drawParams)
 
 Engine::Root* BaseScene::GetEngine() const
 {
-    ASSERT(m_initialized, "Base game scene class has not been initialized!");
+    ASSERT(m_initialized, "Base scene class has not been initialized!");
 
     return m_engine;
 }
