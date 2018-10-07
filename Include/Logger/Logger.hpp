@@ -53,7 +53,7 @@ namespace Logger
 
     // Advances the frame of reference.
     // This helps distinguish messages from different frames of reference.
-    int AdvanceFrameReference();
+    int AdvanceFrameCounter();
 
     // Checks if the global logger is initialized.
     bool IsInitialized();

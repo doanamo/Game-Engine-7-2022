@@ -186,6 +186,9 @@ int Root::Run()
     // Run the main application loop.
     while(window.IsOpen())
     {
+        // Advance the logger frame counter of reference.
+        Logger::AdvanceFrameCounter();
+
         // Calculate frame delta time.
         float timeDelta = timer.CalculateFrameDelta();
 

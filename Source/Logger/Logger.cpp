@@ -70,7 +70,7 @@ void Logger::Write(const Logger::Message& message)
     sink.Write(message);
 }
 
-int Logger::AdvanceFrameReference()
+int Logger::AdvanceFrameCounter()
 {
     if(AllowLazyInitialization)
     {
