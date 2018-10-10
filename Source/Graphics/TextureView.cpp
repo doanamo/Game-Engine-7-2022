@@ -9,7 +9,7 @@ using namespace Graphics;
 
 TextureView::TextureView() :
     m_texture(nullptr),
-    m_normalRect(0.0f, 0.0f, 1.0f, 1.0f)
+    m_textureRect(0.0f, 0.0f, 1.0f, 1.0f)
 {
 }
 
@@ -23,18 +23,18 @@ TextureView::TextureView(ConstTexturePtr texture) :
     this->SetTexture(texture);
 }
 
-TextureView::TextureView(ConstTexturePtr texture, glm::ivec4 pixelRect) :
+TextureView::TextureView(ConstTexturePtr texture, glm::ivec4 imageRect) :
     TextureView()
 {
     this->SetTexture(texture);
-    this->SetPixelRect(pixelRect);
+    this->SetImageRect(imageRect);
 }
 
-TextureView::TextureView(ConstTexturePtr texture, glm::vec4 normalRect) :
+TextureView::TextureView(ConstTexturePtr texture, glm::vec4 textureRect) :
     TextureView()
 {
     this->SetTexture(texture);
-    this->SetNormalRect(normalRect);
+    this->SetTextureRect(textureRect);
 }
 
 TextureView::TextureView(const TextureView& other)
@@ -45,7 +45,7 @@ TextureView::TextureView(const TextureView& other)
 TextureView& TextureView::operator=(const TextureView& other)
 {
     m_texture = other.m_texture;
-    m_normalRect = other.m_normalRect;
+    m_textureRect = other.m_textureRect;
 
     return *this;
 }
@@ -58,7 +58,7 @@ TextureView::TextureView(TextureView&& other)
 TextureView& TextureView::operator=(TextureView&& other)
 {
     std::swap(m_texture, other.m_texture);
-    std::swap(m_normalRect, other.m_normalRect);
+    std::swap(m_textureRect, other.m_textureRect);
 
     return *this;
 }
@@ -68,26 +68,30 @@ void TextureView::SetTexture(ConstTexturePtr texture)
     m_texture = texture;
 }
 
-void TextureView::SetPixelRect(const glm::ivec4 pixelRect)
+void TextureView::SetImageRect(const glm::ivec4 imageRect)
 {
-    ASSERT(m_texture != nullptr, "Cannot set texture view pixel rectangle without texture!");
+    ASSERT(m_texture != nullptr, "Cannot set image rectangle without texture!");
 
     if(m_texture)
     {
-        m_normalRect.x = (float)pixelRect.x / m_texture->GetWidth();
-        m_normalRect.y = (float)pixelRect.y / m_texture->GetHeight();
-        m_normalRect.z = (float)pixelRect.z / m_texture->GetWidth();
-        m_normalRect.w = (float)pixelRect.w / m_texture->GetHeight();
+        // Transform rectangle from image space to texture space.
+        // This requires normalizing coordinates and flipping the y-axis.
+        m_textureRect.x = (float)imageRect.x / m_texture->GetWidth();
+        m_textureRect.y = (float)imageRect.w / m_texture->GetHeight();
+        m_textureRect.z = (float)imageRect.z / m_texture->GetWidth();
+        m_textureRect.w = (float)imageRect.y / m_texture->GetHeight();
+        m_textureRect.y = 1.0f - m_textureRect.y;
+        m_textureRect.w = 1.0f - m_textureRect.w;
     }
     else
     {
-        m_normalRect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+        m_textureRect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     }
 }
 
-void TextureView::SetNormalRect(const glm::vec4 normalRect)
+void TextureView::SetTextureRect(const glm::vec4 normalRect)
 {
-    m_normalRect = normalRect;
+    m_textureRect = normalRect;
 }
 
 TextureView::ConstTexturePtr TextureView::GetTexture() const
@@ -100,24 +104,27 @@ const Texture* TextureView::GetTexturePtr() const
     return m_texture.get();
 }
 
-glm::ivec4 TextureView::GetPixelRect() const
+glm::ivec4 TextureView::GetImageRect() const
 {
-    ASSERT(m_texture != nullptr, "Cannot get texture view pixel rectangle without texture!");
+    ASSERT(m_texture != nullptr, "Cannot get image rectangle without texture!");
 
     glm::ivec4 rectangle(0, 0, 0, 0);
 
     if(m_texture)
     {
-        rectangle.x = (int)std::round(m_texture->GetWidth() * m_normalRect.x);
-        rectangle.y = (int)std::round(m_texture->GetHeight() * m_normalRect.y);
-        rectangle.z = (int)std::round(m_texture->GetWidth() * m_normalRect.z);
-        rectangle.w = (int)std::round(m_texture->GetHeight() * m_normalRect.w);
+        // Transform rectangle from texture space to image space.
+        rectangle.x = (int)std::round(m_textureRect.x * m_texture->GetWidth());
+        rectangle.y = (int)std::round(m_textureRect.w * m_texture->GetHeight());
+        rectangle.z = (int)std::round(m_textureRect.z * m_texture->GetWidth());
+        rectangle.w = (int)std::round(m_textureRect.y * m_texture->GetHeight());
+        rectangle.y = m_texture->GetHeight() - rectangle.y;
+        rectangle.w = m_texture->GetHeight() - rectangle.w;
     }
 
     return rectangle;
 }
 
-glm::vec4 TextureView::GetNormalRect() const
+glm::vec4 TextureView::GetTextureRect() const
 {
-    return m_normalRect;
+    return m_textureRect;
 }

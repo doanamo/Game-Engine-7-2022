@@ -244,13 +244,6 @@ void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& tra
 
         if(batchInfo.texture != nullptr)
         {
-            // Calculate and set inversed texture size.
-            glm::vec2 textureInvSize;
-            textureInvSize.x = 1.0f / batchInfo.texture->GetWidth();
-            textureInvSize.y = 1.0f / batchInfo.texture->GetHeight();
-
-            m_shader->SetUniform("textureSizeInv", textureInvSize);
-
             // Bind texture unit.
             renderState.ActiveTexture(GL_TEXTURE0);
             renderState.BindTexture(GL_TEXTURE_2D, batchInfo.texture->GetHandle());

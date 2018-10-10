@@ -7,7 +7,7 @@
 /*
     Texture View
 
-    Utility object used to represent a rectangular area on a texture.
+    Utility object used to represent a rectangular area on image or texture.
 */
 
 namespace Graphics
@@ -27,8 +27,8 @@ namespace Graphics
         ~TextureView();
 
         TextureView(ConstTexturePtr texture);
-        TextureView(ConstTexturePtr texture, glm::ivec4 pixelRect);
-        TextureView(ConstTexturePtr texture, glm::vec4 normalRect);
+        TextureView(ConstTexturePtr texture, glm::ivec4 imageRect);
+        TextureView(ConstTexturePtr texture, glm::vec4 textureRect);
 
         TextureView(const TextureView& other);
         TextureView& operator=(const TextureView& other);
@@ -39,11 +39,11 @@ namespace Graphics
         // Sets the texture reference.
         void SetTexture(ConstTexturePtr texture);
 
-        // Sets the texture rectangle in pixel space.
-        void SetPixelRect(const glm::ivec4 pixelRect);
+        // Sets the texture rectangle in image space.
+        void SetImageRect(const glm::ivec4 pixelRect);
 
-        // Sets the texture rectangle in normalized space.
-        void SetNormalRect(const glm::vec4 normalRect);
+        // Sets the texture rectangle in texture space.
+        void SetTextureRect(const glm::vec4 textureRect);
 
         // Gets the texture reference.
         ConstTexturePtr GetTexture() const;
@@ -51,17 +51,17 @@ namespace Graphics
         // Gets the texture pointer.
         const Texture* GetTexturePtr() const;
 
-        // Gets the texture rectangle coordinates in pixel space.
-        glm::ivec4 GetPixelRect() const;
+        // Gets the texture rectangle coordinates in image space.
+        glm::ivec4 GetImageRect() const;
 
-        // Gets the texture rectangle coordinates in normalized space.
-        glm::vec4 GetNormalRect() const;
+        // Gets the texture rectangle coordinates in texture space.
+        glm::vec4 GetTextureRect() const;
 
     private:
         // Texture reference.
         ConstTexturePtr m_texture;
 
-        // Texture rectangle coordinates in normalized space.
-        glm::vec4 m_normalRect;
+        // Texture rectangle coordinates in texture space.
+        glm::vec4 m_textureRect;
     };
 }

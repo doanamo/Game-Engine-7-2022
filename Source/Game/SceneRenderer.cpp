@@ -143,7 +143,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
             sprite.info.filtered = spriteComponent.IsFiltered();
             sprite.data.transform = transformComponent->CalculateMatrix();
             sprite.data.rectangle = spriteComponent.GetRectangle();
-            sprite.data.coords = spriteComponent.GetTextureView().GetPixelRect();
+            sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
             sprite.data.color = spriteComponent.GetColor();
 
             spriteList.AddSprite(sprite);
