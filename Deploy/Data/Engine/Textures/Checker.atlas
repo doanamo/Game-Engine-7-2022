@@ -1,0 +1,17 @@
+TextureAtlas =
+{
+    Texture = "Data/Engine/Textures/Checker.png",
+    
+    Regions =
+    {
+        ["full"] = { 0, 0, 128, 128 },
+        ["center"] = { 16, 16, 112, 112 },
+        ["skewed"] = { 32, 32, 128, 96 },
+        ["top_left"] = { 0, 0, 96, 96 },
+        ["top_right"] = { 32, 0, 128, 96 },
+        ["bottom_left"] = { 0, 32, 96, 128 },
+        ["bottom_right"] = { 32, 32, 128, 128 },
+        ["flipped_horizontally"] = { 0, 128, 128, 0 },
+        ["flipped_vertically"] = { 128, 0, 0, 128 },
+    },
+}
