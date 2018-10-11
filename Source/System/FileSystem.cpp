@@ -82,7 +82,7 @@ std::string FileSystem::ResolvePath(const std::string filePath)
         return filePath;
     }
 
-    // CHeck file path for each mounted directory (iterated in reverse).
+    // Check file path for each mounted directory (iterated in reverse).
     for(auto it = m_mountDirs.crbegin(); it != m_mountDirs.crend(); ++it)
     {
         // Create a resolved path.
