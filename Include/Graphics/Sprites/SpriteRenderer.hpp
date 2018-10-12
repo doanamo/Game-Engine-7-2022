@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include <vector>
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
-#include "Graphics/Sprite.hpp"
-#include "Graphics/SpriteList.hpp"
+#include "Graphics/Sprites/Sprite.hpp"
+#include "Graphics/Sprites/SpriteList.hpp"
 
 // Forward declarations.
 namespace Engine

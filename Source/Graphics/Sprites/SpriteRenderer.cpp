@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/SpriteRenderer.hpp"
+#include "Graphics/Sprites/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
 #include "System/ResourceManager.hpp"

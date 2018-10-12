@@ -12,7 +12,7 @@
 #include "System/InputState.hpp"
 #include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
-#include "Graphics/SpriteRenderer.hpp"
+#include "Graphics/Sprites/SpriteRenderer.hpp"
 #include "Game/SceneSystem.hpp"
 #include "Game/SceneRenderer.hpp"
 #include "Editor/EditorSystem.hpp"

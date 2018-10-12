@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Game/Component.hpp"
-#include "Graphics/Sprite.hpp"
+#include "Graphics/Sprites/Sprite.hpp"
 #include "Graphics/TextureView.hpp"
 
 /*

@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <vector>
-#include "Graphics/Sprite.hpp"
+#include "Graphics/Sprites/Sprite.hpp"
 
 /*
     Sprite List

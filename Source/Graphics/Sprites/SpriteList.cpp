@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/SpriteList.hpp"
+#include "Graphics/Sprites/SpriteList.hpp"
 using namespace Graphics;
 
 SpriteList::SpriteList()
