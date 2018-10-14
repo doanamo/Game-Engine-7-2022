@@ -15,14 +15,14 @@ namespace
     const EntityHandle::ValueType StartingIdentifier = 1;
 }
 
-EntitySystem::Events::Events()
+EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
+    handle(identifier), flags(HandleFlags::Unused)
 {
 }
 
-EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
-    handle(), flags(HandleFlags::Unused)
+EntitySystem::EntityCommand::EntityCommand(EntityCommands::Type type, EntityHandle handle) :
+    type(type), handle(handle)
 {
-    handle.identifier = identifier;
 }
 
 EntitySystem::EntitySystem() :
@@ -133,11 +133,8 @@ EntityHandle EntitySystem::CreateEntity()
     ASSERT(handleEntry->flags == HandleFlags::Unused);
     handleEntry->flags |= HandleFlags::Exists;
 
-    // Process further with entity creation.
-    EntityCommand command;
-    command.type = EntityCommands::Create;
-    command.handle = handleEntry->handle;
-    m_commands.push(command);
+    // Queue command for entity creation.
+    m_commands.emplace(EntityCommands::Create, handleEntry->handle);
 
     // Return the entity handle.
     return handleEntry->handle;
@@ -162,10 +159,7 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
     handleEntry.flags |= HandleFlags::Destroy;
 
     // Add a destroy entity command.
-    EntityCommand command;
-    command.type = EntityCommands::Destroy;
-    command.handle = handleEntry.handle;
-    m_commands.push(command);
+    m_commands.emplace(EntityCommands::Destroy, handleEntry.handle);
 }
 
 void EntitySystem::DestroyAllEntities()

@@ -18,7 +18,7 @@ namespace Game
     struct EntityHandle
     {
         // Type declarations.
-        typedef int ValueType;
+        using ValueType = int;
 
         // Constructor.
         EntityHandle() :
@@ -26,6 +26,16 @@ namespace Game
             version(0)
         {
         }
+
+        EntityHandle(ValueType identifier) :
+            identifier(identifier),
+            version(0)
+        {
+        }
+
+        // Handle data.
+        ValueType identifier;
+        ValueType version;
 
         // Sorting operator.
         bool operator<(const EntityHandle& other) const
@@ -49,10 +59,6 @@ namespace Game
         {
             return identifier != other.identifier || version != other.version;
         }
-
-        // Handle data.
-        ValueType identifier;
-        ValueType version;
     };
 }
 

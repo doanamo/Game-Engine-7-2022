@@ -27,6 +27,11 @@ namespace
     }
 }
 
+EditorSystem::RegisteredEditor::RegisteredEditor(std::string name, CreateEditorCallback callback) :
+    name(name), callback(callback)
+{
+}
+
 EditorSystem::EditorSystem() :
     m_engine(nullptr),
     m_interface(nullptr),
@@ -288,7 +293,7 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 void Editor::EditorSystem::RegisterEditorScene(std::string editorName, CreateEditorCallback createEditorCallback)
 {
     // Add editor scene to the list of registered editors.
-    m_editors.emplace_back(std::move(editorName), std::move(createEditorCallback));
+    m_editors.emplace_back(editorName, createEditorCallback);
 }
 
 void EditorSystem::Update(float timeDelta)

@@ -85,7 +85,7 @@ void TextureViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     auto& renderState = m_engine->renderContext.GetState();
 
     // Define screen space size.
-    glm::ivec2 viewportSize = drawParams.GetViewportSize();
+    glm::ivec2 viewportSize = drawParams.CalculateViewportSize();
     m_screenSpace.SetTargetSize(viewportSize.x, viewportSize.y);
 
     // Calculate combined view and projection matrix.

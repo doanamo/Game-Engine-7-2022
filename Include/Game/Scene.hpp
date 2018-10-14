@@ -15,9 +15,6 @@ namespace Game
     {
         SceneDrawParams();
 
-        // Returns the viewport size.
-        glm::ivec2 GetViewportSize() const;
-
         // Name of camera entity.
         std::string cameraName;
 
@@ -27,6 +24,8 @@ namespace Game
         // Time alpha between frames.
         // Used for interpolation calculations.
         float timeAlpha;
+        // Returns the viewport size.
+        glm::ivec2 CalculateViewportSize() const;
     };
 
     // Scene interface.

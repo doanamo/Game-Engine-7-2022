@@ -105,7 +105,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
             if(cameraComponent != nullptr)
             {
                 // Calculate the camera transform.
-                glm::ivec2 viewportSize = drawParams.GetViewportSize();
+                glm::ivec2 viewportSize = drawParams.CalculateViewportSize();
                 cameraTransform = cameraComponent->CalculateTransform(viewportSize);
             }
             else

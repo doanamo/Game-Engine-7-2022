@@ -9,7 +9,7 @@ SceneDrawParams::SceneDrawParams() :
 {
 }
 
-glm::ivec2 SceneDrawParams::GetViewportSize() const
+glm::ivec2 SceneDrawParams::CalculateViewportSize() const
 {
     glm::ivec2 output;
     output.x = viewportRect.z - viewportRect.x;

@@ -82,18 +82,22 @@ namespace Game
         // Entity command types.
         struct EntityCommands
         {
-            enum Type
+            enum
             {
                 Invalid,
 
                 Create,
                 Destroy,
             };
+
+            using Type = int;
         };
 
         // Entity command structure.
         struct EntityCommand
         {
+            EntityCommand(EntityCommands::Type type, EntityHandle handle);
+
             EntityCommands::Type type;
             EntityHandle handle;
         };
@@ -146,8 +150,6 @@ namespace Game
         // Event that are dispatched on ProcessCommands() call.
         struct Events
         {
-            Events();
-
             using EntityCreateDispatcher = Common::Dispatcher<bool(EntityHandle), Common::CollectWhileTrue>;
             using EntityDestroyDispatcher = Common::Dispatcher<void(EntityHandle)>;
 

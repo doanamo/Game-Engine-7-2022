@@ -114,8 +114,7 @@ namespace Editor
         // List of editors.
         struct RegisteredEditor
         {
-            RegisteredEditor(std::string&& name, CreateEditorCallback&& callback) :
-                name(std::move(name)), callback(std::move(callback)) { }
+            RegisteredEditor(std::string name, CreateEditorCallback callback);
 
             std::string name;
             CreateEditorCallback callback;

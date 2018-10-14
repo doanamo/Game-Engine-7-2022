@@ -8,6 +8,13 @@
 #include "Logger/Message.hpp"
 using namespace Logger;
 
+SinkContext::SinkContext() :
+    referenceFrame(0),
+    messageIndent(0),
+    messageWritten(false)
+{
+}
+
 Sink::Sink() :
     m_context()
 {

@@ -110,7 +110,7 @@ void ModelViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     ASSERT(camera != nullptr, "Could not retrieve camera component!");
 
     // Calculate combined view and projection matrix.
-    glm::mat4 cameraTransform = camera->CalculateTransform(drawParams.GetViewportSize());
+    glm::mat4 cameraTransform = camera->CalculateTransform(drawParams.CalculateViewportSize());
 
     // Draw the texture.
     Graphics::Sprite sprite;

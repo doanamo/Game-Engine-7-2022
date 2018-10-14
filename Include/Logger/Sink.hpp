@@ -40,12 +40,7 @@ namespace Logger
     // Sink context structure.
     struct SinkContext
     {
-        SinkContext() :
-            referenceFrame(0),
-            messageIndent(0),
-            messageWritten(false)
-        {
-        }
+        SinkContext();
 
         std::string name;
         int referenceFrame;
@@ -58,7 +53,7 @@ namespace Logger
     {
     public:
         // Type declarations.
-        typedef std::vector<Logger::Output*> OutputList;
+        using OutputList = std::vector<Logger::Output*>;
 
     public:
         Sink();
