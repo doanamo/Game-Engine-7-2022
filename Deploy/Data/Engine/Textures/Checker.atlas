@@ -13,5 +13,10 @@ TextureAtlas =
         ["bottom_right"] = { 32, 32, 128, 128 },
         ["flipped_horizontally"] = { 0, 128, 128, 0 },
         ["flipped_vertically"] = { 128, 0, 0, 128 },
+        
+        ["animation_frame_0"] = { 0, 0, 128, 128 },
+        ["animation_frame_1"] = { 128, 0, 0, 128 },
+        ["animation_frame_2"] = { 128, 128, 0, 0 },
+        ["animation_frame_3"] = { 0, 128, 128, 0 },
     },
 }

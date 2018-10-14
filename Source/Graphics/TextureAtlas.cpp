@@ -88,12 +88,13 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     Scripts::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
-        LOG_ERROR() << "Could not load or parse file!";
+        LOG_ERROR() << "Could not load file!";
         return false;
     }
 
     // Get the global table.
     lua_getglobal(scriptState, "TextureAtlas");
+    SCOPE_GUARD(lua_pop(scriptState, 1));
 
     if(!lua_istable(scriptState, -1))
     {
@@ -102,31 +103,33 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     }
 
     // Load the texture.
-    lua_getfield(scriptState, -1, "Texture");
-
-    if(!lua_isstring(scriptState, -1))
     {
-        LOG_ERROR() << "String \"TextureAtlas.Texture\" is missing!";
-        return false;
+        lua_getfield(scriptState, -1, "Texture");
+        SCOPE_GUARD(lua_pop(scriptState, 1));
+
+        if(!lua_isstring(scriptState, -1))
+        {
+            LOG_ERROR() << "String \"TextureAtlas.Texture\" is missing!";
+            return false;
+        }
+
+        Texture::LoadFromFile textureParams;
+        textureParams.engine = params.engine;
+        textureParams.filePath = lua_tostring(scriptState, -1);
+        textureParams.mipmaps = true;
+
+        m_texture = params.engine->resourceManager.Acquire<Graphics::Texture>(
+            textureParams.filePath, textureParams);
+
+        if(m_texture == nullptr)
+        {
+            LOG_WARNING() << "Could not load texture!";
+        }
     }
-
-    Texture::LoadFromFile textureParams;
-    textureParams.engine = params.engine;
-    textureParams.filePath = lua_tostring(scriptState, -1);
-    textureParams.mipmaps = true;
-
-    m_texture = params.engine->resourceManager.Acquire<Graphics::Texture>(
-        textureParams.filePath, textureParams);
-
-    if(m_texture == nullptr)
-    {
-        LOG_WARNING() << "Could not load texture!";
-    }
-
-    lua_pop(scriptState, 1);
 
     // Read texture regions.
     lua_getfield(scriptState, -1, "Regions");
+    SCOPE_GUARD(lua_pop(scriptState, 1));
 
     if(!lua_istable(scriptState, -1))
     {
@@ -139,7 +142,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         // Check if the key is a string.
         if(!lua_isstring(scriptState, -2))
         {
-            LOG_WARNING() << "Key in \"TextureAtlas.Regions\" is not a string!";
+            LOG_WARNING() << "Key in \"TextureAtlas.Regions\" is not string!";
             continue;
         }
 
@@ -155,7 +158,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
             if(!lua_isinteger(scriptState, -1))
             {
-                LOG_WARNING() << "Value of \"TextureAtlas.Regions." << regionName << "[" << i << "]\" is not an integer!";
+                LOG_WARNING() << "Value of \"TextureAtlas.Regions[\"" << regionName << "\"][" << i << "]\" is not an integer!";
             }
 
             pixelCoords[i] = Utility::NumericalCast<int>(lua_tointeger(scriptState, -1));
@@ -171,9 +174,6 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         }
     }
 
-    lua_pop(scriptState, 1);
-    lua_pop(scriptState, 1);
-    
     // Success!
     return initialized = true;
 }

@@ -119,7 +119,7 @@ bool ScriptState::Initialize(const LoadFromText& params)
     // Parse the text string.
     if(luaL_dostring(m_state, params.scriptText.c_str()) != 0)
     {
-        LOG_ERROR() << "Could not process text string!";
+        LOG_ERROR() << "Could not parse script!";
         this->PrintError();
         return false;
     }
@@ -149,7 +149,7 @@ bool ScriptState::Initialize(const LoadFromFile& params)
 
     if(params.filePath.empty())
     {
-        LOG_ERROR() << "Invalid parameter - \"filePath\" is null!";
+        LOG_ERROR() << "Invalid parameter - \"filePath\" is empty!";
         return false;
     }
 
@@ -159,7 +159,7 @@ bool ScriptState::Initialize(const LoadFromFile& params)
     // Parse the text file.
     if(luaL_dofile(m_state, resolvedFilePath.c_str()) != 0)
     {
-        LOG_ERROR() << "Could not process text file!";
+        LOG_ERROR() << "Could not load script file!";
         this->PrintError();
         return false;
     }
@@ -176,7 +176,7 @@ void ScriptState::PrintError()
     ASSERT(lua_isstring(m_state, -1), "Expected a string!");
 
     // Print error string to the log.
-    LOG_WARNING() << "Lua Error: " << lua_tostring(m_state, -1);
+    LOG_DEBUG() << "Lua Error: " << lua_tostring(m_state, -1);
 
     // Pop error string from the stack.
     lua_pop(m_state, 1);
