@@ -23,6 +23,23 @@ Camera::~Camera()
 {
 }
 
+Camera::Camera(Camera&& other)
+{
+    *this = std::move(other);
+}
+
+Camera& Camera::operator=(Camera&& other)
+{
+    std::swap(m_transform, other.m_transform);
+    std::swap(m_projection, other.m_projection);
+    std::swap(m_viewSize, other.m_viewSize);
+    std::swap(m_nearPlane, other.m_nearPlane);
+    std::swap(m_farPlane, other.m_farPlane);
+    std::swap(m_fov, other.m_fov);
+
+    return *this;
+}
+
 bool Camera::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
     // Retrieve the transform component.

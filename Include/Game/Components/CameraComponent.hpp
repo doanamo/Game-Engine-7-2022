@@ -26,6 +26,9 @@ namespace Game
             Camera();
             ~Camera();
 
+            Camera(Camera&& other);
+            Camera& operator=(Camera&& other);
+
             // Setups orthogonal projection for the camera.
             void SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane);
 

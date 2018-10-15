@@ -23,6 +23,23 @@ Sprite::~Sprite()
 {
 }
 
+Sprite::Sprite(Sprite&& other)
+{
+    *this = std::move(other);
+}
+
+Sprite& Sprite::operator=(Sprite&& other)
+{
+    std::swap(m_transformComponent, other.m_transformComponent);
+    std::swap(m_textureView, other.m_textureView);
+    std::swap(m_rectangle, other.m_rectangle);
+    std::swap(m_color, other.m_color);
+    std::swap(m_transparent, other.m_transparent);
+    std::swap(m_filtered, other.m_filtered);
+
+    return *this;
+}
+
 void Sprite::SetTextureView(Graphics::TextureView texture)
 {
     m_textureView = texture;

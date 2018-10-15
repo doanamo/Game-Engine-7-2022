@@ -19,6 +19,20 @@ Transform::~Transform()
 {
 }
 
+Transform::Transform(Transform&& other)
+{
+    *this = std::move(other);
+}
+
+Transform& Transform::operator=(Transform&& other)
+{
+    std::swap(position, other.position);
+    std::swap(rotation, other.rotation);
+    std::swap(scale, other.scale);
+
+    return *this;
+}
+
 glm::mat4 Transform::CalculateMatrix(const glm::mat4& input) const
 {
     glm::mat4 output(input);

@@ -20,6 +20,9 @@ namespace Game
             Transform();
             ~Transform();
 
+            Transform(Transform&& other);
+            Transform& operator=(Transform&& other);
+
             // Calculates the transform matrix.
             glm::mat4 CalculateMatrix(const glm::mat4& input = glm::mat4(1.0f)) const;
 

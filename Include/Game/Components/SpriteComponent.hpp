@@ -26,6 +26,9 @@ namespace Game
             Sprite();
             ~Sprite();
 
+            Sprite(Sprite&& other);
+            Sprite& operator=(Sprite&& other);
+
             // Sets sprite texture.
             void SetTextureView(Graphics::TextureView texture);
 
