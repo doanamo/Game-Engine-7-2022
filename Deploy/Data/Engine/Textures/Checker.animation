@@ -1,8 +1,8 @@
-SpriteAnimation =
+SpriteAnimationList =
 {
     TextureAtlas = "Data/Engine/Textures/Checker.atlas",
     
-    Sequences =
+    Animations =
     {
         ["rotation"] =
         {

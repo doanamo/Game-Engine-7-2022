@@ -91,8 +91,8 @@ set(SOURCE_FILES
     "Source/Graphics/Sprites/SpriteDrawList.cpp"
     "Include/Graphics/Sprites/SpriteRenderer.hpp"
     "Source/Graphics/Sprites/SpriteRenderer.cpp"
-    "Include/Graphics/Sprites/SpriteAnimation.hpp"
-    "Source/Graphics/Sprites/SpriteAnimation.cpp"
+    "Include/Graphics/Sprites/SpriteAnimationList.hpp"
+    "Source/Graphics/Sprites/SpriteAnimationList.cpp"
 
     "Include/Scripts/ScriptState.hpp"
     "Source/Scripts/ScriptState.cpp"

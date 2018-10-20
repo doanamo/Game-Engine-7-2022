@@ -3,73 +3,78 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/Sprites/SpriteAnimation.hpp"
+#include "Graphics/Sprites/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
 #include "Scripts/ScriptState.hpp"
 #include "System/ResourceManager.hpp"
 #include "Engine.hpp"
 using namespace Graphics;
 
-Graphics::SpriteAnimation::LoadFromFile::LoadFromFile() :
+SpriteAnimationList::LoadFromFile::LoadFromFile() :
     engine(nullptr), filePath()
 {
 }
 
-SpriteAnimation::Frame::Frame() :
+SpriteAnimationList::Frame::Frame() :
     textureView(), duration(0.0f)
 {
 }
 
-SpriteAnimation::Frame::Frame(TextureView&& textureView, float duration) :
+SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration) :
     textureView(std::move(textureView)), duration(duration)
 {
 }
 
-SpriteAnimation::SpriteAnimation() :
+SpriteAnimationList::Animation::Animation() :
+    duration(0.0f)
+{
+}
+
+SpriteAnimationList::SpriteAnimationList() :
     m_initialized(false)
 {
 }
 
-SpriteAnimation::SpriteAnimation(SpriteAnimation&& other)
+SpriteAnimationList::SpriteAnimationList(SpriteAnimationList&& other)
 {
     *this = std::move(other);
 }
 
-SpriteAnimation& SpriteAnimation::operator=(SpriteAnimation&& other)
+SpriteAnimationList& SpriteAnimationList::operator=(SpriteAnimationList&& other)
 {
-    std::swap(m_sequenceList, other.m_sequenceList);
-    std::swap(m_sequenceMap, other.m_sequenceMap);
+    std::swap(m_animationList, other.m_animationList);
+    std::swap(m_animationMap, other.m_animationMap);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
 }
 
-bool SpriteAnimation::Initialize()
+bool SpriteAnimationList::Initialize()
 {
-    LOG() << "Initializing sprite animation..." << LOG_INDENT();
+    LOG() << "Initializing sprite animation list..." << LOG_INDENT();
 
     // Make sure that this instance has not been already initialized.
-    VERIFY(!m_initialized, "Sprite animation has already been initialized!");
+    VERIFY(!m_initialized, "Sprite animation list has already been initialized!");
 
     // Create a scope guard in case initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = SpriteAnimation());
+    SCOPE_GUARD_IF(!m_initialized, *this = SpriteAnimationList());
 
     // Success!
     return m_initialized = true;
 }
 
-bool SpriteAnimation::Initialize(const LoadFromFile& params)
+bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading sprite animation from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG() << "Loading sprite animation list from \"" << params.filePath << "\" file..." << LOG_INDENT();
 
-    // Initialize the sprite animation instance.
+    // Initialize the sprite animation list instance.
     if(!this->Initialize())
         return false;
 
     // Create a scope guard in case initialization fails.
     bool initialized = false;
 
-    SCOPE_GUARD_IF(!initialized, *this = SpriteAnimation());
+    SCOPE_GUARD_IF(!initialized, *this = SpriteAnimationList());
 
     // Validate arguments.
     if(params.engine == nullptr)
@@ -91,12 +96,12 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
     }
 
     // Get the global table.
-    lua_getglobal(scriptState, "SpriteAnimation");
+    lua_getglobal(scriptState, "SpriteAnimationList");
     SCOPE_GUARD(lua_pop(scriptState, 1));
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"SpriteAnimation\" is missing!";
+        LOG_ERROR() << "Table \"SpriteAnimationList\" is missing!";
         return false;
     }
 
@@ -109,7 +114,7 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
 
         if(!lua_isstring(scriptState, -1))
         {
-            LOG_ERROR() << "String \"SpriteAnimation\" is missing!";
+            LOG_ERROR() << "String \"SpriteAnimationList.TextureAtlas\" is missing!";
             return false;
         }
 
@@ -127,13 +132,13 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
         }
     }
 
-    // Read animation sequence.
-    lua_getfield(scriptState, -1, "Sequences");
+    // Read animation entries.
+    lua_getfield(scriptState, -1, "Animations");
     SCOPE_GUARD(lua_pop(scriptState, 1));
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"SpriteAnimation.Sequences\" is missing!";
+        LOG_ERROR() << "Table \"SpriteAnimationList.Animations\" is missing!";
         return false;
     }
 
@@ -142,23 +147,23 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
         // Check if the key is a string.
         if(!lua_isstring(scriptState, -2))
         {
-            LOG_WARNING() << "Key in \"SpriteAnimation.Sequences\" is not string!";
-            LOG_WARNING() << "Skipping one ill formated sequence!";
+            LOG_WARNING() << "Key in \"SpriteAnimationList.Animations\" is not a string!";
+            LOG_WARNING() << "Skipping one ill formated sprite animation!";
             continue;
         }
 
-        std::string sequenceName = lua_tostring(scriptState, -2);
+        std::string animationName = lua_tostring(scriptState, -2);
 
-        // Read sequence frames.
-        Sequence sequence;
+        // Read animation frames.
+        Animation animation;
 
         for(lua_pushnil(scriptState); lua_next(scriptState, -2); lua_pop(scriptState, 1))
         {
             // Make sure that we have a table.
             if(!lua_istable(scriptState, -1))
             {
-                LOG_WARNING() << "Value in \"SpriteAnimation.Sequences[\"" << sequenceName << "\"]\" is not table!";
-                LOG_WARNING() << "Skipping one ill formated frame!";
+                LOG_WARNING() << "Value in \"SpriteAnimationList.Animations[\"" << animationName << "\"]\" is not a table!";
+                LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
                 continue;
             }
 
@@ -172,8 +177,8 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
 
                 if(!lua_isstring(scriptState, -1))
                 {
-                    LOG_WARNING() << "Field in \"SpriteAnimation.Sequences[" << sequenceName << "][0]\" is not string!";
-                    LOG_WARNING() << "Skipping one ill formated frame!";
+                    LOG_WARNING() << "Field in \"SpriteAnimationList.Animations[" << animationName << "][0]\" is not a string!";
+                    LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
                     continue;
                 }
 
@@ -190,23 +195,49 @@ bool SpriteAnimation::Initialize(const LoadFromFile& params)
 
                 if(!lua_isnumber(scriptState, -1))
                 {
-                    LOG_WARNING() << "Field in \"SpriteAnimation.Sequences[\"" << sequenceName << "\"][1]\" is not number!";
-                    LOG_WARNING() << "Skipping one ill formated frame!";
+                    LOG_WARNING() << "Field in \"SpriteAnimationList.Animations[\"" << animationName << "\"][1]\" is not a number!";
+                    LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
                     continue;
                 }
 
                 frameDuration = Utility::NumericalCast<float>(lua_tonumber(scriptState, -1));
             }
 
-            // Add a frame to sequence.
-            sequence.frames.emplace_back(std::move(textureView), frameDuration);
+            // Add a frame to the animation.
+            animation.frames.emplace_back(std::move(textureView), frameDuration);
+            animation.duration += frameDuration;
         }
 
-        // Add sequence to the list.
-        m_sequenceList.emplace_back(std::move(sequence));
-        m_sequenceMap.emplace(sequenceName, m_sequenceList.size() - 1);
+        // Add an animation to the list.
+        m_animationList.emplace_back(std::move(animation));
+        m_animationMap.emplace(animationName, m_animationList.size() - 1);
     }
 
     // Success!
     return initialized = true;
+}
+
+std::optional<std::size_t> SpriteAnimationList::GetAnimationIndex(std::string animationName) const
+{
+    // Find animation index by name.
+    auto it = m_animationMap.find(animationName);
+
+    if(it != m_animationMap.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+const SpriteAnimationList::Animation* SpriteAnimationList::GetAnimationByIndex(std::size_t animationIndex) const
+{
+    // Make sure that index is valid.
+    bool isIndexValid = animationIndex >= 0 && animationIndex < m_animationList.size();
+    ASSERT(!isIndexValid, "Invalid sprite animation index!");
+ 
+    // Return an animation pointed by the index.
+    return isIndexValid ? &m_animationList[animationIndex] : nullptr;
 }
