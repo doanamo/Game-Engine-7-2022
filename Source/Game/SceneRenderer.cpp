@@ -121,7 +121,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         }
         
         // Create a list of sprites that will be drawn.
-        Graphics::SpriteList spriteList;
+        Graphics::SpriteDrawList spriteDrawList;
 
         // Get all sprite components.
         for(auto it = componentSystem.Begin<SpriteComponent>(); 
@@ -146,13 +146,13 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
             sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
             sprite.data.color = spriteComponent.GetColor();
 
-            spriteList.AddSprite(sprite);
+            spriteDrawList.AddSprite(sprite);
         }
 
         // Sort the sprite draw list.
-        spriteList.SortSprites();
+        spriteDrawList.SortSprites();
 
         // Draw sprite components.
-        m_engine->spriteRenderer.DrawSprites(spriteList, cameraTransform);
+        m_engine->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
     }
 }

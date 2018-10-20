@@ -122,8 +122,8 @@ void ModelViewer::OnDraw(const Game::SceneDrawParams& drawParams)
     sprite.data.coords = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     sprite.data.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-    Graphics::SpriteList spriteList;
-    spriteList.AddSprite(sprite);
+    Graphics::SpriteDrawList spriteDrawList;
+    spriteDrawList.AddSprite(sprite);
 
-    GetEngine()->spriteRenderer.DrawSprites(spriteList, cameraTransform);
+    GetEngine()->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
 }

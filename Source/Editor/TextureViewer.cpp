@@ -104,9 +104,9 @@ void TextureViewer::OnDraw(const Game::SceneDrawParams& drawParams)
         sprite.data.coords = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
         sprite.data.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-        Graphics::SpriteList spriteList;
-        spriteList.AddSprite(sprite);
+        Graphics::SpriteDrawList spriteDrawList;
+        spriteDrawList.AddSprite(sprite);
 
-        m_engine->spriteRenderer.DrawSprites(spriteList, vertexTransform);
+        m_engine->spriteRenderer.DrawSprites(spriteDrawList, vertexTransform);
     }
 }

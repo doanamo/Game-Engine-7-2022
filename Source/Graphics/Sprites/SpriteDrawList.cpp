@@ -3,38 +3,38 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/Sprites/SpriteList.hpp"
+#include "Graphics/Sprites/SpriteDrawList.hpp"
 using namespace Graphics;
 
-SpriteList::SpriteList()
+SpriteDrawList::SpriteDrawList()
 {
 }
 
-SpriteList::~SpriteList()
+SpriteDrawList::~SpriteDrawList()
 {
 }
 
-void SpriteList::ReserveSprites(std::size_t count)
+void SpriteDrawList::ReserveSprites(std::size_t count)
 {
     m_spriteInfo.reserve(count);
     m_spriteData.reserve(count);
     m_spriteSort.reserve(count);
 }
 
-void SpriteList::AddSprite(const Sprite& sprite)
+void SpriteDrawList::AddSprite(const Sprite& sprite)
 {
     m_spriteInfo.push_back(sprite.info);
     m_spriteData.push_back(sprite.data);
 }
 
-void SpriteList::ClearSprites()
+void SpriteDrawList::ClearSprites()
 {
     m_spriteInfo.clear();
     m_spriteData.clear();
     m_spriteSort.clear();
 }
 
-void SpriteList::SortSprites()
+void SpriteDrawList::SortSprites()
 {
     ASSERT(m_spriteInfo.size() == m_spriteData.size(),
         "Arrays of sprite info and data have different size!");
@@ -82,7 +82,7 @@ void SpriteList::SortSprites()
     Utility::ReorderWithIndices(m_spriteData, m_spriteSort);
 }
 
-std::size_t Graphics::SpriteList::GetSpriteCount() const
+std::size_t Graphics::SpriteDrawList::GetSpriteCount() const
 {
     ASSERT(m_spriteInfo.size() == m_spriteData.size(),
         "Arrays of sprite info and data have different size!");
@@ -90,12 +90,12 @@ std::size_t Graphics::SpriteList::GetSpriteCount() const
     return m_spriteInfo.size();
 }
 
-const std::vector<Sprite::Info>& SpriteList::GetSpriteInfo() const
+const std::vector<Sprite::Info>& SpriteDrawList::GetSpriteInfo() const
 {
     return m_spriteInfo;
 }
 
-const std::vector<Sprite::Data>& SpriteList::GetSpriteData() const
+const std::vector<Sprite::Data>& SpriteDrawList::GetSpriteData() const
 {
     return m_spriteData;
 }

@@ -178,7 +178,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     return m_initialized = true;
 }
 
-void SpriteRenderer::DrawSprites(const SpriteList& sprites, const glm::mat4& transform)
+void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform)
 {
     ASSERT(m_initialized, "Sprite renderer has not been initialized!");
 

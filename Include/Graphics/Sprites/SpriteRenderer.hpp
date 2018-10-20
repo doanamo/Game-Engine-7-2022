@@ -9,7 +9,7 @@
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/Sprites/Sprite.hpp"
-#include "Graphics/Sprites/SpriteList.hpp"
+#include "Graphics/Sprites/SpriteDrawList.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -51,7 +51,7 @@ namespace Graphics
 
         // Draws a batch of sprites.
         // Very efficient rendering if array of sprites is already sorted to reduces state changes.
-        void DrawSprites(const SpriteList& sprites, const glm::mat4& transform);
+        void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
     private:
         // Render context.
