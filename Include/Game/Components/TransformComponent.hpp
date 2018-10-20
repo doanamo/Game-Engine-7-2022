@@ -11,25 +11,22 @@
 
 namespace Game
 {
-    namespace Components
+    // Transform component.
+    class TransformComponent : public Component
     {
-        // Transform component.
-        class Transform : public Component
-        {
-        public:
-            Transform();
-            ~Transform();
+    public:
+        TransformComponent();
+        ~TransformComponent();
 
-            Transform(Transform&& other);
-            Transform& operator=(Transform&& other);
+        TransformComponent(TransformComponent&& other);
+        TransformComponent& operator=(TransformComponent&& other);
 
-            // Calculates the transform matrix.
-            glm::mat4 CalculateMatrix(const glm::mat4& input = glm::mat4(1.0f)) const;
+        // Calculates the transform matrix.
+        glm::mat4 CalculateMatrix(const glm::mat4& input = glm::mat4(1.0f)) const;
 
-            // Transform parameters.
-            glm::vec3 position;
-            glm::vec3 rotation;
-            glm::vec3 scale;
-        };
-    }
+        // Transform parameters.
+        glm::vec3 position;
+        glm::vec3 rotation;
+        glm::vec3 scale;
+    };
 }

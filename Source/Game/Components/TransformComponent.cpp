@@ -4,27 +4,25 @@
 
 #include "Precompiled.hpp"
 #include "Game/Components/TransformComponent.hpp"
-
 using namespace Game;
-using namespace Components;
 
-Transform::Transform() :
+TransformComponent::TransformComponent() :
     position(0.0f, 0.0f, 0.0f),
     rotation(0.0f, 0.0f, 0.0f),
     scale(1.0f, 1.0f, 1.0f)
 {
 }
 
-Transform::~Transform()
+TransformComponent::~TransformComponent()
 {
 }
 
-Transform::Transform(Transform&& other)
+TransformComponent::TransformComponent(TransformComponent&& other)
 {
     *this = std::move(other);
 }
 
-Transform& Transform::operator=(Transform&& other)
+TransformComponent& TransformComponent::operator=(TransformComponent&& other)
 {
     std::swap(position, other.position);
     std::swap(rotation, other.rotation);
@@ -33,7 +31,7 @@ Transform& Transform::operator=(Transform&& other)
     return *this;
 }
 
-glm::mat4 Transform::CalculateMatrix(const glm::mat4& input) const
+glm::mat4 TransformComponent::CalculateMatrix(const glm::mat4& input) const
 {
     glm::mat4 output(input);
 

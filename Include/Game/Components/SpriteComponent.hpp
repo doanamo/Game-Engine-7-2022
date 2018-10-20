@@ -14,70 +14,67 @@
 
 namespace Game
 {
-    namespace Components
+    // Forward declarations.
+    class TransformComponent;
+
+    // Sprite component.
+    class SpriteComponent : public Component
     {
-        // Forward declarations.
-        class Transform;
+    public:
+        SpriteComponent();
+        ~SpriteComponent();
 
-        // Sprite component.
-        class Sprite : public Component
-        {
-        public:
-            Sprite();
-            ~Sprite();
+        SpriteComponent(SpriteComponent&& other);
+        SpriteComponent& operator=(SpriteComponent&& other);
 
-            Sprite(Sprite&& other);
-            Sprite& operator=(Sprite&& other);
+        // Sets sprite texture.
+        void SetTextureView(Graphics::TextureView texture);
 
-            // Sets sprite texture.
-            void SetTextureView(Graphics::TextureView texture);
+        // Sets sprite rectangle.
+        void SetRectangle(const glm::vec4& rectangle);
 
-            // Sets sprite rectangle.
-            void SetRectangle(const glm::vec4& rectangle);
+        // Sets sprite color.
+        void SetColor(const glm::vec4& color);
 
-            // Sets sprite color.
-            void SetColor(const glm::vec4& color);
+        // Sets sprite transparency.
+        void SetTransparent(bool toggle);
 
-            // Sets sprite transparency.
-            void SetTransparent(bool toggle);
+        // Sets sprite filtering.
+        void SetFiltered(bool toggle);
 
-            // Sets sprite filtering.
-            void SetFiltered(bool toggle);
+        // Gets sprite texture.
+        const Graphics::TextureView& GetTextureView() const;
 
-            // Gets sprite texture.
-            const Graphics::TextureView& GetTextureView() const;
+        // Gets sprite rectangle.
+        glm::vec4 GetRectangle() const;
 
-            // Gets sprite rectangle.
-            glm::vec4 GetRectangle() const;
+        // Gets sprite color.
+        glm::vec4 GetColor() const;
 
-            // Gets sprite color.
-            glm::vec4 GetColor() const;
+        // Gets sprite transparency.
+        bool IsTransparent() const;
 
-            // Gets sprite transparency.
-            bool IsTransparent() const;
+        // Gets sprite filtering.
+        bool IsFiltered() const;
 
-            // Gets sprite filtering.
-            bool IsFiltered() const;
+        // Returns the transform component.
+        TransformComponent* GetTransformComponent() const;
 
-            // Returns the transform component.
-            Transform* GetTransformComponent() const;
+    protected:
+        // Called on component initialization.
+        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
-        protected:
-            // Called on component initialization.
-            bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
+    private:
+        // Transform component reference.
+        TransformComponent* m_transformComponent;
 
-        private:
-            // Transform component reference.
-            Components::Transform* m_transformComponent;
+        // Sprite texture.
+        Graphics::TextureView m_textureView;
 
-            // Sprite texture.
-            Graphics::TextureView m_textureView;
-
-            // Sprite description.
-            glm::vec4 m_rectangle;
-            glm::vec4 m_color;
-            bool m_transparent;
-            bool m_filtered;
-        };
-    }
+        // Sprite description.
+        glm::vec4 m_rectangle;
+        glm::vec4 m_color;
+        bool m_transparent;
+        bool m_filtered;
+    };
 }

@@ -6,11 +6,9 @@
 #include "Game/Components/CameraComponent.hpp"
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/ComponentSystem.hpp"
-
 using namespace Game;
-using namespace Components;
 
-Camera::Camera() :
+CameraComponent::CameraComponent() :
     m_transform(nullptr),
     m_projection(ProjectionTypes::Perspective),
     m_viewSize(2.0f, 2.0f),
@@ -19,16 +17,16 @@ Camera::Camera() :
 {
 }
 
-Camera::~Camera()
+CameraComponent::~CameraComponent()
 {
 }
 
-Camera::Camera(Camera&& other)
+CameraComponent::CameraComponent(CameraComponent&& other)
 {
     *this = std::move(other);
 }
 
-Camera& Camera::operator=(Camera&& other)
+CameraComponent& CameraComponent::operator=(CameraComponent&& other)
 {
     std::swap(m_transform, other.m_transform);
     std::swap(m_projection, other.m_projection);
@@ -40,16 +38,16 @@ Camera& Camera::operator=(Camera&& other)
     return *this;
 }
 
-bool Camera::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
+bool CameraComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
     // Retrieve the transform component.
-    m_transform = componentSystem->Lookup<Transform>(entitySelf);
+    m_transform = componentSystem->Lookup<TransformComponent>(entitySelf);
     if(m_transform == nullptr) return false;
 
     return true;
 }
 
-void Camera::SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane)
+void CameraComponent::SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane)
 {
     m_projection = ProjectionTypes::Orthogonal;
     m_viewSize = viewSize;
@@ -57,7 +55,7 @@ void Camera::SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float f
     m_farPlane = farPlane;
 }
 
-void Camera::SetupPerspective(float fov, float nearPlane, float farPlane)
+void CameraComponent::SetupPerspective(float fov, float nearPlane, float farPlane)
 {
     m_projection = ProjectionTypes::Perspective;
     m_nearPlane = nearPlane;
@@ -65,7 +63,7 @@ void Camera::SetupPerspective(float fov, float nearPlane, float farPlane)
     m_fov = fov;
 }
 
-glm::mat4 Camera::CalculateTransform(const glm::ivec2& viewportSize)
+glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
 {
     glm::mat4 output(1.0f);
 
@@ -116,7 +114,7 @@ glm::mat4 Camera::CalculateTransform(const glm::ivec2& viewportSize)
     return output;
 }
 
-Transform* Camera::GetTransformComponent()
+TransformComponent* CameraComponent::GetTransformComponent()
 {
     return m_transform;
 }

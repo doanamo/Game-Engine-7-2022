@@ -100,7 +100,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
 
         if(entitySystem.IsHandleValid(cameraEntity))
         {
-            auto cameraComponent = componentSystem.Lookup<Components::Camera>(cameraEntity);
+            auto cameraComponent = componentSystem.Lookup<CameraComponent>(cameraEntity);
 
             if(cameraComponent != nullptr)
             {
@@ -124,16 +124,16 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         Graphics::SpriteList spriteList;
 
         // Get all sprite components.
-        for(auto it = componentSystem.Begin<Components::Sprite>(); 
-            it != componentSystem.End<Components::Sprite>(); ++it)
+        for(auto it = componentSystem.Begin<SpriteComponent>(); 
+            it != componentSystem.End<SpriteComponent>(); ++it)
         {
             // Get the sprite component.
             // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
             // We can modify a component handle and cause undefined behavior if we want.
-            Components::Sprite& spriteComponent = it->component;
+            SpriteComponent& spriteComponent = it->component;
 
             // Get the transform component.
-            Components::Transform* transformComponent = spriteComponent.GetTransformComponent();
+            TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
             ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
             // Add a sprite to the draw list.
