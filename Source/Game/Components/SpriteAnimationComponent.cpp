@@ -15,10 +15,8 @@ SpriteAnimationComponent::SpriteAnimationComponent() :
     m_spriteAnimation(nullptr),
     m_frameTime(0.0f),
     m_frameIndex(0),
-    m_frameChanged(false),
-    m_playbackTime(0.0f),
-    m_playing(false),
-    m_loop(true)
+    m_playbackInfo(PlaybackFlags::None),
+    m_playbackTime(0.0f)
 {
 }
 
@@ -34,10 +32,8 @@ SpriteAnimationComponent& SpriteAnimationComponent::operator=(SpriteAnimationCom
     std::swap(m_spriteAnimation, other.m_spriteAnimation);
     std::swap(m_frameTime, other.m_frameTime);
     std::swap(m_frameIndex, other.m_frameIndex);
-    std::swap(m_frameChanged, other.m_frameChanged);
+    std::swap(m_playbackInfo, other.m_playbackInfo);
     std::swap(m_playbackTime, other.m_playbackTime);
-    std::swap(m_playing, other.m_playing);
-    std::swap(m_loop, other.m_loop);
 
     return *this;
 }
@@ -79,20 +75,25 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
 
     // Start playing an animation.
     m_spriteAnimation = m_spriteAnimationList->GetAnimationByIndex(sequenceIndex.value());
+    ASSERT(m_spriteAnimation, "Sprite animation retrieved via index is null!");
 
     m_frameTime = 0.0f;
     m_frameIndex = 0;
-    m_frameChanged = false;
 
+    m_playbackInfo = PlaybackFlags::Playing | PlaybackFlags::FirstFrame;
     m_playbackTime = 0.0f;
-    m_playing = true;
-    m_loop = loop;
+    
+    // Set playback loop flag.
+    if(loop)
+    {
+        m_playbackInfo |= PlaybackFlags::Loop;
+    }
 }
 
 void SpriteAnimationComponent::Pause()
 {
     // Pause currently playing animation.
-    m_playing = false;
+    m_playbackInfo &= ~PlaybackFlags::Playing;
 }
 
 void SpriteAnimationComponent::Resume()
@@ -100,7 +101,7 @@ void SpriteAnimationComponent::Resume()
     // Resume currently playing animation.
     if(m_spriteAnimation != nullptr)
     {
-        m_playing = true;
+        m_playbackInfo |= PlaybackFlags::Playing;
     }
 }
 
@@ -111,30 +112,39 @@ void SpriteAnimationComponent::Stop()
 
     m_frameTime = 0.0f;
     m_frameIndex = 0;
-    m_frameChanged = false;
 
+    m_playbackInfo = PlaybackFlags::None;
     m_playbackTime = 0.0f;
-    m_playing = false;
-    m_loop = false;
 }
 
 void SpriteAnimationComponent::Update(float timeDelta)
 {
     // Increment playback time.
-    if(m_playing)
+    if(m_playbackInfo & PlaybackFlags::Playing)
     {
         ASSERT(m_spriteAnimation, "Playing sprite animation without an animation set!");
         ASSERT(m_spriteAnimation->duration > 0.0f, "Sprite animation has an invalid duration!");
 
+        // Clear the frame changed flag before every update to avoid unnecessary frame changes.
+        // One exception is the first frame after animation starts playing.
+        if(m_playbackInfo & PlaybackFlags::FirstFrame)
+        {
+            m_playbackInfo |= PlaybackFlags::FrameChanged;
+            m_playbackInfo &= ~PlaybackFlags::FirstFrame;
+        }
+        else
+        {
+            m_playbackInfo &= ~PlaybackFlags::FrameChanged;
+        }
+
         // Update current frame index.
         m_frameTime += timeDelta;
-        m_frameChanged = false;
 
         while(m_frameTime > m_spriteAnimation->frames[m_frameIndex].duration)
         {
             m_frameTime -= m_spriteAnimation->frames[m_frameIndex].duration;
             m_frameIndex = (m_frameIndex + 1) % m_spriteAnimation->frames.size();
-            m_frameChanged = true;
+            m_playbackInfo |= PlaybackFlags::FrameChanged;
         }
 
         // Update the playback timer.
@@ -142,7 +152,7 @@ void SpriteAnimationComponent::Update(float timeDelta)
 
         if(m_playbackTime > m_spriteAnimation->duration)
         {
-            if(m_loop)
+            if(m_playbackInfo & PlaybackFlags::Loop)
             {
                 m_playbackTime = std::fmod(m_playbackTime, m_spriteAnimation->duration);
             }
@@ -152,7 +162,7 @@ void SpriteAnimationComponent::Update(float timeDelta)
                 m_frameTime = m_spriteAnimation->frames[m_frameIndex].duration;
 
                 m_playbackTime = m_spriteAnimation->duration;
-                m_playing = false;
+                m_playbackInfo &= ~PlaybackFlags::Playing;
             }
         }
     }
@@ -175,7 +185,7 @@ std::size_t SpriteAnimationComponent::GetFrameIndex() const
 
 bool SpriteAnimationComponent::HasFrameChanged() const
 {
-    return m_frameChanged;
+    return m_playbackInfo & PlaybackFlags::FrameChanged;
 }
 
 float SpriteAnimationComponent::GetPlaybackTime() const
@@ -185,7 +195,7 @@ float SpriteAnimationComponent::GetPlaybackTime() const
 
 bool SpriteAnimationComponent::IsPlaying() const
 {
-    return m_playing;
+    return m_playbackInfo & PlaybackFlags::Playing;
 }
 
 SpriteComponent* SpriteAnimationComponent::GetSpriteComponent() const

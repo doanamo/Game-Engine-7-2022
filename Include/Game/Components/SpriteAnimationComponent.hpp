@@ -20,6 +20,23 @@ namespace Game
     class SpriteAnimationComponent : public Component
     {
     public:
+        // Playback flags.
+        struct PlaybackFlags
+        {
+            enum
+            {
+                None = 0 << 0,
+
+                Playing = 1 << 0,
+                Loop = 1 << 2,
+
+                FirstFrame = 1 << 3,
+                FrameChanged = 1 << 4,
+            };
+
+            using Type = unsigned int;
+        };
+
         // Type declarations.
         using SpriteAnimationListPtr = std::shared_ptr<Graphics::SpriteAnimationList>;
         using SpriteAnimation = Graphics::SpriteAnimationList::Animation;
@@ -80,15 +97,15 @@ namespace Game
         // Sprite animation list.
         SpriteAnimationListPtr m_spriteAnimationList;
 
-        // Animation playback info.
+        // Current sprite animation.
         const SpriteAnimation* m_spriteAnimation;
 
-        float m_frameTime;
+        // Animation frame info.
         std::size_t m_frameIndex;
-        bool m_frameChanged;
+        float m_frameTime;
 
+        // Animation playback info.
+        PlaybackFlags::Type m_playbackInfo;
         float m_playbackTime;
-        bool m_playing;
-        bool m_loop;
     };
 }
