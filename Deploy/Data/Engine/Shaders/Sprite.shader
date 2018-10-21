@@ -41,6 +41,24 @@
         coords.x += instanceCoords.x;
         coords.y += instanceCoords.y;
 
+        // Rotate texture if specified region rectangle requires so.
+        float cosFactor, sinFactor;
+
+        if((instanceCoords.z > instanceCoords.x && instanceCoords.w < instanceCoords.y) ||
+            (instanceCoords.z < instanceCoords.x && instanceCoords.w > instanceCoords.y))
+        {
+
+            cosFactor = cos(radians(90.0f));
+            sinFactor = sin(radians(90.0f));
+        }
+        else
+        {
+            cosFactor = cos(radians(0.0f));
+            sinFactor = sin(radians(0.0f));
+        }
+
+        coords *= mat2(cosFactor, sinFactor, sinFactor, cosFactor);
+
         // Output a sprite vertex.
         gl_Position = position;
         fragmentCoords = coords;
