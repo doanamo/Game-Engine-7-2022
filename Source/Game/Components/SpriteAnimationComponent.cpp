@@ -98,16 +98,37 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
     m_loop = loop;
 }
 
-void SpriteAnimationComponent::SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList)
+void SpriteAnimationComponent::Pause()
 {
-    // Set new sprite animation resource.
-    m_spriteAnimationList = spriteAnimationList;
+    // Pause currently playing animation.
+    m_playing = false;
+}
 
-    // Stop and reset all playback state.
+void SpriteAnimationComponent::Resume()
+{
+    // Resume currently playing animation.
+    if(m_spriteAnimation != nullptr)
+    {
+        m_playing = true;
+    }
+}
+
+void SpriteAnimationComponent::Stop()
+{
+    // Stop currently playing animation.
     m_spriteAnimation = nullptr;
     m_playbackTime = 0.0f;
     m_playing = false;
     m_loop = false;
+}
+
+void SpriteAnimationComponent::SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList)
+{
+    // Stop currently playing animation.
+    this->Stop();
+
+    // Set new sprite animation resource.
+    m_spriteAnimationList = spriteAnimationList;
 }
 
 SpriteComponent* SpriteAnimationComponent::GetSpriteComponent() const

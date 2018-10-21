@@ -33,6 +33,15 @@ namespace Game
         // Plays a specific sprite animation.
         void Play(std::string animationName, bool loop);
 
+        // Pauses the currently playing animation.
+        void Pause();
+
+        // Resumes the currently paused animation.
+        void Resume();
+
+        // Stops the currently playing animation.
+        void Stop();
+
         // Updates the currently playing animation.
         void Update(float timeDelta);
 
