@@ -64,40 +64,21 @@ void SpriteAnimationSystem::Update(float timeDelta)
     for(auto it = m_componentSystem->Begin<SpriteAnimationComponent>();
         it != m_componentSystem->End<SpriteAnimationComponent>(); ++it)
     {
-        // Get the sprite animation component.
+        // Update the sprite animation component.
         // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
         // We can modify a component handle and cause undefined behavior if we want.
         SpriteAnimationComponent& spriteAnimationComponent = it->component;
-        
-        // Get the sprite component.
-        SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
-
-        // Update the sprite animation component.
         spriteAnimationComponent.Update(timeDelta);
 
-        // Skip sprite frame change if animation is not playing.
-        if(!spriteAnimationComponent.IsPlaying())
-            continue;
-
-        // Find the current frame.
-        // #todo: We are iterating through the entire list of frames here.
-        // Performance here is slower the more frames are in an animation.
-        // We should be just using a looping index or a ring iterator.
-        auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
-        float playbackTime = spriteAnimationComponent.GetPlaybackTime();
-
-        for(const auto& frame : spriteAnimation->frames)
+        // Update the sprite texture view.
+        if(spriteAnimationComponent.HasFrameChanged())
         {
-            // Check if the time is within the current frame.
-            if(playbackTime <= frame.duration)
-            {
-                // Set texture view from the current frame.
-                spriteComponent->SetTextureView(frame.textureView);
-                break;
-            }
+            SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
 
-            // Proceed to the next frame.
-            playbackTime -= frame.duration;
+            auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
+            std::size_t frameIndex = spriteAnimationComponent.GetFrameIndex();
+
+            spriteComponent->SetTextureView(spriteAnimation->frames[frameIndex].textureView);
         }
     }
 }

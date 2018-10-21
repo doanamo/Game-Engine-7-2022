@@ -30,6 +30,9 @@ namespace Game
         SpriteAnimationComponent(SpriteAnimationComponent&& other);
         SpriteAnimationComponent& operator=(SpriteAnimationComponent&& other);
 
+        // Sets the sprite animation list.
+        void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
+
         // Plays a specific sprite animation.
         void Play(std::string animationName, bool loop);
 
@@ -45,23 +48,26 @@ namespace Game
         // Updates the currently playing animation.
         void Update(float timeDelta);
 
-        // Sets the sprite animation list.
-        void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
-
-        // Gets the sprite component.
-        SpriteComponent* GetSpriteComponent() const;
-
         // Gets the sprite animation list.
         const SpriteAnimationListPtr& GetSpriteAnimationList() const;
 
         // Gets the current sprite animation.
         const SpriteAnimation* GetSpriteAnimation() const;
 
+        // Gets the current frame index.
+        std::size_t GetFrameIndex() const;
+
+        // Checks if animation frame has changed.
+        bool HasFrameChanged() const;
+
         // Gets the current playback time.
         float GetPlaybackTime() const;
 
         // Checks if sprite animation is being played.
         bool IsPlaying() const;
+
+        // Gets the sprite component.
+        SpriteComponent* GetSpriteComponent() const;
 
     private:
         // Called when component gets initialized.
@@ -76,6 +82,11 @@ namespace Game
 
         // Animation playback info.
         const SpriteAnimation* m_spriteAnimation;
+
+        float m_frameTime;
+        std::size_t m_frameIndex;
+        bool m_frameChanged;
+
         float m_playbackTime;
         bool m_playing;
         bool m_loop;
