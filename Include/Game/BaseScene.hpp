@@ -8,6 +8,7 @@
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/IdentitySystem.hpp"
+#include "Game/Systems/SpriteAnimationSystem.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -53,10 +54,13 @@ namespace Game
         Engine::Root* GetEngine() const;
 
     public:
-        // Base game systems.
+        // Core game systems.
         Game::EntitySystem entitySystem;
         Game::ComponentSystem componentSystem;
         Game::IdentitySystem identitySystem;
+
+        // Base game systems.
+        Game::SpriteAnimationSystem spriteAnimationSystem;
 
     private:
         // Engine reference.

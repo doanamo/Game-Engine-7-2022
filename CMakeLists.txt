@@ -130,6 +130,9 @@ set(SOURCE_FILES
     "Source/Game/Components/SpriteComponent.cpp"
     "Include/Game/Components/SpriteAnimationComponent.hpp"
     "Source/Game/Components/SpriteAnimationComponent.cpp"
+
+    "Include/Game/Systems/SpriteAnimationSystem.hpp"
+    "Source/Game/Systems/SpriteAnimationSystem.cpp"
 )
 
 #

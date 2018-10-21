@@ -152,6 +152,10 @@ namespace Game
             if(entityFlags & EntitySystem::HandleFlags::Created)
             {
                 // Initialize the component.
+                // #todo: We should always expect a created component to exist,
+                // so we can avoid putting asserts everywhere. Maybe return a valid
+                // pointer for one frame and destroy the entity on next processing?
+                // May be a bad idea to actually not handle errors right away.
                 if(!pool->InitializeComponent(handle))
                 {
                     // Destroy component if initialization fails.

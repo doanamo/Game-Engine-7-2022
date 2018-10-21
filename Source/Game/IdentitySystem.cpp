@@ -38,15 +38,22 @@ IdentitySystem& IdentitySystem::operator=(IdentitySystem&& other)
     return *this;
 }
 
-bool IdentitySystem::Initialize(EntitySystem& entitySystem)
+bool IdentitySystem::Initialize(EntitySystem* entitySystem)
 {
     LOG() << "Initializing identity system...";
 
     // Make sure instance is not already initialized.
     ASSERT(!m_initialized, "Identity system instance has already been initialized!");
 
+    // Validate arguments.
+    if(entitySystem == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"entitySystem\" is null!";
+        return false;
+    }
+
     // Subscribe event receiver.
-    m_entityDestroyReceiver.Subscribe(entitySystem.events.entityDestroy);
+    m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
 
     // Success!
     return m_initialized = true;;

@@ -43,7 +43,7 @@ namespace Game
         IdentitySystem& operator=(IdentitySystem&& other);
 
         // Initializes the identity system.
-        bool Initialize(EntitySystem& entitySystem);
+        bool Initialize(EntitySystem* entitySystem);
 
         // Sets an entity name.
         bool SetEntityName(EntityHandle entity, std::string name, bool rename = true);
@@ -60,14 +60,14 @@ namespace Game
         void OnEntityDestroyed(EntityHandle entity);
 
     private:
-        // Initialization state.
-        bool m_initialized;
-
         // Lookup tables.
         EntityLookup m_entityLookup;
         NameLookup m_nameLookup;
 
         // Event receiver.
         Common::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
+        
+        // Initialization state.
+        bool m_initialized;
     };
 }

@@ -236,7 +236,7 @@ const SpriteAnimationList::Animation* SpriteAnimationList::GetAnimationByIndex(s
 {
     // Make sure that index is valid.
     bool isIndexValid = animationIndex >= 0 && animationIndex < m_animationList.size();
-    ASSERT(!isIndexValid, "Invalid sprite animation index!");
+    ASSERT(isIndexValid, "Invalid sprite animation index!");
  
     // Return an animation pointed by the index.
     return isIndexValid ? &m_animationList[animationIndex] : nullptr;

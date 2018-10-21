@@ -79,9 +79,6 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         drawParams.viewportRect.w
     );
 
-    // Call the drawing method.
-    scene->OnDraw(drawParams);
-
     // Check if current scene is a base scene (one that has an entity system).
     BaseScene* baseScene = dynamic_cast<BaseScene*>(scene);
 
@@ -155,4 +152,8 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         // Draw sprite components.
         m_engine->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
     }
+
+    // Call the drawing method.
+    // #todo: There may have to be two drawing methods, before and after scene render.
+    scene->OnDraw(drawParams);
 }

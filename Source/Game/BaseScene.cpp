@@ -30,6 +30,8 @@ BaseScene& BaseScene::operator=(BaseScene&& other)
     std::swap(componentSystem, other.componentSystem);
     std::swap(identitySystem, other.identitySystem);
 
+    std::swap(spriteAnimationSystem, other.spriteAnimationSystem);
+
     std::swap(m_engine, other.m_engine);
     std::swap(m_initialized, other.m_initialized);
 
@@ -73,9 +75,17 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
     // Initialize the identity system.
     // Allows readable names to be assigned to entities.
-    if(!identitySystem.Initialize(entitySystem))
+    if(!identitySystem.Initialize(&entitySystem))
     {
         LOG_ERROR() << "Could not initialize identity system!";
+        return false;
+    }
+
+    // Initialize the sprite animation system.
+    // Updates sprites according to their sprite animations.
+    if(!spriteAnimationSystem.Initialize(&componentSystem))
+    {
+        LOG_ERROR() << "Could not initialize sprite animation system!";
         return false;
     }
 
@@ -85,12 +95,18 @@ bool BaseScene::Initialize(Engine::Root* engine)
 
 void BaseScene::OnUpdate(float timeDelta)
 {
+    ASSERT(m_initialized, "Base scene class has not been initialized!");
+
     // Process entity commands.
     entitySystem.ProcessCommands();
+
+    // Update the sprite animation system.
+    spriteAnimationSystem.Update(timeDelta);
 }
 
 void BaseScene::OnDraw(const SceneDrawParams& drawParams)
 {
+    ASSERT(m_initialized, "Base scene class has not been initialized!");
 }
 
 Engine::Root* BaseScene::GetEngine() const

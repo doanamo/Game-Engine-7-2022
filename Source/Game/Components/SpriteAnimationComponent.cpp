@@ -13,7 +13,7 @@ SpriteAnimationComponent::SpriteAnimationComponent() :
     m_spriteComponent(nullptr),
     m_spriteAnimationList(),
     m_spriteAnimation(nullptr),
-    m_currentTime(0.0f),
+    m_playbackTime(0.0f),
     m_playing(false),
     m_loop(true)
 {
@@ -29,7 +29,7 @@ SpriteAnimationComponent& SpriteAnimationComponent::operator=(SpriteAnimationCom
     std::swap(m_spriteComponent, other.m_spriteComponent);
     std::swap(m_spriteAnimationList, other.m_spriteAnimationList);
     std::swap(m_spriteAnimation, other.m_spriteAnimation);
-    std::swap(m_currentTime, other.m_currentTime);
+    std::swap(m_playbackTime, other.m_playbackTime);
     std::swap(m_playing, other.m_playing);
     std::swap(m_loop, other.m_loop);
 
@@ -44,7 +44,7 @@ bool SpriteAnimationComponent::OnInitialize(ComponentSystem* componentSystem, co
     return true;
 }
 
-void SpriteAnimationComponent::OnUpdate(float timeDelta)
+void SpriteAnimationComponent::Update(float timeDelta)
 {
     // Increment playback time.
     if(m_playing)
@@ -53,20 +53,20 @@ void SpriteAnimationComponent::OnUpdate(float timeDelta)
         ASSERT(m_spriteAnimation, "Playing sprite animation without an animation set!");
 
         // Update the playback timer.
-        m_currentTime += timeDelta;
+        m_playbackTime += timeDelta;
 
         // Handle looping or animation end.
         ASSERT(m_spriteAnimation->duration > 0.0f, "Sprite animation has an invalid duration!");
 
-        if(m_currentTime >= m_spriteAnimation->duration)
+        if(m_playbackTime >= m_spriteAnimation->duration)
         {
             if(m_loop)
             {
-                m_currentTime = std::fmod(m_currentTime, m_spriteAnimation->duration);
+                m_playbackTime = std::fmod(m_playbackTime, m_spriteAnimation->duration);
             }
             else
             {
-                m_currentTime = m_spriteAnimation->duration;
+                m_playbackTime = m_spriteAnimation->duration;
                 m_playing = false;
             }
         }
@@ -87,13 +87,13 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
 
     if(!sequenceIndex.has_value())
     {
-        LOG_WARNING() << "Could not find \"" << animationName << "\" animation!";
+        LOG_WARNING() << "Could not find \"" << animationName << "\" sprite animation to play!";
         return;
     }
 
     // Start playing an animation.
     m_spriteAnimation = m_spriteAnimationList->GetAnimationByIndex(sequenceIndex.value());
-    m_currentTime = 0.0f;
+    m_playbackTime = 0.0f;
     m_playing = true;
     m_loop = loop;
 }
@@ -105,12 +105,32 @@ void SpriteAnimationComponent::SetSpriteAnimationList(SpriteAnimationListPtr spr
 
     // Stop and reset all playback state.
     m_spriteAnimation = nullptr;
-    m_currentTime = 0.0f;
+    m_playbackTime = 0.0f;
     m_playing = false;
     m_loop = false;
+}
+
+SpriteComponent* SpriteAnimationComponent::GetSpriteComponent() const
+{
+    return m_spriteComponent;
 }
 
 const SpriteAnimationComponent::SpriteAnimationListPtr& SpriteAnimationComponent::GetSpriteAnimationList() const
 {
     return m_spriteAnimationList;
+}
+
+const SpriteAnimationComponent::SpriteAnimation* SpriteAnimationComponent::GetSpriteAnimation() const
+{
+    return m_spriteAnimation;
+}
+
+float SpriteAnimationComponent::GetPlaybackTime() const
+{
+    return m_playbackTime;
+}
+
+bool SpriteAnimationComponent::IsPlaying() const
+{
+    return m_playing;
 }
