@@ -200,7 +200,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
                     continue;
                 }
 
-                frameDuration = Utility::NumericalCast<float>(lua_tonumber(scriptState, -1));
+                frameDuration = (float)lua_tonumber(scriptState, -1);
             }
 
             // Add a frame to the animation.
