@@ -60,14 +60,17 @@ void SpriteAnimationSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Sprite animation system has not been initialized!");
 
+    // Get the sprite animation component pool.
+    ComponentPool<SpriteAnimationComponent>* spriteAnimationComponentPool =
+        m_componentSystem->GetPool<SpriteAnimationComponent>();
+
+    if(spriteAnimationComponentPool == nullptr)
+        return;
+
     // Get all sprite animation components.
-    for(auto it = m_componentSystem->Begin<SpriteAnimationComponent>();
-        it != m_componentSystem->End<SpriteAnimationComponent>(); ++it)
+    for(auto& spriteAnimationComponent : *spriteAnimationComponentPool)
     {
         // Update the sprite animation component.
-        // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
-        // We can modify a component handle and cause undefined behavior if we want.
-        SpriteAnimationComponent& spriteAnimationComponent = it->component;
         spriteAnimationComponent.Update(timeDelta);
 
         // Update the sprite texture view.

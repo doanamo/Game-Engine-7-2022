@@ -80,6 +80,11 @@ namespace Game
         template<typename ComponentType>
         ComponentType* Lookup(EntityHandle handle);
 
+        // Gets a component pool.
+        // Creates a new pool if needed.
+        template<typename ComponentType>
+        ComponentPool<ComponentType>* GetPool(bool create = false);
+
         // Gets the begin iterator.
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator Begin();
@@ -96,10 +101,6 @@ namespace Game
         // Cannot be called freely when a component is alive.
         template<typename ComponentType>
         bool Destroy(EntityHandle handle);
-
-        // Gets a component pool.
-        template<typename ComponentType>
-        ComponentPool<ComponentType>* GetPool();
 
         // Creates a component type.
         template<typename ComponentType>
@@ -137,7 +138,7 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Get the component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
+        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>(true);
         ASSERT(pool != nullptr, "Retrieved a null component pool!");
 
         // Create a new component.
@@ -152,10 +153,6 @@ namespace Game
             if(entityFlags & EntitySystem::HandleFlags::Created)
             {
                 // Initialize the component.
-                // #todo: We should always expect a created component to exist,
-                // so we can avoid putting asserts everywhere. Maybe return a valid
-                // pointer for one frame and destroy the entity on next processing?
-                // May be a bad idea to actually not handle errors right away.
                 if(!pool->InitializeComponent(handle))
                 {
                     // Destroy component if initialization fails.
@@ -203,7 +200,7 @@ namespace Game
     }
 
     template<typename ComponentType>
-    ComponentPool<ComponentType>* ComponentSystem::GetPool()
+    ComponentPool<ComponentType>* ComponentSystem::GetPool(bool create)
     {
         ASSERT(m_initialized, "Component system instance is not initialized!");
 
@@ -214,8 +211,16 @@ namespace Game
         auto it = m_pools.find(typeid(ComponentType));
         if(it == m_pools.end())
         {
-            // Create a new component pool.
-            return this->CreatePool<ComponentType>();
+            if(create)
+            {
+                // Create and return a new component pool.
+                return this->CreatePool<ComponentType>();
+            }
+            else
+            {
+                // Could not find a component pool.
+                return nullptr;
+            }
         }
 
         // Cast and return the pointer that we already know is a component pool.

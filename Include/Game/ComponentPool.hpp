@@ -14,8 +14,6 @@
 
     Manages a pool for a single type of a component.
     See ComponentSystem for more context.
-
-    #todo: Add a way to iterate over a list of components in a pool using for each loop.
 */
 
 namespace Game
@@ -79,9 +77,37 @@ namespace Game
         // Type declarations.
         using ComponentIndex = std::size_t;
         using ComponentList = std::vector<ComponentEntry>;
-        using ComponentIterator = typename ComponentList::iterator;
         using ComponentFreeList = std::queue<ComponentIndex>;
         using ComponentLookup = std::unordered_map<EntityHandle, ComponentIndex>;
+
+        // Component iterator class.
+        class ComponentIterator
+        {
+        public:
+            // Type declarations.
+            using BaseIterator = typename ComponentList::iterator;
+
+        public:
+            // Iterator constructors.
+            ComponentIterator(BaseIterator& iterator, BaseIterator& end);
+
+            // Iterator methods.
+            typename ComponentType& operator*() const;
+            bool operator==(const ComponentIterator& other) const;
+            bool operator!=(const ComponentIterator& other) const;
+            ComponentIterator& operator++();
+
+        private:
+            // Iterate to next valid component.
+            void ValidateIterator();
+
+        private:
+            // Iterator that we are wrapping around.
+            BaseIterator m_iterator;
+
+            // End of container that we are iterating over.
+            BaseIterator m_end;
+        };
 
     public:
         ComponentPool(ComponentSystem* componentSystem);
@@ -138,6 +164,69 @@ namespace Game
         entity(),
         component()
     {
+    }
+
+    template<typename ComponentType>
+    void ComponentPool<ComponentType>::ComponentIterator::ValidateIterator()
+    {
+        // Make sure that the current iterator is valid 
+        // and if not, find the next iterator that is.
+        while(m_iterator != m_end)
+        {
+            // Check if current iterator points at a valid component.
+            if(m_iterator->flags & ComponentFlags::Initialized)
+            {
+                // Make sure component actually exists.
+                ASSERT(m_iterator->flags & ComponentFlags::Exists,
+                    "Component is not marked as existing despite being marked as initialized!");
+
+                // Iterator is valid.
+                break;
+            }
+
+            // Move iterator forward to the next element.
+            ++m_iterator;
+        }
+    }
+
+    template<typename ComponentType>
+    ComponentPool<ComponentType>::ComponentIterator::ComponentIterator(BaseIterator& iterator, BaseIterator& end) :
+        m_iterator(iterator), m_end(end)
+    {
+        // Make sure iterator is valid.
+        this->ValidateIterator();
+    }
+
+    template<typename ComponentType>
+    typename ComponentType& ComponentPool<ComponentType>::ComponentIterator::operator*() const
+    {
+        return m_iterator->component;
+    }
+
+    template<typename ComponentType>
+    bool ComponentPool<ComponentType>::ComponentIterator::operator==(const ComponentIterator& other) const
+    {
+        return m_iterator == other.m_iterator;
+    }
+
+    template<typename ComponentType>
+    bool ComponentPool<ComponentType>::ComponentIterator::operator!=(const ComponentIterator& other) const
+    {
+        return m_iterator != other.m_iterator;
+    }
+
+    template<typename ComponentType>
+    typename ComponentPool<ComponentType>::ComponentIterator& ComponentPool<ComponentType>::ComponentIterator::operator++()
+    {
+        ASSERT(m_iterator != m_end, "Trying to increment component iterator past end!");
+
+        // Increment the iterator.
+        ++m_iterator;
+
+        // Make sure iterator is valid.
+        this->ValidateIterator();
+
+        return *this;
     }
 
     template<typename ComponentType>
@@ -295,13 +384,13 @@ namespace Game
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentPool<ComponentType>::Begin()
     {
-        return m_entries.begin();
+        return ComponentIterator(m_entries.begin(), m_entries.end());
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentPool<ComponentType>::End()
     {
-        return m_entries.end();
+        return ComponentIterator(m_entries.end(), m_entries.end());
     }
 
     template<typename ComponentType>

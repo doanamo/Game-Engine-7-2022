@@ -120,15 +120,16 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         // Create a list of sprites that will be drawn.
         Graphics::SpriteDrawList spriteDrawList;
 
-        // Get all sprite components.
-        for(auto it = componentSystem.Begin<SpriteComponent>(); 
-            it != componentSystem.End<SpriteComponent>(); ++it)
-        {
-            // Get the sprite component.
-            // #todo: Create a custom ComponentIterator to access elements in ComponentPool.
-            // We can modify a component handle and cause undefined behavior if we want.
-            SpriteComponent& spriteComponent = it->component;
+        // Retrieve the component pool.
+        ComponentPool<SpriteComponent>* spriteComponentPool =
+            componentSystem.GetPool<SpriteComponent>();
 
+        if(spriteComponentPool == nullptr)
+            return;
+
+        // Get all sprite components.
+        for(auto& spriteComponent : *spriteComponentPool)
+        {
             // Get the transform component.
             TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
             ASSERT(transformComponent != nullptr, "Required transform component is missing!");
@@ -154,6 +155,6 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
     }
 
     // Call the drawing method.
-    // #todo: There may have to be two drawing methods, before and after scene render.
+    // There may eventually have to be two drawing methods, before and after scene render.
     scene->OnDraw(drawParams);
 }
