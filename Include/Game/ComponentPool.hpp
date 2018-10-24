@@ -249,9 +249,15 @@ namespace Game
         // Get base component interface.
         Component& componentInterface = componentEntry.component;
 
-        // OnInitialize component and return result.
+        // Initialize component and return result.
         ASSERT(m_componentSystem != nullptr, "Component system cannot be null!");
-        return componentInterface.OnInitialize(m_componentSystem, entity);
+        if(!componentInterface.OnInitialize(m_componentSystem, entity))
+            return false;
+
+        // Mark component as initialized.
+        componentEntry.flags |= ComponentFlags::Initialized;
+
+        return true;
     }
 
     template<typename ComponentType>
