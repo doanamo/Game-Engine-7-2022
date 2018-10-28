@@ -53,6 +53,8 @@ set(SOURCE_FILES
 
     "Include/System/Platform.hpp"
     "Source/System/Platform.cpp"
+    "Include/System/InputMapping.hpp"
+    "Source/System/InputMapping.cpp"
     "Include/System/FileSystem.hpp"
     "Source/System/FileSystem.cpp"
     "Include/System/Window.hpp"

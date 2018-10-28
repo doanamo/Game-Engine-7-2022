@@ -137,27 +137,27 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
-    io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-    io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-    io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-    io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-    io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-    io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-    io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-    io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-    io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-    io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-    io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-    io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-    io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-    io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-    io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-    io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+    io.KeyMap[ImGuiKey_Tab] = System::KeyboardKeys::KeyTab;
+    io.KeyMap[ImGuiKey_LeftArrow] = System::KeyboardKeys::KeyLeft;
+    io.KeyMap[ImGuiKey_RightArrow] = System::KeyboardKeys::KeyRight;
+    io.KeyMap[ImGuiKey_UpArrow] = System::KeyboardKeys::KeyUp;
+    io.KeyMap[ImGuiKey_DownArrow] = System::KeyboardKeys::KeyDown;
+    io.KeyMap[ImGuiKey_PageUp] = System::KeyboardKeys::KeyPageUp;
+    io.KeyMap[ImGuiKey_PageDown] = System::KeyboardKeys::KeyPageDown;
+    io.KeyMap[ImGuiKey_Home] = System::KeyboardKeys::KeyHome;
+    io.KeyMap[ImGuiKey_End] = System::KeyboardKeys::KeyEnd;
+    io.KeyMap[ImGuiKey_Insert] = System::KeyboardKeys::KeyInsert;
+    io.KeyMap[ImGuiKey_Delete] = System::KeyboardKeys::KeyDelete;
+    io.KeyMap[ImGuiKey_Backspace] = System::KeyboardKeys::KeyBackspace;
+    io.KeyMap[ImGuiKey_Space] = System::KeyboardKeys::KeySpace;
+    io.KeyMap[ImGuiKey_Enter] = System::KeyboardKeys::KeyEnter;
+    io.KeyMap[ImGuiKey_Escape] = System::KeyboardKeys::KeyEscape;
+    io.KeyMap[ImGuiKey_A] = System::KeyboardKeys::KeyA;
+    io.KeyMap[ImGuiKey_C] = System::KeyboardKeys::KeyC;
+    io.KeyMap[ImGuiKey_V] = System::KeyboardKeys::KeyV;
+    io.KeyMap[ImGuiKey_X] = System::KeyboardKeys::KeyX;
+    io.KeyMap[ImGuiKey_Y] = System::KeyboardKeys::KeyY;
+    io.KeyMap[ImGuiKey_Z] = System::KeyboardKeys::KeyZ;
 
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
@@ -478,16 +478,23 @@ void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Make sure that the array is of an expected size.
-    const int MaxButtonCount = 5;
-    ASSERT(Utility::StaticArraySize(io.MouseDown) == MaxButtonCount, "Unexpected array size!");
+    // Determine the number of supported mouse buttons.
+    const int SupportedMouseButtonCount = std::min(
+        Utility::StaticArraySize(io.MouseDown),
+        (unsigned int)System::MouseButtons::Count
+    );
 
     // We can only handle a specific number of buttons.
-    if(event.button < 0 || event.button >= MaxButtonCount)
+    if(event.button < System::MouseButtons::Button1)
+        return;
+
+    if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
         return;
 
     // Set mouse button state.
-    io.MouseDown[event.button] = event.action == GLFW_PRESS;
+    const int MouseButtonIndex = event.button - System::MouseButtons::Button1;
+    ASSERT(MouseButtonIndex < Utility::StaticArraySize(io.MouseDown), "Invalid mouse button index!");
+    io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
 }
 
 void EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
@@ -511,21 +518,21 @@ void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
     ImGuiIO& io = ImGui::GetIO();
 
     // Make sure that the array is of an expected size.
-    ASSERT(Utility::StaticArraySize(io.KeysDown) >= GLFW_KEY_LAST + 1, "Insufficient input array size!");
-    ASSERT(event.key >= 0 && event.key < GLFW_KEY_LAST + 1, "Unexpected key input index!");
+    const int MaxKeyboardKeyCount = Utility::StaticArraySize(io.KeysDown);
+    ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Inssuficient ImGUI keyboard state array size!");
 
     // We can only handle a specific number of keys.
-    if(event.key < 0 || event.key >= GLFW_KEY_LAST + 1)
+    if(event.key < 0 || event.key >= MaxKeyboardKeyCount)
         return;
 
     // Change key state.
-    io.KeysDown[event.key] = event.action == GLFW_PRESS;
+    io.KeysDown[event.key] = (event.state == System::InputStates::Pressed);
 
     // Change states of key modifiers.
-    io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-    io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+    io.KeyAlt = event.modifiers & System::KeyboardModifiers::ModAlt;
+    io.KeyCtrl = event.modifiers & System::KeyboardModifiers::ModCtrl;
+    io.KeyShift = event.modifiers & System::KeyboardModifiers::ModShift;
+    io.KeySuper = event.modifiers & System::KeyboardModifiers::ModSuper;
 }
 
 void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)
@@ -537,5 +544,9 @@ void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
     ImGuiIO& io = ImGui::GetIO();
 
     // Add text input character.
-    io.AddInputCharacter(event.character);
+    // #temp: Use proper UTF-32 to UTF-8 conversion, otherwise we lose some characters.
+    if(event.utf32Character <= std::numeric_limits<ImWchar>::max())
+    {
+        io.AddInputCharacter((ImWchar)event.utf32Character);
+    }
 }

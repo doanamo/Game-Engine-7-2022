@@ -71,14 +71,14 @@ bool InputState::Initialize(Window& window)
 void InputState::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
-    VERIFY(0 <= event.key && event.key < KeyboardKeyCount, "Received an event with an invalid key!");
+    VERIFY(0 <= event.key && event.key < KeyboardKeys::Count, "Received an event with an invalid key!");
 
     // Handle keyboard input events.
-    if(event.action == GLFW_PRESS)
+    if(event.state == InputStates::Pressed)
     {
         m_keyboardState[event.key] = KeyboardKeyStates::Pressed;
     }
-    else if(event.action == GLFW_RELEASE)
+    else if(event.state == InputStates::Released)
     {
         m_keyboardState[event.key] = KeyboardKeyStates::Released;
     }
@@ -117,7 +117,7 @@ void InputState::PrepareForEvents()
 bool InputState::IsKeyboardKeyDown(int key, bool repeat)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
-    VERIFY(0 <= key && key < KeyboardKeyCount, "Attempting to index an invalid key!");
+    VERIFY(0 <= key && key < KeyboardKeys::Count, "Attempting to index an invalid key!");
 
     // Check if the key was just pressed.
     if(m_keyboardState[key] == KeyboardKeyStates::Pressed)
@@ -133,7 +133,7 @@ bool InputState::IsKeyboardKeyDown(int key, bool repeat)
 bool InputState::IsKeyboardKeyUp(int key, bool repeat)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
-    VERIFY(0 <= key && key < KeyboardKeyCount, "Attempting to index an invalid key!");
+    VERIFY(0 <= key && key < KeyboardKeys::Count, "Attempting to index an invalid key!");
 
     // Check if the key was just released.
     if(m_keyboardState[key] == KeyboardKeyStates::Released)

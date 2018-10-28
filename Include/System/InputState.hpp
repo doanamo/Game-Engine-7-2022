@@ -47,9 +47,6 @@ namespace System
     class InputState
     {
     public:
-        // Constant variables.
-        static const int KeyboardKeyCount = GLFW_KEY_LAST + 1;
-
         // Keyboard key states.
         struct KeyboardKeyStates
         {
@@ -103,7 +100,7 @@ namespace System
         Common::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
         
         // States of keyboard keys.
-        KeyboardKeyStates::Type m_keyboardState[KeyboardKeyCount];
+        KeyboardKeyStates::Type m_keyboardState[KeyboardKeys::Count];
 
         // Initialization state.
         bool m_initialized;

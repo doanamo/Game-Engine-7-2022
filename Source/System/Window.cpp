@@ -306,10 +306,10 @@ void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int 
 
     // Send an event.
     Window::Events::KeyboardKey eventData;
-    eventData.key = key;
+    eventData.state = TranslateInputState(action);
+    eventData.key = TranslateKeyboardKey(key);
+    eventData.modifiers = TranslateKeyboardModifiers(mods);
     eventData.scancode = scancode;
-    eventData.action = action;
-    eventData.mods = mods;
 
     instance->events.keyboardKey(eventData);
 }
@@ -324,7 +324,7 @@ void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
 
     // Send an event.
     Window::Events::TextInput eventData;
-    eventData.character = character;
+    eventData.utf32Character = character;
 
     instance->events.textInput(eventData);
 }
@@ -339,9 +339,9 @@ void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int
 
     // Send an event.
     Window::Events::MouseButton eventData;
-    eventData.button = button;
-    eventData.action = action;
-    eventData.mods = mods;
+    eventData.state = TranslateInputState(action);
+    eventData.button = TranslateMouseButton(button);
+    eventData.modifiers = TranslateKeyboardModifiers(mods);
 
     instance->events.mouseButton(eventData);
 }

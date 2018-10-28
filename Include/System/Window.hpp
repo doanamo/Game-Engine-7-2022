@@ -5,8 +5,8 @@
 #pragma once
 
 #include <string>
-#include "Common/NonCopyable.hpp"
 #include "Events/Dispatcher.hpp"
+#include "System/InputMapping.hpp"
 
 /*
     System Window
@@ -166,10 +166,10 @@ namespace System
             // Keyboard key event.
             struct KeyboardKey
             {
-                int key;
+                InputStates::Type state;
+                KeyboardKeys::Type key;
+                KeyboardModifiers::Type modifiers;
                 int scancode;
-                int action;
-                int mods;
             };
 
             Common::Dispatcher<void(const KeyboardKey&)> keyboardKey;
@@ -179,7 +179,7 @@ namespace System
             {
                 // Character is stored in UTF32 format here and can be
                 // converted to any other code point as the user wishes.
-                unsigned int character;
+                unsigned int utf32Character;
             };
 
             Common::Dispatcher<void(const TextInput&)> textInput;
@@ -187,11 +187,9 @@ namespace System
             // Mouse button event.
             struct MouseButton
             {
-                // #improvement: Use enumerations to store button,
-                // action and mod types instead of plain integers.
-                int button; // GLFW_MOUSE_BUTTON_1, GLFW_MOUSE_BUTTON_LEFT etc.
-                int action; // GLFW_RELEASE, GLFW_PRESS, GLFW_REPEAT
-                int mods; // GLFW_MOD_SHIFT, GLFW_MOD_CONTROL, GLFW_MOD_ALT etc.
+                InputStates::Type state;
+                MouseButtons::Type button;
+                KeyboardKeys::Type modifiers;
             };
 
             Common::Dispatcher<void(const MouseButton&)> mouseButton;
