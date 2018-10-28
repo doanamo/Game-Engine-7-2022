@@ -479,9 +479,9 @@ void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton
     ImGuiIO& io = ImGui::GetIO();
 
     // Determine the number of supported mouse buttons.
-    const int SupportedMouseButtonCount = std::min(
+    const std::size_t SupportedMouseButtonCount = std::min(
         Utility::StaticArraySize(io.MouseDown),
-        (unsigned int)System::MouseButtons::Count
+        (std::size_t)System::MouseButtons::Count
     );
 
     // We can only handle a specific number of buttons.
