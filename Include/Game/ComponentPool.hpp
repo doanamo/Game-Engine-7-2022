@@ -92,7 +92,7 @@ namespace Game
             ComponentIterator(BaseIterator& iterator, BaseIterator& end);
 
             // Iterator methods.
-            typename ComponentType& operator*() const;
+            ComponentType& operator*() const;
             bool operator==(const ComponentIterator& other) const;
             bool operator!=(const ComponentIterator& other) const;
             ComponentIterator& operator++();
@@ -198,7 +198,7 @@ namespace Game
     }
 
     template<typename ComponentType>
-    typename ComponentType& ComponentPool<ComponentType>::ComponentIterator::operator*() const
+    ComponentType& ComponentPool<ComponentType>::ComponentIterator::operator*() const
     {
         return m_iterator->component;
     }
