@@ -543,10 +543,12 @@ void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
+    // Convert character from UTF-32 to UTF-8 encoding.
+    // We will need an array for four UTF-8 characters and a null terminator.
+    char utf8Character[5] = { 0 };
+
+    utf8::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
+
     // Add text input character.
-    // #temp: Use proper UTF-32 to UTF-8 conversion, otherwise we lose some characters.
-    if(event.utf32Character <= std::numeric_limits<ImWchar>::max())
-    {
-        io.AddInputCharacter((ImWchar)event.utf32Character);
-    }
+    io.AddInputCharactersUTF8(&utf8Character[0]);
 }
