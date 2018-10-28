@@ -54,6 +54,7 @@ namespace System
             case GLFW_KEY_N: return KeyboardKeys::KeyN;
             case GLFW_KEY_O: return KeyboardKeys::KeyO;
             case GLFW_KEY_P: return KeyboardKeys::KeyP;
+            case GLFW_KEY_Q: return KeyboardKeys::KeyQ;
             case GLFW_KEY_R: return KeyboardKeys::KeyR;
             case GLFW_KEY_S: return KeyboardKeys::KeyS;
             case GLFW_KEY_T: return KeyboardKeys::KeyT;

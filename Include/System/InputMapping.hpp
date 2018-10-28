@@ -67,6 +67,7 @@ namespace System
             KeyN,
             KeyO,
             KeyP,
+            KeyQ,
             KeyR,
             KeyS,
             KeyT,
