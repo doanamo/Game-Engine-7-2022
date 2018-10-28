@@ -492,7 +492,7 @@ void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton
         return;
 
     // Set mouse button state.
-    const int MouseButtonIndex = event.button - System::MouseButtons::Button1;
+    const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
     ASSERT(MouseButtonIndex < Utility::StaticArraySize(io.MouseDown), "Invalid mouse button index!");
     io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
 }
