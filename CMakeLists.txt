@@ -251,6 +251,9 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 # External
 #
 
+# Add utfcpp library.
+target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/utfcpp-2.3.6/source")
+
 # Add GLM library.
 target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLM-0.9.9.0")
 
@@ -280,13 +283,6 @@ target_link_libraries("Engine" "glfw")
 
 set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
 set_property(TARGET "glfw" PROPERTY FOLDER "External")
-
-# Add ImGui library.
-add_subdirectory("External/ImGui-1.62" "External/ImGui" EXCLUDE_FROM_ALL)
-target_include_directories("ImGui" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/External/GLEW-2.1.0/include")
-target_link_libraries("Engine" "ImGui")
-
-set_property(TARGET "ImGui" PROPERTY FOLDER "External")
 
 # Add zlib library.
 set(SKIP_INSTALL_ALL ON CACHE BOOL "")
@@ -328,3 +324,10 @@ target_link_libraries("Engine" "lua_static")
 
 set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "Lua")
 set_property(TARGET "lua_static" PROPERTY FOLDER "External")
+
+# Add ImGui library.
+add_subdirectory("External/ImGui-1.62" "External/ImGui" EXCLUDE_FROM_ALL)
+target_include_directories("ImGui" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/External/GLEW-2.1.0/include")
+target_link_libraries("Engine" "ImGui")
+
+set_property(TARGET "ImGui" PROPERTY FOLDER "External")

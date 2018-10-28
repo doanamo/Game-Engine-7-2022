@@ -18,6 +18,9 @@
     #include <windows.h>
 #endif
 
+// utfcpp
+#include <utf8.h>
+
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -32,11 +35,6 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
-// ImGUI
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
 // zlib
 #include <zlib.h>
 
@@ -45,6 +43,11 @@
 
 // Lua
 #include <lua.hpp>
+
+// ImGUI
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 // Project
 #include "Common/Build.hpp"
