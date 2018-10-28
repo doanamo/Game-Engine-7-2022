@@ -19,7 +19,8 @@
 #endif
 
 // utfcpp
-#include <utf8.h>
+#include <utf8/core.h>
+#include <utf8/unchecked.h>
 
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL

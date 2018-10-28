@@ -519,7 +519,7 @@ void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
 
     // Make sure that the array is of an expected size.
     const int MaxKeyboardKeyCount = Utility::StaticArraySize(io.KeysDown);
-    ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Inssuficient ImGUI keyboard state array size!");
+    ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Insufficient ImGUI keyboard state array size!");
 
     // We can only handle a specific number of keys.
     if(event.key < 0 || event.key >= MaxKeyboardKeyCount)
@@ -547,7 +547,8 @@ void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
     // We will need an array for four UTF-8 characters and a null terminator.
     char utf8Character[5] = { 0 };
 
-    utf8::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
+    ASSERT(utf8::internal::is_code_point_valid(event.utf32Character), "Invalid UTF-32 encoding!");
+    utf8::unchecked::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
 
     // Add text input character.
     io.AddInputCharactersUTF8(&utf8Character[0]);
