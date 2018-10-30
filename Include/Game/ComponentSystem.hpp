@@ -83,7 +83,7 @@ namespace Game
         // Gets a component pool.
         // Creates a new pool if needed.
         template<typename ComponentType>
-        ComponentPool<ComponentType>* GetPool(bool create = false);
+        ComponentPool<ComponentType>& GetPool();
 
         // Gets the begin iterator.
         template<typename ComponentType>
@@ -138,11 +138,10 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Get the component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>(true);
-        ASSERT(pool != nullptr, "Retrieved a null component pool!");
+        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
         // Create a new component.
-        ComponentType* component = pool->CreateComponent(handle);
+        ComponentType* component = pool.CreateComponent(handle);
 
         if(component != nullptr)
         {
@@ -153,10 +152,10 @@ namespace Game
             if(entityFlags & EntitySystem::HandleFlags::Created)
             {
                 // Initialize the component.
-                if(!pool->InitializeComponent(handle))
+                if(!pool.InitializeComponent(handle))
                 {
                     // Destroy component if initialization fails.
-                    bool destroyResult = pool->DestroyComponent(handle);
+                    bool destroyResult = pool.DestroyComponent(handle);
                     ASSERT(destroyResult, "Could not destroy a known component!");
                     return nullptr;
                 }
@@ -176,11 +175,10 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Get the component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
-        ASSERT(pool != nullptr, "Retrieved a null component pool!");
+        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
         // Lookup and return the component.
-        return pool->LookupComponent(handle);
+        return pool.LookupComponent(handle);
     }
 
     template<typename ComponentType>
@@ -200,7 +198,7 @@ namespace Game
     }
 
     template<typename ComponentType>
-    ComponentPool<ComponentType>* ComponentSystem::GetPool(bool create)
+    ComponentPool<ComponentType>& ComponentSystem::GetPool()
     {
         ASSERT(m_initialized, "Component system instance is not initialized!");
 
@@ -211,20 +209,16 @@ namespace Game
         auto it = m_pools.find(typeid(ComponentType));
         if(it == m_pools.end())
         {
-            if(create)
-            {
-                // Create and return a new component pool.
-                return this->CreatePool<ComponentType>();
-            }
-            else
-            {
-                // Could not find a component pool.
-                return nullptr;
-            }
+            // Create and return a new component pool.
+            auto* pool = this->CreatePool<ComponentType>();
+            ASSERT(pool, "Failed to create component pool!");
+            return *pool;
         }
 
         // Cast and return the pointer that we already know is a component pool.
-        return reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
+        auto* pool = reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
+        ASSERT(pool, "Component systems contains null component pool!");
+        return *pool;
     }
 
     template<typename ComponentType>
@@ -242,7 +236,7 @@ namespace Game
             std::forward_as_tuple(std::move(pool))
         );
 
-        ASSERT(result.second == true, "Failed to insert a new pool type!");
+        ASSERT(result.second == true, "Failed to insert new component pool type!");
 
         // Return the created pool.
         return reinterpret_cast<ComponentPool<ComponentType>*>(result.first->second.get());
@@ -257,11 +251,10 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Get the component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
-        ASSERT(pool != nullptr, "Retrieved a null component pool!");
+        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
         // Return the iterator.
-        return pool->Begin();
+        return pool.Begin();
     }
 
     template<typename ComponentType>
@@ -273,10 +266,9 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Get the component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
-        ASSERT(pool != nullptr, "Retrieved a null component pool!");
+        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
         // Return the iterator.
-        return pool->End();
+        return pool.End();
     }
 }

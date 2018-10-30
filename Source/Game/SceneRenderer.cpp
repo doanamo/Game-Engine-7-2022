@@ -120,38 +120,31 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         // Create a list of sprites that will be drawn.
         Graphics::SpriteDrawList spriteDrawList;
 
-        // Retrieve the component pool.
-        ComponentPool<SpriteComponent>* spriteComponentPool =
-            componentSystem.GetPool<SpriteComponent>();
-
-        if(spriteComponentPool != nullptr)
+        // Get all sprite components.
+        for(auto& spriteComponent : componentSystem.GetPool<SpriteComponent>())
         {
-            // Get all sprite components.
-            for(auto& spriteComponent : *spriteComponentPool)
-            {
-                // Get the transform component.
-                TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
-                ASSERT(transformComponent != nullptr, "Required transform component is missing!");
+            // Get the transform component.
+            TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
+            ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
-                // Add a sprite to the draw list.
-                Graphics::Sprite sprite;
-                sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
-                sprite.info.transparent = spriteComponent.IsTransparent();
-                sprite.info.filtered = spriteComponent.IsFiltered();
-                sprite.data.transform = transformComponent->CalculateMatrix();
-                sprite.data.rectangle = spriteComponent.GetRectangle();
-                sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
-                sprite.data.color = spriteComponent.GetColor();
+            // Add a sprite to the draw list.
+            Graphics::Sprite sprite;
+            sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
+            sprite.info.transparent = spriteComponent.IsTransparent();
+            sprite.info.filtered = spriteComponent.IsFiltered();
+            sprite.data.transform = transformComponent->CalculateMatrix();
+            sprite.data.rectangle = spriteComponent.GetRectangle();
+            sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
+            sprite.data.color = spriteComponent.GetColor();
 
-                spriteDrawList.AddSprite(sprite);
-            }
-
-            // Sort the sprite draw list.
-            spriteDrawList.SortSprites();
-
-            // Draw sprite components.
-            m_engine->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
+            spriteDrawList.AddSprite(sprite);
         }
+
+        // Sort the sprite draw list.
+        spriteDrawList.SortSprites();
+
+        // Draw sprite components.
+        m_engine->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
     }
 
     // Call the drawing method.

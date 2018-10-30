@@ -60,15 +60,8 @@ void SpriteAnimationSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Sprite animation system has not been initialized!");
 
-    // Get the sprite animation component pool.
-    ComponentPool<SpriteAnimationComponent>* spriteAnimationComponentPool =
-        m_componentSystem->GetPool<SpriteAnimationComponent>();
-
-    if(spriteAnimationComponentPool == nullptr)
-        return;
-
     // Get all sprite animation components.
-    for(auto& spriteAnimationComponent : *spriteAnimationComponentPool)
+    for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {
         // Update the sprite animation component.
         spriteAnimationComponent.Update(timeDelta);
