@@ -137,6 +137,26 @@ set(SOURCE_FILES
     "Source/Game/Systems/SpriteAnimationSystem.cpp"
 )
 
+# Configure new source files if they do not exists.
+foreach(SOURCE_FILE ${SOURCE_FILES})
+    set(SOURCE_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}")
+
+    if(NOT EXISTS ${SOURCE_FILE_PATH})
+        get_filename_component(SOURCE_FILE_EXT ${SOURCE_FILE_PATH} EXT)
+
+        message("Generating source file: " ${SOURCE_FILE})
+
+        if(${SOURCE_FILE_EXT} STREQUAL ".hpp")
+            configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.hpp" "${SOURCE_FILE_PATH}")
+        elseif(${SOURCE_FILE_EXT} STREQUAL ".cpp")
+            configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.cpp" "${SOURCE_FILE_PATH}")
+        endif()
+    endif()
+
+    unset(SOURCE_FILE_PATH)
+    unset(SOURCE_FILE_EXT)
+endforeach()
+
 #
 # Target
 #
