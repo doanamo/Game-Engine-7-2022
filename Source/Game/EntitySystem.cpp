@@ -13,6 +13,8 @@ namespace
     const EntityHandle::ValueType MaximumVersion = std::numeric_limits<EntityHandle::ValueType>::max();
     const EntityHandle::ValueType InvalidIdentifier = 0;
     const EntityHandle::ValueType StartingIdentifier = 1;
+
+    const std::size_t CachedFreeHandles = 32;
 }
 
 EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
@@ -45,7 +47,7 @@ EntitySystem& EntitySystem::operator=(EntitySystem&& other)
 
     std::swap(m_commands, other.m_commands);
     std::swap(m_handleEntries, other.m_handleEntries);
-    std::swap(m_freeHandles, other.m_freeHandles);
+    std::swap(m_freeIdentifiers, other.m_freeIdentifiers);
     std::swap(m_entityCount, other.m_entityCount);
     
     std::swap(m_initialized, other.m_initialized);
@@ -84,24 +86,21 @@ EntityHandle EntitySystem::CreateEntity()
     VERIFY(m_handleEntries.size() != MaximumIdentifier, "Entity identifier limit has been reached!");
 
     // Check if the next entity entry on the free list is valid.
-    while(!m_freeHandles.empty())
+    while(!m_freeIdentifiers.empty())
     {
         // Retrieve first free handle from the free list.
-        HandleEntry* handleEntry = m_freeHandles.front();
+        std::size_t handleIndex = m_freeIdentifiers.front() - StartingIdentifier;
+        HandleEntry& handleEntry = m_handleEntries[handleIndex];
 
         // Ensure that the handle entry is free.
-        ASSERT(handleEntry->flags == HandleFlags::Unused, "Handle on the free list is being used!");
+        ASSERT(handleEntry.flags == HandleFlags::Unused, "Handle on the free list is being used!");
 
         // Check if entity entry has exhausted its possible versions.
-        if(handleEntry->handle.version == MaximumVersion)
+        if(handleEntry.handle.version == MaximumVersion)
         {
             // Do not use this handle anymore.
-            // Discarding a handle will waste memory.
-            // #improvement: We should maintain a larger pool of available handles 
-            // at once to prevent entities in front from expiring too fast. This will
-            // not cause any problems in real scenarios other than just wasting some
-            // memory whenever such thing happens.
-            m_freeHandles.pop();
+            // Discarding a handle will waste a tiny amount of memory.
+            m_freeIdentifiers.pop();
 
             // Attempt to find another candidate for a new entity handle.
             continue;
@@ -111,8 +110,11 @@ EntityHandle EntitySystem::CreateEntity()
         break;
     }
 
-    // Create a new handle if the free list queue is empty.
-    if(m_freeHandles.empty())
+    // Create a new handle if the free list queue is not filled.
+    // We maintain a cached amount of handles to avoid situations
+    // where a single handle would be reused very quickly, resulting
+    // in it exhausting all of its possible versions.
+    while(m_freeIdentifiers.size() < CachedFreeHandles)
     {
         // Calculate next unused identifier.
         std::size_t calculatedIdentifier = StartingIdentifier + m_handleEntries.size();
@@ -122,22 +124,26 @@ EntityHandle EntitySystem::CreateEntity()
         m_handleEntries.emplace_back(identifier);
 
         // Add new handle entry to the free list queue.
-        m_freeHandles.emplace(&m_handleEntries.back());
+        ASSERT(identifier - StartingIdentifier == m_handleEntries.size() - 1,
+            "Handle index does not match the added entity identifier!");
+
+        m_freeIdentifiers.emplace(identifier);
     }
 
-    // Retrieve an unused handle from the free list.
-    HandleEntry* handleEntry = m_freeHandles.front();
-    m_freeHandles.pop();
+    // Retrieve an unused handle from the identifier free list.
+    std::size_t handleIndex = m_freeIdentifiers.front() - StartingIdentifier;
+    HandleEntry& handleEntry = m_handleEntries[handleIndex];
+    m_freeIdentifiers.pop();
 
     // Mark handle as existing.
-    ASSERT(handleEntry->flags == HandleFlags::Unused);
-    handleEntry->flags |= HandleFlags::Exists;
+    ASSERT(handleEntry.flags == HandleFlags::Unused);
+    handleEntry.flags |= HandleFlags::Exists;
 
     // Queue command for entity creation.
-    m_commands.emplace(EntityCommands::Create, handleEntry->handle);
+    m_commands.emplace(EntityCommands::Create, handleEntry.handle);
 
     // Return the entity handle.
-    return handleEntry->handle;
+    return handleEntry.handle;
 }
 
 void EntitySystem::DestroyEntity(const EntityHandle& entity)
@@ -318,6 +324,6 @@ void EntitySystem::FreeHandle(HandleEntry& handleEntry)
     // Mark the handle as free.
     handleEntry.flags = HandleFlags::Unused;
 
-    // Add the handle entry to the free list queue.
-    m_freeHandles.emplace(&handleEntry);
+    // Add the entity identifier to the free list queue.
+    m_freeIdentifiers.emplace(handleEntry.handle.identifier);
 }

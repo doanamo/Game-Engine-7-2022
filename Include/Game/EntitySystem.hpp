@@ -104,7 +104,7 @@ namespace Game
 
         // Type declarations.
         using EntryList = std::vector<HandleEntry>;
-        using FreeList = std::queue<HandleEntry*>;
+        using FreeList = std::queue<std::size_t>;
         using CommandList = std::queue<EntityCommand>;
 
     public:
@@ -172,12 +172,12 @@ namespace Game
         // List of entity handles.
         EntryList m_handleEntries;
 
-        // List of free entity handles.
-        FreeList m_freeHandles;
+        // List of freed entity identifiers.
+        FreeList m_freeIdentifiers;
 
         // Number of active entities.
         unsigned int m_entityCount;
-        
+
         // Initialization state.
         bool m_initialized;
     };
