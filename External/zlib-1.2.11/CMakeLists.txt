@@ -237,7 +237,7 @@ endif()
 
 if(ENABLE_TESTS)
     # Doan: Disable this test as it breaks the build system.
-    # For some reason CTest cannot find it (does not appear in project).
+    # For some reason CTest cannot find it (we are not adding it to the project).
     #add_executable(example test/example.c)
     #target_link_libraries(example zlib)
     #add_test(example example)
@@ -252,7 +252,7 @@ if(HAVE_OFF64_T)
     set_target_properties(example64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
     
     if(ENABLE_TESTS)
-        add_test(example64 example64)
+        #add_test(example64 example64)
     endif()
 
     add_executable(minigzip64 test/minigzip.c)
