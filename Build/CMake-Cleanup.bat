@@ -1,8 +1,6 @@
 @echo off
-
-rem
 rem Copyright (c) 2018 Piotr Doan. All rights reserved.
-rem
+echo -- Cleaning CMake project...
 
 rem Remove temporary directories.
 :delete_folders
