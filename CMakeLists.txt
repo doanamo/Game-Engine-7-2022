@@ -2,16 +2,17 @@
 # Copyright (c) 2018 Piotr Doan. All rights reserved.
 #
 
-# CMake version that was used to write this configuration file.
-# This is important to set in order to establish policies for many commands.
+# Minimum required CMake version.
 cmake_minimum_required(VERSION 3.10)
 
 #
-# Project
+# Config
 #
 
-# Define our project.
-project("GameEngine")
+# Configurable variables.
+set(PROJECT_NAME "GameEngine")
+set(TARGET_NAME "Engine")
+set(ENABLE_TESTS ON)
 
 #
 # Sources
@@ -137,14 +138,12 @@ set(SOURCE_FILES
     "Source/Game/Systems/SpriteAnimationSystem.cpp"
 )
 
-# Configure new source files if they do not exists.
-foreach(SOURCE_FILE ${SOURCE_FILES})
+# Create missing source files from template.
+foreach(SOURCE_FILE ${source_files})
     set(SOURCE_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}")
 
     if(NOT EXISTS ${SOURCE_FILE_PATH})
         get_filename_component(SOURCE_FILE_EXT ${SOURCE_FILE_PATH} EXT)
-
-        message("Generating source file: " ${SOURCE_FILE})
 
         if(${SOURCE_FILE_EXT} STREQUAL ".hpp")
             configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.hpp" "${SOURCE_FILE_PATH}")
@@ -152,25 +151,23 @@ foreach(SOURCE_FILE ${SOURCE_FILES})
             configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.cpp" "${SOURCE_FILE_PATH}")
         endif()
     endif()
-
-    unset(SOURCE_FILE_PATH)
-    unset(SOURCE_FILE_EXT)
 endforeach()
 
 #
 # Target
 #
 
-# Declare a statically linked library target.
-add_library("Engine" STATIC ${SOURCE_FILES})
+# Create project and target.
+project(${PROJECT_NAME})
+add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
 
 # Declare compiler features.
-target_compile_features("Engine" PUBLIC cxx_std_17)
+target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
 
 # Declare include directories.
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Include")
-target_include_directories("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
-target_include_directories("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Include")
+target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source")
 
 #
 # Config
@@ -189,20 +186,20 @@ add_custom_target("Configure"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.cmake"
 )
 
-add_dependencies("Engine" "Configure")
+add_dependencies(${TARGET_NAME} "Configure")
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.
 # We have to create a dummy file as it will not be generated yet.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.hpp.in")
+target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.hpp.in")
 source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.hpp.in")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.cmake")
+target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.cmake")
 source_group("Source\\Config" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Source/Config/BuildInfo.cmake")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
+target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
 source_group("Source\\Config" FILES "${CMAKE_CURRENT_BINARY_DIR}/Source/Config/BuildInfo.hpp")
 
 # Write a file pointing at the engine directory.
@@ -214,31 +211,38 @@ file(WRITE "${CMAKE_BINARY_DIR}/EngineDir.txt" "${ABSOLUTE_ENGINE_DIR}/")
 #
 
 # Add shader files to solution's folder structure.
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
+target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
 source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
 
-target_sources("Engine" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
+target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
 source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
 
 #
 # Tests
 #
 
-# Enable testing.
-enable_testing()
-
-# Include tests in the build process.
-add_subdirectory("Tests")
+# Enable unit tests.
+if(ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory("Tests")
+endif()
 
 #
 # Platform
 #
 
+# Keep folder structure of include and source files.
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
+
+# Enable source folders.
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+
 # Compiler specific settings.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Disable Standard C++ Library warnings.
-    target_compile_definitions("Engine" PUBLIC "_CRT_SECURE_NO_WARNINGS")
-    target_compile_definitions("Engine" PUBLIC "_SCL_SECURE_NO_WARNINGS")
+    target_compile_definitions(${TARGET_NAME} PUBLIC "_CRT_SECURE_NO_WARNINGS")
+    target_compile_definitions(${TARGET_NAME} PUBLIC "_SCL_SECURE_NO_WARNINGS")
     
     # Use precompiled header for quicker compilation of static headers.
     set_source_files_properties(${SOURCE_FILES} PROPERTIES
@@ -248,99 +252,66 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_source_files_properties("Source/Precompiled.cpp" PROPERTIES
         COMPILE_FLAGS "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\""
     )
-
-    # Disable exceptions.
-    string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    target_compile_definitions("Engine" PUBLIC "_HAS_EXCEPTIONS=0")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Enable additional warnings.
-    target_compile_options("Engine" PUBLIC "-Wall")
-    
-    # Disable exceptions.
-    target_compile_options("Engine" PUBLIC "-fno-exceptions")
+    target_compile_options(${TARGET_NAME} PUBLIC "-Wall")
 endif()
-
-# Keep folder structure of include and source files.
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
-
-# Enable source folders.
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
 #
 # External
 #
 
 # Add utfcpp library.
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/utfcpp-2.3.6/source")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/utfcpp-2.3.6/source")
 
 # Add GLM library.
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLM-0.9.9.0")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLM-0.9.9.0")
 
 # Add OpenGL library.
 find_package(OpenGL REQUIRED)
-target_link_libraries("Engine" ${OPENGL_GL_LIBRARY})
+target_link_libraries(${TARGET_NAME} ${OPENGL_GL_LIBRARY})
 
 # Add GLEW library.
-set(BUILD_UTILS OFF CACHE BOOL "")
-
 add_subdirectory("External/GLEW-2.1.0/build/cmake" "External/GLEW" EXCLUDE_FROM_ALL)
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLEW-2.1.0/include")
-target_link_libraries("Engine" "glew_s")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLEW-2.1.0/include")
+target_link_libraries(${TARGET_NAME} "glew_s")
 
 set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")
 set_property(TARGET "glew_s" PROPERTY FOLDER "External")
 
 # Add GLFW library.
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
-set(GLFW_INSTALL OFF CACHE BOOL "")
-
 add_subdirectory("External/GLFW-3.2.1" "External/GLFW" EXCLUDE_FROM_ALL)
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLFW-3.2.1/include")
-target_link_libraries("Engine" "glfw")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLFW-3.2.1/include")
+target_link_libraries(${TARGET_NAME} "glfw")
 
 set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
 set_property(TARGET "glfw" PROPERTY FOLDER "External")
 
 # Add zlib library.
-set(SKIP_INSTALL_ALL ON CACHE BOOL "")
-
 add_subdirectory("External/zlib-1.2.11" "External/zlib" EXCLUDE_FROM_ALL)
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/zlib-1.2.11")
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
-target_link_libraries("Engine" "zlibstatic")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/zlib-1.2.11")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
+target_link_libraries(${TARGET_NAME} "zlibstatic")
 
 set_property(TARGET "zlibstatic" PROPERTY PROJECT_LABEL "zlib")
 set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
 
-set(ZLIB_ROOT "External/zlib-1.2.11")
-set(ZLIB_INCLUDE_DIR "External/zlib-1.2.11")
-set(ZLIB_LIBRARY "zlibstatic")
-
 # Add libpng library.
-set(PNG_SHARED OFF CACHE BOOL "")
-set(PNG_STATIC ON CACHE BOOL "")
-set(PNG_TESTS OFF CACHE BOOL "")
-set(SKIP_INSTALL_ALL ON CACHE BOOL "")
-
 add_subdirectory("External/libpng-1.6.34" "External/libpng" EXCLUDE_FROM_ALL)
 target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/External/zlib-1.2.11")
 target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/libpng-1.6.34")
-target_include_directories("Engine" PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/libpng")
-target_link_libraries("Engine" "png_static")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/libpng-1.6.34")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/libpng")
+target_link_libraries(${TARGET_NAME} "png_static")
 
 set_property(TARGET "png_static" PROPERTY PROJECT_LABEL "libpng")
 set_property(TARGET "png_static" PROPERTY FOLDER "External")
-
 set_property(TARGET "genfiles" PROPERTY PROJECT_LABEL "libpngconf")
 set_property(TARGET "genfiles" PROPERTY FOLDER "External")
 
 # Add Lua library.
 add_subdirectory("External/Lua-5.3.5" "External/Lua" EXCLUDE_FROM_ALL)
-target_link_libraries("Engine" "lua_static")
+target_link_libraries(${TARGET_NAME} "lua_static")
 
 set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "Lua")
 set_property(TARGET "lua_static" PROPERTY FOLDER "External")
@@ -348,6 +319,6 @@ set_property(TARGET "lua_static" PROPERTY FOLDER "External")
 # Add ImGui library.
 add_subdirectory("External/ImGui-1.62" "External/ImGui" EXCLUDE_FROM_ALL)
 target_include_directories("ImGui" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/External/GLEW-2.1.0/include")
-target_link_libraries("Engine" "ImGui")
+target_link_libraries(${TARGET_NAME} "ImGui")
 
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")

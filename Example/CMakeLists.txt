@@ -2,22 +2,19 @@
 # Copyright (c) 2018 Piotr Doan. All rights reserved.
 #
 
-# CMake version that was used to write this configuration file.
-# This is important to set in order to establish policies for many commands.
+# Minimum required CMake version.
 cmake_minimum_required(VERSION 3.10)
 
 #
 # Config
 #
 
-# Project names.
-set(PROJECT_NAME "Example")
+# Configurable variables.
+set(PROJECT_NAME "GameEngine")
 set(TARGET_NAME "Example")
-
-# Project settings.
 set(ENABLE_TESTS ON)
 
-# Project directories.
+# Configurable directories.
 set(WORKING_DIR "Deploy/")
 set(ENGINE_DIR "../")
 
@@ -35,19 +32,31 @@ set(SOURCE_FILES
     "Source/Scenes/GameScene.cpp"
 )
 
+# Create missing source files from template.
+foreach(SOURCE_FILE ${source_files})
+    set(SOURCE_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}")
+
+    if(NOT EXISTS ${SOURCE_FILE_PATH})
+        get_filename_component(SOURCE_FILE_EXT ${SOURCE_FILE_PATH} EXT)
+
+        if(${SOURCE_FILE_EXT} STREQUAL ".hpp")
+            configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.hpp" "${SOURCE_FILE_PATH}")
+        elseif(${SOURCE_FILE_EXT} STREQUAL ".cpp")
+            configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/Empty.cpp" "${SOURCE_FILE_PATH}")
+        endif()
+    endif()
+endforeach()
+
 #
 # Target
 #
 
-# Define project and executable target.
+# Create project and target.
 project(${PROJECT_NAME})
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 
-# Make source folder an include directory.
+# Add include directories.
 target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
-
-# Set main build directory as the working directory.
-set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 # Write file pointing at the working directory.
 get_filename_component(ABSOLUTE_GAME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GAME_DIR}" ABSOLUTE)
@@ -57,19 +66,14 @@ file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" "${ABSOLUTE_GAME_DIR}/")
 # Platform
 #
 
-# Keep folder structure of include and source files in Visual Studio.
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILES})
-
-# Set default project for Visual Stuido.
+# Set target as default project for Visual Studio.
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
-
-# Microsoft Visual Studio only directives.
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    # Disable Standard C++ Library warnings.
-    set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
-    set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
     
+# Set main build directory as the working directory.
+set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+# Compiler specific settings.
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # Use precompiled header for quicker compilation of static headers.
     set_source_files_properties(${SOURCE_FILES} PROPERTIES
         COMPILE_FLAGS "/Yu\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\""
@@ -84,7 +88,7 @@ endif()
 # Tests
 #
 
-# Enable tests.
+# Enable unit tests.
 if(ENABLE_TESTS)
     enable_testing()
 endif()

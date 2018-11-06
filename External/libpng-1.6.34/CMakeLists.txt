@@ -14,6 +14,9 @@
 cmake_minimum_required(VERSION 3.0.2)
 cmake_policy(VERSION 3.0.2)
 
+# Doan: Custom option override.
+set(SKIP_INSTALL_ALL ON)
+
 # Set MacOSX @rpath usage globally.
 if (POLICY CMP0020)
   cmake_policy(SET CMP0020 NEW)
@@ -69,9 +72,9 @@ endif()
 ]]
 
 # COMMAND LINE OPTIONS
-option(PNG_SHARED "Build shared lib" ON)
+option(PNG_SHARED "Build shared lib" OFF)
 option(PNG_STATIC "Build static lib" ON)
-option(PNG_TESTS  "Build libpng tests" ON)
+option(PNG_TESTS  "Build libpng tests" OFF)
 
 # Many more configuration options could be added here
 option(PNG_FRAMEWORK "Build OS X framework" OFF)

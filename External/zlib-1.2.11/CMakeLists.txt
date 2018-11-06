@@ -29,6 +29,9 @@ check_include_file(sys/types.h HAVE_SYS_TYPES_H)
 check_include_file(stdint.h    HAVE_STDINT_H)
 check_include_file(stddef.h    HAVE_STDDEF_H)
 
+# Doan: Custom option override.
+set(SKIP_INSTALL_ALL ON)
+
 #
 # Check to see if we have large file support
 #
@@ -259,3 +262,8 @@ if(HAVE_OFF64_T)
     target_link_libraries(minigzip64 zlib)
     set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
 endif()
+
+# Doan: Help libpng find this library.
+set(ZLIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+set(ZLIB_LIBRARY "zlibstatic" PARENT_SCOPE)
