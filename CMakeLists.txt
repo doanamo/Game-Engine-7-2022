@@ -102,10 +102,6 @@ set(SOURCE_FILES
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"
-    "Include/Editor/TextureViewer.hpp"
-    "Source/Editor/TextureViewer.cpp"
-    "Include/Editor/ModelViewer.hpp"
-    "Source/Editor/ModelViewer.cpp"
 
     "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"
