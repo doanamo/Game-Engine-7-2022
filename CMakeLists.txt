@@ -231,12 +231,12 @@ endif()
 # Platform
 #
 
-# Keep folder structure of include and source files.
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
-
 # Enable source folders.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+
+# Keep folder structure of include and source files.
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
 
 # Compiler specific settings.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")

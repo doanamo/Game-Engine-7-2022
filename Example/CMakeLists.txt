@@ -66,6 +66,9 @@ file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" "${ABSOLUTE_GAME_DIR}/")
 # Platform
 #
 
+# Keep folder structure of include and source files.
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
+
 # Set target as default project for Visual Studio.
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
     
