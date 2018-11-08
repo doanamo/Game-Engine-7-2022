@@ -21,9 +21,6 @@ int main()
 
     engine.sceneSystem.ChangeScene(CreateGameScene(&engine));
 
-    // Register the game scene as an editor entry.
-    engine.editorSystem.RegisterEditorScene("Main Game", CreateGameScene);
-
     // Run the engine.
     return engine.Run();
 };

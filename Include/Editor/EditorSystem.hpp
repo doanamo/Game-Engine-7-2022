@@ -41,11 +41,6 @@ namespace Editor
     class EditorSystem
     {
     public:
-        // Type of editor scene creation function.
-        using ScenePtr = std::shared_ptr<Game::Scene>;
-        using CreateEditorCallback = Common::Delegate<ScenePtr(Engine::Root*)>;
-
-    public:
         EditorSystem();
         ~EditorSystem();
 
@@ -59,9 +54,6 @@ namespace Editor
 
         // Initializes the editor system.
         bool Initialize(Engine::Root* engine);
-
-        // Registers an editor scene.
-        void RegisterEditorScene(std::string editorName, CreateEditorCallback createEditorCallback);
 
         // Updates the editor interface.
         void Update(float timeDelta);
@@ -95,6 +87,7 @@ namespace Editor
 
         // User interface context.
         ImGuiContext* m_interface;
+        bool m_showDemoWindow;
 
         // Window event callbacks.
         Common::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
@@ -110,17 +103,6 @@ namespace Editor
         Graphics::Texture m_fontTexture;
         Graphics::Sampler m_sampler;
         Graphics::ShaderPtr m_shader;
-
-        // List of editors.
-        struct RegisteredEditor
-        {
-            RegisteredEditor(std::string name, CreateEditorCallback callback);
-
-            std::string name;
-            CreateEditorCallback callback;
-        };
-
-        std::vector<RegisteredEditor> m_editors;
 
         // Initialization state.
         bool m_initialized;

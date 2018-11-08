@@ -25,14 +25,10 @@ namespace
     }
 }
 
-EditorSystem::RegisteredEditor::RegisteredEditor(std::string name, CreateEditorCallback callback) :
-    name(name), callback(callback)
-{
-}
-
 EditorSystem::EditorSystem() :
     m_engine(nullptr),
     m_interface(nullptr),
+    m_showDemoWindow(false),
     m_initialized(false)
 {
     // Bind event receivers.
@@ -60,6 +56,7 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
     // Swap class members.
     std::swap(m_engine, other.m_engine);
     std::swap(m_interface, other.m_interface);
+    std::swap(m_showDemoWindow, other.m_showDemoWindow);
 
     std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
     std::swap(m_receiverMouseButton, other.m_receiverMouseButton);
@@ -73,8 +70,6 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
     std::swap(m_fontTexture, other.m_fontTexture);
     std::swap(m_sampler, other.m_sampler);
     std::swap(m_shader, other.m_shader);
-
-    std::swap(m_editors, other.m_editors);
 
     std::swap(m_initialized, other.m_initialized);
 
@@ -275,12 +270,6 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void Editor::EditorSystem::RegisterEditorScene(std::string editorName, CreateEditorCallback createEditorCallback)
-{
-    // Add editor scene to the list of registered editors.
-    m_editors.emplace_back(editorName, createEditorCallback);
-}
-
 void EditorSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
@@ -300,35 +289,19 @@ void EditorSystem::Update(float timeDelta)
     ImGui::NewFrame();
 
     // Show demo window.
-    /*
-    bool showDemoWindow = true;
-    ImGui::ShowDemoWindow(&showDemoWindow);
-    */
+    if(m_showDemoWindow)
+    {
+        ImGui::ShowDemoWindow(&m_showDemoWindow);
+    }
 
     // Display standard editor interface if no custom one is used.
     if(ImGui::BeginMainMenuBar())
     {
-        if(ImGui::BeginMenu("Scenes"))
+        if(ImGui::BeginMenu("Menu"))
         {
-            for(auto it = m_editors.rbegin(); it != m_editors.rend(); ++it)
+            if(ImGui::MenuItem("Show demo window"))
             {
-                auto& registeredEditor = *it;
-
-                if(ImGui::MenuItem(registeredEditor.name.c_str()))
-                {
-                    // Create a new editor scene.
-                    auto editorScene = registeredEditor.callback(m_engine);
-
-                    // Set the new editor scene.
-                    if(editorScene)
-                    {
-                        m_engine->sceneSystem.ChangeScene(editorScene);
-                    }
-                    else
-                    {
-                        LOG_ERROR() << "Could not set \"" << registeredEditor.name << "\" registered editor!";
-                    }
-                }
+                m_showDemoWindow = true;
             }
 
             ImGui::Separator();
@@ -342,16 +315,6 @@ void EditorSystem::Update(float timeDelta)
         }
 
         ImGui::Separator();
-
-        if(ImGui::BeginMenu("View"))
-        {
-            ImGui::EndMenu();
-        }
-
-        if(ImGui::BeginMenu("Debug"))
-        {
-            ImGui::EndMenu();
-        }
 
         ImGui::EndMainMenuBar();
     }
