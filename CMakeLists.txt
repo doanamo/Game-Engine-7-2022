@@ -108,7 +108,6 @@ set(SOURCE_FILES
     "Source/Game/ComponentSystem.cpp"
     "Include/Game/GameState.hpp"
     "Source/Game/GameState.cpp"
-
     "Include/Game/Components/TransformComponent.hpp"
     "Source/Game/Components/TransformComponent.cpp"
     "Include/Game/Components/CameraComponent.hpp"
@@ -117,7 +116,6 @@ set(SOURCE_FILES
     "Source/Game/Components/SpriteComponent.cpp"
     "Include/Game/Components/SpriteAnimationComponent.hpp"
     "Source/Game/Components/SpriteAnimationComponent.cpp"
-
     "Include/Game/Systems/IdentitySystem.hpp"
     "Source/Game/Systems/IdentitySystem.cpp"
     "Include/Game/Systems/SpriteSystem.hpp"
