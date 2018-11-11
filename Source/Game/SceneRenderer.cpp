@@ -84,10 +84,11 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
 
     if(baseScene)
     {
-        // Get entity system references.
-        auto& entitySystem = baseScene->entitySystem;
-        auto& componentSystem = baseScene->componentSystem;
-        auto& identitySystem = baseScene->identitySystem;
+        // Get game state and its systems.
+        auto& gameState = baseScene->GetGameState();
+        auto& entitySystem = gameState.entitySystem;
+        auto& componentSystem = gameState.componentSystem;
+        auto& identitySystem = gameState.identitySystem;
 
         // Base camera transform.
         glm::mat4 cameraTransform(1.0f);

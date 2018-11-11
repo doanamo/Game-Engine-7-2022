@@ -5,10 +5,7 @@
 #pragma once
 
 #include "Game/Scene.hpp"
-#include "Game/EntitySystem.hpp"
-#include "Game/ComponentSystem.hpp"
-#include "Game/IdentitySystem.hpp"
-#include "Game/Systems/SpriteAnimationSystem.hpp"
+#include "Game/GameState.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -53,18 +50,15 @@ namespace Game
         // Gets the engine reference.
         Engine::Root* GetEngine() const;
 
-    public:
-        // Core game systems.
-        Game::EntitySystem entitySystem;
-        Game::ComponentSystem componentSystem;
-        Game::IdentitySystem identitySystem;
-
-        // Base game systems.
-        Game::SpriteAnimationSystem spriteAnimationSystem;
+        // Gets the game state.
+        GameState& GetGameState();
 
     private:
         // Engine reference.
         Engine::Root* m_engine;
+
+        // Game state.
+        GameState m_gameState;
 
         // Initialization state.
         bool m_initialized;

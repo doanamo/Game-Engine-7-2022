@@ -64,37 +64,41 @@ void GameScene::OnEnter()
 {
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
+    // Get base class references.
+    Engine::Root* const engine = this->GetEngine();
+    Game::GameState& gameState = this->GetGameState();
+
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
-    spriteAnimationListParams.engine = this->GetEngine();
+    spriteAnimationListParams.engine = engine;
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
-    auto spriteAnimationList = this->GetEngine()->resourceManager.Acquire<Graphics::SpriteAnimationList>(
+    auto spriteAnimationList = engine->resourceManager.Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams);
 
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
-    textureAtlasParams.engine = this->GetEngine();
+    textureAtlasParams.engine = engine;
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
-    auto textureAtlas = this->GetEngine()->resourceManager.Acquire<Graphics::TextureAtlas>(
+    auto textureAtlas = engine->resourceManager.Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams);
 
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = entitySystem.CreateEntity();
-        identitySystem.SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = gameState.entitySystem.CreateEntity();
+        gameState.identitySystem.SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = componentSystem.Create<Game::TransformComponent>(cameraEntity);
+        auto* transform = gameState.componentSystem.Create<Game::TransformComponent>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
         transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
         // Create camera component.
-        auto* camera = componentSystem.Create<Game::CameraComponent>(cameraEntity);
+        auto* camera = gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
         ASSERT(camera != nullptr, "Could not create a camera component!");
 
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
@@ -104,25 +108,25 @@ void GameScene::OnEnter()
     {
         // Load texture.
         Graphics::Texture::LoadFromFile textureParams;
-        textureParams.engine = GetEngine();
+        textureParams.engine = engine;
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
-        Graphics::TexturePtr texture = GetEngine()->resourceManager.Acquire<Graphics::Texture>(
+        Graphics::TexturePtr texture = engine->resourceManager.Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams);
 
         // Create named entity.
-        Game::EntityHandle playerEntity = entitySystem.CreateEntity();
-        identitySystem.SetEntityName(playerEntity, "Player");
+        Game::EntityHandle playerEntity = gameState.entitySystem.CreateEntity();
+        gameState.identitySystem.SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = componentSystem.Create<Game::TransformComponent>(playerEntity);
+        auto* transform = gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
 
         transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
         transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
         transform->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
         // Create sprite component.
-        auto* sprite = componentSystem.Create<Game::SpriteComponent>(playerEntity);
+        auto* sprite = gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
         
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -131,7 +135,7 @@ void GameScene::OnEnter()
         sprite->SetFiltered(true);
 
         // Create sprite animation component.
-        auto* spriteAnimation = componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
+        auto* spriteAnimation = gameState.componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
 
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
@@ -146,9 +150,10 @@ void GameScene::OnUpdate(float timeDelta)
     Game::BaseScene::OnUpdate(timeDelta);
 
     // Retrieve player transform.
-    Game::EntityHandle playerEntity = identitySystem.GetEntityByName("Player");
+    Game::GameState& gameState = this->GetGameState();
+    Game::EntityHandle playerEntity = gameState.identitySystem.GetEntityByName("Player");
 
-    auto transform = componentSystem.Lookup<Game::TransformComponent>(playerEntity);
+    auto transform = gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.

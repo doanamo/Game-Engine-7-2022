@@ -112,6 +112,8 @@ set(SOURCE_FILES
     "Source/Game/ComponentSystem.cpp"
     "Include/Game/IdentitySystem.hpp"
     "Source/Game/IdentitySystem.cpp"
+    "Include/Game/GameState.hpp"
+    "Source/Game/GameState.cpp"
     "Include/Game/Scene.hpp"
     "Source/Game/Scene.cpp"
     "Include/Game/BaseScene.hpp"
