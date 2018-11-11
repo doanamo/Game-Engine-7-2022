@@ -135,7 +135,7 @@ set(SOURCE_FILES
 )
 
 # Create missing source files from template.
-foreach(SOURCE_FILE ${source_files})
+foreach(SOURCE_FILE ${SOURCE_FILES})
     set(SOURCE_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}")
 
     if(NOT EXISTS ${SOURCE_FILE_PATH})
