@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <memory>
-#include <typeindex>
-#include "Events/Receiver.hpp"
+#include "Common/Event/Receiver.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 

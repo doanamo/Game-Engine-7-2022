@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Events/Receiver.hpp"
+#include "Common/Event/Receiver.hpp"
 #include "System/Window.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Buffer.hpp"

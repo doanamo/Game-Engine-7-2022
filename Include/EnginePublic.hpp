@@ -9,6 +9,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <queue>
 #include <unordered_map>
 
 // Windows
@@ -56,5 +57,5 @@
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"
 #include "Common/Utility.hpp"
-#include "Events/Delegate.hpp"
+#include "Common/Event/Delegate.hpp"
 #include "Logger/Logger.hpp"

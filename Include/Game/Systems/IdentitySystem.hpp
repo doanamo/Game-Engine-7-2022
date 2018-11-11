@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include "Events/Receiver.hpp"
+#include "Common/Event/Receiver.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*

@@ -2,10 +2,10 @@
     Copyright (c) 2018 Piotr Doan. All rights reserved.
 */
 
-#include <Events/Delegate.hpp>
-#include <Events/Collector.hpp>
-#include <Events/Dispatcher.hpp>
-#include <Events/Receiver.hpp>
+#include <Common/Event/Delegate.hpp>
+#include <Common/Event/Collector.hpp>
+#include <Common/Event/Dispatcher.hpp>
+#include <Common/Event/Receiver.hpp>
 
 char Function(const char* c, int i)
 {

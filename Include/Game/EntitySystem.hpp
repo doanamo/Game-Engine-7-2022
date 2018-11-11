@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <queue>
-#include "Events/Dispatcher.hpp"
-#include "Events/Collector.hpp"
+#include "Common/Event/Dispatcher.hpp"
+#include "Common/Event/Collector.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*

@@ -6,8 +6,8 @@
 
 #include <functional>
 #include "Common/LinkedList.hpp"
-#include "Events/Collector.hpp"
-#include "Events/Receiver.hpp"
+#include "Common/Event/Collector.hpp"
+#include "Common/Event/Receiver.hpp"
 
 // Forward declarations.
 namespace Common

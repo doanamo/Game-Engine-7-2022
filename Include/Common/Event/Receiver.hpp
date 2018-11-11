@@ -5,8 +5,8 @@
 #pragma once
 
 #include "Common/Debug.hpp"
-#include "Events/Dispatcher.hpp"
-#include "Events/Delegate.hpp"
+#include "Common/Event/Dispatcher.hpp"
+#include "Common/Event/Delegate.hpp"
 
 // Forward declarations.
 namespace Common

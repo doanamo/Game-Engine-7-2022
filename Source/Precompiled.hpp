@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <typeindex>
 
 // Project
 #include "EnginePublic.hpp"

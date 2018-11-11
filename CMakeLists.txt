@@ -35,11 +35,10 @@ set(SOURCE_FILES
     "Include/Common/Utility.hpp"
     "Source/Common/Utility.cpp"
     "Include/Common/LinkedList.hpp"
-
-    "Include/Events/Delegate.hpp"
-    "Include/Events/Collector.hpp"
-    "Include/Events/Dispatcher.hpp"
-    "Include/Events/Receiver.hpp"
+    "Include/Common/Event/Delegate.hpp"
+    "Include/Common/Event/Collector.hpp"
+    "Include/Common/Event/Dispatcher.hpp"
+    "Include/Common/Event/Receiver.hpp"
 
     "Include/Logger/Logger.hpp"
     "Source/Logger/Logger.cpp"
