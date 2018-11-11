@@ -16,7 +16,7 @@ namespace Engine
     Holds and manages Lua scripting state.
 */
 
-namespace Scripts
+namespace Scripting
 {
     // Scripting state class.
     class ScriptState

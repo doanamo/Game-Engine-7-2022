@@ -3,10 +3,10 @@
 */
 
 #include "Precompiled.hpp"
-#include "Scripts/ScriptState.hpp"
+#include "Scripting/ScriptState.hpp"
 #include "System/FileSystem.hpp"
 #include "Engine.hpp"
-using namespace Scripts;
+using namespace Scripting;
 
 namespace
 {

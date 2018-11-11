@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Game/Scene.hpp"
+#include "Scene/SceneInterface.hpp"
 #include "Game/GameState.hpp"
 
 // Forward declarations.
@@ -17,10 +17,10 @@ namespace Engine
     Game Scene
 */
 
-namespace Game
+namespace Scene
 {
     // Base scene base class.
-    class BaseScene : public Scene
+    class BaseScene : public SceneInterface
     {
     protected:
         // Base constructor.
@@ -51,14 +51,14 @@ namespace Game
         Engine::Root* GetEngine() const;
 
         // Gets the game state.
-        GameState& GetGameState();
+        Game::GameState& GetGameState();
 
     private:
         // Engine reference.
         Engine::Root* m_engine;
 
         // Game state.
-        GameState m_gameState;
+        Game::GameState m_gameState;
 
         // Initialization state.
         bool m_initialized;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Game/BaseScene.hpp>
+#include <Scene/BaseScene.hpp>
 #include <Graphics/ScreenSpace.hpp>
 
 // Forward declarations.
@@ -19,7 +19,7 @@ namespace Engine
     Main scene used by the game.
 */
 
-class GameScene : public Game::BaseScene
+class GameScene : public Scene::BaseScene
 {
 public:
     GameScene();
@@ -40,7 +40,7 @@ public:
     void OnUpdate(float timeDelta) override;
 
     // Draws the scene.
-    void OnDraw(const Game::SceneDrawParams& drawParams) override;
+    void OnDraw(const Scene::SceneDrawParams& drawParams) override;
 
 protected:
     // Enters the scene.

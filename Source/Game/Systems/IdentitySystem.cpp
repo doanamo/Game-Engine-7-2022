@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/IdentitySystem.hpp"
+#include "Game/Systems/IdentitySystem.hpp"
 #include "Game/EntitySystem.hpp"
 using namespace Game;
 

@@ -3,11 +3,11 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/SceneSystem.hpp"
-#include "Game/SceneRenderer.hpp"
+#include "Scene/SceneSystem.hpp"
+#include "Scene/SceneRenderer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Engine.hpp"
-using namespace Game;
+using namespace Scene;
 
 SceneSystem::SceneSystem() :
     m_engine(nullptr),
@@ -63,7 +63,7 @@ bool SceneSystem::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void SceneSystem::ChangeScene(std::shared_ptr<Scene> scene)
+void SceneSystem::ChangeScene(std::shared_ptr<SceneInterface> scene)
 {
     ASSERT(m_initialized, "Scene system has not been initialized yet!");
 

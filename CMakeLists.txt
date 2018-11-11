@@ -97,11 +97,8 @@ set(SOURCE_FILES
     "Include/Graphics/Sprites/SpriteAnimationList.hpp"
     "Source/Graphics/Sprites/SpriteAnimationList.cpp"
 
-    "Include/Scripts/ScriptState.hpp"
-    "Source/Scripts/ScriptState.cpp"
-
-    "Include/Editor/EditorSystem.hpp"
-    "Source/Editor/EditorSystem.cpp"
+    "Include/Scripting/ScriptState.hpp"
+    "Source/Scripting/ScriptState.cpp"
 
     "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"
@@ -110,18 +107,8 @@ set(SOURCE_FILES
     "Include/Game/ComponentPool.hpp"
     "Include/Game/ComponentSystem.hpp"
     "Source/Game/ComponentSystem.cpp"
-    "Include/Game/IdentitySystem.hpp"
-    "Source/Game/IdentitySystem.cpp"
     "Include/Game/GameState.hpp"
     "Source/Game/GameState.cpp"
-    "Include/Game/Scene.hpp"
-    "Source/Game/Scene.cpp"
-    "Include/Game/BaseScene.hpp"
-    "Source/Game/BaseScene.cpp"
-    "Include/Game/SceneSystem.hpp"
-    "Source/Game/SceneSystem.cpp"
-    "Include/Game/SceneRenderer.hpp"
-    "Source/Game/SceneRenderer.cpp"
 
     "Include/Game/Components/TransformComponent.hpp"
     "Source/Game/Components/TransformComponent.cpp"
@@ -132,8 +119,22 @@ set(SOURCE_FILES
     "Include/Game/Components/SpriteAnimationComponent.hpp"
     "Source/Game/Components/SpriteAnimationComponent.cpp"
 
-    "Include/Game/Systems/SpriteAnimationSystem.hpp"
-    "Source/Game/Systems/SpriteAnimationSystem.cpp"
+    "Include/Game/Systems/IdentitySystem.hpp"
+    "Source/Game/Systems/IdentitySystem.cpp"
+    "Include/Game/Systems/SpriteSystem.hpp"
+    "Source/Game/Systems/SpriteSystem.cpp"
+
+    "Include/Scene/SceneInterface.hpp"
+    "Source/Scene/SceneInterface.cpp"
+    "Include/Scene/SceneSystem.hpp"
+    "Source/Scene/SceneSystem.cpp"
+    "Include/Scene/SceneRenderer.hpp"
+    "Source/Scene/SceneRenderer.cpp"
+    "Include/Scene/BaseScene.hpp"
+    "Source/Scene/BaseScene.cpp"
+
+    "Include/Editor/EditorSystem.hpp"
+    "Source/Editor/EditorSystem.cpp"
 )
 
 # Create missing source files from template.

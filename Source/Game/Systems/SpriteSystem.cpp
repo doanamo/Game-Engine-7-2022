@@ -3,29 +3,29 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/Systems/SpriteAnimationSystem.hpp"
+#include "Game/Systems/SpriteSystem.hpp"
 #include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Graphics/Sprites/SpriteAnimationList.hpp"
 using namespace Game;
 
-SpriteAnimationSystem::SpriteAnimationSystem() :
+SpriteSystem::SpriteSystem() :
     m_componentSystem(nullptr),
     m_initialized(false)
 {
 }
 
-SpriteAnimationSystem::~SpriteAnimationSystem()
+SpriteSystem::~SpriteSystem()
 {
 }
 
-SpriteAnimationSystem::SpriteAnimationSystem(SpriteAnimationSystem&& other)
+SpriteSystem::SpriteSystem(SpriteSystem&& other)
 {
     *this = std::move(other);
 }
 
-SpriteAnimationSystem& SpriteAnimationSystem::operator=(SpriteAnimationSystem&& other)
+SpriteSystem& SpriteSystem::operator=(SpriteSystem&& other)
 {
     std::swap(m_componentSystem, other.m_componentSystem);
     std::swap(m_initialized, other.m_initialized);
@@ -33,15 +33,15 @@ SpriteAnimationSystem& SpriteAnimationSystem::operator=(SpriteAnimationSystem&& 
     return *this;
 }
 
-bool SpriteAnimationSystem::Initialize(ComponentSystem* componentSystem)
+bool SpriteSystem::Initialize(ComponentSystem* componentSystem)
 {
-    LOG() << "Initializing sprite animation system..." << LOG_INDENT();
+    LOG() << "Initializing sprite system..." << LOG_INDENT();
 
     // Make sure that the instance has not been initialized yet.
-    ASSERT(!m_initialized, "Sprite animation system has already been initialized!");
+    ASSERT(!m_initialized, "Sprite system has already been initialized!");
 
     // Create an initialization scope guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = SpriteAnimationSystem());
+    SCOPE_GUARD_IF(!m_initialized, *this = SpriteSystem());
 
     // Validate component system reference.
     if(componentSystem == nullptr)
@@ -56,9 +56,9 @@ bool SpriteAnimationSystem::Initialize(ComponentSystem* componentSystem)
     return m_initialized = true;
 }
 
-void SpriteAnimationSystem::Update(float timeDelta)
+void SpriteSystem::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Sprite animation system has not been initialized!");
+    ASSERT(m_initialized, "Sprite system has not been initialized!");
 
     // Get all sprite animation components.
     for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())

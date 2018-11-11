@@ -6,8 +6,8 @@
 
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
-#include "Game/IdentitySystem.hpp"
-#include "Game/Systems/SpriteAnimationSystem.hpp"
+#include "Game/Systems/IdentitySystem.hpp"
+#include "Game/Systems/SpriteSystem.hpp"
 
 // Forward declaration.
 namespace Engine
@@ -50,7 +50,7 @@ namespace Game
         Game::IdentitySystem identitySystem;
 
         // Base game systems.
-        Game::SpriteAnimationSystem spriteAnimationSystem;
+        Game::SpriteSystem spriteSystem;
 
     private:
         // Engine reference.

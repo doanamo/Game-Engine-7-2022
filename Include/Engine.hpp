@@ -13,8 +13,8 @@
 #include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Sprites/SpriteRenderer.hpp"
-#include "Game/SceneSystem.hpp"
-#include "Game/SceneRenderer.hpp"
+#include "Scene/SceneSystem.hpp"
+#include "Scene/SceneRenderer.hpp"
 #include "Editor/EditorSystem.hpp"
 
 /*
@@ -60,9 +60,9 @@ namespace Engine
         Graphics::RenderContext renderContext;
         Graphics::SpriteRenderer spriteRenderer;
 
-        // Game systems.
-        Game::SceneSystem sceneSystem;
-        Game::SceneRenderer sceneRenderer;
+        // Scene systems.
+        Scene::SceneSystem sceneSystem;
+        Scene::SceneRenderer sceneRenderer;
 
         // Engine systems.
         Editor::EditorSystem editorSystem;

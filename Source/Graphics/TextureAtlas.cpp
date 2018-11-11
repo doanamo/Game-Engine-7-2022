@@ -7,7 +7,7 @@
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
 #include "System/ResourceManager.hpp"
-#include "Scripts/ScriptState.hpp"
+#include "Scripting/ScriptState.hpp"
 #include "Engine.hpp"
 using namespace Graphics;
 
@@ -81,11 +81,11 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     }
 
     // Load texture atlas from file using script state.
-    Scripts::ScriptState::LoadFromFile scriptParams;
+    Scripting::ScriptState::LoadFromFile scriptParams;
     scriptParams.engine = params.engine;
     scriptParams.filePath = params.filePath;
 
-    Scripts::ScriptState scriptState;
+    Scripting::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
         LOG_ERROR() << "Could not load file!";

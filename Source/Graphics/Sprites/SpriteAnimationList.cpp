@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Graphics/Sprites/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include "Scripts/ScriptState.hpp"
+#include "Scripting/ScriptState.hpp"
 #include "System/ResourceManager.hpp"
 #include "Engine.hpp"
 using namespace Graphics;
@@ -84,11 +84,11 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     }
 
     // Create a script state.
-    Scripts::ScriptState::LoadFromFile scriptParams;
+    Scripting::ScriptState::LoadFromFile scriptParams;
     scriptParams.engine = params.engine;
     scriptParams.filePath = params.filePath;
 
-    Scripts::ScriptState scriptState;
+    Scripting::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
         LOG_ERROR() << "Could not load file!";

@@ -16,18 +16,18 @@ namespace Game
 
 namespace Game
 {
-    // Sprite animation system class.
-    class SpriteAnimationSystem
+    // Sprite system class.
+    class SpriteSystem
     {
     public:
-        SpriteAnimationSystem();
-        ~SpriteAnimationSystem();
+        SpriteSystem();
+        ~SpriteSystem();
 
-        SpriteAnimationSystem(const SpriteAnimationSystem& other) = delete;
-        SpriteAnimationSystem& operator=(const SpriteAnimationSystem& other) = delete;
+        SpriteSystem(const SpriteSystem& other) = delete;
+        SpriteSystem& operator=(const SpriteSystem& other) = delete;
 
-        SpriteAnimationSystem(SpriteAnimationSystem&& other);
-        SpriteAnimationSystem& operator=(SpriteAnimationSystem&& other);
+        SpriteSystem(SpriteSystem&& other);
+        SpriteSystem& operator=(SpriteSystem&& other);
 
         // Initializes the sprite animation system.
         bool Initialize(ComponentSystem* componentSystem);

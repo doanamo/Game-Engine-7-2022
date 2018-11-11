@@ -8,7 +8,7 @@
     Scene
 */
 
-namespace Game
+namespace Scene
 {
     // Scene draw parameters structure.
     struct SceneDrawParams
@@ -29,7 +29,7 @@ namespace Game
     };
 
     // Scene interface.
-    class Scene
+    class SceneInterface
     {
     public:
         // Called when the scene is about to enter.

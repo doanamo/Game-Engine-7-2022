@@ -3,13 +3,13 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/SceneRenderer.hpp"
-#include "Game/BaseScene.hpp"
+#include "Scene/SceneRenderer.hpp"
+#include "Scene/BaseScene.hpp"
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/Components/CameraComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
 #include "Engine.hpp"
-using namespace Game;
+using namespace Scene;
 
 SceneRenderer::SceneRenderer() :
     m_engine(nullptr),
@@ -59,7 +59,7 @@ bool SceneRenderer::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
+void SceneRenderer::DrawScene(SceneInterface* scene, const SceneDrawParams& drawParams)
 {
     ASSERT(m_initialized, "Scene renderer has not been initialized yet!");
  
@@ -98,7 +98,7 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
 
         if(entitySystem.IsHandleValid(cameraEntity))
         {
-            auto cameraComponent = componentSystem.Lookup<CameraComponent>(cameraEntity);
+            auto cameraComponent = componentSystem.Lookup<Game::CameraComponent>(cameraEntity);
 
             if(cameraComponent != nullptr)
             {
@@ -122,10 +122,10 @@ void SceneRenderer::DrawScene(Scene* scene, const SceneDrawParams& drawParams)
         Graphics::SpriteDrawList spriteDrawList;
 
         // Get all sprite components.
-        for(auto& spriteComponent : componentSystem.GetPool<SpriteComponent>())
+        for(auto& spriteComponent : componentSystem.GetPool<Game::SpriteComponent>())
         {
             // Get the transform component.
-            TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
+            Game::TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
             ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
             // Add a sprite to the draw list.

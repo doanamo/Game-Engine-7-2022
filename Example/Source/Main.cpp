@@ -21,6 +21,19 @@ int main()
 
     engine.sceneSystem.ChangeScene(CreateGameScene(&engine));
 
+    //
+    /*
+    while(engine.IsRunning())
+    {
+        while(engine.timer.AdvanceFrame(1.0f / 60.0f))
+        {
+            gameState.Update(1.0f / 60.0f);
+        }
+
+        engine.Draw(gameState);
+    }
+    */
+
     // Run the engine.
     return engine.Run();
 };

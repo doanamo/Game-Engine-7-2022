@@ -31,7 +31,7 @@ GameScene::GameScene(GameScene&& other) :
 GameScene& GameScene::operator=(GameScene&& other)
 {
     // Swap base class.
-    Game::BaseScene::operator=(std::move(other));
+    Scene::BaseScene::operator=(std::move(other));
 
     // Swap class members.
     std::swap(m_initialized, other.m_initialized);
@@ -47,7 +47,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     VERIFY(!m_initialized, "Main scene has already been initialized!");
 
     // Initialize the base class.
-    if(!Game::BaseScene::Initialize(engine))
+    if(!Scene::BaseScene::Initialize(engine))
     {
         LOG_ERROR() << "Could not initialize the base game scene!";
         return false;
@@ -147,7 +147,7 @@ void GameScene::OnUpdate(float timeDelta)
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
     // Update the base class.
-    Game::BaseScene::OnUpdate(timeDelta);
+    Scene::BaseScene::OnUpdate(timeDelta);
 
     // Retrieve player transform.
     Game::GameState& gameState = this->GetGameState();
@@ -189,12 +189,12 @@ void GameScene::OnUpdate(float timeDelta)
     }
 }
 
-void GameScene::OnDraw(const Game::SceneDrawParams& drawParams)
+void GameScene::OnDraw(const Scene::SceneDrawParams& drawParams)
 {
     ASSERT(m_initialized, "Game scene has not been initialized!");
 
     // Call the base class.
-    Game::BaseScene::OnDraw(drawParams);
+    Scene::BaseScene::OnDraw(drawParams);
 }
 
 void GameScene::OnExit()

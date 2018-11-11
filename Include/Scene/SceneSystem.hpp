@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <memory>
-#include "Game/Scene.hpp"
+#include "Scene/SceneInterface.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -17,10 +16,10 @@ namespace Engine
     Scene System
 */
 
-namespace Game
+namespace Scene
 {
     // Forward declarations.
-    class Scene;
+    class SceneInterface;
 
     // Scene system class.
     class SceneSystem
@@ -41,7 +40,7 @@ namespace Game
         bool Initialize(Engine::Root* engine);
 
         // Changes the current scene.
-        void ChangeScene(std::shared_ptr<Scene> scene);
+        void ChangeScene(std::shared_ptr<SceneInterface> scene);
 
         // Updates the current scene.
         void Update(float timeDelta);
@@ -54,7 +53,7 @@ namespace Game
         Engine::Root* m_engine;
 
         // Current scene.
-        std::shared_ptr<Scene> m_currentScene;
+        std::shared_ptr<SceneInterface> m_currentScene;
 
         // Initialization state.
         bool m_initialized;

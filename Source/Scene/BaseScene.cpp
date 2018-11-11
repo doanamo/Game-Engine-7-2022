@@ -3,9 +3,9 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/BaseScene.hpp"
+#include "Scene/BaseScene.hpp"
 #include "Engine.hpp"
-using namespace Game;
+using namespace Scene;
 
 BaseScene::BaseScene() :
     m_engine(nullptr),
@@ -81,7 +81,7 @@ Engine::Root* BaseScene::GetEngine() const
     return m_engine;
 }
 
-GameState& BaseScene::GetGameState()
+Game::GameState& BaseScene::GetGameState()
 {
     ASSERT(m_initialized, "Base scene has not been initialized!");
 

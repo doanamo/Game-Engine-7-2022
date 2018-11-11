@@ -28,7 +28,7 @@ GameState& GameState::operator=(GameState&& other)
     std::swap(componentSystem, other.componentSystem);
     std::swap(identitySystem, other.identitySystem);
 
-    std::swap(spriteAnimationSystem, other.spriteAnimationSystem);
+    std::swap(spriteSystem, other.spriteSystem);
 
     std::swap(m_engine, other.m_engine);
     std::swap(m_initialized, other.m_initialized);
@@ -79,11 +79,11 @@ bool GameState::Initialize(Engine::Root* engine)
         return false;
     }
 
-    // Initialize the sprite animation system.
-    // Updates sprites according to their sprite animations.
-    if(!spriteAnimationSystem.Initialize(&componentSystem))
+    // Initialize the sprite system.
+    // Updates sprites and their animations.
+    if(!spriteSystem.Initialize(&componentSystem))
     {
-        LOG_ERROR() << "Could not initialize sprite animation system!";
+        LOG_ERROR() << "Could not initialize sprite system!";
         return false;
     }
 
@@ -99,7 +99,7 @@ void GameState::Update(float timeDelta)
     entitySystem.ProcessCommands();
 
     // Update the sprite animation system.
-    spriteAnimationSystem.Update(timeDelta);
+    spriteSystem.Update(timeDelta);
 }
 
 Engine::Root* GameState::GetEngine() const

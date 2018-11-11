@@ -1,6 +1,10 @@
+/*
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
+*/
+
 #include "Precompiled.hpp"
-#include "Game/Scene.hpp"
-using namespace Game;
+#include "Scene/SceneInterface.hpp"
+using namespace Scene;
 
 SceneDrawParams::SceneDrawParams() :
     cameraName("Camera"),

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Game/Scene.hpp"
+#include "Scene/SceneInterface.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -17,7 +17,7 @@ namespace Engine
     Scene Renderer
 */
 
-namespace Game
+namespace Scene
 {
     // Forward declarations.
     class BaseScene;
@@ -41,7 +41,7 @@ namespace Game
         bool Initialize(Engine::Root* engine);
 
         // Draws a scene.
-        void DrawScene(Scene* scene, const SceneDrawParams& drawParams);
+        void DrawScene(SceneInterface* scene, const SceneDrawParams& drawParams);
 
     private:
         // Engine reference.
