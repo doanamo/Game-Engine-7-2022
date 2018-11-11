@@ -8,8 +8,8 @@
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
-#include "Graphics/Sprites/Sprite.hpp"
-#include "Graphics/Sprites/SpriteDrawList.hpp"
+#include "Graphics/Sprite/Sprite.hpp"
+#include "Graphics/Sprite/SpriteDrawList.hpp"
 
 // Forward declarations.
 namespace Engine

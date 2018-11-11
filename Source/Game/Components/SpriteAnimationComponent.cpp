@@ -6,7 +6,7 @@
 #include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
 #include "Game/ComponentSystem.hpp"
-#include "Graphics/Sprites/SpriteAnimationList.hpp"
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
 using namespace Game;
 
 SpriteAnimationComponent::SpriteAnimationComponent() :

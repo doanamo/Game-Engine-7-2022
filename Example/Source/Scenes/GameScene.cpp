@@ -6,7 +6,7 @@
 #include "Scenes/GameScene.hpp"
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
-#include <Graphics/Sprites/SpriteAnimationList.hpp>
+#include <Graphics/Sprite/SpriteAnimationList.hpp>
 #include <Game/Components/TransformComponent.hpp>
 #include <Game/Components/CameraComponent.hpp>
 #include <Game/Components/SpriteComponent.hpp>

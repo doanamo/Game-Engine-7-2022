@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/Sprites/SpriteDrawList.hpp"
+#include "Graphics/Sprite/SpriteDrawList.hpp"
 using namespace Graphics;
 
 SpriteDrawList::SpriteDrawList()

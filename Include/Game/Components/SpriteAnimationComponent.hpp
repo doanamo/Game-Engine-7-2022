@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Game/Component.hpp"
-#include "Graphics/Sprites/SpriteAnimationList.hpp"
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
 
 /*
     Sprite Animation Component

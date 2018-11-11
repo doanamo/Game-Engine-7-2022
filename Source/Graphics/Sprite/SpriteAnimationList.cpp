@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/Sprites/SpriteAnimationList.hpp"
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
 #include "Scripting/ScriptState.hpp"
 #include "System/ResourceManager.hpp"

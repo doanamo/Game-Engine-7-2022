@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Graphics/Sprites/Sprite.hpp"
+#include "Graphics/Sprite/Sprite.hpp"
 using namespace Graphics;
 
 Sprite::Info::Info() :
