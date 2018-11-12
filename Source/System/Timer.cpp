@@ -80,7 +80,7 @@ void Timer::Tick()
 bool Timer::AdvanceFrame(float frameTime)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
-    ASSERT(m_advancedFrameCounter < m_currentTimeCounter, "Frame counter is in the future!");
+    ASSERT(m_advancedFrameCounter <= m_currentTimeCounter, "Frame counter is in the future!");
 
     // Convert frame time to frame ticks.
     uint64_t frameTicks = (uint64_t)(m_timerFrequency * (double)frameTime);
