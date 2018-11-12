@@ -150,8 +150,8 @@ void GameScene::Update(float timeDelta)
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    transform->scale = glm::vec3(1.0f, 1.0f, 1.0f) *
-        (2.0f + (float)glm::cos(m_engine->timer.GetTickTime()));
+    transform->scale = glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetTickTime()));
+    transform->rotation.z = 360.0f * ((float)std::fmod(m_engine->timer.GetTickTime(), 10.0) / 10.0f);
 
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
