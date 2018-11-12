@@ -40,7 +40,7 @@ public:
     void Update(float timeDelta);
 
     // Returns the game state.
-    Game::GameState& GetGameState();
+    Game::GameState* GetGameState();
 
 private:
     // Engine reference.

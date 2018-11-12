@@ -185,7 +185,7 @@ void GameScene::Update(float timeDelta)
     m_gameState.Update(timeDelta);
 }
 
-Game::GameState& GameScene::GetGameState()
+Game::GameState* GameScene::GetGameState()
 {
-    return m_gameState;
+    return &m_gameState;
 }
