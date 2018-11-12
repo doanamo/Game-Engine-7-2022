@@ -15,16 +15,13 @@ Root::~Root()
 {
 }
 
-Root::Root(Root&& other) :
-    Root()
+Root::Root(Root&& other) : Root()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 Root& Root::operator=(Root&& other)
 {
-    // Swap class members.
     std::swap(platform, other.platform);
     std::swap(fileSystem, other.fileSystem);
     std::swap(window, other.window);
@@ -35,8 +32,7 @@ Root& Root::operator=(Root&& other)
     std::swap(renderContext, other.renderContext);
     std::swap(spriteRenderer, other.spriteRenderer);
     
-    std::swap(sceneSystem, other.sceneSystem);
-    std::swap(sceneRenderer, other.sceneRenderer);
+    std::swap(stateRenderer, other.stateRenderer);
 
     std::swap(editorSystem, other.editorSystem);
 
@@ -147,19 +143,11 @@ bool Root::Initialize()
         return false;
     }
 
-    // Initialize the scene system.
-    // Allows game scenes to be switched and manages them.
-    if(!sceneSystem.Initialize(this))
+    // Initialize the state renderer.
+    // Renders a game state described in its components.
+    if(!stateRenderer.Initialize(this))
     {
-        LOG_ERROR() << "Could not initialize scene system!";
-        return false;
-    }
-
-    // Initialize the scene renderer.
-    // Renders a scene described in its components.
-    if(!sceneRenderer.Initialize(this))
-    {
-        LOG_ERROR() << "Could not initialize scene renderer!";
+        LOG_ERROR() << "Could not initialize state renderer!";
         return false;
     }
 
@@ -175,55 +163,43 @@ bool Root::Initialize()
     return m_initialized = true;
 }
 
-int Root::Run()
+bool Root::ProcessFrame()
 {
     ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Reset the timer before the first update, as a large
-    // value may have accumulated after a long initialization.
-    timer.Reset();
+    // Signal engine exit.
+    if(!window.IsOpen())
+        return false;
 
-    // Run the main application loop.
-    while(window.IsOpen())
-    {
-        // Advance the logger frame counter of reference.
-        Logger::AdvanceFrameCounter();
+    // Advance the logger frame counter of reference.
+    Logger::AdvanceFrameCounter();
 
-        // Calculate frame delta time.
-        float timeDelta = timer.CalculateFrameDelta();
+    // Calculate frame delta time.
+    float timeDelta = timer.GetTickDelta();
 
-        // Prepare input state for being processed.
-        inputState.PrepareForEvents();
+    // Update the editor system.
+    editorSystem.Update(timeDelta);
 
-        // Process window events.
-        window.ProcessEvents();
+    // Draw the editor system.
+    editorSystem.Draw();
 
-        // Update the editor system.
-        editorSystem.Update(timeDelta);
+    // Present the window content.
+    window.Present();
 
-        // Update the current scene.
-        sceneSystem.Update(timeDelta);
+    // Release unused resources.
+    resourceManager.ReleaseUnused();
 
-        // Clear the frame buffer.
-        renderContext.GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Tick the timer.
+    timer.Tick();
 
-        // Draw the current scene.
-        sceneSystem.Draw(1.0f);
+    // Prepare input state for being processed.
+    inputState.PrepareForEvents();
 
-        // Draw the editor system.
-        editorSystem.Draw();
+    // Process window events.
+    window.ProcessEvents();
 
-        // Present the window content.
-        window.Present();
-
-        // Release unused resources.
-        resourceManager.ReleaseUnused();
-
-        // Tick the timer.
-        timer.Tick();
-    }
-
-    return 0;
+    // Signal that engine continues running.
+    return true;
 }
 
 bool Root::IsInitialized() const

@@ -67,6 +67,9 @@ set(SOURCE_FILES
     "Include/System/ResourceManager.hpp"
     "Source/System/ResourceManager.cpp"
 
+    "Include/Scripting/ScriptState.hpp"
+    "Source/Scripting/ScriptState.cpp"
+
     "Include/Graphics/RenderContext.hpp"
     "Source/Graphics/RenderContext.cpp"
     "Include/Graphics/RenderState.hpp"
@@ -96,9 +99,6 @@ set(SOURCE_FILES
     "Include/Graphics/Sprite/SpriteAnimationList.hpp"
     "Source/Graphics/Sprite/SpriteAnimationList.cpp"
 
-    "Include/Scripting/ScriptState.hpp"
-    "Source/Scripting/ScriptState.cpp"
-
     "Include/Game/EntityHandle.hpp"
     "Include/Game/EntitySystem.hpp"
     "Source/Game/EntitySystem.cpp"
@@ -121,14 +121,8 @@ set(SOURCE_FILES
     "Include/Game/Systems/SpriteSystem.hpp"
     "Source/Game/Systems/SpriteSystem.cpp"
 
-    "Include/Scene/SceneInterface.hpp"
-    "Source/Scene/SceneInterface.cpp"
-    "Include/Scene/SceneSystem.hpp"
-    "Source/Scene/SceneSystem.cpp"
-    "Include/Scene/SceneRenderer.hpp"
-    "Source/Scene/SceneRenderer.cpp"
-    "Include/Scene/BaseScene.hpp"
-    "Source/Scene/BaseScene.cpp"
+    "Include/Renderer/StateRenderer.hpp"
+    "Source/Renderer/StateRenderer.cpp"
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"

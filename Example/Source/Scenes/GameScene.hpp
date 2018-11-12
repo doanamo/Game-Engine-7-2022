@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Scene/BaseScene.hpp>
 #include <Graphics/ScreenSpace.hpp>
+#include <Game/GameState.hpp>
 
 // Forward declarations.
 namespace Engine
@@ -19,7 +19,7 @@ namespace Engine
     Main scene used by the game.
 */
 
-class GameScene : public Scene::BaseScene
+class GameScene
 {
 public:
     GameScene();
@@ -34,22 +34,21 @@ public:
     GameScene& operator=(GameScene&& other);
 
     // Initializes the instance.
-    bool Initialize(Engine::Root* engine) override;
+    bool Initialize(Engine::Root* engine);
 
     // Updates the scene.
-    void OnUpdate(float timeDelta) override;
+    void Update(float timeDelta);
 
-    // Draws the scene.
-    void OnDraw(const Scene::SceneDrawParams& drawParams) override;
-
-protected:
-    // Enters the scene.
-    void OnEnter() override;
-
-    // Exits the scene.
-    void OnExit() override;
+    // Returns the game state.
+    Game::GameState& GetGameState();
 
 private:
+    // Engine reference.
+    Engine::Root* m_engine;
+
+    // Game state.
+    Game::GameState m_gameState;
+
     // Initialization state.
     bool m_initialized;
 };

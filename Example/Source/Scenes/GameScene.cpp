@@ -13,6 +13,7 @@
 #include <Game/Components/SpriteAnimationComponent.hpp>
 
 GameScene::GameScene() :
+    m_engine(nullptr),
     m_initialized(false)
 {
 }
@@ -21,19 +22,15 @@ GameScene::~GameScene()
 {
 }
 
-GameScene::GameScene(GameScene&& other) :
-    GameScene()
+GameScene::GameScene(GameScene&& other) : GameScene()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 GameScene& GameScene::operator=(GameScene&& other)
 {
-    // Swap base class.
-    Scene::BaseScene::operator=(std::move(other));
-
-    // Swap class members.
+    std::swap(m_engine, other.m_engine);
+    std::swap(m_gameState, other.m_gameState);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -41,64 +38,61 @@ GameScene& GameScene::operator=(GameScene&& other)
 
 bool GameScene::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing main scene..." << LOG_INDENT();
+    LOG() << "Initializing game scene..." << LOG_INDENT();
 
     // Make sure instance has not been initialized.
-    VERIFY(!m_initialized, "Main scene has already been initialized!");
-
-    // Initialize the base class.
-    if(!Scene::BaseScene::Initialize(engine))
-    {
-        LOG_ERROR() << "Could not initialize the base game scene!";
-        return false;
-    }
+    VERIFY(!m_initialized, "Game scene has already been initialized!");
 
     // Reset class instance on failed initialization.
     SCOPE_GUARD_IF(!m_initialized, *this = GameScene());
 
-    // Success!
-    return m_initialized = true;
-}
+    // Validate engine reference.
+    if(engine == nullptr && engine->IsInitialized())
+    {
+        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
+        return false;
+    }
 
-void GameScene::OnEnter()
-{
-    ASSERT(m_initialized, "Main scene has not been initialized!");
+    m_engine = engine;
 
-    // Get base class references.
-    Engine::Root* const engine = this->GetEngine();
-    Game::GameState& gameState = this->GetGameState();
+    // Initialize the game state.
+    if(!m_gameState.Initialize(engine))
+    {
+        LOG_ERROR() << "Could not initialize game state!";
+        return false;
+    }
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
-    spriteAnimationListParams.engine = engine;
+    spriteAnimationListParams.engine = m_engine;
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
-    auto spriteAnimationList = engine->resourceManager.Acquire<Graphics::SpriteAnimationList>(
+    auto spriteAnimationList = m_engine->resourceManager.Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams);
 
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
-    textureAtlasParams.engine = engine;
+    textureAtlasParams.engine = m_engine;
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
-    auto textureAtlas = engine->resourceManager.Acquire<Graphics::TextureAtlas>(
+    auto textureAtlas = m_engine->resourceManager.Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams);
 
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = gameState.entitySystem.CreateEntity();
-        gameState.identitySystem.SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = m_gameState.entitySystem.CreateEntity();
+        m_gameState.identitySystem.SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = gameState.componentSystem.Create<Game::TransformComponent>(cameraEntity);
+        auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
         transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
         // Create camera component.
-        auto* camera = gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
+        auto* camera = m_gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
         ASSERT(camera != nullptr, "Could not create a camera component!");
 
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
@@ -108,26 +102,26 @@ void GameScene::OnEnter()
     {
         // Load texture.
         Graphics::Texture::LoadFromFile textureParams;
-        textureParams.engine = engine;
+        textureParams.engine = m_engine;
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
-        Graphics::TexturePtr texture = engine->resourceManager.Acquire<Graphics::Texture>(
+        Graphics::TexturePtr texture = m_engine->resourceManager.Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams);
 
         // Create named entity.
-        Game::EntityHandle playerEntity = gameState.entitySystem.CreateEntity();
-        gameState.identitySystem.SetEntityName(playerEntity, "Player");
+        Game::EntityHandle playerEntity = m_gameState.entitySystem.CreateEntity();
+        m_gameState.identitySystem.SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
+        auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
 
         transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
         transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
         transform->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
         // Create sprite component.
-        auto* sprite = gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
-        
+        auto* sprite = m_gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
+
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         sprite->SetTextureView(textureAtlas->GetRegion("animation_frame_3"));
@@ -135,50 +129,49 @@ void GameScene::OnEnter()
         sprite->SetFiltered(true);
 
         // Create sprite animation component.
-        auto* spriteAnimation = gameState.componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
+        auto* spriteAnimation = m_gameState.componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
 
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
     }
+
+    // Success!
+    return m_initialized = true;
 }
 
-void GameScene::OnUpdate(float timeDelta)
+void GameScene::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
-    // Update the base class.
-    Scene::BaseScene::OnUpdate(timeDelta);
-
     // Retrieve player transform.
-    Game::GameState& gameState = this->GetGameState();
-    Game::EntityHandle playerEntity = gameState.identitySystem.GetEntityByName("Player");
+    Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
 
-    auto transform = gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
+    auto transform = m_gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
     transform->scale = glm::vec3(1.0f, 1.0f, 1.0f) *
-        (2.0f + (float)glm::cos(GetEngine()->timer.GetCurrentTime()));
+        (2.0f + (float)glm::cos(m_engine->timer.GetTickTime()));
 
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    if(GetEngine()->inputState.IsKeyboardKeyDown(GLFW_KEY_A))
+    if(m_engine->inputState.IsKeyboardKeyDown(GLFW_KEY_A))
     {
         direction.x -= 1.0f;
     }
 
-    if(GetEngine()->inputState.IsKeyboardKeyDown(GLFW_KEY_D))
+    if(m_engine->inputState.IsKeyboardKeyDown(GLFW_KEY_D))
     {
         direction.x += 1.0f;
     }
 
-    if(GetEngine()->inputState.IsKeyboardKeyDown(GLFW_KEY_W))
+    if(m_engine->inputState.IsKeyboardKeyDown(GLFW_KEY_W))
     {
         direction.y += 1.0f;
     }
 
-    if(GetEngine()->inputState.IsKeyboardKeyDown(GLFW_KEY_S))
+    if(m_engine->inputState.IsKeyboardKeyDown(GLFW_KEY_S))
     {
         direction.y -= 1.0f;
     }
@@ -187,17 +180,12 @@ void GameScene::OnUpdate(float timeDelta)
     {
         transform->position += 4.0f * glm::normalize(direction) * timeDelta;
     }
+
+    // Update the game state.
+    m_gameState.Update(timeDelta);
 }
 
-void GameScene::OnDraw(const Scene::SceneDrawParams& drawParams)
+Game::GameState& GameScene::GetGameState()
 {
-    ASSERT(m_initialized, "Game scene has not been initialized!");
-
-    // Call the base class.
-    Scene::BaseScene::OnDraw(drawParams);
-}
-
-void GameScene::OnExit()
-{
-    ASSERT(m_initialized, "Main scene has not been initialized!");
+    return m_gameState;
 }

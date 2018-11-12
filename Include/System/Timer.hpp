@@ -20,7 +20,7 @@
         while(true)
         {
             // Calculate delta time between two last ticks.
-            float dt = timer.CalculateFrameDelta();
+            float dt = timer.CalculateTickDelta();
             Log() << "Current delta time: " << dt;
 
             // Perform some calculations over a frame and tick the timer.
@@ -35,6 +35,10 @@ namespace System
     // Timer class.
     class Timer
     {
+    public:
+        // Constant values.
+        static constexpr float MaximumFloat = std::numeric_limits<float>::max();
+
     public:
         Timer();
         ~Timer();
@@ -56,25 +60,21 @@ namespace System
         // Ticks the timer.
         void Tick();
 
-        // Calculates a frame delta time in seconds between last two ticks.
-        float CalculateFrameDelta();
+        // Advances frame by a given amount of time.
+        // Returns true if frame could be advanced.
+        bool AdvanceFrame(float frameTime);
 
-        // Gets the current time in seconds since the application start.
-        double GetCurrentTime() const;
+        // Gets the delta time in seconds between last two ticks.
+        float GetTickDelta(float maximumDelta = MaximumFloat);
 
-        // Sets the maximum frame delta in seconds that can be returned.
-        void SetMaxFrameDelta(float value);
-
-        // Gets the maximum frame delta in seconds that can be returned.
-        float GetMaxFrameDelta() const;
+        // Gets the time in seconds since the application start.
+        double GetTickTime() const;
 
     private:
         // Internal timer values.
         uint64_t m_timerFrequency;
         uint64_t m_currentTimeCounter;
         uint64_t m_previousTimeCounter;
-
-        // Maximum accumulated frame delta.
-        float m_maxFrameDeltaSeconds;
+        uint64_t m_advancedFrameCounter;
     };
 }

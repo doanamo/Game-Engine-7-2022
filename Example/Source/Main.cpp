@@ -13,14 +13,30 @@ int main()
         return -1;
 
     // Create the game scene.
-    auto CreateGameScene = [](Engine::Root* engine)
+    GameScene gameScene;
+    if(!gameScene.Initialize(&engine))
+        return -1;
+
+    // Main loop.
+    while(engine.ProcessFrame())
     {
-        auto scene = std::make_shared<GameScene>();
-        return scene->Initialize(engine) ? scene : nullptr;
-    };
+        const float updateTime = 1.0f / 10.0f;
+        while(engine.timer.AdvanceFrame(updateTime))
+        {
+            gameScene.Update(updateTime);
+        }
 
-    engine.sceneSystem.ChangeScene(CreateGameScene(&engine));
+        Renderer::StateRenderer::DrawParams drawParams;
+        drawParams.gameState = &gameScene.GetGameState();
+        drawParams.cameraName = "Camera";
+        drawParams.viewportRect.x = 0;
+        drawParams.viewportRect.y = 0;
+        drawParams.viewportRect.z = engine.window.GetWidth();
+        drawParams.viewportRect.w = engine.window.GetHeight();
+        drawParams.timeAlpha = 1.0f;
 
-    // Run the engine.
-    return engine.Run();
+        engine.stateRenderer.Draw(drawParams);
+    }
+
+    return 0;
 };

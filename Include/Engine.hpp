@@ -13,8 +13,7 @@
 #include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Sprite/SpriteRenderer.hpp"
-#include "Scene/SceneSystem.hpp"
-#include "Scene/SceneRenderer.hpp"
+#include "Renderer/StateRenderer.hpp"
 #include "Editor/EditorSystem.hpp"
 
 /*
@@ -41,8 +40,8 @@ namespace Engine
         // Initializes the engine instance.
         bool Initialize();
 
-        // Run the main game loop.
-        int Run();
+        // Processes one engine frame.
+        bool ProcessFrame();
 
         // Checks if the engine instance is initialized.
         bool IsInitialized() const;
@@ -60,9 +59,8 @@ namespace Engine
         Graphics::RenderContext renderContext;
         Graphics::SpriteRenderer spriteRenderer;
 
-        // Scene systems.
-        Scene::SceneSystem sceneSystem;
-        Scene::SceneRenderer sceneRenderer;
+        // Renderer systems.
+        Renderer::StateRenderer stateRenderer;
 
         // Engine systems.
         Editor::EditorSystem editorSystem;
