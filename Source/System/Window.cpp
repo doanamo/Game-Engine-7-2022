@@ -446,6 +446,11 @@ int Window::GetHeight() const
     return height;
 }
 
+glm::ivec4 Window::GetViewportRect() const
+{
+    return { 0, 0, GetWidth(), GetHeight() };
+}
+
 bool Window::IsOpen() const
 {
     VERIFY(m_handle != nullptr, "Window instance is not initialized!");

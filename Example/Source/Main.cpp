@@ -27,12 +27,9 @@ int main()
         }
 
         Renderer::StateRenderer::DrawParams drawParams;
+        drawParams.viewportRect = engine.window.GetViewportRect();
         drawParams.gameState = &gameScene.GetGameState();
         drawParams.cameraName = "Camera";
-        drawParams.viewportRect.x = 0;
-        drawParams.viewportRect.y = 0;
-        drawParams.viewportRect.z = engine.window.GetWidth();
-        drawParams.viewportRect.w = engine.window.GetHeight();
         drawParams.timeAlpha = 1.0f;
 
         engine.stateRenderer.Draw(drawParams);
