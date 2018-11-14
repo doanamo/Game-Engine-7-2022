@@ -89,7 +89,6 @@ bool GameScene::Initialize(Engine::Root* engine)
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
-        transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
         // Create camera component.
         auto* camera = m_gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
@@ -116,8 +115,6 @@ bool GameScene::Initialize(Engine::Root* engine)
         auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
 
         transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
-        transform->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-        transform->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
         // Create sprite component.
         auto* sprite = m_gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
@@ -151,7 +148,7 @@ void GameScene::Update(float timeDelta)
 
     // Animate the entity.
     transform->scale = glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetTickTime()));
-    transform->rotation.z = 360.0f * ((float)std::fmod(m_engine->timer.GetTickTime(), 10.0) / 10.0f);
+    transform->rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetTickTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);

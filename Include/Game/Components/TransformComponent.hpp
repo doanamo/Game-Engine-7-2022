@@ -26,7 +26,7 @@ namespace Game
 
         // Transform parameters.
         glm::vec3 position;
-        glm::vec3 rotation;
+        glm::quat rotation;
         glm::vec3 scale;
     };
 }
