@@ -80,22 +80,34 @@ void Timer::Tick()
 bool Timer::AdvanceFrame(float frameTime)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
-    ASSERT(m_advancedFrameCounter <= m_currentTimeCounter, "Frame counter is in the future!");
 
-    // Convert frame time to frame ticks.
-    uint64_t frameTicks = (uint64_t)(m_timerFrequency * (double)frameTime);
-
-    // Check if we have accumulated enough ticks to advance a frame.
-    uint64_t accumlatedTicks = m_currentTimeCounter - m_advancedFrameCounter;
-
-    if(accumlatedTicks >= frameTicks)
+    // Check if we should advance the frame.
+    if(m_currentTimeCounter >= m_advancedFrameCounter)
     {
+        // Convert frame time to frame ticks.
+        uint64_t frameTicks = (uint64_t)(m_timerFrequency * (double)frameTime);
+
+        // Advance counter for the next frame.
         m_advancedFrameCounter += frameTicks;
+
         return true;
     }
 
     // Wait until we have enough time accumulated.
     return false;
+}
+
+float Timer::GetTickAlpha(float frameTime)
+{
+    // Calculate accumulated ticks since the last frame.
+    uint64_t accumulatedFrameTicks = m_advancedFrameCounter - m_currentTimeCounter;
+    ASSERT(accumulatedFrameTicks >= 0, "Accumulated ticks cannot be negative!");
+
+    // Calculate a normalized range between last two frames.
+    float accumulatedFrameTime = accumulatedFrameTicks * (1.0f / m_timerFrequency);
+    float normalizedFrameAlpha = std::min((frameTime - accumulatedFrameTime) / frameTime, 1.0f);
+
+    return normalizedFrameAlpha;
 }
 
 float Timer::GetTickDelta(float maximumDelta)

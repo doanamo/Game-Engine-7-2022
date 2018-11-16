@@ -64,6 +64,9 @@ namespace System
         // Returns true if frame could be advanced.
         bool AdvanceFrame(float frameTime);
 
+        // Gets the alpha time in normalized range between last two frames.
+        float GetTickAlpha(float frameTime);
+
         // Gets the delta time in seconds between last two ticks.
         float GetTickDelta(float maximumDelta = MaximumFloat);
 
