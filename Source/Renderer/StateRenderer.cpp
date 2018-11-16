@@ -69,6 +69,9 @@ void StateRenderer::Draw(const DrawParams& drawParams)
 {
     ASSERT(m_initialized, "State renderer has not been initialized yet!");
 
+    // Make sure that time alpha is within range.
+    ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f);
+
     // Checks if game state is null.
     if(drawParams.gameState == nullptr)
     {
@@ -141,7 +144,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
         sprite.info.transparent = spriteComponent.IsTransparent();
         sprite.info.filtered = spriteComponent.IsFiltered();
-        sprite.data.transform = transformComponent->CalculateMatrix();
+        sprite.data.transform = transformComponent->CalculateMatrix(glm::mat4(1.0f), drawParams.timeAlpha);
         sprite.data.rectangle = spriteComponent.GetRectangle();
         sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
         sprite.data.color = spriteComponent.GetColor();

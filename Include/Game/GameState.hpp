@@ -7,6 +7,7 @@
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
+#include "Game/Systems/InterpolationSystem.hpp"
 #include "Game/Systems/SpriteSystem.hpp"
 
 // Forward declaration.
@@ -47,9 +48,10 @@ namespace Game
         // Core game systems.
         Game::EntitySystem entitySystem;
         Game::ComponentSystem componentSystem;
-        Game::IdentitySystem identitySystem;
 
         // Base game systems.
+        Game::IdentitySystem identitySystem;
+        Game::InterpolationSystem interpolationSystem;
         Game::SpriteSystem spriteSystem;
 
     private:

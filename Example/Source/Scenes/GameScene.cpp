@@ -88,7 +88,7 @@ bool GameScene::Initialize(Engine::Root* engine)
         auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
-        transform->position = glm::vec3(0.0f, 0.0f, 2.0f);
+        transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
         auto* camera = m_gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
@@ -114,7 +114,7 @@ bool GameScene::Initialize(Engine::Root* engine)
         // Create transform component.
         auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
 
-        transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
+        transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
         // Create sprite component.
         auto* sprite = m_gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
@@ -140,6 +140,9 @@ void GameScene::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
+    // Update the game state.
+    m_gameState.Update(timeDelta);
+
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
 
@@ -147,8 +150,8 @@ void GameScene::Update(float timeDelta)
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    transform->scale = glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetTickTime()));
-    transform->rotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetTickTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetTickTime())));
+    transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetTickTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
@@ -175,11 +178,8 @@ void GameScene::Update(float timeDelta)
 
     if(direction != glm::vec3(0.0f))
     {
-        transform->position += 4.0f * glm::normalize(direction) * timeDelta;
+        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
     }
-
-    // Update the game state.
-    m_gameState.Update(timeDelta);
 }
 
 Game::GameState* GameScene::GetGameState()

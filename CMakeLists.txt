@@ -118,6 +118,8 @@ set(SOURCE_FILES
     "Source/Game/Components/SpriteAnimationComponent.cpp"
     "Include/Game/Systems/IdentitySystem.hpp"
     "Source/Game/Systems/IdentitySystem.cpp"
+    "Include/Game/Systems/InterpolationSystem.hpp"
+    "Source/Game/Systems/InterpolationSystem.cpp"
     "Include/Game/Systems/SpriteSystem.hpp"
     "Source/Game/Systems/SpriteSystem.cpp"
 

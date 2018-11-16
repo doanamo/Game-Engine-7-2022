@@ -27,8 +27,9 @@ GameState& GameState::operator=(GameState&& other)
 {
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
+ 
     std::swap(identitySystem, other.identitySystem);
-
+    std::swap(interpolationSystem, other.interpolationSystem);
     std::swap(spriteSystem, other.spriteSystem);
 
     std::swap(m_engine, other.m_engine);
@@ -80,6 +81,14 @@ bool GameState::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Initialize the interpolation system.
+    // Controls how and when entities are interpolated.
+    if(!interpolationSystem.Initialize(&componentSystem))
+    {
+        LOG_ERROR() << "Could not initialize interpolation system!";
+        return false;
+    }
+
     // Initialize the sprite system.
     // Updates sprites and their animations.
     if(!spriteSystem.Initialize(&componentSystem))
@@ -98,6 +107,9 @@ void GameState::Update(float timeDelta)
 
     // Process entity commands.
     entitySystem.ProcessCommands();
+
+    // Update the interpolation system.
+    interpolationSystem.Update(timeDelta);
 
     // Update the sprite animation system.
     spriteSystem.Update(timeDelta);

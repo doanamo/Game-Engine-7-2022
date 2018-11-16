@@ -109,7 +109,7 @@ glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
 
     // Calculate camera transform component.
     // #improvement: Calculate camera rotation transform for 3D movement.
-    output = glm::translate(output, -m_transform->position);
+    output = glm::translate(output, -m_transform->GetPosition());
 
     return output;
 }

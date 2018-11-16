@@ -18,9 +18,11 @@ int main()
         return -1;
 
     // Main loop.
+    engine.timer.Reset();
+
     while(engine.ProcessFrame())
     {
-        const float updateTime = 1.0f / 10.0f;
+        const float updateTime = 1.0f / 1.0f;
         while(engine.timer.AdvanceFrame(updateTime))
         {
             gameScene.Update(updateTime);
@@ -30,7 +32,7 @@ int main()
         drawParams.viewportRect = engine.window.GetViewportRect();
         drawParams.gameState = gameScene.GetGameState();
         drawParams.cameraName = "Camera";
-        drawParams.timeAlpha = 1.0f;
+        drawParams.timeAlpha = engine.timer.GetTickAlpha(updateTime);
 
         engine.stateRenderer.Draw(drawParams);
     }
