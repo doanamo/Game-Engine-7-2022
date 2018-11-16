@@ -257,7 +257,7 @@ endif()
 target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/utfcpp-2.3.6/source")
 
 # Add GLM library.
-target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLM-0.9.9.0")
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/GLM-0.9.9.3")
 
 # Add OpenGL library.
 find_package(OpenGL REQUIRED)
