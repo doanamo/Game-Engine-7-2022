@@ -17,7 +17,8 @@ GameState::~GameState()
 {
 }
 
-GameState::GameState(GameState&& other)
+GameState::GameState(GameState&& other) :
+    GameState()
 {
     *this = std::move(other);
 }
