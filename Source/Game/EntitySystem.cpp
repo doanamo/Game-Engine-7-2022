@@ -265,7 +265,11 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
     // Make sure queried handle exists.
     ASSERT(handleEntry.flags & HandleFlags::Exists,
         "Queried entity handle is not marked as existing!");
-    
+
+    // Make sure entity pointed by queried handle has been created.
+    if(!(handleEntry.flags & HandleFlags::Created))
+        return false;
+
     // Check if handle versions match.
     if(handleEntry.handle.version != entity.version)
         return false;
