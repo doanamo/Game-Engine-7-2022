@@ -58,7 +58,7 @@ void SpriteAnimationComponent::ResetInterpolation()
     // Wrap the current animation time.
     if(m_spriteAnimation != nullptr)
     {
-        m_currentAnimationTime = std::fmodf(m_currentAnimationTime, m_spriteAnimation->duration);
+        m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_spriteAnimation->duration);
     }
 
     // Update animation time interpolation.
@@ -158,7 +158,7 @@ float SpriteAnimationComponent::CalculateAnimationTime(float timeAlpha) const
 
     // Return wrapped animation time (when duration is shorter).
     float animationTime = glm::mix(m_previousAnimationTime, m_currentAnimationTime, timeAlpha);
-    return std::fmodf(animationTime, m_spriteAnimation->duration);
+    return glm::mod(animationTime, m_spriteAnimation->duration);
 }
 
 const SpriteAnimationComponent::SpriteAnimationListPtr& SpriteAnimationComponent::GetSpriteAnimationList() const
