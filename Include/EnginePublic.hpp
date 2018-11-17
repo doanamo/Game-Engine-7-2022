@@ -5,6 +5,7 @@
 #pragma once
 
 // Standard
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <string>
