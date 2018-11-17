@@ -30,6 +30,21 @@ SpriteAnimationList::Animation::Animation() :
 {
 }
 
+const SpriteAnimationList::Frame SpriteAnimationList::Animation::GetFrameByTime(float animationTime) const
+{
+    // Calculate the current frame.
+    for(auto& frame : frames)
+    {
+        if(animationTime <= frame.duration)
+            return frame;
+
+        animationTime -= frame.duration;
+    }
+
+    // Return empty frame if animation time does not correspond to any.
+    return SpriteAnimationList::Frame();
+}
+
 SpriteAnimationList::SpriteAnimationList() :
     m_initialized(false)
 {

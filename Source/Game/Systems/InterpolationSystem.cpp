@@ -5,6 +5,7 @@
 #include "Precompiled.hpp"
 #include "Game/Systems/InterpolationSystem.hpp"
 #include "Game/Components/TransformComponent.hpp"
+#include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
@@ -59,9 +60,15 @@ void InterpolationSystem::Update(float timeDelta)
 {
     ASSERT(m_initialized, "Interpolation system is not initialized!");
 
-    // Reset interpolation state of all transform components.
+    // Reset interpolation state of all sprite transform components.
     for(auto& transformComponent : m_componentSystem->GetPool<Game::TransformComponent>())
     {
         transformComponent.ResetInterpolation();
+    }
+
+    // Reset interpolation states of all sprite animation components.
+    for(auto& spriteAnimationComponent : m_componentSystem->GetPool<Game::SpriteAnimationComponent>())
+    {
+        spriteAnimationComponent.ResetInterpolation();
     }
 }

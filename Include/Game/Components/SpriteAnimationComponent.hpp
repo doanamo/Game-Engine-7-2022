@@ -26,12 +26,8 @@ namespace Game
             enum
             {
                 None = 0 << 0,
-
                 Playing = 1 << 0,
                 Loop = 1 << 2,
-
-                FirstFrame = 1 << 3,
-                FrameChanged = 1 << 4,
             };
 
             using Type = unsigned int;
@@ -50,8 +46,14 @@ namespace Game
         // Sets the sprite animation list.
         void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
 
+        // Resets the animation interpolation.
+        void ResetInterpolation();
+
         // Plays a specific sprite animation.
         void Play(std::string animationName, bool loop);
+
+        // Checks if sprite animation is being played.
+        bool IsPlaying() const;
 
         // Pauses the currently playing animation.
         void Pause();
@@ -65,23 +67,14 @@ namespace Game
         // Updates the currently playing animation.
         void Update(float timeDelta);
 
+        // Calculates the current animation time.
+        float CalculateAnimationTime(float timeAlpha) const;
+
         // Gets the sprite animation list.
         const SpriteAnimationListPtr& GetSpriteAnimationList() const;
 
         // Gets the current sprite animation.
         const SpriteAnimation* GetSpriteAnimation() const;
-
-        // Gets the current frame index.
-        std::size_t GetFrameIndex() const;
-
-        // Checks if animation frame has changed.
-        bool HasFrameChanged() const;
-
-        // Gets the current playback time.
-        float GetPlaybackTime() const;
-
-        // Checks if sprite animation is being played.
-        bool IsPlaying() const;
 
         // Gets the sprite component.
         SpriteComponent* GetSpriteComponent() const;
@@ -97,15 +90,12 @@ namespace Game
         // Sprite animation list.
         SpriteAnimationListPtr m_spriteAnimationList;
 
-        // Current sprite animation.
-        const SpriteAnimation* m_spriteAnimation;
-
-        // Animation frame info.
-        std::size_t m_frameIndex;
-        float m_frameTime;
-
         // Animation playback info.
+        const SpriteAnimation* m_spriteAnimation;
         PlaybackFlags::Type m_playbackInfo;
-        float m_playbackTime;
+
+        // Interpolated animation time.
+        float m_currentAnimationTime;
+        float m_previousAnimationTime;
     };
 }

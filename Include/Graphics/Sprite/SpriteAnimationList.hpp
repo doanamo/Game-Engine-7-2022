@@ -48,9 +48,11 @@ namespace Graphics
 
             std::vector<Frame> frames;
             float duration;
+
+            const Frame GetFrameByTime(float animationTime) const;
         };
 
-        // List of sequences.
+        // List of animations.
         using AnimationList = std::vector<Animation>;
         using AnimationMap = std::unordered_map<std::string, std::size_t>;
 

@@ -7,6 +7,7 @@
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/Components/CameraComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
+#include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/GameState.hpp"
 #include "Engine.hpp"
 using namespace Renderer;
@@ -79,6 +80,27 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         return;
     }
 
+    // Get game state and its systems.
+    auto& entitySystem = drawParams.gameState->entitySystem;
+    auto& componentSystem = drawParams.gameState->componentSystem;
+    auto& identitySystem = drawParams.gameState->identitySystem;
+
+    // Update sprite animation components for rendering.
+    for(auto& spriteAnimationComponent : componentSystem.GetPool<Game::SpriteAnimationComponent>())
+    {
+        // Update sprite texture view using currently playing animation.
+        if(spriteAnimationComponent.IsPlaying())
+        {
+            Game::SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
+
+            auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
+            float animationTime = spriteAnimationComponent.CalculateAnimationTime(drawParams.timeAlpha);
+
+            ASSERT(spriteAnimation, "Sprite animation is null despite being played!");
+            spriteComponent->SetTextureView(spriteAnimation->GetFrameByTime(animationTime).textureView);
+        }
+    }
+
     // Push the render state.
     auto& renderState = m_engine->renderContext.PushState();
     SCOPE_GUARD(m_engine->renderContext.PopState());
@@ -90,11 +112,6 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         drawParams.viewportRect.z,
         drawParams.viewportRect.w
     );
-
-    // Get game state and its systems.
-    auto& entitySystem = drawParams.gameState->entitySystem;
-    auto& componentSystem = drawParams.gameState->componentSystem;
-    auto& identitySystem = drawParams.gameState->identitySystem;
 
     // Base camera transform.
     glm::mat4 cameraTransform(1.0f);

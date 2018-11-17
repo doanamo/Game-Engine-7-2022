@@ -65,16 +65,5 @@ void SpriteSystem::Update(float timeDelta)
     {
         // Update the sprite animation component.
         spriteAnimationComponent.Update(timeDelta);
-
-        // Update the sprite texture view.
-        if(spriteAnimationComponent.HasFrameChanged())
-        {
-            SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
-
-            auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
-            std::size_t frameIndex = spriteAnimationComponent.GetFrameIndex();
-
-            spriteComponent->SetTextureView(spriteAnimation->frames[frameIndex].textureView);
-        }
     }
 }
