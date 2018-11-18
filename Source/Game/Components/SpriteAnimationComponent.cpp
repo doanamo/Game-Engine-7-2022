@@ -55,10 +55,17 @@ void SpriteAnimationComponent::SetSpriteAnimationList(SpriteAnimationListPtr spr
 
 void SpriteAnimationComponent::ResetInterpolation()
 {
-    // Wrap the current animation time.
+    // Wrap or clamp the current animation time.
     if(m_spriteAnimation != nullptr)
     {
-        m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_spriteAnimation->duration);
+        if(m_playbackInfo & PlaybackFlags::Loop)
+        {
+            m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_spriteAnimation->duration);
+        }
+        else
+        {
+            m_currentAnimationTime = glm::min(m_currentAnimationTime, m_spriteAnimation->duration);
+        }
     }
 
     // Update animation time interpolation.
@@ -144,7 +151,6 @@ void SpriteAnimationComponent::Update(float timeDelta)
         {
             if(m_currentAnimationTime >= m_spriteAnimation->duration)
             {
-                m_currentAnimationTime = m_spriteAnimation->duration;
                 m_playbackInfo &= ~PlaybackFlags::Playing;
             }
         }
@@ -156,9 +162,17 @@ float SpriteAnimationComponent::CalculateAnimationTime(float timeAlpha) const
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not normalized!");
     ASSERT(m_spriteAnimation, "Cannot calculate animation time without sprite animation set!");
 
-    // Return wrapped animation time (when duration is shorter).
+    // Return wrapped or clamped animation time (when duration is shorter).
     float animationTime = glm::mix(m_previousAnimationTime, m_currentAnimationTime, timeAlpha);
-    return glm::mod(animationTime, m_spriteAnimation->duration);
+
+    if(m_playbackInfo & PlaybackFlags::Loop)
+    {
+        return glm::mod(animationTime, m_spriteAnimation->duration);
+    }
+    else
+    {
+        return glm::min(animationTime, m_spriteAnimation->duration);
+    }
 }
 
 const SpriteAnimationComponent::SpriteAnimationListPtr& SpriteAnimationComponent::GetSpriteAnimationList() const
