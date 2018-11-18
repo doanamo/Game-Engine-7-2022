@@ -60,18 +60,21 @@ namespace System
         // Ticks the timer.
         void Tick();
 
+        // Ticks the timer to match the current time of another timer.
+        void Tick(const Timer& timer);
+
         // Advances frame by a given amount of time.
         // Returns true if frame could be advanced.
         bool AdvanceFrame(float frameTime);
 
         // Gets the alpha time in normalized range between last two frames.
-        float GetTickAlpha(float frameTime);
+        float GetTimeAlpha(float frameTime);
 
         // Gets the delta time in seconds between last two ticks.
-        float GetTickDelta(float maximumDelta = MaximumFloat);
+        float GetTimeDelta(float maximumDelta = MaximumFloat);
 
-        // Gets the time in seconds since the application start.
-        double GetTickTime() const;
+        // Gets the current time in seconds.
+        double GetCurrentTime() const;
 
     private:
         // Internal timer values.

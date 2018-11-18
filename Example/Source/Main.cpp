@@ -29,7 +29,7 @@ int main()
         }
 
         Renderer::StateRenderer::DrawParams drawParams;
-        drawParams.timeAlpha = engine.timer.GetTickAlpha(updateTime);
+        drawParams.timeAlpha = engine.timer.GetTimeAlpha(updateTime);
         drawParams.viewportRect = engine.window.GetViewportRect();
         drawParams.gameState = gameScene.GetGameState();
         drawParams.cameraName = "Camera";

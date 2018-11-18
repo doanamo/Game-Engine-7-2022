@@ -77,6 +77,15 @@ void Timer::Tick()
     m_currentTimeCounter = glfwGetTimerValue();
 }
 
+void Timer::Tick(const Timer& timer)
+{
+    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+
+    // Remember time points of the two last ticks.
+    m_previousTimeCounter = m_currentTimeCounter;
+    m_currentTimeCounter = timer.m_currentTimeCounter;
+}
+
 bool Timer::AdvanceFrame(float frameTime)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
@@ -97,7 +106,7 @@ bool Timer::AdvanceFrame(float frameTime)
     return false;
 }
 
-float Timer::GetTickAlpha(float frameTime)
+float Timer::GetTimeAlpha(float frameTime)
 {
     // Calculate accumulated ticks since the last frame.
     uint64_t accumulatedFrameTicks = m_advancedFrameCounter - m_currentTimeCounter;
@@ -110,7 +119,7 @@ float Timer::GetTickAlpha(float frameTime)
     return normalizedFrameAlpha;
 }
 
-float Timer::GetTickDelta(float maximumDelta)
+float Timer::GetTimeDelta(float maximumDelta)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
@@ -128,10 +137,10 @@ float Timer::GetTickDelta(float maximumDelta)
     return frameDeltaSeconds;
 }
 
-double Timer::GetTickTime() const
+double Timer::GetCurrentTime() const
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
-    // Return time in seconds since the application start.
+    // Return time in seconds.
     return m_currentTimeCounter * (1.0 / m_timerFrequency);
 }
