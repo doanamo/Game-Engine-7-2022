@@ -26,7 +26,8 @@ TextureAtlas::~TextureAtlas()
 {
 }
 
-TextureAtlas::TextureAtlas(TextureAtlas&& other)
+TextureAtlas::TextureAtlas(TextureAtlas&& other) :
+    TextureAtlas()
 {
     *this = std::move(other);
 }

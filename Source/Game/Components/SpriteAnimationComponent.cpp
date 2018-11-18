@@ -19,7 +19,8 @@ SpriteAnimationComponent::SpriteAnimationComponent() :
 {
 }
 
-SpriteAnimationComponent::SpriteAnimationComponent(SpriteAnimationComponent&& other)
+SpriteAnimationComponent::SpriteAnimationComponent(SpriteAnimationComponent&& other) :
+    SpriteAnimationComponent()
 {
     *this = std::move(other);
 }

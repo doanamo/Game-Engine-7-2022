@@ -20,7 +20,8 @@ SpriteSystem::~SpriteSystem()
 {
 }
 
-SpriteSystem::SpriteSystem(SpriteSystem&& other)
+SpriteSystem::SpriteSystem(SpriteSystem&& other) :
+    SpriteSystem()
 {
     *this = std::move(other);
 }

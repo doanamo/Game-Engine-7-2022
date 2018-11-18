@@ -20,7 +20,8 @@ TransformComponent::~TransformComponent()
 {
 }
 
-TransformComponent::TransformComponent(TransformComponent&& other)
+TransformComponent::TransformComponent(TransformComponent&& other) :
+    TransformComponent()
 {
     *this = std::move(other);
 }

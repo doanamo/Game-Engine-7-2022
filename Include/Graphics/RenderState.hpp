@@ -174,7 +174,7 @@ namespace Graphics
         RenderState& operator=(const RenderState& other) = default;
 
         // Move constructor and operator.
-        RenderState(RenderState&& other) noexcept;
+        RenderState(RenderState&& other);
         RenderState& operator=(RenderState&& other);
 
         // Initializes the render state.

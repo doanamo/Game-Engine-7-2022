@@ -124,7 +124,8 @@ VertexArray::~VertexArray()
     this->DestroyHandle();
 }
 
-VertexArray::VertexArray(VertexArray&& other)
+VertexArray::VertexArray(VertexArray&& other) :
+    VertexArray()
 {
     // Call the move assignment.
     *this = std::move(other);

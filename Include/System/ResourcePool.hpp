@@ -120,7 +120,7 @@ namespace System
 
     template<typename Type>
     ResourcePool<Type>::ResourcePool(ResourcePool&& other) :
-        ResourcePool<Type>(other)
+        ResourcePool<Type>()
     {
         // Call the move assignment.
         *this = std::move(other);

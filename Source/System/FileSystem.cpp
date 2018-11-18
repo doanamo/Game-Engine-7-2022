@@ -15,7 +15,8 @@ FileSystem::~FileSystem()
 {
 }
 
-FileSystem::FileSystem(FileSystem&& other)
+FileSystem::FileSystem(FileSystem&& other) :
+    FileSystem()
 {
     *this = std::move(other);
 }

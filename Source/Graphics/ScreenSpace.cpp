@@ -24,7 +24,8 @@ ScreenSpace::~ScreenSpace()
 {
 }
 
-ScreenSpace::ScreenSpace(ScreenSpace&& other)
+ScreenSpace::ScreenSpace(ScreenSpace&& other) :
+    ScreenSpace()
 {
     // Call the assignment move.
     *this = std::move(other);

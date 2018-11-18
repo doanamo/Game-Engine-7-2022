@@ -41,7 +41,8 @@ ScriptState::~ScriptState()
     }
 }
 
-ScriptState::ScriptState(ScriptState&& other)
+ScriptState::ScriptState(ScriptState&& other) :
+    ScriptState()
 {
     // Call the move assignment operator.
     *this = std::move(other);

@@ -50,7 +50,8 @@ TextureView& TextureView::operator=(const TextureView& other)
     return *this;
 }
 
-TextureView::TextureView(TextureView&& other)
+TextureView::TextureView(TextureView&& other) :
+    TextureView()
 {
     *this = std::move(other);
 }

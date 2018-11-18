@@ -22,7 +22,8 @@ GameScene::~GameScene()
 {
 }
 
-GameScene::GameScene(GameScene&& other) : GameScene()
+GameScene::GameScene(GameScene&& other) :
+    GameScene()
 {
     *this = std::move(other);
 }

@@ -21,7 +21,8 @@ CameraComponent::~CameraComponent()
 {
 }
 
-CameraComponent::CameraComponent(CameraComponent&& other)
+CameraComponent::CameraComponent(CameraComponent&& other) :
+    CameraComponent()
 {
     *this = std::move(other);
 }

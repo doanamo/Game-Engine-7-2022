@@ -89,7 +89,7 @@ RenderState::~RenderState()
 {
 }
 
-RenderState::RenderState(RenderState&& other) noexcept :
+RenderState::RenderState(RenderState&& other) :
     RenderState()
 {
     // Call the move assignment.

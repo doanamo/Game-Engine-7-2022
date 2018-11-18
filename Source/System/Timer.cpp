@@ -18,7 +18,8 @@ Timer::~Timer()
 {
 }
 
-Timer::Timer(Timer&& other) : Timer()
+Timer::Timer(Timer&& other) :
+    Timer()
 {
     *this = std::move(other);
 }

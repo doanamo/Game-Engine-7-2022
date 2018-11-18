@@ -15,7 +15,8 @@ Root::~Root()
 {
 }
 
-Root::Root(Root&& other) : Root()
+Root::Root(Root&& other) :
+    Root()
 {
     *this = std::move(other);
 }

@@ -30,7 +30,8 @@ StateRenderer::~StateRenderer()
 {
 }
 
-StateRenderer::StateRenderer(StateRenderer&& other)
+StateRenderer::StateRenderer(StateRenderer&& other) :
+    StateRenderer()
 {
     *this = std::move(other);
 }

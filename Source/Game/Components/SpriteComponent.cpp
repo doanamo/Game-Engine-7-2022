@@ -21,7 +21,8 @@ SpriteComponent::~SpriteComponent()
 {
 }
 
-SpriteComponent::SpriteComponent(SpriteComponent&& other)
+SpriteComponent::SpriteComponent(SpriteComponent&& other) :
+    SpriteComponent()
 {
     *this = std::move(other);
 }

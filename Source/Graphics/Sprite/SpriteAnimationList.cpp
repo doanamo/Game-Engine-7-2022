@@ -50,7 +50,8 @@ SpriteAnimationList::SpriteAnimationList() :
 {
 }
 
-SpriteAnimationList::SpriteAnimationList(SpriteAnimationList&& other)
+SpriteAnimationList::SpriteAnimationList(SpriteAnimationList&& other) :
+    SpriteAnimationList()
 {
     *this = std::move(other);
 }
