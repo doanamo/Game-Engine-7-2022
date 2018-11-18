@@ -121,7 +121,7 @@ float Timer::GetTimeAlpha() const
     // Calculate a normalized range between last two frames.
     float accumulatedFrameTime = accumulatedFrameTicks * (1.0f / m_timerFrequency);
     float normalizedFrameAlpha = (m_lastAdvancedFrameTime - accumulatedFrameTime) / m_lastAdvancedFrameTime;
-    ASSERT(normalizedFrameAlpha >= 0.0f && normalizedFrameAlpha <= 1.0f, "Time alpha is not normal!");
+    ASSERT(normalizedFrameAlpha >= 0.0f && normalizedFrameAlpha <= 1.0f, "Time alpha is not clamped in normal range!");
 
     return normalizedFrameAlpha;
 }
