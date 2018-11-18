@@ -77,13 +77,13 @@ const glm::vec3& TransformComponent::GetScale() const
     return m_currentScale;
 }
 
-glm::mat4 TransformComponent::CalculateMatrix(const glm::mat4& input, float alpha) const
+glm::mat4 TransformComponent::CalculateMatrix(float alpha) const
 {
-    glm::mat4 output(input);
+    glm::mat4 output(1.0f);
 
     output = glm::translate(output, glm::mix(m_previousPosition, m_currentPosition, alpha));
     output = output * glm::mat4_cast(glm::lerp(m_previousRotation, m_currentRotation, alpha));
     output = glm::scale(output, glm::mix(m_previousScale, m_currentScale, alpha));
-    
+
     return output;
 }

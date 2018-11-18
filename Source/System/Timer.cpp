@@ -10,7 +10,8 @@ Timer::Timer() :
     m_timerFrequency(0),
     m_currentTimeCounter(0),
     m_previousTimeCounter(0),
-    m_advancedFrameCounter(0)
+    m_advancedFrameCounter(0),
+    m_lastAdvancedFrameTime(0.0f)
 {
 }
 
@@ -30,6 +31,7 @@ Timer& Timer::operator=(Timer&& other)
     std::swap(m_currentTimeCounter, other.m_currentTimeCounter);
     std::swap(m_previousTimeCounter, other.m_previousTimeCounter);
     std::swap(m_advancedFrameCounter, other.m_advancedFrameCounter);
+    std::swap(m_lastAdvancedFrameTime, other.m_lastAdvancedFrameTime);
 
     return *this;
 }
@@ -100,6 +102,9 @@ bool Timer::AdvanceFrame(float frameTime)
         // Advance counter for the next frame.
         m_advancedFrameCounter += frameTicks;
 
+        // Save the last advanced frame time.
+        m_lastAdvancedFrameTime = frameTime;
+
         return true;
     }
 
@@ -107,7 +112,7 @@ bool Timer::AdvanceFrame(float frameTime)
     return false;
 }
 
-float Timer::GetTimeAlpha(float frameTime)
+float Timer::GetTimeAlpha() const
 {
     // Calculate accumulated ticks since the last frame.
     uint64_t accumulatedFrameTicks = m_advancedFrameCounter - m_currentTimeCounter;
@@ -115,12 +120,13 @@ float Timer::GetTimeAlpha(float frameTime)
 
     // Calculate a normalized range between last two frames.
     float accumulatedFrameTime = accumulatedFrameTicks * (1.0f / m_timerFrequency);
-    float normalizedFrameAlpha = std::min((frameTime - accumulatedFrameTime) / frameTime, 1.0f);
+    float normalizedFrameAlpha = (m_lastAdvancedFrameTime - accumulatedFrameTime) / m_lastAdvancedFrameTime;
+    ASSERT(normalizedFrameAlpha >= 0.0f && normalizedFrameAlpha <= 1.0f, "Time alpha is not normal!");
 
     return normalizedFrameAlpha;
 }
 
-float Timer::GetTimeDelta(float maximumDelta)
+float Timer::GetTimeDelta(float maximumDelta) const
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
@@ -136,6 +142,11 @@ float Timer::GetTimeDelta(float maximumDelta)
 
     // Return calculated frame delta value.
     return frameDeltaSeconds;
+}
+
+float Timer::GetFrameTime() const
+{
+    return m_lastAdvancedFrameTime;
 }
 
 double Timer::GetCurrentTime() const

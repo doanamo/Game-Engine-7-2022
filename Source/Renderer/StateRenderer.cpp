@@ -71,15 +71,16 @@ void StateRenderer::Draw(const DrawParams& drawParams)
 {
     ASSERT(m_initialized, "State renderer has not been initialized yet!");
 
-    // Make sure that time alpha is within range.
-    ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f);
-
     // Checks if game state is null.
     if(drawParams.gameState == nullptr)
     {
         LOG_WARNING() << "Attempted to draw null game state!";
         return;
     }
+
+    // Get time alpha from the game state.
+    float timeAlpha = drawParams.gameState->timer.GetTimeAlpha();
+    ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
 
     // Get game state and its systems.
     auto& entitySystem = drawParams.gameState->entitySystem;
@@ -95,7 +96,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
             Game::SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
 
             auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
-            float animationTime = spriteAnimationComponent.CalculateAnimationTime(drawParams.timeAlpha);
+            float animationTime = spriteAnimationComponent.CalculateAnimationTime(timeAlpha);
 
             ASSERT(spriteAnimation, "Sprite animation is null despite being played!");
             spriteComponent->SetTextureView(spriteAnimation->GetFrameByTime(animationTime).textureView);
@@ -162,7 +163,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
         sprite.info.transparent = spriteComponent.IsTransparent();
         sprite.info.filtered = spriteComponent.IsFiltered();
-        sprite.data.transform = transformComponent->CalculateMatrix(glm::mat4(1.0f), drawParams.timeAlpha);
+        sprite.data.transform = transformComponent->CalculateMatrix(timeAlpha);
         sprite.data.rectangle = spriteComponent.GetRectangle();
         sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
         sprite.data.color = spriteComponent.GetColor();

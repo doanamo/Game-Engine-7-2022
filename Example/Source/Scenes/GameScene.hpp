@@ -13,6 +13,11 @@ namespace Engine
     class Root;
 }
 
+namespace System
+{
+    class Timer;
+}
+
 /*
     Game Scene
 
@@ -37,10 +42,10 @@ public:
     bool Initialize(Engine::Root* engine);
 
     // Updates the scene.
-    void Update(float timeDelta);
+    void Update(const System::Timer& timer);
 
     // Returns the game state.
-    Game::GameState* GetGameState();
+    Game::GameState& GetGameState();
 
 private:
     // Engine reference.

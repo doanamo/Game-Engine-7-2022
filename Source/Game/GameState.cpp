@@ -25,6 +25,8 @@ GameState::GameState(GameState&& other) :
 
 GameState& GameState::operator=(GameState&& other)
 {
+    std::swap(timer, other.timer);
+
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
  
@@ -97,22 +99,46 @@ bool GameState::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Initialize the timer.
+    if(!timer.Initialize())
+    {
+        LOG_ERROR() << "Could not initialize timer!";
+        return false;
+    }
+
     // Success!
     return m_initialized = true;
 }
 
-void GameState::Update(float timeDelta)
+bool GameState::Update(const System::Timer& timer)
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
 
-    // Process entity commands.
-    entitySystem.ProcessCommands();
+    // Tick the main loop timer along with the application timer.
+    this->timer.Tick(timer);
 
-    // Update the interpolation system.
-    interpolationSystem.Update(timeDelta);
+    // Return flag indicating if state was updated.
+    bool stateUpdated = false;
 
-    // Update the sprite animation system.
-    spriteSystem.Update(timeDelta);
+    // Main game state update loop.
+    const float updateTime = 1.0f / 10.0f;
+    if(this->timer.AdvanceFrame(updateTime))
+    {
+        // Process entity commands.
+        entitySystem.ProcessCommands();
+
+        // Update the interpolation system.
+        interpolationSystem.Update(updateTime);
+
+        // Update the sprite animation system.
+        spriteSystem.Update(updateTime);
+
+        // State has been updated at least once.
+        stateUpdated = true;
+    }
+
+    // Return whether state could be updated.
+    return stateUpdated;
 }
 
 Engine::Root* GameState::GetEngine() const

@@ -57,7 +57,7 @@ namespace System
         // Resets the timer.
         void Reset();
 
-        // Ticks the timer.
+        // Ticks the timer to match the current system time.
         void Tick();
 
         // Ticks the timer to match the current time of another timer.
@@ -68,10 +68,13 @@ namespace System
         bool AdvanceFrame(float frameTime);
 
         // Gets the alpha time in normalized range between last two frames.
-        float GetTimeAlpha(float frameTime);
+        float GetTimeAlpha() const;
 
         // Gets the delta time in seconds between last two ticks.
-        float GetTimeDelta(float maximumDelta = MaximumFloat);
+        float GetTimeDelta(float maximumDelta = MaximumFloat) const;
+
+        // Gets the last time length used to advance the frame.
+        float GetFrameTime() const;
 
         // Gets the current time in seconds.
         double GetCurrentTime() const;
@@ -82,5 +85,6 @@ namespace System
         uint64_t m_currentTimeCounter;
         uint64_t m_previousTimeCounter;
         uint64_t m_advancedFrameCounter;
+        float m_lastAdvancedFrameTime;
     };
 }

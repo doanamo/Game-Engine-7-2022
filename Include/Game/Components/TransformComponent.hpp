@@ -47,7 +47,7 @@ namespace Game
         // Calculates an interpolated transform matrix.
         // Alpha value of 0.0f returns a matrix representing the previous transform.
         // Alpha value of 1.0f returns a matrix representing the current transform.
-        glm::mat4 CalculateMatrix(const glm::mat4& input = glm::mat4(1.0f), float alpha = 1.0f) const;
+        glm::mat4 CalculateMatrix(float alpha = 1.0f) const;
 
     public:
         // Transform parameters.

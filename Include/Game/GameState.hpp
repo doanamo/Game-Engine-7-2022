@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "System/Timer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -39,12 +40,16 @@ namespace Game
         bool Initialize(Engine::Root* engine);
 
         // Updates the game state.
-        void Update(float timeDelta);
+        // Returns true if the game state was updated.
+        bool Update(const System::Timer& timer);
 
         // Gets the engine reference.
         Engine::Root* GetEngine() const;
 
     public:
+        // Main loop timer.
+        System::Timer timer;
+
         // Core game systems.
         Game::EntitySystem entitySystem;
         Game::ComponentSystem componentSystem;

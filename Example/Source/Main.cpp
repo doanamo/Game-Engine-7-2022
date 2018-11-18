@@ -22,16 +22,11 @@ int main()
 
     while(engine.ProcessFrame())
     {
-        const float updateTime = 1.0f / 10.0f;
-        while(engine.timer.AdvanceFrame(updateTime))
-        {
-            gameScene.Update(updateTime);
-        }
+        gameScene.Update(engine.timer);
 
         Renderer::StateRenderer::DrawParams drawParams;
-        drawParams.timeAlpha = engine.timer.GetTimeAlpha(updateTime);
         drawParams.viewportRect = engine.window.GetViewportRect();
-        drawParams.gameState = gameScene.GetGameState();
+        drawParams.gameState = &gameScene.GetGameState();
         drawParams.cameraName = "Camera";
 
         engine.stateRenderer.Draw(drawParams);

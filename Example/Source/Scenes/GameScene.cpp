@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Scenes/GameScene.hpp"
+#include <System/Timer.hpp>
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
@@ -137,53 +138,57 @@ bool GameScene::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void GameScene::Update(float timeDelta)
+void GameScene::Update(const System::Timer& timer)
 {
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
     // Update the game state.
-    m_gameState.Update(timeDelta);
-
-    // Retrieve player transform.
-    Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
-
-    auto transform = m_gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
-    ASSERT(transform != nullptr, "Could not create a transform component!");
-
-    // Animate the entity.
-    transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetCurrentTime())));
-    transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetCurrentTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-
-    // Control the entity with keyboard.
-    glm::vec3 direction(0.0f, 0.0f, 0.0f);
-
-    if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
+    while(m_gameState.Update(timer))
     {
-        direction.x -= 1.0f;
-    }
+        // Get the frame time delta.
+        float timeDelta = m_gameState.timer.GetFrameTime();
 
-    if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
-    {
-        direction.x += 1.0f;
-    }
+        // Retrieve player transform.
+        Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
 
-    if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
-    {
-        direction.y += 1.0f;
-    }
+        auto transform = m_gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
+        ASSERT(transform != nullptr, "Could not create a transform component!");
 
-    if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
-    {
-        direction.y -= 1.0f;
-    }
+        // Animate the entity.
+        transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetCurrentTime())));
+        transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetCurrentTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
-    if(direction != glm::vec3(0.0f))
-    {
-        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
+        // Control the entity with keyboard.
+        glm::vec3 direction(0.0f, 0.0f, 0.0f);
+
+        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
+        {
+            direction.x -= 1.0f;
+        }
+
+        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
+        {
+            direction.x += 1.0f;
+        }
+
+        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
+        {
+            direction.y += 1.0f;
+        }
+
+        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
+        {
+            direction.y -= 1.0f;
+        }
+
+        if(direction != glm::vec3(0.0f))
+        {
+            transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
+        }
     }
 }
 
-Game::GameState* GameScene::GetGameState()
+Game::GameState& GameScene::GetGameState()
 {
-    return &m_gameState;
+    return m_gameState;
 }
