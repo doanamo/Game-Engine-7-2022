@@ -176,7 +176,7 @@ bool Root::ProcessFrame()
     Logger::AdvanceFrameCounter();
 
     // Calculate frame delta time.
-    float timeDelta = timer.GetTimeDelta();
+    float timeDelta = timer.GetDeltaTime();
 
     // Update the editor system.
     editorSystem.Update(timeDelta);

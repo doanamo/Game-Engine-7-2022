@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "System/Timer.hpp"
+#include "System/UpdateTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -48,7 +48,7 @@ namespace Game
 
     public:
         // Main loop timer.
-        System::Timer timer;
+        System::UpdateTimer updateTimer;
 
         // Core game systems.
         Game::EntitySystem entitySystem;

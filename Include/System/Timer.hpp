@@ -41,7 +41,7 @@ namespace System
 
     public:
         Timer();
-        ~Timer();
+        virtual ~Timer();
 
         // Disallow copying.
         Timer(const Timer& other) = delete;
@@ -52,10 +52,10 @@ namespace System
         Timer& operator=(Timer&& other);
 
         // Initializes the timer instance.
-        bool Initialize();
+        virtual bool Initialize();
 
         // Resets the timer.
-        void Reset();
+        virtual void Reset();
 
         // Ticks the timer to match the current system time.
         void Tick();
@@ -63,34 +63,16 @@ namespace System
         // Ticks the timer to match the current time of another timer.
         void Tick(const Timer& timer);
 
-        // Gets the alpha time in normalized range between last two frames.
-        float GetTimeAlpha() const;
-
         // Gets the delta time in seconds between last two ticks.
-        float GetTimeDelta(float maximumDelta = MaximumFloat) const;
+        float GetDeltaTime(float maximumDelta = MaximumFloat) const;
 
         // Gets the current time in seconds.
-        double GetCurrentTime() const;
+        double GetSystemTime() const;
 
-        // Advances frame by a given amount of time.
-        // Returns true if frame could be advanced.
-        bool AdvanceFrame(float frameTime);
-
-        // Gets the last time length used to advance a frame.
-        float GetLastFrameTime() const;
-
-        // Gets the total advanced frame time in seconds.
-        double GetTotalFrameTime() const;
-
-    private:
+    protected:
         // Time tracking values.
         uint64_t m_timerFrequency;
         uint64_t m_currentTimeCounter;
         uint64_t m_previousTimeCounter;
-
-        // Frame tracking values.
-        uint64_t m_advancedFrameCounter;
-        uint64_t m_accumulatedFrameCounter;
-        float m_lastAdvancedFrameTime;
     };
 }

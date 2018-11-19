@@ -61,6 +61,8 @@ set(SOURCE_FILES
     "Source/System/Window.cpp"
     "Include/System/Timer.hpp"
     "Source/System/Timer.cpp"
+    "Include/System/UpdateTimer.hpp"
+    "Source/System/UpdateTimer.cpp"
     "Include/System/InputState.hpp"
     "Source/System/InputState.cpp"
     "Include/System/ResourcePool.hpp"

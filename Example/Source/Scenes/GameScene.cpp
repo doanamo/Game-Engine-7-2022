@@ -146,7 +146,7 @@ void GameScene::Update(const System::Timer& timer)
     while(m_gameState.Update(timer))
     {
         // Get the frame time delta.
-        float timeDelta = m_gameState.timer.GetLastFrameTime();
+        float timeDelta = m_gameState.updateTimer.GetLastUpdateTime();
 
         // Retrieve player transform.
         Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
@@ -155,7 +155,7 @@ void GameScene::Update(const System::Timer& timer)
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         // Animate the entity.
-        double timeAccumulated = m_gameState.timer.GetTotalFrameTime();
+        double timeAccumulated = m_gameState.updateTimer.GetTotalUpdateTime();
 
         transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
         transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
