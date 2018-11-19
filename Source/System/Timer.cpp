@@ -92,6 +92,46 @@ void Timer::Tick(const Timer& timer)
     m_currentTimeCounter = timer.m_currentTimeCounter;
 }
 
+float Timer::GetTimeDelta(float maximumDelta) const
+{
+    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+
+    // Calculate elapsed time since the last frame.
+    ASSERT(m_currentTimeCounter >= m_previousTimeCounter, "Previous time counter is higher than the current time counter!");
+    uint64_t elapsedTimeCounter = m_currentTimeCounter - m_previousTimeCounter;
+
+    // Calculate frame time delta between last two ticks in seconds.
+    float frameDeltaSeconds = static_cast<float>(elapsedTimeCounter * (1.0 / m_timerFrequency));
+
+    // Clamp delta value between 0.0f and set maximum value.
+    frameDeltaSeconds = Utility::Clamp(frameDeltaSeconds, 0.0f, maximumDelta);
+
+    // Return calculated frame delta value.
+    return frameDeltaSeconds;
+}
+
+float Timer::GetTimeAlpha() const
+{
+    // Calculate accumulated ticks since the last frame.
+    uint64_t accumulatedFrameTicks = m_advancedFrameCounter - m_currentTimeCounter;
+    ASSERT(accumulatedFrameTicks >= 0, "Accumulated ticks cannot be negative!");
+
+    // Calculate a normalized range between last two frames.
+    float accumulatedFrameTime = accumulatedFrameTicks * (1.0f / m_timerFrequency);
+    float normalizedFrameAlpha = (m_lastAdvancedFrameTime - accumulatedFrameTime) / m_lastAdvancedFrameTime;
+    ASSERT(normalizedFrameAlpha >= 0.0f && normalizedFrameAlpha <= 1.0f, "Time alpha is not clamped in normal range!");
+
+    return normalizedFrameAlpha;
+}
+
+double Timer::GetCurrentTime() const
+{
+    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+
+    // Return the current time in seconds.
+    return m_currentTimeCounter * (1.0 / m_timerFrequency);
+}
+
 bool Timer::AdvanceFrame(float frameTime)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
@@ -118,52 +158,12 @@ bool Timer::AdvanceFrame(float frameTime)
     return false;
 }
 
-float Timer::GetTimeAlpha() const
-{
-    // Calculate accumulated ticks since the last frame.
-    uint64_t accumulatedFrameTicks = m_advancedFrameCounter - m_currentTimeCounter;
-    ASSERT(accumulatedFrameTicks >= 0, "Accumulated ticks cannot be negative!");
-
-    // Calculate a normalized range between last two frames.
-    float accumulatedFrameTime = accumulatedFrameTicks * (1.0f / m_timerFrequency);
-    float normalizedFrameAlpha = (m_lastAdvancedFrameTime - accumulatedFrameTime) / m_lastAdvancedFrameTime;
-    ASSERT(normalizedFrameAlpha >= 0.0f && normalizedFrameAlpha <= 1.0f, "Time alpha is not clamped in normal range!");
-
-    return normalizedFrameAlpha;
-}
-
-float Timer::GetTimeDelta(float maximumDelta) const
-{
-    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
-
-    // Calculate elapsed time since the last frame.
-    ASSERT(m_currentTimeCounter >= m_previousTimeCounter, "Previous time counter is higher than the current time counter!");
-    uint64_t elapsedTimeCounter = m_currentTimeCounter - m_previousTimeCounter;
-
-    // Calculate frame time delta between last two ticks in seconds.
-    float frameDeltaSeconds = static_cast<float>(elapsedTimeCounter * (1.0 / m_timerFrequency));
-
-    // Clamp delta value between 0.0f and set maximum value.
-    frameDeltaSeconds = Utility::Clamp(frameDeltaSeconds, 0.0f, maximumDelta);
-
-    // Return calculated frame delta value.
-    return frameDeltaSeconds;
-}
-
-float Timer::GetFrameTime() const
+float Timer::GetLastFrameTime() const
 {
     return m_lastAdvancedFrameTime;
 }
 
-double Timer::GetCurrentTime() const
-{
-    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
-
-    // Return the current time in seconds.
-    return m_currentTimeCounter * (1.0 / m_timerFrequency);
-}
-
-double Timer::GetAdvancedTime() const
+double Timer::GetTotalFrameTime() const
 {
     // Return the advanced time in seconds.
     return m_accumulatedFrameCounter * (1.0 / m_timerFrequency);
