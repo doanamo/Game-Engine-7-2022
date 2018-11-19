@@ -79,12 +79,18 @@ namespace System
         // Gets the current time in seconds.
         double GetCurrentTime() const;
 
+        // Gets the advanced time in seconds.
+        double GetAdvancedTime() const;
+
     private:
-        // Internal timer values.
+        // Time tracking values.
         uint64_t m_timerFrequency;
         uint64_t m_currentTimeCounter;
         uint64_t m_previousTimeCounter;
+
+        // Frame tracking values.
         uint64_t m_advancedFrameCounter;
+        uint64_t m_accumulatedFrameCounter;
         float m_lastAdvancedFrameTime;
     };
 }

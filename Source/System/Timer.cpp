@@ -11,6 +11,7 @@ Timer::Timer() :
     m_currentTimeCounter(0),
     m_previousTimeCounter(0),
     m_advancedFrameCounter(0),
+    m_accumulatedFrameCounter(0),
     m_lastAdvancedFrameTime(0.0f)
 {
 }
@@ -30,7 +31,9 @@ Timer& Timer::operator=(Timer&& other)
     std::swap(m_timerFrequency, other.m_timerFrequency);
     std::swap(m_currentTimeCounter, other.m_currentTimeCounter);
     std::swap(m_previousTimeCounter, other.m_previousTimeCounter);
+
     std::swap(m_advancedFrameCounter, other.m_advancedFrameCounter);
+    std::swap(m_accumulatedFrameCounter, other.m_accumulatedFrameCounter);
     std::swap(m_lastAdvancedFrameTime, other.m_lastAdvancedFrameTime);
 
     return *this;
@@ -102,6 +105,9 @@ bool Timer::AdvanceFrame(float frameTime)
         // Advance counter for the next frame.
         m_advancedFrameCounter += frameTicks;
 
+        // Track accumulated time of all advanced frame.
+        m_accumulatedFrameCounter += frameTicks;
+
         // Save the last advanced frame time.
         m_lastAdvancedFrameTime = frameTime;
 
@@ -153,6 +159,12 @@ double Timer::GetCurrentTime() const
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
-    // Return time in seconds.
+    // Return the current time in seconds.
     return m_currentTimeCounter * (1.0 / m_timerFrequency);
+}
+
+double Timer::GetAdvancedTime() const
+{
+    // Return the advanced time in seconds.
+    return m_accumulatedFrameCounter * (1.0 / m_timerFrequency);
 }

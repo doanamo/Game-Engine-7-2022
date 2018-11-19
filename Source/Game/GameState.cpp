@@ -121,7 +121,7 @@ bool GameState::Update(const System::Timer& timer)
     bool stateUpdated = false;
 
     // Main game state update loop.
-    const float updateTime = 1.0f / 10.0f;
+    const float updateTime = 1.0f / 1.0f;
     if(this->timer.AdvanceFrame(updateTime))
     {
         // Process entity commands.

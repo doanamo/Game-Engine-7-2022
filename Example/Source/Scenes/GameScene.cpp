@@ -155,8 +155,10 @@ void GameScene::Update(const System::Timer& timer)
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         // Animate the entity.
-        transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(m_engine->timer.GetCurrentTime())));
-        transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(m_engine->timer.GetCurrentTime(), 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        double timeAccumulated = m_gameState.timer.GetAdvancedTime();
+
+        transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
+        transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Control the entity with keyboard.
         glm::vec3 direction(0.0f, 0.0f, 0.0f);
