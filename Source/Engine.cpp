@@ -168,18 +168,12 @@ bool Root::ProcessFrame()
 {
     ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Signal engine exit.
-    if(!window.IsOpen())
-        return false;
-
     // Advance the logger frame counter of reference.
     Logger::AdvanceFrameCounter();
 
-    // Calculate frame delta time.
-    float timeDelta = timer.GetDeltaTime();
-
-    // Update the editor system.
-    editorSystem.Update(timeDelta);
+    // Signal engine exit.
+    if(!window.IsOpen())
+        return false;
 
     // Draw the editor system.
     editorSystem.Draw();
@@ -193,11 +187,17 @@ bool Root::ProcessFrame()
     // Tick the timer.
     timer.Tick();
 
+    // Calculate frame delta time.
+    float timeDelta = timer.GetDeltaTime();
+
     // Prepare input state for being processed.
     inputState.PrepareForEvents();
 
     // Process window events.
     window.ProcessEvents();
+
+    // Update the editor system.
+    editorSystem.Update(timeDelta);
 
     // Signal that engine continues running.
     return true;

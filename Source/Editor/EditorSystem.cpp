@@ -281,10 +281,6 @@ void EditorSystem::Update(float timeDelta)
     // Set current delta time.
     io.DeltaTime = timeDelta;
 
-    // Set current display size.
-    io.DisplaySize.x = (float)m_engine->window.GetWidth();
-    io.DisplaySize.y = (float)m_engine->window.GetHeight();
-
     // Start a new interface frame.
     ImGui::NewFrame();
 
@@ -327,6 +323,17 @@ void EditorSystem::Draw()
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
+
+    // Set current display size.
+    io.DisplaySize.x = (float)m_engine->window.GetWidth();
+    io.DisplaySize.y = (float)m_engine->window.GetHeight();
+
+    // Handle a case where Update() has not been called yet.
+    // Calling NewFrame() twice in a row should be fine.
+    if(ImGui::GetFrameCount() == 0)
+    {
+        ImGui::NewFrame();
+    }
 
     // End our rendering frame.
     ImGui::EndFrame();
