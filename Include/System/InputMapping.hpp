@@ -168,10 +168,11 @@ namespace System
         {
             Invalid,
 
-            ModShift = 1 << 0,
-            ModCtrl = 1 << 1,
-            ModAlt = 1 << 2,
-            ModSuper = 1 << 3,
+            None = 0 << 0,
+            Shift = 1 << 0,
+            Ctrl = 1 << 1,
+            Alt = 1 << 2,
+            Super = 1 << 3,
 
             Count,
         };

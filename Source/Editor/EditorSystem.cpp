@@ -484,10 +484,10 @@ void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
     io.KeysDown[event.key] = (event.state == System::InputStates::Pressed);
 
     // Change states of key modifiers.
-    io.KeyAlt = event.modifiers & System::KeyboardModifiers::ModAlt;
-    io.KeyCtrl = event.modifiers & System::KeyboardModifiers::ModCtrl;
-    io.KeyShift = event.modifiers & System::KeyboardModifiers::ModShift;
-    io.KeySuper = event.modifiers & System::KeyboardModifiers::ModSuper;
+    io.KeyAlt = event.modifiers & System::KeyboardModifiers::Alt;
+    io.KeyCtrl = event.modifiers & System::KeyboardModifiers::Ctrl;
+    io.KeyShift = event.modifiers & System::KeyboardModifiers::Shift;
+    io.KeySuper = event.modifiers & System::KeyboardModifiers::Super;
 }
 
 void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)

@@ -147,12 +147,12 @@ namespace System
 
     KeyboardModifiers::Type TranslateKeyboardModifiers(int mods)
     {
-        KeyboardModifiers::Type modifiers;
+        KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
 
-        if(mods & GLFW_MOD_ALT) modifiers |= KeyboardModifiers::ModAlt;
-        if(mods & GLFW_MOD_SHIFT) modifiers |= KeyboardModifiers::ModShift;
-        if(mods & GLFW_MOD_CONTROL) modifiers |= KeyboardModifiers::ModCtrl;
-        if(mods & GLFW_MOD_SUPER) modifiers |= KeyboardModifiers::ModSuper;
+        if(mods & GLFW_MOD_ALT) modifiers |= KeyboardModifiers::Alt;
+        if(mods & GLFW_MOD_SHIFT) modifiers |= KeyboardModifiers::Shift;
+        if(mods & GLFW_MOD_CONTROL) modifiers |= KeyboardModifiers::Ctrl;
+        if(mods & GLFW_MOD_SUPER) modifiers |= KeyboardModifiers::Super;
 
         return modifiers;
     }
