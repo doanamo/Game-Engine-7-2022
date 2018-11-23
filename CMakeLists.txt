@@ -130,6 +130,8 @@ set(SOURCE_FILES
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"
+    "Include/Editor/GameStateEditor.hpp"
+    "Source/Editor/GameStateEditor.cpp"
 )
 
 # Create missing source files from template.

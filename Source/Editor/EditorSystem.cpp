@@ -5,6 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include "System/ResourceManager.hpp"
+#include "Game/GameState.hpp"
 #include "Engine.hpp"
 using namespace Editor;
 
@@ -70,6 +71,8 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
     std::swap(m_fontTexture, other.m_fontTexture);
     std::swap(m_sampler, other.m_sampler);
     std::swap(m_shader, other.m_shader);
+
+    std::swap(m_editorGameState, other.m_editorGameState);
 
     std::swap(m_initialized, other.m_initialized);
 
@@ -266,6 +269,13 @@ bool EditorSystem::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Initialize the game state editor.
+    if(!m_editorGameState.Initialize())
+    {
+        LOG_ERROR() << "Could not initialize game state editor!";
+        return false;
+    }
+
     // Success!
     return m_initialized = true;
 }
@@ -290,12 +300,12 @@ void EditorSystem::Update(float timeDelta)
         ImGui::ShowDemoWindow(&m_showDemoWindow);
     }
 
-    // Display standard editor interface if no custom one is used.
+    // Show main menu bar.
     if(ImGui::BeginMainMenuBar())
     {
-        if(ImGui::BeginMenu("Menu"))
+        if(ImGui::BeginMenu("Editor"))
         {
-            if(ImGui::MenuItem("Show demo window"))
+            if(ImGui::MenuItem("Show Demo"))
             {
                 m_showDemoWindow = true;
             }
@@ -314,6 +324,9 @@ void EditorSystem::Update(float timeDelta)
 
         ImGui::EndMainMenuBar();
     }
+
+    // Update editor systems.
+    m_editorGameState.Update(timeDelta);
 }
 
 void EditorSystem::Draw()
@@ -507,4 +520,9 @@ void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
 
     // Add text input character.
     io.AddInputCharactersUTF8(&utf8Character[0]);
+}
+
+GameStateEditor& EditorSystem::GetGameStateEditor()
+{
+    return m_editorGameState;
 }

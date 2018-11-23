@@ -15,6 +15,8 @@ GameState::GameState() :
 
 GameState::~GameState()
 {
+    // Notify about game state instance being destructed.
+    events.instanceDestruction.Dispatch();
 }
 
 GameState::GameState(GameState&& other) :

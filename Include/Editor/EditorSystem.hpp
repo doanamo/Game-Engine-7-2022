@@ -12,6 +12,7 @@
 #include "Graphics/Texture.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
+#include "Editor/GameStateEditor.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -26,7 +27,7 @@ namespace System
 
 namespace Game
 {
-    class Scene;
+    class GameState;
 };
 
 /*
@@ -60,6 +61,9 @@ namespace Editor
 
         // Draws the editor interface.
         void Draw();
+
+        // Gets the game state editor.
+        GameStateEditor& GetGameStateEditor();
 
     private:
         // Callback function for cursor position events.
@@ -103,6 +107,9 @@ namespace Editor
         Graphics::Texture m_fontTexture;
         Graphics::Sampler m_sampler;
         Graphics::ShaderPtr m_shader;
+
+        // Editor systems.
+        GameStateEditor m_editorGameState;
 
         // Initialization state.
         bool m_initialized;

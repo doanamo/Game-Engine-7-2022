@@ -64,6 +64,9 @@ bool GameScene::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Set game state that will be controlled using the editor.
+    m_engine->editorSystem.GetGameStateEditor().SetGameState(&m_gameState);
+
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
     spriteAnimationListParams.engine = m_engine;

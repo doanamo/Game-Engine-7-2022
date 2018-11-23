@@ -59,6 +59,14 @@ namespace Game
         Game::InterpolationSystem interpolationSystem;
         Game::SpriteSystem spriteSystem;
 
+    public:
+        // Game state events.
+        struct Events
+        {
+            // Called when the class instance is destructed.
+            Common::Dispatcher<void()> instanceDestruction;
+        } events;
+
     private:
         // Engine reference.
         Engine::Root* m_engine;
