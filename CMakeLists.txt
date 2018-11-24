@@ -130,6 +130,8 @@ set(SOURCE_FILES
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"
+    "Include/Editor/EditorRenderer.hpp"
+    "Source/Editor/EditorRenderer.cpp"
     "Include/Editor/GameStateEditor.hpp"
     "Source/Editor/GameStateEditor.cpp"
 )

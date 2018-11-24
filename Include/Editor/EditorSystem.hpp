@@ -6,12 +6,7 @@
 
 #include "Common/Event/Receiver.hpp"
 #include "System/Window.hpp"
-#include "Graphics/RenderContext.hpp"
-#include "Graphics/Buffer.hpp"
-#include "Graphics/VertexArray.hpp"
-#include "Graphics/Texture.hpp"
-#include "Graphics/Sampler.hpp"
-#include "Graphics/Shader.hpp"
+#include "Editor/EditorRenderer.hpp"
 #include "Editor/GameStateEditor.hpp"
 
 // Forward declarations.
@@ -100,14 +95,9 @@ namespace Editor
         Common::Receiver<void(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
         Common::Receiver<void(const System::Window::Events::TextInput&)> m_receiverTextInput;
 
-        // User interface rendering.
-        Graphics::VertexBuffer m_vertexBuffer;
-        Graphics::IndexBuffer m_indexBuffer;
-        Graphics::VertexArray m_vertexArray;
-        Graphics::Texture m_fontTexture;
-        Graphics::Sampler m_sampler;
-        Graphics::ShaderPtr m_shader;
-
+        // Editor renderer.
+        EditorRenderer m_editorRenderer;
+        
         // Editor systems.
         GameStateEditor m_editorGameState;
 
