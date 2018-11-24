@@ -55,11 +55,29 @@ void GameStateEditor::Update(float timeDelta)
         return;
 
     // Show game state window.
-    if(ImGui::Begin("Game State"))
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
+
+    if(ImGui::Begin("Game State", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::BulletText("Update Timer");
-        static float test = 1.0f / 10.0f;
-        ImGui::SliderFloat("Update Time", &test, 0.01f, 1.0f, "%.2fs", 4.0f);
+        if(ImGui::CollapsingHeader("Core"))
+        {
+            if(ImGui::TreeNode("Update Timer"))
+            {
+                // Show timer controls.
+                static float updatesPerSecond = 10.0f;
+                static float secondsPerUpdate = 1.0f / updatesPerSecond;
+                ImGui::BulletText("Update time: %fs (%.1f update rate)", secondsPerUpdate, updatesPerSecond);
+                ImGui::SliderFloat("##UpdateRateSlider", &updatesPerSecond, 1.0f, 100.0f, "%.1f updates per second", 2.0f);
+                ImGui::SameLine();
+                ImGui::Button("Apply");
+
+                // Show timer histogram.
+                ImGui::BulletText("Update histogram:");
+                ImGui::PlotHistogram("##UpdateHistogram", nullptr, nullptr, 0);
+
+                ImGui::TreePop();
+            }
+        }
     }
     ImGui::End();
 }
