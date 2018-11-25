@@ -9,6 +9,7 @@ using namespace Game;
 
 GameState::GameState() :
     m_engine(nullptr),
+    m_updateTime(1.0f / 10.0f),
     m_initialized(false)
 {
 }
@@ -37,6 +38,9 @@ GameState& GameState::operator=(GameState&& other)
     std::swap(spriteSystem, other.spriteSystem);
 
     std::swap(m_engine, other.m_engine);
+
+    std::swap(m_updateTime, other.m_updateTime);
+
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -123,7 +127,8 @@ bool GameState::Update(const System::Timer& timer)
     bool stateUpdated = false;
 
     // Main game state update loop.
-    const float updateTime = 1.0f / 1.0f;
+    const float updateTime = m_updateTime;
+
     if(this->updateTimer.Update(updateTime))
     {
         // Process entity commands.
@@ -146,4 +151,14 @@ bool GameState::Update(const System::Timer& timer)
 Engine::Root* GameState::GetEngine() const
 {
     return m_engine;
+}
+
+void GameState::SetUpdateTime(float updateTime)
+{
+    m_updateTime = updateTime;
+}
+
+float GameState::GetUpdateTime() const
+{
+    return m_updateTime;
 }

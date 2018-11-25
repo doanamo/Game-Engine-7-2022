@@ -9,6 +9,7 @@ using namespace Editor;
 
 GameStateEditor::GameStateEditor() :
     m_gameState(nullptr),
+    m_updateRateSlider(0.0f),
     m_initialized(false)
 {
 }
@@ -26,6 +27,7 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
 {
     std::swap(m_gameState, other.m_gameState);
     std::swap(m_receiverDestruction, other.m_receiverDestruction);
+    std::swap(m_updateRateSlider, other.m_updateRateSlider);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -50,6 +52,8 @@ bool GameStateEditor::Initialize()
 
 void GameStateEditor::Update(float timeDelta)
 {
+    ASSERT(m_initialized, "Game state editor has not been initialized yet!");
+
     // Do not create a window if game state reference is not set.
     if(!m_gameState)
         return;
@@ -63,15 +67,21 @@ void GameStateEditor::Update(float timeDelta)
         {
             if(ImGui::TreeNode("Update Timer"))
             {
-                // Show timer controls.
-                static float updatesPerSecond = 10.0f;
-                static float secondsPerUpdate = 1.0f / updatesPerSecond;
-                ImGui::BulletText("Update time: %fs (%.1f update rate)", secondsPerUpdate, updatesPerSecond);
-                ImGui::SliderFloat("##UpdateRateSlider", &updatesPerSecond, 1.0f, 100.0f, "%.1f updates per second", 2.0f);
-                ImGui::SameLine();
-                ImGui::Button("Apply");
+                // Show update controls.
+                float currentUpdateTime = m_gameState->GetUpdateTime();
+                float currentUpdateRate = 1.0f / currentUpdateTime;
+                ImGui::BulletText("Update time: %fs (%.1f update rate)", currentUpdateTime, currentUpdateRate);
 
-                // Show timer histogram.
+                ImGui::SliderFloat("##UpdateRateSlider", &m_updateRateSlider, 1.0f, 100.0f, "%.1f updates per second", 2.0f);
+                ImGui::SameLine();
+
+                if(ImGui::Button("Apply"))
+                {
+                    float newUpdateTime = 1.0f / m_updateRateSlider;
+                    m_gameState->SetUpdateTime(newUpdateTime);
+                }
+
+                // Show update histogram.
                 ImGui::BulletText("Update histogram:");
                 ImGui::PlotHistogram("##UpdateHistogram", nullptr, nullptr, 0);
 
@@ -84,14 +94,20 @@ void GameStateEditor::Update(float timeDelta)
 
 void GameStateEditor::SetGameState(Game::GameState* gameState)
 {
-    // Replace with new game state reference.
+    ASSERT(m_initialized, "Game state editor has not been initialized yet!");
+
     if(gameState)
     {
+        // Replace with new game state reference.
         m_gameState = gameState;
         m_receiverDestruction.Subscribe(gameState->events.instanceDestruction);
+
+        // Update initial widget values.
+        m_updateRateSlider = 1.0f / m_gameState->GetUpdateTime();
     }
     else
     {
+        // Remove game state reference.
         m_gameState = nullptr;
         m_receiverDestruction.Unsubscribe();
     }

@@ -46,6 +46,12 @@ namespace Game
         // Gets the engine reference.
         Engine::Root* GetEngine() const;
 
+        // Sets the update time.
+        void SetUpdateTime(float updateTime);
+
+        // Gets the update time.
+        float GetUpdateTime() const;
+
     public:
         // Main loop timer.
         System::UpdateTimer updateTimer;
@@ -70,6 +76,9 @@ namespace Game
     private:
         // Engine reference.
         Engine::Root* m_engine;
+
+        // Update parameters.
+        float m_updateTime;
 
         // Initialization state.
         bool m_initialized;

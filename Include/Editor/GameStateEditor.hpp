@@ -50,6 +50,9 @@ namespace Editor
         // Receiver for game state destruction event.
         Common::Receiver<void()> m_receiverDestruction;
 
+        // Update timer values.
+        float m_updateRateSlider;
+
         // Initialization state.
         bool m_initialized;
     };
