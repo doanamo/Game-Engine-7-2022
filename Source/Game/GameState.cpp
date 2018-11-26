@@ -116,6 +116,9 @@ bool GameState::Update(const System::Timer& timer, Common::Delegate<void(float)>
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
 
+    // Inform about update being called.
+    events.updateCalled.Dispatch();
+
     // Tick the update timer along with the application timer.
     updateTimer.Tick(timer);
 
@@ -125,7 +128,7 @@ bool GameState::Update(const System::Timer& timer, Common::Delegate<void(float)>
     // Main game state update loop.
     const float updateTime = m_updateTime;
 
-    while(this->updateTimer.Update(updateTime))
+    while(updateTimer.Update(updateTime))
     {
         // Process entity commands.
         entitySystem.ProcessCommands();
@@ -141,6 +144,9 @@ bool GameState::Update(const System::Timer& timer, Common::Delegate<void(float)>
 
         // State has been updated at least once.
         stateUpdated = true;
+
+        // Inform that state has been updated.
+        events.stateUpdated.Dispatch(updateTime);
     }
 
     // Return whether state could be updated.

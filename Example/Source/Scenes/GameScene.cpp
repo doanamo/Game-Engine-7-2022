@@ -158,7 +158,7 @@ void GameScene::Update(const System::Timer& timer)
         double timeAccumulated = m_gameState.updateTimer.GetTotalUpdateTime();
 
         transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
-        transform->SetRotation(glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Control the entity with keyboard.
         glm::vec3 direction(0.0f, 0.0f, 0.0f);

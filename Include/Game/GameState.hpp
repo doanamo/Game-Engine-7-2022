@@ -43,14 +43,14 @@ namespace Game
         // Returns true if the game state was updated.
         bool Update(const System::Timer& timer, Common::Delegate<void(float)> customUpdate = nullptr);
 
-        // Gets the engine reference.
-        Engine::Root* GetEngine() const;
-
         // Sets the update time.
         void SetUpdateTime(float updateTime);
 
         // Gets the update time.
         float GetUpdateTime() const;
+
+        // Gets the engine reference.
+        Engine::Root* GetEngine() const;
 
     public:
         // Game state events.
@@ -58,6 +58,14 @@ namespace Game
         {
             // Called when the class instance is destructed.
             Common::Dispatcher<void()> instanceDestructed;
+
+            // Called when update method is called.
+            Common::Dispatcher<void()> updateCalled;
+
+            // Called when state has been updated.
+            // This event can be dispatched multiple
+            // times during the same update call.
+            Common::Dispatcher<void(float)> stateUpdated;
         } events;
 
     public:

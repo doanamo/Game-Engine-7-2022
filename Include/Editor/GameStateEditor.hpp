@@ -44,14 +44,32 @@ namespace Editor
         Game::GameState* GetGameState() const;
 
     private:
+        // Event receivers.
+        struct Receivers
+        {
+            Common::Receiver<void()> gameStateDestructed;
+            Common::Receiver<void()> gameStateUpdateCalled;
+            Common::Receiver<void(float)> gameStateUpdated;
+        } m_receivers;
+
+        // Called when referenced game state gets destructed.
+        void OnGameStateDestructed();
+
+        // Called when references game state starts updating.
+        void OnGameStateUpdateCalled();
+
+        // Called when referenced game state actually updates.
+        void OnGameStateUpdated(float updateTime);
+
+    private:
         // Game state reference.
         Game::GameState* m_gameState;
 
-        // Receiver for game state destruction event.
-        Common::Receiver<void()> m_receiverDestruction;
-
         // Update timer values.
         float m_updateRateSlider;
+
+        // Update time histogram.
+        std::vector<float> m_updateTimeHistogram;
 
         // Initialization state.
         bool m_initialized;
