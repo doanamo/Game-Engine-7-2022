@@ -81,9 +81,9 @@ glm::mat4 TransformComponent::CalculateMatrix(float alpha) const
 {
     glm::mat4 output(1.0f);
 
-    output = glm::translate(output, glm::mix(m_previousPosition, m_currentPosition, alpha));
-    output = output * glm::mat4_cast(glm::lerp(m_previousRotation, m_currentRotation, alpha));
-    output = glm::scale(output, glm::mix(m_previousScale, m_currentScale, alpha));
+    output = glm::translate(output, glm::lerp(m_previousPosition, m_currentPosition, alpha));
+    output = output * glm::mat4_cast(glm::slerp(m_previousRotation, m_currentRotation, alpha));
+    output = glm::scale(output, glm::lerp(m_previousScale, m_currentScale, alpha));
 
     return output;
 }
