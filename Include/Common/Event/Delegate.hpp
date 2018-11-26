@@ -100,6 +100,11 @@ namespace Common
         {
         }
 
+        Delegate(std::nullptr_t) :
+            Delegate()
+        {
+        }
+
         virtual ~Delegate()
         {
         }
@@ -145,6 +150,12 @@ namespace Common
         {
             m_instance = nullptr;
             m_function = nullptr;
+        }
+
+        Delegate& operator=(std::nullptr_t)
+        {
+            this->Bind(nullptr);
+            return *this;
         }
 
         // Binds a plain function.
