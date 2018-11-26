@@ -74,6 +74,8 @@ namespace Common
         Receiver& operator=(Receiver&& other)
         {
             // Swap class members.
+            // We do not move base delegate class on purpose,
+            // as we want bound function to persists after move.
             std::swap(m_listNode, other.m_listNode);
             std::swap(m_dispatcher, other.m_dispatcher);
  
