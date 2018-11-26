@@ -127,7 +127,7 @@ namespace Common
     private:
         // Strong object reference.
         // Will not be swapped on move.
-        Type * m_reference;
+        Type* m_reference;
 
         // Node linked references.
         ListNode<Type>* m_previous;

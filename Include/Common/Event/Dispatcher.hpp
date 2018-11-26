@@ -255,12 +255,16 @@ namespace Common
                 if(!collector.ShouldContinue())
                     break;
 
+                // Cache the next receiver, as we may lose the current iterator if it suddenly gets removed.
+                // This may happen when we unsubscribe the current receiver in an invoked function.
+                ReceiverListNode* nextIterator = iterator->GetNext();
+
                 // Invoke a receiver and collect the result.
                 CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
                 invocation(collector, receiver, std::forward<Arguments>(arguments)...);
 
                 // Advance to the next receiver.
-                iterator = iterator->GetNext();
+                iterator = nextIterator;
             }
         }
 
