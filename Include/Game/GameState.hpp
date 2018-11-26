@@ -53,6 +53,14 @@ namespace Game
         float GetUpdateTime() const;
 
     public:
+        // Game state events.
+        struct Events
+        {
+            // Called when the class instance is destructed.
+            Common::Dispatcher<void()> instanceDestructed;
+        } events;
+
+    public:
         // Main loop timer.
         System::UpdateTimer updateTimer;
 
@@ -64,14 +72,6 @@ namespace Game
         Game::IdentitySystem identitySystem;
         Game::InterpolationSystem interpolationSystem;
         Game::SpriteSystem spriteSystem;
-
-    public:
-        // Game state events.
-        struct Events
-        {
-            // Called when the class instance is destructed.
-            Common::Dispatcher<void()> instanceDestruction;
-        } events;
 
     private:
         // Engine reference.

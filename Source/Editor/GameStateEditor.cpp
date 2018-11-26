@@ -100,7 +100,7 @@ void GameStateEditor::SetGameState(Game::GameState* gameState)
     {
         // Replace with new game state reference.
         m_gameState = gameState;
-        m_receiverDestruction.Subscribe(gameState->events.instanceDestruction);
+        m_receiverDestruction.Subscribe(gameState->events.instanceDestructed);
 
         // Update initial widget values.
         m_updateRateSlider = 1.0f / m_gameState->GetUpdateTime();

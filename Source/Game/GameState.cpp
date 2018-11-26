@@ -17,7 +17,7 @@ GameState::GameState() :
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.
-    events.instanceDestruction.Dispatch();
+    events.instanceDestructed.Dispatch();
 }
 
 GameState::GameState(GameState&& other) :
@@ -28,19 +28,15 @@ GameState::GameState(GameState&& other) :
 
 GameState& GameState::operator=(GameState&& other)
 {
+    std::swap(events, other.events);
     std::swap(updateTimer, other.updateTimer);
-
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
- 
     std::swap(identitySystem, other.identitySystem);
     std::swap(interpolationSystem, other.interpolationSystem);
     std::swap(spriteSystem, other.spriteSystem);
-
     std::swap(m_engine, other.m_engine);
-
     std::swap(m_updateTime, other.m_updateTime);
-
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
