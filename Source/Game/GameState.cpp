@@ -112,7 +112,7 @@ bool GameState::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-bool GameState::Update(const System::Timer& timer)
+bool GameState::Update(const System::Timer& timer, Common::Delegate<void(float)> customUpdate)
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
 
@@ -125,7 +125,7 @@ bool GameState::Update(const System::Timer& timer)
     // Main game state update loop.
     const float updateTime = m_updateTime;
 
-    if(this->updateTimer.Update(updateTime))
+    while(this->updateTimer.Update(updateTime))
     {
         // Process entity commands.
         entitySystem.ProcessCommands();
@@ -135,6 +135,9 @@ bool GameState::Update(const System::Timer& timer)
 
         // Update the sprite animation system.
         spriteSystem.Update(updateTime);
+
+        // Call custom update function.
+        customUpdate.Invoke(updateTime);
 
         // State has been updated at least once.
         stateUpdated = true;

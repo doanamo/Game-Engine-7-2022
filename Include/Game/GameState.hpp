@@ -41,7 +41,7 @@ namespace Game
 
         // Updates the game state.
         // Returns true if the game state was updated.
-        bool Update(const System::Timer& timer);
+        bool Update(const System::Timer& timer, Common::Delegate<void(float)> customUpdate = nullptr);
 
         // Gets the engine reference.
         Engine::Root* GetEngine() const;

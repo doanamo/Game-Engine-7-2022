@@ -146,11 +146,8 @@ void GameScene::Update(const System::Timer& timer)
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
     // Update the game state.
-    while(m_gameState.Update(timer))
+    m_gameState.Update(timer, [this](float updateTime)
     {
-        // Get the frame time delta.
-        float timeDelta = m_gameState.updateTimer.GetLastUpdateTime();
-
         // Retrieve player transform.
         Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
 
@@ -188,9 +185,9 @@ void GameScene::Update(const System::Timer& timer)
 
         if(direction != glm::vec3(0.0f))
         {
-            transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
+            transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * updateTime);
         }
-    }
+    });
 }
 
 Game::GameState& GameScene::GetGameState()
