@@ -71,11 +71,13 @@ void GameStateEditor::Update(float timeDelta)
                 // Show update controls.
                 float currentUpdateTime = m_gameState->GetUpdateTime();
                 float currentUpdateRate = 1.0f / currentUpdateTime;
-                ImGui::BulletText("Update time: %fs (%.1f update rate)", currentUpdateTime, currentUpdateRate);
+                ImGui::BulletText("Update time: %fs (%.1f update rate)",
+                    currentUpdateTime, currentUpdateRate);
 
-                ImGui::SliderFloat("##UpdateRateSlider", &m_updateRateSlider, 1.0f, 100.0f, "%.1f updates per second", 2.0f);
+                ImGui::SliderFloat("##UpdateRateSlider", &m_updateRateSlider,
+                    1.0f, 100.0f, "%.1f updates per second", 2.0f);
+
                 ImGui::SameLine();
-
                 if(ImGui::Button("Apply"))
                 {
                     float newUpdateTime = 1.0f / m_updateRateSlider;
@@ -85,10 +87,38 @@ void GameStateEditor::Update(float timeDelta)
                 // Show update histogram.
                 ImGui::BulletText("Update time histogram:");
                 ImGui::PlotHistogram("##UpdateTimeHistogram", 
-                    &m_updateTimeHistogram[0], 
-                    m_updateTimeHistogram.size(),
-                    0, "", FLT_MAX, FLT_MAX, 
-                    ImVec2(0, 100));
+                    &m_updateTimeHistogram[0], m_updateTimeHistogram.size(),
+                    0, "", FLT_MAX, FLT_MAX, ImVec2(0, 100));
+
+                // Process histogram statistics.
+                int updateTimeValues = 0;
+                float updateTimeMinimum = FLT_MAX;
+                float updateTimeMaximum = 0.0f;
+                float updateTimeAverage = 0.0f;
+
+                for(float& updateTime : m_updateTimeHistogram)
+                {
+                    if(updateTime == 0.0f)
+                        continue;
+
+                    updateTimeValues += 1;
+                    updateTimeMinimum = std::min(updateTime, updateTimeMinimum);
+                    updateTimeMaximum = std::max(updateTime, updateTimeMaximum);
+                    updateTimeAverage += updateTime;
+                }
+
+                if(updateTimeMinimum == FLT_MAX)
+                    updateTimeMinimum = 0.0f;
+
+                updateTimeAverage /= updateTimeValues;
+
+                // Print histogram statistics.
+                ImGui::SameLine();
+                ImGui::BeginGroup();
+                ImGui::Text("Min: %0.3f", updateTimeMinimum);
+                ImGui::Text("Max: %0.3f", updateTimeMaximum);
+                ImGui::Text("Avg: %0.3f", updateTimeAverage);
+                ImGui::EndGroup();
 
                 ImGui::TreePop();
             }
