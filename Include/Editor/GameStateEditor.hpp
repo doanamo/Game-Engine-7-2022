@@ -70,6 +70,7 @@ namespace Editor
 
         // Update time histogram.
         std::vector<float> m_updateTimeHistogram;
+        bool m_updateTimeHistogramPaused;
 
         // Initialization state.
         bool m_initialized;

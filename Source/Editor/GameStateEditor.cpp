@@ -10,6 +10,7 @@ using namespace Editor;
 GameStateEditor::GameStateEditor() :
     m_gameState(nullptr),
     m_updateRateSlider(0.0f),
+    m_updateTimeHistogramPaused(false),
     m_initialized(false)
 {
     m_receivers.gameStateDestructed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
@@ -32,6 +33,7 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
     std::swap(m_gameState, other.m_gameState);
     std::swap(m_updateRateSlider, other.m_updateRateSlider);
     std::swap(m_updateTimeHistogram, other.m_updateTimeHistogram);
+    std::swap(m_updateTimeHistogramPaused, other.m_updateTimeHistogramPaused);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -115,9 +117,18 @@ void GameStateEditor::Update(float timeDelta)
                 // Print histogram statistics.
                 ImGui::SameLine();
                 ImGui::BeginGroup();
-                ImGui::Text("Min: %0.3f", updateTimeMinimum);
-                ImGui::Text("Max: %0.3f", updateTimeMaximum);
-                ImGui::Text("Avg: %0.3f", updateTimeAverage);
+                {
+                    ImGui::Text("Min: %0.3f", updateTimeMinimum);
+                    ImGui::Text("Max: %0.3f", updateTimeMaximum);
+                    ImGui::Text("Avg: %0.3f", updateTimeAverage);
+
+                    ImGui::PushID("UpdateTimeHistogramToggle");
+                    if(ImGui::Button(m_updateTimeHistogramPaused ? "Resume" : "Paused"))
+                    {
+                        m_updateTimeHistogramPaused = !m_updateTimeHistogramPaused;
+                    }
+                    ImGui::PopID();
+                }
                 ImGui::EndGroup();
 
                 ImGui::TreePop();
@@ -171,6 +182,10 @@ void Editor::GameStateEditor::OnGameStateUpdateCalled()
 {
     ASSERT(m_initialized, "Game state editor has not been initialized yet!");
 
+    // Do not process histogram data if paused.
+    if(m_updateTimeHistogramPaused)
+        return;
+
     // Rotate update time histogram array to the right.
     if(m_updateTimeHistogram.size() >= 2)
     {
@@ -187,6 +202,10 @@ void Editor::GameStateEditor::OnGameStateUpdateCalled()
 void Editor::GameStateEditor::OnGameStateUpdated(float updateTime)
 {
     ASSERT(m_initialized, "Game state editor has not been initialized yet!");
+
+    // Do not process histogram data if paused.
+    if(m_updateTimeHistogramPaused)
+        return;
 
     // Accumulate new update time.
     if(!m_updateTimeHistogram.empty())
