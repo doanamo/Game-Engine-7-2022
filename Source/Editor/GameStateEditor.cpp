@@ -123,7 +123,7 @@ void GameStateEditor::Update(float timeDelta)
                     ImGui::Text("Avg: %0.3f", updateTimeAverage);
 
                     ImGui::PushID("UpdateTimeHistogramToggle");
-                    if(ImGui::Button(m_updateTimeHistogramPaused ? "Resume" : "Paused"))
+                    if(ImGui::Button(m_updateTimeHistogramPaused ? "Resume" : "Pause"))
                     {
                         m_updateTimeHistogramPaused = !m_updateTimeHistogramPaused;
                     }
