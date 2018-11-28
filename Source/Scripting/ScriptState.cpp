@@ -155,7 +155,7 @@ bool ScriptState::Initialize(const LoadFromFile& params)
     }
 
     // Resolve file path.
-    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
 
     // Parse the text file.
     if(luaL_dofile(m_state, resolvedFilePath.c_str()) != 0)

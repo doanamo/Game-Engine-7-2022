@@ -92,7 +92,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     vertexBufferInfo.elementCount = Utility::StaticArraySize(SpriteVertices);
     vertexBufferInfo.data = &SpriteVertices[0];
 
-    if(!m_vertexBuffer.Initialize(&engine->renderContext, vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(&engine->GetRenderContext(), vertexBufferInfo))
     {
         LOG_ERROR() << "Could not create vertex buffer!";
         return false;
@@ -105,7 +105,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     instanceBufferInfo.elementCount = spriteBatchSize;
     instanceBufferInfo.data = nullptr;
 
-    if(!m_instanceBuffer.Initialize(&engine->renderContext, instanceBufferInfo))
+    if(!m_instanceBuffer.Initialize(&engine->GetRenderContext(), instanceBufferInfo))
     {
         LOG_ERROR() << "Could not create instance buffer!";
         return false;
@@ -126,7 +126,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     vertexArrayInfo.attributeCount = Utility::StaticArraySize(vertexAttributes);
     vertexArrayInfo.attributes = &vertexAttributes[0];
 
-    if(!m_vertexArray.Initialize(&engine->renderContext, vertexArrayInfo))
+    if(!m_vertexArray.Initialize(&engine->GetRenderContext(), vertexArrayInfo))
     {
         LOG_ERROR() << "Could not create vertex array!";
         return false;
@@ -137,7 +137,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     nearestSamplerInfo.textureMinFilter = GL_NEAREST;
     nearestSamplerInfo.textureMagFilter = GL_NEAREST;
 
-    if(!m_nearestSampler.Initialize(&engine->renderContext, nearestSamplerInfo))
+    if(!m_nearestSampler.Initialize(&engine->GetRenderContext(), nearestSamplerInfo))
     {
         LOG_ERROR() << "Could not create a nearest sampler!";
         return false;
@@ -148,7 +148,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     linearSamplerInfo.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     linearSamplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_linearSampler.Initialize(&engine->renderContext, linearSamplerInfo))
+    if(!m_linearSampler.Initialize(&engine->GetRenderContext(), linearSamplerInfo))
     {
         LOG_ERROR() << "Could not create linear sampler!";
         return false;
@@ -159,7 +159,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     shaderParams.engine = engine;
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
 
-    m_shader = engine->resourceManager.Acquire<Shader>(
+    m_shader = engine->GetResourceManager().Acquire<Shader>(
         shaderParams.filePath, shaderParams);
 
     if(m_shader == nullptr)
@@ -172,7 +172,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     m_spriteBatchSize = spriteBatchSize;
 
     // Save render context reference.
-    m_renderContext = &engine->renderContext;
+    m_renderContext = &engine->GetRenderContext();
 
     // Success!
     return m_initialized = true;

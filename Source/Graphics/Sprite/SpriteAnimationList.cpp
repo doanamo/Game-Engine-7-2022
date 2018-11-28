@@ -138,7 +138,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
         textureAtlasParams.engine = params.engine;
         textureAtlasParams.filePath = lua_tostring(scriptState, -1);
 
-        textureAtlas = params.engine->resourceManager.Acquire<TextureAtlas>(
+        textureAtlas = params.engine->GetResourceManager().Acquire<TextureAtlas>(
             textureAtlasParams.filePath, textureAtlasParams);
 
         if(!textureAtlas)

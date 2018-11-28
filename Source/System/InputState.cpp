@@ -48,15 +48,22 @@ void InputState::Reset()
     }
 }
 
-bool InputState::Initialize(Window& window)
+bool InputState::Initialize(Window* window)
 {
     LOG() << "Initializing input state..." << LOG_INDENT();
+
+    // Validate arguments.
+    if(window == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"window\" is null!";
+        return false;
+    }
 
     // Subscribe to window's event receivers.
     bool subscribedSuccessfully = true;
 
-    subscribedSuccessfully &= m_keyboardKey.Subscribe(window.events.keyboardKey);
-    subscribedSuccessfully &= m_windowFocus.Subscribe(window.events.focus);
+    subscribedSuccessfully &= m_keyboardKey.Subscribe(window->events.keyboardKey);
+    subscribedSuccessfully &= m_windowFocus.Subscribe(window->events.focus);
 
     if(!subscribedSuccessfully)
     {

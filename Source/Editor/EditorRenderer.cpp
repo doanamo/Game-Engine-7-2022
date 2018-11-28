@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
+#include "System/Window.hpp"
 #include "System/ResourceManager.hpp"
 #include "Engine/Root.hpp"
 using namespace Editor;
@@ -67,7 +68,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     vertexBufferInfo.usage = GL_STREAM_DRAW;
     vertexBufferInfo.elementSize = sizeof(ImDrawVert);
 
-    if(!m_vertexBuffer.Initialize(&m_engine->renderContext, vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(&m_engine->GetRenderContext(), vertexBufferInfo))
     {
         LOG_ERROR() << "Could not initialize vertex buffer!";
         return false;
@@ -78,7 +79,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     indexBufferInfo.usage = GL_STREAM_DRAW;
     indexBufferInfo.elementSize = sizeof(ImDrawIdx);
 
-    if(!m_indexBuffer.Initialize(&m_engine->renderContext, indexBufferInfo))
+    if(!m_indexBuffer.Initialize(&m_engine->GetRenderContext(), indexBufferInfo))
     {
         LOG_ERROR() << "Could not initialize index buffer!";
         return false;
@@ -96,7 +97,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    if(!m_vertexArray.Initialize(&m_engine->renderContext, inputLayoutInfo))
+    if(!m_vertexArray.Initialize(&m_engine->GetRenderContext(), inputLayoutInfo))
     {
         LOG_ERROR() << "Could not initialize vertex array!";
         return false;
@@ -139,7 +140,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     samplerInfo.textureMinFilter = GL_LINEAR;
     samplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_sampler.Initialize(&m_engine->renderContext, samplerInfo))
+    if(!m_sampler.Initialize(&m_engine->GetRenderContext(), samplerInfo))
     {
         LOG_ERROR() << "Could not initialize sampler!";
         return false;
@@ -150,7 +151,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     shaderParams.engine = m_engine;
     shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
 
-    m_shader = m_engine->resourceManager.Acquire<Graphics::Shader>(
+    m_shader = m_engine->GetResourceManager().Acquire<Graphics::Shader>(
         shaderParams.filePath, shaderParams);
 
     if(m_shader == nullptr)
@@ -170,12 +171,16 @@ void EditorRenderer::Draw()
     // We are expecting ImGui context to be set by the caller.
     ASSERT(ImGui::GetCurrentContext() != nullptr, "Editor interface context is not set!");
 
+    // Get current window dimensions.
+    int windowWidth = m_engine->GetWindow().GetWidth();
+    int windowHeight = m_engine->GetWindow().GetHeight();
+
     // Access ImGui context.
     ImGuiIO& io = ImGui::GetIO();
 
     // Set current display size.
-    io.DisplaySize.x = (float)m_engine->window.GetWidth();
-    io.DisplaySize.y = (float)m_engine->window.GetHeight();
+    io.DisplaySize.x = (float)windowWidth;
+    io.DisplaySize.y = (float)windowHeight;
 
     // Handle a case where Update() has not been called yet.
     // Calling NewFrame() twice in a row should be fine.
@@ -192,14 +197,11 @@ void EditorRenderer::Draw()
     ImDrawData* drawData = ImGui::GetDrawData();
 
     // Calculate rendering transform.
-    glm::mat4 transform = glm::ortho(
-        0.0f, (float)m_engine->window.GetWidth(),
-        (float)m_engine->window.GetHeight(), 0.0f
-    );
+    glm::mat4 transform = glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f);
 
     // Push a rendering state.
-    auto& renderState = m_engine->renderContext.PushState();
-    SCOPE_GUARD(m_engine->renderContext.PopState());
+    auto& renderState = m_engine->GetRenderContext().PushState();
+    SCOPE_GUARD(m_engine->GetRenderContext().PopState());
 
     // Prepare rendering state.
     renderState.Enable(GL_BLEND);
@@ -207,7 +209,7 @@ void EditorRenderer::Draw()
     renderState.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     renderState.Enable(GL_SCISSOR_TEST);
 
-    renderState.Viewport(0, 0, m_engine->window.GetWidth(), m_engine->window.GetHeight());
+    renderState.Viewport(0, 0, windowWidth, windowHeight);
 
     renderState.UseProgram(m_shader->GetHandle());
     m_shader->SetUniform("vertexTransform", transform);
@@ -243,7 +245,7 @@ void EditorRenderer::Draw()
 
                 glm::ivec4 scissorRect;
                 scissorRect.x = (int)clipRect.x;
-                scissorRect.y = (int)(m_engine->window.GetHeight() - clipRect.w);
+                scissorRect.y = (int)(windowHeight - clipRect.w);
                 scissorRect.z = (int)(clipRect.z - clipRect.x);
                 scissorRect.w = (int)(clipRect.w - clipRect.y);
 

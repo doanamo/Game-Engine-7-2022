@@ -5,6 +5,7 @@
 #pragma once
 
 #include "System/Window.hpp"
+#include "System/InputMapping.hpp"
 
 /*
     System Input State
@@ -72,7 +73,7 @@ namespace System
         InputState& operator=(InputState&& other);
 
         // Initializes the input state.
-        bool Initialize(Window& window);
+        bool Initialize(Window* window);
 
         // Prepares the input state for incoming input events.
         // Must be called before window events are processed.

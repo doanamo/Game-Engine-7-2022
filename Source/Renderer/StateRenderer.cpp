@@ -4,6 +4,8 @@
 
 #include "Precompiled.hpp"
 #include "Renderer/StateRenderer.hpp"
+#include "Graphics/RenderContext.hpp"
+#include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/Components/CameraComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
@@ -104,8 +106,8 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     }
 
     // Push the render state.
-    auto& renderState = m_engine->renderContext.PushState();
-    SCOPE_GUARD(m_engine->renderContext.PopState());
+    auto& renderState = m_engine->GetRenderContext().PushState();
+    SCOPE_GUARD(m_engine->GetRenderContext().PopState());
 
     // Setup the drawing viewport.
     renderState.Viewport(
@@ -146,7 +148,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     }
 
     // Clear the frame buffer.
-    m_engine->renderContext.GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_engine->GetRenderContext().GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Create a list of sprites that will be drawn.
     Graphics::SpriteDrawList spriteDrawList;
@@ -175,5 +177,5 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     spriteDrawList.SortSprites();
 
     // Draw sprite components.
-    m_engine->spriteRenderer.DrawSprites(spriteDrawList, cameraTransform);
+    m_engine->GetSpriteRenderer().DrawSprites(spriteDrawList, cameraTransform);
 }

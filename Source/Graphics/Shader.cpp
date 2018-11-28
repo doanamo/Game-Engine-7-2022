@@ -102,7 +102,7 @@ bool Shader::Initialize(const LoadFromString& params)
         return false;
     }
 
-    m_renderContext = &params.engine->renderContext;
+    m_renderContext = &params.engine->GetRenderContext();
 
     // Create an array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -297,7 +297,7 @@ bool Shader::Initialize(const LoadFromFile& params)
     }
 
     // Resolve the file path.
-    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
 
     // Load the shader code from a file.
     std::string shaderCode = Utility::GetTextFileContent(resolvedFilePath);

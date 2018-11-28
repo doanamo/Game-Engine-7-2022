@@ -4,6 +4,9 @@
 
 #include "Precompiled.hpp"
 #include "Scenes/GameScene.hpp"
+#include <System/Timer.hpp>
+#include <System/Window.hpp>
+#include <Renderer/StateRenderer.hpp>
 
 int main()
 {
@@ -18,18 +21,18 @@ int main()
         return -1;
 
     // Main loop.
-    engine.timer.Reset();
+    engine.GetTimer().Reset();
 
     while(engine.ProcessFrame())
     {
-        gameScene.Update(engine.timer);
+        gameScene.Update(engine.GetTimer());
 
         Renderer::StateRenderer::DrawParams drawParams;
-        drawParams.viewportRect = engine.window.GetViewportRect();
+        drawParams.viewportRect = engine.GetWindow().GetViewportRect();
         drawParams.gameState = &gameScene.GetGameState();
         drawParams.cameraName = "Camera";
 
-        engine.stateRenderer.Draw(drawParams);
+        engine.GetStateRenderer().Draw(drawParams);
     }
 
     return 0;

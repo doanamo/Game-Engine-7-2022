@@ -1,8 +1,18 @@
 /*
-Copyright (c) 2018 Piotr Doan. All rights reserved.
+    Copyright (c) 2018 Piotr Doan. All rights reserved.
 */
 
 #include "Precompiled.hpp"
+#include "System/Platform.hpp"
+#include "System/FileSystem.hpp"
+#include "System/Window.hpp"
+#include "System/Timer.hpp"
+#include "System/InputState.hpp"
+#include "System/ResourceManager.hpp"
+#include "Graphics/RenderContext.hpp"
+#include "Graphics/Sprite/SpriteRenderer.hpp"
+#include "Renderer/StateRenderer.hpp"
+#include "Editor/EditorSystem.hpp"
 #include "Engine/Root.hpp"
 using namespace Engine;
 
@@ -23,20 +33,16 @@ Root::Root(Root&& other) :
 
 Root& Root::operator=(Root&& other)
 {
-    std::swap(platform, other.platform);
-    std::swap(fileSystem, other.fileSystem);
-    std::swap(window, other.window);
-    std::swap(timer, other.timer);
-    std::swap(inputState, other.inputState);
-    std::swap(resourceManager, other.resourceManager);
-
-    std::swap(renderContext, other.renderContext);
-    std::swap(spriteRenderer, other.spriteRenderer);
-
-    std::swap(stateRenderer, other.stateRenderer);
-
-    std::swap(editorSystem, other.editorSystem);
-
+    std::swap(m_platform, other.m_platform);
+    std::swap(m_fileSystem, other.m_fileSystem);
+    std::swap(m_window, other.m_window);
+    std::swap(m_timer, other.m_timer);
+    std::swap(m_inputState, other.m_inputState);
+    std::swap(m_resourceManager, other.m_resourceManager);
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_spriteRenderer, other.m_spriteRenderer);
+    std::swap(m_stateRenderer, other.m_stateRenderer);
+    std::swap(m_editorSystem, other.m_editorSystem);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -64,14 +70,16 @@ bool Root::Initialize()
 
     // Initialize the system platform context.
     // This will allow us to create and use platform systems such as window or input.
-    if(!platform.Initialize())
+    m_platform = std::make_unique<System::Platform>();
+    if(!m_platform->Initialize())
     {
         LOG_ERROR() << "Could not initialize platform!";
         return false;
     }
 
     // Initialize the file system.
-    if(!fileSystem.Initialize())
+    m_fileSystem = std::make_unique<System::FileSystem>();
+    if(!m_fileSystem->Initialize())
     {
         LOG_ERROR() << "Could not initialize file system!";
         return false;
@@ -80,12 +88,12 @@ bool Root::Initialize()
     // Mount file system directories (order affects the resolve order).
     if(!Build::GetEngineDir().empty())
     {
-        fileSystem.MountDirectory(Build::GetEngineDir());
+        m_fileSystem->MountDirectory(Build::GetEngineDir());
     }
 
     if(!Build::GetGameDir().empty())
     {
-        fileSystem.MountDirectory(Build::GetGameDir());
+        m_fileSystem->MountDirectory(Build::GetGameDir());
     }
 
     // Initialize the main window.
@@ -98,7 +106,8 @@ bool Root::Initialize()
     windowInfo.vsync = true;
     windowInfo.visible = true;
 
-    if(!window.Initialize(windowInfo))
+    m_window = std::make_unique<System::Window>();
+    if(!m_window->Initialize(windowInfo))
     {
         LOG_ERROR() << "Could not initialize window!";
         return false;
@@ -106,7 +115,8 @@ bool Root::Initialize()
 
     // Initialize the main timer.
     // There can be many timers but this one will be used to calculate frame time.
-    if(!timer.Initialize())
+    m_timer = std::make_unique<System::Timer>();
+    if(!m_timer->Initialize())
     {
         LOG_ERROR() << "Could not initialize timer!";
         return false;
@@ -114,7 +124,8 @@ bool Root::Initialize()
 
     // Initialize the input state.
     // Collects and caches input state that can be later pooled.
-    if(!inputState.Initialize(window))
+    m_inputState = std::make_unique<System::InputState>();
+    if(!m_inputState->Initialize(m_window.get()))
     {
         LOG_ERROR() << "Could not initialize input state!";
         return false;
@@ -122,7 +133,8 @@ bool Root::Initialize()
 
     // Initialize the resource manager.
     // Resource manager will help avoid duplication of resources.
-    if(!resourceManager.Initialize())
+    m_resourceManager = std::make_unique<System::ResourceManager>();
+    if(!m_resourceManager->Initialize())
     {
         LOG_ERROR() << "Could not initialize resource manager!";
         return false;
@@ -130,7 +142,8 @@ bool Root::Initialize()
 
     // Initialize the graphics context.
     // Manages the rendering context created along with the window.
-    if(!renderContext.Initialize(&window))
+    m_renderContext = std::make_unique<Graphics::RenderContext>();
+    if(!m_renderContext->Initialize(m_window.get()))
     {
         LOG_ERROR() << "Could not initialize graphics context!";
         return false;
@@ -138,7 +151,8 @@ bool Root::Initialize()
 
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
-    if(!spriteRenderer.Initialize(this, 128))
+    m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
+    if(!m_spriteRenderer->Initialize(this, 128))
     {
         LOG_ERROR() << "Could not initialize sprite renderer!";
         return false;
@@ -146,7 +160,8 @@ bool Root::Initialize()
 
     // Initialize the state renderer.
     // Renders a game state described in its components.
-    if(!stateRenderer.Initialize(this))
+    m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
+    if(!m_stateRenderer->Initialize(this))
     {
         LOG_ERROR() << "Could not initialize state renderer!";
         return false;
@@ -154,7 +169,8 @@ bool Root::Initialize()
 
     // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
-    if(!editorSystem.Initialize(this))
+    m_editorSystem = std::make_unique<Editor::EditorSystem>();
+    if(!m_editorSystem->Initialize(this))
     {
         LOG_ERROR() << "Could not initialize editor system!";
         return false;
@@ -172,32 +188,32 @@ bool Root::ProcessFrame()
     Logger::AdvanceFrameCounter();
 
     // Signal engine exit.
-    if(!window.IsOpen())
+    if(!m_window->IsOpen())
         return false;
 
     // Draw the editor system.
-    editorSystem.Draw();
+    m_editorSystem->Draw();
 
     // Present the window content.
-    window.Present();
+    m_window->Present();
 
     // Release unused resources.
-    resourceManager.ReleaseUnused();
+    m_resourceManager->ReleaseUnused();
 
     // Tick the timer.
-    timer.Tick();
+    m_timer->Tick();
 
     // Calculate frame delta time.
-    float timeDelta = timer.GetDeltaTime();
+    float timeDelta = m_timer->GetDeltaTime();
 
     // Prepare input state for being processed.
-    inputState.PrepareForEvents();
+    m_inputState->PrepareForEvents();
 
     // Process window events.
-    window.ProcessEvents();
+    m_window->ProcessEvents();
 
     // Update the editor system.
-    editorSystem.Update(timeDelta);
+    m_editorSystem->Update(timeDelta);
 
     // Signal that engine continues running.
     return true;
@@ -206,4 +222,64 @@ bool Root::ProcessFrame()
 bool Root::IsInitialized() const
 {
     return m_initialized;
+}
+
+System::Platform& Root::GetPlatform()
+{
+    ASSERT(m_platform);
+    return *m_platform;
+}
+
+System::FileSystem& Root::GetFileSystem()
+{
+    ASSERT(m_fileSystem);
+    return *m_fileSystem;
+}
+
+System::Window& Root::GetWindow()
+{
+    ASSERT(m_window);
+    return *m_window;
+}
+
+System::Timer& Root::GetTimer()
+{
+    ASSERT(m_timer);
+    return *m_timer;
+}
+
+System::InputState& Root::GetInputState()
+{
+    ASSERT(m_inputState);
+    return *m_inputState;
+}
+
+System::ResourceManager& Root::GetResourceManager()
+{
+    ASSERT(m_resourceManager);
+    return *m_resourceManager;
+}
+
+Graphics::RenderContext& Root::GetRenderContext()
+{
+    ASSERT(m_renderContext);
+    return *m_renderContext;
+}
+
+Graphics::SpriteRenderer& Root::GetSpriteRenderer()
+{
+    ASSERT(m_spriteRenderer);
+    return *m_spriteRenderer;
+}
+
+Renderer::StateRenderer& Root::GetStateRenderer()
+{
+    ASSERT(m_stateRenderer);
+    return *m_stateRenderer;
+}
+
+Editor::EditorSystem& Root::GetEditorSystem()
+{
+    ASSERT(m_editorSystem);
+    return *m_editorSystem;
 }

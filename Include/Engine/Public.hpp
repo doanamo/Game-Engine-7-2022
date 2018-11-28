@@ -6,6 +6,7 @@
 
 // Standard
 #include <memory>
+#include <typeindex>
 #include <optional>
 #include <string>
 #include <vector>

@@ -110,7 +110,7 @@ bool Texture::Initialize(const CreateFromParams& params)
     }
 
     // Save the render context reference.
-    m_renderContext = &params.engine->renderContext;
+    m_renderContext = &params.engine->GetRenderContext();
 
     // Create a texture handle.
     glGenTextures(1, &m_handle);
@@ -180,7 +180,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     }
 
     // Resolve file path.
-    std::string resolvedFilePath = params.engine->fileSystem.ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
 
     // Open the file stream.
     std::ifstream file(resolvedFilePath, std::ios::binary);

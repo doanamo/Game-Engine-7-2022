@@ -119,7 +119,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         textureParams.filePath = lua_tostring(scriptState, -1);
         textureParams.mipmaps = true;
 
-        m_texture = params.engine->resourceManager.Acquire<Graphics::Texture>(
+        m_texture = params.engine->GetResourceManager().Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams);
 
         if(m_texture == nullptr)

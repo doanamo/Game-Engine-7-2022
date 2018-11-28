@@ -147,15 +147,15 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = m_engine->window.GetPrivateHandle();
+    io.ClipboardUserData = m_engine->GetWindow().GetPrivateHandle();
 
     // Subscribe window event receivers.
     bool subscriptionResults = true;
-    subscriptionResults |= m_engine->window.events.cursorPosition.Subscribe(m_receiverCursorPosition);
-    subscriptionResults |= m_engine->window.events.mouseButton.Subscribe(m_receiverMouseButton);
-    subscriptionResults |= m_engine->window.events.mouseScroll.Subscribe(m_receiverMouseScroll);
-    subscriptionResults |= m_engine->window.events.keyboardKey.Subscribe(m_receiverKeyboardKey);
-    subscriptionResults |= m_engine->window.events.textInput.Subscribe(m_receiverTextInput);
+    subscriptionResults |= m_engine->GetWindow().events.cursorPosition.Subscribe(m_receiverCursorPosition);
+    subscriptionResults |= m_engine->GetWindow().events.mouseButton.Subscribe(m_receiverMouseButton);
+    subscriptionResults |= m_engine->GetWindow().events.mouseScroll.Subscribe(m_receiverMouseScroll);
+    subscriptionResults |= m_engine->GetWindow().events.keyboardKey.Subscribe(m_receiverKeyboardKey);
+    subscriptionResults |= m_engine->GetWindow().events.textInput.Subscribe(m_receiverTextInput);
 
     if(!subscriptionResults)
     {
@@ -215,7 +215,7 @@ void EditorSystem::Update(float timeDelta)
 
             if(ImGui::MenuItem("Exit"))
             {
-                m_engine->window.Close();
+                m_engine->GetWindow().Close();
             }
 
             ImGui::EndMenu();

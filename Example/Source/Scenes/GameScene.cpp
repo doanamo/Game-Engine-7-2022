@@ -5,6 +5,7 @@
 #include "Precompiled.hpp"
 #include "Scenes/GameScene.hpp"
 #include <System/Timer.hpp>
+#include <System/InputState.hpp>
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
@@ -12,6 +13,7 @@
 #include <Game/Components/CameraComponent.hpp>
 #include <Game/Components/SpriteComponent.hpp>
 #include <Game/Components/SpriteAnimationComponent.hpp>
+#include <Editor/EditorSystem.hpp>
 
 GameScene::GameScene() :
     m_engine(nullptr),
@@ -65,14 +67,14 @@ bool GameScene::Initialize(Engine::Root* engine)
     }
 
     // Set game state that will be controlled using the editor.
-    m_engine->editorSystem.GetGameStateEditor().SetGameState(&m_gameState);
+    m_engine->GetEditorSystem().GetGameStateEditor().SetGameState(&m_gameState);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
     spriteAnimationListParams.engine = m_engine;
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
-    auto spriteAnimationList = m_engine->resourceManager.Acquire<Graphics::SpriteAnimationList>(
+    auto spriteAnimationList = m_engine->GetResourceManager().Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams);
 
     // Load texture atlas.
@@ -80,7 +82,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     textureAtlasParams.engine = m_engine;
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
-    auto textureAtlas = m_engine->resourceManager.Acquire<Graphics::TextureAtlas>(
+    auto textureAtlas = m_engine->GetResourceManager().Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams);
 
     // Create camera entity.
@@ -109,7 +111,7 @@ bool GameScene::Initialize(Engine::Root* engine)
         textureParams.engine = m_engine;
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
-        Graphics::TexturePtr texture = m_engine->resourceManager.Acquire<Graphics::Texture>(
+        Graphics::TexturePtr texture = m_engine->GetResourceManager().Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams);
 
         // Create named entity.
@@ -163,22 +165,22 @@ void GameScene::Update(const System::Timer& timer)
         // Control the entity with keyboard.
         glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
+        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
         {
             direction.x -= 1.0f;
         }
 
-        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
+        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
         {
             direction.x += 1.0f;
         }
 
-        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
+        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
         {
             direction.y += 1.0f;
         }
 
-        if(m_engine->inputState.IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
+        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
         {
             direction.y -= 1.0f;
         }
