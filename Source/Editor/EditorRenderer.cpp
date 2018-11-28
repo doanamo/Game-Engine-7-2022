@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include "System/ResourceManager.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Editor;
 
 EditorRenderer::EditorRenderer() :

@@ -20,11 +20,13 @@ set(ENABLE_TESTS ON)
 
 # List of source files.
 set(SOURCE_FILES
-    "Include/EnginePublic.hpp"
+    "Include/Engine.hpp"
     "Source/Precompiled.hpp"
     "Source/Precompiled.cpp"
-    "Include/Engine.hpp"
-    "Source/Engine.cpp"
+
+    "Include/Engine/Root.hpp"
+    "Source/Engine/Root.cpp"
+    "Include/Engine/Public.hpp"
 
     "Include/Common/Build.hpp"
     "Source/Common/Build.cpp"

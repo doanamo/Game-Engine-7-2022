@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Scripting/ScriptState.hpp"
 #include "System/FileSystem.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Scripting;
 
 namespace

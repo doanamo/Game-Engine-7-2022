@@ -8,7 +8,7 @@
 #include "Graphics/Texture.hpp"
 #include "System/ResourceManager.hpp"
 #include "Scripting/ScriptState.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Graphics;
 
 TextureAtlas::LoadFromFile::LoadFromFile() :

@@ -7,7 +7,7 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Scripting/ScriptState.hpp"
 #include "System/ResourceManager.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Graphics;
 
 SpriteAnimationList::LoadFromFile::LoadFromFile() :

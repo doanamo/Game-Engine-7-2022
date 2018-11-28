@@ -1,9 +1,9 @@
 /*
-    Copyright (c) 2018 Piotr Doan. All rights reserved.
+Copyright (c) 2018 Piotr Doan. All rights reserved.
 */
 
 #include "Precompiled.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Engine;
 
 Root::Root() :
@@ -32,7 +32,7 @@ Root& Root::operator=(Root&& other)
 
     std::swap(renderContext, other.renderContext);
     std::swap(spriteRenderer, other.spriteRenderer);
-    
+
     std::swap(stateRenderer, other.stateRenderer);
 
     std::swap(editorSystem, other.editorSystem);
@@ -82,7 +82,7 @@ bool Root::Initialize()
     {
         fileSystem.MountDirectory(Build::GetEngineDir());
     }
-    
+
     if(!Build::GetGameDir().empty())
     {
         fileSystem.MountDirectory(Build::GetGameDir());
@@ -135,7 +135,7 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize graphics context!";
         return false;
     }
-    
+
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
     if(!spriteRenderer.Initialize(this, 128))

@@ -4,7 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Game/GameState.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Game;
 
 GameState::GameState() :

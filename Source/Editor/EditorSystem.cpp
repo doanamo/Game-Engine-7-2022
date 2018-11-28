@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include "Game/GameState.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Editor;
 
 namespace

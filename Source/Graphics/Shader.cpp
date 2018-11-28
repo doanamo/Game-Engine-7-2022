@@ -6,7 +6,7 @@
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "System/FileSystem.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Graphics;
 
 namespace

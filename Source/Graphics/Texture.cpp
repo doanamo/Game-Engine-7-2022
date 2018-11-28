@@ -6,7 +6,7 @@
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "System/FileSystem.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Graphics;
 
 Texture::CreateFromParams::CreateFromParams() :

@@ -9,7 +9,7 @@
 #include "Game/Components/SpriteComponent.hpp"
 #include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/GameState.hpp"
-#include "Engine.hpp"
+#include "Engine/Root.hpp"
 using namespace Renderer;
 
 StateRenderer::DrawParams::DrawParams() :
