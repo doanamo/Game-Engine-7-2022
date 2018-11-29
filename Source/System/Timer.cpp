@@ -65,13 +65,21 @@ void Timer::Reset()
     m_previousTimeCounter = m_currentTimeCounter;
 }
 
-void Timer::Tick()
+void Timer::Tick(float maximumDelta)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
     // Remember time points of the two last ticks.
     m_previousTimeCounter = m_currentTimeCounter;
     m_currentTimeCounter = glfwGetTimerValue();
+
+    // Clamp maximum possible delta time by limiting
+    // how far back previous time counter can point.
+    if(maximumDelta >= 0.0f)
+    {
+        uint64_t maximumTicks = std::min((uint64_t)(maximumDelta * m_timerFrequency), m_currentTimeCounter);
+        m_previousTimeCounter = std::max(m_previousTimeCounter, m_currentTimeCounter - maximumTicks);
+    }
 }
 
 void Timer::Tick(const Timer& timer)
@@ -79,23 +87,28 @@ void Timer::Tick(const Timer& timer)
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
     // Remember time points of the two last ticks.
-    m_previousTimeCounter = m_currentTimeCounter;
+    m_previousTimeCounter = timer.m_previousTimeCounter;
     m_currentTimeCounter = timer.m_currentTimeCounter;
 }
 
-float Timer::GetDeltaTime(float maximumDelta) const
+uint64_t Timer::GetDeltaTicks() const
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
-    // Calculate elapsed time since the last frame.
+    // Calculate elapsed time in ticks since the last frame.
     ASSERT(m_currentTimeCounter >= m_previousTimeCounter, "Previous time counter is higher than the current time counter!");
     uint64_t elapsedTimeCounter = m_currentTimeCounter - m_previousTimeCounter;
 
-    // Calculate frame time delta between last two ticks in seconds.
-    float frameDeltaSeconds = static_cast<float>(elapsedTimeCounter * (1.0 / m_timerFrequency));
+    // Return the number of elapsed ticks.
+    return elapsedTimeCounter;
+}
 
-    // Clamp delta value between 0.0f and set maximum value.
-    frameDeltaSeconds = Utility::Clamp(frameDeltaSeconds, 0.0f, maximumDelta);
+float Timer::GetDeltaTime() const
+{
+    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+
+    // Calculate frame time delta between last two ticks in seconds.
+    float frameDeltaSeconds = static_cast<float>(GetDeltaTicks() * (1.0 / m_timerFrequency));
 
     // Return calculated frame delta value.
     return frameDeltaSeconds;

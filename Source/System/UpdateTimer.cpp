@@ -80,6 +80,10 @@ bool UpdateTimer::Update(float updateTime)
 {
     ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
 
+    // Do not allow forward update counter to fall behind the previous tick time.
+    // This allows timer with capped delta time to prevent a large number of update.
+    m_forwardUpdateCounter = std::max(m_previousTimeCounter, m_forwardUpdateCounter);
+
     // Check if we should perform an update.
     if(m_currentTimeCounter >= m_forwardUpdateCounter)
     {

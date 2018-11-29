@@ -201,7 +201,8 @@ bool Root::ProcessFrame()
     m_resourceManager->ReleaseUnused();
 
     // Tick the timer.
-    m_timer->Tick();
+    const float maximumDelta = 1.0f;
+    m_timer->Tick(maximumDelta);
 
     // Calculate frame delta time.
     float timeDelta = m_timer->GetDeltaTime();

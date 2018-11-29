@@ -58,13 +58,17 @@ namespace System
         virtual void Reset();
 
         // Ticks the timer to match the current system time.
-        void Tick();
+        void Tick(float maximumDelta = 0.0f);
 
         // Ticks the timer to match the current time of another timer.
         void Tick(const Timer& timer);
 
+    public:
+        // Gets the delta time in ticks between last two ticks.
+        uint64_t GetDeltaTicks() const;
+
         // Gets the delta time in seconds between last two ticks.
-        float GetDeltaTime(float maximumDelta = MaximumFloat) const;
+        float GetDeltaTime() const;
 
         // Gets the current time in seconds.
         double GetSystemTime() const;
