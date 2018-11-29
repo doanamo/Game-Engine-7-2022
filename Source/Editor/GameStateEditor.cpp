@@ -11,6 +11,11 @@ GameStateEditor::GameStateEditor() :
     m_gameState(nullptr),
     m_updateRateSlider(0.0f),
     m_updateTimeHistogramPaused(false),
+    m_updateDelaySlider(0.0f),
+    m_updateDelayValue(0.0f),
+    m_updateNoiseSlider(0.0f),
+    m_updateNoiseValue(0.0f),
+    m_updateFreezeSlider(1.0f),
     m_initialized(false)
 {
     m_receivers.gameStateDestructed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
@@ -34,6 +39,11 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
     std::swap(m_updateRateSlider, other.m_updateRateSlider);
     std::swap(m_updateTimeHistogram, other.m_updateTimeHistogram);
     std::swap(m_updateTimeHistogramPaused, other.m_updateTimeHistogramPaused);
+    std::swap(m_updateDelaySlider, other.m_updateDelaySlider);
+    std::swap(m_updateDelayValue, other.m_updateDelayValue);
+    std::swap(m_updateNoiseSlider, other.m_updateNoiseSlider);
+    std::swap(m_updateNoiseValue, other.m_updateNoiseValue);
+    std::swap(m_updateFreezeSlider, other.m_updateFreezeSlider);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -77,10 +87,10 @@ void GameStateEditor::Update(float timeDelta)
                     currentUpdateTime, currentUpdateRate);
 
                 ImGui::SliderFloat("##UpdateRateSlider", &m_updateRateSlider,
-                    1.0f, 100.0f, "%.1f updates per second", 2.0f);
+                    1.0f, 100.0f, "%.1f update(s) per second", 2.0f);
 
                 ImGui::SameLine();
-                if(ImGui::Button("Apply"))
+                if(ImGui::Button("Apply##UpdateTimeApply"))
                 {
                     float newUpdateTime = 1.0f / m_updateRateSlider;
                     m_gameState->SetUpdateTime(newUpdateTime);
@@ -130,6 +140,52 @@ void GameStateEditor::Update(float timeDelta)
                     ImGui::PopID();
                 }
                 ImGui::EndGroup();
+
+                // Update time delay slider.
+                ImGui::BulletText("Update time delay: %0.3fs", m_updateDelayValue);
+                ImGui::SliderFloat("##UpdateDelaySlider", &m_updateDelaySlider,
+                    0.0f, 1.0f, "%0.3fs delay", 6.0f);
+
+                ImGui::SameLine();
+                if(ImGui::Button("Apply##UpdateDelayApply"))
+                {
+                    m_updateDelayValue = m_updateDelaySlider;
+                }
+
+                if(m_updateDelayValue > 0.0f)
+                {
+                    int sleepTime = (int)(m_updateDelayValue * 1000.0f);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+                }
+
+                // Update time noise slider.
+                ImGui::BulletText("Update time noise: %0.3fs", m_updateNoiseValue);
+                ImGui::SliderFloat("##UpdateNoiseSlider", &m_updateNoiseSlider,
+                    0.0f, 1.0f, "%0.3fs noise", 4.0f);
+
+                ImGui::SameLine();
+                if(ImGui::Button("Apply##UpdateNoiseApply"))
+                {
+                    m_updateNoiseValue = m_updateNoiseSlider;
+                }
+
+                if(m_updateNoiseValue > 0.0f)
+                {
+                    int sleepTime = std::rand() % (int)(m_updateNoiseValue * 1000.0f);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+                }
+
+                // Update time freeze slider.
+                ImGui::BulletText("Update time freeze:");
+                ImGui::SliderFloat("##UpdateFreezeSlider", &m_updateFreezeSlider,
+                    0.1f, 10.0f, "%.1fs freeze", 2.0f);
+
+                ImGui::SameLine();
+                if(ImGui::Button("Freeze"))
+                {
+                    int sleepTime = (int)(m_updateFreezeSlider * 1000.0f);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+                }
 
                 ImGui::TreePop();
             }

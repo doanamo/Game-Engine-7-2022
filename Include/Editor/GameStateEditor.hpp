@@ -65,12 +65,23 @@ namespace Editor
         // Game state reference.
         Game::GameState* m_gameState;
 
-        // Update timer values.
+        // Update rate slider value.
         float m_updateRateSlider;
 
         // Update time histogram.
         std::vector<float> m_updateTimeHistogram;
         bool m_updateTimeHistogramPaused;
+
+        // Update delay slider value.
+        float m_updateDelaySlider;
+        float m_updateDelayValue;
+
+        // Update noise slider value.
+        float m_updateNoiseSlider;
+        float m_updateNoiseValue;
+
+        // Update freeze slider value.
+        float m_updateFreezeSlider;
 
         // Initialization state.
         bool m_initialized;

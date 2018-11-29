@@ -73,11 +73,10 @@ void Timer::Tick(float maximumDelta)
     m_previousTimeCounter = m_currentTimeCounter;
     m_currentTimeCounter = glfwGetTimerValue();
 
-    // Clamp maximum possible delta time by limiting
-    // how far back previous time counter can point.
+    // Clamp maximum possible delta time by limiting how far back previous time counter can go.
     if(maximumDelta >= 0.0f)
     {
-        uint64_t maximumTicks = std::min((uint64_t)(maximumDelta * m_timerFrequency), m_currentTimeCounter);
+        uint64_t maximumTicks = std::min((uint64_t)((double)maximumDelta * m_timerFrequency), m_currentTimeCounter);
         m_previousTimeCounter = std::max(m_previousTimeCounter, m_currentTimeCounter - maximumTicks);
     }
 }
