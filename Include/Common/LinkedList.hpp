@@ -68,18 +68,47 @@ namespace Common
             return m_reference;
         }
 
-        // Inserts node after another node.
-        bool Insert(ListNode<Type>* other)
+        // Insert node before another node.
+        bool InsertBefore(ListNode<Type>* other)
         {
-            ASSERT(other != nullptr, "Provided an argument with null node!");
-
-            // Check if node is free.
-            if(m_previous != this)
+            // Check if other node is null.
+            if(other == nullptr)
                 return false;
 
-            // Node is free only if it points at self.
-            ASSERT(m_previous == this, "Free list node has different pointers!");
-            ASSERT(m_next == this, "Free list node has different pointers!");
+            // Check if our node is free.
+            if(m_next != this)
+            {
+                ASSERT(m_previous != this, "Previous node pointer should not be pointing at this!");
+                return false;
+            }
+
+            ASSERT(m_previous == this, "Previous node pointer should be pointing at this!");
+
+            // Insert node before another node.
+            m_next = other;
+            m_previous = other->m_previous;
+
+            m_next->m_previous = this;
+            m_previous->m_next = this;
+
+            return true;
+        }
+
+        // Inserts node after another node.
+        bool InsertAfter(ListNode<Type>* other)
+        {
+            // Check if other node is null.
+            if(other == nullptr)
+                return false;
+
+            // Check if our node is free.
+            if(m_previous != this)
+            {
+                ASSERT(m_next != this, "Next node pointer should not be pointing at this!");
+                return false;
+            }
+
+            ASSERT(m_next == this, "Next node pointer should be pointing at this!");
 
             // Insert node after another node.
             m_previous = other;
@@ -88,7 +117,7 @@ namespace Common
             m_previous->m_next = this;
             m_next->m_previous = this;
 
-            return false;
+            return true;
         }
 
         // Removes node from a current list.
@@ -96,7 +125,10 @@ namespace Common
         {
             // Check if node is free.
             if(m_previous == this)
+            {
+                ASSERT(m_next == this, "Next node pointer should be pointing at this!");
                 return;
+            }
 
             // Remove node from a list.
             m_previous->m_next = m_next;

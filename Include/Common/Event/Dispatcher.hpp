@@ -171,7 +171,8 @@ namespace Common
     public:
         // Subscribes a receiver.
         // By default we do not want to replace receiver's current dispatcher.
-        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver, bool unsubscribeReceiver = false)
+        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver,
+            bool unsubscribeReceiver = false, bool insertFront = false)
         {
             // Check if receiver is already subscribed somewhere else.
             if(!receiver.m_listNode.IsFree())
@@ -188,8 +189,17 @@ namespace Common
                 receiver.Unsubscribe();
             }
 
-            // Add receiver node to the end of the receiver list.
-            receiver.m_listNode.Insert(m_receiverList.GetPrevious());
+            // Add receiver to the linked list.
+            if(insertFront)
+            {
+                // Add receiver node to the beginning of the receiver list.
+                receiver.m_listNode.InsertBefore(m_receiverList.GetNext());
+            }
+            else
+            {
+                // Add receiver node to the end of the receiver list.
+                receiver.m_listNode.InsertAfter(m_receiverList.GetPrevious());
+            }
 
             // Set dispatcher reference.
             receiver.m_dispatcher = this;

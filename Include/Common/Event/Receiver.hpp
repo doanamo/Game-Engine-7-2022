@@ -83,9 +83,10 @@ namespace Common
         }
 
         // Subscribes to a dispatcher.
-        bool Subscribe(DispatcherBase<ReturnType(Arguments...)>& dispatcher, bool unsubscribeReceiver = true)
+        bool Subscribe(DispatcherBase<ReturnType(Arguments...)>& dispatcher, 
+            bool unsubscribeReceiver = true, bool insertFront = false)
         {
-            return dispatcher.Subscribe(*this, unsubscribeReceiver);
+            return dispatcher.Subscribe(*this, unsubscribeReceiver, insertFront);
         }
 
         // Unsubscribes from the current dispatcher.
