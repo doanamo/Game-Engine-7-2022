@@ -16,7 +16,13 @@
 #include "Engine/Root.hpp"
 using namespace Engine;
 
+InitializeParams::InitializeParams() :
+    maximumTickDelta(1.0f)
+{
+}
+
 Root::Root() :
+    m_maximumTickDelta(0.0f),
     m_initialized(false)
 {
 }
@@ -33,6 +39,7 @@ Root::Root(Root&& other) :
 
 Root& Root::operator=(Root&& other)
 {
+    std::swap(m_maximumTickDelta, other.m_maximumTickDelta);
     std::swap(m_platform, other.m_platform);
     std::swap(m_fileSystem, other.m_fileSystem);
     std::swap(m_window, other.m_window);
@@ -48,7 +55,7 @@ Root& Root::operator=(Root&& other)
     return *this;
 }
 
-bool Root::Initialize()
+bool Root::Initialize(const InitializeParams& initParams)
 {
     // Verify that engine is not currently initialized.
     VERIFY(!m_initialized, "Engine instance has already been initialized!");
@@ -121,6 +128,8 @@ bool Root::Initialize()
         LOG_ERROR() << "Could not initialize timer!";
         return false;
     }
+
+    m_maximumTickDelta = initParams.maximumTickDelta;
 
     // Initialize the input state.
     // Collects and caches input state that can be later pooled.
@@ -201,8 +210,7 @@ bool Root::ProcessFrame()
     m_resourceManager->ReleaseUnused();
 
     // Tick the timer.
-    const float maximumDelta = 1.0f;
-    m_timer->Tick(maximumDelta);
+    m_timer->Tick(m_maximumTickDelta);
 
     // Calculate frame delta time.
     float timeDelta = m_timer->GetDeltaTime();

@@ -37,6 +37,14 @@ namespace Editor
 
 namespace Engine
 {
+    // Initialization params.
+    struct InitializeParams
+    {
+        InitializeParams();
+
+        float maximumTickDelta;
+    };
+
     // Root class.
     class Root
     {
@@ -53,7 +61,7 @@ namespace Engine
         Root& operator=(Root&& other);
 
         // Initializes the engine instance.
-        bool Initialize();
+        bool Initialize(const InitializeParams& initParams = InitializeParams());
 
         // Processes one engine frame.
         bool ProcessFrame();
@@ -93,6 +101,9 @@ namespace Engine
         Editor::EditorSystem& GetEditorSystem();
 
     private:
+        // Engine parameters.
+        float m_maximumTickDelta;
+
         // Platform systems.
         std::unique_ptr<System::Platform> m_platform;
         std::unique_ptr<System::FileSystem> m_fileSystem;

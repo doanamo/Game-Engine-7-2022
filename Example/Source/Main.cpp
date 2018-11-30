@@ -11,8 +11,11 @@
 int main()
 {
     // Create the engine.
+    Engine::InitializeParams initParams;
+    initParams.maximumTickDelta = 1.0f;
+
     Engine::Root engine;
-    if(!engine.Initialize())
+    if(!engine.Initialize(initParams))
         return -1;
 
     // Create the game scene.
