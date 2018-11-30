@@ -27,7 +27,8 @@ GameStateEditor::~GameStateEditor()
 {
 }
 
-GameStateEditor::GameStateEditor(GameStateEditor&& other)
+GameStateEditor::GameStateEditor(GameStateEditor&& other) :
+    GameStateEditor()
 {
     *this = std::move(other);
 }
