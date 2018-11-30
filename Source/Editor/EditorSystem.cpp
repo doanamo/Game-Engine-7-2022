@@ -150,12 +150,14 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     io.ClipboardUserData = m_engine->GetWindow().GetPrivateHandle();
 
     // Subscribe window event receivers.
+    auto& windowEvents = m_engine->GetWindow().events;
+
     bool subscriptionResults = true;
-    subscriptionResults |= m_engine->GetWindow().events.cursorPosition.Subscribe(m_receiverCursorPosition);
-    subscriptionResults |= m_engine->GetWindow().events.mouseButton.Subscribe(m_receiverMouseButton);
-    subscriptionResults |= m_engine->GetWindow().events.mouseScroll.Subscribe(m_receiverMouseScroll);
-    subscriptionResults |= m_engine->GetWindow().events.keyboardKey.Subscribe(m_receiverKeyboardKey);
-    subscriptionResults |= m_engine->GetWindow().events.textInput.Subscribe(m_receiverTextInput);
+    subscriptionResults |= windowEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
+    subscriptionResults |= windowEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
+    subscriptionResults |= windowEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
+    subscriptionResults |= windowEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
+    subscriptionResults |= windowEvents.textInput.Subscribe(m_receiverTextInput, false, true);
 
     if(!subscriptionResults)
     {
@@ -252,7 +254,7 @@ void EditorSystem::CursorPositionCallback(const System::Window::Events::CursorPo
     io.MousePos.y = (float)event.y;
 }
 
-void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton& event)
+bool EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -268,18 +270,21 @@ void EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton
 
     // We can only handle a specific number of buttons.
     if(event.button < System::MouseButtons::Button1)
-        return;
+        return false;
 
     if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
-        return;
+        return false;
 
     // Set mouse button state.
     const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
     ASSERT(MouseButtonIndex < Utility::StaticArraySize(io.MouseDown), "Invalid mouse button index!");
     io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
+
+    // Prevent input from passing through.
+    return io.WantCaptureMouse;
 }
 
-void EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
+bool EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -289,9 +294,12 @@ void EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll
 
     // Set mouse wheel offset.
     io.MouseWheel = (float)event.offset;
+
+    // Prevent input from passing through.
+    return io.WantCaptureMouse;
 }
 
-void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event)
+bool EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -305,7 +313,7 @@ void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
 
     // We can only handle a specific number of keys.
     if(event.key < 0 || event.key >= MaxKeyboardKeyCount)
-        return;
+        return false;
 
     // Change key state.
     io.KeysDown[event.key] = (event.state == System::InputStates::Pressed);
@@ -315,9 +323,12 @@ void EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
     io.KeyCtrl = event.modifiers & System::KeyboardModifiers::Ctrl;
     io.KeyShift = event.modifiers & System::KeyboardModifiers::Shift;
     io.KeySuper = event.modifiers & System::KeyboardModifiers::Super;
+
+    // Prevent input from passing through.
+    return io.WantCaptureKeyboard;
 }
 
-void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)
+bool EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -334,6 +345,9 @@ void EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
 
     // Add text input character.
     io.AddInputCharactersUTF8(&utf8Character[0]);
+
+    // Prevent input from passing through.
+    return io.WantCaptureKeyboard;
 }
 
 GameStateEditor& EditorSystem::GetGameStateEditor()

@@ -75,7 +75,7 @@ bool InputState::Initialize(Window* window)
     return m_initialized = true;
 }
 
-void InputState::OnKeyboardKey(const Window::Events::KeyboardKey& event)
+bool InputState::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
     VERIFY(0 <= event.key && event.key < KeyboardKeys::Count, "Received an event with an invalid key!");
@@ -89,6 +89,9 @@ void InputState::OnKeyboardKey(const Window::Events::KeyboardKey& event)
     {
         m_keyboardState[event.key] = KeyboardKeyStates::Released;
     }
+
+    // Do not capture input.
+    return false;
 }
 
 void InputState::OnWindowFocus(const Window::Events::Focus& event)

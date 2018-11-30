@@ -90,14 +90,14 @@ namespace System
 
     private:
         // Called when a keyboard key is pressed.
-        void OnKeyboardKey(const Window::Events::KeyboardKey& event);
+        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
 
         // Called when the window changes focus.
         void OnWindowFocus(const Window::Events::Focus& event);
 
     private:
         // Event receivers.
-        Common::Receiver<void(const Window::Events::KeyboardKey&)> m_keyboardKey;
+        Common::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
         Common::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
         
         // States of keyboard keys.

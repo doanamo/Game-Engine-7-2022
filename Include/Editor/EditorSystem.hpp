@@ -65,16 +65,16 @@ namespace Editor
         void CursorPositionCallback(const System::Window::Events::CursorPosition& event);
 
         // Callback function for mouse button events.
-        void MouseButtonCallback(const System::Window::Events::MouseButton& event);
+        bool MouseButtonCallback(const System::Window::Events::MouseButton& event);
 
         // Callback function for mouse scroll events.
-        void MouseScrollCallback(const System::Window::Events::MouseScroll& event);
+        bool MouseScrollCallback(const System::Window::Events::MouseScroll& event);
 
         // Callback function for keyboard key events.
-        void KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event);
+        bool KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event);
 
         // Callback function for text input events.
-        void TextInputCallback(const System::Window::Events::TextInput& event);
+        bool TextInputCallback(const System::Window::Events::TextInput& event);
 
     private:
         // Destroys the user interface context.
@@ -90,10 +90,10 @@ namespace Editor
 
         // Window event callbacks.
         Common::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
-        Common::Receiver<void(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
-        Common::Receiver<void(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
-        Common::Receiver<void(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
-        Common::Receiver<void(const System::Window::Events::TextInput&)> m_receiverTextInput;
+        Common::Receiver<bool(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
+        Common::Receiver<bool(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
+        Common::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
+        Common::Receiver<bool(const System::Window::Events::TextInput&)> m_receiverTextInput;
 
         // Editor renderer.
         EditorRenderer m_editorRenderer;

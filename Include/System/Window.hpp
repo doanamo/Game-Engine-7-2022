@@ -175,7 +175,7 @@ namespace System
                 int scancode;
             };
 
-            Common::Dispatcher<void(const KeyboardKey&)> keyboardKey;
+            Common::Dispatcher<bool(const KeyboardKey&), Common::CollectWhileFalse> keyboardKey;
 
             // Text input event.
             struct TextInput
@@ -185,7 +185,7 @@ namespace System
                 unsigned int utf32Character;
             };
 
-            Common::Dispatcher<void(const TextInput&)> textInput;
+            Common::Dispatcher<bool(const TextInput&), Common::CollectWhileFalse> textInput;
 
             // Mouse button event.
             struct MouseButton
@@ -195,7 +195,7 @@ namespace System
                 KeyboardKeys::Type modifiers;
             };
 
-            Common::Dispatcher<void(const MouseButton&)> mouseButton;
+            Common::Dispatcher<bool(const MouseButton&), Common::CollectWhileFalse> mouseButton;
 
             // Mouse scroll event.
             struct MouseScroll
@@ -203,7 +203,7 @@ namespace System
                 double offset;
             };
 
-            Common::Dispatcher<void(const MouseScroll&)> mouseScroll;
+            Common::Dispatcher<bool(const MouseScroll&), Common::CollectWhileFalse> mouseScroll;
 
             // Cursor position event.
             struct CursorPosition
