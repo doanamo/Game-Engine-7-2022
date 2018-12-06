@@ -61,5 +61,5 @@
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"
 #include "Common/Utility.hpp"
-#include "Common/Event/Delegate.hpp"
+#include "Event/Delegate.hpp"
 #include "Logger/Logger.hpp"

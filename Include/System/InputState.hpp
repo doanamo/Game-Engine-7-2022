@@ -97,8 +97,8 @@ namespace System
 
     private:
         // Event receivers.
-        Common::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
-        Common::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
+        Event::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
+        Event::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
         
         // States of keyboard keys.
         KeyboardKeyStates::Type m_keyboardState[KeyboardKeys::Count];

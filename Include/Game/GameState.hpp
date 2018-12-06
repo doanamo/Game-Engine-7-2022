@@ -41,7 +41,7 @@ namespace Game
 
         // Updates the game state.
         // Returns true if the game state was updated.
-        bool Update(const System::Timer& timer, Common::Delegate<void(float)> customUpdate = nullptr);
+        bool Update(const System::Timer& timer, Event::Delegate<void(float)> customUpdate = nullptr);
 
         // Sets the update time.
         void SetUpdateTime(float updateTime);
@@ -57,15 +57,15 @@ namespace Game
         struct Events
         {
             // Called when the class instance is destructed.
-            Common::Dispatcher<void()> instanceDestructed;
+            Event::Dispatcher<void()> instanceDestructed;
 
             // Called when update method is called.
-            Common::Dispatcher<void()> updateCalled;
+            Event::Dispatcher<void()> updateCalled;
 
             // Called when state has been updated.
             // This event can be dispatched multiple
             // times during the same update call.
-            Common::Dispatcher<void(float)> stateUpdated;
+            Event::Dispatcher<void(float)> stateUpdated;
         } events;
 
     public:

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common/Event/Receiver.hpp"
+#include "Event/Receiver.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -62,7 +62,7 @@ namespace Game
         NameLookup m_nameLookup;
 
         // Event receiver.
-        Common::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
+        Event::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
         
         // Initialization state.
         bool m_initialized;

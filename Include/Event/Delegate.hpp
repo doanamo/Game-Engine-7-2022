@@ -61,7 +61,7 @@
     Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 */
 
-namespace Common
+namespace Event
 {
     template<typename Type>
     class Delegate;

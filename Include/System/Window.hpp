@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include "Common/Event/Dispatcher.hpp"
+#include "Event/Dispatcher.hpp"
 #include "System/InputMapping.hpp"
 
 /*
@@ -140,7 +140,7 @@ namespace System
                 int y;
             };
 
-            Common::Dispatcher<void(const Move&)> move;
+            Event::Dispatcher<void(const Move&)> move;
 
             // Resize event.
             struct Resize
@@ -149,7 +149,7 @@ namespace System
                 int height;
             };
 
-            Common::Dispatcher<void(const Resize&)> resize;
+            Event::Dispatcher<void(const Resize&)> resize;
 
             // Focus event.
             struct Focus
@@ -157,14 +157,14 @@ namespace System
                 bool focused;
             };
 
-            Common::Dispatcher<void(const Focus&)> focus;
+            Event::Dispatcher<void(const Focus&)> focus;
 
             // Close event.
             struct Close
             {
             };
 
-            Common::Dispatcher<void(const Close&)> close;
+            Event::Dispatcher<void(const Close&)> close;
 
             // Keyboard key event.
             struct KeyboardKey
@@ -175,7 +175,7 @@ namespace System
                 int scancode;
             };
 
-            Common::Dispatcher<bool(const KeyboardKey&), Common::CollectWhileFalse> keyboardKey;
+            Event::Dispatcher<bool(const KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
 
             // Text input event.
             struct TextInput
@@ -185,7 +185,7 @@ namespace System
                 unsigned int utf32Character;
             };
 
-            Common::Dispatcher<bool(const TextInput&), Common::CollectWhileFalse> textInput;
+            Event::Dispatcher<bool(const TextInput&), Event::CollectWhileFalse> textInput;
 
             // Mouse button event.
             struct MouseButton
@@ -195,7 +195,7 @@ namespace System
                 KeyboardKeys::Type modifiers;
             };
 
-            Common::Dispatcher<bool(const MouseButton&), Common::CollectWhileFalse> mouseButton;
+            Event::Dispatcher<bool(const MouseButton&), Event::CollectWhileFalse> mouseButton;
 
             // Mouse scroll event.
             struct MouseScroll
@@ -203,7 +203,7 @@ namespace System
                 double offset;
             };
 
-            Common::Dispatcher<bool(const MouseScroll&), Common::CollectWhileFalse> mouseScroll;
+            Event::Dispatcher<bool(const MouseScroll&), Event::CollectWhileFalse> mouseScroll;
 
             // Cursor position event.
             struct CursorPosition
@@ -212,7 +212,7 @@ namespace System
                 double y;
             };
 
-            Common::Dispatcher<void(const CursorPosition&)> cursorPosition;
+            Event::Dispatcher<void(const CursorPosition&)> cursorPosition;
 
             // Cursor enter event.
             struct CursorEnter
@@ -220,7 +220,7 @@ namespace System
                 bool entered;
             };
 
-            Common::Dispatcher<void(const CursorEnter&)> cursorEnter;
+            Event::Dispatcher<void(const CursorEnter&)> cursorEnter;
         } events;
 
     private:

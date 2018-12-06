@@ -23,7 +23,7 @@
     }
 */
 
-namespace Common
+namespace Event
 {
     // Default collector.
     template<typename ReturnType>

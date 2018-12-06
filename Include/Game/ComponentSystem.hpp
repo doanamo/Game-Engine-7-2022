@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common/Event/Receiver.hpp"
+#include "Event/Receiver.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 
@@ -122,8 +122,8 @@ namespace Game
         ComponentPoolList m_pools;
 
         // Event receivers.
-        Common::Receiver<bool(EntityHandle)> m_entityCreate;
-        Common::Receiver<void(EntityHandle)> m_entityDestroy;
+        Event::Receiver<bool(EntityHandle)> m_entityCreate;
+        Event::Receiver<void(EntityHandle)> m_entityDestroy;
     };
 
     // Template definitions.

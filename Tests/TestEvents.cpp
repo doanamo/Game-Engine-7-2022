@@ -2,10 +2,10 @@
     Copyright (c) 2018 Piotr Doan. All rights reserved.
 */
 
-#include <Common/Event/Delegate.hpp>
-#include <Common/Event/Collector.hpp>
-#include <Common/Event/Dispatcher.hpp>
-#include <Common/Event/Receiver.hpp>
+#include <Event/Delegate.hpp>
+#include <Event/Collector.hpp>
+#include <Event/Dispatcher.hpp>
+#include <Event/Receiver.hpp>
 
 char Function(const char* c, int i)
 {
@@ -32,7 +32,7 @@ public:
 
 bool TestDelegate()
 {
-    Common::Delegate<char(const char* c, int i)> delegate;
+    Event::Delegate<char(const char* c, int i)> delegate;
 
     if(delegate.IsBound())
         return false;
@@ -86,12 +86,12 @@ bool TestDelegate()
     {
         int counter = 0;
 
-        Common::Delegate<void()> delegate1([&counter, add = 2]()
+        Event::Delegate<void()> delegate1([&counter, add = 2]()
         {
             counter += add;
         });
 
-        Common::Delegate<void()> delegate2([&counter, add = 4]()
+        Event::Delegate<void()> delegate2([&counter, add = 4]()
         {
             counter += add;
         });
@@ -114,7 +114,7 @@ bool TestDelegate()
 
 bool TestCollector()
 {
-    Common::CollectDefault<void> collectDefault;
+    Event::CollectDefault<void> collectDefault;
 
     collectDefault.ConsumeResult();
 
@@ -123,7 +123,7 @@ bool TestCollector()
 
     collectDefault.GetResult();
 
-    Common::CollectLast<int> collectLast(0);
+    Event::CollectLast<int> collectLast(0);
 
     if(collectLast.GetResult() != 0)
         return false;
@@ -156,7 +156,7 @@ bool TestCollector()
     if(collectLast.GetResult() != 4)
         return false;
 
-    Common::CollectWhileTrue collectWhileTrue(true);
+    Event::CollectWhileTrue collectWhileTrue(true);
 
     if(collectWhileTrue.GetResult() != true)
         return false;
@@ -175,7 +175,7 @@ bool TestCollector()
     if(collectWhileTrue.GetResult() != false)
         return false;
 
-    Common::CollectWhileFalse collectWhileFalse(false);
+    Event::CollectWhileFalse collectWhileFalse(false);
 
     if(collectWhileFalse.GetResult() != false)
         return false;
@@ -259,13 +259,13 @@ bool TestDispatcher()
     {
         int i = 0;
 
-        Common::Receiver<int(int*)> receiverA;
+        Event::Receiver<int(int*)> receiverA;
         receiverA.Bind<DispatcherClass, &DispatcherClass::FunctionA>(&dispatcherClass);
 
-        Common::Receiver<int(int*)> receiverB;
+        Event::Receiver<int(int*)> receiverB;
         receiverB.Bind<DispatcherClass, &DispatcherClass::FunctionB>(&dispatcherClass);
 
-        Common::Dispatcher<int(int*)> dispatcher(42);
+        Event::Dispatcher<int(int*)> dispatcher(42);
 
         if(dispatcher.Dispatch(&i) != 42)
             return false;
@@ -310,16 +310,16 @@ bool TestDispatcher()
     {
         int i = 0;
 
-        Common::Receiver<bool(int*)> receiverTrue;
+        Event::Receiver<bool(int*)> receiverTrue;
         receiverTrue.Bind<DispatcherClass, &DispatcherClass::FunctionTrue>(&dispatcherClass);
         
-        Common::Receiver<bool(int*)> receiverFalse;
+        Event::Receiver<bool(int*)> receiverFalse;
         receiverFalse.Bind<DispatcherClass, &DispatcherClass::FunctionFalse>(&dispatcherClass);
 
-        Common::Receiver<bool(int*)> receiverDummy;
+        Event::Receiver<bool(int*)> receiverDummy;
         receiverDummy.Bind<DispatcherClass, &DispatcherClass::FunctionDummy>(&dispatcherClass);
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileTrue> dispatcherWhileTrue(true);
+        Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(true);
 
         if(dispatcherWhileTrue.Dispatch(&i) != true)
             return false;
@@ -353,7 +353,7 @@ bool TestDispatcher()
 
         int y = 0;
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileFalse> dispatcherWhileFalse(false);
+        Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(false);
 
         if(dispatcherWhileFalse.Dispatch(&y) != false)
             return false;
@@ -386,17 +386,17 @@ bool TestDispatcher()
             return false;
     }
 
-    // Caling dispatcher with failing initial state.
+    // Calling dispatcher with failing initial state.
     {
         int i = 0;
 
-        Common::Receiver<bool(int*)> receiverTrue;
+        Event::Receiver<bool(int*)> receiverTrue;
         receiverTrue.Bind<DispatcherClass, &DispatcherClass::FunctionTrue>(&dispatcherClass);
 
-        Common::Receiver<bool(int*)> receiverFalse;
+        Event::Receiver<bool(int*)> receiverFalse;
         receiverFalse.Bind<DispatcherClass, &DispatcherClass::FunctionFalse>(&dispatcherClass);
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileTrue> dispatcherWhileTrue(false);
+        Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(false);
 
         if(dispatcherWhileTrue.Dispatch(&i) != false)
             return false;
@@ -412,7 +412,7 @@ bool TestDispatcher()
         if(i != 0)
             return false;
 
-        Common::Dispatcher<bool(int*), Common::CollectWhileFalse> dispatcherWhileFalse(true);
+        Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(true);
 
         if(dispatcherWhileFalse.Dispatch(&i) != true)
             return false;
@@ -435,20 +435,20 @@ bool TestDispatcher()
 
         DispatcherClass dispatcherClass;
 
-        Common::Receiver<void(int*)> receiverAddOne;
+        Event::Receiver<void(int*)> receiverAddOne;
         receiverAddOne.Bind<DispatcherClass, &DispatcherClass::FunctionAddOne>(&dispatcherClass);
 
-        Common::Receiver<void(int*)> receiverAddTwo;
+        Event::Receiver<void(int*)> receiverAddTwo;
         receiverAddTwo.Bind<DispatcherClass, &DispatcherClass::FunctionAddTwo>(&dispatcherClass);
 
-        Common::Receiver<void(int*)> receiverAddThree;
+        Event::Receiver<void(int*)> receiverAddThree;
         receiverAddThree.Bind<DispatcherClass, &DispatcherClass::FunctionAddThree>(&dispatcherClass);
 
-        Common::Receiver<void(int*)> receiverAddFour;
+        Event::Receiver<void(int*)> receiverAddFour;
         receiverAddFour.Bind<DispatcherClass, &DispatcherClass::FunctionAddFour>(&dispatcherClass);
 
-        Common::Dispatcher<void(int*)> dispatcherA;
-        Common::Dispatcher<void(int*)> dispatcherB;
+        Event::Dispatcher<void(int*)> dispatcherA;
+        Event::Dispatcher<void(int*)> dispatcherB;
 
         dispatcherA.Subscribe(receiverAddOne);
         dispatcherA.Subscribe(receiverAddTwo);

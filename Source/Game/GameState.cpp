@@ -112,7 +112,7 @@ bool GameState::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-bool GameState::Update(const System::Timer& timer, Common::Delegate<void(float)> customUpdate)
+bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> customUpdate)
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
 

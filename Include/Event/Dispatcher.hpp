@@ -6,11 +6,11 @@
 
 #include <functional>
 #include "Common/LinkedList.hpp"
-#include "Common/Event/Collector.hpp"
-#include "Common/Event/Receiver.hpp"
+#include "Event/Collector.hpp"
+#include "Event/Receiver.hpp"
 
 // Forward declarations.
-namespace Common
+namespace Event
 {
     template<typename Type>
     class Receiver;
@@ -50,7 +50,7 @@ namespace Common
     }
 */
 
-namespace Common
+namespace Event
 {
     // Receiver invoker template class helper.
     template<typename Type>
@@ -104,7 +104,7 @@ namespace Common
     {
     public:
         // Type declarations.
-        using ReceiverListNode = ListNode<Receiver<ReturnType(Arguments...)>>;
+        using ReceiverListNode = Common::ListNode<Receiver<ReturnType(Arguments...)>>;
 
     protected:
         // Can only be constructed via Dispatcher template class.

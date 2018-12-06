@@ -5,11 +5,11 @@
 #pragma once
 
 #include "Common/Debug.hpp"
-#include "Common/Event/Dispatcher.hpp"
-#include "Common/Event/Delegate.hpp"
+#include "Event/Dispatcher.hpp"
+#include "Event/Delegate.hpp"
 
 // Forward declarations.
-namespace Common
+namespace Event
 {
     template<typename Type>
     class DispatcherBase;
@@ -27,7 +27,7 @@ namespace Common
     See Dispatcher template class for more information.
 */
 
-namespace Common
+namespace Event
 {
     template<typename Type>
     class Receiver;

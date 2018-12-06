@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "Common/Event/Dispatcher.hpp"
-#include "Common/Event/Collector.hpp"
+#include "Event/Dispatcher.hpp"
+#include "Event/Collector.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -149,8 +149,8 @@ namespace Game
         // Event that are dispatched on ProcessCommands() call.
         struct Events
         {
-            using EntityCreateDispatcher = Common::Dispatcher<bool(EntityHandle), Common::CollectWhileTrue>;
-            using EntityDestroyDispatcher = Common::Dispatcher<void(EntityHandle)>;
+            using EntityCreateDispatcher = Event::Dispatcher<bool(EntityHandle), Event::CollectWhileTrue>;
+            using EntityDestroyDispatcher = Event::Dispatcher<void(EntityHandle)>;
 
             EntityCreateDispatcher entityCreate;
             EntityDestroyDispatcher entityDestroy;

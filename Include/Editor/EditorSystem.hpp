@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common/Event/Receiver.hpp"
+#include "Event/Receiver.hpp"
 #include "System/Window.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/GameStateEditor.hpp"
@@ -89,11 +89,11 @@ namespace Editor
         bool m_showDemoWindow;
 
         // Window event callbacks.
-        Common::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
-        Common::Receiver<bool(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
-        Common::Receiver<bool(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
-        Common::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
-        Common::Receiver<bool(const System::Window::Events::TextInput&)> m_receiverTextInput;
+        Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
+        Event::Receiver<bool(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
+        Event::Receiver<bool(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
+        Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
+        Event::Receiver<bool(const System::Window::Events::TextInput&)> m_receiverTextInput;
 
         // Editor renderer.
         EditorRenderer m_editorRenderer;

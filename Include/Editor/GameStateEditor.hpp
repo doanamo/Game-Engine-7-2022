@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common/Event/Receiver.hpp"
+#include "Event/Receiver.hpp"
 
 // Forward declarations.
 namespace Game
@@ -47,9 +47,9 @@ namespace Editor
         // Event receivers.
         struct Receivers
         {
-            Common::Receiver<void()> gameStateDestructed;
-            Common::Receiver<void()> gameStateUpdateCalled;
-            Common::Receiver<void(float)> gameStateUpdated;
+            Event::Receiver<void()> gameStateDestructed;
+            Event::Receiver<void()> gameStateUpdateCalled;
+            Event::Receiver<void(float)> gameStateUpdated;
         } m_receivers;
 
         // Called when referenced game state gets destructed.
