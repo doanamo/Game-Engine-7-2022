@@ -8,6 +8,14 @@
 #include "Logger/Sink.hpp"
 using namespace Logger;
 
+namespace
+{
+    const char ErrorSign = '!';
+    const char WarningSign = '?';
+    const char DebugSign = '~';
+    const char InfoSign = '-';
+}
+
 std::string DefaultFormat::ComposeSessionStart()
 {
     // Retrieve the current system time.
@@ -25,6 +33,19 @@ std::string DefaultFormat::ComposeSessionStart()
     stream << std::setw(2) << timeInfo->tm_min         << ":";
     stream << std::setw(2) << timeInfo->tm_sec;
     stream << "\n\n";
+
+    // Print log message legend.
+    stream << "Log message legend: ";
+    stream << "[" << ErrorSign << "] Error, ";
+    stream << "[" << WarningSign << "] Warning, ";
+    stream << "[" << DebugSign << "] Debug, ";
+    stream << "[" << InfoSign << "] Info";
+    stream << "\n";
+
+    // Print log message format.
+    stream << "Log message format: ";
+    stream << "[Time][Frame][Type] Message {source:line}\n";
+    stream << "\n";
 
     // Return a composed string.
     return stream.str();
@@ -57,19 +78,19 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
     switch(message.GetSeverity())
     {
     case Severity::Error:
-        stream << "[!]";
+        stream << "[" << ErrorSign << "]";
         break;
 
     case Severity::Warning:
-        stream << "[?]";
+        stream << "[" << WarningSign << "]";
         break;
 
     case Severity::Debug:
-        stream << "[~]";
+        stream << "[" << DebugSign << "]";
         break;
 
     default:
-        stream << "[-]";
+        stream << "[" << InfoSign << "]";
         break;
     }
 
