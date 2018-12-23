@@ -22,7 +22,7 @@ GameState::GameState() :
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.
-    dispatchers.instanceDestructed.Dispatch();
+    events.instanceDestructed.Dispatch();
 }
 
 GameState::GameState(GameState&& other) :
@@ -33,7 +33,7 @@ GameState::GameState(GameState&& other) :
 
 GameState& GameState::operator=(GameState&& other)
 {
-    std::swap(dispatchers, other.dispatchers);
+    std::swap(events, other.events);
 
     std::swap(eventQueue, other.eventQueue);
     std::swap(eventBroker, other.eventBroker);
@@ -141,7 +141,7 @@ bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> 
     ASSERT(m_initialized, "Game state has not been initialized!");
 
     // Inform about update being called.
-    dispatchers.updateCalled.Dispatch();
+    events.updateCalled.Dispatch();
 
     // Tick the update timer along with the application timer.
     updateTimer.Tick(timer);
@@ -177,7 +177,7 @@ bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> 
         stateUpdated = true;
 
         // Inform that state has been updated.
-        dispatchers.stateUpdated.Dispatch(updateTime);
+        events.stateUpdated.Dispatch(updateTime);
     }
 
     // Return whether state could be updated.

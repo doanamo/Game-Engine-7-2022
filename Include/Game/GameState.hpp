@@ -56,7 +56,7 @@ namespace Game
         Engine::Root* GetEngine() const;
 
     public:
-        // Game state event types.
+         // Game state events.
         struct Events
         {
             // Changes current update time.
@@ -66,11 +66,7 @@ namespace Game
 
                 float updateTime;
             };
-        };
 
-        // Game state event dispatchers.
-        struct Dispatchers
-        {
             // Called when the class instance is destructed.
             Event::Dispatcher<void()> instanceDestructed;
 
@@ -81,7 +77,7 @@ namespace Game
             // This event can be dispatched multiple
             // times during the same update call.
             Event::Dispatcher<void(float)> stateUpdated;
-        } dispatchers;
+        } events;
 
     public:
         // Game event system.

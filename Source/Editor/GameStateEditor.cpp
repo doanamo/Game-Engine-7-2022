@@ -206,9 +206,9 @@ void GameStateEditor::SetGameState(Game::GameState* gameState)
         m_gameState = gameState;
 
         // Subscribe to game state dispatchers.
-        m_receivers.gameStateDestructed.Subscribe(gameState->dispatchers.instanceDestructed);
-        m_receivers.gameStateUpdateCalled.Subscribe(gameState->dispatchers.updateCalled);
-        m_receivers.gameStateUpdated.Subscribe(gameState->dispatchers.stateUpdated);
+        m_receivers.gameStateDestructed.Subscribe(gameState->events.instanceDestructed);
+        m_receivers.gameStateUpdateCalled.Subscribe(gameState->events.updateCalled);
+        m_receivers.gameStateUpdated.Subscribe(gameState->events.stateUpdated);
 
         // Update update time slider value.
         m_updateRateSlider = 1.0f / m_gameState->GetUpdateTime();
