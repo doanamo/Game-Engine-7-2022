@@ -38,7 +38,7 @@ namespace Event
         template<typename Type>
         void PushEvent(Type event)
         {
-            m_eventList.push(std::make_any(event));
+            m_eventList.push(std::make_any<Type>(event));
         }
 
         std::any PopEvent()
