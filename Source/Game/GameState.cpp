@@ -7,6 +7,11 @@
 #include "Engine/Root.hpp"
 using namespace Game;
 
+GameState::Events::ChangeUpdateTime::ChangeUpdateTime() :
+    updateTime(0.0f)
+{
+}
+
 GameState::GameState() :
     m_engine(nullptr),
     m_updateTime(1.0f / 10.0f),
@@ -17,7 +22,7 @@ GameState::GameState() :
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.
-    events.instanceDestructed.Dispatch();
+    dispatchers.instanceDestructed.Dispatch();
 }
 
 GameState::GameState(GameState&& other) :
@@ -28,13 +33,17 @@ GameState::GameState(GameState&& other) :
 
 GameState& GameState::operator=(GameState&& other)
 {
-    std::swap(events, other.events);
+    std::swap(dispatchers, other.dispatchers);
+
+    std::swap(eventQueue, other.eventQueue);
+    std::swap(eventBroker, other.eventBroker);
     std::swap(updateTimer, other.updateTimer);
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
     std::swap(identitySystem, other.identitySystem);
     std::swap(interpolationSystem, other.interpolationSystem);
     std::swap(spriteSystem, other.spriteSystem);
+
     std::swap(m_engine, other.m_engine);
     std::swap(m_updateTime, other.m_updateTime);
     std::swap(m_initialized, other.m_initialized);
@@ -108,8 +117,23 @@ bool GameState::Initialize(Engine::Root* engine)
         return false;
     }
 
+    // Bind and subscribe event receivers.
+    m_changeUpdateTime.Bind([this](const Events::ChangeUpdateTime& event) -> bool
+    {
+        m_updateTime = event.updateTime;
+        return true;
+    });
+
+    eventBroker.Subscribe(m_changeUpdateTime);
+
     // Success!
     return m_initialized = true;
+}
+
+void GameState::PushEvent(std::any event)
+{
+    // Add an event to be processed later.
+    eventQueue.Push(event);
 }
 
 bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> customUpdate)
@@ -117,7 +141,7 @@ bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> 
     ASSERT(m_initialized, "Game state has not been initialized!");
 
     // Inform about update being called.
-    events.updateCalled.Dispatch();
+    dispatchers.updateCalled.Dispatch();
 
     // Tick the update timer along with the application timer.
     updateTimer.Tick(timer);
@@ -130,6 +154,13 @@ bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> 
 
     while(updateTimer.Update(updateTime))
     {
+        // Process events.
+        while(!eventQueue.IsEmpty())
+        {
+            std::any event = eventQueue.Pop();
+            eventBroker.Dispatch(event);
+        }
+
         // Process entity commands.
         entitySystem.ProcessCommands();
 
@@ -146,24 +177,19 @@ bool GameState::Update(const System::Timer& timer, Event::Delegate<void(float)> 
         stateUpdated = true;
 
         // Inform that state has been updated.
-        events.stateUpdated.Dispatch(updateTime);
+        dispatchers.stateUpdated.Dispatch(updateTime);
     }
 
     // Return whether state could be updated.
     return stateUpdated;
 }
 
-Engine::Root* GameState::GetEngine() const
-{
-    return m_engine;
-}
-
-void GameState::SetUpdateTime(float updateTime)
-{
-    m_updateTime = updateTime;
-}
-
 float GameState::GetUpdateTime() const
 {
     return m_updateTime;
+}
+
+Engine::Root* GameState::GetEngine() const
+{
+    return m_engine;
 }

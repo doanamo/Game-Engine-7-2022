@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "System/UpdateTimer.hpp"
 #include "Event/Queue.hpp"
+#include "Event/Broker.hpp"
+#include "System/UpdateTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -40,12 +41,13 @@ namespace Game
         // Initializes the game state.
         bool Initialize(Engine::Root* engine);
 
+        // Pushes an event that will affects the game state.
+        // We encapsulate the game state and allow it to mutate only through events.
+        void PushEvent(std::any event);
+
         // Updates the game state.
         // Returns true if the game state was updated.
         bool Update(const System::Timer& timer, Event::Delegate<void(float)> customUpdate = nullptr);
-
-        // Sets the update time.
-        void SetUpdateTime(float updateTime);
 
         // Gets the update time.
         float GetUpdateTime() const;
@@ -54,8 +56,20 @@ namespace Game
         Engine::Root* GetEngine() const;
 
     public:
-        // Game state events.
+        // Game state event types.
         struct Events
+        {
+            // Changes current update time.
+            struct ChangeUpdateTime
+            {
+                ChangeUpdateTime();
+
+                float updateTime;
+            };
+        };
+
+        // Game state event dispatchers.
+        struct Dispatchers
         {
             // Called when the class instance is destructed.
             Event::Dispatcher<void()> instanceDestructed;
@@ -67,11 +81,12 @@ namespace Game
             // This event can be dispatched multiple
             // times during the same update call.
             Event::Dispatcher<void(float)> stateUpdated;
-        } events;
+        } dispatchers;
 
     public:
-        // Game event queue.
+        // Game event system.
         Event::Queue eventQueue;
+        Event::Broker eventBroker;
 
         // Main loop timer.
         System::UpdateTimer updateTimer;
@@ -88,6 +103,9 @@ namespace Game
     private:
         // Engine reference.
         Engine::Root* m_engine;
+
+        // Event receivers.
+        Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
 
         // Update parameters.
         float m_updateTime;
