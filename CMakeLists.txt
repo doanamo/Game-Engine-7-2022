@@ -43,6 +43,7 @@ set(SOURCE_FILES
     "Include/Event/Dispatcher.hpp"
     "Include/Event/Receiver.hpp"
     "Include/Event/Queue.hpp"
+    "Include/Event/Broker.hpp"
 
     "Include/Logger/Logger.hpp"
     "Source/Logger/Logger.cpp"

@@ -171,8 +171,7 @@ namespace Event
     public:
         // Subscribes a receiver.
         // By default we do not want to replace receiver's current dispatcher.
-        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver,
-            bool unsubscribeReceiver = false, bool insertFront = false)
+        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver, bool unsubscribeReceiver = false, bool insertFront = false)
         {
             // Check if receiver is already subscribed somewhere else.
             if(!receiver.m_listNode.IsFree())

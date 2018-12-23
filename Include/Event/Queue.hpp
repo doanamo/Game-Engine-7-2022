@@ -38,6 +38,7 @@ namespace Event
         template<typename Type>
         void Push(const Type& event)
         {
+            // Add event to the list (will be stored in std::any).
             m_eventList.push(event);
         }
 
