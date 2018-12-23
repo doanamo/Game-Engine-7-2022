@@ -5,6 +5,7 @@
 #pragma once
 
 #include "System/UpdateTimer.hpp"
+#include "Event/Queue.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -69,6 +70,9 @@ namespace Game
         } events;
 
     public:
+        // Game event queue.
+        Event::Queue eventQueue;
+
         // Main loop timer.
         System::UpdateTimer updateTimer;
 
