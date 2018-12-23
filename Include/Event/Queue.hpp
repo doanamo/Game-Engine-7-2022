@@ -36,15 +36,15 @@ namespace Event
         }
 
         template<typename Type>
-        void PushEvent(Type event)
+        void Push(const Type& event)
         {
-            m_eventList.push(std::make_any<Type>(event));
+            m_eventList.push(event);
         }
 
-        std::any PopEvent()
+        std::any Pop()
         {
             // Return an invalid object if list is empty.
-            if(!m_eventList.empty())
+            if(m_eventList.empty())
                 return std::any();
 
             // Pop an event from the list and return it.
