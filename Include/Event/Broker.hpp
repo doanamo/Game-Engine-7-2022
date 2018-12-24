@@ -61,7 +61,7 @@ namespace Event
                 DispatcherHandle handle = std::make_any<DispatcherPtr>(dispatcher);
                 DispatcherInvoker invoker = [](DispatcherHandle& dispatcherHandle, const EventHandle& eventHandle) -> bool
                 {
-                    auto& dispatcher = std::any_cast<DispatcherPtr>(dispatcherHandle);
+                    auto& dispatcher = std::any_cast<DispatcherPtr&>(dispatcherHandle);
                     auto& event = std::any_cast<const Type&>(eventHandle);
                     return dispatcher->Dispatch(event);
                 };
@@ -73,7 +73,7 @@ namespace Event
 
             // Subscribe receiver to the dispatcher.
             DispatcherHandle& handle = it->second.first;
-            auto& dispatcher = std::any_cast<DispatcherPtr>(handle);
+            auto& dispatcher = std::any_cast<DispatcherPtr&>(handle);
             return dispatcher->Subscribe(receiver, unsubscribeReceiver, insertFront);
         }
 
