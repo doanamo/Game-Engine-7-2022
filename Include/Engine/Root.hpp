@@ -31,6 +31,11 @@ namespace Editor
     class EditorSystem;
 }
 
+namespace Game
+{
+    class GameState;
+}
+
 /*
     Engine Root
 */
@@ -63,8 +68,14 @@ namespace Engine
         // Initializes the engine instance.
         bool Initialize(const InitializeParams& initParams = InitializeParams());
 
-        // Processes one engine frame.
-        bool ProcessFrame();
+        // Sets the main game state instance.
+        void SetGameState(std::shared_ptr<Game::GameState>& gameState);
+
+        // Runs the application main loop.
+        int Run();
+
+        // Gets the main game state instance.
+        std::shared_ptr<Game::GameState> GetGameState();
 
         // Checks if the engine instance is initialized.
         bool IsInitialized() const;
@@ -121,6 +132,9 @@ namespace Engine
 
         // Engine systems.
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
+
+        // Game state instance.
+        std::shared_ptr<Game::GameState> m_gameState;
 
         // Initialization state.
         bool m_initialized;

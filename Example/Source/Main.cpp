@@ -23,20 +23,6 @@ int main()
     if(!gameScene.Initialize(&engine))
         return -1;
 
-    // Main loop.
-    engine.GetTimer().Reset();
-
-    while(engine.ProcessFrame())
-    {
-        gameScene.Update(engine.GetTimer());
-
-        Renderer::StateRenderer::DrawParams drawParams;
-        drawParams.viewportRect = engine.GetWindow().GetViewportRect();
-        drawParams.gameState = &gameScene.GetGameState();
-        drawParams.cameraName = "Camera";
-
-        engine.GetStateRenderer().Draw(drawParams);
-    }
-
-    return 0;
+    // Run the engine.
+    return engine.Run();
 };

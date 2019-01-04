@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <Graphics/ScreenSpace.hpp>
 #include <Game/GameState.hpp>
 
 // Forward declarations.
@@ -41,18 +40,16 @@ public:
     // Initializes the instance.
     bool Initialize(Engine::Root* engine);
 
+private:
     // Updates the scene.
-    void Update(const System::Timer& timer);
-
-    // Returns the game state.
-    Game::GameState& GetGameState();
+    void Update(float updateTime);
 
 private:
     // Engine reference.
     Engine::Root* m_engine;
 
-    // Game state.
-    Game::GameState m_gameState;
+    // Game state instance.
+    std::shared_ptr<Game::GameState> m_gameState;
 
     // Initialization state.
     bool m_initialized;

@@ -9,10 +9,11 @@
 /*
     Delegate
 
-    Binds a function, a class method or a functor object which can be invoked at a later time.
-    Be careful not to invoke a delagate to a method of an instance that no longer exists.
-    Check Receiver and Dispatcher class templates for a subscription based solution that wraps delegates.
-    
+    Binds a function, a class method or a functor object which can be invoked
+    at a later time. Be careful not to invoke a delegate to a method of an 
+    instance that no longer exists Check Receiver and Dispatcher class
+    templates for a subscription based solution that wraps delegates.
+
     void ExampleDelegateFunction()
     {
         // Create a delegate that can bind to functions such as:

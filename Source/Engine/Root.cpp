@@ -13,6 +13,7 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Renderer/StateRenderer.hpp"
 #include "Editor/EditorSystem.hpp"
+#include "Game/GameState.hpp"
 #include "Engine/Root.hpp"
 using namespace Engine;
 
@@ -189,43 +190,70 @@ bool Root::Initialize(const InitializeParams& initParams)
     return m_initialized = true;
 }
 
-bool Root::ProcessFrame()
+void Root::SetGameState(std::shared_ptr<Game::GameState>& gameState)
 {
     ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Advance the logger frame counter of reference.
-    Logger::AdvanceFrameCounter();
+    // Set the current game state.
+    m_gameState = gameState;
 
-    // Signal engine exit.
-    if(!m_window->IsOpen())
-        return false;
+    // Set game state that will be controlled using the editor.
+    m_editorSystem->GetGameStateEditor().SetGameState(m_gameState.get());
+}
 
-    // Draw the editor system.
-    m_editorSystem->Draw();
+int Root::Run()
+{
+    ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Present the window content.
-    m_window->Present();
+    // Reset time that has accumulated during initialization.
+    m_timer->Reset();
 
-    // Release unused resources.
-    m_resourceManager->ReleaseUnused();
+    // Run the main loop.
+    while(m_window->IsOpen())
+    {
+        // Advance the logger frame counter of reference.
+        Logger::AdvanceFrameCounter();
 
-    // Tick the timer.
-    m_timer->Tick(m_maximumTickDelta);
+        // Draw the editor system.
+        m_editorSystem->Draw();
 
-    // Calculate frame delta time.
-    float timeDelta = m_timer->GetDeltaTime();
+        // Present the window content.
+        m_window->Present();
 
-    // Prepare input state for being processed.
-    m_inputState->PrepareForEvents();
+        // Release unused resources.
+        m_resourceManager->ReleaseUnused();
 
-    // Process window events.
-    m_window->ProcessEvents();
+        // Tick the timer.
+        m_timer->Tick(m_maximumTickDelta);
 
-    // Update the editor system.
-    m_editorSystem->Update(timeDelta);
+        // Calculate frame delta time.
+        float timeDelta = m_timer->GetDeltaTime();
 
-    // Signal that engine continues running.
-    return true;
+        // Prepare input state for being processed.
+        m_inputState->PrepareForEvents();
+
+        // Process window events.
+        m_window->ProcessEvents();
+
+        // Update the editor system.
+        m_editorSystem->Update(timeDelta);
+
+        // Update the game state.
+        if(m_gameState)
+        {
+            m_gameState->Update(*m_timer);
+        }
+
+        // Draw the game state.
+        Renderer::StateRenderer::DrawParams drawParams;
+        drawParams.viewportRect = m_window->GetViewportRect();
+        drawParams.gameState = m_gameState.get();
+        drawParams.cameraName = "Camera";
+
+        m_stateRenderer->Draw(drawParams);
+    }
+
+    return 0;
 }
 
 bool Root::IsInitialized() const
@@ -291,4 +319,9 @@ Editor::EditorSystem& Root::GetEditorSystem()
 {
     ASSERT(m_editorSystem);
     return *m_editorSystem;
+}
+
+std::shared_ptr<Game::GameState> Engine::Root::GetGameState()
+{
+    return m_gameState;
 }

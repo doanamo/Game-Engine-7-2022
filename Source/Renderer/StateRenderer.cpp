@@ -73,6 +73,9 @@ void StateRenderer::Draw(const DrawParams& drawParams)
 {
     ASSERT(m_initialized, "State renderer has not been initialized yet!");
 
+    // Clear the frame buffer.
+    m_engine->GetRenderContext().GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // Checks if game state is null.
     if(drawParams.gameState == nullptr)
     {
@@ -84,7 +87,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     float timeAlpha = drawParams.gameState->updateTimer.GetAlphaTime();
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
 
-    // Get game state and its systems.
+    // Get game state systems.
     auto& entitySystem = drawParams.gameState->entitySystem;
     auto& componentSystem = drawParams.gameState->componentSystem;
     auto& identitySystem = drawParams.gameState->identitySystem;
@@ -146,9 +149,6 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     {
         LOG_WARNING() << "Could not retrieve \"" << drawParams.cameraName << "\" camera entity.";
     }
-
-    // Clear the frame buffer.
-    m_engine->GetRenderContext().GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Create a list of sprites that will be drawn.
     Graphics::SpriteDrawList spriteDrawList;

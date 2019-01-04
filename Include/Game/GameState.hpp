@@ -29,6 +29,10 @@ namespace Game
     class GameState
     {
     public:
+        // Type declarations.
+        using UpdateCalbackType = Event::Delegate<void(float)>;
+
+    public:
         GameState();
         ~GameState();
 
@@ -41,13 +45,17 @@ namespace Game
         // Initializes the game state.
         bool Initialize(Engine::Root* engine);
 
+        // Sets the update callback.
+        // Can be used in some quick prototyping cases when we do not want to add a runtime system.
+        void SetUpdateCallback(UpdateCalbackType updateCallback);
+
         // Pushes an event that will affects the game state.
         // We encapsulate the game state and allow it to mutate only through events.
         void PushEvent(std::any event);
 
         // Updates the game state.
         // Returns true if the game state was updated.
-        bool Update(const System::Timer& timer, Event::Delegate<void(float)> customUpdate = nullptr);
+        bool Update(const System::Timer& timer);
 
         // Gets the update time.
         float GetUpdateTime() const;
@@ -102,6 +110,9 @@ namespace Game
 
         // Event receivers.
         Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
+
+        // Custom update callback.
+        UpdateCalbackType m_updateCallback;
 
         // Update parameters.
         float m_updateTime;

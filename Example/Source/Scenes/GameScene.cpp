@@ -17,6 +17,7 @@
 
 GameScene::GameScene() :
     m_engine(nullptr),
+    m_gameState(nullptr),
     m_initialized(false)
 {
 }
@@ -60,14 +61,19 @@ bool GameScene::Initialize(Engine::Root* engine)
     m_engine = engine;
 
     // Initialize the game state.
-    if(!m_gameState.Initialize(engine))
+    m_gameState = std::make_shared<Game::GameState>();
+    
+    if(!m_gameState->Initialize(engine))
     {
         LOG_ERROR() << "Could not initialize game state!";
         return false;
     }
 
-    // Set game state that will be controlled using the editor.
-    m_engine->GetEditorSystem().GetGameStateEditor().SetGameState(&m_gameState);
+    Event::Delegate<void(float)> updateDelegate;
+    updateDelegate.Bind<GameScene, &GameScene::Update>(this);
+    m_gameState->SetUpdateCallback(updateDelegate);
+
+    m_engine->SetGameState(m_gameState);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
@@ -88,17 +94,17 @@ bool GameScene::Initialize(Engine::Root* engine)
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = m_gameState.entitySystem.CreateEntity();
-        m_gameState.identitySystem.SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = m_gameState->entitySystem.CreateEntity();
+        m_gameState->identitySystem.SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(cameraEntity);
+        auto* transform = m_gameState->componentSystem.Create<Game::TransformComponent>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
 
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
-        auto* camera = m_gameState.componentSystem.Create<Game::CameraComponent>(cameraEntity);
+        auto* camera = m_gameState->componentSystem.Create<Game::CameraComponent>(cameraEntity);
         ASSERT(camera != nullptr, "Could not create a camera component!");
 
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
@@ -115,16 +121,16 @@ bool GameScene::Initialize(Engine::Root* engine)
             textureParams.filePath, textureParams);
 
         // Create named entity.
-        Game::EntityHandle playerEntity = m_gameState.entitySystem.CreateEntity();
-        m_gameState.identitySystem.SetEntityName(playerEntity, "Player");
+        Game::EntityHandle playerEntity = m_gameState->entitySystem.CreateEntity();
+        m_gameState->identitySystem.SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = m_gameState.componentSystem.Create<Game::TransformComponent>(playerEntity);
+        auto* transform = m_gameState->componentSystem.Create<Game::TransformComponent>(playerEntity);
 
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
         // Create sprite component.
-        auto* sprite = m_gameState.componentSystem.Create<Game::SpriteComponent>(playerEntity);
+        auto* sprite = m_gameState->componentSystem.Create<Game::SpriteComponent>(playerEntity);
 
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -133,7 +139,7 @@ bool GameScene::Initialize(Engine::Root* engine)
         sprite->SetFiltered(true);
 
         // Create sprite animation component.
-        auto* spriteAnimation = m_gameState.componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
+        auto* spriteAnimation = m_gameState->componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity);
 
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
@@ -143,56 +149,47 @@ bool GameScene::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void GameScene::Update(const System::Timer& timer)
+void GameScene::Update(float updateTime)
 {
     ASSERT(m_initialized, "Main scene has not been initialized!");
 
-    // Update the game state.
-    m_gameState.Update(timer, [this](float updateTime)
+    // Retrieve player transform.
+    Game::EntityHandle playerEntity = m_gameState->identitySystem.GetEntityByName("Player");
+
+    auto transform = m_gameState->componentSystem.Lookup<Game::TransformComponent>(playerEntity);
+    ASSERT(transform != nullptr, "Could not create a transform component!");
+
+    // Animate the entity.
+    double timeAccumulated = m_gameState->updateTimer.GetTotalUpdateTime();
+
+    transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
+    transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+    // Control the entity with keyboard.
+    glm::vec3 direction(0.0f, 0.0f, 0.0f);
+
+    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
     {
-        // Retrieve player transform.
-        Game::EntityHandle playerEntity = m_gameState.identitySystem.GetEntityByName("Player");
+        direction.x -= 1.0f;
+    }
 
-        auto transform = m_gameState.componentSystem.Lookup<Game::TransformComponent>(playerEntity);
-        ASSERT(transform != nullptr, "Could not create a transform component!");
+    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
+    {
+        direction.x += 1.0f;
+    }
 
-        // Animate the entity.
-        double timeAccumulated = m_gameState.updateTimer.GetTotalUpdateTime();
+    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
+    {
+        direction.y += 1.0f;
+    }
 
-        transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
-        transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
+    {
+        direction.y -= 1.0f;
+    }
 
-        // Control the entity with keyboard.
-        glm::vec3 direction(0.0f, 0.0f, 0.0f);
-
-        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
-        {
-            direction.x -= 1.0f;
-        }
-
-        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
-        {
-            direction.x += 1.0f;
-        }
-
-        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
-        {
-            direction.y += 1.0f;
-        }
-
-        if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
-        {
-            direction.y -= 1.0f;
-        }
-
-        if(direction != glm::vec3(0.0f))
-        {
-            transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * updateTime);
-        }
-    });
-}
-
-Game::GameState& GameScene::GetGameState()
-{
-    return m_gameState;
+    if(direction != glm::vec3(0.0f))
+    {
+        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * updateTime);
+    }
 }
