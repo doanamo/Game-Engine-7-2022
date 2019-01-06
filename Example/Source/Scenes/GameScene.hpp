@@ -51,6 +51,9 @@ private:
     // Game state instance.
     std::shared_ptr<Game::GameState> m_gameState;
 
+    // Custom update callback.
+    Event::Receiver<void(float)> m_customUpdate;
+
     // Initialization state.
     bool m_initialized;
 };

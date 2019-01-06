@@ -20,6 +20,8 @@ GameScene::GameScene() :
     m_gameState(nullptr),
     m_initialized(false)
 {
+    // Bind event receivers.
+    m_customUpdate.Bind<GameScene, &GameScene::Update>(this);
 }
 
 GameScene::~GameScene()
@@ -36,6 +38,7 @@ GameScene& GameScene::operator=(GameScene&& other)
 {
     std::swap(m_engine, other.m_engine);
     std::swap(m_gameState, other.m_gameState);
+    std::swap(m_customUpdate, other.m_customUpdate);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -60,7 +63,7 @@ bool GameScene::Initialize(Engine::Root* engine)
 
     m_engine = engine;
 
-    // Initialize the game state.
+    // Initialize game state.
     m_gameState = std::make_shared<Game::GameState>();
     
     if(!m_gameState->Initialize(engine))
@@ -69,10 +72,10 @@ bool GameScene::Initialize(Engine::Root* engine)
         return false;
     }
 
-    Event::Delegate<void(float)> updateDelegate;
-    updateDelegate.Bind<GameScene, &GameScene::Update>(this);
-    m_gameState->SetUpdateCallback(updateDelegate);
+    // Setup custom update callback.
+    m_customUpdate.Subscribe(m_gameState->events.stateUpdated);
 
+    // Set game state as current.
     m_engine->SetGameState(m_gameState);
 
     // Load sprite animation list.

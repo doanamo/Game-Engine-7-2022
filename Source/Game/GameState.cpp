@@ -34,9 +34,9 @@ GameState::GameState(GameState&& other) :
 GameState& GameState::operator=(GameState&& other)
 {
     std::swap(events, other.events);
-
     std::swap(eventQueue, other.eventQueue);
     std::swap(eventBroker, other.eventBroker);
+
     std::swap(updateTimer, other.updateTimer);
     std::swap(entitySystem, other.entitySystem);
     std::swap(componentSystem, other.componentSystem);
@@ -46,7 +46,6 @@ GameState& GameState::operator=(GameState&& other)
 
     std::swap(m_engine, other.m_engine);
     std::swap(m_changeUpdateTime, other.m_changeUpdateTime);
-    std::swap(m_updateCallback, other.m_updateCallback);
     std::swap(m_updateTime, other.m_updateTime);
     std::swap(m_initialized, other.m_initialized);
 
@@ -132,14 +131,6 @@ bool GameState::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void GameState::SetUpdateCallback(UpdateCalbackType updateCallback)
-{
-    ASSERT(m_initialized, "Game state has not been initialized!");
-
-    // Set the custom update callback.
-    m_updateCallback = updateCallback;
-}
-
 void GameState::PushEvent(std::any event)
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
@@ -182,14 +173,12 @@ bool GameState::Update(const System::Timer& timer)
         // Update the sprite animation system.
         spriteSystem.Update(updateTime);
 
-        // Call custom update function.
-        m_updateCallback.Invoke(updateTime);
+        // Inform that state has been updated.
+        // Allows for custom update logic to be executed.
+        events.stateUpdated.Dispatch(updateTime);
 
         // State has been updated at least once.
         stateUpdated = true;
-
-        // Inform that state has been updated.
-        events.stateUpdated.Dispatch(updateTime);
     }
 
     // Return whether state could be updated.

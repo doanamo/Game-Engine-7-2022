@@ -29,10 +29,6 @@ namespace Game
     class GameState
     {
     public:
-        // Type declarations.
-        using UpdateCalbackType = Event::Delegate<void(float)>;
-
-    public:
         GameState();
         ~GameState();
 
@@ -44,10 +40,6 @@ namespace Game
 
         // Initializes the game state.
         bool Initialize(Engine::Root* engine);
-
-        // Sets the update callback.
-        // Can be used in some quick prototyping cases when we do not want to add a runtime system.
-        void SetUpdateCallback(UpdateCalbackType updateCallback);
 
         // Pushes an event that will affects the game state.
         // We encapsulate the game state and allow it to mutate only through events.
@@ -79,11 +71,12 @@ namespace Game
             Event::Dispatcher<void()> instanceDestructed;
 
             // Called when update method is called.
+            // This does not mean that the state will be actually updated.
             Event::Dispatcher<void()> updateCalled;
 
             // Called when state has been updated.
-            // This event can be dispatched multiple
-            // times during the same update call.
+            // Event can be dispatched multiple times during the same update call.
+            // This is also a good time to run a custom update logic.
             Event::Dispatcher<void(float)> stateUpdated;
         } events;
 
@@ -110,9 +103,6 @@ namespace Game
 
         // Event receivers.
         Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
-
-        // Custom update callback.
-        UpdateCalbackType m_updateCallback;
 
         // Update parameters.
         float m_updateTime;
