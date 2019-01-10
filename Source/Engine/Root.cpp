@@ -51,6 +51,7 @@ Root& Root::operator=(Root&& other)
     std::swap(m_spriteRenderer, other.m_spriteRenderer);
     std::swap(m_stateRenderer, other.m_stateRenderer);
     std::swap(m_editorSystem, other.m_editorSystem);
+    std::swap(m_gameState, other.m_gameState);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
