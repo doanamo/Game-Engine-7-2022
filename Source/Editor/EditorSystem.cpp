@@ -150,6 +150,8 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     io.ClipboardUserData = m_engine->GetWindow().GetPrivateHandle();
 
     // Subscribe window event receivers.
+    // We insert receivers in front of dispatcher
+    // queue as we want to have priority for input events.
     auto& windowEvents = m_engine->GetWindow().events;
 
     bool subscriptionResults = true;

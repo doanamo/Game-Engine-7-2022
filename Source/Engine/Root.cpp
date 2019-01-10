@@ -13,6 +13,7 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Renderer/StateRenderer.hpp"
 #include "Editor/EditorSystem.hpp"
+#include "Game/EventRouter.hpp"
 #include "Game/GameState.hpp"
 #include "Engine/Root.hpp"
 using namespace Engine;
@@ -51,6 +52,7 @@ Root& Root::operator=(Root&& other)
     std::swap(m_spriteRenderer, other.m_spriteRenderer);
     std::swap(m_stateRenderer, other.m_stateRenderer);
     std::swap(m_editorSystem, other.m_editorSystem);
+    std::swap(m_eventRouter, other.m_eventRouter);
     std::swap(m_gameState, other.m_gameState);
     std::swap(m_initialized, other.m_initialized);
 
@@ -184,6 +186,15 @@ bool Root::Initialize(const InitializeParams& initParams)
     if(!m_editorSystem->Initialize(this))
     {
         LOG_ERROR() << "Could not initialize editor system!";
+        return false;
+    }
+
+    // Initialize the event router.
+    // Listens and replicates event to the current game state.
+    m_eventRouter = std::make_unique<Game::EventRouter>();
+    if(!m_eventRouter->Initialize(this))
+    {
+        LOG_ERROR() << "Could not initialize event router!";
         return false;
     }
 
@@ -322,7 +333,13 @@ Editor::EditorSystem& Root::GetEditorSystem()
     return *m_editorSystem;
 }
 
-std::shared_ptr<Game::GameState> Engine::Root::GetGameState()
+Game::EventRouter& Root::GetEventRouter()
+{
+    ASSERT(m_eventRouter);
+    return *m_eventRouter;
+}
+
+std::shared_ptr<Game::GameState> Root::GetGameState()
 {
     return m_gameState;
 }

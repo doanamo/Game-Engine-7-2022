@@ -104,6 +104,7 @@ namespace Event
     {
     public:
         // Type declarations.
+        using ReceiverReturnType = ReturnType;
         using ReceiverListNode = Common::ListNode<Receiver<ReturnType(Arguments...)>>;
 
     protected:

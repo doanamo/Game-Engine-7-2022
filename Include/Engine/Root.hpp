@@ -33,6 +33,7 @@ namespace Editor
 
 namespace Game
 {
+    class EventRouter;
     class GameState;
 }
 
@@ -74,9 +75,6 @@ namespace Engine
         // Runs the application main loop.
         int Run();
 
-        // Gets the main game state instance.
-        std::shared_ptr<Game::GameState> GetGameState();
-
         // Checks if the engine instance is initialized.
         bool IsInitialized() const;
 
@@ -111,6 +109,12 @@ namespace Engine
         // Gets the editor system.
         Editor::EditorSystem& GetEditorSystem();
 
+        // Gets the event router.
+        Game::EventRouter& GetEventRouter();
+
+        // Gets the current game state instance.
+        std::shared_ptr<Game::GameState> GetGameState();
+
     private:
         // Engine parameters.
         float m_maximumTickDelta;
@@ -133,7 +137,8 @@ namespace Engine
         // Engine systems.
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
 
-        // Game state instance.
+        // Game systems.
+        std::shared_ptr<Game::EventRouter> m_eventRouter;
         std::shared_ptr<Game::GameState> m_gameState;
 
         // Initialization state.
