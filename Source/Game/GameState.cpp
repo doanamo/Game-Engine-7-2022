@@ -7,6 +7,11 @@
 #include "Engine/Root.hpp"
 using namespace Game;
 
+GameState::Events::GameStateChanged::GameStateChanged() :
+    stateEntered(false)
+{
+}
+
 GameState::Events::ChangeUpdateTime::ChangeUpdateTime() :
     updateTime(0.0f)
 {

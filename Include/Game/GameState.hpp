@@ -59,7 +59,15 @@ namespace Game
          // Game state events.
         struct Events
         {
-            // Changes current update time.
+            // Sent when game state changes.
+            struct GameStateChanged
+            {
+                GameStateChanged();
+
+                bool stateEntered;
+            };
+
+            // Sent when requested to change current update time.
             struct ChangeUpdateTime
             {
                 ChangeUpdateTime();

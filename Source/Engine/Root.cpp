@@ -206,8 +206,33 @@ void Root::SetGameState(std::shared_ptr<Game::GameState>& gameState)
 {
     ASSERT(m_initialized, "Engine instance has not been initialized!");
 
-    // Set the current game state.
+    // Make sure we are not setting the same game state.
+    if(gameState == m_gameState)
+    {
+        LOG_WARNING() << "Attempted to change game state into the current one!";
+        return;
+    }
+
+    // Notify current game state about being changed.
+    if(m_gameState)
+    {
+        Game::GameState::Events::GameStateChanged gameStateChanged;
+        gameStateChanged.stateEntered = false;
+
+        m_gameState->eventQueue.Push(gameStateChanged);
+    }
+
+    // Change the current game state.
     m_gameState = gameState;
+
+    // Notify new game state about being changed.
+    if(gameState)
+    {
+        Game::GameState::Events::GameStateChanged gameStateChanged;
+        gameStateChanged.stateEntered = true;
+
+        gameState->eventQueue.Push(gameStateChanged);
+    }
 
     // Set game state that will be controlled using the editor.
     m_editorSystem->GetGameStateEditor().SetGameState(m_gameState.get());
