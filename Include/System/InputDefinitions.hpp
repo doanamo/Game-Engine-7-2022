@@ -5,7 +5,7 @@
 #pragma once
 
 /*
-    Input Mapping
+    Input Defines
 */
 
 namespace System

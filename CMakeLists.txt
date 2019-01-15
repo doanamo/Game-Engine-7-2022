@@ -58,8 +58,6 @@ set(SOURCE_FILES
 
     "Include/System/Platform.hpp"
     "Source/System/Platform.cpp"
-    "Include/System/InputMapping.hpp"
-    "Source/System/InputMapping.cpp"
     "Include/System/FileSystem.hpp"
     "Source/System/FileSystem.cpp"
     "Include/System/Window.hpp"
@@ -68,6 +66,8 @@ set(SOURCE_FILES
     "Source/System/Timer.cpp"
     "Include/System/UpdateTimer.hpp"
     "Source/System/UpdateTimer.cpp"
+    "Include/System/InputDefinitions.hpp"
+    "Source/System/InputDefinitions.cpp"
     "Include/System/InputState.hpp"
     "Source/System/InputState.cpp"
     "Include/System/ResourcePool.hpp"

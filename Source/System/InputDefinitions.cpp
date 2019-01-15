@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "System/InputMapping.hpp"
+#include "System/InputDefinitions.hpp"
 
 namespace System
 {

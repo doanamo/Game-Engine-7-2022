@@ -5,7 +5,7 @@
 #pragma once
 
 #include "System/Window.hpp"
-#include "System/InputMapping.hpp"
+#include "System/InputDefinitions.hpp"
 
 /*
     System Input State
