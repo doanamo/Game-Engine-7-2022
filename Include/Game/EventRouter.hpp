@@ -37,11 +37,16 @@ namespace Game
         // Initializes the event router instance.
         bool Initialize(Engine::Root* engine);
 
+        // Pushes event to current game state.
+        template<typename EventType>
+        void PushEvent(const EventType& event);
+
     private:
-        // Pushes an event to game state.
+        // Pushes event to game state and returns void.
         template<typename EventType>
         void PushEventReturnVoid(const EventType& event);
 
+        // Pushes event to game state and returns false.
         template<typename EventType>
         bool PushEventReturnFalse(const EventType& event);
 
@@ -66,11 +71,11 @@ namespace Game
 
     // Template definitions.
     template<typename EventType>
-    void EventRouter::PushEventReturnVoid(const EventType& event)
+    void EventRouter::PushEvent(const EventType& event)
     {
         ASSERT(m_initialized, "Event listener is not initialized!");
 
-        // Push event to game state.
+        // Push event to current game state.
         auto gameState = m_engine->GetGameState();
 
         if(gameState != nullptr)
@@ -80,10 +85,20 @@ namespace Game
     }
 
     template<typename EventType>
+    void EventRouter::PushEventReturnVoid(const EventType& event)
+    {
+        // Push event to current game state.
+        this->PushEvent(event);
+
+        // Return nothing.
+        return void;
+    }
+
+    template<typename EventType>
     bool EventRouter::PushEventReturnFalse(const EventType& event)
     {
-        // Push event to game state.
-        this->PushEventReturnVoid(event);
+        // Push event to current game state.
+        this->PushEvent(event);
 
         // In case of window events, returning false will
         // make them continue to propagate further.
