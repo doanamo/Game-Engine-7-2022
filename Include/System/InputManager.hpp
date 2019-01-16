@@ -75,7 +75,7 @@ namespace System
     private:
         // Event receivers.
         Event::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
-        Event::Receiver<void(const Window::Events::Focus&)> m_windowFocus; 
+        Event::Receiver<void(const Window::Events::Focus&)> m_windowFocus;
         
         // Initialization state.
         bool m_initialized;
