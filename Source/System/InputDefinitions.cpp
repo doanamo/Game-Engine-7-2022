@@ -13,8 +13,8 @@ namespace System
         switch(action)
         {
             case GLFW_PRESS: return InputStates::Pressed;
+            case GLFW_REPEAT: return InputStates::PressedRepeat;
             case GLFW_RELEASE: return InputStates::Released;
-            case GLFW_REPEAT: return InputStates::Held;
         }
 
         ASSERT(false, "Unexpected input action argument!");

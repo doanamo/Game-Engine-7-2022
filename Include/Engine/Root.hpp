@@ -11,7 +11,7 @@ namespace System
     class FileSystem;
     class Window;
     class Timer;
-    class InputState;
+    class InputManager;
     class ResourceManager;
 }
 
@@ -91,8 +91,8 @@ namespace Engine
         // Gets the timer.
         System::Timer& GetTimer();
 
-        // Gets the input state.
-        System::InputState& GetInputState();
+        // Gets the input manager.
+        System::InputManager& GetInputManager();
 
         // Gets the resource manager.
         System::ResourceManager& GetResourceManager();
@@ -124,7 +124,7 @@ namespace Engine
         std::unique_ptr<System::FileSystem> m_fileSystem;
         std::unique_ptr<System::Window> m_window;
         std::unique_ptr<System::Timer> m_timer;
-        std::unique_ptr<System::InputState> m_inputState;
+        std::unique_ptr<System::InputManager> m_inputManager;
         std::unique_ptr<System::ResourceManager> m_resourceManager;
 
         // Graphics systems.

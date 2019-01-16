@@ -91,7 +91,7 @@ namespace Game
         this->PushEvent(event);
 
         // Return nothing.
-        return void;
+        return;
     }
 
     template<typename EventType>

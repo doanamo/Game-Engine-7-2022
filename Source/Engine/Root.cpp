@@ -7,7 +7,7 @@
 #include "System/FileSystem.hpp"
 #include "System/Window.hpp"
 #include "System/Timer.hpp"
-#include "System/InputState.hpp"
+#include "System/InputManager.hpp"
 #include "System/ResourceManager.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Sprite/SpriteRenderer.hpp"
@@ -46,7 +46,7 @@ Root& Root::operator=(Root&& other)
     std::swap(m_fileSystem, other.m_fileSystem);
     std::swap(m_window, other.m_window);
     std::swap(m_timer, other.m_timer);
-    std::swap(m_inputState, other.m_inputState);
+    std::swap(m_inputManager, other.m_inputManager);
     std::swap(m_resourceManager, other.m_resourceManager);
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_spriteRenderer, other.m_spriteRenderer);
@@ -135,12 +135,12 @@ bool Root::Initialize(const InitializeParams& initParams)
 
     m_maximumTickDelta = initParams.maximumTickDelta;
 
-    // Initialize the input state.
-    // Collects and caches input state that can be later pooled.
-    m_inputState = std::make_unique<System::InputState>();
-    if(!m_inputState->Initialize(m_window.get()))
+    // Initialize the input manager.
+    // Collects and routes all events related to input.
+    m_inputManager = std::make_unique<System::InputManager>();
+    if(!m_inputManager->Initialize(m_window.get()))
     {
-        LOG_ERROR() << "Could not initialize input state!";
+        LOG_ERROR() << "Could not initialize input manager!";
         return false;
     }
 
@@ -266,8 +266,8 @@ int Root::Run()
         // Calculate frame delta time.
         float timeDelta = m_timer->GetDeltaTime();
 
-        // Prepare input state for being processed.
-        m_inputState->PrepareForEvents();
+        // Prepare input manager for incoming events.
+        m_inputManager->PrepareForEvents();
 
         // Process window events.
         m_window->ProcessEvents();
@@ -322,10 +322,10 @@ System::Timer& Root::GetTimer()
     return *m_timer;
 }
 
-System::InputState& Root::GetInputState()
+System::InputManager& Root::GetInputManager()
 {
-    ASSERT(m_inputState);
-    return *m_inputState;
+    ASSERT(m_inputManager);
+    return *m_inputManager;
 }
 
 System::ResourceManager& Root::GetResourceManager()

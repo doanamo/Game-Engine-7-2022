@@ -19,9 +19,10 @@ namespace System
         {
             Invalid,
 
-            Released,
             Pressed,
-            Held,
+            PressedRepeat,
+            Released,
+            ReleasedRepeat,
 
             Count,
         };

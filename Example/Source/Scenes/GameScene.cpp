@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Scenes/GameScene.hpp"
 #include <System/Timer.hpp>
-#include <System/InputState.hpp>
+#include <System/InputManager.hpp>
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
@@ -171,6 +171,7 @@ void GameScene::Update(float updateTime)
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
+    /*
     if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
@@ -190,6 +191,7 @@ void GameScene::Update(float updateTime)
     {
         direction.y -= 1.0f;
     }
+    }*/
 
     if(direction != glm::vec3(0.0f))
     {
