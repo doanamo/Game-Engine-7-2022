@@ -6,7 +6,7 @@
 
 #include "Event/Queue.hpp"
 #include "Event/Broker.hpp"
-#include "System/UpdateTimer.hpp"
+#include "Game/UpdateTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -94,7 +94,7 @@ namespace Game
         Event::Broker eventBroker;
 
         // Main loop timer.
-        System::UpdateTimer updateTimer;
+        Game::UpdateTimer updateTimer;
 
         // Core game systems.
         Game::EntitySystem entitySystem;

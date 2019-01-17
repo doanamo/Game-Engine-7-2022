@@ -7,13 +7,13 @@
 #include "System/Timer.hpp"
 
 /*
-    System Update Timer
+    Update Timer
 */
 
-namespace System
+namespace Game
 {
     // Update timer class.
-    class UpdateTimer : public Timer
+    class UpdateTimer : public System::Timer
     {
     public:
         UpdateTimer();

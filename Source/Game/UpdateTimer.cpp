@@ -3,8 +3,8 @@
 */
 
 #include "Precompiled.hpp"
-#include "System/UpdateTimer.hpp"
-using namespace System;
+#include "Game/UpdateTimer.hpp"
+using namespace Game;
 
 UpdateTimer::UpdateTimer() :
     m_forwardUpdateCounter(0),

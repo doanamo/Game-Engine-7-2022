@@ -64,8 +64,6 @@ set(SOURCE_FILES
     "Source/System/Window.cpp"
     "Include/System/Timer.hpp"
     "Source/System/Timer.cpp"
-    "Include/System/UpdateTimer.hpp"
-    "Source/System/UpdateTimer.cpp"
     "Include/System/InputDefinitions.hpp"
     "Source/System/InputDefinitions.cpp"
     "Include/System/InputManager.hpp"
@@ -108,6 +106,8 @@ set(SOURCE_FILES
 
     "Include/Game/GameState.hpp"
     "Source/Game/GameState.cpp"
+    "Include/Game/UpdateTimer.hpp"
+    "Source/Game/UpdateTimer.cpp"
     "Include/Game/EventRouter.hpp"
     "Source/Game/EventRouter.cpp"
     "Include/Game/EntityHandle.hpp"
