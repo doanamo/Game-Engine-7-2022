@@ -12,6 +12,11 @@ namespace Engine
     class Root;
 }
 
+namespace Game
+{
+    class GameState;
+}
+
 /*
     Event Router
 
