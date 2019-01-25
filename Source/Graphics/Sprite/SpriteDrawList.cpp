@@ -49,10 +49,7 @@ void SpriteDrawList::SortSprites()
     {
         // Get sprite info and data.
         const auto& spriteInfoA = spriteInfo[a];
-        const auto& spriteDataA = spriteData[a];
-
         const auto& spriteInfoB = spriteInfo[b];
-        const auto& spriteDataB = spriteData[b];
 
         // Sort by transparency (opaque before transparent).
         if(spriteInfoA.transparent < spriteInfoB.transparent)

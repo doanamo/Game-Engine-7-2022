@@ -124,7 +124,7 @@ bool RenderState::Initialize()
     LOG() << "Initializing rendering state..." << LOG_INDENT();
 
     // glEnable
-    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)
     {
         m_capabilities[i] = glIsEnabled(OpenGL::Capabilities[i]);
         OpenGL::CheckErrors();
@@ -135,7 +135,7 @@ bool RenderState::Initialize()
     OpenGL::CheckErrors();
 
     // glBindBuffer
-    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         glGetIntegerv(std::get<1>(OpenGL::BufferBindingTargets[i]), (GLint*)&m_bufferBindings[i]);
         OpenGL::CheckErrors();
@@ -146,7 +146,7 @@ bool RenderState::Initialize()
     OpenGL::CheckErrors();
 
     // glBindTexture
-    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         glGetIntegerv(std::get<1>(OpenGL::TextureBindingTargets[i]), (GLint*)&m_textureBindings[i]);
         OpenGL::CheckErrors();
@@ -273,7 +273,7 @@ void RenderState::Apply(RenderState& other)
     this->ActiveTexture(other.m_activeTexture);
 
     // glBindTexture
-    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         this->BindTexture(std::get<0>(OpenGL::TextureBindingTargets[i]), other.m_textureBindings[i]);
     }
@@ -354,7 +354,7 @@ void RenderState::Enable(GLenum cap)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)
     {
         if(OpenGL::Capabilities[i] == cap)
         {
@@ -377,7 +377,7 @@ void RenderState::Disable(GLenum cap)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)
     {
         if(OpenGL::Capabilities[i] == cap)
         {
@@ -391,7 +391,7 @@ GLboolean RenderState::IsEnabled(GLenum cap) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
 
-    for(int i = 0; i < OpenGL::CapabilityCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)
     {
         if(OpenGL::Capabilities[i] == cap)
             return m_capabilities[i];
@@ -438,7 +438,7 @@ void RenderState::BindBuffer(GLenum target, GLuint buffer)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
         {
@@ -452,7 +452,7 @@ GLuint RenderState::GetBufferBinding(GLenum target) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
 
-    for(int i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::BufferBindingTargets[i]) == target)
             return m_bufferBindings[i];
@@ -499,7 +499,7 @@ void RenderState::BindTexture(GLenum target, GLuint texture)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
         {
@@ -513,7 +513,7 @@ GLuint RenderState::GetTextureBinding(GLenum target) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
     
-    for(int i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
         if(std::get<0>(OpenGL::TextureBindingTargets[i]) == target)
             return m_textureBindings[i];
@@ -562,7 +562,7 @@ void RenderState::PixelStore(GLenum pname, GLint param)
     OpenGL::CheckErrors();
 
     // Save changed state.
-    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
         {
@@ -576,7 +576,7 @@ GLint RenderState::GetPixelStore(GLenum pname) const
 {
     ASSERT(m_initialized, "Render state is not initialized!");
 
-    for(int i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
+    for(std::size_t i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
         if(OpenGL::PixelStoreParameters[i] == pname)
             return m_pixelStore[i];

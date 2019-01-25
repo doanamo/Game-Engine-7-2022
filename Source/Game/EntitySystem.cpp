@@ -124,7 +124,7 @@ EntityHandle EntitySystem::CreateEntity()
         m_handleEntries.emplace_back(identifier);
 
         // Add new handle entry to the free list queue.
-        ASSERT(identifier - StartingIdentifier == m_handleEntries.size() - 1,
+        ASSERT(identifier - StartingIdentifier == Utility::NumericalCast<EntityHandle::ValueType>(m_handleEntries.size()) - 1,
             "Handle index does not match the added entity identifier!");
 
         m_freeIdentifiers.emplace(identifier);
