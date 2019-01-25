@@ -12,11 +12,6 @@ namespace Engine
     class Root;
 }
 
-namespace Game
-{
-    class GameState;
-}
-
 /*
     Event Router
 
@@ -26,6 +21,9 @@ namespace Game
 
 namespace Game
 {
+    // Forward declarations.
+    class GameState;
+
     // Event router class.
     class EventRouter
     {
