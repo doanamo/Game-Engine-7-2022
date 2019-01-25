@@ -79,3 +79,8 @@ bool EventRouter::Initialize(Engine::Root* engine)
     // Success!
     return m_initialized = true;
 }
+
+GameState* EventRouter::GetGameState()
+{
+    return m_engine->GetGameState().get();
+}

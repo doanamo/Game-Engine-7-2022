@@ -3,6 +3,7 @@
 */
 
 #include "Precompiled.hpp"
+#include "Engine/Root.hpp"
 #include "System/Platform.hpp"
 #include "System/FileSystem.hpp"
 #include "System/Window.hpp"
@@ -15,7 +16,6 @@
 #include "Editor/EditorSystem.hpp"
 #include "Game/EventRouter.hpp"
 #include "Game/GameState.hpp"
-#include "Engine/Root.hpp"
 using namespace Engine;
 
 InitializeParams::InitializeParams() :

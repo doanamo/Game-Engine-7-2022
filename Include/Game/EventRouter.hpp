@@ -53,6 +53,9 @@ namespace Game
         template<typename EventType>
         bool PushEventReturnFalse(const EventType& event);
 
+        // Get the current game state.
+        GameState* GetGameState();
+
     private:
         // Engine reference.
         Engine::Root* m_engine;
@@ -79,7 +82,7 @@ namespace Game
         ASSERT(m_initialized, "Event listener is not initialized!");
 
         // Push event to current game state.
-        auto gameState = m_engine->GetGameState();
+        GameState* gameState = this->GetGameState();
 
         if(gameState != nullptr)
         {
