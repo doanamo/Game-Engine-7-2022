@@ -143,6 +143,12 @@ set(SOURCE_FILES
     "Source/Editor/GameStateEditor.cpp"
 )
 
+# List of data files.
+set(DATA_FILES
+    "Deploy/Data/Engine/Shaders/Interface.shader"
+    "Deploy/Data/Engine/Shaders/Sprite.shader"
+)
+
 # Create missing source files from template.
 foreach(SOURCE_FILE ${SOURCE_FILES})
     set(SOURCE_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}")
@@ -212,17 +218,6 @@ get_filename_component(ABSOLUTE_ENGINE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Deploy" 
 file(WRITE "${CMAKE_BINARY_DIR}/EngineDir.txt" "${ABSOLUTE_ENGINE_DIR}/")
 
 #
-# Data
-#
-
-# Add shader files to solution's folder structure.
-target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
-source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader")
-
-target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
-source_group("Data\\Shaders" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader")
-
-#
 # Tests
 #
 
@@ -240,8 +235,14 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
-# Keep folder structure of include and source files.
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES})
+# Add engine data files to folder structure.
+foreach(DATA_FILE ${DATA_FILES})
+    target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/${DATA_FILE}")
+endforeach()
+
+
+# Keep folder structure of include/source/data files.
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES} ${DATA_FILES})
 
 # Compiler specific settings.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
