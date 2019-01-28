@@ -5,6 +5,7 @@
 #pragma once
 
 #include <System/Window.hpp>
+#include <Game/GameState.hpp>
 
 // Forward declarations.
 namespace Engine

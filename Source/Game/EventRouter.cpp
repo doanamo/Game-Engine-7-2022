@@ -4,7 +4,6 @@
 
 #include "Precompiled.hpp"
 #include "Game/EventRouter.hpp"
-#include "Game/GameState.hpp"
 #include "Engine/Root.hpp"
 using namespace Game;
 
