@@ -168,6 +168,9 @@ endforeach()
 # Target
 #
 
+# Specify available build configuration types.
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
 # Create project and target.
 project(${PROJECT_NAME})
 add_library(${TARGET_NAME} STATIC ${SOURCE_FILES})
@@ -239,7 +242,6 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 foreach(DATA_FILE ${DATA_FILES})
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/${DATA_FILE}")
 endforeach()
-
 
 # Keep folder structure of include/source/data files.
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${SOURCE_FILES} ${DATA_FILES})
