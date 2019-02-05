@@ -66,17 +66,17 @@ namespace System
         void PrepareForEvents();
 
     private:
-        // Called when a keyboard key is pressed.
-        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
-
         // Called when the window changes focus.
         void OnWindowFocus(const Window::Events::Focus& event);
 
+        // Called when a keyboard key is pressed.
+        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
+
     private:
         // Event receivers.
-        Event::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
         Event::Receiver<void(const Window::Events::Focus&)> m_windowFocus;
-        
+        Event::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
+
         // Initialization state.
         bool m_initialized;
     };

@@ -10,8 +10,8 @@ InputManager::InputManager() :
     m_initialized(false)
 {
     // Bind event receivers.
-    m_keyboardKey.Bind<InputManager, &InputManager::OnKeyboardKey>(this);
     m_windowFocus.Bind<InputManager, &InputManager::OnWindowFocus>(this);
+    m_keyboardKey.Bind<InputManager, &InputManager::OnKeyboardKey>(this);
 }
 
 InputManager::~InputManager()
@@ -28,9 +28,9 @@ InputManager::InputManager(InputManager&& other) :
 InputManager& InputManager::operator=(InputManager&& other)
 {
     // Swap class members.
-    std::swap(m_initialized, other.m_initialized);
-    std::swap(m_keyboardKey, other.m_keyboardKey);
     std::swap(m_windowFocus, other.m_windowFocus);
+    std::swap(m_keyboardKey, other.m_keyboardKey);
+    std::swap(m_initialized, other.m_initialized);
 
     return *this;
 }
