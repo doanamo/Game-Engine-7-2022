@@ -7,6 +7,11 @@
 #include "Event/Receiver.hpp"
 
 // Forward declarations.
+namespace Engine
+{
+    class Root;
+};
+
 namespace Game
 {
     class GameState;
@@ -32,13 +37,10 @@ namespace Editor
         GameStateEditor& operator=(GameStateEditor&& other);
 
         // Initializes the game state editor.
-        bool Initialize();
+        bool Initialize(Engine::Root* engine);
 
         // Updates the game state editor.
         void Update(float timeDelta);
-
-        // Sets the game state reference.
-        void SetGameState(Game::GameState* gameState);
 
         // Gets the game state reference.
         Game::GameState* GetGameState() const;
@@ -47,19 +49,23 @@ namespace Editor
         // Event receivers.
         struct Receivers
         {
+            Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
             Event::Receiver<void()> gameStateDestructed;
             Event::Receiver<void()> gameStateUpdateCalled;
-            Event::Receiver<void(float)> gameStateUpdated;
+            Event::Receiver<void(float)> gameStateUpdateProcessed;
         } m_receivers;
+
+        // Changed when the current game state changes.
+        void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
 
         // Called when referenced game state gets destructed.
         void OnGameStateDestructed();
 
-        // Called when references game state starts updating.
+        // Called when referenced game state starts updating.
         void OnGameStateUpdateCalled();
 
         // Called when referenced game state actually updates.
-        void OnGameStateUpdated(float updateTime);
+        void OnGameStateUpdateProcessed(float updateTime);
 
     private:
         // Game state reference.

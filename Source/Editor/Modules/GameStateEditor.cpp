@@ -3,8 +3,9 @@
 */
 
 #include "Precompiled.hpp"
-#include "Editor/GameStateEditor.hpp"
+#include "Editor/Modules/GameStateEditor.hpp"
 #include "Game/GameState.hpp"
+#include "Engine/Root.hpp"
 using namespace Editor;
 
 GameStateEditor::GameStateEditor() :
@@ -18,9 +19,10 @@ GameStateEditor::GameStateEditor() :
     m_updateFreezeSlider(1.0f),
     m_initialized(false)
 {
+    m_receivers.gameStateChanged.Bind<GameStateEditor, &GameStateEditor::OnGameStateChanged>(this);
     m_receivers.gameStateDestructed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
     m_receivers.gameStateUpdateCalled.Bind<GameStateEditor, &GameStateEditor::OnGameStateUpdateCalled>(this);
-    m_receivers.gameStateUpdated.Bind<GameStateEditor, &GameStateEditor::OnGameStateUpdated>(this);
+    m_receivers.gameStateUpdateProcessed.Bind<GameStateEditor, &GameStateEditor::OnGameStateUpdateProcessed>(this);
 }
 
 GameStateEditor::~GameStateEditor()
@@ -50,12 +52,22 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
     return *this;
 }
 
-bool GameStateEditor::Initialize()
+bool GameStateEditor::Initialize(Engine::Root* engine)
 {
     LOG() << "Initializing game state editor..." << LOG_INDENT();
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Game state editor instance has already been initialized!");
+
+    // Validate engine reference.
+    if(engine == nullptr)
+    {
+        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        return false;
+    }
+
+    // Subscribe to game state being changed.
+    m_receivers.gameStateChanged.Subscribe(engine->events.gameStateChanged);
 
     // Set histogram size.
     m_updateTimeHistogram.resize(100, 0.0f);
@@ -196,19 +208,19 @@ void GameStateEditor::Update(float timeDelta)
     ImGui::End();
 }
 
-void GameStateEditor::SetGameState(Game::GameState* gameState)
+void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
 {
     ASSERT(m_initialized, "Game state editor has not been initialized yet!");
 
     if(gameState)
     {
         // Replace with new game state reference.
-        m_gameState = gameState;
+        m_gameState = gameState.get();
 
         // Subscribe to game state dispatchers.
         m_receivers.gameStateDestructed.Subscribe(gameState->events.instanceDestructed);
         m_receivers.gameStateUpdateCalled.Subscribe(gameState->events.updateCalled);
-        m_receivers.gameStateUpdated.Subscribe(gameState->events.stateUpdated);
+        m_receivers.gameStateUpdateProcessed.Subscribe(gameState->events.updateProcessed);
 
         // Update update time slider value.
         m_updateRateSlider = 1.0f / m_gameState->GetUpdateTime();
@@ -257,7 +269,7 @@ void Editor::GameStateEditor::OnGameStateUpdateCalled()
     }
 }
 
-void Editor::GameStateEditor::OnGameStateUpdated(float updateTime)
+void Editor::GameStateEditor::OnGameStateUpdateProcessed(float updateTime)
 {
     ASSERT(m_initialized, "Game state editor has not been initialized yet!");
 

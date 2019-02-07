@@ -137,10 +137,12 @@ set(SOURCE_FILES
 
     "Include/Editor/EditorSystem.hpp"
     "Source/Editor/EditorSystem.cpp"
+    "Include/Editor/EditorShell.hpp"
+    "Source/Editor/EditorShell.cpp"
     "Include/Editor/EditorRenderer.hpp"
     "Source/Editor/EditorRenderer.cpp"
-    "Include/Editor/GameStateEditor.hpp"
-    "Source/Editor/GameStateEditor.cpp"
+    "Include/Editor/Modules/GameStateEditor.hpp"
+    "Source/Editor/Modules/GameStateEditor.cpp"
 )
 
 # List of data files.

@@ -7,7 +7,7 @@
 #include "Event/Receiver.hpp"
 #include "System/Window.hpp"
 #include "Editor/EditorRenderer.hpp"
-#include "Editor/GameStateEditor.hpp"
+#include "Editor/EditorShell.hpp"
 
 // Forward declarations.
 namespace Engine
@@ -57,9 +57,6 @@ namespace Editor
         // Draws the editor interface.
         void Draw();
 
-        // Gets the game state editor.
-        GameStateEditor& GetGameStateEditor();
-
     private:
         // Callback function for cursor position events.
         void CursorPositionCallback(const System::Window::Events::CursorPosition& event);
@@ -86,7 +83,6 @@ namespace Editor
 
         // User interface context.
         ImGuiContext* m_interface;
-        bool m_showDemoWindow;
 
         // Window event callbacks.
         Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
@@ -95,11 +91,9 @@ namespace Editor
         Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
         Event::Receiver<bool(const System::Window::Events::TextInput&)> m_receiverTextInput;
 
-        // Editor renderer.
-        EditorRenderer m_editorRenderer;
-        
         // Editor systems.
-        GameStateEditor m_editorGameState;
+        EditorRenderer m_editorRenderer;
+        EditorShell m_editorShell;
 
         // Initialization state.
         bool m_initialized;

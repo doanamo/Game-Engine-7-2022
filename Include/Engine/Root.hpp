@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Event/Dispatcher.hpp"
+
 // Forward declarations.
 namespace System
 {
@@ -114,6 +116,14 @@ namespace Engine
 
         // Gets the current game state instance.
         std::shared_ptr<Game::GameState> GetGameState();
+
+    public:
+        // Engine events.
+        struct Events
+        {
+            // Called when current game state changes.
+            Event::Dispatcher<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
+        } events;
 
     private:
         // Engine parameters.

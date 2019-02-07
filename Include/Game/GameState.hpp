@@ -82,10 +82,10 @@ namespace Game
             // This does not mean that the state will be actually updated.
             Event::Dispatcher<void()> updateCalled;
 
-            // Called when state has been updated.
+            // Called when state had its update processed.
             // Event can be dispatched multiple times during the same update call.
             // This is also a good time to run a custom update logic.
-            Event::Dispatcher<void(float)> stateUpdated;
+            Event::Dispatcher<void(float)> updateProcessed;
         } events;
 
     public:

@@ -28,7 +28,6 @@ namespace
 EditorSystem::EditorSystem() :
     m_engine(nullptr),
     m_interface(nullptr),
-    m_showDemoWindow(false),
     m_initialized(false)
 {
     // Bind event receivers.
@@ -54,7 +53,6 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
 {
     std::swap(m_engine, other.m_engine);
     std::swap(m_interface, other.m_interface);
-    std::swap(m_showDemoWindow, other.m_showDemoWindow);
 
     std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
     std::swap(m_receiverMouseButton, other.m_receiverMouseButton);
@@ -63,7 +61,7 @@ EditorSystem& EditorSystem::operator=(EditorSystem&& other)
     std::swap(m_receiverTextInput, other.m_receiverTextInput);
 
     std::swap(m_editorRenderer, other.m_editorRenderer);
-    std::swap(m_editorGameState, other.m_editorGameState);
+    std::swap(m_editorShell, other.m_editorShell);
 
     std::swap(m_initialized, other.m_initialized);
 
@@ -174,10 +172,10 @@ bool EditorSystem::Initialize(Engine::Root* engine)
         return false;
     }
 
-    // Initialize the game state editor.
-    if(!m_editorGameState.Initialize())
+    // Initialize the editor shell.
+    if(!m_editorShell.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize game state editor!";
+        LOG_ERROR() << "Could not initialize editor shell!";
         return false;
     }
 
@@ -199,39 +197,8 @@ void EditorSystem::Update(float timeDelta)
     // Start a new interface frame.
     ImGui::NewFrame();
 
-    // Show demo window.
-    if(m_showDemoWindow)
-    {
-        ImGui::ShowDemoWindow(&m_showDemoWindow);
-    }
-
-    // Show main menu bar.
-    if(ImGui::BeginMainMenuBar())
-    {
-        if(ImGui::BeginMenu("Editor"))
-        {
-            if(ImGui::MenuItem("Show Demo"))
-            {
-                m_showDemoWindow = true;
-            }
-
-            ImGui::Separator();
-
-            if(ImGui::MenuItem("Exit"))
-            {
-                m_engine->GetWindow().Close();
-            }
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::Separator();
-
-        ImGui::EndMainMenuBar();
-    }
-
-    // Update editor systems.
-    m_editorGameState.Update(timeDelta);
+    // Update the editor shell.
+    m_editorShell.Update(timeDelta);
 }
 
 void EditorSystem::Draw()
@@ -350,9 +317,4 @@ bool EditorSystem::TextInputCallback(const System::Window::Events::TextInput& ev
 
     // Prevent input from passing through.
     return io.WantCaptureKeyboard;
-}
-
-GameStateEditor& EditorSystem::GetGameStateEditor()
-{
-    return m_editorGameState;
 }

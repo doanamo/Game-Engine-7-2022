@@ -234,8 +234,8 @@ void Root::SetGameState(std::shared_ptr<Game::GameState>& gameState)
         gameState->eventQueue.Push(gameStateChanged);
     }
 
-    // Set game state that will be controlled using the editor.
-    m_editorSystem->GetGameStateEditor().SetGameState(m_gameState.get());
+    // Notify listeners about game state being changed.
+    events.gameStateChanged.Dispatch(m_gameState);
 }
 
 int Root::Run()

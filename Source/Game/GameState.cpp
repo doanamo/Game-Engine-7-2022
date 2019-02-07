@@ -178,9 +178,9 @@ bool GameState::Update(const System::Timer& timer)
         // Update the sprite animation system.
         spriteSystem.Update(updateTime);
 
-        // Inform that state has been updated.
+        // Inform that state had its update processed.
         // Allows for custom update logic to be executed.
-        events.stateUpdated.Dispatch(updateTime);
+        events.updateProcessed.Dispatch(updateTime);
 
         // State has been updated at least once.
         stateUpdated = true;

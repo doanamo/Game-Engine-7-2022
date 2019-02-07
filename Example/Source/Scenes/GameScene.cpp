@@ -73,7 +73,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     }
 
     // Setup custom update callback.
-    m_customUpdate.Subscribe(m_gameState->events.stateUpdated);
+    m_customUpdate.Subscribe(m_gameState->events.updateProcessed);
 
     // Set game state as current.
     m_engine->SetGameState(m_gameState);
