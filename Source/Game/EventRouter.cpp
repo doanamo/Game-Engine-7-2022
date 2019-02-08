@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Game/EventRouter.hpp"
+#include "Game/GameFramework.hpp"
 #include "Engine/Root.hpp"
 using namespace Game;
 
@@ -79,7 +80,7 @@ bool EventRouter::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-GameState* EventRouter::GetGameState()
+GameState* EventRouter::GetCurrentGameState()
 {
-    return m_engine->GetGameState().get();
+    return m_engine->GetGameFramework().GetGameState().get();
 }

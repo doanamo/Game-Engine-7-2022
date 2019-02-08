@@ -9,6 +9,7 @@
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
+#include <Game/GameFramework.hpp>
 #include <Game/Components/TransformComponent.hpp>
 #include <Game/Components/CameraComponent.hpp>
 #include <Game/Components/SpriteComponent.hpp>
@@ -76,7 +77,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     m_customUpdate.Subscribe(m_gameState->events.updateProcessed);
 
     // Set game state as current.
-    m_engine->SetGameState(m_gameState);
+    m_engine->GetGameFramework().SetGameState(m_gameState);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;

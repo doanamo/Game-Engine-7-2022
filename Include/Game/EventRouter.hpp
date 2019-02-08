@@ -55,7 +55,7 @@ namespace Game
         bool PushEventReturnFalse(const EventType& event);
 
         // Get the current game state.
-        GameState* GetGameState();
+        GameState* GetCurrentGameState();
 
     private:
         // Engine reference.
@@ -83,7 +83,7 @@ namespace Game
         ASSERT(m_initialized, "Event listener is not initialized!");
 
         // Push event to current game state.
-        GameState* gameState = this->GetGameState();
+        GameState* gameState = this->GetCurrentGameState();
 
         if(gameState != nullptr)
         {

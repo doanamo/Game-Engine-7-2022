@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Editor/Modules/GameStateEditor.hpp"
+#include "Game/GameFramework.hpp"
 #include "Game/GameState.hpp"
 #include "Engine/Root.hpp"
 using namespace Editor;
@@ -67,7 +68,8 @@ bool GameStateEditor::Initialize(Engine::Root* engine)
     }
 
     // Subscribe to game state being changed.
-    m_receivers.gameStateChanged.Subscribe(engine->events.gameStateChanged);
+    Game::GameFramework& gameFramework = engine->GetGameFramework();
+    m_receivers.gameStateChanged.Subscribe(gameFramework.events.gameStateChanged);
 
     // Set histogram size.
     m_updateTimeHistogram.resize(100, 0.0f);

@@ -28,15 +28,14 @@ namespace Renderer
     class StateRenderer;
 }
 
+namespace Game
+{
+    class GameFramework;
+}
+
 namespace Editor
 {
     class EditorSystem;
-}
-
-namespace Game
-{
-    class EventRouter;
-    class GameState;
 }
 
 /*
@@ -70,9 +69,6 @@ namespace Engine
 
         // Initializes the engine instance.
         bool Initialize(const InitializeParams& initParams = InitializeParams());
-
-        // Sets the main game state instance.
-        void SetGameState(std::shared_ptr<Game::GameState>& gameState);
 
         // Runs the application main loop.
         int Run();
@@ -108,22 +104,11 @@ namespace Engine
         // Gets the state renderer.
         Renderer::StateRenderer& GetStateRenderer();
 
+        // Gets the game framework.
+        Game::GameFramework& GetGameFramework();
+
         // Gets the editor system.
         Editor::EditorSystem& GetEditorSystem();
-
-        // Gets the event router.
-        Game::EventRouter& GetEventRouter();
-
-        // Gets the current game state instance.
-        std::shared_ptr<Game::GameState> GetGameState();
-
-    public:
-        // Engine events.
-        struct Events
-        {
-            // Called when current game state changes.
-            Event::Dispatcher<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
-        } events;
 
     private:
         // Engine parameters.
@@ -141,15 +126,10 @@ namespace Engine
         std::unique_ptr<Graphics::RenderContext> m_renderContext;
         std::unique_ptr<Graphics::SpriteRenderer> m_spriteRenderer;
 
-        // Renderer systems.
-        std::unique_ptr<Renderer::StateRenderer> m_stateRenderer;
-
         // Engine systems.
+        std::unique_ptr<Renderer::StateRenderer> m_stateRenderer;
+        std::unique_ptr<Game::GameFramework> m_gameFramework;
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
-
-        // Game systems.
-        std::shared_ptr<Game::EventRouter> m_eventRouter;
-        std::shared_ptr<Game::GameState> m_gameState;
 
         // Initialization state.
         bool m_initialized;

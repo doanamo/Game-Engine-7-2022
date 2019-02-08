@@ -13,9 +13,8 @@
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Renderer/StateRenderer.hpp"
+#include "Game/GameFramework.hpp"
 #include "Editor/EditorSystem.hpp"
-#include "Game/EventRouter.hpp"
-#include "Game/GameState.hpp"
 using namespace Engine;
 
 InitializeParams::InitializeParams() :
@@ -51,9 +50,8 @@ Root& Root::operator=(Root&& other)
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_spriteRenderer, other.m_spriteRenderer);
     std::swap(m_stateRenderer, other.m_stateRenderer);
+    std::swap(m_gameFramework, other.m_gameFramework);
     std::swap(m_editorSystem, other.m_editorSystem);
-    std::swap(m_eventRouter, other.m_eventRouter);
-    std::swap(m_gameState, other.m_gameState);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -180,6 +178,15 @@ bool Root::Initialize(const InitializeParams& initParams)
         return false;
     }
 
+    // Initialize the game framework.
+    // Controls how game state is managed and how it interacts with the rest of the engine.
+    m_gameFramework = std::make_unique<Game::GameFramework>();
+    if(!m_gameFramework->Initialize(this))
+    {
+        LOG_ERROR() << "Could not initialize game framework!";
+        return false;
+    }
+
     // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
     m_editorSystem = std::make_unique<Editor::EditorSystem>();
@@ -189,53 +196,8 @@ bool Root::Initialize(const InitializeParams& initParams)
         return false;
     }
 
-    // Initialize the event router.
-    // Listens and replicates event to the current game state.
-    m_eventRouter = std::make_unique<Game::EventRouter>();
-    if(!m_eventRouter->Initialize(this))
-    {
-        LOG_ERROR() << "Could not initialize event router!";
-        return false;
-    }
-
     // Success!
     return m_initialized = true;
-}
-
-void Root::SetGameState(std::shared_ptr<Game::GameState>& gameState)
-{
-    ASSERT(m_initialized, "Engine instance has not been initialized!");
-
-    // Make sure we are not setting the same game state.
-    if(gameState == m_gameState)
-    {
-        LOG_WARNING() << "Attempted to change game state into the current one!";
-        return;
-    }
-
-    // Notify current game state about being changed.
-    if(m_gameState)
-    {
-        Game::GameState::Events::GameStateChanged gameStateChanged;
-        gameStateChanged.stateEntered = false;
-
-        m_gameState->eventQueue.Push(gameStateChanged);
-    }
-
-    // Change the current game state.
-    m_gameState = gameState;
-
-    // Notify new game state about being changed.
-    if(gameState)
-    {
-        Game::GameState::Events::GameStateChanged gameStateChanged;
-        gameStateChanged.stateEntered = true;
-
-        gameState->eventQueue.Push(gameStateChanged);
-    }
-
-    // Notify listeners about game state being changed.
-    events.gameStateChanged.Dispatch(m_gameState);
 }
 
 int Root::Run()
@@ -276,18 +238,10 @@ int Root::Run()
         m_editorSystem->Update(timeDelta);
 
         // Update the game state.
-        if(m_gameState)
-        {
-            m_gameState->Update(*m_timer);
-        }
+        m_gameFramework->Update();
 
         // Draw the game state.
-        Renderer::StateRenderer::DrawParams drawParams;
-        drawParams.viewportRect = m_window->GetViewportRect();
-        drawParams.gameState = m_gameState.get();
-        drawParams.cameraName = "Camera";
-
-        m_stateRenderer->Draw(drawParams);
+        m_gameFramework->Draw();
     }
 
     return 0;
@@ -352,19 +306,14 @@ Renderer::StateRenderer& Root::GetStateRenderer()
     return *m_stateRenderer;
 }
 
+Game::GameFramework& Engine::Root::GetGameFramework()
+{
+    ASSERT(m_gameFramework);
+    return *m_gameFramework;
+}
+
 Editor::EditorSystem& Root::GetEditorSystem()
 {
     ASSERT(m_editorSystem);
     return *m_editorSystem;
-}
-
-Game::EventRouter& Root::GetEventRouter()
-{
-    ASSERT(m_eventRouter);
-    return *m_eventRouter;
-}
-
-std::shared_ptr<Game::GameState> Root::GetGameState()
-{
-    return m_gameState;
 }

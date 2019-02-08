@@ -104,6 +104,8 @@ set(SOURCE_FILES
     "Include/Graphics/Sprite/SpriteAnimationList.hpp"
     "Source/Graphics/Sprite/SpriteAnimationList.cpp"
 
+    "Include/Game/GameFramework.hpp"
+    "Source/Game/GameFramework.cpp"
     "Include/Game/GameState.hpp"
     "Source/Game/GameState.cpp"
     "Include/Game/UpdateTimer.hpp"
