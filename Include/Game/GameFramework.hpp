@@ -63,7 +63,7 @@ namespace Game
         // Engine reference.
         Engine::Root* m_engine;
 
-        // Game event router.
+        // Engine event router.
         EventRouter m_eventRouter;
 
         // Current game state.
