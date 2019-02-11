@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameStateEditor.hpp"
 
 // Forward declarations.
@@ -45,6 +46,7 @@ namespace Editor
         Engine::Root* m_engine;
 
         // Editor modules.
+        InputManagerEditor m_inputManagerEditor;
         GameStateEditor m_gameStateEditor;
 
         // Show ImGui demo window.

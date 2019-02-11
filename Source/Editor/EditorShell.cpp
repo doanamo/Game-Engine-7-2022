@@ -42,7 +42,7 @@ bool EditorShell::Initialize(Engine::Root* engine)
     // Make sure instance is not initialized.
     ASSERT(!m_initialized, "Editor shell instance is already initialized!");
 
-    // Create an initialization guard.
+    // Create initialization guard.
     SCOPE_GUARD_IF(!m_initialized, *this = EditorShell());
 
     // Validate engine reference.
@@ -54,7 +54,14 @@ bool EditorShell::Initialize(Engine::Root* engine)
 
     m_engine = engine;
 
-    // Initialize the game state editor.
+    // Initialize input manager editor.
+    if(!m_inputManagerEditor.Initialize(engine))
+    {
+        LOG_ERROR() << "Could not initialize input manager editor!";
+        return false;
+    }
+
+    // Initialize game state editor.
     if(!m_gameStateEditor.Initialize(engine))
     {
         LOG_ERROR() << "Could not initialize game state editor!";
@@ -80,11 +87,7 @@ void EditorShell::Update(float timeDelta)
     {
         if(ImGui::BeginMenu("Editor"))
         {
-            if(ImGui::MenuItem("Show Demo"))
-            {
-                m_showDemoWindow = true;
-            }
-
+            ImGui::MenuItem("Show Demo", "", &m_showDemoWindow, true);
             ImGui::Separator();
 
             if(ImGui::MenuItem("Exit"))
@@ -99,19 +102,13 @@ void EditorShell::Update(float timeDelta)
 
         if(ImGui::BeginMenu("System"))
         {
-            if(ImGui::MenuItem("Window"))
-            {
-            }
-
+            ImGui::MenuItem("Input Manager", "", &m_inputManagerEditor.mainWindowOpen, true);
             ImGui::EndMenu();
         }
 
         if(ImGui::BeginMenu("Game"))
         {
-            if(ImGui::MenuItem("Game State"))
-            {
-            }
-
+            ImGui::MenuItem("Game State", "", &m_gameStateEditor.mainWindowOpen, true);
             ImGui::EndMenu();
         }
 
@@ -119,5 +116,6 @@ void EditorShell::Update(float timeDelta)
     }
 
     // Update editor modules.
+    m_inputManagerEditor.Update(timeDelta);
     m_gameStateEditor.Update(timeDelta);
 }

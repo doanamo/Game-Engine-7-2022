@@ -45,6 +45,10 @@ namespace Editor
         // Gets the game state reference.
         Game::GameState* GetGameState() const;
 
+    public:
+        // Window state.
+        bool mainWindowOpen;
+
     private:
         // Event receivers.
         struct Receivers

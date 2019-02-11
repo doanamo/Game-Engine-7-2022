@@ -29,8 +29,8 @@ namespace Game
         ~GameFramework();
 
         // Disallow copying.
-        GameFramework(const GameFramework& other);
-        GameFramework& operator=(const GameFramework& other);
+        GameFramework(const GameFramework& other) = delete;
+        GameFramework& operator=(const GameFramework& other) = delete;
 
         // Move constructor and assignment.
         GameFramework(GameFramework&& other);
