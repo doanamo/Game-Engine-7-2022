@@ -10,6 +10,7 @@ using namespace Editor;
 
 InputManagerEditor::InputManagerEditor() :
     mainWindowOpen(false),
+    m_engine(nullptr),
     m_incomingWindowFocus(false),
     m_incomingMouseButton(false),
     m_incomingMouseScroll(false),
@@ -19,7 +20,6 @@ InputManagerEditor::InputManagerEditor() :
     m_incomingTextInput(false),
     m_incomingEventLogSize(100),
     m_incomingEventCounter(0),
-    m_engine(nullptr),
     m_initialized(false)
 {
     m_windowFocusReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnWindowFocus>(this);
@@ -272,7 +272,7 @@ bool InputManagerEditor::OnMouseScroll(const System::Window::Events::MouseScroll
     return false;
 }
 
-void Editor::InputManagerEditor::OnCursorPosition(const System::Window::Events::CursorPosition& event)
+void InputManagerEditor::OnCursorPosition(const System::Window::Events::CursorPosition& event)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
 
@@ -287,7 +287,7 @@ void Editor::InputManagerEditor::OnCursorPosition(const System::Window::Events::
     }
 }
 
-void Editor::InputManagerEditor::OnCursorEnter(const System::Window::Events::CursorEnter& event)
+void InputManagerEditor::OnCursorEnter(const System::Window::Events::CursorEnter& event)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
 
