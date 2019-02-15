@@ -13,7 +13,7 @@ namespace System
     // General input actions.
     struct InputStates
     {
-        using Type = char;
+        using Type = unsigned short;
 
         enum
         {
@@ -33,7 +33,7 @@ namespace System
     // Keyboard input keys.
     struct KeyboardKeys
     {
-        using Type = short;
+        using Type = unsigned short;
 
         enum
         {
@@ -163,7 +163,7 @@ namespace System
     // Keyboard input modifiers.
     struct KeyboardModifiers
     {
-        using Type = unsigned int;
+        using Type = unsigned short;
 
         enum
         {
@@ -184,7 +184,7 @@ namespace System
     // Mouse input buttons.
     struct MouseButtons
     {
-        using Type = unsigned char;
+        using Type = unsigned short;
 
         enum
         {

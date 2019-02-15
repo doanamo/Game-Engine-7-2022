@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "System/Window.hpp"
+
 // Forward declarations.
 namespace Engine
 {
@@ -42,8 +44,42 @@ namespace Editor
         bool mainWindowOpen;
 
     private:
+        // Adds an incoming event log text.
+        void AddIncomingEventLog(std::string text);
+
+        // Input event handlers.
+        void OnWindowFocus(const System::Window::Events::Focus& event);
+        bool OnMouseButton(const System::Window::Events::MouseButton& event);
+        bool OnMouseScroll(const System::Window::Events::MouseScroll& event);
+        void OnCursorPosition(const System::Window::Events::CursorPosition& event);
+        void OnCursorEnter(const System::Window::Events::CursorEnter& event);
+        bool OnKeyboardKey(const System::Window::Events::KeyboardKey& event);
+        bool OnTextInput(const System::Window::Events::TextInput& event);
+
+    private:
         // Engine reference.
         Engine::Root* m_engine;
+
+        // Incoming event log.
+        Event::Receiver<void(const System::Window::Events::Focus&)> m_windowFocusReceiver;
+        Event::Receiver<bool(const System::Window::Events::MouseButton&)> m_mouseButtonReceiver;
+        Event::Receiver<bool(const System::Window::Events::MouseScroll&)> m_mouseScrollReceiver;
+        Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_cursorPositionReceiver;
+        Event::Receiver<void(const System::Window::Events::CursorEnter&)> m_cursorEnterReceiver;
+        Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_keyboardKeyReceiver;
+        Event::Receiver<bool(const System::Window::Events::TextInput&)> m_textInputReceiver;
+
+        bool m_incomingWindowFocus;
+        bool m_incomingMouseButton;
+        bool m_incomingMouseScroll;
+        bool m_incomingCursorPosition;
+        bool m_incomingCursorEnter;
+        bool m_incomingKeyboardKey;
+        bool m_incomingTextInput;
+
+        std::deque<std::string> m_incomingEventLog;
+        const std::size_t m_incomingEventLogSize;
+        unsigned short m_incomingEventCounter;
 
         // Initialization state.
         bool m_initialized;
