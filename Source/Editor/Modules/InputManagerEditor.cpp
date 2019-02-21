@@ -12,23 +12,23 @@ InputManagerEditor::InputManagerEditor() :
     mainWindowOpen(false),
     m_engine(nullptr),
     m_incomingWindowFocus(false),
+    m_incomingKeyboardKey(false),
+    m_incomingTextInput(false),
     m_incomingMouseButton(false),
     m_incomingMouseScroll(false),
     m_incomingCursorPosition(false),
     m_incomingCursorEnter(false),
-    m_incomingKeyboardKey(false),
-    m_incomingTextInput(false),
     m_incomingEventLogSize(100),
     m_incomingEventCounter(0),
     m_initialized(false)
 {
     m_windowFocusReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnWindowFocus>(this);
+    m_keyboardKeyReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnKeyboardKey>(this);
+    m_textInputReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnTextInput>(this);
     m_mouseButtonReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnMouseButton>(this);
     m_mouseScrollReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnMouseScroll>(this);
     m_cursorPositionReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnCursorPosition>(this);
     m_cursorEnterReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnCursorEnter>(this);
-    m_keyboardKeyReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnKeyboardKey>(this);
-    m_textInputReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnTextInput>(this);
 }
 
 InputManagerEditor::~InputManagerEditor()
@@ -47,20 +47,20 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
     std::swap(m_engine, other.m_engine);
 
     std::swap(m_windowFocusReceiver, other.m_windowFocusReceiver);
+    std::swap(m_keyboardKeyReceiver, other.m_keyboardKeyReceiver);
+    std::swap(m_textInputReceiver, other.m_textInputReceiver);
     std::swap(m_mouseButtonReceiver, other.m_mouseButtonReceiver);
     std::swap(m_mouseScrollReceiver, other.m_mouseScrollReceiver);
     std::swap(m_cursorPositionReceiver, other.m_cursorPositionReceiver);
     std::swap(m_cursorEnterReceiver, other.m_cursorEnterReceiver);
-    std::swap(m_keyboardKeyReceiver, other.m_keyboardKeyReceiver);
-    std::swap(m_textInputReceiver, other.m_textInputReceiver);
 
     std::swap(m_incomingWindowFocus, other.m_incomingWindowFocus);
+    std::swap(m_incomingKeyboardKey, other.m_incomingKeyboardKey);
+    std::swap(m_incomingTextInput, other.m_incomingTextInput);
     std::swap(m_incomingMouseButton, other.m_incomingMouseButton);
     std::swap(m_incomingMouseScroll, other.m_incomingMouseScroll);
     std::swap(m_incomingCursorPosition, other.m_incomingCursorPosition);
     std::swap(m_incomingCursorEnter, other.m_incomingCursorEnter);
-    std::swap(m_incomingKeyboardKey, other.m_incomingKeyboardKey);
-    std::swap(m_incomingTextInput, other.m_incomingTextInput);
 
     std::swap(m_incomingEventLog, other.m_incomingEventLog);
     std::swap(m_incomingEventCounter, other.m_incomingEventCounter);
@@ -92,13 +92,13 @@ bool InputManagerEditor::Initialize(Engine::Root* engine)
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
 
+    subscriptionResults |= m_keyboardKeyReceiver.Subscribe(m_engine->GetWindow().events.keyboardKey);
+    subscriptionResults |= m_textInputReceiver.Subscribe(m_engine->GetWindow().events.textInput);
     subscriptionResults |= m_windowFocusReceiver.Subscribe(m_engine->GetWindow().events.focus);
     subscriptionResults |= m_mouseButtonReceiver.Subscribe(m_engine->GetWindow().events.mouseButton);
     subscriptionResults |= m_mouseScrollReceiver.Subscribe(m_engine->GetWindow().events.mouseScroll);
     subscriptionResults |= m_cursorPositionReceiver.Subscribe(m_engine->GetWindow().events.cursorPosition);
     subscriptionResults |= m_cursorEnterReceiver.Subscribe(m_engine->GetWindow().events.cursorEnter);
-    subscriptionResults |= m_keyboardKeyReceiver.Subscribe(m_engine->GetWindow().events.keyboardKey);
-    subscriptionResults |= m_textInputReceiver.Subscribe(m_engine->GetWindow().events.textInput);
 
     if(!subscriptionResults)
     {
@@ -190,34 +190,31 @@ void InputManagerEditor::OnWindowFocus(const System::Window::Events::Focus& even
     }
 }
 
-bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton& event)
+bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
 
-    // Add event text log for mouse button.
-    if(m_incomingMouseButton)
+    // Add event text log for keyboard key.
+    if(m_incomingKeyboardKey)
     {
         std::stringstream eventText;
-        eventText << "Mouse Button\n";
-        eventText << "  Button: " << event.button << "\n";
-        eventText << "  State: ";
+        eventText << "Keyboard Key\n";
+        eventText << "  Key: " << event.key << "\n";
+        eventText << "  Scancode: " << event.scancode << "\n";
+        eventText << "  Action: ";
 
-        switch(event.state)
+        switch(event.action)
         {
-        case System::InputStates::Pressed:
-            eventText << "Pressed";
+        case GLFW_PRESS:
+            eventText << "Press";
             break;
 
-        case System::InputStates::Released:
-            eventText << "Released";
+        case GLFW_RELEASE:
+            eventText << "Release";
             break;
 
-        case System::InputStates::PressedRepeat:
-            eventText << "PressedRepeat";
-            break;
-
-        case System::InputStates::ReleasedRepeat:
-            eventText << "ReleasedRepeat";
+        case GLFW_REPEAT:
+            eventText << "Repeat";
             break;
 
         default:
@@ -228,18 +225,96 @@ bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton
         eventText << "\n";
         eventText << "  Modifiers: ";
 
-        if(event.modifiers != System::KeyboardModifiers::None)
+        if(event.modifiers)
         {
-            if(event.modifiers & System::KeyboardModifiers::Shift)
+            if(event.modifiers & GLFW_MOD_SHIFT)
                 eventText << "Shift ";
 
-            if(event.modifiers & System::KeyboardModifiers::Ctrl)
+            if(event.modifiers & GLFW_MOD_CONTROL)
                 eventText << "Ctrl ";
 
-            if(event.modifiers & System::KeyboardModifiers::Alt)
+            if(event.modifiers & GLFW_MOD_ALT)
                 eventText << "Alt ";
 
-            if(event.modifiers & System::KeyboardModifiers::Super)
+            if(event.modifiers & GLFW_MOD_SUPER)
+                eventText << "Super ";
+        }
+        else
+        {
+            eventText << "None";
+        }
+
+        AddIncomingEventLog(eventText.str());
+    }
+
+    // Do not capture input.
+    return false;
+}
+
+bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& event)
+{
+    ASSERT(m_initialized, "Input manager editor has not been initialized!");
+
+    // Add event text log for text input.
+    if(m_incomingTextInput)
+    {
+        std::stringstream eventText;
+        eventText << "Text Input\n";
+        eventText << "  Character: " << event.utf32Character;
+
+        AddIncomingEventLog(eventText.str());
+    }
+
+    // Do not capture input.
+    return false;
+}
+
+bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton& event)
+{
+    ASSERT(m_initialized, "Input manager editor has not been initialized!");
+
+    // Add event text log for mouse button.
+    if(m_incomingMouseButton)
+    {
+        std::stringstream eventText;
+        eventText << "Mouse Button\n";
+        eventText << "  Button: " << event.button << "\n";
+        eventText << "  Action: ";
+
+        switch(event.action)
+        {
+        case GLFW_PRESS:
+            eventText << "Press";
+            break;
+
+        case GLFW_RELEASE:
+            eventText << "Release";
+            break;
+
+        case GLFW_REPEAT:
+            eventText << "Repeat";
+            break;
+
+        default:
+            eventText << "Unknown";
+            break;
+        }
+
+        eventText << "\n";
+        eventText << "  Modifiers: ";
+
+        if(event.modifiers)
+        {
+            if(event.modifiers & GLFW_MOD_SHIFT)
+                eventText << "Shift ";
+
+            if(event.modifiers & GLFW_MOD_CONTROL)
+                eventText << "Ctrl ";
+
+            if(event.modifiers & GLFW_MOD_ALT)
+                eventText << "Alt ";
+
+            if(event.modifiers & GLFW_MOD_SUPER)
                 eventText << "Super ";
         }
         else
@@ -300,87 +375,4 @@ void InputManagerEditor::OnCursorEnter(const System::Window::Events::CursorEnter
 
         AddIncomingEventLog(eventText.str());
     }
-}
-
-bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey& event)
-{
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
-    // Add event text log for keyboard key.
-    if(m_incomingKeyboardKey)
-    {
-        std::stringstream eventText;
-        eventText << "Keyboard Key\n";
-        eventText << "  Key: " << event.key << "\n";
-        eventText << "  Scancode: " << event.scancode << "\n";
-        eventText << "  State: ";
-
-        switch(event.state)
-        {
-        case System::InputStates::Pressed:
-            eventText << "Pressed";
-            break;
-
-        case System::InputStates::Released:
-            eventText << "Released";
-            break;
-
-        case System::InputStates::PressedRepeat:
-            eventText << "PressedRepeat";
-            break;
-
-        case System::InputStates::ReleasedRepeat:
-            eventText << "ReleasedRepeat";
-            break;
-
-        default:
-            eventText << "Unknown";
-            break;
-        }
-
-        eventText << "\n";
-        eventText << "  Modifiers: ";
-
-        if(event.modifiers != System::KeyboardModifiers::None)
-        {
-            if(event.modifiers & System::KeyboardModifiers::Shift)
-                eventText << "Shift ";
-
-            if(event.modifiers & System::KeyboardModifiers::Ctrl)
-                eventText << "Ctrl ";
-
-            if(event.modifiers & System::KeyboardModifiers::Alt)
-                eventText << "Alt ";
-
-            if(event.modifiers & System::KeyboardModifiers::Super)
-                eventText << "Super ";
-        }
-        else
-        {
-            eventText << "None";
-        }
-
-        AddIncomingEventLog(eventText.str());
-    }
-
-    // Do not capture input.
-    return false;
-}
-
-bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& event)
-{
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
-    // Add event text log for text input.
-    if(m_incomingTextInput)
-    {
-        std::stringstream eventText;
-        eventText << "Text Input\n";
-        eventText << "  Character: " << event.utf32Character;
-
-        AddIncomingEventLog(eventText.str());
-    }
-
-    // Do not capture input.
-    return false;
 }

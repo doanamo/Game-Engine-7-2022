@@ -7,7 +7,7 @@
 
 namespace System
 {
-    InputStates::Type TranslateInputState(int action)
+    InputStates::Type TranslateInputAction(int action)
     {
         // Translate GLFW input action.
         switch(action)

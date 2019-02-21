@@ -28,7 +28,7 @@
 
             // Process events that will be dispatched to the input state.
             window.ProcessEvents();
-    
+
             // Check if the escape key was pressed once.
             if(inputSystem.IsKeyDown(GLFW_KEY_ESCAPE, false))
             {
@@ -65,18 +65,40 @@ namespace System
         // Must be called before window events are processed.
         void PrepareForEvents();
 
-    private:
-        // Called when the window changes focus.
-        void OnWindowFocus(const Window::Events::Focus& event);
+    public:
+        // Event dispatchers.
+        struct Events
+        {
+            // Input event dispatchers.
+            Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
+            Event::Dispatcher<bool(const InputEvents::TextInput&), Event::CollectWhileFalse> textInput;
+            Event::Dispatcher<bool(const InputEvents::MouseButton&), Event::CollectWhileFalse> mouseButton;
+            Event::Dispatcher<bool(const InputEvents::MouseScroll&), Event::CollectWhileFalse> mouseScroll;
+            Event::Dispatcher<void(const InputEvents::CursorPosition&)> cursorPosition;
+            Event::Dispatcher<void(const InputEvents::CursorEnter&)> cursorEnter;
+        } events;
 
-        // Called when a keyboard key is pressed.
+    private:
+        // Input event receivers.
+        struct Receivers
+        {
+            Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
+            Event::Receiver<bool(const Window::Events::TextInput&)> textInput;
+            Event::Receiver<bool(const Window::Events::MouseButton&)> mouseButton;
+            Event::Receiver<bool(const Window::Events::MouseScroll&)> mouseScroll;
+            Event::Receiver<void(const Window::Events::CursorPosition&)> cursorPosition;
+            Event::Receiver<void(const Window::Events::CursorEnter&)> cursorEnter;
+        } m_receivers;
+
+        // Input event handlers.
         bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
+        bool OnTextInput(const Window::Events::TextInput& event);
+        bool OnMouseButton(const Window::Events::MouseButton& event);
+        bool OnMouseScroll(const Window::Events::MouseScroll& event);
+        void OnCursorPosition(const Window::Events::CursorPosition& event);
+        void OnCursorEnter(const Window::Events::CursorEnter& event);
 
     private:
-        // Event receivers.
-        Event::Receiver<void(const Window::Events::Focus&)> m_windowFocus;
-        Event::Receiver<bool(const Window::Events::KeyboardKey&)> m_keyboardKey;
-
         // Initialization state.
         bool m_initialized;
     };

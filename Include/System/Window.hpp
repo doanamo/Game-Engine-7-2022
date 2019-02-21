@@ -11,8 +11,8 @@
 /*
     System Window
 
-    Creates and manages an application window with OpenGL context.
-    Supports multiple windows and OpenGL rendering contexts.
+    Creates and handles a multimedia window that also manages its own OpenGL
+    context along with input. Supports multiple windows and OpenGL contexts.
 
     void ExampleSystemWindow()
     {
@@ -169,10 +169,10 @@ namespace System
             // Keyboard key event.
             struct KeyboardKey
             {
-                InputStates::Type state;
-                KeyboardKeys::Type key;
-                KeyboardModifiers::Type modifiers;
+                int key;
                 int scancode;
+                int action;
+                int modifiers;
             };
 
             Event::Dispatcher<bool(const KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
@@ -190,9 +190,9 @@ namespace System
             // Mouse button event.
             struct MouseButton
             {
-                InputStates::Type state;
-                MouseButtons::Type button;
-                KeyboardKeys::Type modifiers;
+                int button;
+                int action;
+                int modifiers;
             };
 
             Event::Dispatcher<bool(const MouseButton&), Event::CollectWhileFalse> mouseButton;

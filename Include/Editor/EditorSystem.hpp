@@ -5,7 +5,7 @@
 #pragma once
 
 #include "Event/Receiver.hpp"
-#include "System/Window.hpp"
+#include "System/InputDefinitions.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorShell.hpp"
 
@@ -59,19 +59,19 @@ namespace Editor
 
     private:
         // Callback function for cursor position events.
-        void CursorPositionCallback(const System::Window::Events::CursorPosition& event);
+        void CursorPositionCallback(const System::InputEvents::CursorPosition& event);
 
         // Callback function for mouse button events.
-        bool MouseButtonCallback(const System::Window::Events::MouseButton& event);
+        bool MouseButtonCallback(const System::InputEvents::MouseButton& event);
 
         // Callback function for mouse scroll events.
-        bool MouseScrollCallback(const System::Window::Events::MouseScroll& event);
+        bool MouseScrollCallback(const System::InputEvents::MouseScroll& event);
 
         // Callback function for keyboard key events.
-        bool KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event);
+        bool KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event);
 
         // Callback function for text input events.
-        bool TextInputCallback(const System::Window::Events::TextInput& event);
+        bool TextInputCallback(const System::InputEvents::TextInput& event);
 
     private:
         // Destroys the user interface context.
@@ -85,11 +85,11 @@ namespace Editor
         ImGuiContext* m_interface;
 
         // Window event callbacks.
-        Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_receiverCursorPosition;
-        Event::Receiver<bool(const System::Window::Events::MouseButton&)> m_receiverMouseButton;
-        Event::Receiver<bool(const System::Window::Events::MouseScroll&)> m_receiverMouseScroll;
-        Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_receiverKeyboardKey;
-        Event::Receiver<bool(const System::Window::Events::TextInput&)> m_receiverTextInput;
+        Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
+        Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
+        Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;
+        Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
+        Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
         // Editor systems.
         EditorRenderer m_editorRenderer;

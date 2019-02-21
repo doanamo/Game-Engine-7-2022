@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
+#include "System/InputManager.hpp"
 #include "Game/GameState.hpp"
 #include "Engine/Root.hpp"
 using namespace Editor;
@@ -147,17 +148,17 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     io.GetClipboardTextFn = GetClipboardTextCallback;
     io.ClipboardUserData = m_engine->GetWindow().GetPrivateHandle();
 
-    // Subscribe window event receivers.
-    // We insert receivers in front of dispatcher
-    // queue as we want to have priority for input events.
-    auto& windowEvents = m_engine->GetWindow().events;
+    // Subscribe input event receivers.
+    // We insert receivers in front of dispatcher queue
+    // as we want to have priority for input events.
+    auto& inputEvents = m_engine->GetInputManager().events;
 
     bool subscriptionResults = true;
-    subscriptionResults |= windowEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
-    subscriptionResults |= windowEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
-    subscriptionResults |= windowEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
-    subscriptionResults |= windowEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
-    subscriptionResults |= windowEvents.textInput.Subscribe(m_receiverTextInput, false, true);
+    subscriptionResults |= inputEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
+    subscriptionResults |= inputEvents.textInput.Subscribe(m_receiverTextInput, false, true);
+    subscriptionResults |= inputEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
+    subscriptionResults |= inputEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
+    subscriptionResults |= inputEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
 
     if(!subscriptionResults)
     {
@@ -210,7 +211,7 @@ void EditorSystem::Draw()
     m_editorRenderer.Draw();
 }
 
-void EditorSystem::CursorPositionCallback(const System::Window::Events::CursorPosition& event)
+void EditorSystem::CursorPositionCallback(const System::InputEvents::CursorPosition& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -223,7 +224,7 @@ void EditorSystem::CursorPositionCallback(const System::Window::Events::CursorPo
     io.MousePos.y = (float)event.y;
 }
 
-bool EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton& event)
+bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -253,7 +254,7 @@ bool EditorSystem::MouseButtonCallback(const System::Window::Events::MouseButton
     return io.WantCaptureMouse;
 }
 
-bool EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll& event)
+bool EditorSystem::MouseScrollCallback(const System::InputEvents::MouseScroll& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -268,7 +269,7 @@ bool EditorSystem::MouseScrollCallback(const System::Window::Events::MouseScroll
     return io.WantCaptureMouse;
 }
 
-bool EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey& event)
+bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
@@ -297,7 +298,7 @@ bool EditorSystem::KeyboardKeyCallback(const System::Window::Events::KeyboardKey
     return io.WantCaptureKeyboard;
 }
 
-bool EditorSystem::TextInputCallback(const System::Window::Events::TextInput& event)
+bool EditorSystem::TextInputCallback(const System::InputEvents::TextInput& event)
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 

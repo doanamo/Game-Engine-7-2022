@@ -28,7 +28,7 @@ namespace System
         };
     };
 
-    InputStates::Type TranslateInputState(int action);
+    InputStates::Type TranslateInputAction(int action);
 
     // Keyboard input keys.
     struct KeyboardKeys
@@ -208,4 +208,88 @@ namespace System
     };
 
     MouseButtons::Type TranslateMouseButton(int button);
+
+    // Input event structures.
+    namespace InputEvents
+    {
+        // Keyboard key event.
+        struct KeyboardKey
+        {
+            KeyboardKey() :
+                state(InputStates::Invalid),
+                key(KeyboardKeys::Invalid),
+                modifiers(KeyboardModifiers::Invalid),
+                scancode(0)
+            {
+            }
+
+            InputStates::Type state;
+            KeyboardKeys::Type key;
+            KeyboardModifiers::Type modifiers;
+            int scancode;
+        };
+
+        // Text input event.
+        struct TextInput
+        {
+            TextInput() :
+                utf32Character(0)
+            {
+            }
+
+            // Character is stored in UTF32 format here and can be
+            // converted to any other code point as the user wishes.
+            unsigned int utf32Character;
+        };
+
+        // Mouse button event.
+        struct MouseButton
+        {
+            MouseButton() :
+                state(InputStates::Invalid),
+                button(MouseButtons::Invalid),
+                modifiers(KeyboardModifiers::Invalid)
+            {
+            }
+
+            InputStates::Type state;
+            MouseButtons::Type button;
+            KeyboardKeys::Type modifiers;
+        };
+
+        // Mouse scroll event.
+        struct MouseScroll
+        {
+            MouseScroll() :
+                offset(0.0)
+            {
+            }
+
+            double offset;
+        };
+
+        // Cursor position event.
+        struct CursorPosition
+        {
+            CursorPosition() :
+                x(0.0),
+                y(0.0)
+            {
+            }
+
+            double x;
+            double y;
+        };
+
+        // Cursor enter events.
+        struct CursorEnter
+        {
+            CursorEnter() :
+                entered(false)
+            {
+            }
+
+            bool entered;
+        };
+    }
 }
