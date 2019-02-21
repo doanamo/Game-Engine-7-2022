@@ -87,7 +87,7 @@ void GameFramework::Draw()
 
     // Get window viewport rect.
     System::Window& window = m_engine->GetWindow();
-    glm::ivec4 viewportRect = window.GetViewportRect();
+    glm::ivec4 viewportRect = { 0, 0, window.GetWidth(), window.GetHeight() };
 
     // Get state renderer.
     Renderer::StateRenderer& stateRenderer = m_engine->GetStateRenderer();

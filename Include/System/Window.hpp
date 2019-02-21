@@ -114,9 +114,6 @@ namespace System
         // Gets the window's height.
         int GetHeight() const;
 
-        // Gets the window's viewport rect.
-        glm::ivec4 GetViewportRect() const;
-
         // Checks if the window is open.
         bool IsOpen() const;
 
