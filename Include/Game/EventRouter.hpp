@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <System/Window.hpp>
+#include <System/InputDefinitions.hpp>
 #include <Game/GameState.hpp>
 
 // Forward declarations.
@@ -62,15 +62,16 @@ namespace Game
         Engine::Root* m_engine;
 
         // Window event receivers.
-        struct Events
+        struct Receivers
         {
             // Input events.
-            Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> keyboardKeyReceiver;
-            Event::Receiver<bool(const System::Window::Events::TextInput&)> textInputReceiver;
-            Event::Receiver<bool(const System::Window::Events::MouseButton&)> mouseButtonReceiver;
-            Event::Receiver<bool(const System::Window::Events::MouseScroll&)> mouseScrollReceiver;
-            Event::Receiver<void(const System::Window::Events::CursorPosition&)> cursorPosition;
-        } m_events;
+            Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> keyboardKeyReceiver;
+            Event::Receiver<bool(const System::InputEvents::TextInput&)> textInputReceiver;
+            Event::Receiver<bool(const System::InputEvents::MouseButton&)> mouseButtonReceiver;
+            Event::Receiver<bool(const System::InputEvents::MouseScroll&)> mouseScrollReceiver;
+            Event::Receiver<void(const System::InputEvents::CursorPosition&)> cursorPosition;
+            Event::Receiver<void(const System::InputEvents::CursoeEnter&)> cursorEnter;
+        } m_receivers;
 
         // Initialization state.
         bool m_initialized;
