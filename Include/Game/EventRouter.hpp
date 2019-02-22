@@ -70,7 +70,7 @@ namespace Game
             Event::Receiver<bool(const System::InputEvents::MouseButton&)> mouseButtonReceiver;
             Event::Receiver<bool(const System::InputEvents::MouseScroll&)> mouseScrollReceiver;
             Event::Receiver<void(const System::InputEvents::CursorPosition&)> cursorPosition;
-            Event::Receiver<void(const System::InputEvents::CursoeEnter&)> cursorEnter;
+            Event::Receiver<void(const System::InputEvents::CursorEnter&)> cursorEnter;
         } m_receivers;
 
         // Initialization state.
