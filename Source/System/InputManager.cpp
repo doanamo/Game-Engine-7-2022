@@ -49,16 +49,16 @@ bool InputManager::Initialize(Window* window)
     }
 
     // Subscribe to window input events.
-    bool subscriptionResults = true;
+    bool subscriptionResult = true;
 
-    subscriptionResults |= m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
-    subscriptionResults |= m_receivers.textInput.Subscribe(window->events.textInput);
-    subscriptionResults |= m_receivers.mouseButton.Subscribe(window->events.mouseButton);
-    subscriptionResults |= m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
-    subscriptionResults |= m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
-    subscriptionResults |= m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
+    subscriptionResult &= m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
+    subscriptionResult &= m_receivers.textInput.Subscribe(window->events.textInput);
+    subscriptionResult &= m_receivers.mouseButton.Subscribe(window->events.mouseButton);
+    subscriptionResult &= m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
+    subscriptionResult &= m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
+    subscriptionResult &= m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
 
-    if(!subscriptionResults)
+    if(!subscriptionResult)
     {
         LOG_ERROR() << "Could not subscribe to window input events!";
         return false;

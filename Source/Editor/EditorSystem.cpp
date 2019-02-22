@@ -153,14 +153,14 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     // as we want to have priority for input events.
     auto& inputEvents = m_engine->GetInputManager().events;
 
-    bool subscriptionResults = true;
-    subscriptionResults |= inputEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
-    subscriptionResults |= inputEvents.textInput.Subscribe(m_receiverTextInput, false, true);
-    subscriptionResults |= inputEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
-    subscriptionResults |= inputEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
-    subscriptionResults |= inputEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
+    bool subscriptionResult = true;
+    subscriptionResult &= inputEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
+    subscriptionResult &= inputEvents.textInput.Subscribe(m_receiverTextInput, false, true);
+    subscriptionResult &= inputEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
+    subscriptionResult &= inputEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
+    subscriptionResult &= inputEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
 
-    if(!subscriptionResults)
+    if(!subscriptionResult)
     {
         LOG_ERROR() << "Failed to subscribe to event receivers!";
         return false;

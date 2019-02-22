@@ -92,13 +92,13 @@ bool InputManagerEditor::Initialize(Engine::Root* engine)
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
 
-    subscriptionResults |= m_keyboardKeyReceiver.Subscribe(m_engine->GetWindow().events.keyboardKey);
-    subscriptionResults |= m_textInputReceiver.Subscribe(m_engine->GetWindow().events.textInput);
-    subscriptionResults |= m_windowFocusReceiver.Subscribe(m_engine->GetWindow().events.focus);
-    subscriptionResults |= m_mouseButtonReceiver.Subscribe(m_engine->GetWindow().events.mouseButton);
-    subscriptionResults |= m_mouseScrollReceiver.Subscribe(m_engine->GetWindow().events.mouseScroll);
-    subscriptionResults |= m_cursorPositionReceiver.Subscribe(m_engine->GetWindow().events.cursorPosition);
-    subscriptionResults |= m_cursorEnterReceiver.Subscribe(m_engine->GetWindow().events.cursorEnter);
+    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_engine->GetWindow().events.keyboardKey);
+    subscriptionResults &= m_textInputReceiver.Subscribe(m_engine->GetWindow().events.textInput);
+    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_engine->GetWindow().events.focus);
+    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_engine->GetWindow().events.mouseButton);
+    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_engine->GetWindow().events.mouseScroll);
+    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_engine->GetWindow().events.cursorPosition);
+    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_engine->GetWindow().events.cursorEnter);
 
     if(!subscriptionResults)
     {
