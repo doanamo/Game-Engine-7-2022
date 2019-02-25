@@ -3,9 +3,8 @@
 */
 
 #pragma once
-
-#include "System/Window.hpp"
-#include "System/InputDefinitions.hpp"
+#include <System/Window.hpp>
+#include <System/InputDefinitions.hpp>
 
 /*
     Input Manager
