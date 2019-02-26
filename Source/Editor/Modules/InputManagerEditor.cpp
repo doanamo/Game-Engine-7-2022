@@ -11,8 +11,12 @@ using namespace Editor;
 InputManagerEditor::InputManagerEditor() :
     mainWindowOpen(false),
     m_engine(nullptr),
+    m_incomingEventFreeze(false),
     m_incomingWindowFocus(false),
     m_incomingKeyboardKey(false),
+    m_incomingKeyboardKeyPress(false),
+    m_incomingKeyboardKeyRelease(false),
+    m_incomingKeyboardKeyRepeat(false),
     m_incomingTextInput(false),
     m_incomingMouseButton(false),
     m_incomingMouseScroll(false),
@@ -54,8 +58,12 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
     std::swap(m_cursorPositionReceiver, other.m_cursorPositionReceiver);
     std::swap(m_cursorEnterReceiver, other.m_cursorEnterReceiver);
 
+    std::swap(m_incomingEventFreeze, other.m_incomingEventFreeze);
     std::swap(m_incomingWindowFocus, other.m_incomingWindowFocus);
     std::swap(m_incomingKeyboardKey, other.m_incomingKeyboardKey);
+    std::swap(m_incomingKeyboardKeyPress, other.m_incomingKeyboardKeyPress);
+    std::swap(m_incomingKeyboardKeyRelease, other.m_incomingKeyboardKeyRelease);
+    std::swap(m_incomingKeyboardKeyRepeat, other.m_incomingKeyboardKeyRepeat);
     std::swap(m_incomingTextInput, other.m_incomingTextInput);
     std::swap(m_incomingMouseButton, other.m_incomingMouseButton);
     std::swap(m_incomingMouseScroll, other.m_incomingMouseScroll);
@@ -125,7 +133,7 @@ void InputManagerEditor::Update(float timeDelta)
             {
                 if(ImGui::TreeNode("Incoming"))
                 {
-                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 300), true);
+                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
                     for(const std::string& eventText : m_incomingEventLog)
                     {
                         ImGui::TextWrapped(eventText.c_str());
@@ -135,13 +143,31 @@ void InputManagerEditor::Update(float timeDelta)
 
                     ImGui::SameLine();
                     ImGui::BeginChild("Event Type Toggle", ImVec2(150, 0), false);
+
+                    if(ImGui::Button("Clear"))
+                    {
+                        m_incomingEventLog.clear();
+                    }
+
+                    ImGui::SameLine();
+                    if(ImGui::Button(m_incomingEventFreeze ? "Unfreeze" : "Freeze"))
+                    {
+                        m_incomingEventFreeze = !m_incomingEventFreeze;
+                    }
+
                     ImGui::Checkbox("Window Focus", &m_incomingWindowFocus);
+                    ImGui::Checkbox("Keyboard Key", &m_incomingKeyboardKey);
+                    ImGui::Indent();
+                    ImGui::Checkbox("Press", &m_incomingKeyboardKeyPress);
+                    ImGui::Checkbox("Release", &m_incomingKeyboardKeyRelease);
+                    ImGui::Checkbox("Repeat", &m_incomingKeyboardKeyRepeat);
+                    ImGui::Unindent();
+                    ImGui::Checkbox("Text Input", &m_incomingTextInput);
                     ImGui::Checkbox("Mouse Button", &m_incomingMouseButton);
                     ImGui::Checkbox("Mouse Scroll", &m_incomingMouseScroll);
                     ImGui::Checkbox("Cursor Position", &m_incomingCursorPosition);
                     ImGui::Checkbox("Cursor Enter", &m_incomingCursorEnter);
-                    ImGui::Checkbox("Keyboard Key", &m_incomingKeyboardKey);
-                    ImGui::Checkbox("Text Input", &m_incomingTextInput);
+
                     ImGui::TextWrapped("Focus game instead of editor interface to receive incoming events.");
                     ImGui::EndChild();
 
@@ -157,6 +183,10 @@ void InputManagerEditor::Update(float timeDelta)
 void InputManagerEditor::AddIncomingEventLog(std::string text)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
+
+    // Check if event log has been frozen by the user.
+    if(m_incomingEventFreeze)
+        return;
 
     // Maintain maximum log size.
     while(m_incomingEventLog.size() > m_incomingEventLogSize)
@@ -193,6 +223,15 @@ void InputManagerEditor::OnWindowFocus(const System::Window::Events::Focus& even
 bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
+
+    // Filter keyboard key events.
+    if((event.action == GLFW_PRESS && !m_incomingKeyboardKeyPress) ||
+        (event.action == GLFW_RELEASE && !m_incomingKeyboardKeyRelease) ||
+        (event.action == GLFW_REPEAT && !m_incomingKeyboardKeyRepeat))
+    {
+        // Skip keyboard key events we want to filter.
+        return false;
+    }
 
     // Add event text log for keyboard key.
     if(m_incomingKeyboardKey)

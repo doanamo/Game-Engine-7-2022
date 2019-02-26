@@ -69,8 +69,12 @@ namespace Editor
         Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_cursorPositionReceiver;
         Event::Receiver<void(const System::Window::Events::CursorEnter&)> m_cursorEnterReceiver;
 
+        bool m_incomingEventFreeze;
         bool m_incomingWindowFocus;
         bool m_incomingKeyboardKey;
+        bool m_incomingKeyboardKeyPress;
+        bool m_incomingKeyboardKeyRelease;
+        bool m_incomingKeyboardKeyRepeat;
         bool m_incomingTextInput;
         bool m_incomingMouseButton;
         bool m_incomingMouseScroll;
