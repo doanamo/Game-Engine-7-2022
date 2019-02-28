@@ -19,6 +19,9 @@ InputManagerEditor::InputManagerEditor() :
     m_incomingKeyboardKeyRepeat(false),
     m_incomingTextInput(false),
     m_incomingMouseButton(false),
+    m_incomingMouseButtonPress(false),
+    m_incomingMouseButtonRelease(false),
+    m_incomingMouseButtonRepeat(false),
     m_incomingMouseScroll(false),
     m_incomingCursorPosition(false),
     m_incomingCursorEnter(false),
@@ -66,6 +69,9 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
     std::swap(m_incomingKeyboardKeyRepeat, other.m_incomingKeyboardKeyRepeat);
     std::swap(m_incomingTextInput, other.m_incomingTextInput);
     std::swap(m_incomingMouseButton, other.m_incomingMouseButton);
+    std::swap(m_incomingMouseButtonPress, other.m_incomingMouseButtonPress);
+    std::swap(m_incomingMouseButtonRelease, other.m_incomingMouseButtonRelease);
+    std::swap(m_incomingMouseButtonRepeat, other.m_incomingMouseButtonRepeat);
     std::swap(m_incomingMouseScroll, other.m_incomingMouseScroll);
     std::swap(m_incomingCursorPosition, other.m_incomingCursorPosition);
     std::swap(m_incomingCursorEnter, other.m_incomingCursorEnter);
@@ -133,7 +139,7 @@ void InputManagerEditor::Update(float timeDelta)
             {
                 if(ImGui::TreeNode("Incoming"))
                 {
-                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
+                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 400), true);
                     for(const std::string& eventText : m_incomingEventLog)
                     {
                         ImGui::TextWrapped(eventText.c_str());
@@ -158,12 +164,17 @@ void InputManagerEditor::Update(float timeDelta)
                     ImGui::Checkbox("Window Focus", &m_incomingWindowFocus);
                     ImGui::Checkbox("Keyboard Key", &m_incomingKeyboardKey);
                     ImGui::Indent();
-                    ImGui::Checkbox("Press", &m_incomingKeyboardKeyPress);
-                    ImGui::Checkbox("Release", &m_incomingKeyboardKeyRelease);
-                    ImGui::Checkbox("Repeat", &m_incomingKeyboardKeyRepeat);
+                    ImGui::Checkbox("Press##KeyboardKeyPress", &m_incomingKeyboardKeyPress);
+                    ImGui::Checkbox("Release##KeyboardKeyRelease", &m_incomingKeyboardKeyRelease);
+                    ImGui::Checkbox("Repeat##KeyboardKeyRepeat", &m_incomingKeyboardKeyRepeat);
                     ImGui::Unindent();
                     ImGui::Checkbox("Text Input", &m_incomingTextInput);
                     ImGui::Checkbox("Mouse Button", &m_incomingMouseButton);
+                    ImGui::Indent();
+                    ImGui::Checkbox("Press##MouseButtonPress", &m_incomingMouseButtonPress);
+                    ImGui::Checkbox("Release##MouseButtonRelease", &m_incomingMouseButtonRelease);
+                    ImGui::Checkbox("Repeat##MouseButtonRepeat", &m_incomingMouseButtonRepeat);
+                    ImGui::Unindent();
                     ImGui::Checkbox("Mouse Scroll", &m_incomingMouseScroll);
                     ImGui::Checkbox("Cursor Position", &m_incomingCursorPosition);
                     ImGui::Checkbox("Cursor Enter", &m_incomingCursorEnter);
@@ -311,6 +322,15 @@ bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& ev
 bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton& event)
 {
     ASSERT(m_initialized, "Input manager editor has not been initialized!");
+
+    // Filter mouse button events.
+    if((event.action == GLFW_PRESS && !m_incomingMouseButtonPress) ||
+        (event.action == GLFW_RELEASE && !m_incomingMouseButtonRelease) ||
+        (event.action == GLFW_REPEAT && !m_incomingMouseButtonRepeat))
+    {
+        // Skip mouse button events we want to filter.
+        return false;
+    }
 
     // Add event text log for mouse button.
     if(m_incomingMouseButton)

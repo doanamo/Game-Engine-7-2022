@@ -77,6 +77,9 @@ namespace Editor
         bool m_incomingKeyboardKeyRepeat;
         bool m_incomingTextInput;
         bool m_incomingMouseButton;
+        bool m_incomingMouseButtonPress;
+        bool m_incomingMouseButtonRelease;
+        bool m_incomingMouseButtonRepeat;
         bool m_incomingMouseScroll;
         bool m_incomingCursorPosition;
         bool m_incomingCursorEnter;
