@@ -139,7 +139,7 @@ void InputManagerEditor::Update(float timeDelta)
             {
                 if(ImGui::TreeNode("Incoming"))
                 {
-                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 400), true);
+                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
                     for(const std::string& eventText : m_incomingEventLog)
                     {
                         ImGui::TextWrapped(eventText.c_str());
@@ -179,9 +179,7 @@ void InputManagerEditor::Update(float timeDelta)
                     ImGui::Checkbox("Cursor Position", &m_incomingCursorPosition);
                     ImGui::Checkbox("Cursor Enter", &m_incomingCursorEnter);
 
-                    ImGui::TextWrapped("Focus game instead of editor interface to receive incoming events.");
                     ImGui::EndChild();
-
                     ImGui::TreePop();
                 }
             }

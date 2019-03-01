@@ -99,8 +99,6 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     m_engine = engine;
 
     // Create ImGui context.
-    LOG() << "Creating interface context...";
-
     m_interface = ImGui::CreateContext();
 
     if(m_interface == nullptr)
