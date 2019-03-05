@@ -172,27 +172,25 @@ void GameScene::Update(float updateTime)
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    /*
-    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyLeft))
+    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
     }
 
-    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyRight))
+    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
     {
         direction.x += 1.0f;
     }
 
-    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyUp))
+    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
     {
         direction.y += 1.0f;
     }
 
-    if(m_engine->GetInputState().IsKeyboardKeyDown(System::KeyboardKeys::KeyDown))
+    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
     {
         direction.y -= 1.0f;
     }
-    }*/
 
     if(direction != glm::vec3(0.0f))
     {

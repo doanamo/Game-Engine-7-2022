@@ -229,7 +229,7 @@ int Root::Run()
         float timeDelta = m_timer->GetDeltaTime();
 
         // Prepare input manager for incoming events.
-        m_inputManager->PrepareForEvents();
+        m_inputManager->PrepareForEvents(timeDelta);
 
         // Process window events.
         m_window->ProcessEvents();

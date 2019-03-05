@@ -62,7 +62,14 @@ namespace System
 
         // Prepares the input manager for incoming input events.
         // Must be called before window events are processed.
-        void PrepareForEvents();
+        void PrepareForEvents(float timeDelta);
+
+        // Resets all input states to their untouched values.
+        void ResetStates();
+
+        // Checks if specified key is pressed or released.
+        bool IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat = true);
+        bool IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat = true);
 
     public:
         // Event dispatchers.
@@ -98,6 +105,9 @@ namespace System
         void OnCursorEnter(const Window::Events::CursorEnter& event);
 
     private:
+        // Keyboard key states.
+        InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
+
         // Initialization state.
         bool m_initialized;
     };

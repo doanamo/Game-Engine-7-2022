@@ -215,18 +215,18 @@ namespace System
         // Keyboard key event.
         struct KeyboardKey
         {
-            KeyboardKey() :
-                state(InputStates::Invalid),
-                key(KeyboardKeys::Invalid),
-                modifiers(KeyboardModifiers::Invalid),
-                scancode(0)
+            KeyboardKey(KeyboardKeys::Type key = KeyboardKeys::KeyUnknown) :
+                key(key),
+                modifiers(KeyboardModifiers::None),
+                state(InputStates::ReleasedRepeat),
+                stateTime(0.0f)
             {
             }
 
-            InputStates::Type state;
             KeyboardKeys::Type key;
             KeyboardModifiers::Type modifiers;
-            int scancode;
+            InputStates::Type state;
+            float stateTime;
         };
 
         // Text input event.
