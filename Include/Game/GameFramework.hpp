@@ -40,7 +40,8 @@ namespace Game
         bool Initialize(Engine::Root* engine);
 
         // Updates game framework.
-        void Update();
+        // Returns true if game state actually updates.
+        bool Update();
 
         // Draws game framework.
         void Draw();

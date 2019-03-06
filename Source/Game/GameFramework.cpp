@@ -67,7 +67,7 @@ bool GameFramework::Initialize(Engine::Root* engine)
     return m_initialized = true;
 }
 
-void GameFramework::Update()
+bool GameFramework::Update()
 {
     ASSERT(m_initialized, "Game framework has not been initialized!");
 
@@ -77,8 +77,10 @@ void GameFramework::Update()
     // Update game state.
     if(m_gameState)
     {
-        m_gameState->Update(timer);
+        return m_gameState->Update(timer);
     }
+
+    return false;
 }
 
 void GameFramework::Draw()

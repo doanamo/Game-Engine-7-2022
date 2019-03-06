@@ -19,10 +19,11 @@ namespace System
         {
             Invalid,
 
-            Pressed,
-            PressedRepeat,
-            Released,
-            ReleasedRepeat,
+            Pressed, // Input was pressed just before processed frame.
+            PressedRepeat, // Input was pressed for more than once frame.
+            PressedReleased, // Input was pressed and released in one frame.
+            Released, // Input was released just before processed frame.
+            ReleasedRepeat, // Input was released for more than one frame.
 
             Count,
         };
@@ -222,6 +223,9 @@ namespace System
                 stateTime(0.0f)
             {
             }
+
+            bool IsPressed(bool repeat) const;
+            bool IsReleased(bool repeat) const;
 
             KeyboardKeys::Type key;
             KeyboardModifiers::Type modifiers;

@@ -23,7 +23,7 @@
         while(window.IsOpen())
         {
             // Prepare the state for incoming events.
-            inputSystem.PrepareForEvents();
+            inputSystem.AdvanceState();
 
             // Process events that will be dispatched to the input state.
             window.ProcessEvents();
@@ -60,9 +60,9 @@ namespace System
         // Initializes the input manager.
         bool Initialize(Window* window);
 
-        // Prepares the input manager for incoming input events.
-        // Must be called before window events are processed.
-        void PrepareForEvents(float timeDelta);
+        // Advances input state after processing an update.
+        // Should be always called before or after frame where input is polled.
+        void AdvanceState(float timeDelta);
 
         // Resets all input states to their untouched values.
         void ResetStates();

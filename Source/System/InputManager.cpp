@@ -73,7 +73,7 @@ bool InputManager::Initialize(Window* window)
     return m_initialized = true;
 }
 
-void InputManager::PrepareForEvents(float timeDelta)
+void InputManager::AdvanceState(float timeDelta)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
 
@@ -83,17 +83,23 @@ void InputManager::PrepareForEvents(float timeDelta)
         keyboardKeyState.stateTime += timeDelta;
     }
 
-    // Transition regular states to repeat states.
-    // We do not reset state times when repeat state triggers.
+    // Transition keyboard key input states.
     for(auto& keyboardKeyState : m_keyboardKeyStates)
     {
-        if(keyboardKeyState.key == InputStates::Pressed)
+        switch(keyboardKeyState.state)
         {
-            keyboardKeyState.key = InputStates::PressedRepeat;
-        }
-        else if(keyboardKeyState.key == InputStates::Released)
-        {
-            keyboardKeyState.key = InputStates::ReleasedRepeat;
+        case InputStates::Pressed:
+            keyboardKeyState.state = InputStates::PressedRepeat;
+            break;
+
+        case InputStates::PressedReleased:
+            keyboardKeyState.state = InputStates::Released;
+            keyboardKeyState.stateTime = 0.0f;
+            break;
+
+        case InputStates::Released:
+            keyboardKeyState.state = InputStates::ReleasedRepeat;
+            break;
         }
     }
 }
@@ -115,11 +121,8 @@ bool InputManager::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
         return false;
 
-    // Retrieve current keyboard key state.
-    const InputEvents::KeyboardKey& keyboardKeyEvent = m_keyboardKeyStates[key];
-    const InputStates::Type& state = keyboardKeyEvent.state;
-
-    return state == InputStates::Pressed || (state == InputStates::PressedRepeat && repeat);
+    // Determine if key was pressed.
+    return m_keyboardKeyStates[key].IsPressed(repeat);
 }
 
 bool InputManager::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
@@ -130,11 +133,8 @@ bool InputManager::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
         return false;
 
-    // Retrieve current keyboard key state.
-    const InputEvents::KeyboardKey& keyboardKeyEvent = m_keyboardKeyStates[key];
-    const InputStates::Type& state = keyboardKeyEvent.state;
-
-    return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
+    // Determine if key was released.
+    return m_keyboardKeyStates[key].IsReleased(repeat);
 }
 
 bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
@@ -158,9 +158,21 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 
     // Update stored keyboard key event.
     InputEvents::KeyboardKey& keyboardKeyEvent = m_keyboardKeyStates[key];
-    keyboardKeyEvent.state = TranslateInputAction(event.action);
+
+    InputStates::Type newState = TranslateInputAction(event.action);
+    if(keyboardKeyEvent.state == InputStates::Pressed && newState == InputStates::Released)
+    {
+        // Handle keyboard keys being pressed and released quickly within a single frame.
+        // We do not want to reset state time until we transition to released state.
+        keyboardKeyEvent.state = InputStates::PressedReleased;
+    }
+    else
+    {
+        keyboardKeyEvent.state = newState;
+        keyboardKeyEvent.stateTime = 0.0f;
+    }
+
     keyboardKeyEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
-    keyboardKeyEvent.stateTime = 0.0f;
 
     // Send an outgoing keyboard key event.
     events.keyboardKey.Dispatch(keyboardKeyEvent);

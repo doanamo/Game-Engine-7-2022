@@ -228,9 +228,6 @@ int Root::Run()
         // Calculate frame delta time.
         float timeDelta = m_timer->GetDeltaTime();
 
-        // Prepare input manager for incoming events.
-        m_inputManager->PrepareForEvents(timeDelta);
-
         // Process window events.
         m_window->ProcessEvents();
 
@@ -238,7 +235,11 @@ int Root::Run()
         m_editorSystem->Update(timeDelta);
 
         // Update the game state.
-        m_gameFramework->Update();
+        if(m_gameFramework->Update())
+        {
+            // Prepare input manager for incoming events.
+            m_inputManager->AdvanceState(timeDelta);
+        }
 
         // Draw the game state.
         m_gameFramework->Draw();

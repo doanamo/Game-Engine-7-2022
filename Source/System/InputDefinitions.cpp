@@ -166,4 +166,14 @@ namespace System
 
         return result < MouseButtons::Count ? result : MouseButtons::Invalid;
     }
+
+    bool InputEvents::KeyboardKey::IsPressed(bool repeat) const
+    {
+        return state == InputStates::Pressed || state == InputStates::PressedReleased || (state == InputStates::PressedRepeat && repeat);
+    }
+
+    bool InputEvents::KeyboardKey::IsReleased(bool repeat) const
+    {
+        return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
+    }
 }
