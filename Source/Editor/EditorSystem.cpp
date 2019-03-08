@@ -236,7 +236,7 @@ bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& e
         (std::size_t)System::MouseButtons::Count
     );
 
-    // We can only handle a specific number of buttons.
+    // We can only handle a specific number of mouse buttons.
     if(event.button < System::MouseButtons::Button1)
         return false;
 
@@ -245,7 +245,6 @@ bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& e
 
     // Set mouse button state.
     const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
-    ASSERT(MouseButtonIndex < Utility::StaticArraySize(io.MouseDown), "Invalid mouse button index!");
     io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
 
     // Prevent input from passing through.

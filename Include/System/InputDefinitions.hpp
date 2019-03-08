@@ -200,11 +200,11 @@ namespace System
             Button7,
             Button8,
 
+            Count,
+
             ButtonLeft = Button1,
             ButtonRight = Button2,
             ButtonMiddle = Button3,
-
-            Count,
         };
     };
 
