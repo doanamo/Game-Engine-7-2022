@@ -176,4 +176,10 @@ namespace System
     {
         return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
     }
+
+    bool InputEvents::KeyboardKey::IsRepeat() const
+    {
+        return state == InputStates::PressedRepeat || state == InputStates::ReleasedRepeat;
+    }
+
 }

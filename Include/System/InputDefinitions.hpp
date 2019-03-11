@@ -224,8 +224,9 @@ namespace System
             {
             }
 
-            bool IsPressed(bool repeat) const;
-            bool IsReleased(bool repeat) const;
+            bool IsPressed(bool repeat = true) const;
+            bool IsReleased(bool repeat = true) const;
+            bool IsRepeat() const;
 
             KeyboardKeys::Type key;
             KeyboardModifiers::Type modifiers;

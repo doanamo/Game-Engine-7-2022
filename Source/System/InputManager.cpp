@@ -141,9 +141,12 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 {
     ASSERT(m_initialized, "Input system has not been initialized!");
 
-    // Validate key index.
+    // Translate keyboard event.
     KeyboardKeys::Type key = TranslateKeyboardKey(event.key);
+    InputStates::Type state = TranslateInputAction(event.action);
+    KeyboardModifiers::Type modifiers = TranslateKeyboardModifiers(event.modifiers);
 
+    // Validate key index.
     if(key <= KeyboardKeys::Invalid || key >= KeyboardKeys::Count)
     {
         LOG_WARNING() << "Invalid keyboard key input received: " << event.key;
@@ -156,11 +159,10 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
         return false;
     }
 
-    // Update stored keyboard key event.
-    InputEvents::KeyboardKey& keyboardKeyEvent = m_keyboardKeyStates[key];
+    // Send an outgoing keyboard key event.
+    InputEvents::KeyboardKey keyboardKeyEvent = m_keyboardKeyStates[key];
 
-    InputStates::Type newState = TranslateInputAction(event.action);
-    if(keyboardKeyEvent.state == InputStates::Pressed && newState == InputStates::Released)
+    if(keyboardKeyEvent.state == InputStates::Pressed && state == InputStates::Released)
     {
         // Handle keyboard keys being pressed and released quickly within a single frame.
         // We do not want to reset state time until we transition to released state.
@@ -168,14 +170,21 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
     }
     else
     {
-        keyboardKeyEvent.state = newState;
+        keyboardKeyEvent.state = state;
         keyboardKeyEvent.stateTime = 0.0f;
     }
 
-    keyboardKeyEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
-
+    keyboardKeyEvent.modifiers = modifiers;
+ 
     // Send an outgoing keyboard key event.
-    events.keyboardKey.Dispatch(keyboardKeyEvent);
+    bool inputCaptured = events.keyboardKey.Dispatch(keyboardKeyEvent);
+
+    // Save new keyboard key event in cases when it
+    // is not captured or when it is in released state.
+    if(!inputCaptured || keyboardKeyEvent.IsReleased())
+    {
+        m_keyboardKeyStates[key] = keyboardKeyEvent;
+    }
 
     // Do not consume input event.
     return false;
