@@ -56,7 +56,7 @@ bool IdentitySystem::Initialize(EntitySystem* entitySystem)
     m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
 
     // Success!
-    return m_initialized = true;;
+    return m_initialized = true;
 }
 
 bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool rename)

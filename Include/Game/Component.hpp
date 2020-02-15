@@ -23,6 +23,7 @@ namespace Game
     {
     protected:
         Component() = default;
+        virtual ~Component() = default;
 
         // Delete copy constructor and operator.
         // Derived components must define move operator in order to be used

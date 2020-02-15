@@ -142,7 +142,7 @@ void InputManagerEditor::Update(float timeDelta)
                     ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
                     for(const std::string& eventText : m_incomingEventLog)
                     {
-                        ImGui::TextWrapped(eventText.c_str());
+                        ImGui::TextWrapped("%s", eventText.c_str());
                     }
                     ImGui::SetScrollHere(1.0f);
                     ImGui::EndChild();

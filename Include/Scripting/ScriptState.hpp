@@ -31,7 +31,7 @@ namespace Scripting
         // Load script state from a file.
         struct LoadFromFile
         {
-            Engine::Root* engine;
+            Engine::Root* engine = nullptr;
             std::string filePath;
         };
 

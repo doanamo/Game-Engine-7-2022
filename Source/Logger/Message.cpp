@@ -63,7 +63,7 @@ Message& Message::SetSource(std::string source)
     // Truncate the source file path.
     if(!m_source.empty())
     {
-        // Normalize source path delimeters.
+        // Normalize source path delimiters.
         std::replace(m_source.begin(), m_source.end(), '\\', '/');
 
         // Find and remove base path to source directory.
