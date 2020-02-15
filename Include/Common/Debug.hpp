@@ -20,6 +20,8 @@
 
     // Override new operator to store additional info about an allocation.
     #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+    #define DEBUG_NEW new
 #endif
 
 /*
@@ -51,7 +53,7 @@ namespace Debug
     Assert Macros
 
     Ensures that a given expression is true.
-    Use as a sanity check to guard against programming errors.
+    Used as a sanity check to guard against programming errors.
 
     Behavior in different build configurations:
     - Debug: Triggers a breakpoint
@@ -90,7 +92,7 @@ namespace Debug
     Verify Macro
 
     Ensures that a given expression is true.
-    Use as a safety measure in case of runtime errors.
+    Used to safeguard against errors we choose to not handle.
 
     Behavior in different build configurations:
     - Debug: Triggers a breakpoint
