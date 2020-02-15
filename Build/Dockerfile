@@ -1,3 +1,5 @@
+# Making changes to this file requires triggering image rebuild on Docker Hub!
+
 FROM amd64/ubuntu:rolling
 
 RUN dpkg --add-architecture i386
