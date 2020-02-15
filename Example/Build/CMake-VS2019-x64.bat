@@ -4,25 +4,29 @@ rem Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 echo -- Generating CMake project...
 
 rem Collect command line arguments.
-set outputDir=%1
-set inputDir=%2
+set inputDir=%1
+set outputDir=%2
+set arch=%3
 
-if [%outputDir%] == [] set outputDir="CMake-VS2019"
 if [%inputDir%] == [] set inputDir="."
+if [%outputDir%] == [] set outputDir="CMake-VS2019-x64"
+if [%arch%] == [] set arch=x64
 
 rem Create empty project directory.
 mkdir %outputDir% >nul 2>&1
 cd %outputDir%
 
 rem Generate solution files.
-cmake -G "Visual Studio 16" ../%inputDir%
+set archArg=-A %arch%
+
+cmake -G "Visual Studio 16" %archArg% ../%inputDir%
 
 if %ERRORLEVEL% NEQ 0 (
     pause
     exit
 )
 
-rem Open solution file.
+rem Open main solution file.
 for /f %%f in ('dir /b "*.sln"') do (
     set solution=%%f
     goto found
