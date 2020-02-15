@@ -103,6 +103,20 @@ if(ENABLE_TESTS)
 endif()
 
 #
+# Packaging
+#
+
+# Install needed data files from both game and engine.
+install(TARGETS ${TARGET_NAME} DESTINATION .)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data/" DESTINATION "Data")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${ENGINE_DIR}/Deploy/Data/" DESTINATION "Data")
+
+# Configure packaging command.
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+include(CPack)
+
+#
 # External
 #
 
