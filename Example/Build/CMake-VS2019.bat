@@ -8,7 +8,7 @@ set outputDir=%1
 set inputDir=%2
 
 if [%outputDir%] == [] set outputDir="CMake-VS2019"
-if [%inputDir%] == [] set inputDir="../"
+if [%inputDir%] == [] set inputDir="."
 
 rem Create empty project directory.
 mkdir %outputDir% >nul 2>&1
