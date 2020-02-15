@@ -1,6 +1,6 @@
 @echo off
 
-rem Copyright (c) 2018-2019 Piotr Doan. All rights reserved.
+rem Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 echo -- Cleaning CMake directories...
 
 rem Remove temporary directories.
