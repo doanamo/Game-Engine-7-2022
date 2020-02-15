@@ -131,7 +131,7 @@ void GameStateEditor::Update(float timeDelta)
                     float updateTimeMaximum = 0.0f;
                     float updateTimeAverage = 0.0f;
 
-                    for(float& updateTime : m_updateTimeHistogram)
+                    for(float updateTime : m_updateTimeHistogram)
                     {
                         if(updateTime == 0.0f)
                             continue;
@@ -145,7 +145,10 @@ void GameStateEditor::Update(float timeDelta)
                     if(updateTimeMinimum == FLT_MAX)
                         updateTimeMinimum = 0.0f;
 
-                    updateTimeAverage /= updateTimeValues;
+                    if(updateTimeValues != 0)
+                    {
+                        updateTimeAverage /= updateTimeValues;
+                    }
 
                     // Print histogram statistics.
                     ImGui::SameLine();
