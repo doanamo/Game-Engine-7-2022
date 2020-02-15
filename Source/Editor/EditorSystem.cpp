@@ -275,7 +275,7 @@ bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& e
     ImGuiIO& io = ImGui::GetIO();
 
     // Make sure that the array is of an expected size.
-    const int MaxKeyboardKeyCount = Utility::StaticArraySize(io.KeysDown);
+    const size_t MaxKeyboardKeyCount = Utility::StaticArraySize(io.KeysDown);
     ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Insufficient ImGUI keyboard state array size!");
 
     // We can only handle a specific number of keys.
