@@ -21,31 +21,31 @@ set(ENABLE_TESTS ON)
 # List of include files.
 set(INCLUDE_FILES
     "Engine.hpp"
-	
-	"Engine/Root.hpp"
-	"Engine/Public.hpp"
-	
-	"Common/Build.hpp"
-	"Common/Debug.hpp"
-	"Common/NonCopyable.hpp"
+    
+    "Engine/Root.hpp"
+    "Engine/Public.hpp"
+    
+    "Common/Build.hpp"
+    "Common/Debug.hpp"
+    "Common/NonCopyable.hpp"
     "Common/ScopeGuard.hpp"
-	"Common/Utility.hpp"
-	"Common/LinkedList.hpp"
-	
-	"Event/Delegate.hpp"
+    "Common/Utility.hpp"
+    "Common/LinkedList.hpp"
+    
+    "Event/Delegate.hpp"
     "Event/Collector.hpp"
     "Event/Dispatcher.hpp"
     "Event/Receiver.hpp"
     "Event/Queue.hpp"
     "Event/Broker.hpp"
-	
-	"Logger/Logger.hpp"
-	"Logger/Message.hpp"
+    
+    "Logger/Logger.hpp"
+    "Logger/Message.hpp"
     "Logger/Sink.hpp"
     "Logger/Format.hpp"
     "Logger/Output.hpp"
-	
-	"System/Platform.hpp"
+    
+    "System/Platform.hpp"
     "System/FileSystem.hpp"
     "System/Window.hpp"
     "System/Timer.hpp"
@@ -53,9 +53,9 @@ set(INCLUDE_FILES
     "System/InputManager.hpp"
     "System/ResourcePool.hpp"
     "System/ResourceManager.hpp"
-	
+    
     "Scripting/ScriptState.hpp"
-	
+    
     "Graphics/RenderContext.hpp"
     "Graphics/RenderState.hpp"
     "Graphics/ScreenSpace.hpp"
@@ -70,7 +70,7 @@ set(INCLUDE_FILES
     "Graphics/Sprite/SpriteDrawList.hpp"
     "Graphics/Sprite/SpriteRenderer.hpp"
     "Graphics/Sprite/SpriteAnimationList.hpp"
-	
+    
     "Game/GameFramework.hpp"
     "Game/GameState.hpp"
     "Game/UpdateTimer.hpp"
@@ -87,9 +87,9 @@ set(INCLUDE_FILES
     "Game/Systems/IdentitySystem.hpp"
     "Game/Systems/InterpolationSystem.hpp"
     "Game/Systems/SpriteSystem.hpp"
-	
+    
     "Renderer/StateRenderer.hpp"
-	
+    
     "Editor/EditorSystem.hpp"
     "Editor/EditorShell.hpp"
     "Editor/EditorRenderer.hpp"
@@ -101,7 +101,7 @@ set(INCLUDE_FILES
 set(SOURCE_FILES
     "Precompiled.hpp"
     "Precompiled.cpp"
-	
+    
     "Engine/Root.cpp"
 
     "Common/Build.cpp"
@@ -286,10 +286,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     
     # Use precompiled header for quicker compilation of static headers.
     set_source_files_properties(${SOURCE_FILES} PROPERTIES COMPILE_FLAGS
-		"/Yu\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\"")
+        "/Yu\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\"")
 
     set_source_files_properties("../Source/Precompiled.cpp" PROPERTIES COMPILE_FLAGS
-		"/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\"")
+        "/Yc\"Precompiled.hpp\" /Fp\"${CMAKE_CURRENT_BINARY_DIR}/Source/Precompiled-$(Configuration).pch\"")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Enable additional warnings.
     target_compile_options(${TARGET_NAME} PUBLIC "-Wall")
