@@ -122,7 +122,7 @@ void GameStateEditor::Update(float timeDelta)
                     // Show update histogram.
                     ImGui::BulletText("Update time histogram:");
                     ImGui::PlotHistogram("##UpdateTimeHistogram",
-                        &m_updateTimeHistogram[0], m_updateTimeHistogram.size(),
+                        &m_updateTimeHistogram[0], (int)m_updateTimeHistogram.size(),
                         0, "", FLT_MAX, FLT_MAX, ImVec2(0, 100));
 
                     // Process histogram statistics.
