@@ -83,8 +83,8 @@ namespace std
         {
             // Use combined identifiers as a hash.
             // This turns two 32bit integers into one that's 64bit.
-            // We assume std::size_t is 64bit, but it is fine if not.
-            return pair.first.identifier * std::numeric_limits<int>::max() + pair.second.identifier;
+            // We assume std::size_t is 64bit, but it is fine if it is not.
+            return (std::size_t)pair.first.identifier * std::numeric_limits<int>::max() + pair.second.identifier;
         }
     };
 }
