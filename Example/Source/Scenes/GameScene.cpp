@@ -47,8 +47,8 @@ GameScene& GameScene::operator=(GameScene&& other)
 
 bool GameScene::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing game scene...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing game scene...";
 
     // Make sure instance has not been initialized.
     VERIFY(!m_initialized, "Game scene has already been initialized!");
@@ -59,7 +59,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr && engine->IsInitialized())
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
+        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
         return false;
     }
 
@@ -70,7 +70,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     
     if(!m_gameState->Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize game state!";
+        LOG_ERROR("Could not initialize game state!");
         return false;
     }
 

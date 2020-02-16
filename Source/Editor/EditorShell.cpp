@@ -37,8 +37,8 @@ EditorShell& EditorShell::operator=(EditorShell&& other)
 
 bool EditorShell::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing editor shell...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing editor shell...";
 
     // Make sure instance is not initialized.
     ASSERT(!m_initialized, "Editor shell instance is already initialized!");
@@ -49,7 +49,7 @@ bool EditorShell::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 
@@ -58,14 +58,14 @@ bool EditorShell::Initialize(Engine::Root* engine)
     // Initialize input manager editor.
     if(!m_inputManagerEditor.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize input manager editor!";
+        LOG_ERROR("Could not initialize input manager editor!");
         return false;
     }
 
     // Initialize game state editor.
     if(!m_gameStateEditor.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize game state editor!";
+        LOG_ERROR("Could not initialize game state editor!");
         return false;
     }
 

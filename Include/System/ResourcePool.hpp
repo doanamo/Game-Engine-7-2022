@@ -188,7 +188,7 @@ namespace System
                 std::string name = it->first;
 
                 // Print a log message.
-                LOG_INFO() << "Releasing resource: \"" << name << "\"";
+                LOG_INFO("Releasing resource: \"{}\"", name);
 
                 // Release the resource.
                 it = m_resources.erase(it);
@@ -211,7 +211,7 @@ namespace System
             std::string name = it->first;
 
             // Print a log message.
-            LOG_INFO() << "Releasing resource: \"" << name << "\"";
+            LOG_INFO("Releasing resource: \"{}\"", name);
 
             // Release the resource.
             it = m_resources.erase(it);

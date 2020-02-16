@@ -43,8 +43,8 @@ EditorRenderer& EditorRenderer::operator=(EditorRenderer&& other)
 
 bool EditorRenderer::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing editor renderer...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing editor renderer...";
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Editor renderer has already been initialized!");
@@ -55,7 +55,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
+        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
         return false;
     }
 
@@ -71,7 +71,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(!m_vertexBuffer.Initialize(&m_engine->GetRenderContext(), vertexBufferInfo))
     {
-        LOG_ERROR() << "Could not initialize vertex buffer!";
+        LOG_ERROR("Could not initialize vertex buffer!");
         return false;
     }
 
@@ -82,7 +82,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(!m_indexBuffer.Initialize(&m_engine->GetRenderContext(), indexBufferInfo))
     {
-        LOG_ERROR() << "Could not initialize index buffer!";
+        LOG_ERROR("Could not initialize index buffer!");
         return false;
     }
 
@@ -100,7 +100,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(!m_vertexArray.Initialize(&m_engine->GetRenderContext(), inputLayoutInfo))
     {
-        LOG_ERROR() << "Could not initialize vertex array!";
+        LOG_ERROR("Could not initialize vertex array!");
         return false;
     }
 
@@ -114,7 +114,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
     {
-        LOG_ERROR() << "Could not retrieve font data!";
+        LOG_ERROR("Could not retrieve font data!");
         return false;
     }
 
@@ -129,7 +129,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(!m_fontTexture.Initialize(textureParams))
     {
-        LOG_ERROR() << "Could not initialize font texture!";
+        LOG_ERROR("Could not initialize font texture!");
         return false;
     }
 
@@ -143,7 +143,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(!m_sampler.Initialize(&m_engine->GetRenderContext(), samplerInfo))
     {
-        LOG_ERROR() << "Could not initialize sampler!";
+        LOG_ERROR("Could not initialize sampler!");
         return false;
     }
 
@@ -157,7 +157,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     if(m_shader == nullptr)
     {
-        LOG_ERROR() << "Could not initialize shader!";
+        LOG_ERROR("Could not initialize shader!");
         return false;
     }
 

@@ -37,8 +37,8 @@ RenderContext& RenderContext::operator=(RenderContext&& other)
 
 bool RenderContext::Initialize(System::Window* window)
 {
+    LOG("Initializing rendering context...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing rendering context...";
 
     // Make sure that the instance is not initialized.
     VERIFY(!m_initialized, "Render context has already been initialized!");
@@ -72,7 +72,7 @@ RenderState& RenderContext::PushState()
     // Push a copy of the current state.
     m_pushedStates.emplace(m_currentState);
 
-    // Return the current state for conveniance.
+    // Return the current state for convenience.
     return m_currentState;
 }
 

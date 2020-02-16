@@ -38,8 +38,8 @@ GameFramework& GameFramework::operator=(GameFramework&& other)
 
 bool GameFramework::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing game framework...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing game framework...";
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Game framework has already been initialized!");
@@ -50,7 +50,7 @@ bool GameFramework::Initialize(Engine::Root* engine)
     // Save engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 
@@ -60,7 +60,7 @@ bool GameFramework::Initialize(Engine::Root* engine)
     // Listens and replicates event to the current game state.
     if(!m_eventRouter.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize event router!";
+        LOG_ERROR("Could not initialize event router!");
         return false;
     }
 
@@ -110,7 +110,7 @@ void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)
     // Make sure we are not setting the same game state.
     if(gameState == m_gameState)
     {
-        LOG_WARNING() << "Attempted to change game state into the current one!";
+        LOG_WARNING("Attempted to change game state into the current one!");
         return;
     }
 

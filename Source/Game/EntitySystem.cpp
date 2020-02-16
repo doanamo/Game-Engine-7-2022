@@ -69,7 +69,8 @@ EntitySystem::~EntitySystem()
 
 bool EntitySystem::Initialize()
 {
-    LOG() << "Initializing entity system...";
+    LOG("Initializing entity system...");
+    LOG_SCOPED_INDENT();
 
     // Make sure instance is not already initialized.
     ASSERT(!m_initialized, "Entity system instance has already been initialized!");

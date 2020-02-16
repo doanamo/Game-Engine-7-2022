@@ -14,17 +14,13 @@ bool OpenGL::CheckErrors()
     while((error = glGetError()) != GL_NO_ERROR)
     {
         errorFound = true;
-
-        #ifndef NDEBUG
-            std::stringstream stream;
-            stream << std::hex << std::setfill('0') << std::setw(4) << error;
-
-            LOG_WARNING() << "Encountered OpenGL error with code 0x" << stream.str() << "!";
-            ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error!");
-        #endif
+        LOG_WARNING("Encountered OpenGL error with code {:#06x}!", error);
     }
 
-    return errorFound != true;
+    ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error(s)!");
+
+    // Return true if no errors have been found.
+    return !errorFound;
 }
 
 RenderState::RenderState() :
@@ -121,8 +117,8 @@ RenderState& RenderState::operator=(RenderState&& other)
 
 bool RenderState::Initialize()
 {
+    LOG("Initializing rendering state...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing rendering state...";
 
     // glEnable
     for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)

@@ -39,8 +39,8 @@ ComponentSystem& ComponentSystem::operator=(ComponentSystem&& other)
 
 bool ComponentSystem::Initialize(EntitySystem* entitySystem)
 {
+    LOG("Initializing component system...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing component system...";
 
     // Make sure we are not initializing twice.
     ASSERT(!m_initialized, "Component system instance has already been initialized!");
@@ -51,7 +51,7 @@ bool ComponentSystem::Initialize(EntitySystem* entitySystem)
     // Save entity system reference.
     if(entitySystem == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"entitySystem\" is null!";
+        LOG_ERROR("Invalid argument - \"entitySystem\" is null!");
         return false;
     }
 
@@ -60,13 +60,13 @@ bool ComponentSystem::Initialize(EntitySystem* entitySystem)
     // Receive events from the entity system.
     if(!m_entityCreate.Subscribe(entitySystem->events.entityCreate))
     {
-        LOG_ERROR() << "Failed to subscribe to entity system!";
+        LOG_ERROR("Failed to subscribe to entity system!");
         return false;
     }
 
     if(!m_entityDestroy.Subscribe(entitySystem->events.entityDestroy))
     {
-        LOG_ERROR() << "Failed to subscribe to entity system!";
+        LOG_ERROR("Failed to subscribe to entity system!");
         return false;
     }
 

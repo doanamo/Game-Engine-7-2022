@@ -31,22 +31,22 @@ void Build::Initialize()
 
 void Build::PrintInfo()
 {
+    LOG_INFO("Printing build info...");
     LOG_SCOPED_INDENT();
-    LOG_INFO() << "Printing build info...";
 
-    LOG_INFO() << "Engine directory: \"" << (EngineDir.empty() ? "Default" : EngineDir) << "\"";
-    LOG_INFO() << "Engine repository: "
-        << Build::GetEngineChangeNumber() << "-"
-        << Build::GetEngineChangeHash()   << "-"
-        << Build::GetEngineBranchName()   << " ("
-        << Build::GetEngineChangeDate()   << ")";
+    LOG_INFO("Engine directory: \"{}\"",EngineDir.empty() ? "Default" : EngineDir);
+    LOG_INFO("Engine repository: {}-{}-{} ({})",
+        Build::GetEngineChangeNumber(),
+        Build::GetEngineChangeHash(),
+        Build::GetEngineBranchName(),
+        Build::GetEngineChangeDate());
 
-    LOG_INFO() << "Game directory: \"" << (GameDir.empty() ? "Default" : GameDir) << "\"";
-    LOG_INFO() << "Game repository: "
-        << Build::GetGameChangeNumber() << "-"
-        << Build::GetGameChangeHash()   << "-"
-        << Build::GetGameBranchName()   << " ("
-        << Build::GetGameChangeDate()   << ")";
+    LOG_INFO("Game directory: \"{}\"", GameDir.empty() ? "Default" : GameDir);
+    LOG_INFO("Game repository: {}-{}-{} ({})",
+        Build::GetGameChangeNumber(),
+        Build::GetGameChangeHash(),
+        Build::GetGameBranchName(),
+        Build::GetGameChangeDate());
 }
 
 std::string Build::GetGameDir()

@@ -48,8 +48,8 @@ StateRenderer& StateRenderer::operator=(StateRenderer&& other)
 
 bool StateRenderer::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing state renderer...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing state renderer...";
 
     // Make sure class instance has not been already initialized.
     ASSERT(!m_initialized, "State renderer has already been initialized!");
@@ -60,7 +60,7 @@ bool StateRenderer::Initialize(Engine::Root* engine)
     // Validate and save engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is nullptr!";
+        LOG_ERROR("Invalid argument - \"engine\" is nullptr!");
         return false;
     }
 
@@ -80,7 +80,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     // Checks if game state is null.
     if(drawParams.gameState == nullptr)
     {
-        LOG_WARNING() << "Attempted to draw null game state!";
+        LOG_WARNING("Attempted to draw null game state!");
         return;
     }
 
@@ -143,12 +143,12 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         }
         else
         {
-            LOG_WARNING() << "Could not retrieve camera component from \"" << drawParams.cameraName << "\" entity.";
+            LOG_WARNING("Could not retrieve camera component from \"{}\" entity.", drawParams.cameraName);
         }
     }
     else
     {
-        LOG_WARNING() << "Could not retrieve \"" << drawParams.cameraName << "\" camera entity.";
+        LOG_WARNING("Could not retrieve \"{}\" camera entity.", drawParams.cameraName);
     }
 
     // Create a list of sprites that will be drawn.

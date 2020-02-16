@@ -59,8 +59,8 @@ GameState& GameState::operator=(GameState&& other)
 
 bool GameState::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing game state...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing game state...";
 
     // Check if class instance has already been initialized.
     VERIFY(!m_initialized, "Game state has already been initialized!");
@@ -71,7 +71,7 @@ bool GameState::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr || !engine->IsInitialized())
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
+        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
         return false;
     }
 
@@ -81,7 +81,7 @@ bool GameState::Initialize(Engine::Root* engine)
     // Assigns unique identifiers that all other systems use to identify objects in a game.
     if(!entitySystem.Initialize())
     {
-        LOG_ERROR() << "Could not initialize entity system!";
+        LOG_ERROR("Could not initialize entity system!");
         return false;
     }
 
@@ -89,7 +89,7 @@ bool GameState::Initialize(Engine::Root* engine)
     // Stores and manages components that entities have.
     if(!componentSystem.Initialize(&entitySystem))
     {
-        LOG_ERROR() << "Could not initialize component system!";
+        LOG_ERROR("Could not initialize component system!");
         return false;
     }
 
@@ -97,7 +97,7 @@ bool GameState::Initialize(Engine::Root* engine)
     // Allows readable names to be assigned to entities.
     if(!identitySystem.Initialize(&entitySystem))
     {
-        LOG_ERROR() << "Could not initialize identity system!";
+        LOG_ERROR("Could not initialize identity system!");
         return false;
     }
 
@@ -105,7 +105,7 @@ bool GameState::Initialize(Engine::Root* engine)
     // Controls how and when entities are interpolated.
     if(!interpolationSystem.Initialize(&componentSystem))
     {
-        LOG_ERROR() << "Could not initialize interpolation system!";
+        LOG_ERROR("Could not initialize interpolation system!");
         return false;
     }
 
@@ -113,14 +113,14 @@ bool GameState::Initialize(Engine::Root* engine)
     // Updates sprites and their animations.
     if(!spriteSystem.Initialize(&componentSystem))
     {
-        LOG_ERROR() << "Could not initialize sprite system!";
+        LOG_ERROR("Could not initialize sprite system!");
         return false;
     }
 
     // Initialize the update timer.
     if(!updateTimer.Initialize())
     {
-        LOG_ERROR() << "Could not initialize update timer!";
+        LOG_ERROR("Could not initialize update timer!");
         return false;
     }
 

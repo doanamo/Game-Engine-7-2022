@@ -31,8 +31,8 @@ FileSystem& FileSystem::operator=(FileSystem&& other)
 
 bool FileSystem::Initialize()
 {
+    LOG("Initializing file system...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing file system...";
 
     // Make sure that the class instance has not been already initialized.
     VERIFY(!m_initialized, "File system has already been initialized!");
@@ -51,7 +51,7 @@ bool FileSystem::MountDirectory(std::string dirPath)
     // Validate argument.
     if(dirPath.empty())
     {
-        LOG_WARNING() << "Attempted to mount an empty directory path!";
+        LOG_WARNING("Attempted to mount an empty directory path!");
         return false;
     }
 
@@ -67,7 +67,7 @@ bool FileSystem::MountDirectory(std::string dirPath)
     // Add a mount directory.
     m_mountDirs.push_back(dirPath);
 
-    LOG_INFO() << "Mounted \"" << dirPath << "\" directory.";
+    LOG_INFO("Mounted \"{}\" directory.", dirPath);
 
     // Success!
     return true;
@@ -80,7 +80,7 @@ std::string FileSystem::ResolvePath(const std::string filePath)
     // Validate argument.
     if(filePath.empty())
     {
-        LOG_WARNING() << "Attempting to resolve empty file path!";
+        LOG_WARNING("Attempting to resolve empty file path!");
         return filePath;
     }
 

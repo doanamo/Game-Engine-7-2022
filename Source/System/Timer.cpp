@@ -34,8 +34,8 @@ Timer& Timer::operator=(Timer&& other)
 
 bool Timer::Initialize()
 {
+    LOG("Initializing timer...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing timer...";
 
     // Check if instance is already initialized.
     ASSERT(m_timerFrequency == 0, "Time instance has already been initialized!");
@@ -45,7 +45,7 @@ bool Timer::Initialize()
 
     if(m_timerFrequency == 0)
     {
-        LOG_ERROR() << "Could not retrieve timer frequency!";
+        LOG_ERROR("Could not retrieve timer frequency!");
         return false;
     }
 

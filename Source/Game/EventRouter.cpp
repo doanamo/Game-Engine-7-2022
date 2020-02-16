@@ -43,8 +43,8 @@ EventRouter& EventRouter::operator=(EventRouter&& other)
 
 bool EventRouter::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing event router...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing event router...";
 
     // Ensure that event router has not been initialized yet.
     ASSERT(!m_initialized, "Event router has already been initialized!");
@@ -55,7 +55,7 @@ bool EventRouter::Initialize(Engine::Root* engine)
     // Save engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 
@@ -76,7 +76,7 @@ bool EventRouter::Initialize(Engine::Root* engine)
 
     if(!subscriptionResult)
     {
-        LOG_ERROR() << "Could not subscribe event receivers!";
+        LOG_ERROR("Could not subscribe event receivers!");
         return false;
     }
 

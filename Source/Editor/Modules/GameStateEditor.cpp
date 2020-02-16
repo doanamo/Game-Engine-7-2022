@@ -57,8 +57,8 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
 
 bool GameStateEditor::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing game state editor...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing game state editor...";
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Game state editor instance has already been initialized!");
@@ -66,7 +66,7 @@ bool GameStateEditor::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 

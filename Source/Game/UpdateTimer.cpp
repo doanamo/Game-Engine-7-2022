@@ -36,13 +36,13 @@ UpdateTimer& UpdateTimer::operator=(UpdateTimer&& other)
 
 bool UpdateTimer::Initialize()
 {
+    LOG("Initializing update timer...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing update timer...";
 
     // Initialize the base class.
     if(!Timer::Initialize())
     {
-        LOG_ERROR() << "Could not initialize base timer class!";
+        LOG_ERROR("Could not initialize base timer class!");
         return false;
     }
 

@@ -68,8 +68,8 @@ void Buffer::DestroyHandle()
 
 bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
+    LOG("Creating {}...", this->GetName());
     LOG_SCOPED_INDENT();
-    LOG() << "Creating " << this->GetName() << "...";
 
     // Check if the handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Buffer instance has been already initialized!");
@@ -78,13 +78,13 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
     // Element count can be zero for uninitialized buffers.
     if(renderContext == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
         return false;
     }
 
     if(info.elementSize == 0)
     {
-        LOG_ERROR() << "Invalid argument - \"elementSize\" is 0!";
+        LOG_ERROR("Invalid argument - \"elementSize\" is 0!");
         return false;
     }
 
@@ -99,7 +99,7 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Buffer handle could not be created!";
+        LOG_ERROR("Buffer handle could not be created!");
         return false;
     }
 
@@ -108,7 +108,7 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 
     if(bufferSize != 0)
     {
-        LOG_INFO() << "Uploading " << bufferSize << " bytes of buffer data...";
+        LOG_INFO("Uploading {} bytes of buffer data...", bufferSize);
 
         glBindBuffer(m_type, m_handle);
         glBufferData(m_type, bufferSize, info.data, info.usage);

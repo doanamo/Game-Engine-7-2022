@@ -72,8 +72,8 @@ bool Root::Initialize(const InitializeParams& initParams)
     Build::Initialize();
 
     // After low level system have been initialized, begin initializing other systems.
+    LOG("Initializing engine...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing engine...";
 
     // Reset class instance on initialization failure.
     SCOPE_GUARD_IF(!m_initialized, *this = Root());
@@ -83,7 +83,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_platform = std::make_unique<System::Platform>();
     if(!m_platform->Initialize())
     {
-        LOG_ERROR() << "Could not initialize platform!";
+        LOG_ERROR("Could not initialize platform!");
         return false;
     }
 
@@ -91,7 +91,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_fileSystem = std::make_unique<System::FileSystem>();
     if(!m_fileSystem->Initialize())
     {
-        LOG_ERROR() << "Could not initialize file system!";
+        LOG_ERROR("Could not initialize file system!");
         return false;
     }
 
@@ -119,7 +119,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_window = std::make_unique<System::Window>();
     if(!m_window->Initialize(windowInfo))
     {
-        LOG_ERROR() << "Could not initialize window!";
+        LOG_ERROR("Could not initialize window!");
         return false;
     }
 
@@ -128,7 +128,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_timer = std::make_unique<System::Timer>();
     if(!m_timer->Initialize())
     {
-        LOG_ERROR() << "Could not initialize timer!";
+        LOG_ERROR("Could not initialize timer!");
         return false;
     }
 
@@ -139,7 +139,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_inputManager = std::make_unique<System::InputManager>();
     if(!m_inputManager->Initialize(m_window.get()))
     {
-        LOG_ERROR() << "Could not initialize input manager!";
+        LOG_ERROR("Could not initialize input manager!");
         return false;
     }
 
@@ -148,7 +148,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_resourceManager = std::make_unique<System::ResourceManager>();
     if(!m_resourceManager->Initialize())
     {
-        LOG_ERROR() << "Could not initialize resource manager!";
+        LOG_ERROR("Could not initialize resource manager!");
         return false;
     }
 
@@ -157,7 +157,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_renderContext = std::make_unique<Graphics::RenderContext>();
     if(!m_renderContext->Initialize(m_window.get()))
     {
-        LOG_ERROR() << "Could not initialize graphics context!";
+        LOG_ERROR("Could not initialize graphics context!");
         return false;
     }
 
@@ -166,7 +166,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
     if(!m_spriteRenderer->Initialize(this, 128))
     {
-        LOG_ERROR() << "Could not initialize sprite renderer!";
+        LOG_ERROR("Could not initialize sprite renderer!");
         return false;
     }
 
@@ -175,7 +175,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
     if(!m_stateRenderer->Initialize(this))
     {
-        LOG_ERROR() << "Could not initialize state renderer!";
+        LOG_ERROR("Could not initialize state renderer!");
         return false;
     }
 
@@ -184,7 +184,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_gameFramework = std::make_unique<Game::GameFramework>();
     if(!m_gameFramework->Initialize(this))
     {
-        LOG_ERROR() << "Could not initialize game framework!";
+        LOG_ERROR("Could not initialize game framework!");
         return false;
     }
 
@@ -193,7 +193,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     m_editorSystem = std::make_unique<Editor::EditorSystem>();
     if(!m_editorSystem->Initialize(this))
     {
-        LOG_ERROR() << "Could not initialize editor system!";
+        LOG_ERROR("Could not initialize editor system!");
         return false;
     }
 

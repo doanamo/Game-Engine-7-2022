@@ -81,8 +81,8 @@ void EditorSystem::DestroyContext()
 
 bool EditorSystem::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing editor system...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing editor system...";
 
     // Check if the instance is already initialized.
     VERIFY(!m_initialized, "Editor system instance is already initialized!");
@@ -93,7 +93,7 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is invalid!";
+        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
         return false;
     }
 
@@ -104,7 +104,7 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     if(m_interface == nullptr)
     {
-        LOG_ERROR() << "Failed to initialize user interface context!";
+        LOG_ERROR("Failed to initialize user interface context!");
         return false;
     }
 
@@ -161,21 +161,21 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     if(!subscriptionResult)
     {
-        LOG_ERROR() << "Failed to subscribe to event receivers!";
+        LOG_ERROR("Failed to subscribe to event receivers!");
         return false;
     }
 
     // Initialize the editor renderer.
     if(!m_editorRenderer.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize editor renderer!";
+        LOG_ERROR("Could not initialize editor renderer!");
         return false;
     }
 
     // Initialize the editor shell.
     if(!m_editorShell.Initialize(engine))
     {
-        LOG_ERROR() << "Could not initialize editor shell!";
+        LOG_ERROR("Could not initialize editor shell!");
         return false;
     }
 

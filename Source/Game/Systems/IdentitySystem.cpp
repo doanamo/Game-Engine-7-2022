@@ -40,7 +40,8 @@ IdentitySystem& IdentitySystem::operator=(IdentitySystem&& other)
 
 bool IdentitySystem::Initialize(EntitySystem* entitySystem)
 {
-    LOG() << "Initializing identity system...";
+    LOG("Initializing identity system...");
+    LOG_SCOPED_INDENT();
 
     // Make sure instance is not already initialized.
     ASSERT(!m_initialized, "Identity system instance has already been initialized!");
@@ -48,7 +49,7 @@ bool IdentitySystem::Initialize(EntitySystem* entitySystem)
     // Validate arguments.
     if(entitySystem == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"entitySystem\" is null!";
+        LOG_ERROR("Invalid argument - \"entitySystem\" is null!");
         return false;
     }
 

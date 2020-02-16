@@ -74,8 +74,8 @@ void Texture::DestroyHandle()
 
 bool Texture::Initialize(const CreateFromParams& params)
 {
+    LOG("Creating texture...");
     LOG_SCOPED_INDENT();
-    LOG() << "Creating texture...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
@@ -88,25 +88,25 @@ bool Texture::Initialize(const CreateFromParams& params)
     // Validate arguments.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
     if(params.width <= 0)
     {
-        LOG_ERROR() << "Invalid parameter - \"width\" is invalid!";
+        LOG_ERROR("Invalid parameter - \"width\" is invalid!");
         return false;
     }
 
     if(params.height <= 0)
     {
-        LOG_ERROR() << "Invalid parameter - \"height\" is invalid!";
+        LOG_ERROR("Invalid parameter - \"height\" is invalid!");
         return false;
     }
 
     if(params.format == GL_INVALID_ENUM)
     {
-        LOG_ERROR() << "Invalid parameter - \"format\" is invalid!";
+        LOG_ERROR("Invalid parameter - \"format\" is invalid!");
         return false;
     }
 
@@ -119,7 +119,7 @@ bool Texture::Initialize(const CreateFromParams& params)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Texture could not be created!";
+        LOG_ERROR("Texture could not be created!");
         return false;
     }
 
@@ -162,8 +162,8 @@ bool Texture::Initialize(const CreateFromParams& params)
 
 bool Texture::Initialize(const LoadFromFile& params)
 {
+    LOG("Loading texture from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
-    LOG() << "Loading texture from \"" << params.filePath << "\" file...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
@@ -171,13 +171,13 @@ bool Texture::Initialize(const LoadFromFile& params)
     // Validate arguments.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
     if(params.filePath.empty())
     {
-        LOG_ERROR() << "Invalid parameter - \"filePath\" is empty!";
+        LOG_ERROR("Invalid parameter - \"filePath\" is empty!");
         return false;
     }
 
@@ -189,7 +189,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(!file.is_open())
     {
-        LOG_ERROR() << "File could not be opened!";
+        LOG_ERROR("File could not be opened!");
         return false;
     }
 
@@ -201,7 +201,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(png_sig_cmp(png_sig, 0, png_sig_size) != 0)
     {
-        LOG_ERROR() << "File path does not contain a valid PNG file!";
+        LOG_ERROR("File path does not contain a valid PNG file!");
         return false;
     }
 
@@ -210,7 +210,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(png_read_ptr == nullptr)
     {
-        LOG_ERROR() << "Could not create PNG read structure!";
+        LOG_ERROR("Could not create PNG read structure!");
         return false;
     }
 
@@ -218,7 +218,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(png_info_ptr == nullptr)
     {
-        LOG_ERROR() << "Could not create PNG info structure!";
+        LOG_ERROR("Could not create PNG info structure!");
         return false;
     }
 
@@ -255,7 +255,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     // destructors called if the library jumps back here on an error.
     if(setjmp(png_jmpbuf(png_read_ptr)))
     {
-        LOG_ERROR() << "Error(s) occurred while reading the file!";
+        LOG_ERROR("Error(s) occurred while reading the file!");
         return false;
     }
 
@@ -307,7 +307,7 @@ bool Texture::Initialize(const LoadFromFile& params)
         break;
 
     default:
-        LOG_ERROR() << "Unsupported image format!";
+        LOG_ERROR("Unsupported image format!");
         return false;
     }
 
@@ -319,7 +319,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(depth != 8)
     {
-        LOG_ERROR() << "Unsupported image depth size!";
+        LOG_ERROR("Unsupported image depth size!");
         return false;
     }
 
@@ -366,7 +366,7 @@ bool Texture::Initialize(const LoadFromFile& params)
         break;
 
     default:
-        LOG_ERROR() << "Unsupported number of channels!";
+        LOG_ERROR("Unsupported number of channels!");
         return false;
     }
 
@@ -381,7 +381,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(!this->Initialize(createParams))
     {
-        LOG_ERROR() << "Could not initialize texture!";
+        LOG_ERROR("Could not initialize texture!");
         return false;
     }
 

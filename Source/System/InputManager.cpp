@@ -41,13 +41,13 @@ InputManager& InputManager::operator=(InputManager&& other)
 
 bool InputManager::Initialize(Window* window)
 {
+    LOG("Initializing input manager...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing input manager...";
 
     // Validate arguments.
     if(window == nullptr && !window->IsValid())
     {
-        LOG_ERROR() << "Invalid argument - \"window\" is invalid!";
+        LOG_ERROR("Invalid argument - \"window\" is invalid!");
         return false;
     }
 
@@ -63,7 +63,7 @@ bool InputManager::Initialize(Window* window)
 
     if(!subscriptionResult)
     {
-        LOG_ERROR() << "Could not subscribe to window input events!";
+        LOG_ERROR("Could not subscribe to window input events!");
         return false;
     }
 
@@ -150,13 +150,13 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
     // Validate key index.
     if(key <= KeyboardKeys::Invalid || key >= KeyboardKeys::Count)
     {
-        LOG_WARNING() << "Invalid keyboard key input received: " << event.key;
+        LOG_WARNING("Invalid keyboard key input received: {}", event.key);
         return false;
     }
 
     if(key == KeyboardKeys::KeyUnknown)
     {
-        LOG_WARNING() << "Unknown keyboard key input received: " << event.key;
+        LOG_WARNING("Unknown keyboard key input received: {}", event.key);
         return false;
     }
 

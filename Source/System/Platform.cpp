@@ -30,7 +30,7 @@ namespace
     // Callback error function.
     void ErrorCallback(int error, const char* description)
     {
-        LOG_ERROR() << "GLFW Error: " << description;
+        LOG_ERROR("GLFW Error: {}", description);
     }
 }
 
@@ -65,8 +65,8 @@ Platform& Platform::operator=(Platform&& other)
 
 bool Platform::Initialize()
 {
+    LOG("Initializing platform...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing platform...";
 
     // Check if system context is already initialized.
     ASSERT(!m_initialized, "Platform is already initialized!");
@@ -80,7 +80,7 @@ bool Platform::Initialize()
         // Initialize GLFW library.
         if(!glfwInit())
         {
-            LOG_ERROR() << "Could not initialize GLFW library!";
+            LOG_ERROR("Could not initialize GLFW library!");
             return false;
         }
 
@@ -91,7 +91,7 @@ bool Platform::Initialize()
     int major, minor, revision;
     glfwGetVersion(&major, &minor, &revision);
 
-    LOG_INFO() << "Using GLFW " << major << "." << minor << "." << revision << " library.";
+    LOG_INFO("Using GLFW {}.{}.{} library.", major, minor, revision);
 
     // Success!
     return m_initialized = true;

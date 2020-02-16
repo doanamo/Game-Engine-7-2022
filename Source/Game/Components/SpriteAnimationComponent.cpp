@@ -78,7 +78,7 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
     // Make sure that we have a sprite animation list set.
     if(m_spriteAnimationList == nullptr)
     {
-        LOG_WARNING() << "Attempting to play \"" << animationName << "\" sprite animation without sprite animation list set!";
+        LOG_WARNING("Attempting to play \"{}\" sprite animation without sprite animation list set!", animationName);
         return;
     }
 
@@ -87,7 +87,7 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
 
     if(!animationIndex.has_value())
     {
-        LOG_WARNING() << "Could not find \"" << animationName << "\" sprite animation to play!";
+        LOG_WARNING("Could not find \"{}\" sprite animation to play!", animationName);
         return;
     }
 

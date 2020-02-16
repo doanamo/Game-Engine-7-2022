@@ -121,8 +121,8 @@ void Sampler::DestroyHandle()
 
 bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 {
+    LOG("Creating sampler...");
     LOG_SCOPED_INDENT();
-    LOG() << "Creating sampler...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Sampler instance has been already initialized!");
@@ -130,7 +130,7 @@ bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
     // Validate arguments.
     if(renderContext == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
         return false;
     }
 
@@ -145,7 +145,7 @@ bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Sampler could not be created!";
+        LOG_ERROR("Sampler could not be created!");
         return false;
     }
 

@@ -86,8 +86,8 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
 
 bool InputManagerEditor::Initialize(Engine::Root* engine)
 {
+    LOG("Initializing input manager editor...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing input manager editor...";
 
     // Make sure class instance is not already initialized.
     ASSERT(!m_initialized, "Input manager editor has already been initialized!");
@@ -98,7 +98,7 @@ bool InputManagerEditor::Initialize(Engine::Root* engine)
     // Validate engine reference.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 
@@ -117,7 +117,7 @@ bool InputManagerEditor::Initialize(Engine::Root* engine)
 
     if(!subscriptionResults)
     {
-        LOG_ERROR() << "Failed to subscribe to event receivers!";
+        LOG_ERROR("Failed to subscribe to event receivers!");
         return false;
     }
 
@@ -249,7 +249,7 @@ bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey
         std::stringstream eventText;
         eventText << "Keyboard Key\n";
         eventText << "  Key: " << event.key << "\n";
-        eventText << "  Scancode: " << event.scancode << "\n";
+        eventText << "  Code: " << event.scancode << "\n";
         eventText << "  Action: ";
 
         switch(event.action)

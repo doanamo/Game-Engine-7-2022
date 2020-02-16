@@ -38,7 +38,7 @@ bool FileOutput::Open(std::string filename)
 
     if(!m_file.is_open())
     {
-        LOG_ERROR() << "Log file output could not be opened!";
+        LOG_ERROR("Log file output could not be opened!");
         return false;
     }
 

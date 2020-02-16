@@ -36,8 +36,8 @@ SpriteSystem& SpriteSystem::operator=(SpriteSystem&& other)
 
 bool SpriteSystem::Initialize(ComponentSystem* componentSystem)
 {
+    LOG("Initializing sprite system...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing sprite system...";
 
     // Make sure that the instance has not been initialized yet.
     ASSERT(!m_initialized, "Sprite system has already been initialized!");
@@ -48,7 +48,7 @@ bool SpriteSystem::Initialize(ComponentSystem* componentSystem)
     // Validate component system reference.
     if(componentSystem == nullptr)
     {
-        LOG_ERROR() << "Invalid arguments - \"componentSystem\" is null!";
+        LOG_ERROR("Invalid arguments - \"componentSystem\" is null!");
         return false;
     }
 

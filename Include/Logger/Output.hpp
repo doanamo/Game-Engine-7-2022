@@ -23,7 +23,7 @@ namespace Logger
     class Output : private NonCopyable
     {
     public:
-        // Writes a message to an output.
+        // Writes message to an output.
         virtual void Write(const Logger::Message& message, const Logger::SinkContext& context) = 0;
     };
 }
@@ -35,10 +35,10 @@ namespace Logger
 
     void ExampleLoggerFileOutput()
     {
-        // Create a logger sink.
+        // Create logger sink.
         Logger::Sink sink;
 
-        // Open a file output.
+        // Open file output.
         Logger::FileOutput fileOutput;
         fileOutput.Open("Log.txt");
 
@@ -55,10 +55,10 @@ namespace Logger
         FileOutput();
         ~FileOutput();
 
-        // Open the file output.
+        // Open file output.
         bool Open(std::string filename);
 
-        // Writes a message to the file.
+        // Writes message to the file.
         void Write(const Message& message, const SinkContext& context) override;
 
     private:
@@ -70,14 +70,14 @@ namespace Logger
 /*
     Logger Console Output
 
-    Writes log messsages to the application's console window.
+    Writes log messages to the application's console window.
 
     void ExampleLoggerConsoleOutput()
     {
-        // Create a logger sink.
+        // Create logger sink.
         Logger::Sink sink;
 
-        // Open a console output.
+        // Open console output.
         Logger::ConsoleOutput consoleOutput;
 
         // Add output to the sink.
@@ -93,7 +93,7 @@ namespace Logger
         ConsoleOutput();
         ~ConsoleOutput();
 
-        // Writes a message to the console window.
+        // Writes message to the console window.
         void Write(const Message& message, const SinkContext& context) override;
     };
 }
@@ -105,10 +105,10 @@ namespace Logger
 
     void ExampleLoggerDebuggerOutput()
     {
-        // Create a logger sink.
+        // Create logger sink.
         Logger::Sink sink;
 
-        // Open a debugger output.
+        // Open debugger output.
         Logger::DebuggerOutput debuggerOutput;
 
         // Add output to the sink.

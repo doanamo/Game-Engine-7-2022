@@ -14,19 +14,19 @@
 
     void ExampleLoggerSink()
     {
-        // Create a logging sink.
+        // Create logging sink.
         Logger::Sink sink;
 
-        // Open a file output.
+        // Open file output.
         Logger::FileOutput fileOutput;
         fileOutput.Open("Log.txt");
 
         // Add output to the sink.
         sink.AddOutput(&fileOutput);
 
-        // Write a log message.
+        // Write log message.
         Logger::Message message;
-        message << "Hello world!";
+        message.Format("Hello {}!", "world");
         sink.Write(message);
     }
 */
@@ -59,28 +59,28 @@ namespace Logger
         Sink();
         ~Sink();
 
-        // Sets the sink name.
+        // Sets sink name.
         void SetName(std::string name);
 
-        // Adds an output.
+        // Adds output.
         void AddOutput(Logger::Output* output);
 
-        // Removes an output.
+        // Removes output.
         void RemoveOutput(Logger::Output* output);
 
-        // Writes a log message.
+        // Writes log message.
         void Write(const Logger::Message& message);
 
-        // Advance the frame of reference.
+        // Advances frame of reference.
         int AdvanceFrameReference();
 
-        // Increase the current message indent.
+        // Increase current message indent.
         void IncreaseIndent();
 
-        // Decrease the current message indent.
+        // Decrease current message indent.
         void DecreaseIndent();
 
-        // Gets the context needed for writing messages.
+        // Gets context needed for writing messages.
         const SinkContext& GetContext() const;
 
     private:
@@ -99,15 +99,15 @@ namespace Logger
 
     void ExampleLoggerScopedIndent()
     {
-        // Initialize the logging system.
+        // Initialize logging system.
         Logger::Initialize();
 
-        // Using a macro to create an indent.
+        // Use macro to create an indent.
+        LOG("Initializing nothingness...");
         LOG_SCOPED_INDENT();
-        LOG() << "Initializing nothingness...";
 
-        // Write a log message.
-        LOG_DEBUG() << "Success!";
+        // Write log message.
+        LOG_DEBUG("Success!");
     }
 */
 

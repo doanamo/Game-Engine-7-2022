@@ -56,8 +56,8 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
 
 bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 {
+    LOG("Initializing sprite renderer...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing sprite renderer...";
 
     // Make sure that the instance is not already initialized.
     ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");
@@ -68,13 +68,13 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
     // Validate arguments.
     if(engine == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"engine\" is null!";
+        LOG_ERROR("Invalid argument - \"engine\" is null!");
         return false;
     }
 
     if(spriteBatchSize <= 0)
     {
-        LOG_ERROR() << "Invalid argument - \"spriteBatchSize\" is zero or less!";
+        LOG_ERROR("Invalid argument - \"spriteBatchSize\" is zero or less!");
         return false;
     }
 
@@ -95,7 +95,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(!m_vertexBuffer.Initialize(&engine->GetRenderContext(), vertexBufferInfo))
     {
-        LOG_ERROR() << "Could not create vertex buffer!";
+        LOG_ERROR("Could not create vertex buffer!");
         return false;
     }
 
@@ -108,7 +108,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(!m_instanceBuffer.Initialize(&engine->GetRenderContext(), instanceBufferInfo))
     {
-        LOG_ERROR() << "Could not create instance buffer!";
+        LOG_ERROR("Could not create instance buffer!");
         return false;
     }
 
@@ -129,7 +129,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(!m_vertexArray.Initialize(&engine->GetRenderContext(), vertexArrayInfo))
     {
-        LOG_ERROR() << "Could not create vertex array!";
+        LOG_ERROR("Could not create vertex array!");
         return false;
     }
 
@@ -140,7 +140,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(!m_nearestSampler.Initialize(&engine->GetRenderContext(), nearestSamplerInfo))
     {
-        LOG_ERROR() << "Could not create a nearest sampler!";
+        LOG_ERROR("Could not create a nearest sampler!");
         return false;
     }
 
@@ -151,7 +151,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(!m_linearSampler.Initialize(&engine->GetRenderContext(), linearSamplerInfo))
     {
-        LOG_ERROR() << "Could not create linear sampler!";
+        LOG_ERROR("Could not create linear sampler!");
         return false;
     }
 
@@ -165,7 +165,7 @@ bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 
     if(m_shader == nullptr)
     {
-        LOG_ERROR() << "Could not load sprite shader!";
+        LOG_ERROR("Could not load sprite shader!");
         return false;
     }
 

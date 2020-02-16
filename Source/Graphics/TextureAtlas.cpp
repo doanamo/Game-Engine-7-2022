@@ -43,8 +43,8 @@ TextureAtlas& TextureAtlas::operator=(TextureAtlas&& other)
 
 bool TextureAtlas::Initialize()
 {
+    LOG("Initializing texture atlas...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing texture atlas...";
 
     // Make sure that instance has not been initialized yet.
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");
@@ -58,8 +58,8 @@ bool TextureAtlas::Initialize()
 
 bool TextureAtlas::Initialize(const LoadFromFile& params)
 {
+    LOG("Loading texture atlas from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
-    LOG() << "Loading texture atlas from \"" << params.filePath << "\" file...";
 
     // Make sure that instance has not been initialized yet.
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");
@@ -67,7 +67,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     // Initialize texture atlas instance.
     if(!this->Initialize())
     {
-        LOG_ERROR() << "Could not initialize texture atlas!";
+        LOG_ERROR("Could not initialize texture atlas!");
         return false;
     }
 
@@ -79,7 +79,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     // Validate parameters.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
@@ -91,7 +91,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     Scripting::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
-        LOG_ERROR() << "Could not load file!";
+        LOG_ERROR("Could not load file!");
         return false;
     }
 
@@ -101,7 +101,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"TextureAtlas\" is missing!";
+        LOG_ERROR("Table \"TextureAtlas\" is missing!");
         return false;
     }
 
@@ -112,7 +112,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
         if(!lua_isstring(scriptState, -1))
         {
-            LOG_ERROR() << "String \"TextureAtlas.Texture\" is missing!";
+            LOG_ERROR("String \"TextureAtlas.Texture\" is missing!");
             return false;
         }
 
@@ -126,7 +126,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
         if(m_texture == nullptr)
         {
-            LOG_WARNING() << "Could not load texture!";
+            LOG_WARNING("Could not load texture!");
         }
     }
 
@@ -136,7 +136,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"TextureAtlas.Regions\" is missing!";
+        LOG_ERROR("Table \"TextureAtlas.Regions\" is missing!");
         return false;
     }
 
@@ -145,7 +145,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         // Check if the key is a string.
         if(!lua_isstring(scriptState, -2))
         {
-            LOG_WARNING() << "Key in \"TextureAtlas.Regions\" is not string!";
+            LOG_WARNING("Key in \"TextureAtlas.Regions\" is not string!");
             continue;
         }
 
@@ -161,7 +161,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
 
             if(!lua_isinteger(scriptState, -1))
             {
-                LOG_WARNING() << "Value of \"TextureAtlas.Regions[\"" << regionName << "\"][" << i << "]\" is not an integer!";
+                LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!", regionName, i);
             }
 
             pixelCoords[i] = Utility::NumericalCast<int>(lua_tointeger(scriptState, -1));
@@ -172,7 +172,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         // Add a new texture region.
         if(!this->AddRegion(regionName, pixelCoords))
         {
-            LOG_WARNING() << "Could not add region with \"" << regionName << "\" name!";
+            LOG_WARNING("Could not add region with \"{}\" name!", regionName);
             continue;
         }
     }

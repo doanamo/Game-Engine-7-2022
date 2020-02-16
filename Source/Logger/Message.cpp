@@ -8,15 +8,14 @@
 using namespace Logger;
 
 Message::Message() :
-    std::ostream(&m_text),
+    m_text(),
     m_severity(Severity::Info),
     m_source(nullptr),
     m_line(0)
 {
 }
 
-Message::Message(Message&& other) :
-    std::ostream(&m_text)
+Message::Message(Message&& other)
 {
     m_text = std::move(other.m_text);
 
@@ -34,17 +33,17 @@ Message::~Message()
 {
 }
 
+Message& Message::SetText(std::string text)
+{
+    m_text = text;
+    return *this;
+}
+
 Message& Message::SetSeverity(Severity::Type severity)
 {
     ASSERT(Severity::Invalid < severity && severity < Severity::Count, "Severity argument is invalid!");
 
     m_severity = severity;
-    return *this;
-}
-
-Message& Message::SetText(std::string text)
-{
-    m_text.str(text);
     return *this;
 }
 
@@ -62,14 +61,14 @@ Message& Message::SetLine(unsigned int line)
     return *this;
 }
 
+const std::string& Message::GetText() const
+{
+    return m_text;
+}
+
 Severity::Type Message::GetSeverity() const
 {
     return m_severity;
-}
-
-std::string Message::GetText() const
-{
-    return m_text.str();
 }
 
 const char* Message::GetSource() const
@@ -84,7 +83,7 @@ unsigned int Message::GetLine() const
 
 bool Message::IsEmpty() const
 {
-    return m_text.str().empty();
+    return m_text.empty();
 }
 
 ScopedMessage::ScopedMessage(Sink& sink) :

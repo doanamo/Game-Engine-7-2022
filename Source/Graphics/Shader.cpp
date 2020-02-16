@@ -79,8 +79,8 @@ void Shader::DestroyHandle()
 
 bool Shader::Initialize(const LoadFromString& params)
 {
+    LOG("Compiling shader code...");
     LOG_SCOPED_INDENT();
-    LOG() << "Compiling shader code...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Shader instance has been already initialized!");
@@ -93,13 +93,13 @@ bool Shader::Initialize(const LoadFromString& params)
     // Validate arguments.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
     if(params.shaderCode.empty())
     {
-        LOG_ERROR() << "Invalid argument - \"params.shaderCode\" is empty!";
+        LOG_ERROR("Invalid argument - \"params.shaderCode\" is empty!");
         return false;
     }
 
@@ -146,7 +146,7 @@ bool Shader::Initialize(const LoadFromString& params)
         {
             shaderObjectsFound = true;
 
-            LOG_INFO() << "Compiling " << shaderType.name << "...";
+            LOG_INFO("Compiling {}...", shaderType.name);
 
             // Create a shader object.
             shaderObject = glCreateShader(shaderType.type);
@@ -154,7 +154,7 @@ bool Shader::Initialize(const LoadFromString& params)
 
             if(shaderObject == OpenGL::InvalidHandle)
             {
-                LOG_ERROR() << "Shader object could not be created!";
+                LOG_ERROR("Shader object could not be created!");
                 return false;
             }
 
@@ -188,7 +188,7 @@ bool Shader::Initialize(const LoadFromString& params)
 
             if(compileStatus == GL_FALSE)
             {
-                LOG_ERROR() << "Shader object could not be compiled!";
+                LOG_ERROR("Shader object could not be compiled!");
 
                 GLint errorLength = 0;
                 glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &errorLength);
@@ -200,7 +200,7 @@ bool Shader::Initialize(const LoadFromString& params)
                     glGetShaderInfoLog(shaderObject, errorLength, &errorLength, &errorText[0]);
                     OpenGL::CheckErrors();
 
-                    LOG_ERROR() << "Shader compile errors: \"" << errorText.data() << "\"";
+                    LOG_ERROR("Shader compile errors: \"{}\"", errorText.data());
                 }
 
                 return false;
@@ -211,7 +211,7 @@ bool Shader::Initialize(const LoadFromString& params)
     // Check if any shader objects were found.
     if(shaderObjectsFound == false)
     {
-        LOG_ERROR() << "Could not find any shader objects!";
+        LOG_ERROR("Could not find any shader objects!");
         return false;
     }
 
@@ -223,7 +223,7 @@ bool Shader::Initialize(const LoadFromString& params)
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Shader program could not be created!";
+        LOG_ERROR("Shader program could not be created!");
         return false;
     }
 
@@ -240,7 +240,7 @@ bool Shader::Initialize(const LoadFromString& params)
     }
 
     // Link attached shader objects.
-    LOG_INFO() << "Linking shader program...";
+    LOG_INFO("Linking shader program...");
 
     glLinkProgram(m_handle);
     OpenGL::CheckErrors();
@@ -264,7 +264,7 @@ bool Shader::Initialize(const LoadFromString& params)
 
     if(linkStatus == GL_FALSE)
     {
-        LOG_ERROR()  << "Shader program could not be linked!";
+        LOG_ERROR("Shader program could not be linked!");
 
         GLint errorLength = 0;
         glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &errorLength);
@@ -276,7 +276,7 @@ bool Shader::Initialize(const LoadFromString& params)
             glGetProgramInfoLog(m_handle, errorLength, &errorLength, &errorText[0]);
             OpenGL::CheckErrors();
 
-            LOG_ERROR() << "Shader link errors: \"" << errorText.data() << "\"";
+            LOG_ERROR("Shader link errors: \"{}\"", errorText.data());
         }
 
         return false;
@@ -288,13 +288,13 @@ bool Shader::Initialize(const LoadFromString& params)
 
 bool Shader::Initialize(const LoadFromFile& params)
 {
+    LOG("Loading shader from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
-    LOG() << "Loading shader from \"" << params.filePath << "\" file...";
 
     // Validate arguments.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
@@ -306,7 +306,7 @@ bool Shader::Initialize(const LoadFromFile& params)
 
     if(shaderCode.empty())
     {
-        LOG_ERROR() << "File could not be read!";
+        LOG_ERROR("File could not be read!");
         return false;
     }
 
@@ -317,7 +317,7 @@ bool Shader::Initialize(const LoadFromFile& params)
 
     if(!this->Initialize(compileParams))
     {
-        LOG_ERROR() << "Shader code could not be compiled!";
+        LOG_ERROR("Shader code could not be compiled!");
         return false;
     }
 

@@ -154,8 +154,8 @@ void VertexArray::DestroyHandle()
 
 bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
 {
+    LOG("Creating vertex input...");
     LOG_SCOPED_INDENT();
-    LOG() << "Creating vertex input...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Vertex array instance has been already initialized!");
@@ -163,19 +163,19 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
     // Validate arguments.
     if(renderContext == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"renderContext\" is null!";
+        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
         return false;
     }
 
     if(info.attributeCount <= 0)
     {
-        LOG_ERROR() << "Invalid argument - \"count\" is zero!";
+        LOG_ERROR("Invalid argument - \"count\" is zero!");
         return false;
     }
 
     if(info.attributes == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"attributes\" is null!";
+        LOG_ERROR("Invalid argument - \"attributes\" is null!");
         return false;
     }
 
@@ -185,31 +185,31 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
 
         if(attribute.buffer == nullptr)
         {
-            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].buffer\" is null!";
+            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is null!", i);
             return false;
         }
 
         if(!attribute.buffer->IsValid())
         {
-            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].buffer\" is invalid!";
+            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is invalid!", i);
             return false;
         }
 
         if(attribute.buffer->GetType() != GL_ARRAY_BUFFER)
         {
-            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].buffer\" is not a vertex or an instance buffer!";
+            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is not a vertex or an instance buffer!", i);
             return false;
         }
 
         if(attribute.attributeType == VertexAttributeType::Invalid)
         {
-            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].storage\" is invalid!";
+            LOG_ERROR("Invalid argument - \"attribute[{}].storage\" is invalid!", i);
             return false;
         }
 
         if(attribute.valueType == OpenGL::InvalidEnum)
         {
-            LOG_ERROR() << "Invalid argument - \"attribute[" << i << "].type\" is invalid!";
+            LOG_ERROR("Invalid argument - \"attribute[{}].type\" is invalid!", i);
             return false;
         }
     }
@@ -225,7 +225,7 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
 
     if(m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR() << "Vertex array handle could not be created!";
+        LOG_ERROR("Vertex array handle could not be created!");
         return false;
     }
 

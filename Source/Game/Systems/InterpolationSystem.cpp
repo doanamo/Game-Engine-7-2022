@@ -35,7 +35,8 @@ InterpolationSystem& InterpolationSystem::operator=(InterpolationSystem&& other)
 
 bool InterpolationSystem::Initialize(ComponentSystem* componentSystem)
 {
-    LOG() << "Initializing interpolation system...";
+    LOG("Initializing interpolation system...");
+    LOG_SCOPED_INDENT();
 
     // Make sure this instance has not been initialized yet.
     ASSERT(!m_initialized, "Interpolation systems has already been initialized!");
@@ -46,7 +47,7 @@ bool InterpolationSystem::Initialize(ComponentSystem* componentSystem)
     // Validate component system reference.
     if(componentSystem == nullptr)
     {
-        LOG_ERROR() << "Invalid argument - \"componentSystem\" is null!";
+        LOG_ERROR("Invalid argument - \"componentSystem\" is null!");
         return false;
     }
 

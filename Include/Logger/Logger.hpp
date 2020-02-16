@@ -22,24 +22,24 @@
         Logger::Initialize();
 
         // Write log message.
-        LOG() << "Hello world!";
+        LOG("Hello {}!", "world");
 
         // Write log messages of different severity.
         // This will allow us to filter them if needed.
-        LOG_TRACE() << "Writing trace message.";
-        LOG_DEBUG() << "Writing debug message.";
-        LOG_INFO() << "Writing diagnostic message.";
-        LOG_WARNING() << "Writing warning message.";
-        LOG_ERROR() << "Writing error message.";
-        LOG_FATAL() << "Writing fatal message.";
+        LOG_TRACE("Writing trace message.");
+        LOG_DEBUG("Writing debug message.");
+        LOG_INFO("Writing diagnostic message.");
+        LOG_WARNING("Writing warning message.");
+        LOG_ERROR("Writing error message.");
+        LOG_FATAL("Writing fatal message.");
 
         // Create an indent until the end of the current scope.
         {
             LOG_SCOPED_INDENT();
-            LOG() << "Indented message!";
+            LOG("Indented message!");
         }
 
-        LOG() << "Non indented message.";
+        LOG("Non indented message.");
     }
 */
 
@@ -69,14 +69,15 @@ namespace Logger
 #define LOG_SCOPED_INDENT() Logger::ScopedIndent loggerIndent ## __LINE__(Logger::GetGlobalSink())
 
 #ifndef NDEBUG
-    #define LOG() Logger::ScopedMessage(Logger::GetGlobalSink()).SetSource(__FILE__).SetLine(__LINE__)
+    #define LOG_SCOPED_MESSAGE() Logger::ScopedMessage(Logger::GetGlobalSink()).SetSource(__FILE__).SetLine(__LINE__)
 #else
-    #define LOG() Logger::ScopedMessage(Logger::GetGlobalSink())
+    #define LOG_SCOPED_MESSAGE() Logger::ScopedMessage(Logger::GetGlobalSink())
 #endif
 
-#define LOG_TRACE()   LOG().SetSeverity(Logger::Severity::Trace)
-#define LOG_DEBUG()   LOG().SetSeverity(Logger::Severity::Debug)
-#define LOG_INFO()    LOG().SetSeverity(Logger::Severity::Info)
-#define LOG_WARNING() LOG().SetSeverity(Logger::Severity::Warning)
-#define LOG_ERROR()   LOG().SetSeverity(Logger::Severity::Error)
-#define LOG_FATAL()   LOG().SetSeverity(Logger::Severity::Fatal)
+#define LOG(format, ...)         LOG_SCOPED_MESSAGE().Format(format, ## __VA_ARGS__)
+#define LOG_TRACE(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Trace)
+#define LOG_DEBUG(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Debug)
+#define LOG_INFO(format, ...)    LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Info)
+#define LOG_WARNING(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Warning)
+#define LOG_ERROR(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Error)
+#define LOG_FATAL(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Fatal)

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include <sstream>
+#include <fmt/core.h>
 #include "Logger/Sink.hpp"
 
 /*
@@ -15,14 +15,15 @@
 
     void ExampleLoggerMessage(Logger::Sink& sink)
     {
-        // Simply use a log macro with a global sink.
-        LOG() << "Hello world!";
+        // Simply usage of log macro with global sink.
+        // Utilizes fmt library for modern printf formatting.
+        LOG("Hello {}!", "world");
 
         // Above macro equals to the following:
         Logger::Message message;
+        message.SetText("Hello world!");
         message.SetSource(__FILE__);
         message.SetLine(__LINE__);
-        message.SetText("Hello world!");
         sink.Write(message);
     }
 */
@@ -48,43 +49,51 @@ namespace Logger
     };
 
     // Message class.
-    class Message : public std::ostream, private NonCopyable
+    class Message : private NonCopyable
     {
     public:
         Message();
         Message(Message&& other);
         virtual ~Message();
 
-        // Sets the message severity.
-        Message& SetSeverity(Severity::Type severity);
+        // Formats message text.
+        template<typename... Args>
+        Message& Format(const char* format, Args&&... arguments)
+        {
+            m_text = fmt::format(format, arguments...);
+            return *this;
+        }
 
-        // Sets the message text.
+        // Sets message text.
         Message& SetText(std::string text);
 
-        // Sets the message source.
+        // Sets message severity.
+        Message& SetSeverity(Severity::Type severity);
+
+        // Sets message source.
         Message& SetSource(const char* source);
 
-        // Sets the message line.
+        // Sets message line.
         Message& SetLine(unsigned int line);
 
-        // Gets the message severity.
+        // Gets message text.
+        const std::string& GetText() const;
+
+        // Gets message severity.
         Severity::Type GetSeverity() const;
 
-        // Gets the message text.
-        std::string GetText() const;
-
-        // Gets the message source.
+        // Gets message source.
         const char* GetSource() const;
 
-        // Gets the message line.
+        // Gets message line.
         unsigned int GetLine() const;
 
-        // Checks if the message is empty.
+        // Checks if message is empty.
         bool IsEmpty() const;
 
     private:
         // Message state.
-        std::stringbuf m_text;
+        std::string    m_text;
         Severity::Type m_severity;
         const char*    m_source;
         unsigned int   m_line;
@@ -95,7 +104,7 @@ namespace Logger
     Logger Scoped Message
 
     Log message object that writes to a sink at the end of its lifetime.
-    Extensively used by Log() macro to write to the sink at the end of scope.
+    Extensively used by LOG() macro to write to the sink at the end of scope.
 */
 
 namespace Logger

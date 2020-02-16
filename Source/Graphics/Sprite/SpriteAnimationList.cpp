@@ -67,8 +67,8 @@ SpriteAnimationList& SpriteAnimationList::operator=(SpriteAnimationList&& other)
 
 bool SpriteAnimationList::Initialize()
 {
+    LOG("Initializing sprite animation list...");
     LOG_SCOPED_INDENT();
-    LOG() << "Initializing sprite animation list...";
 
     // Make sure that this instance has not been already initialized.
     VERIFY(!m_initialized, "Sprite animation list has already been initialized!");
@@ -82,8 +82,8 @@ bool SpriteAnimationList::Initialize()
 
 bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 {
+    LOG("Loading sprite animation list from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
-    LOG() << "Loading sprite animation list from \"" << params.filePath << "\" file...";
 
     // Initialize the sprite animation list instance.
     if(!this->Initialize())
@@ -97,7 +97,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     // Validate arguments.
     if(params.engine == nullptr)
     {
-        LOG_ERROR() << "Invalid parameter - \"engine\" is null!";
+        LOG_ERROR("Invalid parameter - \"engine\" is null!");
         return false;
     }
 
@@ -109,7 +109,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     Scripting::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
-        LOG_ERROR() << "Could not load file!";
+        LOG_ERROR("Could not load file!");
         return false;
     }
 
@@ -119,7 +119,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"SpriteAnimationList\" is missing!";
+        LOG_ERROR("Table \"SpriteAnimationList\" is missing!");
         return false;
     }
 
@@ -132,7 +132,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
         if(!lua_isstring(scriptState, -1))
         {
-            LOG_ERROR() << "String \"SpriteAnimationList.TextureAtlas\" is missing!";
+            LOG_ERROR("String \"SpriteAnimationList.TextureAtlas\" is missing!");
             return false;
         }
 
@@ -145,7 +145,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
         if(!textureAtlas)
         {
-            LOG_ERROR() << "Could not load texture atlas!";
+            LOG_ERROR("Could not load texture atlas!");
             return false;
         }
     }
@@ -156,7 +156,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
     if(!lua_istable(scriptState, -1))
     {
-        LOG_ERROR() << "Table \"SpriteAnimationList.Animations\" is missing!";
+        LOG_ERROR("Table \"SpriteAnimationList.Animations\" is missing!");
         return false;
     }
 
@@ -165,8 +165,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
         // Check if the key is a string.
         if(!lua_isstring(scriptState, -2))
         {
-            LOG_WARNING() << "Key in \"SpriteAnimationList.Animations\" is not a string!";
-            LOG_WARNING() << "Skipping one ill formated sprite animation!";
+            LOG_WARNING("Key in \"SpriteAnimationList.Animations\" is not a string!");
+            LOG_WARNING("Skipping one ill formated sprite animation!");
             continue;
         }
 
@@ -180,8 +180,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
             // Make sure that we have a table.
             if(!lua_istable(scriptState, -1))
             {
-                LOG_WARNING() << "Value in \"SpriteAnimationList.Animations[\"" << animationName << "\"]\" is not a table!";
-                LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
+                LOG_WARNING("Value in \"SpriteAnimationList.Animations[\"{}\"]\" is not a table!", animationName);
+                LOG_WARNING("Skipping one ill formated sprite animation frame!");
                 continue;
             }
 
@@ -195,8 +195,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
                 if(!lua_isstring(scriptState, -1))
                 {
-                    LOG_WARNING() << "Field in \"SpriteAnimationList.Animations[" << animationName << "][0]\" is not a string!";
-                    LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
+                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[{}][0]\" is not a string!", animationName);
+                    LOG_WARNING("Skipping one ill formated sprite animation frame!");
                     continue;
                 }
 
@@ -213,8 +213,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
                 if(!lua_isnumber(scriptState, -1))
                 {
-                    LOG_WARNING() << "Field in \"SpriteAnimationList.Animations[\"" << animationName << "\"][1]\" is not a number!";
-                    LOG_WARNING() << "Skipping one ill formated sprite animation frame!";
+                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[\"{}\"][1]\" is not a number!", animationName);
+                    LOG_WARNING("Skipping one ill formated sprite animation frame!");
                     continue;
                 }
 
