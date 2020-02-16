@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <mutex>
 #include "Common/NonCopyable.hpp"
 
 /*
@@ -40,12 +41,10 @@ namespace Logger
     // Sink context structure.
     struct SinkContext
     {
-        SinkContext();
-
         std::string name;
-        int referenceFrame;
-        int messageIndent;
-        bool messageWritten;
+        int referenceFrame = 0;
+        int messageIndent = 0;
+        bool messageWritten = false;
     };
 
     // Sink class.
@@ -84,6 +83,9 @@ namespace Logger
         const SinkContext& GetContext() const;
 
     private:
+        // Sink mutex.
+        std::mutex m_lock;
+
         // Sink context.
         SinkContext m_context;
 
