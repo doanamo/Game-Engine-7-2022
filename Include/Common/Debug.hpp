@@ -40,7 +40,6 @@ namespace Debug
 
 #define DEBUG_EXPAND_MACRO(x) x
 #define DEBUG_STRINGIFY(expression) #expression
-#define DEBUG_PRINT(message) LOG_DEBUG() << message;
 
 #ifdef _MSC_VER
     #define DEBUG_BREAK() __debugbreak();
@@ -68,14 +67,14 @@ namespace Debug
     #define ASSERT_SIMPLE(expression) \
         if(expression) { } else \
         { \
-            DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression)); \
+            LOG_FATAL() << "Assertion failed: " DEBUG_STRINGIFY(expression); \
             DEBUG_BREAK(); \
         }
 
     #define ASSERT_MESSAGE(expression, message) \
         if(expression) { } else \
         { \
-            DEBUG_PRINT("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message); \
+            LOG_FATAL() << "Assertion failed: " DEBUG_STRINGIFY(expression) " - " message; \
             DEBUG_BREAK(); \
         }
 #else
@@ -85,7 +84,6 @@ namespace Debug
 
 #define ASSERT_DEDUCE(arg1, arg2, arg3, ...) arg3
 #define ASSERT_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_DEDUCE(__VA_ARGS__, ASSERT_MESSAGE, ASSERT_SIMPLE))
-
 #define ASSERT(...) DEBUG_EXPAND_MACRO(ASSERT_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
@@ -106,18 +104,17 @@ namespace Debug
 #define VERIFY_SIMPLE(expression) \
     if(expression) { } else \
     { \
-        DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression)) \
+        LOG_FATAL() << "Verification failed: " DEBUG_STRINGIFY(expression); \
         DEBUG_BREAK(); \
     }
 
 #define VERIFY_MESSAGE(expression, message) \
     if(expression) { } else \
     { \
-        DEBUG_PRINT("Verification failed: " DEBUG_STRINGIFY(expression) " - " message) \
+        LOG_FATAL() << "Verification failed: " DEBUG_STRINGIFY(expression) " - " message; \
         DEBUG_BREAK(); \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, ...) arg3
 #define VERIFY_CHOOSER(...) DEBUG_EXPAND_MACRO(VERIFY_DEDUCE(__VA_ARGS__, VERIFY_MESSAGE, VERIFY_SIMPLE))
-
 #define VERIFY(...) DEBUG_EXPAND_MACRO(VERIFY_CHOOSER(__VA_ARGS__)(__VA_ARGS__))

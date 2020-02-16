@@ -48,7 +48,8 @@ StateRenderer& StateRenderer::operator=(StateRenderer&& other)
 
 bool StateRenderer::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing state renderer..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing state renderer...";
 
     // Make sure class instance has not been already initialized.
     ASSERT(!m_initialized, "State renderer has already been initialized!");

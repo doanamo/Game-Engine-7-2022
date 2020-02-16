@@ -37,7 +37,8 @@ EditorShell& EditorShell::operator=(EditorShell&& other)
 
 bool EditorShell::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing editor shell..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing editor shell...";
 
     // Make sure instance is not initialized.
     ASSERT(!m_initialized, "Editor shell instance is already initialized!");

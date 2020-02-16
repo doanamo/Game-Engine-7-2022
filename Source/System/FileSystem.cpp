@@ -31,7 +31,8 @@ FileSystem& FileSystem::operator=(FileSystem&& other)
 
 bool FileSystem::Initialize()
 {
-    LOG() << "Initializing file system..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing file system...";
 
     // Make sure that the class instance has not been already initialized.
     VERIFY(!m_initialized, "File system has already been initialized!");

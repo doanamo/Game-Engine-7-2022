@@ -73,7 +73,8 @@ void Window::DestroyWindow()
 
 bool Window::Initialize(const WindowInfo& info)
 {
-    LOG() << "Initializing window..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing window...";
 
     // Check if instance is already initialized.
     VERIFY(m_handle == nullptr, "Window instance is already initialized!");

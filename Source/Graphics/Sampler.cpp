@@ -121,7 +121,8 @@ void Sampler::DestroyHandle()
 
 bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 {
-    LOG() << "Creating sampler..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Creating sampler...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Sampler instance has been already initialized!");

@@ -38,7 +38,8 @@ GameFramework& GameFramework::operator=(GameFramework&& other)
 
 bool GameFramework::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing game framework..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing game framework...";
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Game framework has already been initialized!");

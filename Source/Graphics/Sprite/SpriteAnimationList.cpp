@@ -67,7 +67,8 @@ SpriteAnimationList& SpriteAnimationList::operator=(SpriteAnimationList&& other)
 
 bool SpriteAnimationList::Initialize()
 {
-    LOG() << "Initializing sprite animation list..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing sprite animation list...";
 
     // Make sure that this instance has not been already initialized.
     VERIFY(!m_initialized, "Sprite animation list has already been initialized!");
@@ -81,7 +82,8 @@ bool SpriteAnimationList::Initialize()
 
 bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading sprite animation list from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading sprite animation list from \"" << params.filePath << "\" file...";
 
     // Initialize the sprite animation list instance.
     if(!this->Initialize())

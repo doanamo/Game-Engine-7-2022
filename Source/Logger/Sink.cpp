@@ -93,17 +93,13 @@ const SinkContext& Sink::GetContext() const
     return m_context;
 }
 
-ScopedIndent::ScopedIndent(Sink* sink) :
+ScopedIndent::ScopedIndent(Sink& sink) :
     m_sink(sink)
 {
-    VERIFY(m_sink != nullptr, "Argument for sink reference cannot be nullptr!");
-
-    m_sink->IncreaseIndent();
+    m_sink.IncreaseIndent();
 }
 
 ScopedIndent::~ScopedIndent()
 {
-    VERIFY(m_sink != nullptr, "Saved sink reference somehow became nullptr!");
-
-    m_sink->DecreaseIndent();
+    m_sink.DecreaseIndent();
 }

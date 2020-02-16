@@ -86,7 +86,8 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
 
 bool InputManagerEditor::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing input manager editor..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing input manager editor...";
 
     // Make sure class instance is not already initialized.
     ASSERT(!m_initialized, "Input manager editor has already been initialized!");

@@ -10,10 +10,28 @@ using namespace Logger;
 
 namespace
 {
-    const char ErrorSign = '!';
-    const char WarningSign = '?';
-    const char DebugSign = '~';
-    const char InfoSign = '-';
+    // Returns marker for specified message type.
+    char* MessageSeverityMarker(Severity::Type severity)
+    {
+        switch(severity)
+        {
+            case Severity::Trace:   return ".";
+            case Severity::Debug:   return "~";
+            case Severity::Info:    return "-";
+            case Severity::Warning: return "?";
+            case Severity::Error:   return "!";
+            case Severity::Fatal:   return "X";
+        }
+
+        ASSERT(false, "Unknown log message severity!");
+        return " ";
+    }
+
+    // Case insensitive character comparison function for std::search().
+    bool CaseInsensitiveCharacterComparison(char a, char b)
+    {
+        return std::tolower(a) == std::tolower(b);
+    };
 }
 
 std::string DefaultFormat::ComposeSessionStart()
@@ -36,10 +54,12 @@ std::string DefaultFormat::ComposeSessionStart()
 
     // Print log message legend.
     stream << "Log message legend: ";
-    stream << "[" << ErrorSign << "] Error, ";
-    stream << "[" << WarningSign << "] Warning, ";
-    stream << "[" << DebugSign << "] Debug, ";
-    stream << "[" << InfoSign << "] Info";
+    stream << "[" << MessageSeverityMarker(Severity::Trace) << "] Trace, ";
+    stream << "[" << MessageSeverityMarker(Severity::Debug) << "] Debug, ";
+    stream << "[" << MessageSeverityMarker(Severity::Info) << "] Info, ";
+    stream << "[" << MessageSeverityMarker(Severity::Warning) << "] Warning, ";
+    stream << "[" << MessageSeverityMarker(Severity::Error) << "] Error, ";
+    stream << "[" << MessageSeverityMarker(Severity::Fatal) << "] Fatal";
     stream << "\n";
 
     // Print log message format.
@@ -75,24 +95,9 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
     stream << "]";
 
     // Write message severity.
-    switch(message.GetSeverity())
-    {
-    case Severity::Error:
-        stream << "[" << ErrorSign << "]";
-        break;
-
-    case Severity::Warning:
-        stream << "[" << WarningSign << "]";
-        break;
-
-    case Severity::Debug:
-        stream << "[" << DebugSign << "]";
-        break;
-
-    default:
-        stream << "[" << InfoSign << "]";
-        break;
-    }
+    stream << "[";
+    stream << MessageSeverityMarker(message.GetSeverity());
+    stream << "]";
 
     // Write message indent.
     for(int i = 0; i < context.messageIndent; ++i)
@@ -104,17 +109,55 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
     stream << " " << message.GetText();
 
     // Write message source.
-    if(!message.GetSource().empty())
+    if(message.GetSource())
     {
-        stream << " {";
-        stream << message.GetSource();
+        std::string sourcePath = message.GetSource();
 
-        if(message.GetLine() != 0)
+        // Normalize source path delimiters.
+        std::replace(sourcePath.begin(), sourcePath.end(), '\\', '/');
+
+        // Find and remove base path to source directory.
+        std::string sourceDir = "Source/";
+
+        auto reverseIt = std::search(
+            sourcePath.rbegin(), sourcePath.rend(),
+            sourceDir.rbegin(), sourceDir.rend(),
+            CaseInsensitiveCharacterComparison
+        );
+
+        if(reverseIt != sourcePath.rend())
         {
-            stream << ":";
-            stream << message.GetLine();
+            reverseIt += sourceDir.length();
         }
 
+        // Find and remove base path to include directory.
+        std::string includeDir = "Include/";
+
+        if(reverseIt == sourcePath.rend())
+        {
+            reverseIt = std::search(
+                sourcePath.rbegin(), sourcePath.rend(),
+                includeDir.rbegin(), includeDir.rend(),
+                CaseInsensitiveCharacterComparison
+            );
+
+            if(reverseIt != sourcePath.rend())
+            {
+                reverseIt += includeDir.length();
+            }
+        }
+
+        // Remove the base path to a file.
+        if(reverseIt != sourcePath.rend())
+        {
+            sourcePath.erase(sourcePath.begin(), reverseIt.base());
+        }
+
+        // Output formatted source path.
+        stream << " {";
+        stream << sourcePath;
+        stream << ":";
+        stream << message.GetLine();
         stream << "}";
     }
 

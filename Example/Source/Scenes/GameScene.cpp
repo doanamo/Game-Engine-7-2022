@@ -47,7 +47,8 @@ GameScene& GameScene::operator=(GameScene&& other)
 
 bool GameScene::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing game scene..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing game scene...";
 
     // Make sure instance has not been initialized.
     VERIFY(!m_initialized, "Game scene has already been initialized!");

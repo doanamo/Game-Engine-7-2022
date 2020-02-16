@@ -59,7 +59,8 @@ GameState& GameState::operator=(GameState&& other)
 
 bool GameState::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing game state..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing game state...";
 
     // Check if class instance has already been initialized.
     VERIFY(!m_initialized, "Game state has already been initialized!");

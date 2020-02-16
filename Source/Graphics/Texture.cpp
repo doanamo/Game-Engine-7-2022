@@ -74,7 +74,8 @@ void Texture::DestroyHandle()
 
 bool Texture::Initialize(const CreateFromParams& params)
 {
-    LOG() << "Creating texture..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Creating texture...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
@@ -161,7 +162,8 @@ bool Texture::Initialize(const CreateFromParams& params)
 
 bool Texture::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading texture from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading texture from \"" << params.filePath << "\" file...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");

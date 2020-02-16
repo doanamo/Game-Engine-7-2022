@@ -43,7 +43,8 @@ TextureAtlas& TextureAtlas::operator=(TextureAtlas&& other)
 
 bool TextureAtlas::Initialize()
 {
-    LOG() << "Initializing texture atlas..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing texture atlas...";
 
     // Make sure that instance has not been initialized yet.
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");
@@ -57,7 +58,8 @@ bool TextureAtlas::Initialize()
 
 bool TextureAtlas::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading texture atlas from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading texture atlas from \"" << params.filePath << "\" file...";
 
     // Make sure that instance has not been initialized yet.
     VERIFY(!m_initialized, "Texture atlas instance has already been initialized!");

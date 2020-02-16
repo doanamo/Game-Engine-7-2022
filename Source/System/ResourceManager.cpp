@@ -33,7 +33,8 @@ ResourceManager& ResourceManager::operator=(ResourceManager&& other)
 
 bool ResourceManager::Initialize()
 {
-    LOG() << "Initializing resource manager..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing resource manager...";
 
     // Check if resource manager has already been initialized.
     VERIFY(!m_initialized, "Resource manager has already been initialized!");

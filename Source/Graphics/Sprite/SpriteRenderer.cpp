@@ -56,7 +56,8 @@ SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
 
 bool SpriteRenderer::Initialize(Engine::Root* engine, int spriteBatchSize)
 {
-    LOG() << "Initializing sprite renderer..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing sprite renderer...";
 
     // Make sure that the instance is not already initialized.
     ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");

@@ -121,7 +121,8 @@ RenderState& RenderState::operator=(RenderState&& other)
 
 bool RenderState::Initialize()
 {
-    LOG() << "Initializing rendering state..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing rendering state...";
 
     // glEnable
     for(std::size_t i = 0; i < OpenGL::CapabilityCount; ++i)

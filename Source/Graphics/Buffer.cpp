@@ -68,7 +68,8 @@ void Buffer::DestroyHandle()
 
 bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
-    LOG() << "Creating " << this->GetName() << "..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Creating " << this->GetName() << "...";
 
     // Check if the handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Buffer instance has been already initialized!");

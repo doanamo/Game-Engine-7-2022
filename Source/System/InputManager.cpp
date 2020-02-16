@@ -41,7 +41,8 @@ InputManager& InputManager::operator=(InputManager&& other)
 
 bool InputManager::Initialize(Window* window)
 {
-    LOG() << "Initializing input manager..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing input manager...";
 
     // Validate arguments.
     if(window == nullptr && !window->IsValid())

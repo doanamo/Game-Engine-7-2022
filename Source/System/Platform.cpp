@@ -65,7 +65,8 @@ Platform& Platform::operator=(Platform&& other)
 
 bool Platform::Initialize()
 {
-    LOG() << "Initializing platform..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing platform...";
 
     // Check if system context is already initialized.
     ASSERT(!m_initialized, "Platform is already initialized!");

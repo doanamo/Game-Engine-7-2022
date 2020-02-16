@@ -36,10 +36,12 @@ namespace Logger
         {
             Invalid,
 
+            Trace,
             Debug,
             Info,
             Warning,
             Error,
+            Fatal,
 
             Count,
         };
@@ -60,10 +62,10 @@ namespace Logger
         Message& SetText(std::string text);
 
         // Sets the message source.
-        Message& SetSource(std::string source);
+        Message& SetSource(const char* source);
 
         // Sets the message line.
-        Message& SetLine(int line);
+        Message& SetLine(unsigned int line);
 
         // Gets the message severity.
         Severity::Type GetSeverity() const;
@@ -72,20 +74,20 @@ namespace Logger
         std::string GetText() const;
 
         // Gets the message source.
-        std::string GetSource() const;
+        const char* GetSource() const;
 
         // Gets the message line.
-        int GetLine() const;
+        unsigned int GetLine() const;
 
         // Checks if the message is empty.
         bool IsEmpty() const;
 
     private:
         // Message state.
-        Severity::Type m_severity;
         std::stringbuf m_text;
-        std::string    m_source;
-        int            m_line;
+        Severity::Type m_severity;
+        const char*    m_source;
+        unsigned int   m_line;
     };
 }
 
@@ -94,7 +96,6 @@ namespace Logger
 
     Log message object that writes to a sink at the end of its lifetime.
     Extensively used by Log() macro to write to the sink at the end of scope.
-    Using anynomous instantiation and its scope ends at the next semicolon (';').
 */
 
 namespace Logger
@@ -106,12 +107,11 @@ namespace Logger
     class ScopedMessage : public Message
     {
     public:
-        ScopedMessage(Sink* sink);
-        ScopedMessage(ScopedMessage&& other);
+        ScopedMessage(Sink& sink);
         ~ScopedMessage();
 
     private:
         // Message sink output.
-        Logger::Sink* m_sink;
+        Logger::Sink& m_sink;
     };
 }

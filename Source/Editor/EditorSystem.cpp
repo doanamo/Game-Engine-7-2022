@@ -81,7 +81,8 @@ void EditorSystem::DestroyContext()
 
 bool EditorSystem::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing editor system..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing editor system...";
 
     // Check if the instance is already initialized.
     VERIFY(!m_initialized, "Editor system instance is already initialized!");

@@ -154,7 +154,8 @@ void VertexArray::DestroyHandle()
 
 bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
 {
-    LOG() << "Creating vertex input..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Creating vertex input...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Vertex array instance has been already initialized!");

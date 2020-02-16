@@ -43,7 +43,8 @@ EditorRenderer& EditorRenderer::operator=(EditorRenderer&& other)
 
 bool EditorRenderer::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing editor renderer..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing editor renderer...";
 
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Editor renderer has already been initialized!");

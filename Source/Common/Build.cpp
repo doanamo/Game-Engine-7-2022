@@ -31,7 +31,8 @@ void Build::Initialize()
 
 void Build::PrintInfo()
 {
-    LOG_INFO() << "Printing build info..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG_INFO() << "Printing build info...";
 
     LOG_INFO() << "Engine directory: \"" << (EngineDir.empty() ? "Default" : EngineDir) << "\"";
     LOG_INFO() << "Engine repository: "

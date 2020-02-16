@@ -80,7 +80,7 @@ namespace Logger
         // Decrease the current message indent.
         void DecreaseIndent();
 
-        // Gets the context needed for writting messages.
+        // Gets the context needed for writing messages.
         const SinkContext& GetContext() const;
 
     private:
@@ -103,7 +103,8 @@ namespace Logger
         Logger::Initialize();
 
         // Using a macro to create an indent.
-        LOG() << "Initializing nothingness..." << LOG_INDENT();
+        LOG_SCOPED_INDENT();
+        LOG() << "Initializing nothingness...";
 
         // Write a log message.
         LOG_DEBUG() << "Success!";
@@ -116,11 +117,11 @@ namespace Logger
     class ScopedIndent : private NonCopyable
     {
     public:
-        ScopedIndent(Sink* sink);
+        ScopedIndent(Sink& sink);
         ~ScopedIndent();
 
     private:
         // Logger sink.
-        Sink* m_sink;
+        Sink& m_sink;
     };
 }

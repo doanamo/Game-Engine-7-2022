@@ -43,7 +43,8 @@ EventRouter& EventRouter::operator=(EventRouter&& other)
 
 bool EventRouter::Initialize(Engine::Root* engine)
 {
-    LOG() << "Initializing event router..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing event router...";
 
     // Ensure that event router has not been initialized yet.
     ASSERT(!m_initialized, "Event router has already been initialized!");

@@ -79,7 +79,8 @@ void Shader::DestroyHandle()
 
 bool Shader::Initialize(const LoadFromString& params)
 {
-    LOG() << "Compiling shader code..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Compiling shader code...";
 
     // Check if handle has been already created.
     VERIFY(m_handle == OpenGL::InvalidHandle, "Shader instance has been already initialized!");
@@ -287,7 +288,8 @@ bool Shader::Initialize(const LoadFromString& params)
 
 bool Shader::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading shader from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading shader from \"" << params.filePath << "\" file...";
 
     // Validate arguments.
     if(params.engine == nullptr)

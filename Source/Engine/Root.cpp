@@ -72,7 +72,8 @@ bool Root::Initialize(const InitializeParams& initParams)
     Build::Initialize();
 
     // After low level system have been initialized, begin initializing other systems.
-    LOG() << "Initializing engine..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing engine...";
 
     // Reset class instance on initialization failure.
     SCOPE_GUARD_IF(!m_initialized, *this = Root());
@@ -210,8 +211,8 @@ int Root::Run()
     // Run the main loop.
     while(m_window->IsOpen())
     {
-        // Advance the logger frame counter of reference.
-        Logger::AdvanceFrameCounter();
+        // Advance logger's frame of reference.
+        Logger::AdvanceFrameReference();
 
         // Draw the editor system.
         m_editorSystem->Draw();

@@ -39,7 +39,8 @@ ComponentSystem& ComponentSystem::operator=(ComponentSystem&& other)
 
 bool ComponentSystem::Initialize(EntitySystem* entitySystem)
 {
-    LOG() << "Initializing component system..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing component system...";
 
     // Make sure we are not initializing twice.
     ASSERT(!m_initialized, "Component system instance has already been initialized!");

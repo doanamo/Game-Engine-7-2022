@@ -59,7 +59,8 @@ ScriptState& ScriptState::operator=(ScriptState&& other)
 
 bool ScriptState::Initialize()
 {
-    LOG() << "Initializing script state..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Initializing script state...";
 
     // Check if state has already been initialized.
     VERIFY(!m_initialized, "Script state has already been initialized!");
@@ -100,7 +101,8 @@ bool ScriptState::Initialize()
 
 bool ScriptState::Initialize(const LoadFromText& params)
 {
-    LOG() << "Loading script state from text..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading script state from text...";
 
     // Call the main initialization methods.
     if(!this->Initialize())
@@ -131,7 +133,8 @@ bool ScriptState::Initialize(const LoadFromText& params)
 
 bool ScriptState::Initialize(const LoadFromFile& params)
 {
-    LOG() << "Loading script state from \"" << params.filePath << "\" file..." << LOG_INDENT();
+    LOG_SCOPED_INDENT();
+    LOG() << "Loading script state from \"" << params.filePath << "\" file...";
 
     // Call the main initialization methods.
     if(!this->Initialize())
