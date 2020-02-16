@@ -302,6 +302,14 @@ endif()
 # Add utfcpp library.
 target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../External/utfcpp-2.3.6/source")
 
+# Add fmt library.
+add_subdirectory("../External/fmt-6.1.2" "External/fmt" EXCLUDE_FROM_ALL)
+target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../External/fmt-6.1.2/include")
+target_link_libraries(${TARGET_NAME} fmt::fmt)
+
+set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
+set_property(TARGET "fmt" PROPERTY FOLDER "External")
+
 # Add GLM library.
 target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../External/GLM-0.9.9.3")
 

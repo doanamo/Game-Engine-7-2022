@@ -28,6 +28,9 @@
 #include <utf8/core.h>
 #include <utf8/unchecked.h>
 
+// fmt
+#include <fmt/core.h>
+
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
