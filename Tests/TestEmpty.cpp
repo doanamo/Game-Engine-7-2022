@@ -3,3 +3,8 @@
 */
 
 #include "TestHelpers.hpp"
+
+int main()
+{
+    return 0;
+}

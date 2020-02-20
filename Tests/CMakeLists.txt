@@ -11,8 +11,10 @@ cmake_minimum_required(VERSION 3.12)
 
 # Utility function for defining tests.
 function(create_test test_name)
-    if(NOT EXISTS "Test${test_name}.cpp")
-        configure_file("TestEmpty.cpp" "Test${test_name}.cpp")
+    set(TEST_FILE_PATH_ABSOLUTE "${CMAKE_CURRENT_SOURCE_DIR}/Test${test_name}.cpp")
+
+    if(NOT EXISTS ${TEST_FILE_PATH_ABSOLUTE})
+        configure_file("TestEmpty.cpp" ${TEST_FILE_PATH_ABSOLUTE})
     endif()
 
     add_executable("Test${test_name}" "Test${test_name}.cpp" "TestHelpers.hpp")
