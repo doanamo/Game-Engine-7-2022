@@ -2,6 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
+#include "TestHelpers.hpp"
 #include <Common/ScopeGuard.hpp>
 
 bool TestMakeScopeGuard()
@@ -17,7 +18,9 @@ bool TestMakeScopeGuard()
         });
     }
 
-    return i == nullptr;
+    TEST_EQ(i, nullptr);
+
+    return true;
 }
 
 bool TestScopeGuardMacro()
@@ -29,7 +32,9 @@ bool TestScopeGuardMacro()
         SCOPE_GUARD(delete i; i = nullptr);
     }
 
-    return i == nullptr;
+    TEST_EQ(i, nullptr);
+
+    return true;
 }
 
 bool TestConditionalScopeGuardMacro()
@@ -49,7 +54,10 @@ bool TestConditionalScopeGuardMacro()
         SCOPE_GUARD_IF(condition, j = new int(4));
     }
 
-    return i == nullptr && j == nullptr;
+    TEST_EQ(i, nullptr);
+    TEST_EQ(j, nullptr);
+
+    return true;
 }
 
 bool TestBracedScopeGuardMacro()
@@ -66,7 +74,9 @@ bool TestBracedScopeGuardMacro()
         SCOPE_GUARD_END();
     }
 
-    return i == nullptr;
+    TEST_EQ(i, nullptr);
+
+    return true;
 }
 
 bool TestConditionalBracedScopeGuardMacro()
@@ -95,7 +105,10 @@ bool TestConditionalBracedScopeGuardMacro()
         SCOPE_GUARD_END();
     }
 
-    return i == nullptr && j == nullptr;
+    TEST_EQ(i, nullptr);
+    TEST_EQ(j, nullptr);
+
+    return true;
 }
 
 int main()

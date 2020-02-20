@@ -2,6 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
+#include "TestHelpers.hpp"
 #include <Event/Delegate.hpp>
 #include <Event/Collector.hpp>
 #include <Event/Dispatcher.hpp>
@@ -34,39 +35,41 @@ bool TestDelegate()
 {
     Event::Delegate<char(const char* c, int i)> delegate;
 
-    if(delegate.IsBound())
-        return false;
+    TEST_FALSE(delegate.IsBound());
 
     // Static function binding.
     delegate.Bind<&Function>();
 
-    if(!delegate.IsBound())
-        return false;
+    TEST_TRUE(delegate.IsBound());
+    TEST_EQ(delegate.Invoke("Hello world!", 6), 'w');
 
-    if(delegate.Invoke("Hello world!", 6) != 'w')
-        return false;
+    delegate.Bind(nullptr);
+
+    TEST_FALSE(delegate.IsBound());
 
     // Class method binding.
     BaseClass baseClass;
 
     delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
 
-    if(!delegate.IsBound())
-        return false;
+    TEST_TRUE(delegate.IsBound());
+    TEST_EQ(delegate.Invoke("Hello world!", 6), ' ');
 
-    if(delegate.Invoke("Hello world!", 6) != ' ')
-        return false;
+    delegate.Bind(nullptr);
+
+    TEST_FALSE(delegate.IsBound());
 
     // Virtual method binding.
     DerivedClass derivedClass;
 
     delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
 
-    if(!delegate.IsBound())
-        return false;
+    TEST_TRUE(delegate.IsBound());
+    TEST_EQ(delegate.Invoke("Hello world!", 6), 'o');
 
-    if(delegate.Invoke("Hello world!", 6) != 'o')
-        return false;
+    delegate.Bind(nullptr);
+
+    TEST_FALSE(delegate.IsBound());
 
     // Lambda functor binding.
     auto functor = [](const char* c, int i) -> char
@@ -76,11 +79,12 @@ bool TestDelegate()
 
     delegate.Bind(&functor);
 
-    if(!delegate.IsBound())
-        return false;
+    TEST_TRUE(delegate.IsBound());
+    TEST_EQ(delegate.Invoke("Hello world!", 6), 'r');
 
-    if(delegate.Invoke("Hello world!", 6) != 'r')
-        return false;
+    delegate.Bind(nullptr);
+
+    TEST_FALSE(delegate.IsBound());
 
     // Lambda binding via constructor.
     {
@@ -106,93 +110,68 @@ bool TestDelegate()
     // Delegate unbinding.
     delegate.Bind(nullptr);
 
-    if(delegate.IsBound())
-        return false;
+    TEST_FALSE(delegate.IsBound());
 
     return true;
 }
 
 bool TestCollector()
 {
-    Event::CollectDefault<void> collectDefault;
+    {
+        Event::CollectDefault<void> collectDefault;
 
-    collectDefault.ConsumeResult();
+        collectDefault.ConsumeResult();
+        TEST_TRUE(collectDefault.ShouldContinue());
+        TEST_VOID(collectDefault.GetResult());
+    }
 
-    if(!collectDefault.ShouldContinue())
-        return false;
+    {
+        Event::CollectLast<int> collectLast(0);
+        TEST_EQ(collectLast.GetResult(), 0);
 
-    collectDefault.GetResult();
+        collectLast.ConsumeResult(1);
+        TEST_TRUE(collectLast.ShouldContinue());
+        TEST_EQ(collectLast.GetResult(), 1);
 
-    Event::CollectLast<int> collectLast(0);
+        collectLast.ConsumeResult(2);
+        TEST_TRUE(collectLast.ShouldContinue());
+        TEST_EQ(collectLast.GetResult(), 2);
 
-    if(collectLast.GetResult() != 0)
-        return false;
+        collectLast.ConsumeResult(3);
+        TEST_TRUE(collectLast.ShouldContinue());
+        TEST_EQ(collectLast.GetResult(), 3);
 
-    collectLast.ConsumeResult(1);
-    if(!collectLast.ShouldContinue())
-        return false;
+        collectLast.ConsumeResult(4);
+        TEST_TRUE(collectLast.ShouldContinue());
+        TEST_EQ(collectLast.GetResult(), 4);
+    }
+    
+    {
+        Event::CollectWhileTrue collectWhileTrue(true);
+        TEST_EQ(collectWhileTrue.GetResult(), true);
 
-    if(collectLast.GetResult() != 1)
-        return false;
+        collectWhileTrue.ConsumeResult(true);
+        TEST_TRUE(collectWhileTrue.ShouldContinue());
+        TEST_EQ(collectWhileTrue.GetResult(), true);
 
-    collectLast.ConsumeResult(2);
-    if(!collectLast.ShouldContinue())
-        return false;
+        collectWhileTrue.ConsumeResult(false);
+        TEST_FALSE(collectWhileTrue.ShouldContinue());
+        TEST_EQ(collectWhileTrue.GetResult(), false);
+    }
+    
+    {
+        Event::CollectWhileFalse collectWhileFalse(false);
+        TEST_EQ(collectWhileFalse.GetResult(), false);
 
-    if(collectLast.GetResult() != 2)
-        return false;
+        collectWhileFalse.ConsumeResult(false);
+        TEST_TRUE(collectWhileFalse.ShouldContinue());
+        TEST_EQ(collectWhileFalse.GetResult(), false);
 
-    collectLast.ConsumeResult(3);
-    if(!collectLast.ShouldContinue())
-        return false;
+        collectWhileFalse.ConsumeResult(true);
+        TEST_FALSE(collectWhileFalse.ShouldContinue());
+        TEST_EQ(collectWhileFalse.GetResult(), true);
+    }
 
-    if(collectLast.GetResult() != 3)
-        return false;
-
-    collectLast.ConsumeResult(4);
-    if(!collectLast.ShouldContinue())
-        return false;
-
-    if(collectLast.GetResult() != 4)
-        return false;
-
-    Event::CollectWhileTrue collectWhileTrue(true);
-
-    if(collectWhileTrue.GetResult() != true)
-        return false;
-
-    collectWhileTrue.ConsumeResult(true);
-    if(!collectWhileTrue.ShouldContinue())
-        return false;
-
-    if(collectWhileTrue.GetResult() != true)
-        return false;
-
-    collectWhileTrue.ConsumeResult(false);
-    if(collectWhileTrue.ShouldContinue())
-        return false;
-
-    if(collectWhileTrue.GetResult() != false)
-        return false;
-
-    Event::CollectWhileFalse collectWhileFalse(false);
-
-    if(collectWhileFalse.GetResult() != false)
-        return false;
-
-    collectWhileFalse.ConsumeResult(false);
-    if(!collectWhileFalse.ShouldContinue())
-        return false;
-
-    if(collectWhileFalse.GetResult() != false)
-        return false;
-
-    collectWhileFalse.ConsumeResult(true);
-    if(collectWhileFalse.ShouldContinue())
-        return false;
-
-    if(collectWhileFalse.GetResult() != true)
-        return false;
 
     return true;
 }
@@ -267,43 +246,28 @@ bool TestDispatcher()
 
         Event::Dispatcher<int(int*)> dispatcher(42);
 
-        if(dispatcher.Dispatch(&i) != 42)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_EQ(dispatcher.Dispatch(&i), 42);
+        TEST_EQ(i, 0);
 
         dispatcher.Subscribe(receiverA);
 
-        if(dispatcher.Dispatch(&i) != 32)
-            return false;
-
-        if(i != 2)
-            return false;
+        TEST_EQ(dispatcher.Dispatch(&i), 32);
+        TEST_EQ(i, 2);
 
         dispatcher.Subscribe(receiverB);
 
-        if(dispatcher.Dispatch(&i) != 33)
-            return false;
-
-        if(i != 8)
-            return false;
+        TEST_EQ(dispatcher.Dispatch(&i), 33);
+        TEST_EQ(i, 8);
 
         receiverB.Unsubscribe();
 
-        if(dispatcher.Dispatch(&i) != 32)
-            return false;
-
-        if(i != 10)
-            return false;
+        TEST_EQ(dispatcher.Dispatch(&i), 32);
+        TEST_EQ(i, 10);
 
         dispatcher.Unsubscribe(receiverA);
 
-        if(dispatcher.Dispatch(&i) != 42)
-            return false;
-
-        if(i != 10)
-            return false;
+        TEST_EQ(dispatcher.Dispatch(&i), 42);
+        TEST_EQ(i, 10);
     }
 
     // Dispatcher with collect while true/false collector.
@@ -321,69 +285,45 @@ bool TestDispatcher()
 
         Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(true);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != true)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_TRUE(dispatcherWhileTrue.Dispatch(&i));
+        TEST_EQ(i, 0);
 
         dispatcherWhileTrue.Subscribe(receiverTrue);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != true)
-            return false;
-
-        if(i != 3)
-            return false;
+        TEST_TRUE(dispatcherWhileTrue.Dispatch(&i));
+        TEST_EQ(i, 3);
 
         dispatcherWhileTrue.Subscribe(receiverFalse);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != false)
-            return false;
-
-        if(i != 15)
-            return false;
+        TEST_FALSE(dispatcherWhileTrue.Dispatch(&i))
+        TEST_EQ(i, 15);
 
         dispatcherWhileTrue.Subscribe(receiverDummy);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != false)
-            return false;
-
-        if(i != 27)
-            return false;
+        TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
+        TEST_EQ(i, 27);
 
         int y = 0;
 
         Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(false);
 
-        if(dispatcherWhileFalse.Dispatch(&y) != false)
-            return false;
-
-        if(y != 0)
-            return false;
+        TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
+        TEST_EQ(y, 0);
 
         dispatcherWhileFalse.Subscribe(receiverFalse, true);
 
-        if(dispatcherWhileFalse.Dispatch(&y) != false)
-            return false;
-
-        if(y != 9)
-            return false;
+        TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
+        TEST_EQ(y, 9);
 
         dispatcherWhileFalse.Subscribe(receiverTrue, true);
 
-        if(dispatcherWhileFalse.Dispatch(&y) != true)
-            return false;
-
-        if(y != 21)
-            return false;
+        TEST_TRUE(dispatcherWhileFalse.Dispatch(&y));
+        TEST_EQ(y, 21);
 
         dispatcherWhileFalse.Subscribe(receiverDummy);
 
-        if(dispatcherWhileFalse.Dispatch(&y) != true)
-            return false;
-
-        if(y != 33)
-            return false;
+        TEST_TRUE(dispatcherWhileFalse.Dispatch(&y));
+        TEST_EQ(y, 33)
     }
 
     // Calling dispatcher with failing initial state.
@@ -398,35 +338,23 @@ bool TestDispatcher()
 
         Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(false);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != false)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
+        TEST_EQ(i, 0);
 
         dispatcherWhileTrue.Subscribe(receiverTrue);
 
-        if(dispatcherWhileTrue.Dispatch(&i) != false)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
+        TEST_EQ(i, 0);
 
         Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(true);
 
-        if(dispatcherWhileFalse.Dispatch(&i) != true)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_TRUE(dispatcherWhileFalse.Dispatch(&i));
+        TEST_EQ(i, 0);
 
         dispatcherWhileFalse.Subscribe(receiverFalse);
 
-        if(dispatcherWhileFalse.Dispatch(&i) != true)
-            return false;
-
-        if(i != 0)
-            return false;
+        TEST_TRUE(dispatcherWhileFalse.Dispatch(&i));
+        TEST_EQ(i, 0);
     }
 
     // Removing and adding receivers to dispatcher with void return type.
@@ -457,112 +385,79 @@ bool TestDispatcher()
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 10)
-            return false;
-
-        if(!dispatcherA.Subscribe(receiverAddOne))
-            return false;
-
-        if(!dispatcherA.Subscribe(receiverAddTwo))
-            return false;
-
-        if(!dispatcherA.Subscribe(receiverAddThree))
-            return false;
-
-        if(!dispatcherA.Subscribe(receiverAddFour))
-            return false;
+        TEST_EQ(i, 10);
+        TEST_TRUE(dispatcherA.Subscribe(receiverAddOne));
+        TEST_TRUE(dispatcherA.Subscribe(receiverAddTwo));
+        TEST_TRUE(dispatcherA.Subscribe(receiverAddThree));
+        TEST_TRUE(dispatcherA.Subscribe(receiverAddFour));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 20)
-            return false;
-
-        if(dispatcherB.Subscribe(receiverAddOne))
-            return false;
+        TEST_EQ(i, 20);
+        TEST_FALSE(dispatcherB.Subscribe(receiverAddOne));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 30)
-            return false;
+        TEST_EQ(i, 30);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 30)
-            return false;
-
-        if(!dispatcherB.Subscribe(receiverAddOne, true))
-            return false;
+        TEST_EQ(i, 30);
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddOne, true));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 39)
-            return false;
+        TEST_EQ(i, 39);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 40)
-            return false;
-
-        if(!dispatcherB.Subscribe(receiverAddThree, true))
-            return false;
+        TEST_EQ(i, 40);
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddThree, true));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 46)
-            return false;
+        TEST_EQ(i, 46);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 50)
-            return false;
-
-        if(!dispatcherB.Subscribe(receiverAddFour, true))
-            return false;
+        TEST_EQ(i, 50);
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddFour, true));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 52)
-            return false;
+        TEST_EQ(i, 52);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 60)
-            return false;
-
-        if(!dispatcherB.Subscribe(receiverAddTwo, true))
-            return false;
+        TEST_EQ(i, 60);
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddTwo, true));
 
         dispatcherA.Dispatch(&i);
 
-        if(i != 60)
-            return false;
+        TEST_EQ(i, 60);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 70)
-            return false;
+        TEST_EQ(i, 70);
 
         receiverAddTwo.Unsubscribe();
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 78)
-            return false;
+        TEST_EQ(i, 78);
 
         dispatcherB.Unsubscribe(receiverAddFour);
 
         dispatcherB.Dispatch(&i);
 
-        if(i != 82)
-            return false;
+        TEST_EQ(i, 82);
 
         dispatcherB.UnsubscribeAll();
 
         dispatcherA.Dispatch(&i);
         dispatcherB.Dispatch(&i);
 
-        if(i != 82)
-            return false;
+        TEST_EQ(i, 82);
     }
 
     return true;
