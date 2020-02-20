@@ -48,6 +48,19 @@ namespace Debug
     #define DEBUG_BREAK() raise(SIGTRAP);
 #endif
 
+#ifdef WIN32
+    #define WIN32_LEAD_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+    #define DEBUG_BREAK_IF_ATTACHED() \
+        if(IsDebuggerPresent()) \
+        { \
+            DEBUG_BREAK() \
+        }
+#else
+    #define DEBUG_BREAK_IF_ATTACHED() ((void)0)
+#endif
+
 /*
     Assert Macros
 
