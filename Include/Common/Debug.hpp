@@ -69,7 +69,7 @@ namespace Debug
     Assert Macros
 
     Ensures that a given expression is true.
-    Used as a sanity check to guard against programming errors.
+    Used as a sanity check to guard against programming errors in debug build.
 
     Behavior in different build configurations:
     - Debug: Triggers abort
@@ -107,7 +107,7 @@ namespace Debug
     Verify Macro
 
     Ensures that a given expression is true.
-    Used to safeguard against errors we choose to not handle.
+    Used to safeguard against errors we choose to not handle in release build.
 
     Behavior in different build configurations:
     - Debug: Triggers abort

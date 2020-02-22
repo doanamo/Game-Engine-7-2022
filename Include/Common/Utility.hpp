@@ -19,27 +19,28 @@
 
 namespace Utility
 {
-    // Clamps a value between lower and upper range.
+    // Clamps value between lower and upper range.
     template<typename Type>
     Type Clamp(const Type& value, const Type& lower, const Type& upper)
     {
         return std::max(lower, std::min(value, upper));
     }
 
-    // Gets the size of a static array.
+    // Gets size of static array known at compile time.
     template<typename Type, std::size_t Size>
     constexpr std::size_t StaticArraySize(const Type(&)[Size])
     {
         return Size;
     }
 
-    // Safely casts numerical types without any data loss.
+    // Casts numerical types with assertion guarantee for data loss.
     // Checks in debug if conversion will lead to any loss of data.
     // This is useful when dealing with libraries which do not fully
     // convert from 32bit to 64bit types on their own (e.g. OpenGL).
     template<typename Target, typename Source>
     Target NumericalCast(const Source& value)
     {
+        // Convert to target type and then back to source type, then compare values.
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
             "Numerical conversion failed due to data loss!");
 
@@ -54,32 +55,41 @@ namespace Utility
         container.swap(temp);
     }
 
-    // Gets the directory from a file path.
-    std::string GetFileDirectory(std::string filePath);
+    // Gets directory from a file path.
+    std::string GetFileDirectory(const std::string filePath);
 
-    // Gets the name from a file path.
-    std::string GetFileName(std::string filePath);
+    // Gets name from a file path.
+    std::string GetFileName(const std::string filePath);
 
-    // Gets the extension from a file path.
-    std::string GetFileExtension(std::string filePath);
+    // Gets extension from a file path.
+    std::string GetFileExtension(const std::string filePath);
 
-    // Gets the content of a text file.
-    std::string GetTextFileContent(std::string filePath);
+    // Gets content of  text file.
+    std::string GetTextFileContent(const std::string filePath);
 
-    // Gets the content of a binary file.
-    std::vector<char> GetBinaryFileContent(std::string filePath);
+    // Gets content of a binary file.
+    std::vector<char> GetBinaryFileContent(const std::string filePath);
 
-    // Splits a string into tokens.
-    std::vector<std::string> TokenizeString(std::string text, char character = ' ');
+    // Converts text to lower case characters.
+    std::string StringLowerCase(const std::string text);
+
+    // Splits string into tokens.
+    std::vector<std::string> StringTokenize(const std::string text, char character = ' ');
 
     // Removes leading characters in a string.
-    std::string StringTrimLeft(std::string text, const char* characters = " ");
+    std::string StringTrimLeft(const std::string text, const char* characters = " ");
 
     // Removes trailing character in a string.
-    std::string StringTrimRight(std::string text, const char* characters = " ");
+    std::string StringTrimRight(const std::string text, const char* characters = " ");
 
     // Removes characters from both ends of a string.
-    std::string StringTrim(std::string text, const char* characters = " ");
+    std::string StringTrim(const std::string text, const char* characters = " ");
+
+    // Calculates unique hash from string.
+    uint32_t StringHash(const std::string string);
+
+    // Calculates CRC32 from provided byte data.
+    uint32_t CalculateCRC32(uint32_t crc, const char* data, std::size_t size);
 
     // Reorders vector using an array of indices.
     // This is useful in case we have two collections that need to be sorted in

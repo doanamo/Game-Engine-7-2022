@@ -24,6 +24,14 @@ bool TestStaticArraySize()
     return true;
 }
 
+bool TestNumericCast()
+{
+    uint64_t source = (uint64_t)std::numeric_limits<uint32_t>::max();
+    uint32_t target = Utility::NumericalCast<uint32_t>(source);
+
+    return true;
+}
+
 bool TestClearContainer()
 {
     std::vector<int> elements;
@@ -39,26 +47,36 @@ bool TestClearContainer()
     return true;
 }
 
-bool TestGetFileDirectoryNameExtenstion()
-{
-    std::string filePathValid = "C:/secret\\project\\file.cpp";
-    std::string filePathWithoutDirectory = "file.cpp";
-    std::string filePathWithoutName = "C:/secret\\project/.cpp";
-    std::string filePathWithoutExtension = "C:/secret\\project\\file";
-    std::string filePathEmpty = "";
+const std::string filePathValid = "C:/secret\\project\\file.cpp";
+const std::string filePathWithoutDirectory = "file.cpp";
+const std::string filePathWithoutName = "C:/secret\\project/.cpp";
+const std::string filePathWithoutExtension = "C:/secret\\project\\file";
+const std::string filePathEmpty = "";
 
+bool TestGetFileDirectory()
+{
     TEST_EQ(Utility::GetFileDirectory(filePathValid), "C:/secret\\project\\");
     TEST_EQ(Utility::GetFileDirectory(filePathWithoutDirectory), "");
     TEST_EQ(Utility::GetFileDirectory(filePathWithoutName), "C:/secret\\project/");
     TEST_EQ(Utility::GetFileDirectory(filePathWithoutExtension), "C:/secret\\project\\");
     TEST_EQ(Utility::GetFileDirectory(filePathEmpty), "");
+    
+    return true;
+}
 
+bool TestGetFileName()
+{
     TEST_EQ(Utility::GetFileName(filePathValid), "file");
     TEST_EQ(Utility::GetFileName(filePathWithoutDirectory), "file");
     TEST_EQ(Utility::GetFileName(filePathWithoutName), "");
     TEST_EQ(Utility::GetFileName(filePathWithoutExtension), "file");
     TEST_EQ(Utility::GetFileName(filePathEmpty), "");
 
+    return true;
+}
+
+bool TestGetFileExtension()
+{
     TEST_EQ(Utility::GetFileExtension(filePathValid), "cpp");
     TEST_EQ(Utility::GetFileExtension(filePathWithoutDirectory), "cpp");
     TEST_EQ(Utility::GetFileExtension(filePathWithoutName), "cpp");
@@ -90,10 +108,19 @@ bool TestGetBinaryFileContent()
     return true;
 }
 
-bool TestTokenizeString()
+bool TestStringLowerCase()
+{
+    std::string text = "HeLLo WoNDERfUL WoRlD! :)";
+
+    TEST_EQ(Utility::StringLowerCase(text), "hello wonderful world! :)");
+
+    return true;
+}
+
+bool TestStringTokenize()
 {
     std::string text = "Hello wonderful world! :)";
-    std::vector<std::string> tokens = Utility::TokenizeString(text, ' ');
+    std::vector<std::string> tokens = Utility::StringTokenize(text, ' ');
 
     TEST_EQ(tokens.size(), 4);
     TEST_EQ(tokens[0], "Hello");
@@ -111,6 +138,26 @@ bool TestStringTrim()
     TEST_EQ(Utility::StringTrimLeft(text, " @#$%^&*()"), "hello world !   )*(&$^%#@     ");
     TEST_EQ(Utility::StringTrimRight(text, " @#$%^&*()"), "   @)#($*%&^  hello world !");
     TEST_EQ(Utility::StringTrim(text, " @#$%^&*()"), "hello world !");
+
+    return true;
+}
+
+bool TestStringHash()
+{
+    TEST_NEQ(Utility::StringHash("Armored orange"), 0);
+    TEST_NEQ(Utility::StringHash("Naked banana"), Utility::StringHash("Dressed apple"));
+
+    return true;
+}
+
+bool TestCalculateCRC()
+{
+    char dataFirst[4] = { '2', '0', '3', '5' };
+    char dataSecond[4] = { '1', '9', '4', '5' };
+
+    TEST_NEQ(Utility::CalculateCRC32(0, &dataFirst[0], Utility::StaticArraySize(dataFirst)), 0);
+    TEST_NEQ(Utility::CalculateCRC32(0, &dataFirst[0], Utility::StaticArraySize(dataFirst)),
+        Utility::CalculateCRC32(0, &dataSecond[0], Utility::StaticArraySize(dataSecond)));
 
     return true;
 }
@@ -204,8 +251,17 @@ int main()
 
     if(!TestClearContainer())
         return 1;
+
+    if(!TestNumericCast())
+        return 1;
     
-    if(!TestGetFileDirectoryNameExtenstion())
+    if(!TestGetFileDirectory())
+        return 1;
+
+    if(!TestGetFileName())
+        return 1;
+
+    if(!TestGetFileExtension())
         return 1;
 
     if(!TestGetTextFileContent())
@@ -214,11 +270,16 @@ int main()
     if(!TestGetBinaryFileContent())
         return 1;
 
-    if(!TestTokenizeString())
+    if(!TestStringLowerCase())
+        return 1;
+
+    if(!TestStringTokenize())
         return 1;
 
     if(!TestStringTrim())
         return 1;
+
+
 
     if(!TestReorderWithIndices())
         return 1;

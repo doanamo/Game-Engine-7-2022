@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Common/Utility.hpp"
 
-std::string Utility::GetFileDirectory(std::string filePath)
+std::string Utility::GetFileDirectory(const std::string filePath)
 {
     std::string directory;
 
@@ -18,7 +18,7 @@ std::string Utility::GetFileDirectory(std::string filePath)
     return directory;
 }
 
-std::string Utility::GetFileName(std::string filePath)
+std::string Utility::GetFileName(const std::string filePath)
 {
     std::size_t begin = filePath.find_last_of("/\\");
     std::size_t end = filePath.find_last_of(".");
@@ -40,7 +40,7 @@ std::string Utility::GetFileName(std::string filePath)
     return filePath.substr(begin, end - begin);
 }
 
-std::string Utility::GetFileExtension(std::string filePath)
+std::string Utility::GetFileExtension(const std::string filePath)
 {
     std::string extension;
 
@@ -53,7 +53,7 @@ std::string Utility::GetFileExtension(std::string filePath)
     return extension;
 }
 
-std::string Utility::GetTextFileContent(std::string filePath)
+std::string Utility::GetTextFileContent(const std::string filePath)
 {
     std::ifstream file(filePath);
     std::string content;
@@ -70,7 +70,7 @@ std::string Utility::GetTextFileContent(std::string filePath)
     return content;
 }
 
-std::vector<char> Utility::GetBinaryFileContent(std::string filePath)
+std::vector<char> Utility::GetBinaryFileContent(const std::string filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
     std::vector<char> content;
@@ -87,7 +87,19 @@ std::vector<char> Utility::GetBinaryFileContent(std::string filePath)
     return content;
 }
 
-std::vector<std::string> Utility::TokenizeString(std::string text, char delimeter)
+std::string Utility::StringLowerCase(const std::string text)
+{
+    std::string result;
+
+    for(char character : text)
+    {
+        result.push_back(std::tolower(character));
+    }
+
+    return result;
+}
+
+std::vector<std::string> Utility::StringTokenize(const std::string text, char delimeter)
 {
     std::vector<std::string> result;
 
@@ -115,17 +127,56 @@ std::vector<std::string> Utility::TokenizeString(std::string text, char delimete
     return result;
 }
 
-std::string Utility::StringTrimLeft(std::string text, const char* characters)
+std::string Utility::StringTrimLeft(const std::string text, const char* characters)
 {
-    return text.erase(0, text.find_first_not_of(characters));
+    std::string result = text;
+    return result.erase(0, text.find_first_not_of(characters));
 }
 
-std::string Utility::StringTrimRight(std::string text, const char* characters)
+std::string Utility::StringTrimRight(const std::string text, const char* characters)
 {
-    return text.erase(text.find_last_not_of(characters) + 1);
+    std::string result = text;
+    return result.erase(text.find_last_not_of(characters) + 1);
 }
 
 std::string Utility::StringTrim(std::string text, const char* characters)
 {
     return StringTrimLeft(StringTrimRight(text, characters), characters);
+}
+
+uint32_t Utility::StringHash(const std::string string)
+{
+    // Small and simple hashing function for strings.
+    // May need to be replaced in case of collisions.
+    // Use only if you can detect possible collisions.
+    // It is obviously not cryptographically secure.
+
+    const uint32_t prime = 257;
+    uint32_t hash = 0;
+
+    for(char c : string)
+    {
+        hash = hash * prime + c;
+    }
+
+    return hash;
+}
+
+uint32_t Utility::CalculateCRC32(uint32_t crc, const char* data, std::size_t size)
+{
+    // Implementation based on: https://stackoverflow.com/a/27950866
+
+    crc = ~crc;
+
+    while(size--)
+    {
+        crc ^= (unsigned char)*data++;
+
+        for(int i = 0; i < 8; ++i)
+        {
+            crc = crc & 1 ? (crc >> 1) ^ 0x82f63b78 : crc >> 1;
+        }
+    }
+
+    return ~crc;
 }
