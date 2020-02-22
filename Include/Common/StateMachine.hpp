@@ -11,7 +11,9 @@
     State Machine
 
     Stores current state and performs simple transitions between two possible states.
-    Works on states wrapped in shared pointers to accustom generic usage.
+    Supports recursive transitions where next state can immediately transition to another.
+    Works on states wrapped in shared pointers to accustom generic usage and reference to
+    previous state is not discarded until after next state finishes entering.
 
     class ExampleState : public State<ExampleState>
     {
