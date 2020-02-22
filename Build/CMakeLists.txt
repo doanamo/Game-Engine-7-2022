@@ -31,6 +31,7 @@ set(INCLUDE_FILES
     "Common/ScopeGuard.hpp"
     "Common/Utility.hpp"
     "Common/LinkedList.hpp"
+    "Common/StateMachine.hpp"
     
     "Event/Delegate.hpp"
     "Event/Collector.hpp"

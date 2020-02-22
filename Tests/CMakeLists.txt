@@ -30,4 +30,5 @@ endfunction(create_test)
 # Listing of unit tests.
 create_test("Utilities")
 create_test("ScopeGuard")
+create_test("StateMachine")
 create_test("Events")

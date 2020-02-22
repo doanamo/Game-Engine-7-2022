@@ -2,11 +2,11 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "TestHelpers.hpp"
 #include <Event/Delegate.hpp>
 #include <Event/Collector.hpp>
 #include <Event/Dispatcher.hpp>
 #include <Event/Receiver.hpp>
+#include "TestHelpers.hpp"
 
 char Function(const char* c, int i)
 {
