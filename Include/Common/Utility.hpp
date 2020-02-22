@@ -81,36 +81,54 @@ namespace Utility
     // Removes characters from both ends of a string.
     std::string StringTrim(std::string text, const char* characters = " ");
 
-    // Reorders a vector using an array of indices.
+    // Reorders vector using an array of indices.
+    // This is useful in case we have two collections that need to be sorted in
+    // same way based on information from both. Sort can be performed on array of
+    // indices that then can be used to quickly rearrange elements in two collections.
+    // Result will not make sense if order indices are duplicated!
     template<typename Type>
-    void ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
+    bool ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
     {
-        VERIFY(elements.size() == order.size(), "Array sizes must match!");
+        // Check if array sizes match.
+        if(elements.size() != order.size())
+            return false;
 
-        // Returns if there are no elements to sort.
+        // Check if order indices are withing range.
+        for(std::size_t i : order)
+        {
+            if(i >= elements.size())
+                return false;
+        }
+
+        // Return if there are no elements to sort.
         if(elements.size() == 0)
-            return;
+            return true;
 
-        // Create an array of indices.
+        // Create array of current element indices.
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);
 
-        // Rearrange values in a vector.
-        for(std::size_t i = 0; i < elements.size() - 1; ++i)
+        // Rearrange values in vector.
+        for(std::size_t i = 0; i < elements.size(); ++i)
         {
-            std::size_t desired = order[i];
+            std::size_t desiredPlacement = order[i];
 
-            ASSERT(desired < elements.size(), "Desired index higher than vector size will produce incorrect results!");
-
-            for(std::size_t j = i; j < elements.size(); ++j)
+            if(i != elements.size() - 1)
             {
-                if(desired == indices[j])
+                for(std::size_t j = i; j < elements.size(); ++j)
                 {
-                    std::swap(elements[i], elements[j]);
-                    std::swap(indices[i], indices[j]);
-                    break;
+                    if(desiredPlacement == indices[j])
+                    {
+                        std::swap(elements[i], elements[j]);
+                        std::swap(indices[i], indices[j]);
+                        break;
+                    }
                 }
             }
+
+            ASSERT(indices[i] == order[i], "Detected duplication of indices! Elements will not be ordered correctly.");
         }
+
+        return true;
     }
 }

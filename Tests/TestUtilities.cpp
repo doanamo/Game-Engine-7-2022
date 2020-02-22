@@ -117,15 +117,79 @@ bool TestStringTrim()
 
 bool TestReorderWithIndices()
 {
-    std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
-    std::vector<std::size_t> indices = { 1, 3, 2, 0 };
+    // Zero element count.
+    {
+        std::vector<std::string> array;
+        std::vector<std::size_t> indices;
 
-    Utility::ReorderWithIndices(array, indices);
+        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+    }
 
-    TEST_EQ(array[0], "First");
-    TEST_EQ(array[1], "Second");
-    TEST_EQ(array[2], "Third");
-    TEST_EQ(array[3], "Fourth");
+    // One element count.
+    {
+        std::vector<std::string> array = { "First" };
+        std::vector<std::size_t> indices = { 0 };
+
+        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "First");
+    }
+
+    // Two element count.
+    {
+        std::vector<std::string> array = { "Second", "First" };
+        std::vector<std::size_t> indices = { 1, 0 };
+
+        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "First");
+        TEST_EQ(array[1], "Second");
+    }
+
+    // Three element count.
+    {
+        std::vector<std::string> array = { "First", "Third", "Second" };
+        std::vector<std::size_t> indices = { 0, 2, 1 };
+
+        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "First");
+        TEST_EQ(array[1], "Second");
+        TEST_EQ(array[2], "Third");
+    }
+
+    // Four element count.
+    {
+        std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
+        std::vector<std::size_t> indices = { 1, 3, 2, 0 };
+
+        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "First");
+        TEST_EQ(array[1], "Second");
+        TEST_EQ(array[2], "Third");
+        TEST_EQ(array[3], "Fourth");
+    }
+    
+    // Non matching sizes.
+    {
+        std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
+        std::vector<std::size_t> indices = { 1, 3, 2 };
+
+        TEST_FALSE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "Fourth");
+        TEST_EQ(array[1], "First");
+        TEST_EQ(array[2], "Third");
+        TEST_EQ(array[3], "Second");
+    }
+
+    // Out of bounds indices.
+    {
+        std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
+        std::vector<std::size_t> indices = { 1, 4, 2, 0 };
+
+        TEST_FALSE(Utility::ReorderWithIndices(array, indices));
+        TEST_EQ(array[0], "Fourth");
+        TEST_EQ(array[1], "First");
+        TEST_EQ(array[2], "Third");
+        TEST_EQ(array[3], "Second");
+    }
 
     return true;
 }

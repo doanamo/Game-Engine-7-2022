@@ -74,9 +74,11 @@ void SpriteDrawList::SortSprites()
     // We use stable sort to not introduce possible flickering in rendered images.
     std::stable_sort(m_spriteSort.begin(), m_spriteSort.end(), SpriteSort);
 
-    // Sort sprite info and data arrays.
-    Utility::ReorderWithIndices(m_spriteInfo, m_spriteSort);
-    Utility::ReorderWithIndices(m_spriteData, m_spriteSort);
+    // Reorder sprite info and data arrays to match sorted indices.
+    bool reorderResult = true;
+    reorderResult &= Utility::ReorderWithIndices(m_spriteInfo, m_spriteSort);
+    reorderResult &= Utility::ReorderWithIndices(m_spriteData, m_spriteSort);
+    ASSERT(reorderResult, "Reorder with indices failed!");
 }
 
 std::size_t Graphics::SpriteDrawList::GetSpriteCount() const
