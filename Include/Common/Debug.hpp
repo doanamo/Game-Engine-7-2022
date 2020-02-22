@@ -42,11 +42,15 @@ namespace Debug
 #define DEBUG_STRINGIFY(expression) #expression
 
 #ifdef _MSC_VER
-    #define DEBUG_BREAK() __debugbreak();
+    #define DEBUG_BREAK() __debugbreak()
 #else
     #include <sys/signal.h>
-    #define DEBUG_BREAK() raise(SIGTRAP);
+    #define DEBUG_BREAK() raise(SIGTRAP)
 #endif
+
+#define DEBUG_ABORT() \
+    DEBUG_BREAK(); \
+    abort()
 
 #ifdef WIN32
     #define WIN32_LEAD_AND_MEAN
@@ -55,7 +59,7 @@ namespace Debug
     #define DEBUG_BREAK_IF_ATTACHED() \
         if(IsDebuggerPresent()) \
         { \
-            DEBUG_BREAK() \
+            DEBUG_BREAK(); \
         }
 #else
     #define DEBUG_BREAK_IF_ATTACHED() ((void)0)
@@ -68,7 +72,7 @@ namespace Debug
     Used as a sanity check to guard against programming errors.
 
     Behavior in different build configurations:
-    - Debug: Triggers a breakpoint
+    - Debug: Triggers abort
     - Release: Check is stripped
 
     Example usage:
@@ -81,14 +85,14 @@ namespace Debug
         if(expression) { } else \
         { \
             LOG_FATAL("Assertion failed: " DEBUG_STRINGIFY(expression)); \
-            DEBUG_BREAK(); \
+            DEBUG_ABORT(); \
         }
 
     #define ASSERT_MESSAGE(expression, message, ...) \
         if(expression) { } else \
         { \
             LOG_FATAL("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
-            DEBUG_BREAK(); \
+            DEBUG_ABORT(); \
         }
 #else
     #define ASSERT_SIMPLE(expression) ((void)0)
@@ -106,8 +110,8 @@ namespace Debug
     Used to safeguard against errors we choose to not handle.
 
     Behavior in different build configurations:
-    - Debug: Triggers a breakpoint
-    - Release: Triggers a breakpoint
+    - Debug: Triggers abort
+    - Release: Triggers abort
 
     Example usage:
         VERIFY(m_initialized);
@@ -118,14 +122,14 @@ namespace Debug
     if(expression) { } else \
     { \
         LOG_FATAL("Verification failed: " DEBUG_STRINGIFY(expression)); \
-        DEBUG_BREAK(); \
+        DEBUG_ABORT(); \
     }
 
 #define VERIFY_MESSAGE(expression, message, ...) \
     if(expression) { } else \
     { \
         LOG_FATAL("Verification failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
-        DEBUG_BREAK(); \
+        DEBUG_ABORT(); \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
