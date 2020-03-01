@@ -21,7 +21,7 @@ namespace Utility
 {
     // Clamps value between lower and upper range.
     template<typename Type>
-    Type Clamp(const Type& value, const Type& lower, const Type& upper)
+    constexpr Type Clamp(const Type& value, const Type& lower, const Type& upper)
     {
         return std::max(lower, std::min(value, upper));
     }
@@ -38,7 +38,7 @@ namespace Utility
     // This is useful when dealing with libraries which do not fully
     // convert from 32bit to 64bit types on their own (e.g. OpenGL).
     template<typename Target, typename Source>
-    Target NumericalCast(const Source& value)
+    constexpr Target NumericalCast(const Source& value)
     {
         // Convert to target type and then back to source type, then compare values.
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
