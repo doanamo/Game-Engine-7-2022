@@ -46,6 +46,8 @@ set(INCLUDE_FILES
     "Logger/Format.hpp"
     "Logger/Output.hpp"
     
+    "Reflection/Reflection.hpp"
+
     "System/Platform.hpp"
     "System/FileSystem.hpp"
     "System/Window.hpp"
