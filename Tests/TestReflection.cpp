@@ -18,19 +18,23 @@ class Empty
 REFLECTION_TYPE_BEGIN(Empty)
 REFLECTION_TYPE_END
 
+class BaseAttribute : public Reflection::TypeAttribute
+{
+};
+
+REFLECTION_TYPE(BaseAttribute, Reflection::TypeAttribute)
+
+class TextAttribute : public Reflection::FieldAttribute
+{
+};
+
+REFLECTION_TYPE(TextAttribute, Reflection::FieldAttribute)
+
 class Base
 {
 public:
     std::string textWithoutAttribute;
     std::string textWithAttribute;
-};
-
-class BaseAttribute : public Reflection::TypeAttribute
-{
-};
-
-class TextAttribute : public Reflection::FieldAttribute
-{
 };
 
 REFLECTION_TYPE_BEGIN(Base)
@@ -39,18 +43,22 @@ REFLECTION_TYPE_BEGIN(Base)
     REFLECTION_FIELD(textWithAttribute, TextAttribute())
 REFLECTION_TYPE_END
 
-class Derived : public Base
-{
-public:
-    int value;
-};
-
 class DerivedAttribute : public Reflection::TypeAttribute
 {
 };
 
+REFLECTION_TYPE(DerivedAttribute, Reflection::TypeAttribute)
+
 class ValueAttribute : public Reflection::FieldAttribute
 {
+};
+
+REFLECTION_TYPE(ValueAttribute, Reflection::FieldAttribute)
+
+class Derived : public Base
+{
+public:
+    int value;
 };
 
 REFLECTION_TYPE_BEGIN(Derived, Base)
@@ -58,19 +66,33 @@ REFLECTION_TYPE_BEGIN(Derived, Base)
     REFLECTION_FIELD(value, ValueAttribute())
 REFLECTION_TYPE_END
 
+class InnerAttribute : public Reflection::FieldAttribute
+{
+};
+
+REFLECTION_TYPE(InnerAttribute, Reflection::FieldAttribute)
+
 class Inner
 {
 public:
     uint8_t value;
 };
 
-class InnerAttribute : public Reflection::FieldAttribute
-{
-};
-
 REFLECTION_TYPE_BEGIN(Inner)
     REFLECTION_FIELD(value, InnerAttribute())
 REFLECTION_TYPE_END
+
+class ToggleOnAttribute : public Reflection::FieldAttribute
+{
+};
+
+REFLECTION_TYPE(ToggleOnAttribute, Reflection::FieldAttribute)
+
+class ToggleOffAttribute : public Reflection::FieldAttribute
+{
+};
+
+REFLECTION_TYPE(ToggleOffAttribute, Reflection::FieldAttribute)
 
 class BranchedOne : public Derived
 {
@@ -79,25 +101,10 @@ public:
     Inner inner;
 };
 
-class ToggleOnAttribute : public Reflection::FieldAttribute
-{
-};
-
-class ToggleOffAttribute : public Reflection::FieldAttribute
-{
-};
-
 REFLECTION_TYPE_BEGIN(BranchedOne, Derived)
     REFLECTION_FIELD(toggle, ToggleOnAttribute(), ToggleOffAttribute())
     REFLECTION_FIELD(inner)
 REFLECTION_TYPE_END
-
-class BranchedTwo : public Derived
-{
-public:
-    char letterOne;
-    char letterTwo;
-};
 
 class BranchedAttributeOne : public Reflection::TypeAttribute
 {
@@ -110,6 +117,8 @@ public:
     const std::string_view modifier;
 };
 
+REFLECTION_TYPE(BranchedAttributeOne, Reflection::TypeAttribute)
+
 class BranchedAttributeTwo : public Reflection::TypeAttribute
 {
 public:
@@ -121,6 +130,8 @@ public:
     const std::string_view modifier;
 };
 
+REFLECTION_TYPE(BranchedAttributeTwo, Reflection::TypeAttribute)
+
 class LetterAttribute : public Reflection::FieldAttribute
 {
 public:
@@ -130,6 +141,15 @@ public:
     }
 
     const std::string_view modifier;
+};
+
+REFLECTION_TYPE(LetterAttribute, Reflection::FieldAttribute)
+
+class BranchedTwo : public Derived
+{
+public:
+    char letterOne;
+    char letterTwo;
 };
 
 REFLECTION_TYPE_BEGIN(BranchedTwo, Derived)

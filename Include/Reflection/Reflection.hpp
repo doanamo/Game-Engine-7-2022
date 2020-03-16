@@ -124,20 +124,22 @@ namespace Reflection
 
 namespace Reflection::Detail
 {
+    template<typename... Attributes>
+    constexpr bool ValidateAttributeReflection()
+    {
+        return (... && IsReflected<Attributes>());
+    }
+
     template<typename FirstAttribute, typename... Attributes>
     constexpr bool ValidateAttributeUniqueness()
     {
-        constexpr bool result = (... && (!std::is_same_v<FirstAttribute, Attributes> && ValidateAttributeUniqueness<Attributes...>()));
-        static_assert(result, "Detected duplicated attribute types!");
-        return result;
+        return (... && (!std::is_same_v<FirstAttribute, Attributes> && ValidateAttributeUniqueness<Attributes...>()));
     }
 
     template<typename Requirement, typename... Attributes>
     constexpr bool ValidateAttributeUsage()
     {
-        constexpr bool result = (... && std::is_base_of_v<Requirement, Attributes>);
-        static_assert(result, "Detected incorrect attribute usage!");
-        return result;
+        return (... && std::is_base_of_v<Requirement, Attributes>);
     }
 
     template<typename Requirement>
@@ -149,8 +151,9 @@ namespace Reflection::Detail
     template<typename Requirement, typename... Attributes>
     constexpr ObjectList<Attributes...> MakeAttributeList(Attributes&&... attributes)
     {
-        ValidateAttributeUniqueness<Attributes...>();
-        ValidateAttributeUsage<Requirement, Attributes...>();
+        static_assert(ValidateAttributeReflection<Attributes...>(), "Detected attribute that is not reflected!");
+        static_assert(ValidateAttributeUniqueness<Attributes...>(), "Detected attribute that is not unique!");
+        static_assert(ValidateAttributeUsage<Requirement, Attributes...>(), "Detected attribute with incorrect usage!");
 
         return ObjectList<Attributes...>(std::make_tuple(attributes...));
     }
@@ -188,7 +191,7 @@ namespace Reflection::Detail
 #define REFLECTION_ATTRIBUTES(...) \
         static constexpr const auto Attributes = Reflection::Detail::MakeAttributeList<Reflection::TypeAttribute>(__VA_ARGS__);
 
-#define REFLECTION_TYPE_END \
+#define REFLECTION_TYPE_INFO_END \
         static constexpr const std::size_t MemberCount = __COUNTER__ - MemberIndexOffset; \
         static constexpr const auto Members = Reflection::Detail::MakeMemberList<Type>(std::make_index_sequence<MemberCount>()); \
     };
@@ -202,6 +205,19 @@ namespace Reflection::Detail
 #define REFLECTION_TYPE_BEGIN_DEDUCE(arg1, arg2, arg3, ...) arg3
 #define REFLECTION_TYPE_BEGIN_CHOOSER(...) REFLECTION_EXPAND(REFLECTION_TYPE_BEGIN_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED_BEGIN, REFLECTION_TYPE_BASE_BEGIN))
 #define REFLECTION_TYPE_BEGIN(...) REFLECTION_EXPAND(REFLECTION_TYPE_BEGIN_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#define REFLECTION_TYPE_END REFLECTION_TYPE_INFO_END
+
+#define REFLECTION_TYPE_BASE(Type) \
+    REFLECTION_TYPE_INFO_BEGIN(Type) \
+    REFLECTION_TYPE_INFO_END
+
+#define REFLECTION_TYPE_DERIVED(DerivedType, BaseType) \
+    REFLECTION_TYPE_INFO_BEGIN(DerivedType) \
+    REFLECTION_TYPE_INFO_END
+
+#define REFLECTION_TYPE_DEDUCE(arg1, arg2, arg3, ...) arg3
+#define REFLECTION_TYPE_CHOOSER(...) REFLECTION_EXPAND(REFLECTION_TYPE_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED, REFLECTION_TYPE_BASE))
+#define REFLECTION_TYPE(...) REFLECTION_EXPAND(REFLECTION_TYPE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 // Field declaration macros.
 #define REFLECTION_FIELD_BEGIN(Field) \
