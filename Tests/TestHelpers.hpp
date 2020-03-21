@@ -22,14 +22,14 @@
     }
 
 #define TEST_EQ(left, right) \
-    if((left) != (right)) \
+    if(!((left) == (right))) \
     { \
         DEBUG_BREAK_IF_ATTACHED(); \
         return false; \
     }
 
 #define TEST_NEQ(left, right) \
-    if((left) == (right)) \
+    if(!((left) != (right))) \
     { \
         DEBUG_BREAK_IF_ATTACHED(); \
         return false; \
