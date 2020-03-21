@@ -160,6 +160,7 @@ REFLECTION_TYPE_END
 
 bool TestTypes()
 {
+    // Check reflection presence.
     TEST_FALSE(Reflection::IsReflected<Undefined>());
     TEST_TRUE(Reflection::IsReflected<Empty>());
     TEST_TRUE(Reflection::IsReflected<Base>());
@@ -168,6 +169,7 @@ bool TestTypes()
     TEST_TRUE(Reflection::IsReflected<BranchedOne>());
     TEST_TRUE(Reflection::IsReflected<BranchedTwo>());
 
+    // Check type name.
     TEST_EQ(Reflection::Reflect<Empty>().Name, "Empty");
     TEST_EQ(Reflection::Reflect<Base>().Name, "Base");
     TEST_EQ(Reflection::Reflect<Derived>().Name, "Derived");
@@ -175,6 +177,7 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedOne>().Name, "BranchedOne");
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Name, "BranchedTwo");
 
+    // Check attribute count.
     TEST_EQ(Reflection::Reflect<Empty>().Attributes.Count, 0);
     TEST_EQ(Reflection::Reflect<Base>().Attributes.Count, 1);
     TEST_EQ(Reflection::Reflect<Derived>().Attributes.Count, 1);
@@ -182,6 +185,10 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedOne>().Attributes.Count, 0);
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Attributes.Count, 2);
 
+    // reference each attribute
+    // 
+
+    // Check member count.
     TEST_EQ(Reflection::Reflect<Empty>().Members.Count, 0);
     TEST_EQ(Reflection::Reflect<Base>().Members.Count, 2);
     TEST_EQ(Reflection::Reflect<Derived>().Members.Count, 1);
@@ -189,6 +196,7 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedOne>().Members.Count, 2);
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Members.Count, 2);
 
+    // Check member names.
     TEST_EQ(Reflection::Reflect<Base>().Member<0>().Name, "textWithoutAttribute");
     TEST_EQ(Reflection::Reflect<Base>().Member<1>().Name, "textWithAttribute");
     TEST_EQ(Reflection::Reflect<Derived>().Member<0>().Name, "value");
@@ -197,6 +205,20 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedOne>().Member<1>().Name, "inner");
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<0>().Name, "letterOne");
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<1>().Name, "letterTwo");
+
+    // Check member pointers.
+    TEST_EQ(Reflection::Reflect<Base>().Member<0>().Pointer, &Base::textWithoutAttribute);
+    TEST_EQ(Reflection::Reflect<Base>().Member<1>().Pointer, &Base::textWithAttribute);
+    TEST_EQ(Reflection::Reflect<Derived>().Member<0>().Pointer, &Derived::value);
+    TEST_EQ(Reflection::Reflect<Inner>().Member<0>().Pointer, &Inner::value);
+    TEST_EQ(Reflection::Reflect<BranchedOne>().Member<0>().Pointer, &BranchedOne::toggle);
+    TEST_EQ(Reflection::Reflect<BranchedOne>().Member<1>().Pointer, &BranchedOne::inner);
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<0>().Pointer, &BranchedTwo::letterOne);
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::letterTwo);
+
+    //TEST_TRUE(Reflection::Reflect<Base>().Member<0>().IsType<std::string>());
+
+    // check type
 
     // check attribute/member types
     // check attribute values

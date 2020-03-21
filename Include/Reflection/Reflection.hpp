@@ -42,20 +42,40 @@ namespace Reflection::Detail
     }
 }
 
-// Reflection interface.
-namespace Reflection
+// Reflection implementation detail.
+namespace Reflection::Detail
 {
     struct TypeInfoBase
     {
-        static constexpr const bool Reflected = false;
-        static constexpr const auto Name = "<UnknownType>";
-        static constexpr const auto Attributes = Reflection::Detail::MakeEmptyObjectList();
-        static constexpr const auto Members = Reflection::Detail::MakeEmptyObjectList();
+        static constexpr bool Reflected = false;
+        static constexpr auto Name = "<UnknownType>";
+        static constexpr auto Attributes = MakeEmptyObjectList();
+        static constexpr auto Members = MakeEmptyObjectList();
     };
 
     template<typename Type>
     struct TypeInfo : public TypeInfoBase
     {
+    };
+}
+
+// Reflection interface.
+namespace Reflection
+{
+    template<typename OwnerType, typename AttributeType, std::size_t Index>
+    struct AttributeDescription
+    {
+        using Type = AttributeType;
+    };
+
+    template<typename OwnerType, typename MemberType, std::size_t Index>
+    struct MemberDescription
+    {
+        using Type = MemberType;
+
+        static constexpr auto Name = Detail::TypeInfo<OwnerType>::Members.template Get<Index>().Name;
+        static constexpr auto Pointer = Detail::TypeInfo<OwnerType>::Members.template Get<Index>().Pointer;
+        static constexpr auto Attributes = Detail::TypeInfo<OwnerType>::Members.template Get<Index>().Attributes;
     };
 
     template<typename Type_>
@@ -63,21 +83,21 @@ namespace Reflection
     {
         using Type = Type_;
 
-        static constexpr const bool Reflected = TypeInfo<Type>::Reflected;
-        static constexpr const auto Name = TypeInfo<Type>::Name;
-        static constexpr const auto Attributes = TypeInfo<Type>::Attributes;
-        static constexpr const auto Members = TypeInfo<Type>::Members;
+        static constexpr auto Reflected = Detail::TypeInfo<Type>::Reflected;
+        static constexpr auto Name = Detail::TypeInfo<Type>::Name;
+        static constexpr auto Attributes = Detail::TypeInfo<Type>::Attributes;
+        static constexpr auto Members = Detail::TypeInfo<Type>::Members;
 
         template<std::size_t Index>
-        constexpr auto Attribute() const -> decltype(Attributes.template Get<Index>())
+        constexpr auto Attribute() const -> AttributeDescription<Type, decltype(Attributes.template Get<Index>()), Index>
         {
-            return Attributes.template Get<Index>();
+            return {};
         }
 
         template<std::size_t Index>
-        constexpr auto Member() const -> decltype(Members.template Get<Index>())
+        constexpr auto Member() const -> MemberDescription<Type, decltype(Members.template Get<Index>()), Index>
         {
-            return Members.template Get<Index>();
+            return {};
         }
     };
 
@@ -96,13 +116,13 @@ namespace Reflection
     template<typename Type>
     constexpr bool IsReflected()
     {
-        return TypeInfo<Type>::Reflected;
+        return Detail::TypeInfo<Type>::Reflected;
     }
 
     template<typename Type>
     constexpr bool IsReflected(const Type& type)
     {
-        return TypeInfo<Type>::Reflected;
+        return Detail::TypeInfo<Type>::Reflected;
     }
 }
 
@@ -178,22 +198,22 @@ namespace Reflection::Detail
 
 // Type declaration macros.
 #define REFLECTION_TYPE_INFO_BEGIN(Type_) \
-    template<> struct Reflection::TypeInfo<Type_> : public TypeInfoBase \
+    template<> struct Reflection::Detail::TypeInfo<Type_> : public TypeInfoBase \
     { \
     private: \
         static constexpr std::size_t MemberIndexOffset = __COUNTER__ + 1; \
     public: \
         using Type = Type_; \
-        static constexpr const bool Reflected = true; \
-        static constexpr const std::string_view Name = REFLECTION_STRINGIFY(Type_); \
+        static constexpr bool Reflected = true; \
+        static constexpr std::string_view Name = REFLECTION_STRINGIFY(Type_); \
         template<std::size_t, typename Dummy = void> struct MemberInfo;
 
 #define REFLECTION_ATTRIBUTES(...) \
-        static constexpr const auto Attributes = Reflection::Detail::MakeAttributeList<Reflection::TypeAttribute>(__VA_ARGS__);
+        static constexpr auto Attributes = MakeAttributeList<Reflection::TypeAttribute>(__VA_ARGS__);
 
 #define REFLECTION_TYPE_INFO_END \
-        static constexpr const std::size_t MemberCount = __COUNTER__ - MemberIndexOffset; \
-        static constexpr const auto Members = Reflection::Detail::MakeMemberList<Type>(std::make_index_sequence<MemberCount>()); \
+        static constexpr std::size_t MemberCount = __COUNTER__ - MemberIndexOffset; \
+        static constexpr auto Members = MakeMemberList<Type>(std::make_index_sequence<MemberCount>()); \
     };
 
 #define REFLECTION_TYPE_BASE_BEGIN(Type) \
