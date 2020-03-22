@@ -211,6 +211,10 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Attributes.Count, 2);
 
     // Check attribute names.
+    TEST_EQ(Reflection::Reflect<Base>().Attribute<0>().Name, "BaseAttribute");
+    TEST_EQ(Reflection::Reflect<Derived>().Attribute<0>().Name, "DerivedAttribute");
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().Attribute<0>().Name, "BranchedAttributeOne");
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().Attribute<1>().Name, "BranchedAttributeTwo");
 
     // Check attribute types.
     TEST_FALSE(Reflection::Reflect<Base>().Attribute<0>().IsType<DerivedAttribute>());

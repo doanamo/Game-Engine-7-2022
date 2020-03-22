@@ -69,6 +69,8 @@ namespace Reflection
     {
         using Type = std::decay_t<AttributeType>;
 
+        static constexpr auto Name = Detail::TypeInfo<Type>::Name;
+
         constexpr AttributeDescription(AttributeType&& Instance) :
             Instance(Instance)
         {
