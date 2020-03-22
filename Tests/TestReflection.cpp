@@ -190,6 +190,7 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Name, "BranchedTwo");
 
     // Check type by value.
+    TEST_FALSE(Reflection::Reflect(Undefined()).IsType<Empty>());
     TEST_TRUE(Reflection::Reflect(Undefined()).IsType<Undefined>());
     TEST_TRUE(Reflection::Reflect(Empty()).IsType<Empty>());
     TEST_TRUE(Reflection::Reflect(Base()).IsType<Base>());
