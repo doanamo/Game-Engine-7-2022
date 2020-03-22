@@ -115,11 +115,11 @@ namespace Reflection
             return { Attributes.template Get<AttributeIndex>() };
         }
 
-        template<typename ReflectedType, std::size_t MemberIndex>
+        template<std::size_t MemberIndex>
         using MemberType = typename Detail::TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type;
 
         template<std::size_t MemberIndex>
-        constexpr auto Member() const -> MemberDescription<ReflectedType, MemberType<ReflectedType, MemberIndex>, MemberIndex>
+        constexpr auto Member() const -> MemberDescription<ReflectedType, MemberType<MemberIndex>, MemberIndex>
         {
             return {};
         }
