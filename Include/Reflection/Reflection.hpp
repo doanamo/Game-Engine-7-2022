@@ -56,7 +56,7 @@ namespace Reflection::Detail
     template<typename Type>
     struct TypeInfo : public TypeInfoBase
     {
-        template<std::size_t Index, typename Dummy>
+        template<std::size_t Index, typename ReflectedType, typename Dummy>
         struct MemberInfo;
     };
 }
@@ -116,7 +116,7 @@ namespace Reflection
         }
 
         template<typename ReflectedType, std::size_t MemberIndex>
-        using MemberType = typename Detail::TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, void>::Type;
+        using MemberType = typename Detail::TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type;
 
         template<std::size_t MemberIndex>
         constexpr auto Member() const -> MemberDescription<ReflectedType, MemberType<ReflectedType, MemberIndex>, MemberIndex>
@@ -236,7 +236,7 @@ namespace Reflection::Detail
         using Type = ReflectedType; \
         static constexpr bool Reflected = true; \
         static constexpr std::string_view Name = REFLECTION_STRINGIFY(ReflectedType); \
-        template<std::size_t Index, typename Dummy = void> struct MemberInfo;
+        template<std::size_t Index, typename Type = ReflectedType, typename Dummy = void> struct MemberInfo;
 
 #define REFLECTION_ATTRIBUTES(...) \
         static constexpr auto Attributes = MakeAttributeList<Reflection::TypeAttribute>(__VA_ARGS__);
@@ -271,11 +271,11 @@ namespace Reflection::Detail
 
 // Field declaration macros.
 #define REFLECTION_FIELD_BEGIN(Field) \
-    template<typename Dummy> struct MemberInfo<__COUNTER__ - MemberIndexOffset, Dummy> \
+    template<typename ReflectedType, typename Dummy> struct MemberInfo<__COUNTER__ - MemberIndexOffset, ReflectedType, Dummy> \
     { \
+        using Type = decltype(ReflectedType::Field); \
         static constexpr std::string_view Name = REFLECTION_STRINGIFY(Field); \
-        static constexpr auto Pointer = &Type::Field; \
-        using Type = decltype(Type::Field);
+        static constexpr auto Pointer = &ReflectedType::Field;
 
 #define REFLECTION_FIELD_ATTRIBUTES(...) \
         static constexpr auto Attributes = Reflection::Detail::MakeAttributeList<Reflection::FieldAttribute>(__VA_ARGS__);
