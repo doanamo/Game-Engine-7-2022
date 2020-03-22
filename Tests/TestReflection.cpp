@@ -200,7 +200,12 @@ bool TestTypes()
     TEST_TRUE(Reflection::Reflect(BranchedTwo()).IsType<BranchedTwo>());
 
     // Check attribute presence.
-    // Add HasAttributes() method.
+    TEST_FALSE(Reflection::Reflect<Empty>().HasAttributes());
+    TEST_TRUE(Reflection::Reflect<Base>().HasAttributes());
+    TEST_TRUE(Reflection::Reflect<Derived>().HasAttributes());
+    TEST_FALSE(Reflection::Reflect<Inner>().HasAttributes());
+    TEST_FALSE(Reflection::Reflect<BranchedOne>().HasAttributes());
+    TEST_TRUE(Reflection::Reflect<BranchedTwo>().HasAttributes());
 
     // Check attribute count.
     TEST_EQ(Reflection::Reflect<Empty>().Attributes.Count, 0);
@@ -268,6 +273,7 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::letterTwo);
 
     // Check member attributes.
+    // same as for types
 
     // Getting members and attributes by name.
 

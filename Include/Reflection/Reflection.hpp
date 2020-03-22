@@ -99,6 +99,11 @@ namespace Reflection
         {
             return std::is_same<Type, OtherType>::value;
         }
+
+        constexpr bool HasAttributes() const
+        {
+            return Attributes.Count > 0;
+        }
     };
 
     template<typename ReflectedType>
@@ -130,6 +135,11 @@ namespace Reflection
         constexpr bool IsType() const
         {
             return std::is_same<Type, OtherType>::value;
+        }
+
+        constexpr bool HasAttributes() const
+        {
+            return Attributes.Count > 0;
         }
     };
 
