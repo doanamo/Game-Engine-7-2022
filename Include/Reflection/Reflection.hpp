@@ -94,6 +94,12 @@ namespace Reflection
         static constexpr auto Pointer = Detail::TypeInfo<ReflectedType>::Members.template Get<Index>().Pointer;
         static constexpr auto Attributes = Detail::TypeInfo<ReflectedType>::Members.template Get<Index>().Attributes;
 
+        template<std::size_t AttributeIndex>
+        constexpr auto Attribute() const -> AttributeDescription<ReflectedType, decltype(Attributes.template Get<AttributeIndex>()), AttributeIndex>
+        {
+            return { Attributes.template Get<AttributeIndex>() };
+        }
+
         template<typename OtherType>
         constexpr bool IsType() const
         {
