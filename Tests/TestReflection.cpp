@@ -332,13 +332,140 @@ bool TestTypes()
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<0>().Attribute<0>().Instance.modifier, "Pretty");
     TEST_EQ(Reflection::Reflect<BranchedTwo>().Member<1>().Attribute<0>().Instance.modifier, "Ugly");
 
-    // Getting members and attributes by string name (indexes are unreliable).
+    // Enumerate type attributes.
+    {
+        std::vector<std::string_view> expectedAttributes;
+        std::vector<std::string_view> presentAttributes;
 
-    // Enumerate attributes.
+        Reflection::ForEach(Reflection::Reflect<Empty>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
+
+    {
+        std::vector<std::string_view> expectedAttributes = { "DerivedAttribute" };
+        std::vector<std::string_view> presentAttributes;
+
+        Reflection::ForEach(Reflection::Reflect<Derived>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
+
+    {
+        std::vector<std::string_view> expectedAttributes = { "BranchedAttributeOne", "BranchedAttributeTwo" };
+        std::vector<std::string_view> presentAttributes;
+
+        Reflection::ForEach(Reflection::Reflect<BranchedTwo>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
+
+    {
+        std::vector<std::string_view> expectedAttributes = { "Small", "Big" };
+        std::vector<std::string_view> presentAttributes;
+
+        Reflection::ForEach(Reflection::Reflect<BranchedTwo>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Instance.modifier);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
 
     // Enumerate members.
+    {
+        std::vector<std::string_view> expectedMembers;
+        std::vector<std::string_view> presentMembers;
+
+        Reflection::ForEach(Reflection::Reflect<Empty>().Members,
+            [&presentMembers](const auto& description)
+            {
+                presentMembers.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentMembers, expectedMembers);
+    }
+
+    {
+        std::vector<std::string_view> expectedMembers = { "textWithoutAttribute", "textPtrWithAttribute" };
+        std::vector<std::string_view> presentMembers;
+
+        Reflection::ForEach(Reflection::Reflect<Base>().Members,
+            [&presentMembers](const auto& description)
+            {
+                presentMembers.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentMembers, expectedMembers);
+    }
+
+    {
+        std::vector<std::string_view> expectedMembers = { "toggle", "inner" };
+        std::vector<std::string_view> presentMembers;
+
+        Reflection::ForEach(Reflection::Reflect<BranchedOne>().Members,
+            [&presentMembers](const auto& description)
+            {
+                presentMembers.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentMembers, expectedMembers);
+    }
+
+    // Enumerate member attributes.
+    {
+        std::vector<std::string_view> expectedAttributes;
+        std::vector<std::string_view> presentAttributes;
+
+        Reflection::ForEach(Reflection::Reflect<Base>().Member<0>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
+
+    {
+        std::vector<std::string_view> expectedAttributes = { "ToggleOnAttribute", "ToggleOffAttribute" };
+        std::vector<std::string_view> presentAttributes;
+
+        Reflection::ForEach(Reflection::Reflect<BranchedOne>().Member<0>().Attributes,
+            [&presentAttributes](const auto& description)
+            {
+                presentAttributes.push_back(description.Name);
+            }
+        );
+
+        TEST_EQ(presentAttributes, expectedAttributes);
+    }
 
     // Enumerate derived types from type.
+    // TODO
+
+    // Getting members and attributes by string name (indexes are unreliable).
+    // TODO
 
     return true;
 }

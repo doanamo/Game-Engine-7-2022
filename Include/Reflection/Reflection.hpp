@@ -42,7 +42,34 @@ namespace Reflection::Detail
     }
 }
 
+namespace Reflection
+{
+    template<typename Function, typename... Types, std::size_t... Indices>
+    constexpr void ForEachSequence(const Detail::ObjectList<Types...>& list, Function&& function, std::index_sequence<Indices...>)
+    {
+        // Explanation for this for each tuple element implementation:
+        // - https://codereview.stackexchange.com/questions/51407/stdtuple-foreach-implementation
+        // - https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-stdtuple-in-c-11
+        int swallow[] = { 1, (function(std::get<Indices>(list.Objects)), void(), int()) ... };
+    }
+
+    template<typename Function, typename... Types>
+    constexpr void ForEach(const Detail::ObjectList<Types...>& list, Function&& function)
+    {
+        ForEachSequence(list, std::forward<Function>(function), std::make_index_sequence<Detail::ObjectList<Types...>::Count>());
+    }
+}
+
 // Reflection implementation detail.
+namespace Reflection
+{
+    template<typename ReflectedType, typename AttributeType, std::size_t Index>
+    struct AttributeDescription;
+
+    template<typename ReflectedType, typename MemberType, std::size_t Index>
+    struct MemberDescription;
+}
+
 namespace Reflection::Detail
 {
     struct TypeInfoBase
@@ -59,19 +86,35 @@ namespace Reflection::Detail
         template<std::size_t Index, typename ReflectedType, typename Dummy>
         struct MemberInfo;
     };
+
+    template<typename ReflectedType, typename... Attributes, std::size_t... AttributeIndices>
+    constexpr ObjectList<AttributeDescription<ReflectedType, Attributes, AttributeIndices>...> MakeAttributeDescriptionList(const ObjectList<Attributes...>& attributes, std::index_sequence<AttributeIndices...>)
+    {
+        return ObjectList<AttributeDescription<ReflectedType, Attributes, AttributeIndices>...>(std::make_tuple(AttributeDescription<ReflectedType, Attributes, AttributeIndices>(attributes.Get<AttributeIndices>())...));
+    }
+
+    template<typename ReflectedType, std::size_t MemberIndex>
+    using MemberDescriptionType = typename MemberDescription<ReflectedType, typename TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type, MemberIndex>;
+
+    template<typename ReflectedType, std::size_t... MemberIndices>
+    constexpr ObjectList<MemberDescriptionType<ReflectedType, MemberIndices>...> MakeMemberDescriptionList(std::index_sequence<MemberIndices...>)
+    {
+        return ObjectList<MemberDescriptionType<ReflectedType, MemberIndices>...>(std::make_tuple(MemberDescriptionType<ReflectedType, MemberIndices>()...));
+    }
 }
 
 // Reflection interface.
 namespace Reflection
 {
-    template<typename ReflectedType, typename AttributeType, std::size_t Index>
+    template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
     struct AttributeDescription
     {
         using Type = std::decay_t<AttributeType>;
 
-        static constexpr auto Name = Detail::TypeInfo<Type>::Name;
+        static constexpr auto& TypeInfo = Detail::TypeInfo<AttributeType>{};
+        static constexpr auto Name = Detail::TypeInfo<AttributeType>::Name;
 
-        constexpr AttributeDescription(AttributeType&& Instance) :
+        constexpr AttributeDescription(const AttributeType& Instance) :
             Instance(Instance)
         {
         }
@@ -85,20 +128,15 @@ namespace Reflection
         }
     };
 
-    template<typename ReflectedType, typename MemberType, std::size_t Index>
+    template<typename ReflectedType, typename MemberType, std::size_t MemberIndex>
     struct MemberDescription
     {
         using Type = MemberType;
 
-        static constexpr auto Name = Detail::TypeInfo<ReflectedType>::Members.template Get<Index>().Name;
-        static constexpr auto Pointer = Detail::TypeInfo<ReflectedType>::Members.template Get<Index>().Pointer;
-        static constexpr auto Attributes = Detail::TypeInfo<ReflectedType>::Members.template Get<Index>().Attributes;
-
-        template<std::size_t AttributeIndex>
-        constexpr auto Attribute() const -> AttributeDescription<ReflectedType, decltype(Attributes.template Get<AttributeIndex>()), AttributeIndex>
-        {
-            return { Attributes.template Get<AttributeIndex>() };
-        }
+        static constexpr auto& TypeInfo = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
+        static constexpr auto Name = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>().Name;
+        static constexpr auto Pointer = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>().Pointer;
+        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
 
         template<typename OtherType>
         constexpr bool IsType() const
@@ -109,6 +147,12 @@ namespace Reflection
         constexpr bool HasAttributes() const
         {
             return Attributes.Count > 0;
+        }
+
+        template<std::size_t AttributeIndex>
+        constexpr auto Attribute() const -> decltype(Attributes.template Get<AttributeIndex>())
+        {
+            return Attributes.template Get<AttributeIndex>();
         }
     };
 
@@ -117,25 +161,11 @@ namespace Reflection
     {
         using Type = ReflectedType;
 
+        static constexpr auto& TypeInfo = Detail::TypeInfo<ReflectedType>{};
         static constexpr auto Reflected = Detail::TypeInfo<ReflectedType>::Reflected;
         static constexpr auto Name = Detail::TypeInfo<ReflectedType>::Name;
-        static constexpr auto Attributes = Detail::TypeInfo<ReflectedType>::Attributes;
-        static constexpr auto Members = Detail::TypeInfo<ReflectedType>::Members;
-
-        template<std::size_t AttributeIndex>
-        constexpr auto Attribute() const -> AttributeDescription<ReflectedType, decltype(Attributes.template Get<AttributeIndex>()), AttributeIndex>
-        {
-            return { Attributes.template Get<AttributeIndex>() };
-        }
-
-        template<std::size_t MemberIndex>
-        using MemberType = typename Detail::TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type;
-
-        template<std::size_t MemberIndex>
-        constexpr auto Member() const -> MemberDescription<ReflectedType, MemberType<MemberIndex>, MemberIndex>
-        {
-            return {};
-        }
+        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto Members = Detail::MakeMemberDescriptionList<ReflectedType>(std::make_index_sequence<TypeInfo.Members.Count>());
 
         template<typename OtherType>
         constexpr bool IsType() const
@@ -146,6 +176,23 @@ namespace Reflection
         constexpr bool HasAttributes() const
         {
             return Attributes.Count > 0;
+        }
+
+        template<std::size_t AttributeIndex>
+        constexpr auto Attribute() const -> decltype(Attributes.template Get<AttributeIndex>())
+        {
+            return Attributes.template Get<AttributeIndex>();
+        }
+
+        constexpr bool HasMembers() const
+        {
+            return Members.Count > 0;
+        }
+
+        template<std::size_t MemberIndex>
+        constexpr auto Member() const -> decltype(Members.template Get<MemberIndex>())
+        {
+            return Members.template Get<MemberIndex>();
         }
     };
 
