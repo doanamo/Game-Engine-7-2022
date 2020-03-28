@@ -7,7 +7,7 @@
 /*
     Reflection
 
-    Implementation is based on excellent refl-cpp library:
+    Implementation is based on refl-cpp library:
     - https://github.com/veselink1/refl-cpp
     - https://medium.com/@vesko.karaganev/compile-time-reflection-in-c-17-55c14ee8106b
     - https://veselink1.github.io/blog/cpp/metaprogramming/2019/07/13/refl-cpp-deep-dive.html
@@ -50,7 +50,7 @@ namespace Reflection
         // Explanation for this for each tuple element implementation:
         // - https://codereview.stackexchange.com/questions/51407/stdtuple-foreach-implementation
         // - https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-stdtuple-in-c-11
-        int swallow[] = { 1, (function(std::get<Indices>(list.Objects)), void(), int()) ... };
+        int Ordered[] = { 1, (function(std::get<Indices>(list.Objects)), void(), int()) ... };
     }
 
     template<typename Function, typename... Types>
@@ -197,13 +197,13 @@ namespace Reflection
     };
 
     template<typename ReflectedType>
-    constexpr TypeDescription<ReflectedType> Reflect()
+    constexpr const TypeDescription<ReflectedType> Reflect()
     {
         return {};
     }
 
     template<typename ReflectedType>
-    constexpr TypeDescription<ReflectedType> Reflect(const ReflectedType& type)
+    constexpr const TypeDescription<ReflectedType> Reflect(const ReflectedType& type)
     {
         return {};
     }
