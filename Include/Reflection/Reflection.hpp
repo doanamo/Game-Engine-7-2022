@@ -27,7 +27,7 @@ namespace Reflection::Detail
         }
 
         template<std::size_t Index>
-        constexpr const std::tuple_element_t<Index, TupleType>& Get() const
+        constexpr std::tuple_element_t<Index, TupleType> Get() const
         {
             return std::get<Index>(Objects);
         }
@@ -65,10 +65,10 @@ namespace Reflection
 {
     struct NullType;
 
-    template<typename ReflectedType, typename AttributeType, std::size_t Index>
+    template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
     struct AttributeDescription;
 
-    template<typename ReflectedType, typename MemberType, std::size_t Index>
+    template<typename ReflectedType, typename MemberType, std::size_t MemberIndex>
     struct MemberDescription;
 }
 
@@ -92,19 +92,22 @@ namespace Reflection::Detail
         struct MemberInfo;
     };
 
-    template<typename ReflectedType, typename... Attributes, std::size_t... AttributeIndices>
-    constexpr ObjectList<AttributeDescription<ReflectedType, Attributes, AttributeIndices>...> MakeAttributeDescriptionList(const ObjectList<Attributes...>& attributes, std::index_sequence<AttributeIndices...>)
+    template<typename ReflectedType, typename... AttributeTypes, std::size_t... AttributeIndices>
+    constexpr ObjectList<AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>...> MakeAttributeDescriptionList(const ObjectList<AttributeTypes...>& attributes, std::index_sequence<AttributeIndices...>)
     {
-        return ObjectList<AttributeDescription<ReflectedType, Attributes, AttributeIndices>...>(std::make_tuple(AttributeDescription<ReflectedType, Attributes, AttributeIndices>(attributes.Get<AttributeIndices>())...));
+        return { std::make_tuple(AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>{ attributes.template Get<AttributeIndices>() } ...) };
     }
 
     template<typename ReflectedType, std::size_t MemberIndex>
-    using MemberDescriptionType = typename MemberDescription<ReflectedType, typename TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type, MemberIndex>;
+    using MemberDescriptionType = MemberDescription<ReflectedType, typename TypeInfo<ReflectedType>::template MemberInfo<MemberIndex, ReflectedType, void>::Type, MemberIndex>;
 
     template<typename ReflectedType, std::size_t... MemberIndices>
-    constexpr ObjectList<MemberDescriptionType<ReflectedType, MemberIndices>...> MakeMemberDescriptionList(std::index_sequence<MemberIndices...>)
+    using MemberDescriptionList = ObjectList<MemberDescriptionType<ReflectedType, MemberIndices>...>;
+
+    template<typename ReflectedType, std::size_t... MemberIndices>
+    constexpr MemberDescriptionList<ReflectedType, MemberIndices...> MakeMemberDescriptionList(std::index_sequence<MemberIndices...>)
     {
-        return ObjectList<MemberDescriptionType<ReflectedType, MemberIndices>...>(std::make_tuple(MemberDescriptionType<ReflectedType, MemberIndices>()...));
+        return { std::make_tuple(MemberDescriptionType<ReflectedType, MemberIndices>{} ...) };
     }
 }
 
@@ -122,7 +125,7 @@ namespace Reflection
         static constexpr auto TypeInfo = Detail::TypeInfo<AttributeType>{};
         static constexpr auto Name = TypeInfo.Name;
 
-        constexpr AttributeDescription(const AttributeType& Instance) :
+        constexpr AttributeDescription(AttributeType&& Instance) :
             Instance(Instance)
         {
         }
@@ -292,7 +295,7 @@ namespace Reflection::Detail
         static_assert(ValidateAttributeUniqueness<Attributes...>(), "Detected attribute that is not unique!");
         static_assert(ValidateAttributeUsage<Requirement, Attributes...>(), "Detected attribute with incorrect usage!");
 
-        return ObjectList<Attributes...>(std::make_tuple(attributes...));
+        return { std::make_tuple(attributes...) };
     }
 }
 
@@ -305,7 +308,7 @@ namespace Reflection::Detail
     template<typename ReflectedType, std::size_t... MemberIndices>
     constexpr ObjectList<MemberEntry<ReflectedType, MemberIndices>...> MakeMemberList(std::index_sequence<MemberIndices...>)
     {
-        return ObjectList<MemberEntry<ReflectedType, MemberIndices>...>(std::make_tuple(MemberEntry<ReflectedType, MemberIndices>()...));
+        return { std::make_tuple(MemberEntry<ReflectedType, MemberIndices>{} ...) };
     }
 }
 
