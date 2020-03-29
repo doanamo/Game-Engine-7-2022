@@ -195,6 +195,13 @@ REFLECTION_TYPE_END
 
 bool TestTypes()
 {
+    // Check built-in reflection.
+    TEST_TRUE(Reflection::IsReflected<Reflection::NullType>());
+    TEST_TRUE(Reflection::Reflect<Reflection::NullType>().IsNullType());
+    TEST_EQ(Reflection::Reflect<Reflection::NullType>().Name, "Reflection::NullType");
+    TEST_FALSE(Reflection::Reflect<Undefined>().IsNullType());
+    TEST_FALSE(Reflection::Reflect<Derived>().IsNullType());
+
     // Check reflection presence.
     TEST_FALSE(Reflection::IsReflected<Undefined>());
     TEST_TRUE(Reflection::IsReflected<Empty>());
@@ -221,6 +228,23 @@ bool TestTypes()
     TEST_TRUE(Reflection::Reflect(Inner()).IsType<Inner>());
     TEST_TRUE(Reflection::Reflect(BranchedOne()).IsType<BranchedOne>());
     TEST_TRUE(Reflection::Reflect(BranchedTwo()).IsType<BranchedTwo>());
+
+    // Check base type presence.
+    TEST_FALSE(Reflection::Reflect<Undefined>().HasBaseType());
+    TEST_FALSE(Reflection::Reflect<Empty>().HasBaseType());
+    TEST_FALSE(Reflection::Reflect<Base>().HasBaseType());
+    TEST_TRUE(Reflection::Reflect<Derived>().HasBaseType());
+    TEST_FALSE(Reflection::Reflect<Inner>().HasBaseType());
+    TEST_TRUE(Reflection::Reflect<BranchedOne>().HasBaseType());
+    TEST_TRUE(Reflection::Reflect<BranchedTwo>().HasBaseType());
+
+    // Check base types.
+    TEST_EQ(Reflection::Reflect<Derived>().BaseType().Name, "Base");
+    TEST_EQ(Reflection::Reflect<BranchedOne>().BaseType().Name, "Derived");
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().BaseType().Name, "Derived");
+    TEST_TRUE(Reflection::Reflect<Derived>().BaseType().IsType<Base>());
+    TEST_TRUE(Reflection::Reflect<BranchedOne>().BaseType().IsType<Derived>());
+    TEST_TRUE(Reflection::Reflect<BranchedTwo>().BaseType().IsType<Derived>());
 
     // Check type attribute presence.
     TEST_FALSE(Reflection::Reflect<Empty>().HasAttributes());
@@ -465,6 +489,9 @@ bool TestTypes()
     // TODO
 
     // Getting members and attributes by string name (indexes are unreliable).
+    // TODO
+
+    // Test reflection between compilation units.
     // TODO
 
     return true;

@@ -63,6 +63,8 @@ namespace Reflection
 // Reflection implementation detail.
 namespace Reflection
 {
+    struct NullType;
+
     template<typename ReflectedType, typename AttributeType, std::size_t Index>
     struct AttributeDescription;
 
@@ -74,6 +76,9 @@ namespace Reflection::Detail
 {
     struct TypeInfoBase
     {
+        using Type = NullType;
+        using BaseType = NullType;
+
         static constexpr bool Reflected = false;
         static constexpr auto Name = "<UnknownType>";
         static constexpr auto Attributes = MakeEmptyObjectList();
@@ -106,13 +111,16 @@ namespace Reflection::Detail
 // Reflection interface.
 namespace Reflection
 {
+    struct NullType
+    {
+    };
+
     template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
     struct AttributeDescription
     {
         using Type = std::decay_t<AttributeType>;
-
-        static constexpr auto& TypeInfo = Detail::TypeInfo<AttributeType>{};
-        static constexpr auto Name = Detail::TypeInfo<AttributeType>::Name;
+        static constexpr auto TypeInfo = Detail::TypeInfo<AttributeType>{};
+        static constexpr auto Name = TypeInfo.Name;
 
         constexpr AttributeDescription(const AttributeType& Instance) :
             Instance(Instance)
@@ -132,10 +140,9 @@ namespace Reflection
     struct MemberDescription
     {
         using Type = MemberType;
-
-        static constexpr auto& TypeInfo = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
-        static constexpr auto Name = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>().Name;
-        static constexpr auto Pointer = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>().Pointer;
+        static constexpr auto TypeInfo = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
+        static constexpr auto Name = TypeInfo.Name;
+        static constexpr auto Pointer = TypeInfo.Pointer;
         static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
 
         template<typename OtherType>
@@ -160,17 +167,32 @@ namespace Reflection
     struct TypeDescription
     {
         using Type = ReflectedType;
-
-        static constexpr auto& TypeInfo = Detail::TypeInfo<ReflectedType>{};
-        static constexpr auto Reflected = Detail::TypeInfo<ReflectedType>::Reflected;
-        static constexpr auto Name = Detail::TypeInfo<ReflectedType>::Name;
+        static constexpr auto TypeInfo = Detail::TypeInfo<ReflectedType>{};
+        static constexpr auto BaseTypeInfo = Detail::TypeInfo<decltype(TypeInfo)::BaseType>{};
+        static constexpr auto Reflected = TypeInfo.Reflected;
+        static constexpr auto Name = TypeInfo.Name;
         static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
         static constexpr auto Members = Detail::MakeMemberDescriptionList<ReflectedType>(std::make_index_sequence<TypeInfo.Members.Count>());
+
+        constexpr bool IsNullType() const
+        {
+            return std::is_same<Type, NullType>::value;
+        }
 
         template<typename OtherType>
         constexpr bool IsType() const
         {
             return std::is_same<Type, OtherType>::value;
+        }
+
+        constexpr bool HasBaseType() const
+        {
+            return !std::is_same<decltype(BaseTypeInfo)::Type, NullType>::value;
+        }
+
+        constexpr TypeDescription<typename decltype(BaseTypeInfo)::Type> BaseType() const
+        {
+            return {};
         }
 
         constexpr bool HasAttributes() const
@@ -197,13 +219,13 @@ namespace Reflection
     };
 
     template<typename ReflectedType>
-    constexpr const TypeDescription<ReflectedType> Reflect()
+    constexpr TypeDescription<ReflectedType> Reflect()
     {
         return {};
     }
 
     template<typename ReflectedType>
-    constexpr const TypeDescription<ReflectedType> Reflect(const ReflectedType& type)
+    constexpr TypeDescription<ReflectedType> Reflect(const ReflectedType& type)
     {
         return {};
     }
@@ -292,13 +314,14 @@ namespace Reflection::Detail
 #define REFLECTION_STRINGIFY(expression) #expression
 
 // Type declaration macros.
-#define REFLECTION_TYPE_INFO_BEGIN(ReflectedType) \
+#define REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     template<> struct Reflection::Detail::TypeInfo<ReflectedType> : public TypeInfoBase \
     { \
     private: \
         static constexpr std::size_t MemberIndexOffset = __COUNTER__ + 1; \
     public: \
         using Type = ReflectedType; \
+        using BaseType = ReflectedBaseType; \
         static constexpr bool Reflected = true; \
         static constexpr std::string_view Name = REFLECTION_STRINGIFY(ReflectedType); \
         template<std::size_t Index, typename Type = ReflectedType, typename Dummy = void> struct MemberInfo;
@@ -312,10 +335,10 @@ namespace Reflection::Detail
     };
 
 #define REFLECTION_TYPE_BASE_BEGIN(ReflectedType) \
-    REFLECTION_TYPE_INFO_BEGIN(ReflectedType)
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, NullType)
 
-#define REFLECTION_TYPE_DERIVED_BEGIN(DerivedType, BaseType) \
-    REFLECTION_TYPE_INFO_BEGIN(DerivedType)
+#define REFLECTION_TYPE_DERIVED_BEGIN(ReflectedType, ReflectedBaseType) \
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType)
 
 #define REFLECTION_TYPE_BEGIN_DEDUCE(arg1, arg2, arg3, ...) arg3
 #define REFLECTION_TYPE_BEGIN_CHOOSER(...) REFLECTION_EXPAND(REFLECTION_TYPE_BEGIN_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED_BEGIN, REFLECTION_TYPE_BASE_BEGIN))
@@ -323,11 +346,11 @@ namespace Reflection::Detail
 #define REFLECTION_TYPE_END REFLECTION_TYPE_INFO_END
 
 #define REFLECTION_TYPE_BASE(ReflectedType) \
-    REFLECTION_TYPE_INFO_BEGIN(ReflectedType) \
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, NullType) \
     REFLECTION_TYPE_INFO_END
 
-#define REFLECTION_TYPE_DERIVED(DerivedType, BaseType) \
-    REFLECTION_TYPE_INFO_BEGIN(DerivedType) \
+#define REFLECTION_TYPE_DERIVED(ReflectedType, ReflectedBaseType) \
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     REFLECTION_TYPE_INFO_END
 
 #define REFLECTION_TYPE_DEDUCE(arg1, arg2, arg3, ...) arg3
@@ -352,3 +375,6 @@ namespace Reflection::Detail
     REFLECTION_FIELD_BEGIN(Field) \
     REFLECTION_FIELD_ATTRIBUTES(__VA_ARGS__) \
     REFLECTION_FIELD_END
+
+// Built-in type declarations.
+REFLECTION_TYPE(Reflection::NullType)
