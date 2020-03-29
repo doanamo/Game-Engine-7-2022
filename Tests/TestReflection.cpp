@@ -239,12 +239,12 @@ bool TestTypes()
     TEST_TRUE(Reflection::Reflect<BranchedTwo>().HasBaseType());
 
     // Check base types.
-    TEST_EQ(Reflection::Reflect<Derived>().BaseType().Name, "Base");
-    TEST_EQ(Reflection::Reflect<BranchedOne>().BaseType().Name, "Derived");
-    TEST_EQ(Reflection::Reflect<BranchedTwo>().BaseType().Name, "Derived");
-    TEST_TRUE(Reflection::Reflect<Derived>().BaseType().IsType<Base>());
-    TEST_TRUE(Reflection::Reflect<BranchedOne>().BaseType().IsType<Derived>());
-    TEST_TRUE(Reflection::Reflect<BranchedTwo>().BaseType().IsType<Derived>());
+    TEST_EQ(Reflection::Reflect<Derived>().GetBaseType().Name, "Base");
+    TEST_EQ(Reflection::Reflect<BranchedOne>().GetBaseType().Name, "Derived");
+    TEST_EQ(Reflection::Reflect<BranchedTwo>().GetBaseType().Name, "Derived");
+    TEST_TRUE(Reflection::Reflect<Derived>().GetBaseType().IsType<Base>());
+    TEST_TRUE(Reflection::Reflect<BranchedOne>().GetBaseType().IsType<Derived>());
+    TEST_TRUE(Reflection::Reflect<BranchedTwo>().GetBaseType().IsType<Derived>());
 
     // Check type attribute presence.
     TEST_FALSE(Reflection::Reflect<Empty>().HasAttributes());

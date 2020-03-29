@@ -171,7 +171,10 @@ namespace Reflection
     {
         using Type = ReflectedType;
         static constexpr auto TypeInfo = Detail::TypeInfo<ReflectedType>{};
-        static constexpr auto BaseTypeInfo = Detail::TypeInfo<decltype(TypeInfo)::BaseType>{};
+
+        using BaseType = typename decltype(TypeInfo)::BaseType;
+        static constexpr auto BaseTypeInfo = Detail::TypeInfo<BaseType>{};
+
         static constexpr auto Reflected = TypeInfo.Reflected;
         static constexpr auto Name = TypeInfo.Name;
         static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
@@ -190,10 +193,10 @@ namespace Reflection
 
         constexpr bool HasBaseType() const
         {
-            return !std::is_same<decltype(BaseTypeInfo)::Type, NullType>::value;
+            return !std::is_same<BaseType, NullType>::value;
         }
 
-        constexpr TypeDescription<typename decltype(BaseTypeInfo)::Type> BaseType() const
+        constexpr TypeDescription<BaseType> GetBaseType() const
         {
             return {};
         }
