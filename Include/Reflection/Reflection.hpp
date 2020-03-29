@@ -20,6 +20,12 @@ namespace Reflection::Detail
     struct ObjectList
     {
         using TupleType = std::tuple<Types...>;
+        const TupleType Objects;
+
+        constexpr ObjectList(const TupleType& Objects) :
+            Objects(Objects)
+        {
+        }
 
         constexpr ObjectList(TupleType&& Objects) :
             Objects(Objects)
@@ -32,13 +38,52 @@ namespace Reflection::Detail
             return std::get<Index>(Objects);
         }
 
-        const TupleType Objects;
         static constexpr std::size_t Count = sizeof...(Types);
     };
 
     constexpr ObjectList<> MakeEmptyObjectList()
     {
-        return ObjectList<>(std::make_tuple());
+        return { std::tuple<>() };
+    }
+
+    template<typename TupleType, std::size_t... Indices>
+    constexpr auto PopFrontTuple(TupleType tuple, std::index_sequence<Indices...>)
+    {
+        return std::make_tuple(std::get<1 + Indices>(tuple)...);
+    }
+
+    template<typename TupleType>
+    constexpr auto PopFrontTuple(TupleType tuple)
+    {
+        static_assert(std::tuple_size<TupleType>::value > 0, "Cannot pop element from an empty tuple!");
+        return PopFrontTuple(tuple, std::make_index_sequence<std::tuple_size<TupleType>::value - 1>());
+    }
+
+    template<typename TupleType, typename Element>
+    constexpr auto PushFrontTuple(TupleType tuple, Element element)
+    {
+        return std::tuple_cat(std::make_tuple(element), tuple);
+    }
+
+    template<typename Function, typename... Results>
+    constexpr auto Filter(Function function, ObjectList<> list, ObjectList<Results...> results)
+    {
+        return results;
+    }
+
+    template<typename Function, typename Type, typename... Types, typename... Results>
+    constexpr auto Filter(Function function, ObjectList<Type, Types...> list, ObjectList<Results...> results)
+    {
+        const auto element = list.template Get<0>();
+
+        if constexpr(function(Type{}))
+        {
+            return Filter(function, ObjectList<Types...>(PopFrontTuple(list.Objects)), ObjectList<Type, Results...>(PushFrontTuple(results.Objects, element)));
+        }
+        else
+        {
+            return Filter(function, ObjectList<Types...>(PopFrontTuple(list.Objects)), ObjectList<Results...>(results.Objects));
+        }
     }
 }
 
@@ -57,6 +102,29 @@ namespace Reflection
     constexpr void ForEach(const Detail::ObjectList<Types...>& list, Function&& function)
     {
         ForEachSequence(list, std::forward<Function>(function), std::make_index_sequence<Detail::ObjectList<Types...>::Count>());
+    }
+
+    template<typename Function, typename... Types>
+    constexpr auto Filter(Detail::ObjectList<Types...> list, Function function)
+    {
+        return Detail::Filter(function, list, Detail::MakeEmptyObjectList());
+    }
+
+    template<typename Function, typename... Types>
+    constexpr auto FindFirst(Detail::ObjectList<Types...> list, Function function)
+    {
+        const auto results = Filter<Function, Types...>(list, function);
+        static_assert(results.Count != 0, "Could not find any results!");
+        return results.template Get<0>();
+    }
+
+    template<typename Function, typename... Types>
+    constexpr auto FindOne(Detail::ObjectList<Types...> list, Function function)
+    {
+        const auto results = Filter<Function, Types...>(list, function);
+        static_assert(results.Count != 0, "Could not find any results!");
+        static_assert(results.Count == 1, "Found more than one result!");
+        return results.template Get<0>();
     }
 }
 
@@ -170,15 +238,15 @@ namespace Reflection
     struct TypeDescription
     {
         using Type = ReflectedType;
-        static constexpr auto TypeInfo = Detail::TypeInfo<ReflectedType>{};
+        static constexpr auto TypeInfo = Detail::TypeInfo<Type>{};
 
         using BaseType = typename decltype(TypeInfo)::BaseType;
         static constexpr auto BaseTypeInfo = Detail::TypeInfo<BaseType>{};
 
         static constexpr auto Reflected = TypeInfo.Reflected;
         static constexpr auto Name = TypeInfo.Name;
-        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
-        static constexpr auto Members = Detail::MakeMemberDescriptionList<ReflectedType>(std::make_index_sequence<TypeInfo.Members.Count>());
+        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<Type>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto Members = Detail::MakeMemberDescriptionList<Type>(std::make_index_sequence<TypeInfo.Members.Count>());
 
         constexpr bool IsNullType() const
         {
@@ -212,6 +280,14 @@ namespace Reflection
             return Attributes.template Get<AttributeIndex>();
         }
 
+        /*
+        template<auto& AttributeName>
+        constexpr auto FindAttribute() const
+        {
+            return FindOne(Attributes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+        }
+        */
+
         constexpr bool HasMembers() const
         {
             return Members.Count > 0;
@@ -221,6 +297,12 @@ namespace Reflection
         constexpr auto Member() const -> decltype(Members.template Get<MemberIndex>())
         {
             return Members.template Get<MemberIndex>();
+        }
+
+        template<auto& MemberName>
+        constexpr auto FindMember() const
+        {
+            return FindOne(Members, [](auto Member) -> bool { return Member.Name == MemberName; });
         }
     };
 

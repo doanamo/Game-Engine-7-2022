@@ -362,9 +362,9 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<Empty>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Name);
+                presentAttributes.push_back(attribute.Name);
             }
         );
 
@@ -376,9 +376,9 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<Derived>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Name);
+                presentAttributes.push_back(attribute.Name);
             }
         );
 
@@ -390,9 +390,9 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<BranchedTwo>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Name);
+                presentAttributes.push_back(attribute.Name);
             }
         );
 
@@ -404,9 +404,9 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<BranchedTwo>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Instance.modifier);
+                presentAttributes.push_back(attribute.Instance.modifier);
             }
         );
 
@@ -419,9 +419,9 @@ bool TestTypes()
         std::vector<std::string_view> presentMembers;
 
         Reflection::ForEach(Reflection::Reflect<Empty>().Members,
-            [&presentMembers](const auto& description)
+            [&presentMembers](const auto& member)
             {
-                presentMembers.push_back(description.Name);
+                presentMembers.push_back(member.Name);
             }
         );
 
@@ -433,9 +433,9 @@ bool TestTypes()
         std::vector<std::string_view> presentMembers;
 
         Reflection::ForEach(Reflection::Reflect<Base>().Members,
-            [&presentMembers](const auto& description)
+            [&presentMembers](const auto& member)
             {
-                presentMembers.push_back(description.Name);
+                presentMembers.push_back(member.Name);
             }
         );
 
@@ -447,9 +447,9 @@ bool TestTypes()
         std::vector<std::string_view> presentMembers;
 
         Reflection::ForEach(Reflection::Reflect<BranchedOne>().Members,
-            [&presentMembers](const auto& description)
+            [&presentMembers](const auto& member)
             {
-                presentMembers.push_back(description.Name);
+                presentMembers.push_back(member.Name);
             }
         );
 
@@ -462,9 +462,9 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<Base>().Member<0>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Name);
+                presentAttributes.push_back(attribute.Name);
             }
         );
 
@@ -476,19 +476,34 @@ bool TestTypes()
         std::vector<std::string_view> presentAttributes;
 
         Reflection::ForEach(Reflection::Reflect<BranchedOne>().Member<0>().Attributes,
-            [&presentAttributes](const auto& description)
+            [&presentAttributes](const auto& attribute)
             {
-                presentAttributes.push_back(description.Name);
+                presentAttributes.push_back(attribute.Name);
             }
         );
 
         TEST_EQ(presentAttributes, expectedAttributes);
     }
 
-    // Enumerate derived types from type.
-    // TODO
+    // Find type members and attributes by name.
+    // String literal needs to be a static variable passed via template argument to
+    // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
+    {
+        static constexpr const char MemberName[] = "textWithoutAttribute";
+        TEST_EQ(Reflection::Reflect<Base>().FindMember<MemberName>().Name, "textWithoutAttribute");
+    }
 
-    // Getting members and attributes by string name (indexes are unreliable).
+    /*
+    {
+        // TODO: Separate Attribute list into ObjectList and TypeList.
+        // TODO: Search type list and retrieve index, then use it to get proper MemberDescription/AttributeDescription from their ObjectList.
+        static constexpr const char AttributeName[] = "DerivedAttribute";
+        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Name, "DerivedAttribute");
+        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Instance, true);
+    }
+    */
+
+    // Enumerate derived types from type.
     // TODO
 
     // Test reflection between compilation units.
