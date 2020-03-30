@@ -493,15 +493,17 @@ bool TestTypes()
         TEST_EQ(Reflection::Reflect<Base>().FindMember<MemberName>().Name, "textWithoutAttribute");
     }
 
-    /*
     {
-        // TODO: Separate Attribute list into ObjectList and TypeList.
-        // TODO: Search type list and retrieve index, then use it to get proper MemberDescription/AttributeDescription from their ObjectList.
         static constexpr const char AttributeName[] = "DerivedAttribute";
         TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Name, "DerivedAttribute");
-        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Instance, true);
+        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Instance.state, false);
     }
-    */
+
+    {
+        static constexpr const char MemberName[] = "counter";
+        static constexpr const char AttributeName[] = "CounterAttribute";
+        TEST_EQ(Reflection::Reflect<Derived>().FindMember<MemberName>().FindAttribute<AttributeName>().Instance.state, true);
+    }
 
     // Enumerate derived types from type.
     // TODO

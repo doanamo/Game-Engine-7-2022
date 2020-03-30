@@ -85,6 +85,32 @@ namespace Reflection::Detail
             return Filter(function, ObjectList<Types...>(PopFrontTuple(list.Objects)), ObjectList<Results...>(results.Objects));
         }
     }
+
+    template<bool FoundResult, std::size_t FoundIndex>
+    struct FindIndexResult
+    {
+        static constexpr auto Found = FoundResult;
+        static constexpr auto Index = FoundIndex;
+    };
+
+    template<std::size_t Index = 0, typename Function>
+    constexpr auto FindFirstIndex(Function function, ObjectList<> list)
+    {
+        return FindIndexResult<false, Index>{};
+    }
+
+    template<std::size_t Index = 0, typename Function, typename Type, typename...Types>
+    constexpr auto FindFirstIndex(Function function, ObjectList<Type, Types...> list)
+    {
+        if constexpr(function(Type{}))
+        {
+            return FindIndexResult<true, Index>{};
+        }
+        else
+        {
+            return FindFirstIndex<Index + 1>(function, ObjectList<Types...>(PopFrontTuple(list.Objects)));
+        }
+    }
 }
 
 namespace Reflection
@@ -119,6 +145,14 @@ namespace Reflection
     }
 
     template<typename Function, typename... Types>
+    constexpr std::size_t FindFirstIndex(Detail::ObjectList<Types...> list, Function function)
+    {
+        const auto result = Detail::FindFirstIndex(function, list);
+        static_assert(result.Found, "Could not find desired index!");
+        return result.Index;
+    }
+
+    template<typename Function, typename... Types>
     constexpr auto FindOne(Detail::ObjectList<Types...> list, Function function)
     {
         const auto results = Filter<Function, Types...>(list, function);
@@ -135,6 +169,9 @@ namespace Reflection
 
     template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
     struct AttributeDescription;
+
+    template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
+    struct AttributeDescriptionWithInstance;
 
     template<typename ReflectedType, typename MemberType, std::size_t MemberIndex>
     struct MemberDescription;
@@ -161,9 +198,15 @@ namespace Reflection::Detail
     };
 
     template<typename ReflectedType, typename... AttributeTypes, std::size_t... AttributeIndices>
-    constexpr ObjectList<AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>...> MakeAttributeDescriptionList(const ObjectList<AttributeTypes...>& attributes, std::index_sequence<AttributeIndices...>)
+    constexpr ObjectList<AttributeDescriptionWithInstance<ReflectedType, AttributeTypes, AttributeIndices>...> MakeAttributeDescriptionWithInstanceList(const ObjectList<AttributeTypes...>& attributes, std::index_sequence<AttributeIndices...>)
     {
-        return { std::make_tuple(AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>{ attributes.template Get<AttributeIndices>() } ...) };
+        return { std::make_tuple(AttributeDescriptionWithInstance<ReflectedType, AttributeTypes, AttributeIndices>{ attributes.template Get<AttributeIndices>() } ...) };
+    }
+
+    template<typename ReflectedType, typename... AttributeTypes, std::size_t... AttributeIndices>
+    constexpr ObjectList<AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>...> MakeAttributeDescriptionWithoutInstanceList(const ObjectList<AttributeTypes...>& attributes, std::index_sequence<AttributeIndices...>)
+    {
+        return { std::make_tuple(AttributeDescription<ReflectedType, AttributeTypes, AttributeIndices>{} ...) };
     }
 
     template<typename ReflectedType, std::size_t MemberIndex>
@@ -191,14 +234,8 @@ namespace Reflection
     {
         using Type = std::decay_t<AttributeType>;
         static constexpr auto TypeInfo = Detail::TypeInfo<AttributeType>{};
+        static constexpr auto Index = AttributeIndex;
         static constexpr auto Name = TypeInfo.Name;
-
-        constexpr AttributeDescription(AttributeType&& Instance) :
-            Instance(Instance)
-        {
-        }
-
-        const AttributeType Instance;
 
         template<typename OtherType>
         constexpr bool IsType() const
@@ -207,14 +244,29 @@ namespace Reflection
         }
     };
 
+    template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
+    struct AttributeDescriptionWithInstance : public AttributeDescription<ReflectedType, AttributeType, AttributeIndex>
+    {
+        using TypeWithoutInstance = AttributeDescription<ReflectedType, AttributeType, AttributeIndex>;
+
+        constexpr AttributeDescriptionWithInstance(AttributeType&& Instance) :
+            Instance(Instance)
+        {
+        }
+
+        const AttributeType Instance;
+    };
+
     template<typename ReflectedType, typename MemberType, std::size_t MemberIndex>
     struct MemberDescription
     {
         using Type = MemberType;
         static constexpr auto TypeInfo = Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
+        static constexpr auto Index = MemberIndex;
         static constexpr auto Name = TypeInfo.Name;
         static constexpr auto Pointer = TypeInfo.Pointer;
-        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto Attributes = Detail::MakeAttributeDescriptionWithInstanceList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto AttributeTypes = Detail::MakeAttributeDescriptionWithoutInstanceList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
 
         template<typename OtherType>
         constexpr bool IsType() const
@@ -232,6 +284,13 @@ namespace Reflection
         {
             return Attributes.template Get<AttributeIndex>();
         }
+
+        template<auto& AttributeName>
+        constexpr auto FindAttribute() const
+        {
+            constexpr auto Index = FindFirstIndex(AttributeTypes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+            return Attributes.template Get<Index>();
+        }
     };
 
     template<typename ReflectedType>
@@ -245,7 +304,8 @@ namespace Reflection
 
         static constexpr auto Reflected = TypeInfo.Reflected;
         static constexpr auto Name = TypeInfo.Name;
-        static constexpr auto Attributes = Detail::MakeAttributeDescriptionList<Type>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto Attributes = Detail::MakeAttributeDescriptionWithInstanceList<Type>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
+        static constexpr auto AttributeTypes = Detail::MakeAttributeDescriptionWithoutInstanceList<Type>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
         static constexpr auto Members = Detail::MakeMemberDescriptionList<Type>(std::make_index_sequence<TypeInfo.Members.Count>());
 
         constexpr bool IsNullType() const
@@ -280,13 +340,12 @@ namespace Reflection
             return Attributes.template Get<AttributeIndex>();
         }
 
-        /*
         template<auto& AttributeName>
         constexpr auto FindAttribute() const
         {
-            return FindOne(Attributes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+            constexpr auto Index = FindFirstIndex(AttributeTypes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+            return Attributes.template Get<Index>();
         }
-        */
 
         constexpr bool HasMembers() const
         {
