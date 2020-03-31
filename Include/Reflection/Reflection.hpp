@@ -118,10 +118,11 @@ namespace Reflection
     template<typename Function, typename... Types, std::size_t... Indices>
     constexpr void ForEachSequence(const Detail::ObjectList<Types...>& list, Function&& function, std::index_sequence<Indices...>)
     {
-        // Explanation for this for each tuple element implementation:
+        // Explanation of this for each tuple element implementation:
         // - https://codereview.stackexchange.com/questions/51407/stdtuple-foreach-implementation
         // - https://stackoverflow.com/questions/26902633/how-to-iterate-over-a-stdtuple-in-c-11
-        int Ordered[] = { 1, (function(std::get<Indices>(list.Objects)), void(), int()) ... };
+        using Ordered = int[];
+        (void)Ordered { 1, (function(std::get<Indices>(list.Objects)), void(), int()) ... };
     }
 
     template<typename Function, typename... Types>
