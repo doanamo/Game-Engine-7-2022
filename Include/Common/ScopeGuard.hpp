@@ -6,7 +6,7 @@
 
 #include <utility>
 #include <memory>
-#include "Common/NonCopyable.hpp"
+#include "NonCopyable.hpp"
 
 /*
     Scope Guard

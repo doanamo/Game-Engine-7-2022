@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <numeric>
 #include <limits>
-#include "Common/Debug.hpp"
+#include "Debug.hpp"
 
 /*
     Utility

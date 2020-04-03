@@ -2,7 +2,7 @@
 # Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 #
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 
 #
 # Library
@@ -24,7 +24,8 @@ add_library(Logger STATIC
 )
 
 target_compile_features(Logger PUBLIC cxx_std_17)
-target_include_directories(Logger PUBLIC "../../Include/Logger")
+target_include_directories(Logger PUBLIC "../../Include")
+target_include_directories(Logger PRIVATE "../../Include/Logger")
 target_precompile_headers(Logger PRIVATE "Precompiled.hpp")
 
 #

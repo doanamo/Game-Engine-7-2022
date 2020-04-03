@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "Common/Debug.hpp"
+#include "Debug.hpp"
 
 /*
     State Machine
