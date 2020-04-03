@@ -2,12 +2,11 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Logger/Logger.hpp"
-#include "Logger/Output.hpp"
-#include "Logger/Message.hpp"
-#include "Logger/Format.hpp"
-#include "Logger/Sink.hpp"
+#include "Logger.hpp"
+#include "Output.hpp"
+#include "Message.hpp"
+#include "Format.hpp"
+#include "Sink.hpp"
 using namespace Logger;
 
 FileOutput::FileOutput()
@@ -31,7 +30,7 @@ FileOutput::~FileOutput()
 bool FileOutput::Open(std::string filename)
 {
     // Check if the file stream is already open.
-    VERIFY(!m_file.is_open(), "File stream is already open!");
+    assert(!m_file.is_open() && "File stream is already open!");
 
     // Open the file stream for writing.
     m_file.open(filename);
@@ -52,7 +51,7 @@ bool FileOutput::Open(std::string filename)
 
 void FileOutput::Write(const Message& message, const SinkContext& context)
 {
-    VERIFY(m_file.is_open(), "File stream is not open!");
+    assert(m_file.is_open() && "File stream is not open!");
 
     // Write a log message.
     m_file << DefaultFormat::ComposeMessage(message, context);
@@ -87,13 +86,13 @@ DebuggerOutput::~DebuggerOutput()
 
 void DebuggerOutput::Write(const Message& message, const SinkContext& context)
 {
-    #ifdef WIN32
-        // Check if debugger is attached.
-        if(!IsDebuggerPresent())
-            return;
+#ifdef WIN32
+    // Check if debugger is attached.
+    if(!IsDebuggerPresent())
+        return;
 
-        // Write a log message.
-        std::string output = DefaultFormat::ComposeMessage(message, context);
-        OutputDebugStringA(output.c_str());
-    #endif
+    // Write a log message.
+    std::string output = DefaultFormat::ComposeMessage(message, context);
+    OutputDebugStringA(output.c_str());
+#endif
 }

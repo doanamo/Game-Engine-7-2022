@@ -2,10 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Logger/Format.hpp"
-#include "Logger/Message.hpp"
-#include "Logger/Sink.hpp"
+#include "Format.hpp"
+#include "Message.hpp"
+#include "Sink.hpp"
 using namespace Logger;
 
 namespace
@@ -23,7 +22,6 @@ namespace
             case Severity::Fatal:   return "X";
         }
 
-        ASSERT(false, "Unknown log message severity!");
         return " ";
     }
 

@@ -5,8 +5,7 @@
 #pragma once
 
 #include <string>
-#include <fmt/core.h>
-#include "Logger/Sink.hpp"
+#include "Sink.hpp"
 
 /*
     Logger Message
@@ -49,12 +48,16 @@ namespace Logger
     };
 
     // Message class.
-    class Message : private NonCopyable
+    class Message
     {
     public:
         Message();
         Message(Message&& other);
         virtual ~Message();
+
+        // Disable copying.
+        Message(const Message&) = delete;
+        Message& operator=(const Message&) = delete;
 
         // Formats message text.
         template<typename... Args>

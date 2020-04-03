@@ -2,10 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Logger/Sink.hpp"
-#include "Logger/Output.hpp"
-#include "Logger/Message.hpp"
+#include "Sink.hpp"
+#include "Output.hpp"
+#include "Message.hpp"
 using namespace Logger;
 
 Sink::Sink() :
@@ -26,7 +25,7 @@ void Sink::SetName(std::string name)
 
 void Sink::AddOutput(Logger::Output* output)
 {
-    VERIFY(output != nullptr, "Attempting to add a null output!");
+    assert(output != nullptr && "Attempting to add a null output!");
 
     std::scoped_lock<std::mutex> lock(m_lock);
 
@@ -36,7 +35,7 @@ void Sink::AddOutput(Logger::Output* output)
 
 void Sink::RemoveOutput(Logger::Output* output)
 {
-    ASSERT(output != nullptr, "Attempting to remove a null output!");
+    assert(output != nullptr && "Attempting to remove a null output!");
 
     std::scoped_lock<std::mutex> lock(m_lock);
 

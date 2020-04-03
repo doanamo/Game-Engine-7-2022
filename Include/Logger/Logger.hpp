@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Logger/Message.hpp"
+#include <fmt/core.h>
+#include "Message.hpp"
 
 /*
     Logger

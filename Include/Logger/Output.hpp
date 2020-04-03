@@ -5,7 +5,6 @@
 #pragma once
 
 #include <sstream>
-#include "Common/NonCopyable.hpp"
 
 /*
     Logger Base Output
@@ -20,7 +19,7 @@ namespace Logger
     struct SinkContext;
 
     // Output interface.
-    class Output : private NonCopyable
+    class Output
     {
     public:
         // Writes message to an output.

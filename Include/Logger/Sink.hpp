@@ -4,10 +4,6 @@
 
 #pragma once
 
-#include <vector>
-#include <mutex>
-#include "Common/NonCopyable.hpp"
-
 /*
     Logger Sink
 
@@ -48,7 +44,7 @@ namespace Logger
     };
 
     // Sink class.
-    class Sink : private NonCopyable
+    class Sink
     {
     public:
         // Type declarations.
@@ -57,6 +53,10 @@ namespace Logger
     public:
         Sink();
         ~Sink();
+
+        // Disable copying.
+        Sink(const Sink&) = delete;
+        Sink& operator=(const Sink&) = delete;
 
         // Sets sink name.
         void SetName(std::string name);
@@ -116,11 +116,15 @@ namespace Logger
 namespace Logger
 {
     // Scoped indent class.
-    class ScopedIndent : private NonCopyable
+    class ScopedIndent
     {
     public:
         ScopedIndent(Sink& sink);
         ~ScopedIndent();
+
+        // Disable copying.
+        ScopedIndent(const ScopedIndent&) = delete;
+        ScopedIndent& operator=(const ScopedIndent&) = delete;
 
     private:
         // Logger sink.

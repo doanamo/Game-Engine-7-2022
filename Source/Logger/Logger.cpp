@@ -2,11 +2,10 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Logger/Logger.hpp"
-#include "Logger/Output.hpp"
-#include "Logger/Sink.hpp"
-#include "Logger/Message.hpp"
+#include "Logger.hpp"
+#include "Output.hpp"
+#include "Sink.hpp"
+#include "Message.hpp"
 
 namespace
 {

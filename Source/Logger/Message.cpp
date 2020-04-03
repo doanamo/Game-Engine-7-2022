@@ -2,9 +2,8 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Logger/Message.hpp"
-#include "Logger/Sink.hpp"
+#include "Message.hpp"
+#include "Sink.hpp"
 using namespace Logger;
 
 Message::Message() :
@@ -41,7 +40,7 @@ Message& Message::SetText(std::string text)
 
 Message& Message::SetSeverity(Severity::Type severity)
 {
-    ASSERT(Severity::Invalid < severity && severity < Severity::Count, "Severity argument is invalid!");
+    assert(Severity::Invalid < severity && severity < Severity::Count && "Severity argument is invalid!");
 
     m_severity = severity;
     return *this;
@@ -55,7 +54,7 @@ Message& Message::SetSource(const char* source)
 
 Message& Message::SetLine(unsigned int line)
 {
-    ASSERT(line > 0, "Attempting to set an invalid source line!");
+    assert(line > 0 && "Attempting to set an invalid source line!");
 
     m_line = line;
     return *this;
