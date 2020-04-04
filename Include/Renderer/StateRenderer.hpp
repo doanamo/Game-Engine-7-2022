@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "Precompiled.hpp"
+#include <string>
 
 // Forward declarations.
-namespace Engine
+namespace Graphics
 {
-    class Root;
+    class RenderContext;
+    class SpriteRenderer;
 }
 
 namespace Game
@@ -24,50 +25,52 @@ namespace Game
 namespace Renderer
 {
     // State renderer class.
-    class StateRenderer
+    class StateRenderer : private NonCopyable
     {
     public:
-        // Draw parameters structure.
+        // Initialization parameters.
+        struct InitializeFromParams
+        {
+            Graphics::RenderContext* renderContext = nullptr;
+            Graphics::SpriteRenderer* spriteRenderer = nullptr;
+        };
+
+        // Draw parameters.
         struct DrawParams
         {
-            DrawParams();
-
             // Game state reference.
-            Game::GameState* gameState;
+            Game::GameState* gameState = nullptr;
 
             // Name of camera entity.
-            std::string cameraName;
+            std::string cameraName = "Camera";
 
             // Viewport rectangle in pixels.
-            glm::ivec4 viewportRect;
+            glm::ivec4 viewportRect = glm::ivec4(0.0f, 0.0f, 0.0f, 0.0f);
 
             // Time alpha interpolation.
-            float timeAlpha;
+            float timeAlpha = 1.0f;
         };
 
     public:
-        StateRenderer();
-        ~StateRenderer();
-
-        // Disallow copying.
-        StateRenderer(const StateRenderer& other) = delete;
-        StateRenderer& operator=(const StateRenderer& other) = delete;
+        StateRenderer() = default;
+        ~StateRenderer() = default;
 
         // Move constructor and assignment.
         StateRenderer(StateRenderer&& other);
         StateRenderer& operator=(StateRenderer&& other);
 
         // Initializes the scene renderer.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Draws a game state.
         void Draw(const DrawParams& drawParams);
 
     private:
-        // Engine reference.
-        Engine::Root* m_engine;
+        // System references.
+        Graphics::RenderContext* m_renderContext = nullptr;
+        Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

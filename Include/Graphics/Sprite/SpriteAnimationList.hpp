@@ -5,6 +5,8 @@
 #pragma once
 
 #include <optional>
+#include <vector>
+#include <unordered_map>
 #include "Graphics/TextureView.hpp"
 
 // Forward declaration.

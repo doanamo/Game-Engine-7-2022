@@ -23,7 +23,8 @@ target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 #
 
 add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
-target_link_libraries(Script PUBLIC System)
+target_link_libraries(Script PRIVATE System)
+target_link_libraries(Script PRIVATE Common)
 
 #
 # External

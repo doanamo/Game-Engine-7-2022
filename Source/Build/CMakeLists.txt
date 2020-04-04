@@ -21,7 +21,7 @@ target_include_directories(Build PUBLIC "../../Include")
 #
 
 add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
-target_link_libraries(Build PUBLIC Common)
+target_link_libraries(Build PRIVATE Common)
 
 #
 # Config

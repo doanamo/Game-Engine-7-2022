@@ -36,7 +36,7 @@ target_precompile_headers(System PRIVATE "Precompiled.hpp")
 #
 
 add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
-target_link_libraries(System PUBLIC Common)
+target_link_libraries(System PRIVATE Common)
 
 #
 # Externals

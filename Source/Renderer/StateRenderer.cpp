@@ -2,35 +2,15 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Renderer/StateRenderer.hpp"
-#include "Graphics/RenderContext.hpp"
-#include "Graphics/Sprite/SpriteRenderer.hpp"
-#include "Game/Components/TransformComponent.hpp"
-#include "Game/Components/CameraComponent.hpp"
-#include "Game/Components/SpriteComponent.hpp"
-#include "Game/Components/SpriteAnimationComponent.hpp"
-#include "Game/GameState.hpp"
-#include "Engine/Root.hpp"
+#include <Graphics/RenderContext.hpp>
+#include <Graphics/Sprite/SpriteRenderer.hpp>
+#include <Game/Components/TransformComponent.hpp>
+#include <Game/Components/CameraComponent.hpp>
+#include <Game/Components/SpriteComponent.hpp>
+#include <Game/Components/SpriteAnimationComponent.hpp>
+#include <Game/GameState.hpp>
 using namespace Renderer;
-
-StateRenderer::DrawParams::DrawParams() :
-    gameState(nullptr),
-    cameraName("Camera"),
-    viewportRect(0.0f, 0.0f, 0.0f, 0.0f),
-    timeAlpha(1.0f)
-{
-}
-
-StateRenderer::StateRenderer() :
-    m_engine(nullptr),
-    m_initialized(false)
-{
-}
-
-StateRenderer::~StateRenderer()
-{
-}
 
 StateRenderer::StateRenderer(StateRenderer&& other) :
     StateRenderer()
@@ -40,13 +20,14 @@ StateRenderer::StateRenderer(StateRenderer&& other) :
 
 StateRenderer& StateRenderer::operator=(StateRenderer&& other)
 {
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_renderContext, other.m_renderContext);
+    std::swap(m_spriteRenderer, other.m_spriteRenderer);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
 }
 
-bool StateRenderer::Initialize(Engine::Root* engine)
+bool StateRenderer::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing state renderer...");
     LOG_SCOPED_INDENT();
@@ -57,14 +38,21 @@ bool StateRenderer::Initialize(Engine::Root* engine)
     // Reset class instance if initialization fails.
     SCOPE_GUARD_IF(!m_initialized, *this = StateRenderer());
 
-    // Validate and save engine reference.
-    if(engine == nullptr)
+    // Validate arguments
+    if(params.renderContext == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is nullptr!");
+        LOG_ERROR("Invalid argument - \"renderContext\" is nullptr!");
         return false;
     }
 
-    m_engine = engine;
+    if(params.spriteRenderer == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"spriteRenderer\" is nullptr!");
+        return false;
+    }
+
+    m_renderContext = params.renderContext;
+    m_spriteRenderer = params.spriteRenderer;
 
     // Success!
     return m_initialized = true;
@@ -75,7 +63,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     ASSERT(m_initialized, "State renderer has not been initialized yet!");
 
     // Clear the frame buffer.
-    m_engine->GetRenderContext().GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_renderContext->GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Checks if game state is null.
     if(drawParams.gameState == nullptr)
@@ -110,8 +98,8 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     }
 
     // Push the render state.
-    auto& renderState = m_engine->GetRenderContext().PushState();
-    SCOPE_GUARD(m_engine->GetRenderContext().PopState());
+    auto& renderState = m_renderContext->PushState();
+    SCOPE_GUARD(m_renderContext->PopState());
 
     // Setup the drawing viewport.
     renderState.Viewport(
@@ -178,5 +166,5 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     spriteDrawList.SortSprites();
 
     // Draw sprite components.
-    m_engine->GetSpriteRenderer().DrawSprites(spriteDrawList, cameraTransform);
+    m_spriteRenderer->DrawSprites(spriteDrawList, cameraTransform);
 }

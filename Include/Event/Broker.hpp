@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <typeindex>
 #include "Event/Dispatcher.hpp"
 
 /*

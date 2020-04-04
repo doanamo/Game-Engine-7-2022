@@ -49,7 +49,9 @@ target_precompile_headers(Graphics PRIVATE "Precompiled.hpp")
 #
 
 add_subdirectory("../Script" "Script" EXCLUDE_FROM_ALL)
-target_link_libraries(Graphics PUBLIC Script)
+target_link_libraries(Graphics PRIVATE Script)
+target_link_libraries(Graphics PRIVATE System)
+target_link_libraries(Graphics PRIVATE Common)
 
 #
 # External
