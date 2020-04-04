@@ -15,7 +15,6 @@ add_library(Event STATIC
     "../../Include/Event/Receiver.hpp"
     "../../Include/Event/Queue.hpp"
     "../../Include/Event/Broker.hpp"
-    
     "Empty.cpp"
 )
 

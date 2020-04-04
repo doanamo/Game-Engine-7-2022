@@ -16,7 +16,6 @@ add_library(Common STATIC
     "../../Include/Common/ScopeGuard.hpp"
     "../../Include/Common/LinkedList.hpp"
     "../../Include/Common/StateMachine.hpp"
-    
     "Precompiled.hpp"
     "Utility.cpp"
     "Debug.cpp"

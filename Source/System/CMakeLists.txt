@@ -17,7 +17,6 @@ add_library(System STATIC
     "../../Include/System/InputManager.hpp"
     "../../Include/System/ResourcePool.hpp"
     "../../Include/System/ResourceManager.hpp"
-    
     "Precompiled.hpp"
     "Platform.cpp"
     "FileSystem.cpp"

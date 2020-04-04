@@ -14,7 +14,6 @@ add_library(Logger STATIC
     "../../Include/Logger/Sink.hpp"
     "../../Include/Logger/Format.hpp"
     "../../Include/Logger/Output.hpp"
-    
     "Precompiled.hpp"
     "Logger.cpp"
     "Message.cpp"
@@ -35,6 +34,5 @@ target_precompile_headers(Logger PRIVATE "Precompiled.hpp")
 add_subdirectory("../../External/fmt-6.1.2" "External/fmt" EXCLUDE_FROM_ALL)
 target_include_directories(Logger PUBLIC "../../External/fmt-6.1.2/include")
 target_link_libraries(Logger PUBLIC fmt::fmt)
-
 set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
 set_property(TARGET "fmt" PROPERTY FOLDER "External")
