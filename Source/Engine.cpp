@@ -2,25 +2,20 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Engine/Root.hpp"
-#include "System/Platform.hpp"
-#include "System/FileSystem.hpp"
-#include "System/Window.hpp"
-#include "System/Timer.hpp"
-#include "System/InputManager.hpp"
-#include "System/ResourceManager.hpp"
-#include "Graphics/RenderContext.hpp"
-#include "Graphics/Sprite/SpriteRenderer.hpp"
-#include "Renderer/StateRenderer.hpp"
-#include "Game/GameFramework.hpp"
-#include "Editor/EditorSystem.hpp"
+#include "Engine.hpp"
+#include <Common/Build.hpp>
+#include <System/Platform.hpp>
+#include <System/Timer.hpp>
+#include <System/FileSystem.hpp>
+#include <System/ResourceManager.hpp>
+#include <System/InputManager.hpp>
+#include <System/Window.hpp>
+#include <Graphics/RenderContext.hpp>
+#include <Graphics/Sprite/SpriteRenderer.hpp>
+#include <Renderer/StateRenderer.hpp>
+#include <Game/GameFramework.hpp>
+#include <Editor/EditorSystem.hpp>
 using namespace Engine;
-
-InitializeParams::InitializeParams() :
-    maximumTickDelta(1.0f)
-{
-}
 
 Root::Root() :
     m_maximumTickDelta(0.0f),
@@ -164,7 +159,14 @@ bool Root::Initialize(const InitializeParams& initParams)
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
     m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
-    if(!m_spriteRenderer->Initialize(this, 128))
+
+    Graphics::SpriteRenderer::InitializeFromParams spriteRendererParams;
+    spriteRendererParams.fileSystem = m_fileSystem.get();
+    spriteRendererParams.resourceManager = m_resourceManager.get();
+    spriteRendererParams.renderContext = m_renderContext.get();
+    spriteRendererParams.spriteBatchSize = 128;
+
+    if(!m_spriteRenderer->Initialize(spriteRendererParams))
     {
         LOG_ERROR("Could not initialize sprite renderer!");
         return false;
@@ -173,7 +175,12 @@ bool Root::Initialize(const InitializeParams& initParams)
     // Initialize the state renderer.
     // Renders a game state described in its components.
     m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
-    if(!m_stateRenderer->Initialize(this))
+
+    Renderer::StateRenderer::InitializeFromParams stateRendererParams;
+    stateRendererParams.renderContext = m_renderContext.get();
+    stateRendererParams.spriteRenderer = m_spriteRenderer.get();
+
+    if(!m_stateRenderer->Initialize(stateRendererParams))
     {
         LOG_ERROR("Could not initialize state renderer!");
         return false;
@@ -182,7 +189,14 @@ bool Root::Initialize(const InitializeParams& initParams)
     // Initialize the game framework.
     // Controls how game state is managed and how it interacts with the rest of the engine.
     m_gameFramework = std::make_unique<Game::GameFramework>();
-    if(!m_gameFramework->Initialize(this))
+
+    Game::GameFramework::InitializeFromParams gameFrameworkParams;
+    gameFrameworkParams.timer = m_timer.get();
+    gameFrameworkParams.inputManager = m_inputManager.get();
+    gameFrameworkParams.window = m_window.get();
+    gameFrameworkParams.stateRenderer = m_stateRenderer.get();
+
+    if(!m_gameFramework->Initialize(gameFrameworkParams))
     {
         LOG_ERROR("Could not initialize game framework!");
         return false;
@@ -191,7 +205,16 @@ bool Root::Initialize(const InitializeParams& initParams)
     // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
     m_editorSystem = std::make_unique<Editor::EditorSystem>();
-    if(!m_editorSystem->Initialize(this))
+    
+    Editor::EditorSystem::InitializeFromParams editorSystemParams;
+    editorSystemParams.fileSystem = m_fileSystem.get();
+    editorSystemParams.resourceManager = m_resourceManager.get();
+    editorSystemParams.inputManager = m_inputManager.get();
+    editorSystemParams.window = m_window.get();
+    editorSystemParams.renderContext = m_renderContext.get();
+    editorSystemParams.gameFramework = m_gameFramework.get();
+
+    if(!m_editorSystem->Initialize(editorSystemParams))
     {
         LOG_ERROR("Could not initialize editor system!");
         return false;

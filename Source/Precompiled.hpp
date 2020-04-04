@@ -4,7 +4,10 @@
 
 #pragma once
 
-// Standard
+/*
+    Precompiled Header
+*/
+
 #include <cctype>
 #include <ctime>
 #include <sstream>
@@ -12,6 +15,5 @@
 #include <iostream>
 #include <iomanip>
 #include <typeindex>
-
-// Project
-#include "Engine/Public.hpp"
+#include <Common/Common.hpp>
+#include <GL/glew.h>

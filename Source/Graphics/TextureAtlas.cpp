@@ -2,14 +2,12 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
-#include "System/FileSystem.hpp"
-#include "System/ResourceManager.hpp"
-#include "Script/ScriptState.hpp"
-#include "Engine/Root.hpp"
+#include <System/FileSystem.hpp>
+#include <System/ResourceManager.hpp>
+#include <Script/ScriptState.hpp>
 using namespace Graphics;
 
 TextureAtlas::TextureAtlas() :

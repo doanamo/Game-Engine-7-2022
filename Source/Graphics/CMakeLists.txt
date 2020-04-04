@@ -23,6 +23,7 @@ add_library(Graphics STATIC
     "../../Include/Graphics/Sprite/SpriteDrawList.hpp"
     "../../Include/Graphics/Sprite/SpriteRenderer.hpp"
     "../../Include/Graphics/Sprite/SpriteAnimationList.hpp"
+    "../../Deploy/Data/Engine/Shaders/Sprite.shader"
     "Precompiled.hpp"
     "RenderContext.cpp"
     "RenderState.cpp"

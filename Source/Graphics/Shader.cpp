@@ -2,11 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
-#include "System/FileSystem.hpp"
-#include "Engine/Root.hpp"
+#include <System/FileSystem.hpp>
 using namespace Graphics;
 
 namespace

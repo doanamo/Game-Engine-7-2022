@@ -4,8 +4,7 @@
 
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
-#include "System/FileSystem.hpp"
-#include "Engine/Root.hpp"
+#include <System/FileSystem.hpp>
 using namespace Graphics;
 
 Texture::CreateFromParams::CreateFromParams() :

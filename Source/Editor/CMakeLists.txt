@@ -14,6 +14,7 @@ add_library(Editor STATIC
     "../../Include/Editor/EditorRenderer.hpp"
     "../../Include/Editor/Modules/InputManagerEditor.hpp"
     "../../Include/Editor/Modules/GameStateEditor.hpp"
+    "../../Deploy/Data/Engine/Shaders/Interface.shader"
     "Precompiled.hpp"
     "EditorSystem.cpp"
     "EditorShell.cpp"
@@ -40,7 +41,7 @@ target_link_libraries(Editor PRIVATE Common)
 #
 
 add_subdirectory("../../External/ImGui-1.62" "External/ImGui" EXCLUDE_FROM_ALL)
-target_include_directories("ImGui" PRIVATE "../../External/GLEW-2.1.0/include")
-target_link_libraries(Editor PRIVATE "ImGui")
+target_include_directories("ImGui" PUBLIC "../../External/GLEW-2.1.0/include")
+target_link_libraries(Editor PUBLIC "ImGui")
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")
 

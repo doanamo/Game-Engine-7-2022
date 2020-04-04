@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <imgui.h>
 #include <Event/Receiver.hpp>
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorRenderer.hpp"

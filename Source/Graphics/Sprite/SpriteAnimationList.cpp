@@ -4,10 +4,9 @@
 
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include "Script/ScriptState.hpp"
-#include "System/FileSystem.hpp"
-#include "System/ResourceManager.hpp"
-#include "Engine/Root.hpp"
+#include <System/FileSystem.hpp>
+#include <System/ResourceManager.hpp>
+#include <Script/ScriptState.hpp>
 using namespace Graphics;
 
 SpriteAnimationList::Frame::Frame() :

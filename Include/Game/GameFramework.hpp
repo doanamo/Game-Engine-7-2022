@@ -31,7 +31,7 @@ namespace Game
     // Game framework class.
     class GameFramework : private NonCopyable
     {
-    private:
+    public:
         // Initialization from parameters.
         struct InitializeFromParams
         {

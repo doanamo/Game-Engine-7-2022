@@ -5,8 +5,7 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
-#include "System/ResourceManager.hpp"
-#include "Engine/Root.hpp"
+#include <System/ResourceManager.hpp>
 using namespace Graphics;
 
 namespace
