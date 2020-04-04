@@ -6,7 +6,7 @@
 
 #include <string>
 #include "Event/Dispatcher.hpp"
-#include "System/InputDefinitions.hpp"
+#include "InputDefinitions.hpp"
 
 /*
     System Window

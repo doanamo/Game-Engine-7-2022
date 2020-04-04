@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "Common/NonCopyable.hpp"
-
 /*
     System Platform
 
@@ -32,17 +30,13 @@
 namespace System
 {
     // Platform class.
-    class Platform
+    class Platform : private NonCopyable
     {
     public:
         Platform();
         ~Platform();
 
-        // Disallow copy operations.
-        Platform(const Platform& other) = delete;
-        Platform& operator=(const Platform& other) = delete;
-
-        // Implement move operations.
+        // Move operations.
         Platform(Platform&& other);
         Platform& operator=(Platform&& other);
 

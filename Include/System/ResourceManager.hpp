@@ -44,7 +44,7 @@
 namespace System
 {
     // Resource manager class.
-    class ResourceManager
+    class ResourceManager : private NonCopyable
     {
     public:
         // Type declarations.
@@ -55,10 +55,6 @@ namespace System
     public:
         ResourceManager();
         ~ResourceManager();
-
-        // Disallow copying.
-        ResourceManager(const ResourceManager& other) = delete;
-        ResourceManager& operator=(const ResourceManager& other) = delete;
 
         // Move constructor and assignment.
         ResourceManager(ResourceManager&& other);

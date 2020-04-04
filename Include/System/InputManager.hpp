@@ -3,8 +3,9 @@
 */
 
 #pragma once
-#include <System/Window.hpp>
-#include <System/InputDefinitions.hpp>
+
+#include "Window.hpp"
+#include "InputDefinitions.hpp"
 
 /*
     Input Manager
@@ -43,15 +44,11 @@ namespace System
     class Window;
 
     // Input manager class.
-    class InputManager
+    class InputManager : private NonCopyable
     {
     public:
         InputManager();
         ~InputManager();
-
-        // Disallow copying.
-        InputManager(const InputManager& other) = delete;
-        InputManager& operator=(const InputManager& other) = delete;
 
         // Move constructor and operator.
         InputManager(InputManager&& other);

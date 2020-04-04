@@ -2,9 +2,8 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "System/InputManager.hpp"
-#include "System/Window.hpp"
+#include "InputManager.hpp"
+#include "Window.hpp"
 using namespace System;
 
 InputManager::InputManager() :

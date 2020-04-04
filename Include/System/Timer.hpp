@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <limits>
+
 /*
     System Timer
 
@@ -33,7 +35,7 @@
 namespace System
 {
     // Timer class.
-    class Timer
+    class Timer : private NonCopyable
     {
     public:
         // Constant values.
@@ -42,10 +44,6 @@ namespace System
     public:
         Timer();
         virtual ~Timer();
-
-        // Disallow copying.
-        Timer(const Timer& other) = delete;
-        Timer& operator=(const Timer& other) = delete;
 
         // Move constructor and operator.
         Timer(Timer&& other);

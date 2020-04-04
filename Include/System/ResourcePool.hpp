@@ -58,7 +58,7 @@ namespace System
 
     // Resource pool class.
     template<typename Type>
-    class ResourcePool : public ResourcePoolInterface
+    class ResourcePool : public ResourcePoolInterface, private NonCopyable
     {
     public:
         // Type declarations.
@@ -69,10 +69,6 @@ namespace System
     public:
         ResourcePool();
         ~ResourcePool();
-
-        // Disallow copying.
-        ResourcePool(const ResourcePool& other) = delete;
-        ResourcePool& operator=(const ResourcePool& other) = delete;
 
         // Move constructor and assignment.
         ResourcePool(ResourcePool&& other);

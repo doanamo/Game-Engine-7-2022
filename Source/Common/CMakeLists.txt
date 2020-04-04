@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.16)
 #
 
 add_library(Common STATIC
+    "../../Include/Common/Common.hpp"
     "../../Include/Common/Utility.hpp"
     "../../Include/Common/Debug.hpp"
     "../../Include/Common/NonCopyable.hpp"
