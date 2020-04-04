@@ -16,7 +16,6 @@ add_library(Script STATIC
 
 target_compile_features(Script PUBLIC cxx_std_17)
 target_include_directories(Script PUBLIC "../../Include")
-target_include_directories(Script PRIVATE "../../Include/Script")
 target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 
 #
@@ -31,6 +30,6 @@ target_link_libraries(Script PUBLIC System)
 #
 
 add_subdirectory("../../External/Lua-5.3.5" "External/Lua" EXCLUDE_FROM_ALL)
-target_link_libraries(Script PRIVATE "lua_static")
+target_link_libraries(Script PUBLIC "lua_static")
 set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "Lua")
 set_property(TARGET "lua_static" PROPERTY FOLDER "External")

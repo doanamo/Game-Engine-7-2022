@@ -29,7 +29,6 @@ add_library(System STATIC
 
 target_compile_features(System PUBLIC cxx_std_17)
 target_include_directories(System PUBLIC "../../Include")
-target_include_directories(System PRIVATE "../../Include/System")
 target_precompile_headers(System PRIVATE "Precompiled.hpp")
 
 #
@@ -47,13 +46,13 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(System ${OPENGL_GL_LIBRARY})
 
 add_subdirectory("../../External/GLEW-2.1.0/build/cmake" "External/GLEW" EXCLUDE_FROM_ALL)
-target_include_directories(System PRIVATE "../../External/GLEW-2.1.0/include")
-target_link_libraries(System PRIVATE "glew_s")
+target_include_directories(System PUBLIC "../../External/GLEW-2.1.0/include")
+target_link_libraries(System PUBLIC "glew_s")
 set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")
 set_property(TARGET "glew_s" PROPERTY FOLDER "External")
 
 add_subdirectory("../../External/GLFW-3.2.1" "External/GLFW" EXCLUDE_FROM_ALL)
-target_include_directories(System PRIVATE "../../External/GLFW-3.2.1/include")
-target_link_libraries(System PRIVATE "glfw")
+target_include_directories(System PUBLIC "../../External/GLFW-3.2.1/include")
+target_link_libraries(System PUBLIC "glfw")
 set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
 set_property(TARGET "glfw" PROPERTY FOLDER "External")

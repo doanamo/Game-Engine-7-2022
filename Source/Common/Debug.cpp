@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Debug.hpp"
+#include "Common/Debug.hpp"
 
 void Debug::Initialize()
 {

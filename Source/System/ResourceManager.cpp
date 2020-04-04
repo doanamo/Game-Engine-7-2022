@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "ResourceManager.hpp"
+#include "System/ResourceManager.hpp"
 using namespace System;
 
 ResourceManager::ResourceManager() :

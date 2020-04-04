@@ -19,7 +19,7 @@ namespace System
     Holds and manages Lua scripting state.
 */
 
-namespace Scripting
+namespace Script
 {
     // Scripting state class.
     class ScriptState

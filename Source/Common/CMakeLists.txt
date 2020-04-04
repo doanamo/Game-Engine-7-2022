@@ -23,7 +23,6 @@ add_library(Common STATIC
 
 target_compile_features(Common PUBLIC cxx_std_17)
 target_include_directories(Common PUBLIC "../../Include")
-target_include_directories(Common PRIVATE "../../Include/Common")
 target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 
 #
@@ -44,3 +43,4 @@ target_link_libraries(Common PUBLIC Reflection)
 #
 
 target_include_directories(Common PUBLIC "../../External/utfcpp-2.3.6/source")
+target_include_directories(Common PUBLIC "../../External/GLM-0.9.9.3")

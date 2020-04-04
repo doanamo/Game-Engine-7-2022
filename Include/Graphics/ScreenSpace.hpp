@@ -52,15 +52,11 @@
 namespace Graphics
 {
     // Screen space class.
-    class ScreenSpace
+    class ScreenSpace : private NonCopyable
     {
     public:
         ScreenSpace();
         ~ScreenSpace();
-
-        // Disallow copying.
-        ScreenSpace(const ScreenSpace& other) = delete;
-        ScreenSpace& operator=(const ScreenSpace& other) = delete;
 
         // Move constructor and assignment.
         ScreenSpace(ScreenSpace&& other);

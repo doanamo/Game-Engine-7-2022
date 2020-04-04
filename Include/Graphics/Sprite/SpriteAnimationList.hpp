@@ -4,12 +4,14 @@
 
 #pragma once
 
+#include <optional>
 #include "Graphics/TextureView.hpp"
 
-// Forward declarations.
-namespace Engine
+// Forward declaration.
+namespace System
 {
-    class Root;
+    class FileSystem;
+    class ResourceManager;
 }
 
 /*
@@ -19,15 +21,14 @@ namespace Engine
 namespace Graphics
 {
     // Sprite animation list class.
-    class SpriteAnimationList
+    class SpriteAnimationList : private NonCopyable
     {
     public:
         // Loads sprite animations from a file.
         struct LoadFromFile
         {
-            LoadFromFile();
-
-            Engine::Root* engine;
+            System::FileSystem* fileSystem = nullptr;
+            System::ResourceManager* resourceManager = nullptr;
             std::string filePath;
         };
 
@@ -59,9 +60,7 @@ namespace Graphics
     public:
         SpriteAnimationList();
 
-        SpriteAnimationList(const SpriteAnimationList& other) = delete;
-        SpriteAnimationList& operator=(const SpriteAnimationList& other) = delete;
-
+        // Move constructor and operator.
         SpriteAnimationList(SpriteAnimationList&& other);
         SpriteAnimationList& operator=(SpriteAnimationList&& other);
 

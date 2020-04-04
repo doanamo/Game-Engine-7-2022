@@ -2,18 +2,13 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include "Scripting/ScriptState.hpp"
+#include "Script/ScriptState.hpp"
+#include "System/FileSystem.hpp"
 #include "System/ResourceManager.hpp"
 #include "Engine/Root.hpp"
 using namespace Graphics;
-
-SpriteAnimationList::LoadFromFile::LoadFromFile() :
-    engine(nullptr), filePath()
-{
-}
 
 SpriteAnimationList::Frame::Frame() :
     textureView(), duration(0.0f)
@@ -95,18 +90,18 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     SCOPE_GUARD_IF(!initialized, *this = SpriteAnimationList());
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
         return false;
     }
 
     // Create a script state.
-    Scripting::ScriptState::LoadFromFile scriptParams;
-    scriptParams.engine = params.engine;
+    Script::ScriptState::LoadFromFile scriptParams;
+    scriptParams.fileSystem = params.fileSystem;
     scriptParams.filePath = params.filePath;
 
-    Scripting::ScriptState scriptState;
+    Script::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
         LOG_ERROR("Could not load file!");
@@ -137,11 +132,10 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
         }
 
         TextureAtlas::LoadFromFile textureAtlasParams;
-        textureAtlasParams.engine = params.engine;
+        textureAtlasParams.fileSystem = params.fileSystem;
         textureAtlasParams.filePath = lua_tostring(scriptState, -1);
 
-        textureAtlas = params.engine->GetResourceManager().Acquire<TextureAtlas>(
-            textureAtlasParams.filePath, textureAtlasParams);
+        textureAtlas = params.resourceManager->Acquire<TextureAtlas>(textureAtlasParams.filePath, textureAtlasParams);
 
         if(!textureAtlas)
         {

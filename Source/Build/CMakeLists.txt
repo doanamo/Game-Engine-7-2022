@@ -15,7 +15,6 @@ add_library(Build STATIC
 
 target_compile_features(Build PUBLIC cxx_std_17)
 target_include_directories(Build PUBLIC "../../Include")
-target_include_directories(Build PRIVATE "../../Include/Build")
 
 #
 # Dependencies

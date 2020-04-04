@@ -6,10 +6,10 @@
 
 #include "Graphics/RenderContext.hpp"
 
-// Forward declarations.
-namespace Engine
+// Forward declaration.
+namespace System
 {
-    class Root;
+    class FileSystem;
 }
 
 /*
@@ -64,34 +64,28 @@ namespace Graphics
     class RenderContext;
 
     // Shader class.
-    class Shader
+    class Shader : private NonCopyable
     {
     public:
         // Load shader from a string.
         struct LoadFromString
         {
-            LoadFromString();
-
-            Engine::Root* engine;
+            System::FileSystem* fileSystem = nullptr;
+            RenderContext* renderContext = nullptr;
             std::string shaderCode;
         };
 
         // Load shader from a file.
         struct LoadFromFile
         {
-            LoadFromFile();
-
-            Engine::Root* engine;
+            System::FileSystem* fileSystem = nullptr;
+            RenderContext* renderContext = nullptr;
             std::string filePath;
         };
 
     public:
         Shader();
         ~Shader();
-
-        // Disallow copying.
-        Shader(const Shader& other) = delete;
-        Shader& operator=(const Shader& other) = delete;
 
         // Move constructor and assignment.
         Shader(Shader&& other);

@@ -77,15 +77,11 @@ namespace Graphics
     };
 
     // Vertex array class.
-    class VertexArray
+    class VertexArray : private NonCopyable
     {
     public:
         VertexArray();
         ~VertexArray();
-
-        // Disallow copying.
-        VertexArray(const VertexArray& other) = delete;
-        VertexArray& operator=(const VertexArray& other) = delete;
 
         // Move constructor and assignment.
         VertexArray(VertexArray&& other);

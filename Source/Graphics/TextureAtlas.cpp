@@ -6,15 +6,11 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
+#include "System/FileSystem.hpp"
 #include "System/ResourceManager.hpp"
-#include "Scripting/ScriptState.hpp"
+#include "Script/ScriptState.hpp"
 #include "Engine/Root.hpp"
 using namespace Graphics;
-
-TextureAtlas::LoadFromFile::LoadFromFile() :
-    engine(nullptr)
-{
-}
 
 TextureAtlas::TextureAtlas() :
     m_texture(nullptr),
@@ -77,18 +73,24 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
     SCOPE_GUARD_IF(!initialized, *this = TextureAtlas());
 
     // Validate parameters.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
+        return false;
+    }
+
+    if(params.resourceManager == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"resourceManager\" is null!");
         return false;
     }
 
     // Load texture atlas from file using script state.
-    Scripting::ScriptState::LoadFromFile scriptParams;
-    scriptParams.engine = params.engine;
+    Script::ScriptState::LoadFromFile scriptParams;
+    scriptParams.fileSystem = params.fileSystem;
     scriptParams.filePath = params.filePath;
 
-    Scripting::ScriptState scriptState;
+    Script::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
         LOG_ERROR("Could not load file!");
@@ -117,12 +119,11 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         }
 
         Texture::LoadFromFile textureParams;
-        textureParams.engine = params.engine;
+        textureParams.fileSystem = params.fileSystem;
         textureParams.filePath = lua_tostring(scriptState, -1);
         textureParams.mipmaps = true;
 
-        m_texture = params.engine->GetResourceManager().Acquire<Graphics::Texture>(
-            textureParams.filePath, textureParams);
+        m_texture = params.resourceManager->Acquire<Graphics::Texture>(textureParams.filePath, textureParams);
 
         if(m_texture == nullptr)
         {

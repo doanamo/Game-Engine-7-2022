@@ -21,15 +21,11 @@ namespace System
 namespace Graphics
 {
     // Render context class.
-    class RenderContext
+    class RenderContext : private NonCopyable
     {
     public:
         RenderContext();
         ~RenderContext();
-
-        // Disallow copying.
-        RenderContext(const RenderContext& other) = delete;
-        RenderContext& operator=(const RenderContext& other) = delete;
 
         // Move constructor and destructor.
         RenderContext(RenderContext&& other);

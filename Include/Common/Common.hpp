@@ -10,9 +10,8 @@
 
 #include <utf8/core.h>
 #include <utf8/unchecked.h>
-
 #include <fmt/core.h>
-
+#include <glm/glm.hpp>
 #include "Logger/Logger.hpp"
 #include "Common/Debug.hpp"
 #include "Common/Utility.hpp"

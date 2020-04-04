@@ -2,10 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "ScriptState.hpp"
+#include "Script/ScriptState.hpp"
 #include "System/FileSystem.hpp"
-#include "Engine/Root.hpp"
-using namespace Scripting;
+using namespace Script;
 
 namespace
 {

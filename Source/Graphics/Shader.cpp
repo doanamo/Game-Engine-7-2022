@@ -28,16 +28,6 @@ namespace
     };
 }
 
-Shader::LoadFromString::LoadFromString() :
-    engine(nullptr)
-{
-}
-
-Shader::LoadFromFile::LoadFromFile() :
-    engine(nullptr)
-{
-}
-
 Shader::Shader() :
     m_renderContext(nullptr),
     m_handle(OpenGL::InvalidHandle)
@@ -91,9 +81,15 @@ bool Shader::Initialize(const LoadFromString& params)
     SCOPE_GUARD_IF(!initialized, *this = Shader());
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
         return false;
     }
 
@@ -103,7 +99,7 @@ bool Shader::Initialize(const LoadFromString& params)
         return false;
     }
 
-    m_renderContext = &params.engine->GetRenderContext();
+    m_renderContext = params.renderContext;
 
     // Create an array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -292,14 +288,14 @@ bool Shader::Initialize(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
         return false;
     }
 
     // Resolve the file path.
-    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.fileSystem->ResolvePath(params.filePath);
 
     // Load the shader code from a file.
     std::string shaderCode = Utility::GetTextFileContent(resolvedFilePath);
@@ -312,7 +308,7 @@ bool Shader::Initialize(const LoadFromFile& params)
 
     // Call the compile method.
     LoadFromString compileParams;
-    compileParams.engine = params.engine;
+    compileParams.fileSystem = params.fileSystem;
     compileParams.shaderCode = std::move(shaderCode);
 
     if(!this->Initialize(compileParams))

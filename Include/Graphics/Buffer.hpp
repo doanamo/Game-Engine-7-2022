@@ -59,15 +59,11 @@ namespace Graphics
     };
 
     // Buffer class.
-    class Buffer
+    class Buffer : private NonCopyable
     {
     protected:
         Buffer(GLenum type);
         virtual ~Buffer();
-
-        // Disallow copying.
-        Buffer(const Buffer& other) = delete;
-        Buffer& operator=(const Buffer& other) = delete;
 
         // Move constructor and assignment.
         Buffer(Buffer&& other);

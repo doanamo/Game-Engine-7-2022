@@ -2,11 +2,11 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Logger.hpp"
-#include "Output.hpp"
-#include "Message.hpp"
-#include "Format.hpp"
-#include "Sink.hpp"
+#include "Logger/Logger.hpp"
+#include "Logger/Output.hpp"
+#include "Logger/Message.hpp"
+#include "Logger/Format.hpp"
+#include "Logger/Sink.hpp"
 using namespace Logger;
 
 FileOutput::FileOutput()

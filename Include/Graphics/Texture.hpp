@@ -5,9 +5,9 @@
 #pragma once
 
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class FileSystem;
 }
 
 /*
@@ -40,7 +40,7 @@ namespace Graphics
     class RenderContext;
 
     // Texture class.
-    class Texture
+    class Texture : private NonCopyable
     {
     public:
         // Create texture from params.
@@ -48,7 +48,7 @@ namespace Graphics
         {
             CreateFromParams();
 
-            Engine::Root* engine;
+            RenderContext* renderContext;
             int width;
             int height;
             GLenum format;
@@ -61,7 +61,8 @@ namespace Graphics
         {
             LoadFromFile();
 
-            Engine::Root* engine;
+            System::FileSystem* fileSystem;
+            RenderContext* renderContext;
             std::string filePath;
             bool mipmaps;
         };
@@ -69,10 +70,6 @@ namespace Graphics
     public:
         Texture();
         ~Texture();
-
-        // Disallow copying.
-        Texture(const Texture& other) = delete;
-        Texture& operator=(const Texture& other) = delete;
 
         // Move constructor and operator.
         Texture(Texture&& other);

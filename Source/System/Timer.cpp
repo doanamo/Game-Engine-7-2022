@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Timer.hpp"
+#include "System/Timer.hpp"
 using namespace System;
 
 Timer::Timer() :

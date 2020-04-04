@@ -12,13 +12,9 @@
 #include "Graphics/Sprite/SpriteDrawList.hpp"
 
 // Forward declarations.
-namespace Engine
-{
-    class Root;
-}
-
 namespace System
 {
+    class FileSystem;
     class ResourceManager;
 }
 
@@ -32,22 +28,28 @@ namespace Graphics
     class RenderContext;
 
     // Sprite renderer class.
-    class SpriteRenderer
+    class SpriteRenderer : private NonCopyable
     {
+    public:
+        // Initialization parameters.
+        struct InitializeFromParams
+        {
+            System::FileSystem* fileSystem = nullptr;
+            System::ResourceManager* resourceManager = nullptr;
+            RenderContext* renderContext = nullptr;
+            int spriteBatchSize = 128;
+        };
+
     public:
         SpriteRenderer();
         ~SpriteRenderer();
-
-        // Disallow copying.
-        SpriteRenderer(const SpriteRenderer& other) = delete;
-        SpriteRenderer& operator=(const SpriteRenderer& other) = delete;
 
         // Move constructor and assignment.
         SpriteRenderer(SpriteRenderer&& other);
         SpriteRenderer& operator=(SpriteRenderer&& other);
 
         // Initializes the sprite renderer.
-        bool Initialize(Engine::Root* engine, int spriteBatchSize);
+        bool Initialize(const InitializeFromParams& params);
 
         // Draws a batch of sprites.
         // Very efficient rendering if array of sprites is already sorted to reduces state changes.

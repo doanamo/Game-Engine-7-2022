@@ -2,9 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Sink.hpp"
-#include "Output.hpp"
-#include "Message.hpp"
+#include "Logger/Sink.hpp"
+#include "Logger/Output.hpp"
+#include "Logger/Message.hpp"
 using namespace Logger;
 
 Sink::Sink() :

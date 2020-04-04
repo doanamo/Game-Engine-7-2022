@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Utility.hpp"
+#include "Common/Utility.hpp"
 
 std::string Utility::GetFileDirectory(const std::string filePath)
 {

@@ -20,4 +20,3 @@ add_library(Event STATIC
 
 target_compile_features(Event PUBLIC cxx_std_17)
 target_include_directories(Event PUBLIC "../../Include")
-target_include_directories(Event PRIVATE "../../Include/Event")

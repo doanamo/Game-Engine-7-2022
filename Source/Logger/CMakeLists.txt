@@ -24,7 +24,6 @@ add_library(Logger STATIC
 
 target_compile_features(Logger PUBLIC cxx_std_17)
 target_include_directories(Logger PUBLIC "../../Include")
-target_include_directories(Logger PRIVATE "../../Include/Logger")
 target_precompile_headers(Logger PRIVATE "Precompiled.hpp")
 
 #

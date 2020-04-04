@@ -2,9 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Format.hpp"
-#include "Message.hpp"
-#include "Sink.hpp"
+#include "Logger/Format.hpp"
+#include "Logger/Message.hpp"
+#include "Logger/Sink.hpp"
 using namespace Logger;
 
 namespace

@@ -5,13 +5,9 @@
 #pragma once
 
 // Forward declarations.
-namespace Engine
-{
-    class Root;
-}
-
 namespace System
 {
+    class FileSystem;
     class ResourceManager;
 }
 
@@ -35,9 +31,8 @@ namespace Graphics
         // Load texture atlas from a file.
         struct LoadFromFile
         {
-            LoadFromFile();
-
-            Engine::Root* engine;
+            System::FileSystem* fileSystem = nullptr;
+            System::ResourceManager* resourceManager = nullptr;
             std::string filePath;
         };
 

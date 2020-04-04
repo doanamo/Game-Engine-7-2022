@@ -2,7 +2,6 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "System/FileSystem.hpp"
@@ -10,7 +9,7 @@
 using namespace Graphics;
 
 Texture::CreateFromParams::CreateFromParams() :
-    engine(nullptr),
+    renderContext(nullptr),
     width(0),
     height(0),
     format(GL_INVALID_ENUM),
@@ -20,7 +19,8 @@ Texture::CreateFromParams::CreateFromParams() :
 }
 
 Texture::LoadFromFile::LoadFromFile() :
-    engine(nullptr),
+    fileSystem(nullptr),
+    renderContext(nullptr),
     filePath(""),
     mipmaps(true)
 {
@@ -86,9 +86,9 @@ bool Texture::Initialize(const CreateFromParams& params)
     SCOPE_GUARD_IF(!initialized, *this = Texture());
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.renderContext == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
         return false;
     }
 
@@ -111,7 +111,7 @@ bool Texture::Initialize(const CreateFromParams& params)
     }
 
     // Save the render context reference.
-    m_renderContext = &params.engine->GetRenderContext();
+    m_renderContext = m_renderContext;
 
     // Create a texture handle.
     glGenTextures(1, &m_handle);
@@ -169,9 +169,15 @@ bool Texture::Initialize(const LoadFromFile& params)
     VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
         return false;
     }
 
@@ -182,7 +188,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     }
 
     // Resolve file path.
-    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.fileSystem->ResolvePath(params.filePath);
 
     // Open the file stream.
     std::ifstream file(resolvedFilePath, std::ios::binary);
@@ -372,7 +378,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     // Call the initialization method.
     CreateFromParams createParams;
-    createParams.engine = params.engine;
+    createParams.renderContext = params.renderContext;
     createParams.width = width;
     createParams.height = height;
     createParams.format = textureFormat;

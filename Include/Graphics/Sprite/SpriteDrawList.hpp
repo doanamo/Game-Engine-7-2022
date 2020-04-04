@@ -16,16 +16,11 @@
 namespace Graphics
 {
     // Sprite draw list class.
-    class SpriteDrawList
+    class SpriteDrawList : private NonCopyable
     {
     public:
         SpriteDrawList();
         ~SpriteDrawList();
-
-        // Copy operations.
-        // There should be no reason to copy a sprite list.
-        SpriteDrawList(const SpriteDrawList& other) = delete;
-        SpriteDrawList& operator=(const SpriteDrawList& other) = delete;
 
         // Move operations.
         // Sprite list is too short lived to require moving.

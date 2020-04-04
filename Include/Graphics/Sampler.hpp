@@ -57,15 +57,11 @@ namespace Graphics
     };
 
     // Sampler class.
-    class Sampler
+    class Sampler : private NonCopyable
     {
     public:
         Sampler();
         ~Sampler();
-
-        // Disallow copying.
-        Sampler(const Sampler& other) = delete;
-        Sampler& operator=(const Sampler& other) = delete;
 
         // Move constructor and assignment.
         Sampler(Sampler&& other);
