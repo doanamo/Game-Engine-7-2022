@@ -13,10 +13,9 @@
 
 #include <fmt/core.h>
 
+#include "Logger/Logger.hpp"
 #include "Common/Debug.hpp"
 #include "Common/Utility.hpp"
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"
-#include "Event/Delegate.hpp"
-#include "Logger/Logger.hpp"
 #include "Reflection/Reflection.hpp"
