@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <tuple>
+#include <string_view>
+
 /*
     Reflection
 
