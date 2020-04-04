@@ -33,6 +33,12 @@ target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 add_subdirectory("../Logger" "Logger" EXCLUDE_FROM_ALL)
 target_link_libraries(Common PUBLIC Logger)
 
+add_subdirectory("../Event" "Event" EXCLUDE_FROM_ALL)
+target_link_libraries(Common PUBLIC Event)
+
+add_subdirectory("../Reflection" "Reflection" EXCLUDE_FROM_ALL)
+target_link_libraries(Common PUBLIC Reflection)
+
 #
 # Externals
 #
