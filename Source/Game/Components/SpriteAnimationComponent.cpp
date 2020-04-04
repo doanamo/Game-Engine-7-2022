@@ -2,11 +2,10 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/Components/SpriteComponent.hpp"
 #include "Game/ComponentSystem.hpp"
-#include "Graphics/Sprite/SpriteAnimationList.hpp"
+#include <Graphics/Sprite/SpriteAnimationList.hpp>
 using namespace Game;
 
 SpriteAnimationComponent::SpriteAnimationComponent() :

@@ -14,14 +14,11 @@ namespace Game
     class ComponentSystem;
 
     // Interpolation system class.
-    class InterpolationSystem
+    class InterpolationSystem : private NonCopyable
     {
     public:
         InterpolationSystem();
         ~InterpolationSystem();
-
-        InterpolationSystem(const InterpolationSystem& other) = delete;
-        InterpolationSystem& operator=(const InterpolationSystem& other) = delete;
 
         InterpolationSystem(InterpolationSystem&& other);
         InterpolationSystem& operator=(InterpolationSystem&& other);

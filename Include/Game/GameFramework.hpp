@@ -7,9 +7,16 @@
 #include "Game/EventRouter.hpp"
 
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class Timer;
+    class Window;
+    class InputManager;
+}
+
+namespace Renderer
+{
+    class StateRenderer;
 }
 
 /*
@@ -22,22 +29,27 @@ namespace Game
     class GameState;
 
     // Game framework class.
-    class GameFramework
+    class GameFramework : private NonCopyable
     {
+    private:
+        // Initialization from parameters.
+        struct InitializeFromParams
+        {
+            System::Timer* timer = nullptr;
+            System::Window* window = nullptr;
+            System::InputManager* inputManager = nullptr;
+            Renderer::StateRenderer* stateRenderer = nullptr;
+        };
+
     public:
-        GameFramework();
-        ~GameFramework();
+        GameFramework() = default;
+        ~GameFramework() = default;
 
-        // Disallow copying.
-        GameFramework(const GameFramework& other) = delete;
-        GameFramework& operator=(const GameFramework& other) = delete;
-
-        // Move constructor and assignment.
         GameFramework(GameFramework&& other);
         GameFramework& operator=(GameFramework&& other);
 
         // Initializes game framework.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Updates game framework.
         // Returns true if game state actually updates.
@@ -61,8 +73,10 @@ namespace Game
         } events;
 
     private:
-        // Engine reference.
-        Engine::Root* m_engine;
+        // System references.
+        System::Timer* m_timer = nullptr;
+        System::Window* m_window = nullptr;
+        Renderer::StateRenderer* m_stateRenderer = nullptr;
 
         // Engine event router.
         EventRouter m_eventRouter;
@@ -71,6 +85,6 @@ namespace Game
         std::shared_ptr<GameState> m_gameState;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

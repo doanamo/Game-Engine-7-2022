@@ -17,14 +17,11 @@ namespace Game
 namespace Game
 {
     // Sprite system class.
-    class SpriteSystem
+    class SpriteSystem : private NonCopyable
     {
     public:
         SpriteSystem();
         ~SpriteSystem();
-
-        SpriteSystem(const SpriteSystem& other) = delete;
-        SpriteSystem& operator=(const SpriteSystem& other) = delete;
 
         SpriteSystem(SpriteSystem&& other);
         SpriteSystem& operator=(SpriteSystem&& other);

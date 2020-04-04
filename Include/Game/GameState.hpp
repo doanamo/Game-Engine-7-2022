@@ -4,20 +4,15 @@
 
 #pragma once
 
-#include "Event/Queue.hpp"
-#include "Event/Broker.hpp"
+#include <any>
+#include <Event/Queue.hpp>
+#include <Event/Broker.hpp>
 #include "Game/UpdateTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
 #include "Game/Systems/InterpolationSystem.hpp"
 #include "Game/Systems/SpriteSystem.hpp"
-
-// Forward declaration.
-namespace Engine
-{
-    class Root;
-}
 
 /*
     Game State
@@ -26,20 +21,17 @@ namespace Engine
 namespace Game
 {
     // Game state class.
-    class GameState
+    class GameState : private NonCopyable
     {
     public:
         GameState();
         ~GameState();
 
-        GameState(const GameState& other) = delete;
-        GameState& operator=(const GameState& other) = delete;
-
         GameState(GameState&& other);
         GameState& operator=(GameState&& other);
 
         // Initializes the game state.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize();
 
         // Pushes an event that will affects the game state.
         // We encapsulate the game state and allow it to mutate only through events.
@@ -52,9 +44,6 @@ namespace Game
         // Gets the update time.
         float GetUpdateTime() const;
 
-        // Gets the engine reference.
-        Engine::Root* GetEngine() const;
-
     public:
          // Game state events.
         struct Events
@@ -62,17 +51,13 @@ namespace Game
             // Sent when game state changes.
             struct GameStateChanged
             {
-                GameStateChanged();
-
-                bool stateEntered;
+                bool stateEntered = false;
             };
 
             // Sent when requested to change current update time.
             struct ChangeUpdateTime
             {
-                ChangeUpdateTime();
-
-                float updateTime;
+                float updateTime = 0.0f;
             };
 
             // Called when the class instance is destructed.
@@ -94,28 +79,25 @@ namespace Game
         Event::Broker eventBroker;
 
         // Main loop timer.
-        Game::UpdateTimer updateTimer;
+        UpdateTimer updateTimer;
 
         // Core game systems.
-        Game::EntitySystem entitySystem;
-        Game::ComponentSystem componentSystem;
+        EntitySystem entitySystem;
+        ComponentSystem componentSystem;
 
         // Base game systems.
-        Game::IdentitySystem identitySystem;
-        Game::InterpolationSystem interpolationSystem;
-        Game::SpriteSystem spriteSystem;
+        IdentitySystem identitySystem;
+        InterpolationSystem interpolationSystem;
+        SpriteSystem spriteSystem;
 
     private:
-        // Engine reference.
-        Engine::Root* m_engine;
-
         // Event receivers.
         Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
 
         // Update parameters.
-        float m_updateTime;
+        float m_updateTime = 1.0f / 10.0f;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include "Event/Receiver.hpp"
+#include <memory>
+#include <typeindex>
+#include <unordered_map>
+#include <Event/Receiver.hpp>
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 
@@ -47,7 +50,7 @@ namespace Game
     class EntitySystem;
 
     // Component system class.
-    class ComponentSystem
+    class ComponentSystem : private NonCopyable
     {
     public:
         // ComponentType declarations.
@@ -58,10 +61,6 @@ namespace Game
     public:
         ComponentSystem();
         ~ComponentSystem();
-
-        // Disallow copying.
-        ComponentSystem(const ComponentSystem& other) = delete;
-        ComponentSystem& operator=(const ComponentSystem& other) = delete;
 
         // Move constructor and operator.
         ComponentSystem(ComponentSystem&& other);

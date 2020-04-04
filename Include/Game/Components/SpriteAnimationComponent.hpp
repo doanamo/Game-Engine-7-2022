@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <memory>
+#include <Graphics/Sprite/SpriteAnimationList.hpp>
 #include "Game/Component.hpp"
-#include "Graphics/Sprite/SpriteAnimationList.hpp"
 
 /*
     Sprite Animation Component

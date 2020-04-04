@@ -2,23 +2,11 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Game/GameFramework.hpp"
 #include "Game/GameState.hpp"
-#include "System/Window.hpp"
-#include "Renderer/StateRenderer.hpp"
-#include "Engine/Root.hpp"
+#include <System/Window.hpp>
+#include <Renderer/StateRenderer.hpp>
 using namespace Game;
-
-GameFramework::GameFramework() :
-    m_engine(nullptr),
-    m_initialized(false)
-{
-}
-
-GameFramework::~GameFramework()
-{
-}
 
 GameFramework::GameFramework(GameFramework&& other) :
     GameFramework()
@@ -28,7 +16,9 @@ GameFramework::GameFramework(GameFramework&& other) :
 
 GameFramework& GameFramework::operator=(GameFramework&& other)
 {
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_timer, other.m_timer);
+    std::swap(m_window, other.m_window);
+    std::swap(m_stateRenderer, other.m_stateRenderer);
     std::swap(m_eventRouter, other.m_eventRouter);
     std::swap(m_gameState, other.m_gameState);
     std::swap(m_initialized, other.m_initialized);
@@ -36,7 +26,7 @@ GameFramework& GameFramework::operator=(GameFramework&& other)
     return *this;
 }
 
-bool GameFramework::Initialize(Engine::Root* engine)
+bool GameFramework::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing game framework...");
     LOG_SCOPED_INDENT();
@@ -48,17 +38,35 @@ bool GameFramework::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = GameFramework());
 
     // Save engine reference.
-    if(engine == nullptr)
+    if(params.timer == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is null!");
+        LOG_ERROR("Invalid argument - \"timer\" is null!");
         return false;
     }
 
-    m_engine = engine;
+    if(params.window == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"window\" is null!");
+        return false;
+    }
+
+    if(params.stateRenderer == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"stateRenderer\" is null!");
+        return false;
+    }
+
+    m_timer = params.timer;
+    m_window = params.window;
+    m_stateRenderer = params.stateRenderer;
 
     // Initialize the event router.
     // Listens and replicates event to the current game state.
-    if(!m_eventRouter.Initialize(engine))
+    EventRouter::InitializeFromParams eventRouterParams;
+    eventRouterParams.inputManager = params.inputManager;
+    eventRouterParams.gameFramework = this;
+
+    if(!m_eventRouter.Initialize(eventRouterParams))
     {
         LOG_ERROR("Could not initialize event router!");
         return false;
@@ -72,13 +80,10 @@ bool GameFramework::Update()
 {
     ASSERT(m_initialized, "Game framework has not been initialized!");
 
-    // Get current timer.
-    System::Timer& timer = m_engine->GetTimer();
-
     // Update game state.
     if(m_gameState)
     {
-        return m_gameState->Update(timer);
+        return m_gameState->Update(*m_timer);
     }
 
     return false;
@@ -89,18 +94,14 @@ void GameFramework::Draw()
     ASSERT(m_initialized, "Game framework has not been initialized!");
 
     // Get window viewport rect.
-    System::Window& window = m_engine->GetWindow();
-    glm::ivec4 viewportRect = { 0, 0, window.GetWidth(), window.GetHeight() };
-
-    // Get state renderer.
-    Renderer::StateRenderer& stateRenderer = m_engine->GetStateRenderer();
+    glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
 
     // Draw game state.
     Renderer::StateRenderer::DrawParams drawParams;
     drawParams.viewportRect = viewportRect;
     drawParams.gameState = m_gameState.get();
     drawParams.cameraName = "Camera";
-    stateRenderer.Draw(drawParams);
+    m_stateRenderer->Draw(drawParams);
 }
 
 void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)

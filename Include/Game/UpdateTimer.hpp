@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "System/Timer.hpp"
+#include <System/Timer.hpp>
 
 /*
     Update Timer
@@ -18,10 +18,6 @@ namespace Game
     public:
         UpdateTimer();
         ~UpdateTimer();
-
-        // Disallow copying.
-        UpdateTimer(const UpdateTimer& other) = delete;
-        UpdateTimer& operator=(const UpdateTimer& other) = delete;
 
         // Move constructor and operator.
         UpdateTimer(UpdateTimer&& other);

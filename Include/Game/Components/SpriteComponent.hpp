@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <Graphics/Sprite/Sprite.hpp>
+#include <Graphics/TextureView.hpp>
 #include "Game/Component.hpp"
-#include "Graphics/Sprite/Sprite.hpp"
-#include "Graphics/TextureView.hpp"
 
 /*
     Sprite Component

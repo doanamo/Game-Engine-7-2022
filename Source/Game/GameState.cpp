@@ -2,25 +2,10 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Game/GameState.hpp"
-#include "Engine/Root.hpp"
 using namespace Game;
 
-GameState::Events::GameStateChanged::GameStateChanged() :
-    stateEntered(false)
-{
-}
-
-GameState::Events::ChangeUpdateTime::ChangeUpdateTime() :
-    updateTime(0.0f)
-{
-}
-
-GameState::GameState() :
-    m_engine(nullptr),
-    m_updateTime(1.0f / 10.0f),
-    m_initialized(false)
+GameState::GameState()
 {
 }
 
@@ -49,7 +34,6 @@ GameState& GameState::operator=(GameState&& other)
     std::swap(interpolationSystem, other.interpolationSystem);
     std::swap(spriteSystem, other.spriteSystem);
 
-    std::swap(m_engine, other.m_engine);
     std::swap(m_changeUpdateTime, other.m_changeUpdateTime);
     std::swap(m_updateTime, other.m_updateTime);
     std::swap(m_initialized, other.m_initialized);
@@ -57,7 +41,7 @@ GameState& GameState::operator=(GameState&& other)
     return *this;
 }
 
-bool GameState::Initialize(Engine::Root* engine)
+bool GameState::Initialize()
 {
     LOG("Initializing game state...");
     LOG_SCOPED_INDENT();
@@ -67,15 +51,6 @@ bool GameState::Initialize(Engine::Root* engine)
 
     // Reset class instance on initialization failure.
     SCOPE_GUARD_IF(!m_initialized, *this = GameState());
-
-    // Validate engine reference.
-    if(engine == nullptr || !engine->IsInitialized())
-    {
-        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
-        return false;
-    }
-
-    m_engine = engine;
 
     // Initialize the entity system.
     // Assigns unique identifiers that all other systems use to identify objects in a game.
@@ -194,9 +169,4 @@ bool GameState::Update(const System::Timer& timer)
 float GameState::GetUpdateTime() const
 {
     return m_updateTime;
-}
-
-Engine::Root* GameState::GetEngine() const
-{
-    return m_engine;
 }

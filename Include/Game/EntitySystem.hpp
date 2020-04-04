@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <queue>
+#include <vector>
 #include "Event/Dispatcher.hpp"
 #include "Event/Collector.hpp"
 #include "Game/EntityHandle.hpp"
@@ -39,7 +41,7 @@
 namespace Game
 {
     // Entity system class.
-    class EntitySystem
+    class EntitySystem : private NonCopyable
     {
     public:
         // Handle flags.
@@ -109,10 +111,6 @@ namespace Game
     public:
         EntitySystem();
         ~EntitySystem();
-
-        // Disallow copying.
-        EntitySystem(const EntitySystem& other) = delete;
-        EntitySystem& operator=(const EntitySystem& other) = delete;
 
         // Move constructor and assignment.
         EntitySystem(EntitySystem&& other);

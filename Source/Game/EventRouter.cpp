@@ -2,16 +2,13 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Game/EventRouter.hpp"
 #include "Game/GameFramework.hpp"
-#include "System/InputManager.hpp"
-#include "Engine/Root.hpp"
+#include "Game/GameState.hpp"
+#include <System/InputManager.hpp>
 using namespace Game;
 
-EventRouter::EventRouter() :
-    m_engine(nullptr),
-    m_initialized(false)
+EventRouter::EventRouter()
 {
     // Bind event listeners.
     m_receivers.keyboardKeyReceiver.Bind<EventRouter, &EventRouter::PushEventReturnFalse<System::InputEvents::KeyboardKey>>(this);
@@ -34,14 +31,14 @@ EventRouter::EventRouter(EventRouter&& other) :
 
 EventRouter& EventRouter::operator=(EventRouter&& other)
 {
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_gameFramework, other.m_gameFramework);
     std::swap(m_receivers, other.m_receivers);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
 }
 
-bool EventRouter::Initialize(Engine::Root* engine)
+bool EventRouter::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing event router...");
     LOG_SCOPED_INDENT();
@@ -52,27 +49,30 @@ bool EventRouter::Initialize(Engine::Root* engine)
     // Create an initialization guard.
     SCOPE_GUARD_IF(!m_initialized, *this = EventRouter());
 
-    // Save engine reference.
-    if(engine == nullptr)
+    // Validate arguments.
+    if(params.inputManager == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is null!");
+        LOG_ERROR("Invalid argument - \"inputManager\" is null!");
         return false;
     }
 
-    m_engine = engine;
+    if(params.gameFramework == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"gameFramework\" is null!");
+        return false;
+    }
 
-    // Get input manager instance.
-    System::InputManager& inputManager = engine->GetInputManager();
+    m_gameFramework = params.gameFramework;
 
     // Subscribe event receivers.
     bool subscriptionResult = true;
 
-    subscriptionResult &= m_receivers.keyboardKeyReceiver.Subscribe(inputManager.events.keyboardKey);
-    subscriptionResult &= m_receivers.textInputReceiver.Subscribe(inputManager.events.textInput);
-    subscriptionResult &= m_receivers.mouseButtonReceiver.Subscribe(inputManager.events.mouseButton);
-    subscriptionResult &= m_receivers.mouseScrollReceiver.Subscribe(inputManager.events.mouseScroll);
-    subscriptionResult &= m_receivers.cursorPosition.Subscribe(inputManager.events.cursorPosition);
-    subscriptionResult &= m_receivers.cursorEnter.Subscribe(inputManager.events.cursorEnter);
+    subscriptionResult &= m_receivers.keyboardKeyReceiver.Subscribe(params.inputManager->events.keyboardKey);
+    subscriptionResult &= m_receivers.textInputReceiver.Subscribe(params.inputManager->events.textInput);
+    subscriptionResult &= m_receivers.mouseButtonReceiver.Subscribe(params.inputManager->events.mouseButton);
+    subscriptionResult &= m_receivers.mouseScrollReceiver.Subscribe(params.inputManager->events.mouseScroll);
+    subscriptionResult &= m_receivers.cursorPosition.Subscribe(params.inputManager->events.cursorPosition);
+    subscriptionResult &= m_receivers.cursorEnter.Subscribe(params.inputManager->events.cursorEnter);
 
     if(!subscriptionResult)
     {
@@ -86,5 +86,5 @@ bool EventRouter::Initialize(Engine::Root* engine)
 
 GameState* EventRouter::GetCurrentGameState()
 {
-    return m_engine->GetGameFramework().GetGameState().get();
+    return m_gameFramework->GetGameState().get();
 }

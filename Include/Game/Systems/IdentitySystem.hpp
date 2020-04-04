@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include "Event/Receiver.hpp"
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <Event/Receiver.hpp>
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -19,7 +22,7 @@ namespace Game
     class EntitySystem;
 
     // Identity system class.
-    class IdentitySystem
+    class IdentitySystem : private NonCopyable
     {
     public:
         // Type declarations.
@@ -30,10 +33,6 @@ namespace Game
     public:
         IdentitySystem();
         ~IdentitySystem();
-
-        // Disable copying.
-        IdentitySystem(const IdentitySystem& other) = delete;
-        IdentitySystem& operator=(const IdentitySystem& other) = delete;
 
         // Move constructor and assignment.
         IdentitySystem(IdentitySystem&& other);

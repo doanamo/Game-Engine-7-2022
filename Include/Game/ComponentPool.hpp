@@ -5,6 +5,7 @@
 #pragma once
 
 #include <queue>
+#include <vector>
 #include <unordered_map>
 #include "Game/EntityHandle.hpp"
 #include "Game/Component.hpp"
@@ -40,7 +41,7 @@ namespace Game
 
     // Component pool class.
     template<typename ComponentType>
-    class ComponentPool : public ComponentPoolInterface
+    class ComponentPool : public ComponentPoolInterface, private NonCopyable
     {
     public:
         // Check template type.
@@ -112,10 +113,6 @@ namespace Game
     public:
         ComponentPool(ComponentSystem* componentSystem);
         ~ComponentPool();
-
-        // Disallow copying.
-        ComponentPool(const ComponentPool& other) = delete;
-        ComponentPool& operator=(const ComponentPool& other) = delete;
 
         // Move constructor and assignment.
         ComponentPool(ComponentPool&& other);

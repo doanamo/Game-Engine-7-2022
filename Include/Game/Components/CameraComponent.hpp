@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "Precompiled.hpp"
 #include "Game/Component.hpp"
 
 /*

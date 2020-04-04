@@ -5,12 +5,12 @@
 #pragma once
 
 #include <System/InputDefinitions.hpp>
-#include <Game/GameState.hpp>
+#include <Event/Receiver.hpp>
 
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class InputManager;
 }
 
 /*
@@ -23,23 +23,30 @@ namespace Engine
 namespace Game
 {
     // Forward declarations.
+    class GameFramework;
     class GameState;
 
     // Event router class.
-    class EventRouter
+    class EventRouter : private NonCopyable
     {
+    public:
+        // Initialization from parameters.
+        struct InitializeFromParams
+        {
+            System::InputManager* inputManager = nullptr;
+            GameFramework* gameFramework = nullptr;
+        };
+
     public:
         EventRouter();
         ~EventRouter();
 
-        EventRouter(const EventRouter& other) = delete;
-        EventRouter& operator=(const EventRouter& other) = delete;
-
+        // Move constructor and operator.
         EventRouter(EventRouter&& other);
         EventRouter& operator=(EventRouter&& other);
 
         // Initializes the event router instance.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Pushes event to current game state.
         template<typename EventType>
@@ -59,7 +66,7 @@ namespace Game
 
     private:
         // Engine reference.
-        Engine::Root* m_engine;
+        GameFramework* m_gameFramework = nullptr;
 
         // Window event receivers.
         struct Receivers
@@ -74,7 +81,7 @@ namespace Game
         } m_receivers;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 
     // Template definitions.
