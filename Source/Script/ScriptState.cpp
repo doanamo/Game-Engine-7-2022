@@ -2,8 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Scripting/ScriptState.hpp"
+#include "ScriptState.hpp"
 #include "System/FileSystem.hpp"
 #include "Engine/Root.hpp"
 using namespace Scripting;
@@ -145,9 +144,9 @@ bool ScriptState::Initialize(const LoadFromFile& params)
     SCOPE_GUARD_IF(!initialized, *this = ScriptState());
 
     // Validate arguments.
-    if(params.engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid parameter - \"engine\" is null!");
+        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
         return false;
     }
 
@@ -158,7 +157,7 @@ bool ScriptState::Initialize(const LoadFromFile& params)
     }
 
     // Resolve file path.
-    std::string resolvedFilePath = params.engine->GetFileSystem().ResolvePath(params.filePath);
+    std::string resolvedFilePath = params.fileSystem->ResolvePath(params.filePath);
 
     // Parse the text file.
     if(luaL_dofile(m_state, resolvedFilePath.c_str()) != 0)

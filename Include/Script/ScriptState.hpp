@@ -4,10 +4,13 @@
 
 #pragma once
 
+#include <lua.hpp>
+#include <string.h>
+
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class FileSystem;
 }
 
 /*
@@ -31,7 +34,7 @@ namespace Scripting
         // Load script state from a file.
         struct LoadFromFile
         {
-            Engine::Root* engine = nullptr;
+            System::FileSystem* fileSystem = nullptr;
             std::string filePath;
         };
 
