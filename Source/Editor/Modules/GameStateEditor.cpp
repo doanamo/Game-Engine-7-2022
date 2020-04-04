@@ -2,11 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Editor/Modules/GameStateEditor.hpp"
-#include "Game/GameFramework.hpp"
-#include "Game/GameState.hpp"
-#include "Engine/Root.hpp"
+#include <Game/GameFramework.hpp>
+#include <Game/GameState.hpp>
 using namespace Editor;
 
 GameStateEditor::GameStateEditor() :
@@ -55,7 +53,7 @@ GameStateEditor& GameStateEditor::operator=(GameStateEditor&& other)
     return *this;
 }
 
-bool GameStateEditor::Initialize(Engine::Root* engine)
+bool GameStateEditor::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing game state editor...");
     LOG_SCOPED_INDENT();
@@ -64,15 +62,14 @@ bool GameStateEditor::Initialize(Engine::Root* engine)
     ASSERT(!m_initialized, "Game state editor instance has already been initialized!");
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(params.gameFramework == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is null!");
+        LOG_ERROR("Invalid argument - \"params.gameFramework\" is null!");
         return false;
     }
 
     // Subscribe to game state being changed.
-    Game::GameFramework& gameFramework = engine->GetGameFramework();
-    m_receivers.gameStateChanged.Subscribe(gameFramework.events.gameStateChanged);
+    m_receivers.gameStateChanged.Subscribe(params.gameFramework->events.gameStateChanged);
 
     // Set histogram size.
     m_updateTimeHistogram.resize(100, 0.0f);

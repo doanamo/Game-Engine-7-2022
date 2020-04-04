@@ -2,32 +2,11 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Editor/Modules/InputManagerEditor.hpp"
-#include "System/InputDefinitions.hpp"
-#include "Engine/Root.hpp"
+#include <Editor/Modules/InputManagerEditor.hpp>
+#include <System/InputDefinitions.hpp>
 using namespace Editor;
 
-InputManagerEditor::InputManagerEditor() :
-    mainWindowOpen(false),
-    m_engine(nullptr),
-    m_incomingEventFreeze(false),
-    m_incomingWindowFocus(false),
-    m_incomingKeyboardKey(false),
-    m_incomingKeyboardKeyPress(false),
-    m_incomingKeyboardKeyRelease(false),
-    m_incomingKeyboardKeyRepeat(false),
-    m_incomingTextInput(false),
-    m_incomingMouseButton(false),
-    m_incomingMouseButtonPress(false),
-    m_incomingMouseButtonRelease(false),
-    m_incomingMouseButtonRepeat(false),
-    m_incomingMouseScroll(false),
-    m_incomingCursorPosition(false),
-    m_incomingCursorEnter(false),
-    m_incomingEventLogSize(100),
-    m_incomingEventCounter(0),
-    m_initialized(false)
+InputManagerEditor::InputManagerEditor()
 {
     m_windowFocusReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnWindowFocus>(this);
     m_keyboardKeyReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnKeyboardKey>(this);
@@ -51,7 +30,7 @@ InputManagerEditor::InputManagerEditor(InputManagerEditor&& other) :
 InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
 {
     std::swap(mainWindowOpen, other.mainWindowOpen);
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_window, other.m_window);
 
     std::swap(m_windowFocusReceiver, other.m_windowFocusReceiver);
     std::swap(m_keyboardKeyReceiver, other.m_keyboardKeyReceiver);
@@ -84,7 +63,7 @@ InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
     return *this;
 }
 
-bool InputManagerEditor::Initialize(Engine::Root* engine)
+bool InputManagerEditor::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing input manager editor...");
     LOG_SCOPED_INDENT();
@@ -96,24 +75,24 @@ bool InputManagerEditor::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = InputManagerEditor());
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(params.window == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is null!");
+        LOG_ERROR("Invalid argument - \"window\" is null!");
         return false;
     }
 
-    m_engine = engine;
+    m_window = m_window;
 
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
 
-    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_engine->GetWindow().events.keyboardKey);
-    subscriptionResults &= m_textInputReceiver.Subscribe(m_engine->GetWindow().events.textInput);
-    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_engine->GetWindow().events.focus);
-    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_engine->GetWindow().events.mouseButton);
-    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_engine->GetWindow().events.mouseScroll);
-    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_engine->GetWindow().events.cursorPosition);
-    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_engine->GetWindow().events.cursorEnter);
+    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_window->events.keyboardKey);
+    subscriptionResults &= m_textInputReceiver.Subscribe(m_window->events.textInput);
+    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_window->events.focus);
+    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_window->events.mouseButton);
+    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_window->events.mouseScroll);
+    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_window->events.cursorPosition);
+    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_window->events.cursorEnter);
 
     if(!subscriptionResults)
     {

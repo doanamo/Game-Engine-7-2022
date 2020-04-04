@@ -2,22 +2,10 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
-#include "System/Window.hpp"
-#include "System/ResourceManager.hpp"
-#include "Engine/Root.hpp"
+#include <System/Window.hpp>
+#include <System/ResourceManager.hpp>
 using namespace Editor;
-
-EditorRenderer::EditorRenderer() :
-    m_engine(nullptr),
-    m_initialized(false)
-{
-}
-
-EditorRenderer::~EditorRenderer()
-{
-}
 
 EditorRenderer::EditorRenderer(EditorRenderer&& other) :
     EditorRenderer()
@@ -27,7 +15,8 @@ EditorRenderer::EditorRenderer(EditorRenderer&& other) :
 
 EditorRenderer& EditorRenderer::operator=(EditorRenderer&& other)
 {
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_window, other.m_window);
+    std::swap(m_renderContext, other.m_renderContext);
 
     std::swap(m_vertexBuffer, other.m_vertexBuffer);
     std::swap(m_indexBuffer, other.m_indexBuffer);
@@ -41,7 +30,7 @@ EditorRenderer& EditorRenderer::operator=(EditorRenderer&& other)
     return *this;
 }
 
-bool EditorRenderer::Initialize(Engine::Root* engine)
+bool EditorRenderer::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor renderer...");
     LOG_SCOPED_INDENT();
@@ -53,13 +42,32 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = EditorRenderer());
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(params.window == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
+        LOG_ERROR("Invalid argument - \"window\" is invalid!");
         return false;
     }
 
-    m_engine = engine;
+    if(params.fileSystem == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"fileSystem\" is invalid!");
+        return false;
+    }
+
+    if(params.resourceManager == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"resourceManager\" is invalid!");
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"renderContext\" is invalid!");
+        return false;
+    }
+
+    m_window = params.window;
+    m_renderContext = params.renderContext;
 
     // We are expecting ImGui context to be set by the caller.
     ASSERT(ImGui::GetCurrentContext() != nullptr, "Editor interface context is not set!");
@@ -69,7 +77,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     vertexBufferInfo.usage = GL_STREAM_DRAW;
     vertexBufferInfo.elementSize = sizeof(ImDrawVert);
 
-    if(!m_vertexBuffer.Initialize(&m_engine->GetRenderContext(), vertexBufferInfo))
+    if(!m_vertexBuffer.Initialize(m_renderContext, vertexBufferInfo))
     {
         LOG_ERROR("Could not initialize vertex buffer!");
         return false;
@@ -80,7 +88,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     indexBufferInfo.usage = GL_STREAM_DRAW;
     indexBufferInfo.elementSize = sizeof(ImDrawIdx);
 
-    if(!m_indexBuffer.Initialize(&m_engine->GetRenderContext(), indexBufferInfo))
+    if(!m_indexBuffer.Initialize(m_renderContext, indexBufferInfo))
     {
         LOG_ERROR("Could not initialize index buffer!");
         return false;
@@ -98,7 +106,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     inputLayoutInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
     inputLayoutInfo.attributes = &inputAttributes[0];
 
-    if(!m_vertexArray.Initialize(&m_engine->GetRenderContext(), inputLayoutInfo))
+    if(!m_vertexArray.Initialize(m_renderContext, inputLayoutInfo))
     {
         LOG_ERROR("Could not initialize vertex array!");
         return false;
@@ -120,7 +128,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     // Create a font texture.
     Graphics::Texture::CreateFromParams textureParams;
-    textureParams.engine = m_engine;
+    textureParams.renderContext = m_renderContext;
     textureParams.width = fontWidth;
     textureParams.height = fontHeight;
     textureParams.format = GL_RGBA;
@@ -141,7 +149,7 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
     samplerInfo.textureMinFilter = GL_LINEAR;
     samplerInfo.textureMagFilter = GL_LINEAR;
 
-    if(!m_sampler.Initialize(&m_engine->GetRenderContext(), samplerInfo))
+    if(!m_sampler.Initialize(m_renderContext, samplerInfo))
     {
         LOG_ERROR("Could not initialize sampler!");
         return false;
@@ -149,11 +157,11 @@ bool EditorRenderer::Initialize(Engine::Root* engine)
 
     // Load a shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.engine = m_engine;
+    shaderParams.fileSystem = params.fileSystem;
     shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
+    shaderParams.renderContext = m_renderContext;
 
-    m_shader = m_engine->GetResourceManager().Acquire<Graphics::Shader>(
-        shaderParams.filePath, shaderParams);
+    m_shader = params.resourceManager->Acquire<Graphics::Shader>(shaderParams.filePath, shaderParams);
 
     if(m_shader == nullptr)
     {
@@ -173,8 +181,8 @@ void EditorRenderer::Draw()
     ASSERT(ImGui::GetCurrentContext() != nullptr, "Editor interface context is not set!");
 
     // Get current window dimensions.
-    int windowWidth = m_engine->GetWindow().GetWidth();
-    int windowHeight = m_engine->GetWindow().GetHeight();
+    int windowWidth = m_window->GetWidth();
+    int windowHeight = m_window->GetHeight();
 
     // Access ImGui context.
     ImGuiIO& io = ImGui::GetIO();
@@ -201,8 +209,8 @@ void EditorRenderer::Draw()
     glm::mat4 transform = glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f);
 
     // Push a rendering state.
-    auto& renderState = m_engine->GetRenderContext().PushState();
-    SCOPE_GUARD(m_engine->GetRenderContext().PopState());
+    auto& renderState = m_renderContext->PushState();
+    SCOPE_GUARD(m_renderContext->PopState());
 
     // Prepare rendering state.
     renderState.Enable(GL_BLEND);

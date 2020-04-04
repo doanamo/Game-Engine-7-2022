@@ -8,9 +8,14 @@
 #include "Editor/Modules/GameStateEditor.hpp"
 
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class Window;
+};
+
+namespace Game
+{
+    class GameFramework;
 }
 
 /*
@@ -20,39 +25,42 @@ namespace Engine
 namespace Editor
 {
     // Editor shell class.
-    class EditorShell
+    class EditorShell : private NonCopyable
     {
+    public:
+        struct InitializeFromParams
+        {
+            System::Window* window = nullptr;
+            Game::GameFramework* gameFramework = nullptr;
+        };
+
     public:
         EditorShell();
         ~EditorShell();
-
-        // Disallow copying.
-        EditorShell(const EditorShell& other) = delete;
-        EditorShell& operator=(const EditorShell& other) = delete;
 
         // Move constructor and assignment. 
         EditorShell(EditorShell&& other);
         EditorShell& operator=(EditorShell&& other);
 
         // Initializes the editor shell.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Updates the interface state.
         // Must be called after ImGui::NewFrame().
         void Update(float timeDelta);
 
     private:
-        // Engine reference.
-        Engine::Root* m_engine;
+        // System references.
+        System::Window* m_window = nullptr;
 
         // Editor modules.
         InputManagerEditor m_inputManagerEditor;
         GameStateEditor m_gameStateEditor;
 
         // Show ImGui demo window.
-        bool m_showDemoWindow;
+        bool m_showDemoWindow = false;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

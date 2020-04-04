@@ -2,11 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
-#include "System/InputManager.hpp"
-#include "Game/GameState.hpp"
-#include "Engine/Root.hpp"
+#include <System/InputManager.hpp>
+#include <Game/GameState.hpp>
 using namespace Editor;
 
 namespace
@@ -26,10 +24,7 @@ namespace
     }
 }
 
-EditorSystem::EditorSystem() :
-    m_engine(nullptr),
-    m_interface(nullptr),
-    m_initialized(false)
+EditorSystem::EditorSystem()
 {
     // Bind event receivers.
     m_receiverCursorPosition.Bind<EditorSystem, &EditorSystem::CursorPositionCallback>(this);
@@ -52,7 +47,6 @@ EditorSystem::EditorSystem(EditorSystem&& other) :
 
 EditorSystem& EditorSystem::operator=(EditorSystem&& other)
 {
-    std::swap(m_engine, other.m_engine);
     std::swap(m_interface, other.m_interface);
 
     std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
@@ -79,7 +73,7 @@ void EditorSystem::DestroyContext()
     }
 }
 
-bool EditorSystem::Initialize(Engine::Root* engine)
+bool EditorSystem::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor system...");
     LOG_SCOPED_INDENT();
@@ -91,13 +85,41 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = EditorSystem());
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(params.fileSystem == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
+        LOG_ERROR("Invalid argument - \"params.fileSystem\" is invalid!");
         return false;
     }
 
-    m_engine = engine;
+    if(params.resourceManager == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"params.resourceManager\" is invalid!");
+        return false;
+    }
+
+    if(params.inputManager == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"params.inputManager\" is invalid!");
+        return false;
+    }
+
+    if(params.window == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"params.window\" is invalid!");
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"params.renderContext\" is invalid!");
+        return false;
+    }
+
+    if(params.gameFramework == nullptr)
+    {
+        LOG_ERROR("Invalid argument - \"params.gameFramework\" is invalid!");
+        return false;
+    }
 
     // Create ImGui context.
     m_interface = ImGui::CreateContext();
@@ -145,19 +167,17 @@ bool EditorSystem::Initialize(Engine::Root* engine)
 
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = m_engine->GetWindow().GetPrivateHandle();
+    io.ClipboardUserData = params.window->GetPrivateHandle();
 
     // Subscribe input event receivers.
     // We insert receivers in front of dispatcher queue
     // as we want to have priority for input events.
-    auto& inputEvents = m_engine->GetInputManager().events;
-
     bool subscriptionResult = true;
-    subscriptionResult &= inputEvents.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
-    subscriptionResult &= inputEvents.textInput.Subscribe(m_receiverTextInput, false, true);
-    subscriptionResult &= inputEvents.mouseButton.Subscribe(m_receiverMouseButton, false, true);
-    subscriptionResult &= inputEvents.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
-    subscriptionResult &= inputEvents.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
+    subscriptionResult &= params.inputManager->events.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
+    subscriptionResult &= params.inputManager->events.textInput.Subscribe(m_receiverTextInput, false, true);
+    subscriptionResult &= params.inputManager->events.mouseButton.Subscribe(m_receiverMouseButton, false, true);
+    subscriptionResult &= params.inputManager->events.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
+    subscriptionResult &= params.inputManager->events.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
 
     if(!subscriptionResult)
     {
@@ -166,14 +186,24 @@ bool EditorSystem::Initialize(Engine::Root* engine)
     }
 
     // Initialize the editor renderer.
-    if(!m_editorRenderer.Initialize(engine))
+    EditorRenderer::InitializeFromParams editorRendererParams;
+    editorRendererParams.fileSystem = params.fileSystem;
+    editorRendererParams.resourceManager = params.resourceManager;
+    editorRendererParams.window = params.window;
+    editorRendererParams.renderContext = params.renderContext;
+
+    if(!m_editorRenderer.Initialize(editorRendererParams))
     {
         LOG_ERROR("Could not initialize editor renderer!");
         return false;
     }
 
     // Initialize the editor shell.
-    if(!m_editorShell.Initialize(engine))
+    EditorShell::InitializeFromParams editorShellParams;
+    editorShellParams.window = params.window;
+    editorShellParams.gameFramework = params.gameFramework;
+
+    if(!m_editorShell.Initialize(editorShellParams))
     {
         LOG_ERROR("Could not initialize editor shell!");
         return false;

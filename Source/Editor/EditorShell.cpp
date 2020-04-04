@@ -2,22 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
-#include "System/Window.hpp"
-#include "Engine/Root.hpp"
+#include <System/Window.hpp>
 using namespace Editor;
-
-EditorShell::EditorShell() :
-    m_engine(nullptr),
-    m_showDemoWindow(false),
-    m_initialized(false)
-{
-}
-
-EditorShell::~EditorShell()
-{
-}
 
 EditorShell::EditorShell(EditorShell&& other) :
     EditorShell()
@@ -27,7 +14,7 @@ EditorShell::EditorShell(EditorShell&& other) :
 
 EditorShell& EditorShell::operator=(EditorShell&& other)
 {
-    std::swap(m_engine, other.m_engine);
+    std::swap(m_window, other.m_window);
     std::swap(m_gameStateEditor, other.m_gameStateEditor);
     std::swap(m_showDemoWindow, other.m_showDemoWindow);
     std::swap(m_initialized, other.m_initialized);
@@ -35,7 +22,7 @@ EditorShell& EditorShell::operator=(EditorShell&& other)
     return *this;
 }
 
-bool EditorShell::Initialize(Engine::Root* engine)
+bool EditorShell::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor shell...");
     LOG_SCOPED_INDENT();
@@ -47,23 +34,29 @@ bool EditorShell::Initialize(Engine::Root* engine)
     SCOPE_GUARD_IF(!m_initialized, *this = EditorShell());
 
     // Validate engine reference.
-    if(engine == nullptr)
+    if(params.window == nullptr)
     {
-        LOG_ERROR("Invalid argument - \"engine\" is null!");
+        LOG_ERROR("Invalid argument - \"params.window\" is null!");
         return false;
     }
 
-    m_engine = engine;
+    m_window = params.window;
 
     // Initialize input manager editor.
-    if(!m_inputManagerEditor.Initialize(engine))
+    InputManagerEditor::InitializeFromParams inputManagerEditorParams;
+    inputManagerEditorParams.window = params.window;
+
+    if(!m_inputManagerEditor.Initialize(inputManagerEditorParams))
     {
         LOG_ERROR("Could not initialize input manager editor!");
         return false;
     }
 
     // Initialize game state editor.
-    if(!m_gameStateEditor.Initialize(engine))
+    GameStateEditor::InitializeFromParams gameStateEditorParams;
+    gameStateEditorParams.gameFramework = params.gameFramework;
+
+    if(!m_gameStateEditor.Initialize(gameStateEditorParams))
     {
         LOG_ERROR("Could not initialize game state editor!");
         return false;
@@ -93,7 +86,7 @@ void EditorShell::Update(float timeDelta)
 
             if(ImGui::MenuItem("Exit"))
             {
-                m_engine->GetWindow().Close();
+                m_window->Close();
             }
 
             ImGui::EndMenu();

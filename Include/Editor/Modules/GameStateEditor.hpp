@@ -4,16 +4,12 @@
 
 #pragma once
 
-#include "Event/Receiver.hpp"
+#include <Event/Receiver.hpp>
 
 // Forward declarations.
-namespace Engine
-{
-    class Root;
-};
-
 namespace Game
 {
+    class GameFramework;
     class GameState;
 };
 
@@ -24,20 +20,23 @@ namespace Game
 namespace Editor
 {
     // Game state editor class.
-    class GameStateEditor
+    class GameStateEditor : private NonCopyable
     {
+    public:
+        struct InitializeFromParams
+        {
+            Game::GameFramework* gameFramework = nullptr;
+        };
+
     public:
         GameStateEditor();
         ~GameStateEditor();
-
-        GameStateEditor(const GameStateEditor& other) = delete;
-        GameStateEditor& operator=(const GameStateEditor& other) = delete;
 
         GameStateEditor(GameStateEditor&& other);
         GameStateEditor& operator=(GameStateEditor&& other);
 
         // Initializes the game state editor.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Updates the game state editor.
         void Update(float timeDelta);
@@ -47,7 +46,7 @@ namespace Editor
 
     public:
         // Window state.
-        bool mainWindowOpen;
+        bool mainWindowOpen = false;
 
     private:
         // Event receivers.
@@ -73,27 +72,27 @@ namespace Editor
 
     private:
         // Game state reference.
-        Game::GameState* m_gameState;
+        Game::GameState* m_gameState = nullptr;
 
         // Update rate slider value.
-        float m_updateRateSlider;
+        float m_updateRateSlider = 0.0f;
 
         // Update time histogram.
         std::vector<float> m_updateTimeHistogram;
-        bool m_updateTimeHistogramPaused;
+        bool m_updateTimeHistogramPaused = false;
 
         // Update delay slider value.
-        float m_updateDelaySlider;
-        float m_updateDelayValue;
+        float m_updateDelaySlider = 0.0f;
+        float m_updateDelayValue = 0.0f;
 
         // Update noise slider value.
-        float m_updateNoiseSlider;
-        float m_updateNoiseValue;
+        float m_updateNoiseSlider = 0.0f;
+        float m_updateNoiseValue = 0.0f;
 
         // Update freeze slider value.
-        float m_updateFreezeSlider;
+        float m_updateFreezeSlider = 1.0f;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

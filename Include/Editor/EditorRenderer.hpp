@@ -4,17 +4,24 @@
 
 #pragma once
 
-#include "Graphics/RenderContext.hpp"
-#include "Graphics/Buffer.hpp"
-#include "Graphics/VertexArray.hpp"
-#include "Graphics/Texture.hpp"
-#include "Graphics/Sampler.hpp"
-#include "Graphics/Shader.hpp"
+#include <Graphics/RenderContext.hpp>
+#include <Graphics/Buffer.hpp>
+#include <Graphics/VertexArray.hpp>
+#include <Graphics/Texture.hpp>
+#include <Graphics/Sampler.hpp>
+#include <Graphics/Shader.hpp>
 
 // Forward declarations.
-namespace Engine
+namespace System
 {
-    class Root;
+    class Window;
+    class FileSystem;
+    class ResourceManager;
+}
+
+namespace Graphics
+{
+    class RenderContext;
 }
 
 /*
@@ -24,27 +31,34 @@ namespace Engine
 namespace Editor
 {
     // Editor renderer class.
-    class EditorRenderer
+    class EditorRenderer : private NonCopyable
     {
     public:
-        EditorRenderer();
-        ~EditorRenderer();
+        struct InitializeFromParams
+        {
+            System::Window* window = nullptr;
+            System::FileSystem* fileSystem = nullptr;
+            System::ResourceManager* resourceManager = nullptr;
+            Graphics::RenderContext* renderContext = nullptr;
+        };
 
-        EditorRenderer(const EditorRenderer& other) = delete;
-        EditorRenderer& operator=(const EditorRenderer& other) = delete;
+    public:
+        EditorRenderer() = default;
+        ~EditorRenderer() = default;
 
         EditorRenderer(EditorRenderer&& other);
         EditorRenderer& operator=(EditorRenderer&& other);
 
         // Initializes the editor renderer.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Draws the editor interface from the current context.
         void Draw();
 
     private:
-        // Engine reference.
-        Engine::Root* m_engine;
+        // System references.
+        System::Window* m_window = nullptr;
+        Graphics::RenderContext* m_renderContext = nullptr;
 
         // Graphics objects.
         Graphics::VertexBuffer m_vertexBuffer;
@@ -55,6 +69,6 @@ namespace Editor
         Graphics::ShaderPtr m_shader;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

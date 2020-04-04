@@ -4,25 +4,28 @@
 
 #pragma once
 
-#include "Event/Receiver.hpp"
-#include "System/InputDefinitions.hpp"
+#include <Event/Receiver.hpp>
+#include <System/InputDefinitions.hpp>
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorShell.hpp"
 
 // Forward declarations.
-namespace Engine
-{
-    class Root;
-}
-
 namespace System
 {
+    class FileSystem;
     class ResourceManager;
+    class InputManager;
+    class Window;
 };
+
+namespace Graphics
+{
+    class RenderContext;
+}
 
 namespace Game
 {
-    class GameState;
+    class GameFramework;
 };
 
 /*
@@ -34,22 +37,29 @@ namespace Game
 namespace Editor
 {
     // Editor system class.
-    class EditorSystem
+    class EditorSystem : private NonCopyable
     {
+    public:
+        struct InitializeFromParams
+        {
+            System::FileSystem* fileSystem = nullptr;
+            System::ResourceManager* resourceManager = nullptr;
+            System::InputManager* inputManager = nullptr;
+            System::Window* window = nullptr;
+            Graphics::RenderContext* renderContext = nullptr;
+            Game::GameFramework* gameFramework = nullptr;
+        };
+
     public:
         EditorSystem();
         ~EditorSystem();
-
-        // Disallow copying.
-        EditorSystem(const EditorSystem& other) = delete;
-        EditorSystem& operator=(const EditorSystem& other) = delete;
 
         // Move constructor and assignment.
         EditorSystem(EditorSystem&& other);
         EditorSystem& operator=(EditorSystem&& other);
 
         // Initializes the editor system.
-        bool Initialize(Engine::Root* engine);
+        bool Initialize(const InitializeFromParams& params);
 
         // Updates the editor interface.
         void Update(float timeDelta);
@@ -78,11 +88,8 @@ namespace Editor
         void DestroyContext();
 
     private:
-        // Editor reference.
-        Engine::Root* m_engine;
-
         // User interface context.
-        ImGuiContext* m_interface;
+        ImGuiContext* m_interface = nullptr;
 
         // Window event callbacks.
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
@@ -96,6 +103,6 @@ namespace Editor
         EditorShell m_editorShell;
 
         // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }
