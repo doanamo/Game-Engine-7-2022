@@ -51,11 +51,11 @@ target_precompile_headers(Game PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+add_subdirectory("../Common" "Common")
 target_link_libraries(Game PRIVATE Common)
 
-add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+add_subdirectory("../System" "System")
 target_link_libraries(Game PRIVATE System)
 
-add_subdirectory("../Renderer" "Renderer" EXCLUDE_FROM_ALL)
+add_subdirectory("../Renderer" "Renderer")
 target_link_libraries(Game PRIVATE Renderer)

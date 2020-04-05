@@ -24,17 +24,17 @@ target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+add_subdirectory("../Common" "Common")
 target_link_libraries(Script PRIVATE Common)
 
-add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+add_subdirectory("../System" "System")
 target_link_libraries(Script PRIVATE System)
 
 #
 # External
 #
 
-add_subdirectory("../../External/Lua-5.3.5" "External/Lua" EXCLUDE_FROM_ALL)
+add_subdirectory("../../External/Lua-5.3.5" "External/Lua")
 target_link_libraries(Script PUBLIC "lua_static")
 set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "Lua")
 set_property(TARGET "lua_static" PROPERTY FOLDER "External")

@@ -33,20 +33,20 @@ target_precompile_headers(Editor PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+add_subdirectory("../Common" "Common")
 target_link_libraries(Editor PRIVATE Common)
 
-add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+add_subdirectory("../System" "System")
 target_link_libraries(Editor PRIVATE System)
 
-add_subdirectory("../Game" "Game" EXCLUDE_FROM_ALL)
+add_subdirectory("../Game" "Game")
 target_link_libraries(Editor PRIVATE Game)
 
 #
 # External
 #
 
-add_subdirectory("../../External/ImGui-1.62" "External/ImGui" EXCLUDE_FROM_ALL)
+add_subdirectory("../../External/ImGui-1.62" "External/ImGui")
 target_include_directories("ImGui" PUBLIC "../../External/GLEW-2.1.0/include")
 target_link_libraries(Editor PUBLIC "ImGui")
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")

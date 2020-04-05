@@ -31,13 +31,13 @@ target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Logger" "Logger" EXCLUDE_FROM_ALL)
+add_subdirectory("../Logger" "Logger")
 target_link_libraries(Common PUBLIC Logger)
 
-add_subdirectory("../Event" "Event" EXCLUDE_FROM_ALL)
+add_subdirectory("../Event" "Event")
 target_link_libraries(Common PUBLIC Event)
 
-add_subdirectory("../Reflection" "Reflection" EXCLUDE_FROM_ALL)
+add_subdirectory("../Reflection" "Reflection")
 target_link_libraries(Common PUBLIC Reflection)
 
 #

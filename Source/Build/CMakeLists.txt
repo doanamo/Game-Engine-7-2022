@@ -22,7 +22,7 @@ target_include_directories(Build PUBLIC "../../Include")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+add_subdirectory("../Common" "Common")
 target_link_libraries(Build PRIVATE Common)
 
 #

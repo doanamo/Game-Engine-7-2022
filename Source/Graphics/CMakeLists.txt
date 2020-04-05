@@ -51,27 +51,27 @@ target_precompile_headers(Graphics PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+add_subdirectory("../Common" "Common")
 target_link_libraries(Graphics PRIVATE Common)
 
-add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+add_subdirectory("../System" "System")
 target_link_libraries(Graphics PRIVATE System)
 
-add_subdirectory("../Script" "Script" EXCLUDE_FROM_ALL)
+add_subdirectory("../Script" "Script")
 target_link_libraries(Graphics PRIVATE Script)
 
 #
 # External
 #
 
-add_subdirectory("../../External/zlib-1.2.11" "External/zlib" EXCLUDE_FROM_ALL)
+add_subdirectory("../../External/zlib-1.2.11" "External/zlib")
 target_include_directories(Graphics PUBLIC "../../External/zlib-1.2.11")
 target_include_directories(Graphics PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
 target_link_libraries(Graphics PRIVATE "zlibstatic")
 set_property(TARGET "zlibstatic" PROPERTY PROJECT_LABEL "zlib")
 set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
 
-add_subdirectory("../../External/libpng-1.6.34" "External/libpng" EXCLUDE_FROM_ALL)
+add_subdirectory("../../External/libpng-1.6.34" "External/libpng")
 target_include_directories("png_static" PRIVATE "../../External/zlib-1.2.11")
 target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
 target_include_directories(Graphics PUBLIC "../../External/libpng-1.6.34")

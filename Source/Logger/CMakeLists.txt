@@ -32,7 +32,7 @@ target_precompile_headers(Logger PRIVATE "Precompiled.hpp")
 # External
 #
 
-add_subdirectory("../../External/fmt-6.1.2" "External/fmt" EXCLUDE_FROM_ALL)
+add_subdirectory("../../External/fmt-6.1.2" "External/fmt")
 target_include_directories(Logger PUBLIC "../../External/fmt-6.1.2/include")
 target_link_libraries(Logger PUBLIC fmt::fmt)
 set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
