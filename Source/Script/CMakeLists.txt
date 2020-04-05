@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -23,16 +24,10 @@ target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-if(NOT TARGET Common)
-    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
-endif()
-
+add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
 target_link_libraries(Script PRIVATE Common)
 
-if(NOT TARGET System)
-    add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
-endif()
-
+add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
 target_link_libraries(Script PRIVATE System)
 
 #

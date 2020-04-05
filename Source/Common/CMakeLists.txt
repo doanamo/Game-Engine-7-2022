@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -30,22 +31,13 @@ target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-if(NOT TARGET Logger)
-    add_subdirectory("../Logger" "Logger" EXCLUDE_FROM_ALL)
-endif()
-
+add_subdirectory("../Logger" "Logger" EXCLUDE_FROM_ALL)
 target_link_libraries(Common PUBLIC Logger)
 
-if(NOT TARGET Event)
-    add_subdirectory("../Event" "Event" EXCLUDE_FROM_ALL)
-endif()
-
+add_subdirectory("../Event" "Event" EXCLUDE_FROM_ALL)
 target_link_libraries(Common PUBLIC Event)
 
-if(NOT TARGET Reflection)
-    add_subdirectory("../Reflection" "Reflection" EXCLUDE_FROM_ALL)
-endif()
-
+add_subdirectory("../Reflection" "Reflection" EXCLUDE_FROM_ALL)
 target_link_libraries(Common PUBLIC Reflection)
 
 #

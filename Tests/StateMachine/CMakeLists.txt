@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -20,16 +21,10 @@ add_test(StateMachine TestStateMachine)
 # Dependencies
 #
 
-if(NOT TARGET TestHelpers)
-    add_subdirectory("../Helpers" "TestHelpers")
-endif()
-
+add_subdirectory("../Helpers" "TestHelpers")
 target_link_libraries(TestStateMachine PRIVATE TestHelpers)
 
-if(NOT TARGET Common)
-    add_subdirectory("../../Source/Common" "Common")
-endif()
-
+add_subdirectory("../../Source/Common" "Common")
 target_link_libraries(TestStateMachine PRIVATE Common)
 
 #

@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -20,16 +21,10 @@ add_test(Reflection TestReflection)
 # Dependencies
 #
 
-if(NOT TARGET TestHelpers)
-    add_subdirectory("../Helpers" "TestHelpers")
-endif()
-
+add_subdirectory("../Helpers" "TestHelpers")
 target_link_libraries(TestReflection PRIVATE TestHelpers)
 
-if(NOT TARGET Reflection)
-    add_subdirectory("../../Source/Reflection" "Reflection")
-endif()
-
+add_subdirectory("../../Source/Reflection" "Reflection")
 target_link_libraries(TestReflection PRIVATE Reflection)
 
 #

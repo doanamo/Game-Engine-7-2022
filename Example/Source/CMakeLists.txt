@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Files
@@ -26,11 +27,7 @@ target_precompile_headers(${TARGET_NAME} PRIVATE "Precompiled.hpp")
 #
 
 set(ENGINE_DIR "../../")
-
-if(NOT TARGET Engine)
-    add_subdirectory("${ENGINE_DIR}/Source" "Engine")
-endif()
-
+add_subdirectory("${ENGINE_DIR}/Source" "Engine")
 target_link_libraries(${TARGET_NAME} PRIVATE "Engine")
 
 #

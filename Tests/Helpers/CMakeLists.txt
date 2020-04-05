@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -20,10 +21,7 @@ target_include_directories(TestHelpers PUBLIC ".")
 # Dependencies
 #
 
-if(NOT TARGET Common)
-    add_subdirectory("../../Source/Common" "Common")
-endif()
-
+add_subdirectory("../../Source/Common" "Common")
 target_link_libraries(TestHelpers PUBLIC Common)
 
 #

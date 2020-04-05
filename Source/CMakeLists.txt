@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include_guard(GLOBAL)
 
 #
 # Library
@@ -23,52 +24,28 @@ target_precompile_headers(Engine PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-if(NOT TARGET Common)
-    add_subdirectory("Common")
-endif()
-
+add_subdirectory("Common")
 target_link_libraries(Engine PUBLIC Common)
 
-if(NOT TARGET Build)
-    add_subdirectory("Build")
-endif()
-
+add_subdirectory("Build")
 target_link_libraries(Engine PUBLIC Build)
 
-if(NOT TARGET System)
-    add_subdirectory("System")
-endif()
-
+add_subdirectory("System")
 target_link_libraries(Engine PUBLIC System)
 
-if(NOT TARGET Script)
-    add_subdirectory("Script")
-endif()
-
+add_subdirectory("Script")
 target_link_libraries(Engine PUBLIC Script)
 
-if(NOT TARGET Graphics)
-    add_subdirectory("Graphics")
-endif()
-
+add_subdirectory("Graphics")
 target_link_libraries(Engine PUBLIC Graphics)
 
-if(NOT TARGET Game)
-    add_subdirectory("Game")
-endif()
-
+add_subdirectory("Game")
 target_link_libraries(Engine PUBLIC Game)
 
-if(NOT TARGET Renderer)
-    add_subdirectory("Renderer")
-endif()
-
+add_subdirectory("Renderer")
 target_link_libraries(Engine PUBLIC Renderer)
 
-if(NOT TARGET Editor)
-    add_subdirectory("Editor")
-endif()
-
+add_subdirectory("Editor")
 target_link_libraries(Engine PUBLIC Editor)
 
 #
