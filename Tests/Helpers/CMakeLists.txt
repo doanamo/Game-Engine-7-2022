@@ -25,3 +25,9 @@ if(NOT TARGET Common)
 endif()
 
 target_link_libraries(TestHelpers PUBLIC Common)
+
+#
+# Environment
+#
+
+set_target_properties(TestHelpers PROPERTIES FOLDER "Tests")
