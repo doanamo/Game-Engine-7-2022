@@ -12,4 +12,4 @@
 #include <algorithm>
 #include <Common/Common.hpp>
 #include <GL/glew.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
