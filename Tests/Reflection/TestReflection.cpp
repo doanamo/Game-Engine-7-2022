@@ -485,31 +485,38 @@ bool TestTypes()
         TEST_EQ(presentAttributes, expectedAttributes);
     }
 
-    // Find type members and attributes by name.
-    // String literal needs to be a static variable passed via template argument to
-    // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
-    {
-        static constexpr const char MemberName[] = "textWithoutAttribute";
-        TEST_EQ(Reflection::Reflect<Base>().FindMember<MemberName>().Name, "textWithoutAttribute");
-    }
-
-    {
-        static constexpr const char AttributeName[] = "DerivedAttribute";
-        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Name, "DerivedAttribute");
-        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<AttributeName>().Instance.state, false);
-    }
-
-    {
-        static constexpr const char MemberName[] = "counter";
-        static constexpr const char AttributeName[] = "CounterAttribute";
-        TEST_EQ(Reflection::Reflect<Derived>().FindMember<MemberName>().FindAttribute<AttributeName>().Instance.state, true);
-    }
-
     // Enumerate derived types from type.
     // TODO
 
     // Test reflection between compilation units.
     // TODO
+
+    return true;
+}
+
+constexpr char BaseMemberName[] = "textWithoutAttribute";
+constexpr char DerivedAttributeName[] = "DerivedAttribute";
+constexpr char DerivedMemberName[] = "counter";
+constexpr char DerivedMemberAttributeName[] = "CounterAttribute";
+
+bool TestExperimental()
+{
+    // Find type members and attributes by name.
+    // String literal needs to be a static variable passed via template argument to
+    // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
+    {
+        TEST_EQ(Reflection::Reflect<Base>().FindMember<BaseMemberName>().Name, "textWithoutAttribute");
+    }
+
+    {
+        
+        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
+        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Instance.state, false);
+    }
+
+    {
+        TEST_EQ(Reflection::Reflect<Derived>().FindMember<DerivedMemberName>().FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
+    }
 
     return true;
 }
@@ -540,6 +547,9 @@ bool TestSuper()
 int main()
 {
     if(!TestTypes())
+        return 1;
+
+    if(!TestExperimental())
         return 1;
 
     if(!TestCreate())
