@@ -6,6 +6,7 @@
 
 #include <System/InputDefinitions.hpp>
 #include <Event/Receiver.hpp>
+#include "Game/GameState.hpp"
 
 // Forward declarations.
 namespace System

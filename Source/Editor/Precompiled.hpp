@@ -10,6 +10,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <thread>
 #include <Common/Common.hpp>
 #include <GL/glew.h>
 #include <imgui.h>
