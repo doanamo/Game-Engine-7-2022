@@ -35,8 +35,8 @@ namespace Editor
         };
 
     public:
-        EditorShell();
-        ~EditorShell();
+        EditorShell() = default;
+        ~EditorShell() = default;
 
         // Move constructor and assignment. 
         EditorShell(EditorShell&& other);

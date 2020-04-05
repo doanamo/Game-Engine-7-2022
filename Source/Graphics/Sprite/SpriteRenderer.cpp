@@ -169,6 +169,7 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     Shader::LoadFromFile shaderParams;
     shaderParams.fileSystem = params.fileSystem;
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
+    shaderParams.renderContext = params.renderContext;
 
     m_shader = params.resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
 

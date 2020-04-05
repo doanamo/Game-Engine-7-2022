@@ -2,8 +2,8 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
-#include "Scenes/GameScene.hpp"
+#include "GameScene.hpp"
+#include <Engine.hpp>
 #include <System/Timer.hpp>
 #include <System/InputManager.hpp>
 #include <System/ResourceManager.hpp>
@@ -16,10 +16,7 @@
 #include <Game/Components/SpriteAnimationComponent.hpp>
 #include <Editor/EditorSystem.hpp>
 
-GameScene::GameScene() :
-    m_engine(nullptr),
-    m_gameState(nullptr),
-    m_initialized(false)
+GameScene::GameScene()
 {
     // Bind event receivers.
     m_customUpdate.Bind<GameScene, &GameScene::Update>(this);
@@ -67,8 +64,7 @@ bool GameScene::Initialize(Engine::Root* engine)
 
     // Initialize game state.
     m_gameState = std::make_shared<Game::GameState>();
-    
-    if(!m_gameState->Initialize(engine))
+    if(!m_gameState->Initialize())
     {
         LOG_ERROR("Could not initialize game state!");
         return false;
@@ -82,19 +78,34 @@ bool GameScene::Initialize(Engine::Root* engine)
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
-    spriteAnimationListParams.engine = m_engine;
+    spriteAnimationListParams.fileSystem = &m_engine->GetFileSystem();
+    spriteAnimationListParams.resourceManager = &m_engine->GetResourceManager();
+    spriteAnimationListParams.renderContext = &m_engine->GetRenderContext();
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
     auto spriteAnimationList = m_engine->GetResourceManager().Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams);
 
+    if(!spriteAnimationList)
+    {
+        LOG_ERROR("Could not load sprite animation list!");
+        return false;
+    }
+
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
-    textureAtlasParams.engine = m_engine;
+    textureAtlasParams.fileSystem = &m_engine->GetFileSystem();
+    textureAtlasParams.resourceManager = &m_engine->GetResourceManager();
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
     auto textureAtlas = m_engine->GetResourceManager().Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams);
+
+    if(!spriteAnimationList)
+    {
+        LOG_ERROR("Could not load texture atlas!");
+        return false;
+    }
 
     // Create camera entity.
     {
@@ -119,7 +130,8 @@ bool GameScene::Initialize(Engine::Root* engine)
     {
         // Load texture.
         Graphics::Texture::LoadFromFile textureParams;
-        textureParams.engine = m_engine;
+        textureParams.fileSystem = &m_engine->GetFileSystem();
+        textureParams.renderContext = &m_engine->GetRenderContext();
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
         Graphics::TexturePtr texture = m_engine->GetResourceManager().Acquire<Graphics::Texture>(

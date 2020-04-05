@@ -81,7 +81,7 @@ bool InputManagerEditor::Initialize(const InitializeFromParams& params)
         return false;
     }
 
-    m_window = m_window;
+    m_window = params.window;
 
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;

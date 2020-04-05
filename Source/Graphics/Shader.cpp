@@ -308,6 +308,7 @@ bool Shader::Initialize(const LoadFromFile& params)
     LoadFromString compileParams;
     compileParams.fileSystem = params.fileSystem;
     compileParams.shaderCode = std::move(shaderCode);
+    compileParams.renderContext = params.renderContext;
 
     if(!this->Initialize(compileParams))
     {

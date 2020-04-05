@@ -45,7 +45,7 @@ namespace Editor
 namespace Engine
 {
     // Initialization params.
-    struct InitializeParams
+    struct InitializeFromParams
     {
         float maximumTickDelta = 1.0f;
     };
@@ -62,7 +62,7 @@ namespace Engine
         Root& operator=(Root&& other);
 
         // Initializes the engine instance.
-        bool Initialize(const InitializeParams& initParams = InitializeParams());
+        bool Initialize(const InitializeFromParams& initParams = InitializeFromParams());
 
         // Runs the application main loop.
         int Run();

@@ -23,15 +23,11 @@ namespace System
     Main scene used by the game.
 */
 
-class GameScene
+class GameScene : public NonCopyable
 {
 public:
     GameScene();
     ~GameScene();
-
-    // Disallow copying.
-    GameScene(const GameScene& other) = delete;
-    GameScene& operator=(const GameScene& other) = delete;
 
     // Move constructor and assignment.
     GameScene(GameScene&& other);
@@ -46,7 +42,7 @@ private:
 
 private:
     // Engine reference.
-    Engine::Root* m_engine;
+    Engine::Root* m_engine = nullptr;
 
     // Game state instance.
     std::shared_ptr<Game::GameState> m_gameState;
@@ -55,5 +51,5 @@ private:
     Event::Receiver<void(float)> m_customUpdate;
 
     // Initialization state.
-    bool m_initialized;
+    bool m_initialized = false;
 };

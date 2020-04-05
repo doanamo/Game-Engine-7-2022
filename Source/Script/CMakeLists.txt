@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Script)
 add_library(Script STATIC
     "../../Include/Script/ScriptState.hpp"
     "Precompiled.hpp"
@@ -22,9 +23,17 @@ target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
-target_link_libraries(Script PRIVATE System)
+if(NOT TARGET Common)
+    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+endif()
+
 target_link_libraries(Script PRIVATE Common)
+
+if(NOT TARGET System)
+    add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+endif()
+
+target_link_libraries(Script PRIVATE System)
 
 #
 # External

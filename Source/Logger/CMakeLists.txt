@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Logger)
 add_library(Logger STATIC
     "../../Include/Logger/Logger.hpp"
     "../../Include/Logger/Message.hpp"

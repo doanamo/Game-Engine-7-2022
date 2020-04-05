@@ -109,8 +109,7 @@ bool Texture::Initialize(const CreateFromParams& params)
         return false;
     }
 
-    // Save the render context reference.
-    m_renderContext = m_renderContext;
+    m_renderContext = params.renderContext;
 
     // Create a texture handle.
     glGenTextures(1, &m_handle);

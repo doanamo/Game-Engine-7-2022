@@ -83,6 +83,12 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         return false;
     }
 
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
+        return false;
+    }
+
     // Load texture atlas from file using script state.
     Script::ScriptState::LoadFromFile scriptParams;
     scriptParams.fileSystem = params.fileSystem;
@@ -119,6 +125,7 @@ bool TextureAtlas::Initialize(const LoadFromFile& params)
         Texture::LoadFromFile textureParams;
         textureParams.fileSystem = params.fileSystem;
         textureParams.filePath = lua_tostring(scriptState, -1);
+        textureParams.renderContext = params.renderContext;
         textureParams.mipmaps = true;
 
         m_texture = params.resourceManager->Acquire<Graphics::Texture>(textureParams.filePath, textureParams);

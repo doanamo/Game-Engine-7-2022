@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Editor)
 add_library(Editor STATIC
     "../../Include/Editor/EditorSystem.hpp"
     "../../Include/Editor/EditorShell.hpp"
@@ -31,10 +32,23 @@ target_precompile_headers(Editor PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Game" "Game" EXCLUDE_FROM_ALL)
-target_link_libraries(Editor PRIVATE Game)
-target_link_libraries(Editor PRIVATE System)
+if(NOT TARGET Common)
+    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+endif()
+
 target_link_libraries(Editor PRIVATE Common)
+
+if(NOT TARGET System)
+    add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+endif()
+
+target_link_libraries(Editor PRIVATE System)
+
+if(NOT TARGET Game)
+    add_subdirectory("../Game" "Game" EXCLUDE_FROM_ALL)
+endif()
+
+target_link_libraries(Editor PRIVATE Game)
 
 #
 # External

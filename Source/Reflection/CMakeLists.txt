@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Reflection)
 add_library(Reflection STATIC
     "../../Include/Reflection/Reflection.hpp"
     "Empty.cpp"

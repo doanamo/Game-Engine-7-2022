@@ -33,6 +33,7 @@ namespace Graphics
         {
             System::FileSystem* fileSystem = nullptr;
             System::ResourceManager* resourceManager = nullptr;
+            Graphics::RenderContext* renderContext = nullptr;
             std::string filePath;
         };
 

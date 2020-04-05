@@ -4,4 +4,9 @@
 
 #pragma once
 
-#include <Engine.hpp>
+/*
+    Precompiled Header
+*/
+
+#include <Common/Common.hpp>
+#include <GL/glew.h>

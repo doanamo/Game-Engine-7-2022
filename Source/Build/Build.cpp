@@ -2,9 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Build.hpp"
-#include "Common/Utility.hpp"
+#include "Build/Build.hpp"
 #include "BuildInfo.hpp"
+#include <Common/Utility.hpp>
 
 namespace
 {

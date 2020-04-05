@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Game)
 add_library(Game STATIC
     "../../Include/Game/GameFramework.hpp"
     "../../Include/Game/GameState.hpp"
@@ -49,7 +50,20 @@ target_precompile_headers(Game PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Renderer" "Renderer" EXCLUDE_FROM_ALL)
-target_link_libraries(Game PRIVATE Renderer)
-target_link_libraries(Game PRIVATE System)
+if(NOT TARGET Common)
+    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+endif()
+
 target_link_libraries(Game PRIVATE Common)
+
+if(NOT TARGET System)
+    add_subdirectory("../System" "System" EXCLUDE_FROM_ALL)
+endif()
+
+target_link_libraries(Game PRIVATE System)
+
+if(NOT TARGET Renderer)
+    add_subdirectory("../Renderer" "Renderer" EXCLUDE_FROM_ALL)
+endif()
+
+target_link_libraries(Game PRIVATE Renderer)

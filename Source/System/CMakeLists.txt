@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(System)
 add_library(System STATIC
     "../../Include/System/Platform.hpp"
     "../../Include/System/FileSystem.hpp"
@@ -35,7 +36,10 @@ target_precompile_headers(System PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+if(NOT TARGET Common)
+    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+endif()
+
 target_link_libraries(System PRIVATE Common)
 
 #

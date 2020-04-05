@@ -95,6 +95,18 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
         return false;
     }
 
+    if(params.resourceManager == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"resourceManager\" is null!");
+        return false;
+    }
+
+    if(params.renderContext == nullptr)
+    {
+        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
+        return false;
+    }
+
     // Create a script state.
     Script::ScriptState::LoadFromFile scriptParams;
     scriptParams.fileSystem = params.fileSystem;
@@ -132,6 +144,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
         TextureAtlas::LoadFromFile textureAtlasParams;
         textureAtlasParams.fileSystem = params.fileSystem;
+        textureAtlasParams.resourceManager = params.resourceManager;
+        textureAtlasParams.renderContext = params.renderContext;
         textureAtlasParams.filePath = lua_tostring(scriptState, -1);
 
         textureAtlas = params.resourceManager->Acquire<TextureAtlas>(textureAtlasParams.filePath, textureAtlasParams);

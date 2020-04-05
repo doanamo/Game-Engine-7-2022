@@ -52,7 +52,7 @@ Root& Root::operator=(Root&& other)
     return *this;
 }
 
-bool Root::Initialize(const InitializeParams& initParams)
+bool Root::Initialize(const InitializeFromParams& initParams)
 {
     // Verify that engine is not currently initialized.
     VERIFY(!m_initialized, "Engine instance has already been initialized!");
@@ -158,14 +158,13 @@ bool Root::Initialize(const InitializeParams& initParams)
 
     // Initialize the sprite renderer.
     // Rendering subsystem for drawing sprites.
-    m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
-
     Graphics::SpriteRenderer::InitializeFromParams spriteRendererParams;
     spriteRendererParams.fileSystem = m_fileSystem.get();
     spriteRendererParams.resourceManager = m_resourceManager.get();
     spriteRendererParams.renderContext = m_renderContext.get();
     spriteRendererParams.spriteBatchSize = 128;
 
+    m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
     if(!m_spriteRenderer->Initialize(spriteRendererParams))
     {
         LOG_ERROR("Could not initialize sprite renderer!");
@@ -174,12 +173,11 @@ bool Root::Initialize(const InitializeParams& initParams)
 
     // Initialize the state renderer.
     // Renders a game state described in its components.
-    m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
-
     Renderer::StateRenderer::InitializeFromParams stateRendererParams;
     stateRendererParams.renderContext = m_renderContext.get();
     stateRendererParams.spriteRenderer = m_spriteRenderer.get();
 
+    m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
     if(!m_stateRenderer->Initialize(stateRendererParams))
     {
         LOG_ERROR("Could not initialize state renderer!");
@@ -188,14 +186,13 @@ bool Root::Initialize(const InitializeParams& initParams)
 
     // Initialize the game framework.
     // Controls how game state is managed and how it interacts with the rest of the engine.
-    m_gameFramework = std::make_unique<Game::GameFramework>();
-
     Game::GameFramework::InitializeFromParams gameFrameworkParams;
     gameFrameworkParams.timer = m_timer.get();
     gameFrameworkParams.inputManager = m_inputManager.get();
     gameFrameworkParams.window = m_window.get();
     gameFrameworkParams.stateRenderer = m_stateRenderer.get();
 
+    m_gameFramework = std::make_unique<Game::GameFramework>();
     if(!m_gameFramework->Initialize(gameFrameworkParams))
     {
         LOG_ERROR("Could not initialize game framework!");
@@ -204,8 +201,6 @@ bool Root::Initialize(const InitializeParams& initParams)
 
     // Initialize the editor system.
     // Built in editor for creating and modifying content within a game.
-    m_editorSystem = std::make_unique<Editor::EditorSystem>();
-    
     Editor::EditorSystem::InitializeFromParams editorSystemParams;
     editorSystemParams.fileSystem = m_fileSystem.get();
     editorSystemParams.resourceManager = m_resourceManager.get();
@@ -214,6 +209,7 @@ bool Root::Initialize(const InitializeParams& initParams)
     editorSystemParams.renderContext = m_renderContext.get();
     editorSystemParams.gameFramework = m_gameFramework.get();
 
+    m_editorSystem = std::make_unique<Editor::EditorSystem>();
     if(!m_editorSystem->Initialize(editorSystemParams))
     {
         LOG_ERROR("Could not initialize editor system!");

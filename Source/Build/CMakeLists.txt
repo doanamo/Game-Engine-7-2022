@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Build)
 add_library(Build STATIC
     "../../Include/Build/Build.hpp"
     "Build.cpp"
@@ -20,11 +21,14 @@ target_include_directories(Build PUBLIC "../../Include")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+if(NOT TARGET Common)
+    add_subdirectory("../Common" "Common" EXCLUDE_FROM_ALL)
+endif()
+
 target_link_libraries(Build PRIVATE Common)
 
 #
-# Config
+# Configuration
 #
 
 # Run Git commands to retrieve and save information about current build version.
@@ -41,6 +45,7 @@ add_custom_target("BuildInfo"
 )
 
 add_dependencies(Build "BuildInfo")
+set_property(TARGET "BuildInfo" PROPERTY FOLDER "Configure")
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.

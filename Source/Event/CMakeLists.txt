@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 # Library
 #
 
+project(Event)
 add_library(Event STATIC
     "../../Include/Event/Delegate.hpp"
     "../../Include/Event/Collector.hpp"
