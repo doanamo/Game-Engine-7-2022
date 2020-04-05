@@ -4,10 +4,11 @@ FROM amd64/ubuntu:bionic
 
 RUN dpkg --add-architecture i386
 
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+RUN apt-get update
+RUN apt-get install -y apt-transport-https ca-certificates gnupg software-properties-common wget
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
 
-RUN apt-get update
 RUN apt-get install -y git g++-multilib cmake
 RUN apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev
 RUN apt-get install -y libgl1-mesa-dev libglu1-mesa-dev
