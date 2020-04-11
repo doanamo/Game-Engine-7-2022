@@ -47,7 +47,7 @@ target_link_libraries(System PRIVATE Common)
 find_package(OpenGL REQUIRED)
 target_link_libraries(System ${OPENGL_GL_LIBRARY})
 
-add_subdirectory("../../External/GLEW-2.1.0/build/cmake" "External/GLEW")
+add_subdirectory("../../External/GLEW-2.1.0/build/cmake" "External/GLEW" EXCLUDE_FROM_ALL)
 target_include_directories(System PUBLIC "../../External/GLEW-2.1.0/include")
 target_link_libraries(System PUBLIC "glew_s")
 set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")

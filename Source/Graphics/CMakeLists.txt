@@ -64,7 +64,7 @@ target_link_libraries(Graphics PRIVATE Script)
 # External
 #
 
-add_subdirectory("../../External/zlib-1.2.11" "External/zlib")
+add_subdirectory("../../External/zlib-1.2.11" "External/zlib" EXCLUDE_FROM_ALL)
 target_include_directories(Graphics PUBLIC "../../External/zlib-1.2.11")
 target_include_directories(Graphics PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
 target_link_libraries(Graphics PRIVATE "zlibstatic")
