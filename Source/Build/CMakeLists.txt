@@ -43,7 +43,7 @@ add_custom_target("BuildInfo"
 )
 
 add_dependencies(Build "BuildInfo")
-set_property(TARGET "BuildInfo" PROPERTY FOLDER "Configure")
+set_property(TARGET "BuildInfo" PROPERTY FOLDER "Generated")
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.
