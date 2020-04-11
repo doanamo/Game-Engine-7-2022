@@ -11,6 +11,7 @@ include_guard(GLOBAL)
 
 project(TestHelpers)
 add_library(TestHelpers STATIC
+    "TestHelpers.hpp"
     "TestHelpers.cpp"
 )
 

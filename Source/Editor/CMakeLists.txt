@@ -50,4 +50,3 @@ add_subdirectory("../../External/ImGui-1.62" "External/ImGui")
 target_include_directories("ImGui" PUBLIC "../../External/GLEW-2.1.0/include")
 target_link_libraries(Editor PUBLIC "ImGui")
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")
-
