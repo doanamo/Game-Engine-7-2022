@@ -6,16 +6,21 @@ cmake_minimum_required(VERSION 3.16)
 include_guard(GLOBAL)
 
 #
-# Library
+# Files
 #
 
-project(Logger)
-add_library(Logger STATIC
-    "../../Include/Logger/Logger.hpp"
-    "../../Include/Logger/Message.hpp"
-    "../../Include/Logger/Sink.hpp"
-    "../../Include/Logger/Format.hpp"
-    "../../Include/Logger/Output.hpp"
+set(INCLUDE_FILES
+    "Logger.hpp"
+    "Message.hpp"
+    "Sink.hpp"
+    "Format.hpp"
+    "Output.hpp"
+)
+
+list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Logger/")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Logger/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+
+set(SOURCE_FILES
     "Precompiled.hpp"
     "Logger.cpp"
     "Message.cpp"
@@ -24,6 +29,15 @@ add_library(Logger STATIC
     "Output.cpp"
 )
 
+list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+
+#
+# Library
+#
+
+project(Logger)
+add_library(Logger STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Logger PUBLIC cxx_std_17)
 target_include_directories(Logger PUBLIC "../../Include")
 target_precompile_headers(Logger PRIVATE "Precompiled.hpp")

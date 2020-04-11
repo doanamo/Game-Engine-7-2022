@@ -9,16 +9,24 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(TARGET_NAME Example)
-
-project(${TARGET_NAME})
-add_executable(${TARGET_NAME}
+set(SOURCE_FILES
     "Main.cpp"
     "Precompiled.hpp"
     "Scenes/GameScene.hpp"
     "Scenes/GameScene.cpp"
 )
 
+list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+
+#
+# Application
+#
+
+set(TARGET_NAME Example)
+
+project(${TARGET_NAME})
+add_executable(${TARGET_NAME} ${SOURCE_FILES})
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
 target_precompile_headers(${TARGET_NAME} PRIVATE "Precompiled.hpp")
 

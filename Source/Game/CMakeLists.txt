@@ -6,27 +6,32 @@ cmake_minimum_required(VERSION 3.16)
 include_guard(GLOBAL)
 
 #
-# Library
+# Files
 #
 
-project(Game)
-add_library(Game STATIC
-    "../../Include/Game/GameFramework.hpp"
-    "../../Include/Game/GameState.hpp"
-    "../../Include/Game/UpdateTimer.hpp"
-    "../../Include/Game/EventRouter.hpp"
-    "../../Include/Game/EntityHandle.hpp"
-    "../../Include/Game/EntitySystem.hpp"
-    "../../Include/Game/Component.hpp"
-    "../../Include/Game/ComponentPool.hpp"
-    "../../Include/Game/ComponentSystem.hpp"
-    "../../Include/Game/Components/TransformComponent.hpp"
-    "../../Include/Game/Components/CameraComponent.hpp"
-    "../../Include/Game/Components/SpriteComponent.hpp"
-    "../../Include/Game/Components/SpriteAnimationComponent.hpp"
-    "../../Include/Game/Systems/IdentitySystem.hpp"
-    "../../Include/Game/Systems/InterpolationSystem.hpp"
-    "../../Include/Game/Systems/SpriteSystem.hpp"
+set(INCLUDE_FILES
+    "GameFramework.hpp"
+    "GameState.hpp"
+    "UpdateTimer.hpp"
+    "EventRouter.hpp"
+    "EntityHandle.hpp"
+    "EntitySystem.hpp"
+    "Component.hpp"
+    "ComponentPool.hpp"
+    "ComponentSystem.hpp"
+    "Components/TransformComponent.hpp"
+    "Components/CameraComponent.hpp"
+    "Components/SpriteComponent.hpp"
+    "Components/SpriteAnimationComponent.hpp"
+    "Systems/IdentitySystem.hpp"
+    "Systems/InterpolationSystem.hpp"
+    "Systems/SpriteSystem.hpp"
+)
+
+list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+
+set(SOURCE_FILES
     "Precompiled.hpp"
     "GameFramework.cpp"
     "GameState.cpp"
@@ -43,6 +48,15 @@ add_library(Game STATIC
     "Systems/SpriteSystem.cpp"
 )
 
+list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+
+#
+# Library
+#
+
+project(Game)
+add_library(Game STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Game PUBLIC cxx_std_17)
 target_include_directories(Game PUBLIC "../../Include")
 target_precompile_headers(Game PRIVATE "Precompiled.hpp")
