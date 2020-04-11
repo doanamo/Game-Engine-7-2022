@@ -13,6 +13,8 @@ project(Build)
 add_library(Build STATIC
     "../../Include/Build/Build.hpp"
     "Build.cpp"
+    "BuildInfo.hpp.in"
+    "BuildInfo.cmake"
 )
 
 target_compile_features(Build PUBLIC cxx_std_17)
