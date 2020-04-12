@@ -10,7 +10,6 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
-    "Common.hpp"
     "Utility.hpp"
     "Debug.hpp"
     "NonCopyable.hpp"
@@ -47,16 +46,3 @@ target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 
 add_subdirectory("../Logger" "Logger")
 target_link_libraries(Common PUBLIC Logger)
-
-add_subdirectory("../Event" "Event")
-target_link_libraries(Common PUBLIC Event)
-
-add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Common PUBLIC Reflection)
-
-#
-# Externals
-#
-
-target_include_directories(Common PUBLIC "../../External/utfcpp-2.3.6/source")
-target_include_directories(Common PUBLIC "../../External/GLM-0.9.9.3")

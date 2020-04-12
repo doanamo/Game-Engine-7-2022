@@ -8,5 +8,4 @@
     Precompiled Header
 */
 
-#include <Common/Common.hpp>
-#include <GL/glew.h>
+#include <Core/Core.hpp>

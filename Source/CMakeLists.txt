@@ -38,8 +38,8 @@ target_precompile_headers(Engine PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("Common")
-target_link_libraries(Engine PUBLIC Common)
+add_subdirectory("Core")
+target_link_libraries(Engine PUBLIC Core)
 
 add_subdirectory("Build")
 target_link_libraries(Engine PUBLIC Build)

@@ -38,8 +38,8 @@ target_precompile_headers(Renderer PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
-target_link_libraries(Renderer PRIVATE Common)
+add_subdirectory("../Core" "Core")
+target_link_libraries(Renderer PRIVATE Core)
 
 add_subdirectory("../System" "System")
 target_link_libraries(Renderer PRIVATE System)

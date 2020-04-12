@@ -15,5 +15,4 @@
 #include <iostream>
 #include <iomanip>
 #include <typeindex>
-#include <Common/Common.hpp>
-#include <GL/glew.h>
+#include <Core/Core.hpp>

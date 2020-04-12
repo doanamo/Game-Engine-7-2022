@@ -38,8 +38,8 @@ target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
-target_link_libraries(Script PRIVATE Common)
+add_subdirectory("../Core" "Core")
+target_link_libraries(Script PRIVATE Core)
 
 add_subdirectory("../System" "System")
 target_link_libraries(Script PRIVATE System)

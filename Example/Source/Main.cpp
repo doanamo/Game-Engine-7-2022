@@ -2,7 +2,6 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include <Engine.hpp>
 #include "Scenes/GameScene.hpp"
 
 int main()

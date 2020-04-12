@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Event/Dispatcher.hpp>
+#include <Core/Core.hpp>
 
 // Forward declarations.
 namespace System

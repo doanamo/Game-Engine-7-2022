@@ -7,8 +7,3 @@
 /*
     Precompiled Header
 */
-
-#include <sstream>
-#include <iomanip>
-#include <thread>
-#include <Core/Core.hpp>

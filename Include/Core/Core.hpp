@@ -12,6 +12,9 @@
 #include <utf8/unchecked.h>
 #include <fmt/core.h>
 
+#include <zlib.h>
+#include <png.h>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,9 +23,16 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 
-#include "Logger/Logger.hpp"
-#include "Common/Debug.hpp"
-#include "Common/Utility.hpp"
-#include "Common/NonCopyable.hpp"
-#include "Common/ScopeGuard.hpp"
-#include "Reflection/Reflection.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#include <Logger/Logger.hpp>
+#include <Common/Debug.hpp>
+#include <Common/Utility.hpp>
+#include <Common/NonCopyable.hpp>
+#include <Common/ScopeGuard.hpp>
+#include <Reflection/Reflection.hpp>

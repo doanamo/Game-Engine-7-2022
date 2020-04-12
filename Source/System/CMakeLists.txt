@@ -51,24 +51,5 @@ target_precompile_headers(System PRIVATE "Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
-target_link_libraries(System PRIVATE Common)
-
-#
-# Externals
-#
-
-find_package(OpenGL REQUIRED)
-target_link_libraries(System ${OPENGL_GL_LIBRARY})
-
-add_subdirectory("../../External/GLEW-2.1.0/build/cmake" "External/GLEW" EXCLUDE_FROM_ALL)
-target_include_directories(System PUBLIC "../../External/GLEW-2.1.0/include")
-target_link_libraries(System PUBLIC "glew_s")
-set_property(TARGET "glew_s" PROPERTY PROJECT_LABEL "GLEW")
-set_property(TARGET "glew_s" PROPERTY FOLDER "External")
-
-add_subdirectory("../../External/GLFW-3.2.1" "External/GLFW")
-target_include_directories(System PUBLIC "../../External/GLFW-3.2.1/include")
-target_link_libraries(System PUBLIC "glfw")
-set_property(TARGET "glfw" PROPERTY PROJECT_LABEL "GLFW")
-set_property(TARGET "glfw" PROPERTY FOLDER "External")
+add_subdirectory("../Core" "Core")
+target_link_libraries(System PRIVATE Core)

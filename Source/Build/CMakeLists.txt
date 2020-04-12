@@ -38,8 +38,8 @@ target_include_directories(Build PUBLIC "../../Include")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
-target_link_libraries(Build PRIVATE Common)
+add_subdirectory("../Core" "Core")
+target_link_libraries(Build PRIVATE Core)
 
 #
 # Configuration
