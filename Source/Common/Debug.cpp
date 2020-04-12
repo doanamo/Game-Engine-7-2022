@@ -4,6 +4,12 @@
 
 #include "Common/Debug.hpp"
 
+#ifdef WIN32
+    #define WIN32_LEAD_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+#endif
+
 void Debug::Initialize()
 {
     // Enable debug memory allocator and memory leak detection.
@@ -13,4 +19,14 @@ void Debug::Initialize()
         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
         _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
     #endif
+}
+
+bool Debug::IsDebuggerAttached()
+{
+#ifdef WIN32
+    return IsDebuggerPresent();
+#else
+    // Not implemented for other platforms.
+    return false;
+#endif
 }

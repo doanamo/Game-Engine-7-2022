@@ -12,8 +12,8 @@
 
     Stores current state and performs simple transitions between two possible states.
     Supports recursive transitions where next state can immediately transition to another.
-    Works on states wrapped in shared pointers to accustom generic usage and reference to
-    previous state is not discarded until after next state finishes entering.
+    Reference to previous state is not discarded until after next state finishes entering.
+    Works on states wrapped in shared pointers to accustom generic usage.
 
     class ExampleState : public State<ExampleState>
     {

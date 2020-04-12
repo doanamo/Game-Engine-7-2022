@@ -4,21 +4,19 @@
 
 #pragma once
 
-#include <iostream>
-#include "Logger/Logger.hpp"
+#include <Logger/Logger.hpp>
 
 /*
     Platform Defines
 */
 
-// Windows specific defines.
 #if defined(WIN32) && !defined(NDEBUG)
     #define _CRTDBG_MAP_ALLOC
     #define _CRTDBG_MAP_ALLOC_NEW
     #include <stdlib.h>
     #include <crtdbg.h>
 
-    // Override new operator to store additional info about an allocation.
+    // Override new operator to store additional information about an allocation.
     #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #else
     #define DEBUG_NEW new
@@ -30,8 +28,8 @@
 
 namespace Debug
 {
-    // Initializes debug routines.
     void Initialize();
+    bool IsDebuggerAttached();
 }
 
 /*
@@ -53,11 +51,8 @@ namespace Debug
     abort()
 
 #ifdef WIN32
-    #define WIN32_LEAD_AND_MEAN
-    #define NOMINMAX
-    #include <windows.h>
     #define DEBUG_BREAK_IF_ATTACHED() \
-        if(IsDebuggerPresent()) \
+        if(Debug::IsDebuggerAttached()) \
         { \
             DEBUG_BREAK(); \
         }
@@ -68,8 +63,8 @@ namespace Debug
 /*
     Assert Macros
 
-    Ensures that a given expression is true.
-    Used as a sanity check to guard against programming errors in debug build.
+    Ensures that given expression is true in debug configuration.
+    Used as a sanity check to guard against programming errors.
 
     Behavior in different build configurations:
     - Debug: Triggers abort
@@ -106,8 +101,8 @@ namespace Debug
 /*
     Verify Macro
 
-    Ensures that a given expression is true.
-    Used to safeguard against errors we choose to not handle in release build.
+    Ensures that given expression is true in all configurations.
+    Used to safeguard against errors we choose not to handle.
 
     Behavior in different build configurations:
     - Debug: Triggers abort
