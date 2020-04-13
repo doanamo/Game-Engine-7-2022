@@ -29,7 +29,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 #
 
 project(Engine)
-add_library(Engine STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
+add_library(Engine ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Engine PUBLIC cxx_std_17)
 target_include_directories(Engine PUBLIC "../Include")
 target_precompile_headers(Engine PRIVATE "Precompiled.hpp")
