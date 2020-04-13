@@ -14,8 +14,8 @@ macro(set_custom_compiler_options)
         #add_definitions(-D_HAS_EXCEPTIONS=0)
 
         # Disable RTTI.
-        string(REGEX REPLACE "/GR[-]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+        #string(REGEX REPLACE "/GR[-]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
     else()
         # Use -Wall for clang and gcc.
         if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
@@ -28,15 +28,15 @@ macro(set_custom_compiler_options)
         endif(NOT CMAKE_CXX_FLAGS MATCHES "-Wextra")
 
         # Disable C++ exceptions.
-        string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-        if(NOT CMAKE_CXX_FLAGS MATCHES "-fno-exceptions")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-        endif()
+        #string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        #if(NOT CMAKE_CXX_FLAGS MATCHES "-fno-exceptions")
+        #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+        #endif()
 
         # Disable RTTI.
-        string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-        if(NOT CMAKE_CXX_FLAGS MATCHES "-fno-rtti")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-        endif()
+        #string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        #if(NOT CMAKE_CXX_FLAGS MATCHES "-fno-rtti")
+        #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+        #endif()
     endif()
 endmacro()
