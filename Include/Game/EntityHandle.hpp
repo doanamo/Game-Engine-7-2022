@@ -14,30 +14,20 @@
 
 namespace Game
 {
-    // Entity handle structure.
     struct EntityHandle
     {
-        // Type declarations.
         using ValueType = int;
 
-        // Constructor.
-        EntityHandle() :
-            identifier(0),
-            version(0)
-        {
-        }
-
+        EntityHandle() = default;
         EntityHandle(ValueType identifier) :
             identifier(identifier),
             version(0)
         {
         }
 
-        // Handle data.
-        ValueType identifier;
-        ValueType version;
+        ValueType identifier = 0;
+        ValueType version = 0;
 
-        // Sorting operator.
         bool operator<(const EntityHandle& other) const
         {
             if(identifier < other.identifier)
@@ -49,7 +39,6 @@ namespace Game
             return false;
         }
 
-        // Comparison operators.
         bool operator==(const EntityHandle& other) const
         {
             return identifier == other.identifier && version == other.version;
@@ -70,7 +59,7 @@ namespace std
     {
         std::size_t operator()(const Game::EntityHandle& handle) const
         {
-            // Use the identifier as a hash.
+            // Use identifier as a hash.
             return handle.identifier;
         }
     };

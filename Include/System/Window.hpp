@@ -5,12 +5,11 @@
 #pragma once
 
 #include <string>
-#include <GLFW/glfw3.h>
 #include "Event/Dispatcher.hpp"
 #include "InputDefinitions.hpp"
 
 /*
-    System Window
+    Window
 
     Creates and handles a multimedia window that also manages its own OpenGL
     context along with input. Supports multiple windows and OpenGL contexts.
@@ -56,82 +55,48 @@ namespace System
     // Window info structure.
     struct WindowInfo
     {
-        WindowInfo();
+        std::string title = "Window";
+        int width = 1024;
+        int height = 576;
+        bool vsync = true;
+        bool visible = true;
 
-        std::string title;
-        int width;
-        int height;
-        bool vsync;
-        bool visible;
-
-        int minWidth;
-        int minHeight;
-        int maxWidth;
-        int maxHeight;
+        int minWidth = GLFW_DONT_CARE;
+        int minHeight = GLFW_DONT_CARE;
+        int maxWidth = GLFW_DONT_CARE;
+        int maxHeight = GLFW_DONT_CARE;
     };
 
-    // Window class.
-    class Window
+    class Window : private NonCopyable
     {
     public:
-        Window();
+        Window() = default;
         ~Window();
 
-        // Disallow copy operations.
-        Window(const Window& other) = delete;
-        Window& operator=(const Window& other) = delete;
-
-        // Move operations.
         Window(Window&& other);
         Window& operator=(Window&& other);
 
-        // Initializes the window.
         bool Initialize(const WindowInfo& info = WindowInfo());
-
-        // Makes the window's context current.
         void MakeContextCurrent();
-
-        // Processes window events.
         void ProcessEvents();
-
-        // Presents back buffer's content in the window.
         void Present();
-
-        // Closes the window.
         void Close();
 
-        // Sets the window's title.
         void SetTitle(std::string title);
-
-        // Sets the window's visibility.
         void SetVisibility(bool show);
 
-        // Gets the window's title.
         std::string GetTitle() const;
-
-        // Gets the window's width.
         int GetWidth() const;
-
-        // Gets the window's height.
         int GetHeight() const;
-
-        // Checks if the window is open.
         bool IsOpen() const;
-
-        // Checks if the window is focused.
         bool IsFocused() const;
-
-        // Checks if the window is valid.
         bool IsValid() const;
 
-        // Gets the window's private handle.
         GLFWwindow* GetPrivateHandle();
 
     public:
-        // Window events.
         struct Events
         {
-            // Move event.
             struct Move
             {
                 int x;
@@ -140,7 +105,6 @@ namespace System
 
             Event::Dispatcher<void(const Move&)> move;
 
-            // Resize event.
             struct Resize
             {
                 int width;
@@ -149,7 +113,6 @@ namespace System
 
             Event::Dispatcher<void(const Resize&)> resize;
 
-            // Focus event.
             struct Focus
             {
                 bool focused;
@@ -157,14 +120,12 @@ namespace System
 
             Event::Dispatcher<void(const Focus&)> focus;
 
-            // Close event.
             struct Close
             {
             };
 
             Event::Dispatcher<void(const Close&)> close;
 
-            // Keyboard key event.
             struct KeyboardKey
             {
                 int key;
@@ -175,7 +136,6 @@ namespace System
 
             Event::Dispatcher<bool(const KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
 
-            // Text input event.
             struct TextInput
             {
                 // Character is stored in UTF32 format here and can be
@@ -185,7 +145,6 @@ namespace System
 
             Event::Dispatcher<bool(const TextInput&), Event::CollectWhileFalse> textInput;
 
-            // Mouse button event.
             struct MouseButton
             {
                 int button;
@@ -195,7 +154,6 @@ namespace System
 
             Event::Dispatcher<bool(const MouseButton&), Event::CollectWhileFalse> mouseButton;
 
-            // Mouse scroll event.
             struct MouseScroll
             {
                 double offset;
@@ -203,7 +161,6 @@ namespace System
 
             Event::Dispatcher<bool(const MouseScroll&), Event::CollectWhileFalse> mouseScroll;
 
-            // Cursor position event.
             struct CursorPosition
             {
                 double x;
@@ -212,7 +169,6 @@ namespace System
 
             Event::Dispatcher<void(const CursorPosition&)> cursorPosition;
 
-            // Cursor enter event.
             struct CursorEnter
             {
                 bool entered;
@@ -222,48 +178,23 @@ namespace System
         } events;
 
     private:
-        // Called when the window gets moved.
         static void MoveCallback(GLFWwindow* window, int x, int y);
-
-        // Called when the window gets resized.
         static void ResizeCallback(GLFWwindow* window, int width, int height);
-
-        // Called when the window gets focused.
         static void FocusCallback(GLFWwindow* window, int focused);
-
-        // Called when the window gets closed.
         static void CloseCallback(GLFWwindow* window);
-
-        // Called when a keyboard key state changes.
         static void KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-        // Called when a text character is entered on the keyboard.
         static void TextInputCallback(GLFWwindow* window, unsigned int character);
-
-        // Called when a state of a mouse button changes.
         static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-
-        // Called when the mouse scroll moves.
         static void MouseScrollCallback(GLFWwindow* window, double offsetx, double offsety);
-
-        // Called when the mouse cursor moves.
         static void CursorPositionCallback(GLFWwindow* window, double x, double y);
-
-        // Called when the mouse cursor enters or leaves the window.
         static void CursorEnterCallback(GLFWwindow* window, int entered);
 
     private:
-        // Destroy the window handle immediately.
         void DestroyWindow();
 
     private:
-        // Window handle.
-        GLFWwindow* m_handle;
-
-        // Window title.
         std::string m_title;
-
-        // Intermediate state.
-        bool m_sizeChanged;
+        GLFWwindow* m_handle = nullptr;
+        bool m_sizeChanged = false;
     };
 }

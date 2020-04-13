@@ -6,14 +6,13 @@
 
 #include "Graphics/RenderContext.hpp"
 
-// Forward declaration.
 namespace System
 {
     class FileSystem;
 }
 
 /*
-    Graphics Shader
+    Shader
     
     Loads and links GLSL shaders into an OpenGL program object.
     Supports geometry, vertex and fragment shaders.
@@ -60,14 +59,11 @@ namespace System
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
 
-    // Shader class.
     class Shader : private NonCopyable
     {
     public:
-        // Load shader from a string.
         struct LoadFromString
         {
             System::FileSystem* fileSystem = nullptr;
@@ -75,7 +71,6 @@ namespace Graphics
             std::string shaderCode;
         };
 
-        // Load shader from a file.
         struct LoadFromFile
         {
             System::FileSystem* fileSystem = nullptr;
@@ -84,51 +79,33 @@ namespace Graphics
         };
 
     public:
-        Shader();
+        Shader() = default;
         ~Shader();
 
-        // Move constructor and assignment.
         Shader(Shader&& other);
         Shader& operator=(Shader&& other);
 
-        // Compiles the shader from a string.
         bool Initialize(const LoadFromString& params);
-
-        // Loads the shader from a file.
         bool Initialize(const LoadFromFile& params);
 
-        // Sets an uniform shader variable.
         template<typename Type>
         void SetUniform(std::string name, const Type& value);
 
-        // Gets an attribute index from the shader program.
         GLint GetAttributeIndex(std::string name) const;
-
-        // Gets an uniform index from the shader program.
         GLint GetUniformIndex(std::string name) const;
-
-        // Gets the shader program handle.
         GLuint GetHandle() const;
-
-        // Checks if the shader is valid.
         bool IsValid() const;
 
     private:
-        // Destroys the internal handle.
         void DestroyHandle();
 
     private:
-        // Render context.
-        RenderContext* m_renderContext;
-
-        // Program handle.
-        GLuint m_handle;
+        RenderContext* m_renderContext = nullptr;
+        GLuint m_handle = OpenGL::InvalidHandle;
     };
 
-    // Pointer type.
     using ShaderPtr = std::shared_ptr<Shader>;
 
-    // Template implementations.
     template<>
     inline void Shader::SetUniform(std::string name, const GLint& value)
     {

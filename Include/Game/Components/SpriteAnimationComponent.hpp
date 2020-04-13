@@ -14,14 +14,11 @@
 
 namespace Game
 {
-    // Forward declarations.
     class SpriteComponent;
 
-    // Sprite animation component class.
     class SpriteAnimationComponent : public Component
     {
     public:
-        // Playback flags.
         struct PlaybackFlags
         {
             enum
@@ -34,69 +31,42 @@ namespace Game
             using Type = unsigned int;
         };
 
-        // Type declarations.
         using SpriteAnimationListPtr = std::shared_ptr<Graphics::SpriteAnimationList>;
         using SpriteAnimation = Graphics::SpriteAnimationList::Animation;
 
     public:
-        SpriteAnimationComponent();
+        SpriteAnimationComponent() = default;
+        ~SpriteAnimationComponent() = default;
 
         SpriteAnimationComponent(SpriteAnimationComponent&& other);
         SpriteAnimationComponent& operator=(SpriteAnimationComponent&& other);
 
-        // Sets the sprite animation list.
         void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
-
-        // Resets the animation interpolation.
         void ResetInterpolation();
 
-        // Plays a specific sprite animation.
         void Play(std::string animationName, bool loop);
-
-        // Checks if sprite animation is being played.
         bool IsPlaying() const;
 
-        // Pauses the currently playing animation.
         void Pause();
-
-        // Resumes the currently paused animation.
         void Resume();
-
-        // Stops the currently playing animation.
         void Stop();
 
-        // Updates the currently playing animation.
         void Update(float timeDelta);
-
-        // Calculates the current animation time.
         float CalculateAnimationTime(float timeAlpha) const;
 
-        // Gets the sprite animation list.
+        SpriteComponent* GetSpriteComponent() const;
         const SpriteAnimationListPtr& GetSpriteAnimationList() const;
-
-        // Gets the current sprite animation.
         const SpriteAnimation* GetSpriteAnimation() const;
 
-        // Gets the sprite component.
-        SpriteComponent* GetSpriteComponent() const;
-
     private:
-        // Called when component gets initialized.
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
     private:
-        // Sprite component reference.
-        SpriteComponent* m_spriteComponent;
-
-        // Sprite animation list.
-        SpriteAnimationListPtr m_spriteAnimationList;
-
-        // Animation playback info.
-        const SpriteAnimation* m_spriteAnimation;
-        PlaybackFlags::Type m_playbackInfo;
-
-        // Interpolated animation time.
-        float m_currentAnimationTime;
-        float m_previousAnimationTime;
+        SpriteComponent* m_spriteComponent = nullptr;
+        SpriteAnimationListPtr m_spriteAnimationList = nullptr;
+        const SpriteAnimation* m_spriteAnimation = nullptr;
+        PlaybackFlags::Type m_playbackInfo = PlaybackFlags::None;
+        float m_currentAnimationTime = 0.0f;
+        float m_previousAnimationTime = 0.0f;
     };
 }

@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include "Graphics/RenderState.hpp"
+
 /*
-    Graphics Buffer
+    Buffer
     
     Generic buffer base class that can handle different types of OpenGL buffers.
     Supported buffer types include vertex buffer, index buffer and instance buffer.
@@ -44,83 +46,55 @@
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
 
-    // Buffer info structure.
     struct BufferInfo
     {
-        BufferInfo();
-
-        GLenum usage;
-        std::size_t elementSize;
-        std::size_t elementCount;
-        const void* data;
+        GLenum usage = GL_STATIC_DRAW;
+        std::size_t elementSize = 0;
+        std::size_t elementCount = 0;
+        const void* data = nullptr;
     };
 
-    // Buffer class.
     class Buffer : private NonCopyable
     {
     protected:
         Buffer(GLenum type);
         virtual ~Buffer();
 
-        // Move constructor and assignment.
         Buffer(Buffer&& other);
         Buffer& operator=(Buffer&& other);
 
     public:
-        // Initializes the buffer instance.
         bool Initialize(RenderContext* renderContext, const BufferInfo& info);
-
-        // Updates the buffer's data.
         void Update(const void* data, std::size_t elementCount);
 
-        // Gets the buffer's type.
         GLenum GetType() const;
-
-        // Gets the buffer's name.
         virtual const char* GetName() const = 0;
-
-        // Gets the buffer's handle.
         GLuint GetHandle() const;
-
-        // Gets the buffer's element size.
         std::size_t GetElementSize() const;
-
-        // Gets the buffer's element count.
         std::size_t GetElementCount() const;
-
-        // Gets the buffer's element type.
         virtual GLenum GetElementType() const;
-
-        // Checks if the buffer is valid.
         bool IsValid() const;
-
-        // Checks if the buffer is instanced.
         virtual bool IsInstanced() const;
 
     private:
-        // Destroys the internal handle.
         void DestroyHandle();
 
     protected:
-        // Render context.
-        RenderContext* m_renderContext;
+        RenderContext* m_renderContext = nullptr;
 
-        // Buffer handle.
         GLenum m_type;
-        GLenum m_usage;
-        GLuint m_handle;
+        GLenum m_usage = OpenGL::InvalidEnum;
+        GLuint m_handle = OpenGL::InvalidHandle;
 
-        // Buffer parameters.
-        std::size_t m_elementSize;
-        std::size_t m_elementCount;
+        std::size_t m_elementSize = 0;
+        std::size_t m_elementCount = 0;
     };
 }
 
 /*
-    Graphics Vertex Buffer
+    Vertex Buffer
 */
 
 namespace Graphics
@@ -130,17 +104,15 @@ namespace Graphics
     public:
         VertexBuffer();
 
-        // Move constructor and assignment.
         VertexBuffer(VertexBuffer&& other);
         VertexBuffer& operator=(VertexBuffer&& other);
 
-        // Returns the buffer's name.
         const char* GetName() const override;
     };
 }
 
 /*
-    Graphics Index Buffer
+    Index Buffer
 */
 
 namespace Graphics
@@ -150,14 +122,10 @@ namespace Graphics
     public:
         IndexBuffer();
 
-        // Move constructor and assignment.
         IndexBuffer(IndexBuffer&& other);
         IndexBuffer& operator=(IndexBuffer&& other);
 
-        // Gets the type of index indices.
         GLenum GetElementType() const override;
-
-        // Returns the buffer's name.
         const char* GetName() const override;
     };
 }
@@ -173,14 +141,10 @@ namespace Graphics
     public:
         InstanceBuffer();
 
-        // Move constructor and assignment.
         InstanceBuffer(InstanceBuffer&& other);
         InstanceBuffer& operator=(InstanceBuffer&& other);
 
-        // Returns the buffer's name.
         const char* GetName() const override;
-
-        // Returns true for this type of a buffer.
         bool IsInstanced() const override;
     };
 }

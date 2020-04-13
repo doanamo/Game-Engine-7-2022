@@ -13,15 +13,12 @@
 
 namespace Event
 {
-    // Forward declarations.
     template<typename Type>
     class Receiver;
 
-    // Event broker class.
-    class Broker
+    class Broker : private NonCopyable
     {
     public:
-        // Type declarations.
         using EventHandle = std::any;
         using DispatcherHandle = std::any;
         using DispatcherInvoker = Delegate<bool(DispatcherHandle&, const EventHandle&)>;
@@ -31,9 +28,6 @@ namespace Event
     public:
         Broker() = default;
         ~Broker() = default;
-
-        Broker(const Broker& other) = delete;
-        Broker& operator=(const Broker& other) = delete;
 
         Broker(Broker&& other)
         {
@@ -99,7 +93,7 @@ namespace Event
         }
 
     private:
-        // List of dispatchers.
+        // List of subscribed dispatchers.
         DispatcherMap m_dispatcherMap;
     };
 }

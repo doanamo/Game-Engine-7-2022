@@ -5,25 +5,14 @@
 #include "System/ResourceManager.hpp"
 using namespace System;
 
-ResourceManager::ResourceManager() :
-    m_initialized(false)
-{
-}
-
-ResourceManager::~ResourceManager()
-{
-}
-
 ResourceManager::ResourceManager(ResourceManager&& other) :
     ResourceManager()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 ResourceManager& ResourceManager::operator=(ResourceManager&& other)
 {
-    // Swap class members.
     std::swap(m_pools, other.m_pools);
     std::swap(m_initialized, other.m_initialized);
 

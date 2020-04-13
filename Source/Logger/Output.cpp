@@ -9,10 +9,6 @@
 #include "Logger/Sink.hpp"
 using namespace Logger;
 
-FileOutput::FileOutput()
-{
-}
-
 FileOutput::~FileOutput()
 {
     // Close the file stream.
@@ -74,14 +70,6 @@ void ConsoleOutput::Write(const Message& message, const SinkContext& context)
 {
     // Write a log message.
     std::cout << DefaultFormat::ComposeMessage(message, context);
-}
-
-DebuggerOutput::DebuggerOutput()
-{
-}
-
-DebuggerOutput::~DebuggerOutput()
-{
 }
 
 void DebuggerOutput::Write(const Message& message, const SinkContext& context)

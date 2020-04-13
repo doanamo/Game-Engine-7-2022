@@ -40,11 +40,9 @@
 
 namespace Game
 {
-    // Entity system class.
     class EntitySystem : private NonCopyable
     {
     public:
-        // Handle flags.
         struct HandleFlags
         {
             enum
@@ -71,7 +69,6 @@ namespace Game
         };
 
     private:
-        // Handle entry structure.
         struct HandleEntry
         {
             HandleEntry(EntityHandle::ValueType identifier);
@@ -80,7 +77,6 @@ namespace Game
             HandleFlags::Type flags;
         };
 
-        // Entity command types.
         struct EntityCommands
         {
             enum
@@ -94,7 +90,6 @@ namespace Game
             using Type = int;
         };
 
-        // Entity command structure.
         struct EntityCommand
         {
             EntityCommand(EntityCommands::Type type, EntityHandle handle);
@@ -103,48 +98,33 @@ namespace Game
             EntityHandle handle;
         };
 
-        // Type declarations.
         using EntryList = std::vector<HandleEntry>;
         using FreeList = std::queue<std::size_t>;
         using CommandList = std::queue<EntityCommand>;
 
     public:
-        EntitySystem();
+        EntitySystem() = default;
         ~EntitySystem();
 
-        // Move constructor and assignment.
         EntitySystem(EntitySystem&& other);
         EntitySystem& operator=(EntitySystem&& other);
 
-        // Initializes the entity system.
         bool Initialize();
 
-        // Creates an entity.
         EntityHandle CreateEntity();
-
-        // Destroys an entity.
         void DestroyEntity(const EntityHandle& entity);
-
-        // Destroys all entities.
         void DestroyAllEntities();
-
-        // Process entity commands.
         void ProcessCommands();
 
-        // Checks if an entity handle is valid.
         bool IsHandleValid(const EntityHandle& entity) const;
-
-        // Returns current entity's flags.
         HandleFlags::Type GetEntityFlags(const EntityHandle& entity);
 
-        // Returns the number of active entities.
         unsigned int GetEntityCount() const
         {
             return m_entityCount;
         }
 
     public:
-        // Event that are dispatched on ProcessCommands() call.
         struct Events
         {
             using EntityCreateDispatcher = Event::Dispatcher<bool(EntityHandle), Event::CollectWhileTrue>;
@@ -155,27 +135,15 @@ namespace Game
         } events;
 
     private:
-        // Returns a handle entry.
         const HandleEntry& GetHandleEntry(const EntityHandle& entity) const;
         HandleEntry& GetHandleEntry(const EntityHandle& entity);
-
-        // Frees an entity handle.
         void FreeHandle(HandleEntry& handleEntry);
 
     private:
-        // List of commands.
         CommandList m_commands;
-
-        // List of entity handles.
         EntryList m_handleEntries;
-
-        // List of freed entity identifiers.
         FreeList m_freeIdentifiers;
-
-        // Number of active entities.
-        unsigned int m_entityCount;
-
-        // Initialization state.
-        bool m_initialized;
+        unsigned int m_entityCount = 0;
+        bool m_initialized = false;
     };
 }

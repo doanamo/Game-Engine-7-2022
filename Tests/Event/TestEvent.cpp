@@ -6,7 +6,7 @@
 #include <Event/Collector.hpp>
 #include <Event/Dispatcher.hpp>
 #include <Event/Receiver.hpp>
-#include "TestHelpers.hpp"
+#include <TestHelpers.hpp>
 
 char Function(const char* c, int i)
 {
@@ -34,41 +34,32 @@ public:
 bool TestDelegate()
 {
     Event::Delegate<char(const char* c, int i)> delegate;
-
     TEST_FALSE(delegate.IsBound());
 
     // Static function binding.
     delegate.Bind<&Function>();
-
     TEST_TRUE(delegate.IsBound());
     TEST_EQ(delegate.Invoke("Hello world!", 6), 'w');
 
     delegate.Bind(nullptr);
-
     TEST_FALSE(delegate.IsBound());
 
     // Class method binding.
     BaseClass baseClass;
-
     delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-
     TEST_TRUE(delegate.IsBound());
     TEST_EQ(delegate.Invoke("Hello world!", 6), ' ');
 
     delegate.Bind(nullptr);
-
     TEST_FALSE(delegate.IsBound());
 
     // Virtual method binding.
     DerivedClass derivedClass;
-
     delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
-
     TEST_TRUE(delegate.IsBound());
     TEST_EQ(delegate.Invoke("Hello world!", 6), 'o');
 
     delegate.Bind(nullptr);
-
     TEST_FALSE(delegate.IsBound());
 
     // Lambda functor binding.
@@ -78,12 +69,10 @@ bool TestDelegate()
     };
 
     delegate.Bind(&functor);
-
     TEST_TRUE(delegate.IsBound());
     TEST_EQ(delegate.Invoke("Hello world!", 6), 'r');
 
     delegate.Bind(nullptr);
-
     TEST_FALSE(delegate.IsBound());
 
     // Lambda binding via constructor.
@@ -103,13 +92,11 @@ bool TestDelegate()
         delegate1();
         delegate2();
 
-        if(counter != 6)
-            return false;
+        TEST_EQ(counter, 6);
     }
 
     // Delegate unbinding.
     delegate.Bind(nullptr);
-
     TEST_FALSE(delegate.IsBound());
 
     return true;
@@ -245,27 +232,22 @@ bool TestDispatcher()
         receiverB.Bind<DispatcherClass, &DispatcherClass::FunctionB>(&dispatcherClass);
 
         Event::Dispatcher<int(int*)> dispatcher(42);
-
         TEST_EQ(dispatcher.Dispatch(&i), 42);
         TEST_EQ(i, 0);
 
         dispatcher.Subscribe(receiverA);
-
         TEST_EQ(dispatcher.Dispatch(&i), 32);
         TEST_EQ(i, 2);
 
         dispatcher.Subscribe(receiverB);
-
         TEST_EQ(dispatcher.Dispatch(&i), 33);
         TEST_EQ(i, 8);
 
         receiverB.Unsubscribe();
-
         TEST_EQ(dispatcher.Dispatch(&i), 32);
         TEST_EQ(i, 10);
 
         dispatcher.Unsubscribe(receiverA);
-
         TEST_EQ(dispatcher.Dispatch(&i), 42);
         TEST_EQ(i, 10);
     }
@@ -284,44 +266,36 @@ bool TestDispatcher()
         receiverDummy.Bind<DispatcherClass, &DispatcherClass::FunctionDummy>(&dispatcherClass);
 
         Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(true);
-
         TEST_TRUE(dispatcherWhileTrue.Dispatch(&i));
         TEST_EQ(i, 0);
 
         dispatcherWhileTrue.Subscribe(receiverTrue);
-
         TEST_TRUE(dispatcherWhileTrue.Dispatch(&i));
         TEST_EQ(i, 3);
 
         dispatcherWhileTrue.Subscribe(receiverFalse);
-
         TEST_FALSE(dispatcherWhileTrue.Dispatch(&i))
         TEST_EQ(i, 15);
 
         dispatcherWhileTrue.Subscribe(receiverDummy);
-
         TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
         TEST_EQ(i, 27);
 
         int y = 0;
 
         Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(false);
-
         TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 0);
 
         dispatcherWhileFalse.Subscribe(receiverFalse, true);
-
         TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 9);
 
         dispatcherWhileFalse.Subscribe(receiverTrue, true);
-
         TEST_TRUE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 21);
 
         dispatcherWhileFalse.Subscribe(receiverDummy);
-
         TEST_TRUE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 33)
     }
@@ -337,22 +311,18 @@ bool TestDispatcher()
         receiverFalse.Bind<DispatcherClass, &DispatcherClass::FunctionFalse>(&dispatcherClass);
 
         Event::Dispatcher<bool(int*), Event::CollectWhileTrue> dispatcherWhileTrue(false);
-
         TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
         TEST_EQ(i, 0);
 
         dispatcherWhileTrue.Subscribe(receiverTrue);
-
         TEST_FALSE(dispatcherWhileTrue.Dispatch(&i));
         TEST_EQ(i, 0);
 
         Event::Dispatcher<bool(int*), Event::CollectWhileFalse> dispatcherWhileFalse(true);
-
         TEST_TRUE(dispatcherWhileFalse.Dispatch(&i));
         TEST_EQ(i, 0);
 
         dispatcherWhileFalse.Subscribe(receiverFalse);
-
         TEST_TRUE(dispatcherWhileFalse.Dispatch(&i));
         TEST_EQ(i, 0);
     }
@@ -384,7 +354,6 @@ bool TestDispatcher()
         dispatcherA.Subscribe(receiverAddFour);
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 10);
         TEST_TRUE(dispatcherA.Subscribe(receiverAddOne));
         TEST_TRUE(dispatcherA.Subscribe(receiverAddTwo));
@@ -392,71 +361,57 @@ bool TestDispatcher()
         TEST_TRUE(dispatcherA.Subscribe(receiverAddFour));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 20);
         TEST_FALSE(dispatcherB.Subscribe(receiverAddOne));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 30);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 30);
         TEST_TRUE(dispatcherB.Subscribe(receiverAddOne, true));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 39);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 40);
         TEST_TRUE(dispatcherB.Subscribe(receiverAddThree, true));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 46);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 50);
         TEST_TRUE(dispatcherB.Subscribe(receiverAddFour, true));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 52);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 60);
         TEST_TRUE(dispatcherB.Subscribe(receiverAddTwo, true));
 
         dispatcherA.Dispatch(&i);
-
         TEST_EQ(i, 60);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 70);
 
         receiverAddTwo.Unsubscribe();
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 78);
 
         dispatcherB.Unsubscribe(receiverAddFour);
 
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 82);
 
         dispatcherB.UnsubscribeAll();
 
         dispatcherA.Dispatch(&i);
         dispatcherB.Dispatch(&i);
-
         TEST_EQ(i, 82);
     }
 
@@ -465,14 +420,7 @@ bool TestDispatcher()
 
 int main()
 {
-    if(!TestDelegate())
-        return 1;
-
-    if(!TestCollector())
-        return 1;
-
-    if(!TestDispatcher())
-        return 1;
-
-    return 0;
+    TEST_RUN(TestDelegate);
+    TEST_RUN(TestCollector);
+    TEST_RUN(TestDispatcher);
 }

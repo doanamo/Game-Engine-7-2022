@@ -274,7 +274,7 @@ void GameStateEditor::OnGameStateUpdateCalled()
         std::rotate(m_updateTimeHistogram.begin(), m_updateTimeHistogram.begin() + 1, m_updateTimeHistogram.end());
     }
 
-    // Reset the first value that will accumulate new update time values.
+    // Reset first value that will accumulate new update time values.
     if(!m_updateTimeHistogram.empty())
     {
         m_updateTimeHistogram.back() = 0.0f;

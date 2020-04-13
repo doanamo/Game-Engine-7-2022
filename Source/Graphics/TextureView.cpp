@@ -2,20 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
 using namespace Graphics;
-
-TextureView::TextureView() :
-    m_texture(nullptr),
-    m_textureRect(0.0f, 0.0f, 1.0f, 1.0f)
-{
-}
-
-TextureView::~TextureView()
-{
-}
 
 TextureView::TextureView(ConstTexturePtr texture) :
     TextureView()

@@ -9,18 +9,8 @@
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
 
-SpriteAnimationList::Frame::Frame() :
-    textureView(), duration(0.0f)
-{
-}
-
 SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration) :
     textureView(std::move(textureView)), duration(duration)
-{
-}
-
-SpriteAnimationList::Animation::Animation() :
-    duration(0.0f)
 {
 }
 
@@ -37,11 +27,6 @@ const SpriteAnimationList::Frame SpriteAnimationList::Animation::GetFrameByTime(
 
     // Return empty frame if animation time does not correspond to any.
     return SpriteAnimationList::Frame();
-}
-
-SpriteAnimationList::SpriteAnimationList() :
-    m_initialized(false)
-{
 }
 
 SpriteAnimationList::SpriteAnimationList(SpriteAnimationList&& other) :

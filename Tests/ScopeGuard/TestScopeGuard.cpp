@@ -3,7 +3,7 @@
 */
 
 #include <Common/ScopeGuard.hpp>
-#include "TestHelpers.hpp"
+#include <TestHelpers.hpp>
 
 bool TestMakeScopeGuard()
 {

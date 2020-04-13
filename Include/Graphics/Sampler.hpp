@@ -7,7 +7,7 @@
 #include "Graphics/RenderState.hpp"
 
 /*
-    Graphics Sampler
+    Sampler
     
     Encapsulates an OpenGL sampler object that defines texture sampling and filtering properties.
     
@@ -34,10 +34,8 @@
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
 
-    // Sampler info structure.
     struct SamplerInfo
     {
         SamplerInfo();
@@ -60,44 +58,28 @@ namespace Graphics
     class Sampler : private NonCopyable
     {
     public:
-        Sampler();
+        Sampler() = default;
         ~Sampler();
 
-        // Move constructor and assignment.
         Sampler(Sampler&& other);
         Sampler& operator=(Sampler&& other);
 
-        // Initializes the sampler object.
         bool Initialize(RenderContext* renderContext, const SamplerInfo& info = SamplerInfo());
 
-        // Sets a sampler's parameter.
         template<typename Type>
         void SetParameter(GLenum parameter, const Type& value);
 
-        // Gets the sampler's handle.
         GLuint GetHandle() const;
-
-        // Checks if the instance valid.
         bool IsValid() const;
 
-    public:
-        // Initializes default parameters.
-        // Does not have to be called (sampler info calls it itself).
-        static void InitializeDefaults();
-
     private:
-        // Destroys the internal handle.
         void DestroyHandle();
 
     private:
-        // Render context.
-        RenderContext* m_renderContext;
-
-        // Sampler handle.
-        GLuint m_handle;
+        RenderContext* m_renderContext = nullptr;
+        GLuint m_handle = OpenGL::InvalidHandle;
     };
 
-    // Template implementations.
     template<>
     inline void Sampler::SetParameter<GLint>(GLenum parameter, const GLint& value)
     {

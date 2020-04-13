@@ -11,34 +11,19 @@ using namespace Graphics;
     Buffer
 */
 
-BufferInfo::BufferInfo() :
-    usage(GL_STATIC_DRAW),
-    elementSize(0),
-    elementCount(0),
-    data(nullptr)
-{
-}
-
 Buffer::Buffer(GLenum type) :
-    m_renderContext(nullptr),
-    m_type(type),
-    m_usage(OpenGL::InvalidEnum),
-    m_handle(OpenGL::InvalidHandle),
-    m_elementSize(0),
-    m_elementCount(0)
+    m_type(type)
 {
 }
 
 Buffer::Buffer(Buffer&& other) :
     Buffer(other.m_type)
 {
-    // Call the assignment operator.
     *this = std::move(other);
 }
 
 Buffer& Buffer::operator=(Buffer&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_type, other.m_type);
     std::swap(m_usage, other.m_usage);

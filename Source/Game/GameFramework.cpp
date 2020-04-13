@@ -83,9 +83,11 @@ bool GameFramework::Update()
     // Update game state.
     if(m_gameState)
     {
+        // Update and return true if update occurred.
         return m_gameState->Update(*m_timer);
     }
 
+    // Return false if game state did not update.
     return false;
 }
 

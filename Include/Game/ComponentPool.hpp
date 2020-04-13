@@ -19,10 +19,8 @@
 
 namespace Game
 {
-    // Forward declaration.
     class ComponentSystem;
 
-    // Component pool interface class.
     class ComponentPoolInterface
     {
     protected:
@@ -39,15 +37,12 @@ namespace Game
         virtual bool DestroyComponent(EntityHandle handle) = 0;
     };
 
-    // Component pool class.
     template<typename ComponentType>
     class ComponentPool : public ComponentPoolInterface, private NonCopyable
     {
     public:
-        // Check template type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Component entry flags
         struct ComponentFlags
         {
             enum
@@ -65,34 +60,26 @@ namespace Game
             using Type = unsigned int;
         };
 
-        // Component entry structure.
         struct ComponentEntry
         {
-            ComponentEntry();
-
-            typename ComponentFlags::Type flags;
+            typename ComponentFlags::Type flags = ComponentFlags::Unused;
             EntityHandle entity;
             ComponentType component;
         };
 
-        // Type declarations.
         using ComponentIndex = std::size_t;
         using ComponentList = std::vector<ComponentEntry>;
         using ComponentFreeList = std::queue<ComponentIndex>;
         using ComponentLookup = std::unordered_map<EntityHandle, ComponentIndex>;
 
-        // Component iterator class.
         class ComponentIterator
         {
         public:
-            // Type declarations.
             using BaseIterator = typename ComponentList::iterator;
 
         public:
-            // Iterator constructors.
             ComponentIterator(const BaseIterator& iterator, const BaseIterator& end);
 
-            // Iterator methods.
             ComponentType& operator*();
             bool operator==(const ComponentIterator& other) const;
             bool operator!=(const ComponentIterator& other) const;
@@ -114,54 +101,30 @@ namespace Game
         ComponentPool(ComponentSystem* componentSystem);
         ~ComponentPool();
 
-        // Move constructor and assignment.
         ComponentPool(ComponentPool&& other);
         ComponentPool& operator=(ComponentPool&& other);
 
-        // Creates a component.
         // Returns nullptr if component could not be created.
         ComponentType* CreateComponent(EntityHandle entity);
 
-        // Lookups a component.
         // Returns nullptr if component could not be found.
         ComponentType* LookupComponent(EntityHandle entity);
 
-        // Initializes a component.
         // Returns true if component was successfully initialized.
         bool InitializeComponent(EntityHandle entity) override;
 
-        // Destroys a component.
         // Returns true if component was found and destroyed.
         bool DestroyComponent(EntityHandle entity) override;
 
-        // Get the begin iterator for component entries.
         ComponentIterator Begin();
-        
-        // Gets the end iterator for component entries.
         ComponentIterator End();
 
     private:
-        // Component system reference.
         ComponentSystem* m_componentSystem;
-
-        // List of components.
         ComponentList m_entries;
-
-        // Lookup dictionary.
         ComponentLookup m_lookup;
-
-        // Free list queue.
         ComponentFreeList m_freeList;
     };
-
-    // Template definitions.
-    template<typename ComponentType>
-    ComponentPool<ComponentType>::ComponentEntry::ComponentEntry() :
-        flags(ComponentFlags::Unused),
-        entity(),
-        component()
-    {
-    }
 
     template<typename ComponentType>
     void ComponentPool<ComponentType>::ComponentIterator::ValidateIterator()

@@ -9,15 +9,12 @@
 
 namespace
 {
-    // Default logger sink.
     Logger::Sink sink;
 
-    // Default logger outputs.
     Logger::FileOutput fileOutput;
     Logger::ConsoleOutput consoleOutput;
     Logger::DebuggerOutput debuggerOutput;
 
-    // Initialization state.
     bool initialized = false;
 }
 

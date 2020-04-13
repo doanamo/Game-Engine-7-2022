@@ -4,7 +4,6 @@
 
 #pragma once
 
-// Forward declarations.
 namespace System
 {
     class FileSystem;
@@ -19,16 +18,13 @@ namespace System
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
     class Texture;
     class TextureView;
 
-    // Texture atlas class.
-    class TextureAtlas
+    class TextureAtlas : private NonCopyable
     {
     public:
-        // Load texture atlas from a file.
         struct LoadFromFile
         {
             System::FileSystem* fileSystem = nullptr;
@@ -37,40 +33,26 @@ namespace Graphics
             std::string filePath;
         };
 
-        // Type declaration.
         using ConstTexturePtr = std::shared_ptr<const Texture>;
         using RegionMap = std::unordered_map<std::string, glm::ivec4>;
 
     public:
-        TextureAtlas();
-        ~TextureAtlas();
-
-        TextureAtlas(const TextureAtlas& other) = delete;
-        TextureAtlas& operator=(const TextureAtlas& other) = delete;
+        TextureAtlas() = default;
+        ~TextureAtlas() = default;
 
         TextureAtlas(TextureAtlas&& other);
         TextureAtlas& operator=(TextureAtlas&& other);
 
-        // Initializes the texture atlas.
         bool Initialize();
-
-        // Loads the texture atlas from a file.
         bool Initialize(const LoadFromFile& params);
 
-        // Adds a named region enclosed in the atlas.
         bool AddRegion(std::string name, glm::ivec4 pixelCoords);
-
-        // Returns a texture view of a region enclosed in the atlas.
         TextureView GetRegion(std::string name);
 
     private:
-        // Texture reference.
         ConstTexturePtr m_texture;
-
-        // Texture regions.
         RegionMap m_regions;
 
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 };

@@ -7,10 +7,9 @@ using namespace System;
 
 namespace
 {
-    // Number of times GLFW has been initialized.
+    // GLFW initialization guard counter.
     static int GLFWRefCounter = 0;
 
-    // Terminates GLFW instance.
     void TerminateGLFW()
     {
         // Decrement the reference counter.
@@ -26,16 +25,10 @@ namespace
 
 namespace
 {
-    // Callback error function.
     void ErrorCallback(int error, const char* description)
     {
         LOG_ERROR("GLFW Error: {}", description);
     }
-}
-
-Platform::Platform() :
-    m_initialized(false)
-{
 }
 
 Platform::~Platform()
@@ -50,15 +43,12 @@ Platform::~Platform()
 Platform::Platform(Platform&& other) :
     Platform()
 {
-    // Call the assignment operator to perform a swap.
     *this = std::move(other);
 }
 
 Platform& Platform::operator=(Platform&& other)
 {
-    // Perform a swap for this non performance critical operation.
     std::swap(m_initialized, other.m_initialized);
-
     return *this;
 }
 

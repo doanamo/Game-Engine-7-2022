@@ -12,37 +12,11 @@
 
 namespace Game
 {
-    // Forward declarations.
     class TransformComponent;
 
-    // Camera component class.
     class CameraComponent : public Component
     {
     public:
-        CameraComponent();
-        ~CameraComponent();
-
-        CameraComponent(CameraComponent&& other);
-        CameraComponent& operator=(CameraComponent&& other);
-
-        // Setups orthogonal projection for the camera.
-        void SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane);
-
-        // Setups perspective projection for the camera.
-        void SetupPerspective(float fov, float nearPlane, float farPlane);
-
-        // Calculates the projection matrix.
-        glm::mat4 CalculateTransform(const glm::ivec2& viewportSize);
-
-        // Returns associated transform component.
-        TransformComponent* GetTransformComponent();
-
-    protected:
-        // Initializes the component.
-        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
-
-    public:
-        // Camera types.
         struct ProjectionTypes
         {
             enum
@@ -54,16 +28,28 @@ namespace Game
             using Type = unsigned int;
         };
 
+    public:
+        CameraComponent() = default;
+        ~CameraComponent() = default;
+
+        CameraComponent(CameraComponent&& other);
+        CameraComponent& operator=(CameraComponent&& other);
+
+        void SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane);
+        void SetupPerspective(float fov, float nearPlane, float farPlane);
+        glm::mat4 CalculateTransform(const glm::ivec2& viewportSize);
+
+        TransformComponent* GetTransformComponent();
+
+    protected:
+        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
+
     private:
-        // Transform component.
-        TransformComponent* m_transform;
-
-        // Camera parameters.
-        ProjectionTypes::Type m_projection;
-
-        glm::vec2 m_viewSize;
-        float m_nearPlane;
-        float m_farPlane;
-        float m_fov;
+        TransformComponent* m_transform = nullptr;
+        ProjectionTypes::Type m_projection = ProjectionTypes::Perspective;
+        glm::vec2 m_viewSize = glm::vec2(2.0f, 2.0f);
+        float m_nearPlane = 0.1f;
+        float m_farPlane = 1000.0f;
+        float m_fov = 90.0f;
     };
 }

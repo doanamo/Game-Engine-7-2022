@@ -8,7 +8,6 @@
 #include <Event/Receiver.hpp>
 #include "Game/GameState.hpp"
 
-// Forward declarations.
 namespace System
 {
     class InputManager;
@@ -23,15 +22,12 @@ namespace System
 
 namespace Game
 {
-    // Forward declarations.
     class GameFramework;
     class GameState;
 
-    // Event router class.
     class EventRouter : private NonCopyable
     {
     public:
-        // Initialization from parameters.
         struct InitializeFromParams
         {
             System::InputManager* inputManager = nullptr;
@@ -40,39 +36,28 @@ namespace Game
 
     public:
         EventRouter();
-        ~EventRouter();
+        ~EventRouter() = default;
 
-        // Move constructor and operator.
         EventRouter(EventRouter&& other);
         EventRouter& operator=(EventRouter&& other);
 
-        // Initializes the event router instance.
         bool Initialize(const InitializeFromParams& params);
 
-        // Pushes event to current game state.
         template<typename EventType>
         void PushEvent(const EventType& event);
 
     private:
-        // Pushes event to game state and returns void.
         template<typename EventType>
         void PushEventReturnVoid(const EventType& event);
 
-        // Pushes event to game state and returns false.
         template<typename EventType>
         bool PushEventReturnFalse(const EventType& event);
 
-        // Get the current game state.
         GameState* GetCurrentGameState();
 
     private:
-        // Engine reference.
-        GameFramework* m_gameFramework = nullptr;
-
-        // Window event receivers.
         struct Receivers
         {
-            // Input events.
             Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> keyboardKeyReceiver;
             Event::Receiver<bool(const System::InputEvents::TextInput&)> textInputReceiver;
             Event::Receiver<bool(const System::InputEvents::MouseButton&)> mouseButtonReceiver;
@@ -81,11 +66,11 @@ namespace Game
             Event::Receiver<void(const System::InputEvents::CursorEnter&)> cursorEnter;
         } m_receivers;
 
-        // Initialization state.
+    private:
+        GameFramework* m_gameFramework = nullptr;
         bool m_initialized = false;
     };
 
-    // Template definitions.
     template<typename EventType>
     void EventRouter::PushEvent(const EventType& event)
     {

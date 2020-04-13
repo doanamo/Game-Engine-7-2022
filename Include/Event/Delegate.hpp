@@ -71,7 +71,6 @@ namespace Event
     class Delegate<ReturnType(Arguments...)>
     {
     private:
-        // Type declarations.
         using InstancePtr = void*;
         using FunctionPtr = ReturnType(*)(InstancePtr, Arguments...);
 
@@ -110,31 +109,20 @@ namespace Event
         {
         }
 
-        // Copy operators.
-        Delegate(const Delegate& other)
-        {
-            // Call the copy assignment.
-            this->operator=(other);
-        }
-
-        Delegate& operator=(const Delegate& other)
-        {
-            // Copy class members.
-            m_instance = other.m_instance;
-            m_function = other.m_function;
-
-            return *this;
-        }
-
-        // Move operations.
         // Performing a move of a delegate is very dangerous,
         // as they hold references to instances they are referring.
         // Most often it is preferred to omit moving a delegate.
         Delegate(Delegate&& other) :
             Delegate()
         {
-            // Call the move assignment.
+            // Call move assignment.
             *this = std::move(other);
+        }
+
+        Delegate(const Delegate& other)
+        {
+            // Call copy assignment.
+            this->operator=(other);
         }
 
         Delegate& operator=(Delegate&& other)
@@ -146,11 +134,12 @@ namespace Event
             return *this;
         }
 
-        // Unbinds the delegate.
-        void Bind(std::nullptr_t)
+        Delegate& operator=(const Delegate& other)
         {
-            m_instance = nullptr;
-            m_function = nullptr;
+            // Copy class members.
+            m_instance = other.m_instance;
+            m_function = other.m_function;
+            return *this;
         }
 
         Delegate& operator=(std::nullptr_t)
@@ -159,7 +148,15 @@ namespace Event
             return *this;
         }
 
-        // Binds a plain function.
+        // Unbind delegate.
+        void Bind(std::nullptr_t)
+        {
+            
+            m_instance = nullptr;
+            m_function = nullptr;
+        }
+
+        // Binds plain function.
         template<ReturnType(*Function)(Arguments...)>
         void Bind()
         {
@@ -167,7 +164,7 @@ namespace Event
             m_function = &FunctionStub<Function>;
         }
 
-        // Binds a functor object with a reference.
+        // Binds functor object with a reference.
         template<class InstanceType>
         void Bind(InstanceType* instance)
         {
@@ -177,7 +174,7 @@ namespace Event
             m_function = &FunctorStub<InstanceType>;
         }
 
-        // Binds an instance method with a reference.
+        // Binds instance method with a reference.
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
         void Bind(InstanceType* instance)
         {
@@ -187,7 +184,7 @@ namespace Event
             m_function = &MethodStub<InstanceType, Function>;
         }
 
-        // Binds a lambda with or without capture.
+        // Binds lambda with or without capture.
         template<typename Lambda>
         Delegate(const Lambda& lambda)
         {
@@ -206,8 +203,8 @@ namespace Event
         {
             // Every lambda has different type. We can abuse
             // this to create a static instance for every
-            // permutation of this methods called with
-            // a different lambda type. Feels dirty.
+            // permutation of this methods called with different
+            // lambda type. Feels bit like a hack.
             static Lambda staticLambda = lambda;
 
             // Any functor can be bound this way, as long
@@ -217,31 +214,28 @@ namespace Event
             m_function = &FunctorStub<Lambda>;
         }
 
-        // Invokes the delegate.
         ReturnType Invoke(Arguments... arguments)
         {
             VERIFY(m_function != nullptr, "Attempting to invoke a delegate without a bound function!");
             return m_function(m_instance, std::forward<Arguments>(arguments)...);
         }
 
-        // Call operator for invoking the delegate.
         ReturnType operator()(Arguments... arguments)
         {
             return this->Invoke(std::forward<Arguments>(arguments)...);
         }
 
-        // Checks if the delegate is bound.
         bool IsBound()
         {
             return m_function != nullptr;
         }
 
     private:
-        // Pointer to an instance of the delegate.
+        // Pointer to instance of delegate.
         // Will be nullptr for standalone functions.
         InstancePtr m_instance;
 
-        // Pointer to a function generated from one of the three specialized
+        // Pointer to function generated from one of the three specialized
         // templates (either for raw functions, methods and functors).
         FunctionPtr m_function;
     };

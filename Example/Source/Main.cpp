@@ -6,16 +6,16 @@
 
 int main()
 {
-    // Create the engine.
+    // Create engine.
     Engine::Root engine;
     if(!engine.Initialize())
         return -1;
 
-    // Create the game scene.
+    // Create game scene.
     GameScene gameScene;
     if(!gameScene.Initialize(&engine))
         return -1;
 
-    // Run the engine.
+    // Run example loop.
     return engine.Run();
 };

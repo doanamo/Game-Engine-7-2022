@@ -7,26 +7,14 @@
 #include "System/Window.hpp"
 using namespace Graphics;
 
-RenderContext::RenderContext() :
-    m_window(nullptr),
-    m_initialized(false)
-{
-}
-
-RenderContext::~RenderContext()
-{
-}
-
 RenderContext::RenderContext(RenderContext&& other) :
     RenderContext()
 {
-    // Call the move assignment operator.
     *this = std::move(other);
 }
 
 RenderContext& RenderContext::operator=(RenderContext&& other)
 {
-    // Swap class members.
     std::swap(m_initialized, other.m_initialized);
     std::swap(m_window, other.m_window);
     std::swap(m_currentState, other.m_currentState);
@@ -91,7 +79,6 @@ void RenderContext::PopState()
 RenderState& RenderContext::GetState()
 {
     VERIFY(m_initialized, "Render context is not initialized!");
-
     return m_currentState;
 }
 

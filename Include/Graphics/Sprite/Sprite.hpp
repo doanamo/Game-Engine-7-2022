@@ -15,37 +15,29 @@
 
 namespace Graphics
 {
-    // Forward declarations.
     class Texture;
 
-    // Sprite structure.
     struct Sprite
     {
-        // Info structure defined per sprite batch.
         struct Info
         {
-            Info();
-
             // Comparison operators used for sorting.
             bool operator==(const Info& other) const;
             bool operator!=(const Info& other) const;
 
-            // Shared batch info.
-            const Texture* texture;
-            bool transparent;
-            bool filtered;
+            // Shared info defined per sprite batch.
+            const Texture* texture = nullptr;
+            bool transparent = false;
+            bool filtered = true;
         } info;
 
-        // Data structure defined per sprite instance.
         struct Data
         {
-            Data();
-
-            // Sprite data.
-            glm::mat4 transform;
-            glm::vec4 rectangle;
-            glm::vec4 coords;
-            glm::vec4 color;
+            // Sprite data defined per sprite instance.
+            glm::mat4 transform = glm::mat4(1.0f);
+            glm::vec4 rectangle = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 coords = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+            glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         } data;
     };
 }

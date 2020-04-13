@@ -5,26 +5,6 @@
 #include "System/Window.hpp"
 using namespace System;
 
-WindowInfo::WindowInfo() :
-    title("Window"),
-    width(1024),
-    height(576),
-    vsync(true),
-    visible(true),
-    minWidth(GLFW_DONT_CARE),
-    minHeight(GLFW_DONT_CARE),
-    maxWidth(GLFW_DONT_CARE),
-    maxHeight(GLFW_DONT_CARE)
-{
-}
-
-Window::Window() :
-    m_handle(nullptr),
-    m_title(""),
-    m_sizeChanged(false)
-{
-}
-
 Window::~Window()
 {
     // We have to destroy an allocated handle.
@@ -34,13 +14,11 @@ Window::~Window()
 Window::Window(Window&& other) :
     Window()
 {
-    // Call the assignment operator to perform a swap.
     *this = std::move(other);
 }
 
 Window& Window::operator=(Window&& other)
 {
-    // Swap class members.
     std::swap(events, other.events);
     std::swap(m_title, other.m_title);
     std::swap(m_handle, other.m_handle);

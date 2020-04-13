@@ -19,10 +19,6 @@ EventRouter::EventRouter()
     m_receivers.cursorEnter.Bind<EventRouter, &EventRouter::PushEventReturnVoid<System::InputEvents::CursorEnter>>(this);
 }
 
-EventRouter::~EventRouter()
-{
-}
-
 EventRouter::EventRouter(EventRouter&& other) :
     EventRouter()
 {

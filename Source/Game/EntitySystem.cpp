@@ -26,12 +26,6 @@ EntitySystem::EntityCommand::EntityCommand(EntityCommands::Type type, EntityHand
 {
 }
 
-EntitySystem::EntitySystem() :
-    m_entityCount(0),
-    m_initialized(false)
-{
-}
-
 EntitySystem::EntitySystem(EntitySystem&& other) :
     EntitySystem()
 {

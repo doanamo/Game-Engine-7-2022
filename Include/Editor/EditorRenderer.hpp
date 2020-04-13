@@ -11,7 +11,6 @@
 #include <Graphics/Sampler.hpp>
 #include <Graphics/Shader.hpp>
 
-// Forward declarations.
 namespace System
 {
     class Window;
@@ -30,7 +29,6 @@ namespace Graphics
 
 namespace Editor
 {
-    // Editor renderer class.
     class EditorRenderer : private NonCopyable
     {
     public:
@@ -49,18 +47,13 @@ namespace Editor
         EditorRenderer(EditorRenderer&& other);
         EditorRenderer& operator=(EditorRenderer&& other);
 
-        // Initializes the editor renderer.
         bool Initialize(const InitializeFromParams& params);
-
-        // Draws the editor interface from the current context.
         void Draw();
 
     private:
-        // System references.
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 
-        // Graphics objects.
         Graphics::VertexBuffer m_vertexBuffer;
         Graphics::IndexBuffer m_indexBuffer;
         Graphics::VertexArray m_vertexArray;
@@ -68,7 +61,6 @@ namespace Editor
         Graphics::Sampler m_sampler;
         Graphics::ShaderPtr m_shader;
 
-        // Initialization state.
         bool m_initialized = false;
     };
 }

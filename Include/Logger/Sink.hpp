@@ -8,7 +8,7 @@
 #include <mutex>
 
 /*
-    Logger Sink
+    Sink
 
     Writes log messages to multiple logging outputs.
 
@@ -33,11 +33,9 @@
 
 namespace Logger
 {
-    // Forward declarations.
     class Output;
     class Message;
 
-    // Sink context structure.
     struct SinkContext
     {
         std::string name;
@@ -46,59 +44,37 @@ namespace Logger
         bool messageWritten = false;
     };
 
-    // Sink class.
     class Sink
     {
     public:
-        // Type declarations.
         using OutputList = std::vector<Logger::Output*>;
 
     public:
-        Sink();
-        ~Sink();
+        Sink() = default;
+        ~Sink() = default;
 
-        // Disable copying.
         Sink(const Sink&) = delete;
         Sink& operator=(const Sink&) = delete;
 
-        // Sets sink name.
         void SetName(std::string name);
-
-        // Adds output.
         void AddOutput(Logger::Output* output);
-
-        // Removes output.
         void RemoveOutput(Logger::Output* output);
-
-        // Writes log message.
         void Write(const Logger::Message& message);
-
-        // Advances frame of reference.
         int AdvanceFrameReference();
-
-        // Increase current message indent.
         void IncreaseIndent();
-
-        // Decrease current message indent.
         void DecreaseIndent();
 
-        // Gets context needed for writing messages.
         const SinkContext& GetContext() const;
 
     private:
-        // Sink mutex.
         std::mutex m_lock;
-
-        // Sink context.
         SinkContext m_context;
-
-        // List of outputs.
         OutputList m_outputs;
     };
 }
 
 /*
-    Logger Scoped Indent
+    Scoped Indent
 
     Increases logging indent in a sink for a duration of a scope.
 
@@ -118,19 +94,16 @@ namespace Logger
 
 namespace Logger
 {
-    // Scoped indent class.
     class ScopedIndent
     {
     public:
         ScopedIndent(Sink& sink);
         ~ScopedIndent();
 
-        // Disable copying.
         ScopedIndent(const ScopedIndent&) = delete;
         ScopedIndent& operator=(const ScopedIndent&) = delete;
 
     private:
-        // Logger sink.
         Sink& m_sink;
     };
 }

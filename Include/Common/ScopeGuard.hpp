@@ -49,7 +49,6 @@
         SCOPE_GUARD_END();
 */
 
-// Scope guard template.
 template<typename Type>
 class ScopeGuard : private NonCopyable
 {
@@ -111,7 +110,7 @@ public:
     };
 };
 
-// Creates a scope guard.
+// Utility function.
 template<typename Type>
 ScopeGuard<Type> MakeScopeGuard(Type function)
 {

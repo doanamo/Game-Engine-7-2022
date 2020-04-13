@@ -18,7 +18,7 @@
     class ExampleState : public State<ExampleState>
     {
     public:
-        bool CanEnterState(ExampleState* previousState) const override
+        bool CanEnterState(ExampleState* currentState) const override
         {
             return true;
         }
@@ -50,69 +50,52 @@ class StateMachine;
 template<typename Type>
 class State
 {
-private:
-    // Friend declaration.
-    friend StateMachine<Type>;
-
-protected:
-    // Constructor and destructor.
-    State() = default;
-    virtual ~State() = default;
-
 public:
-    // Returns assigned state machine.
     StateMachine<Type>* GetStateMachine() const
     {
         return m_stateMachine;
     }
 
-    // Checks if state has state machine assigned.
     bool HasStateMachine() const
     {
         return m_stateMachine != nullptr;
     }
 
+protected:
+    State() = default;
+    virtual ~State() = default;
+
+    virtual bool CanEnterState(Type* currentState) const
+    {
+        return true;
+    }
+    
+    virtual bool CanExitState(Type* nextState) const
+    {
+        return true;
+    }
+
+    virtual void OnEnterState(Type* previousState)
+    {
+    }
+
+    virtual void OnExitState(Type* nextState)
+    {
+    }
+
 private:
-    // Assigns state machine owner.
+    friend StateMachine<Type>;
+
     void SetStateMachine(StateMachine<Type>* stateMachine)
     {
         if(stateMachine)
         {
             ASSERT(!m_stateMachine, "Assigning state machine reference twice!");
         }
-        
+
         m_stateMachine = stateMachine;
     }
 
-protected:
-    // Checks whether we can enter this state.
-    // Argument represents current state that will be removed.
-    virtual bool CanEnterState(Type* previousState) const
-    {
-        return true;
-    }
-    
-    // Checks whether we can exit this state.
-    // Argument represents next state waiting for transition.
-    virtual bool CanExitState(Type* nextState) const
-    {
-        return true;
-    }
-
-    // Called when state machine transitions to this state.
-    // Argument represents previous state that has been removed.
-    virtual void OnEnterState(Type* previousState)
-    {
-    }
-
-    // Called when state machine transitions out this state.
-    // Argument represents next state waiting for transition.
-    virtual void OnExitState(Type* nextState)
-    {
-    }
-
-private:
-    // Current state machine assigned.
     StateMachine<Type>* m_stateMachine = nullptr;
 };
 
@@ -120,22 +103,18 @@ template<typename Type>
 class StateMachine
 {
 public:
-    // Check underlying type assumption.
     static_assert(std::is_base_of<State<Type>, Type>::value, "Type is not derived from State<Type>!");
-
-    // Type declarations.
     using StateSharedPtr = std::shared_ptr<Type>;
 
 public:
-    // Constructor and destructor.
     StateMachine() = default;
     ~StateMachine()
     {
-        // Explicitly transition out current state so OnExitState() is called.
+        // Explicitly transition out of current
+        // state so OnExitState() is called.
         ChangeState(nullptr);
     }
 
-    // Changes current state.
     bool ChangeState(StateSharedPtr newState)
     {
         // Check if we can exit current state.
@@ -169,7 +148,7 @@ public:
 
         if(m_currentState)
         {
-            // Specific order to disallow changing state on exit.
+            // Specific call order to disallow changing state on exit.
             previousState = m_currentState;
             previousState->SetStateMachine(nullptr);
             previousState->OnExitState(newState.get());
@@ -181,7 +160,7 @@ public:
         // Enter new state.
         if(newState)
         {
-            // Specific order to allow changing state on enter.
+            // Specific call order to allow changing state on enter.
             m_currentState = newState;
             m_currentState->SetStateMachine(this);
             m_currentState->OnEnterState(previousState.get());
@@ -191,19 +170,16 @@ public:
         return true;
     }
 
-    // Returns shared pointer to current state.
     const StateSharedPtr& GetCurrentState() const
     {
         return m_currentState;
     }
 
-    // Returns whether current state exists.
     bool HasCurrentState() const
     {
         return m_currentState != nullptr;
     }
 
 private:
-    // Shared pointer to current state.
     StateSharedPtr m_currentState = nullptr;
 };

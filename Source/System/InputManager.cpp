@@ -6,20 +6,14 @@
 #include "System/Window.hpp"
 using namespace System;
 
-InputManager::InputManager() :
-    m_initialized(false)
+InputManager::InputManager()
 {
-    // Bind event receivers.
     m_receivers.keyboardKey.Bind<InputManager, &InputManager::OnKeyboardKey>(this);
     m_receivers.textInput.Bind<InputManager, &InputManager::OnTextInput>(this);
     m_receivers.mouseButton.Bind<InputManager, &InputManager::OnMouseButton>(this);
     m_receivers.mouseScroll.Bind<InputManager, &InputManager::OnMouseScroll>(this);
     m_receivers.cursorPosition.Bind<InputManager, &InputManager::OnCursorPosition>(this);
     m_receivers.cursorEnter.Bind<InputManager, &InputManager::OnCursorEnter>(this);
-}
-
-InputManager::~InputManager()
-{
 }
 
 InputManager::InputManager(InputManager&& other) :

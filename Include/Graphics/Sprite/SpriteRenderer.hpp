@@ -11,7 +11,6 @@
 #include "Graphics/Sprite/Sprite.hpp"
 #include "Graphics/Sprite/SpriteDrawList.hpp"
 
-// Forward declarations.
 namespace System
 {
     class FileSystem;
@@ -19,19 +18,16 @@ namespace System
 }
 
 /*
-    Graphics Sprite Renderer
+    Sprite Renderer
 */
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
 
-    // Sprite renderer class.
     class SpriteRenderer : private NonCopyable
     {
     public:
-        // Initialization parameters.
         struct InitializeFromParams
         {
             System::FileSystem* fileSystem = nullptr;
@@ -41,25 +37,21 @@ namespace Graphics
         };
 
     public:
-        SpriteRenderer();
-        ~SpriteRenderer();
+        SpriteRenderer() = default;
+        ~SpriteRenderer() = default;
 
-        // Move constructor and assignment.
         SpriteRenderer(SpriteRenderer&& other);
         SpriteRenderer& operator=(SpriteRenderer&& other);
 
-        // Initializes the sprite renderer.
         bool Initialize(const InitializeFromParams& params);
 
-        // Draws a batch of sprites.
         // Very efficient rendering if array of sprites is already sorted to reduces state changes.
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
     private:
-        // Render context.
-        RenderContext* m_renderContext;
+        RenderContext* m_renderContext = nullptr;
+        std::size_t m_spriteBatchSize = 0;
 
-        // Graphics objects.
         VertexBuffer m_vertexBuffer;
         InstanceBuffer m_instanceBuffer;
         VertexArray m_vertexArray;
@@ -67,10 +59,6 @@ namespace Graphics
         Sampler m_linearSampler;
         std::shared_ptr<Shader> m_shader;
 
-        // Sprite batch size.
-        std::size_t m_spriteBatchSize;
-
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

@@ -6,14 +6,6 @@
 #include "Logger/Sink.hpp"
 using namespace Logger;
 
-Message::Message() :
-    m_text(),
-    m_severity(Severity::Info),
-    m_source(nullptr),
-    m_line(0)
-{
-}
-
 Message::Message(Message&& other)
 {
     m_text = std::move(other.m_text);
@@ -26,10 +18,6 @@ Message::Message(Message&& other)
 
     m_line = other.m_line;
     other.m_line = 0;
-}
-
-Message::~Message()
-{
 }
 
 Message& Message::SetText(std::string text)

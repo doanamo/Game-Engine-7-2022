@@ -10,7 +10,6 @@ using namespace Graphics;
 
 namespace
 {
-    // Gets the row size of a vertex attribute type.
     int GetVertexAttributeTypeRowElements(VertexAttributeType type)
     {
         switch(type)
@@ -36,7 +35,6 @@ namespace
         }
     }
 
-    // Gets the row count of a vertex attribute type.
     int GetVertexAttributeTypeRowCount(VertexAttributeType type)
     {
         switch(type)
@@ -56,7 +54,6 @@ namespace
         }
     }
 
-    // Gets the size of an input data type.
     int GetVertexAttributeValueBytes(GLint value)
     {
         switch(value)
@@ -86,39 +83,6 @@ namespace
     }
 }
 
-VertexAttribute::VertexAttribute() :
-    buffer(nullptr),
-    attributeType(VertexAttributeType::Invalid),
-    valueType(OpenGL::InvalidEnum),
-    normalize(false)
-{
-}
-
-VertexAttribute::VertexAttribute(const Buffer* buffer, VertexAttributeType type, GLenum value, bool normalize) :
-    buffer(buffer),
-    attributeType(type),
-    valueType(value),
-    normalize(normalize)
-{
-}
-
-VertexArrayInfo::VertexArrayInfo() :
-    attributes(nullptr),
-    attributeCount(0)
-{
-}
-
-VertexArrayInfo::VertexArrayInfo(const VertexAttribute* attributes, int attributeCount) :
-    attributes(attributes), attributeCount(attributeCount)
-{
-}
-
-VertexArray::VertexArray() :
-    m_renderContext(nullptr),
-    m_handle(OpenGL::InvalidHandle)
-{
-}
-
 VertexArray::~VertexArray()
 {
     this->DestroyHandle();
@@ -127,13 +91,11 @@ VertexArray::~VertexArray()
 VertexArray::VertexArray(VertexArray&& other) :
     VertexArray()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 VertexArray& VertexArray::operator=(VertexArray&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_handle, other.m_handle);
 

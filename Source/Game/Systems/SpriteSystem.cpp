@@ -9,16 +9,6 @@
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
 using namespace Game;
 
-SpriteSystem::SpriteSystem() :
-    m_componentSystem(nullptr),
-    m_initialized(false)
-{
-}
-
-SpriteSystem::~SpriteSystem()
-{
-}
-
 SpriteSystem::SpriteSystem(SpriteSystem&& other) :
     SpriteSystem()
 {
@@ -41,7 +31,7 @@ bool SpriteSystem::Initialize(ComponentSystem* componentSystem)
     // Make sure that the instance has not been initialized yet.
     ASSERT(!m_initialized, "Sprite system has already been initialized!");
 
-    // Create an initialization scope guard.
+    // Create initialization scope guard.
     SCOPE_GUARD_IF(!m_initialized, *this = SpriteSystem());
 
     // Validate component system reference.

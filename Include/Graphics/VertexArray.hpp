@@ -4,10 +4,12 @@
 
 #pragma once
 
-/*
-    Graphics Vertex Array
+#include "Graphics/RenderState.hpp"
 
-    Creates a vertex array that binds buffers to shader inputs on the pipeline.
+/*
+    Vertex Array
+
+    Creates vertex array that binds buffers to shader inputs on the pipeline.
 
     void ExampleGraphicsVertexArray(Graphics::RenderContext* renderContext)
     {
@@ -34,11 +36,9 @@
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
     class Buffer;
 
-    // Vertex attribute type.
     enum class VertexAttributeType
     {
         Invalid,
@@ -54,57 +54,39 @@ namespace Graphics
         Count,
     };
 
-    // Vertex attribute structure.
     struct VertexAttribute
     {
-        VertexAttribute();
-        VertexAttribute(const Buffer* buffer, VertexAttributeType attributeType, GLenum valueType, bool normalized);
-
-        const Buffer* buffer;
-        VertexAttributeType attributeType;
-        GLenum valueType;
-        bool normalize;
+        const Buffer* buffer = nullptr;
+        VertexAttributeType attributeType = VertexAttributeType::Invalid;
+        GLenum valueType = OpenGL::InvalidEnum;
+        bool normalize = false;
     };
 
-    // Vertex array info structure.
     struct VertexArrayInfo
     {
-        VertexArrayInfo();
-        VertexArrayInfo(const VertexAttribute* attributes, int attributeCount);
-
-        const VertexAttribute* attributes;
-        std::size_t attributeCount;
+        const VertexAttribute* attributes = nullptr;
+        std::size_t attributeCount = 0;
     };
 
-    // Vertex array class.
     class VertexArray : private NonCopyable
     {
     public:
-        VertexArray();
+        VertexArray() = default;
         ~VertexArray();
 
-        // Move constructor and assignment.
         VertexArray(VertexArray&& other);
         VertexArray& operator=(VertexArray&& other);
 
-        // Initializes the vertex array instance.
         bool Initialize(RenderContext* renderContext, const VertexArrayInfo& info);
 
-        // Gets the vertex array object handle.
         GLuint GetHandle() const;
-
-        // Checks if instance is valid.
         bool IsValid() const;
 
     private:
-        // Destroys the internal handle.
         void DestroyHandle();
 
     private:
-        // Render context.
-        RenderContext* m_renderContext;
-
-        // Vertex array handle.
-        GLuint m_handle;
+        RenderContext* m_renderContext = nullptr;
+        GLuint m_handle = OpenGL::InvalidHandle;
     };
 }

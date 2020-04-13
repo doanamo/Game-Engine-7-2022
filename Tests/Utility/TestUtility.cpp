@@ -3,7 +3,7 @@
 */
 
 #include <Common/Utility.hpp>
-#include "TestHelpers.hpp"
+#include <TestHelpers.hpp>
 
 bool TestClamp()
 {
@@ -17,7 +17,7 @@ bool TestClamp()
 
 bool TestStaticArraySize()
 {
-    int array[4];
+    int array[4] = { 0 };
 
     TEST_EQ(Utility::StaticArraySize(array), 4);
 
@@ -89,7 +89,6 @@ bool TestGetFileExtension()
 bool TestGetTextFileContent()
 {
     std::string text = Utility::GetTextFileContent(TESTS_DIRECTORY "/Resources/TextFile.txt");
-
     TEST_EQ(text, "Hello world!");
 
     return true;
@@ -111,7 +110,6 @@ bool TestGetBinaryFileContent()
 bool TestStringLowerCase()
 {
     std::string text = "HeLLo WoNDERfUL WoRlD! :)";
-
     TEST_EQ(Utility::StringLowerCase(text), "hello wonderful world! :)");
 
     return true;
@@ -243,46 +241,17 @@ bool TestReorderWithIndices()
 
 int main()
 {
-    if(!TestClamp())
-        return 1;
-
-    if(!TestStaticArraySize())
-        return 1;
-
-    if(!TestClearContainer())
-        return 1;
-
-    if(!TestNumericCast())
-        return 1;
-    
-    if(!TestGetFileDirectory())
-        return 1;
-
-    if(!TestGetFileName())
-        return 1;
-
-    if(!TestGetFileExtension())
-        return 1;
-
-    if(!TestGetTextFileContent())
-        return 1;
-
-    if(!TestGetBinaryFileContent())
-        return 1;
-
-    if(!TestStringLowerCase())
-        return 1;
-
-    if(!TestStringTokenize())
-        return 1;
-
-    if(!TestStringTrim())
-        return 1;
-
-
-
-    if(!TestReorderWithIndices())
-        return 1;
-
-    return 0;
+    TEST_RUN(TestClamp);
+    TEST_RUN(TestStaticArraySize);
+    TEST_RUN(TestClearContainer);
+    TEST_RUN(TestNumericCast);
+    TEST_RUN(TestGetFileDirectory);
+    TEST_RUN(TestGetFileName);
+    TEST_RUN(TestGetFileExtension);
+    TEST_RUN(TestGetTextFileContent);
+    TEST_RUN(TestGetBinaryFileContent);
+    TEST_RUN(TestStringLowerCase);
+    TEST_RUN(TestStringTokenize);
+    TEST_RUN(TestStringTrim);
+    TEST_RUN(TestReorderWithIndices);
 }

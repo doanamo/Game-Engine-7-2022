@@ -7,33 +7,6 @@
 #include <System/FileSystem.hpp>
 using namespace Graphics;
 
-Texture::CreateFromParams::CreateFromParams() :
-    renderContext(nullptr),
-    width(0),
-    height(0),
-    format(GL_INVALID_ENUM),
-    mipmaps(true),
-    data(nullptr)
-{
-}
-
-Texture::LoadFromFile::LoadFromFile() :
-    fileSystem(nullptr),
-    renderContext(nullptr),
-    filePath(""),
-    mipmaps(true)
-{
-}
-
-Texture::Texture() :
-    m_renderContext(nullptr),
-    m_handle(OpenGL::InvalidHandle),
-    m_format(OpenGL::InvalidEnum),
-    m_width(0),
-    m_height(0)
-{
-}
-
 Texture::~Texture()
 {
     this->DestroyHandle();
@@ -42,13 +15,11 @@ Texture::~Texture()
 Texture::Texture(Texture&& other) :
     Texture()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 Texture& Texture::operator=(Texture&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_handle, other.m_handle);
     std::swap(m_format, other.m_format);
@@ -57,7 +28,6 @@ Texture& Texture::operator=(Texture&& other)
 
     return *this;
 }
-
 
 void Texture::DestroyHandle()
 {

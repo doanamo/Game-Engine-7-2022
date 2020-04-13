@@ -14,18 +14,14 @@ namespace
 
 void Build::Initialize()
 {
-    // Retrieve directory path.
+    // Read directory overrides from files in current working directory.
     GameDir = Utility::GetTextFileContent("GameDir.txt");
     EngineDir = Utility::GetTextFileContent("EngineDir.txt");
 
-    // Set engine directory to be the same as game directory if not specified.
     if(EngineDir.empty())
     {
         EngineDir = GameDir;
     }
-
-    // Print retrieved build info.
-    PrintInfo();
 }
 
 void Build::PrintInfo()
@@ -33,7 +29,7 @@ void Build::PrintInfo()
     LOG_INFO("Printing build info...");
     LOG_SCOPED_INDENT();
 
-    LOG_INFO("Engine directory: \"{}\"",EngineDir.empty() ? "Default" : EngineDir);
+    LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "Default" : EngineDir);
     LOG_INFO("Engine repository: {}-{}-{} ({})",
         Build::GetEngineChangeNumber(),
         Build::GetEngineChangeHash(),

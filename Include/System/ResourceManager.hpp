@@ -43,66 +43,51 @@
 
 namespace System
 {
-    // Resource manager class.
     class ResourceManager : private NonCopyable
     {
     public:
-        // Type declarations.
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
         using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
-        ResourceManager();
-        ~ResourceManager();
+        ResourceManager() = default;
+        ~ResourceManager() = default;
 
-        // Move constructor and assignment.
         ResourceManager(ResourceManager&& other);
         ResourceManager& operator=(ResourceManager&& other);
 
-        // Initializes the resource manager.
         bool Initialize();
 
-        // Sets the default resource.
         template<typename Type>
         void SetDefault(std::shared_ptr<Type> resource);
 
-        // Gets the default resource.
         template<typename Type>
         std::shared_ptr<Type> GetDefault() const;
 
-        // Acquires a resource.
-        // Name argument can also be a full path to a resource, which will ensure uniqueness..
         template<typename Type, typename... Arguments>
         std::shared_ptr<Type> Acquire(std::string name, Arguments... arguments);
 
-        // Releases unused resources of all types.
         void ReleaseUnused();
 
     private:
-        // Creates a resource pool for a specified type of resource.
         template<typename Type>
         ResourcePool<Type>* CreatePool();
 
-        // Returns a resource pool for a specified type of resource.
         template<typename Type>
         ResourcePool<Type>* GetPool();
 
     private:
-        // Resource pools for different types.
         ResourcePoolList m_pools;
-        
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 
-    // Template definitions.
     template<typename Type>
     void ResourceManager::SetDefault(std::shared_ptr<Type> resource)
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
-        // Get a resource pool.
+        // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
@@ -115,7 +100,7 @@ namespace System
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
-        // Get a resource pool.
+        // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
@@ -128,7 +113,7 @@ namespace System
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
-        // Get a resource pool.
+        // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
@@ -141,7 +126,7 @@ namespace System
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
-        // Create and add a new resource pool.
+        // Create and add new resource pool.
         auto pool = std::make_unique<ResourcePool<Type>>();
         auto pair = ResourcePoolPair(typeid(Type), std::move(pool));
         auto result = m_pools.emplace(std::move(pair));
@@ -156,7 +141,7 @@ namespace System
     {
         ASSERT(m_initialized, "Resource manager has not been initialized!");
 
-        // Find a pool by resource type.
+        // Find pool by resource type.
         auto it = m_pools.find(typeid(Type));
         if(it != m_pools.end())
         {

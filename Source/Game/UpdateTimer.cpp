@@ -5,17 +5,6 @@
 #include "Game/UpdateTimer.hpp"
 using namespace Game;
 
-UpdateTimer::UpdateTimer() :
-    m_forwardUpdateCounter(0),
-    m_totalUpdateCounter(0),
-    m_lastUpdateTime(0.0f)
-{
-}
-
-UpdateTimer::~UpdateTimer()
-{
-}
-
 UpdateTimer::UpdateTimer(UpdateTimer&& other) :
     UpdateTimer()
 {
@@ -73,6 +62,7 @@ float UpdateTimer::GetAlphaTime() const
     float normalizedUpdateAlpha = (m_lastUpdateTime - accumulatedUpdateTime) / m_lastUpdateTime;
     ASSERT(normalizedUpdateAlpha >= 0.0f && normalizedUpdateAlpha <= 1.0f, "Update alpha is not clamped in normal range!");
 
+    // Return alpha time in normalized range between last two updates.
     return normalizedUpdateAlpha;
 }
 
@@ -104,6 +94,7 @@ bool UpdateTimer::Update(float updateTime)
     }
 
     // Wait until we have enough time accumulated.
+    // Return false to indicate that update did not occur.
     return false;
 }
 

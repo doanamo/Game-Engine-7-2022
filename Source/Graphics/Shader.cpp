@@ -9,7 +9,6 @@ using namespace Graphics;
 
 namespace
 {
-    // Available shader types.
     struct ShaderType
     {
         const char* name;
@@ -26,12 +25,6 @@ namespace
     };
 }
 
-Shader::Shader() :
-    m_renderContext(nullptr),
-    m_handle(OpenGL::InvalidHandle)
-{
-}
-
 Shader::~Shader()
 {
     this->DestroyHandle();
@@ -40,13 +33,11 @@ Shader::~Shader()
 Shader::Shader(Shader&& other) :
     Shader()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 Shader& Shader::operator=(Shader&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_handle, other.m_handle);
 

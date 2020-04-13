@@ -5,7 +5,7 @@
 #pragma once
 
 #include <functional>
-#include "Common/LinkedList.hpp"
+#include <Common/LinkedList.hpp>
 #include "Event/Collector.hpp"
 #include "Event/Receiver.hpp"
 
@@ -52,7 +52,6 @@ namespace Event
 
 namespace Event
 {
-    // Receiver invoker template class helper.
     template<typename Type>
     class ReceiverInvoker;
 
@@ -67,7 +66,6 @@ namespace Event
         }
     };
 
-    // Collector dispatcher template class helper.
     template<typename Collector, typename Type>
     class CollectorDispatcher;
 
@@ -93,17 +91,15 @@ namespace Event
         }
     };
 
-    // Dispatcher base template class.
     // Does not allow dispatching/invoking receivers, allowing
-    // a dispatcher instance to be safely passed as a reference.
+    // dispatcher instance to be safely passed as reference.
     template<typename Type>
     class DispatcherBase;
 
     template<typename ReturnType, typename... Arguments>
-    class DispatcherBase<ReturnType(Arguments...)>
+    class DispatcherBase<ReturnType(Arguments...)> : private NonCopyable
     {
     public:
-        // Type declarations.
         using ReceiverReturnType = ReturnType;
         using ReceiverListNode = Common::ListNode<Receiver<ReturnType(Arguments...)>>;
 
@@ -117,11 +113,6 @@ namespace Event
             this->UnsubscribeAll();
         }
 
-        // Disallow copying operations.
-        DispatcherBase(const DispatcherBase& other) = delete;
-        DispatcherBase& operator=(const DispatcherBase& other) = delete;
-
-        // Move constructor.
         DispatcherBase(DispatcherBase&& other) :
             DispatcherBase()
         {
@@ -129,7 +120,6 @@ namespace Event
             *this = std::move(other);
         }
 
-        // Move assignment operator
         DispatcherBase& operator=(DispatcherBase&& other)
         {
             // Swap class members.
@@ -170,7 +160,6 @@ namespace Event
         }
 
     public:
-        // Subscribes a receiver.
         // By default we do not want to replace receiver's current dispatcher.
         bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver, bool unsubscribeReceiver = false, bool insertFront = false)
         {
@@ -207,7 +196,6 @@ namespace Event
             return true;
         }
 
-        // Unsubscribes a receiver.
         void Unsubscribe(Receiver<ReturnType(Arguments...)>& receiver)
         {
             // Check if receiver is subscribed to this dispatcher.
@@ -220,7 +208,6 @@ namespace Event
             receiver.m_dispatcher = nullptr;
         }
 
-        // Unsubscribes all receivers.
         void UnsubscribeAll()
         {
             // Iterate through the linked list to unsubscribe all receivers.
@@ -241,7 +228,6 @@ namespace Event
             }
         }
 
-        // Checks if the dispatcher has any subscribers.
         bool HasSubscribers() const
         {
             return !m_receiverList.IsFree();
@@ -283,7 +269,6 @@ namespace Event
         ReceiverListNode m_receiverList;
     };
 
-    // Dispatcher template class.
     template<typename Type, class Collector = CollectDefault<typename std::function<Type>::result_type>>
     class Dispatcher;
 
@@ -291,7 +276,6 @@ namespace Event
     class Dispatcher<ReturnType(Arguments...), Collector> : public DispatcherBase<ReturnType(Arguments...)>
     {
     public:
-        // Default constructor.
         Dispatcher() :
             m_defaultCollector()
         {
@@ -302,7 +286,6 @@ namespace Event
         {
         }
 
-        // Move constructor.
         Dispatcher(Dispatcher&& other) :
             Dispatcher(other.m_defaultCollector)
         {
@@ -310,13 +293,11 @@ namespace Event
             *this = std::move(other);
         }
 
-        // Move assignment operator.
         Dispatcher& operator=(Dispatcher&& other)
         {
             // Swap class members.
             DispatcherBase<ReturnType(Arguments...)>::operator=(std::move(other));
             std::swap(this->m_defaultCollector, other.m_defaultCollector);
-
             return *this;
         }
 
@@ -349,10 +330,8 @@ namespace Event
     class Dispatcher<void(Arguments...), Collector> : public DispatcherBase<void(Arguments...)>
     {
     public:
-        // Default constructor.
         Dispatcher() = default;
 
-        // Allow move operations.
         Dispatcher(Dispatcher&& other) = default;
         Dispatcher& operator=(Dispatcher&& other) = default;
 

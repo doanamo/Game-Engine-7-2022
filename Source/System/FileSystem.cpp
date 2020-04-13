@@ -5,15 +5,6 @@
 #include "System/FileSystem.hpp"
 using namespace System;
 
-FileSystem::FileSystem() :
-    m_initialized(false)
-{
-}
-
-FileSystem::~FileSystem()
-{
-}
-
 FileSystem::FileSystem(FileSystem&& other) :
     FileSystem()
 {
@@ -22,7 +13,7 @@ FileSystem::FileSystem(FileSystem&& other) :
 
 FileSystem& FileSystem::operator=(FileSystem&& other)
 {
-    std::swap(m_mountDirs, other.m_mountDirs);
+    std::swap(m_mountedDirs, other.m_mountedDirs);
     std::swap(m_initialized, other.m_initialized);
 
     return *this;
@@ -64,7 +55,7 @@ bool FileSystem::MountDirectory(std::string dirPath)
     }
 
     // Add a mount directory.
-    m_mountDirs.push_back(dirPath);
+    m_mountedDirs.push_back(dirPath);
 
     LOG_INFO("Mounted \"{}\" directory.", dirPath);
 
@@ -84,7 +75,7 @@ std::string FileSystem::ResolvePath(const std::string filePath)
     }
 
     // Check file path for each mounted directory (iterated in reverse).
-    for(auto it = m_mountDirs.crbegin(); it != m_mountDirs.crend(); ++it)
+    for(auto it = m_mountedDirs.crbegin(); it != m_mountedDirs.crend(); ++it)
     {
         // Create a resolved path.
         std::string resolvedPath = *it + filePath;

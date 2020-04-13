@@ -7,28 +7,25 @@
 #include <sstream>
 
 /*
-    Logger Base Output
+    Base Output
     
     Interface for output implementations that are added to logger sinks.
 */
 
 namespace Logger
 {
-    // Forward declarations.
     class Message;
     struct SinkContext;
 
-    // Output interface.
     class Output
     {
     public:
-        // Writes message to an output.
         virtual void Write(const Logger::Message& message, const Logger::SinkContext& context) = 0;
     };
 }
 
 /*
-    Logger File Output
+    File Output
 
     Writes log messages to a file.
 
@@ -51,23 +48,19 @@ namespace Logger
     class FileOutput : public Output
     {
     public:
-        FileOutput();
+        FileOutput() = default;
         ~FileOutput();
 
-        // Open file output.
         bool Open(std::string filename);
-
-        // Writes message to the file.
         void Write(const Message& message, const SinkContext& context) override;
 
     private:
-        // File output stream.
         std::ofstream m_file;
     };
 }
 
 /*
-    Logger Console Output
+    Console Output
 
     Writes log messages to the application's console window.
 
@@ -92,13 +85,12 @@ namespace Logger
         ConsoleOutput();
         ~ConsoleOutput();
 
-        // Writes message to the console window.
         void Write(const Message& message, const SinkContext& context) override;
     };
 }
 
 /*
-    Logger Debugger Output
+    Debugger Output
 
     Writes log messages to the debugger's window.
 
@@ -120,14 +112,12 @@ namespace Logger
     class DebuggerOutput : public Output
     {
     public:
-        DebuggerOutput();
-        ~DebuggerOutput();
+        DebuggerOutput() = default;
+        ~DebuggerOutput() = default;
 
-        // Writes a message to the debugger window.
         void Write(const Message& message, const SinkContext& context) override;
 
     private:
-        // Reusable string stream.
         std::stringstream m_stream;
     };
 }

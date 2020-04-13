@@ -9,7 +9,8 @@ using namespace Graphics;
 
 namespace
 {
-    // Default parameters retrieved from OpenGL.
+    bool DefaultsInitialized = false;
+
     glm::vec4 DefaultTextureBorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
     GLint DefaultTextureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     GLint DefaultTextureMagFilter = GL_LINEAR;
@@ -23,47 +24,45 @@ namespace
     GLint DefaultTextureCompareFunc = GL_LEQUAL;
     GLfloat DefaultTextureMaxAniso = 1.0f;
 
-    bool DefaultsInitialized = false;
-}
+    void InitializeDefaults()
+    {
+        // Check if already initialized.
+        if(DefaultsInitialized)
+            return;
 
-void Graphics::Sampler::InitializeDefaults()
-{
-    // Check if already initialized.
-    if(DefaultsInitialized)
-        return;
+        // Create a temporary sampler.
+        GLuint defaultSampler = OpenGL::InvalidHandle;
+        glGenSamplers(1, &defaultSampler);
+        OpenGL::CheckErrors();
 
-    // Create a temporary sampler.
-    GLuint defaultSampler = OpenGL::InvalidHandle;
-    glGenSamplers(1, &defaultSampler);
-    OpenGL::CheckErrors();
+        VERIFY(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
 
-    VERIFY(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
+        SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
 
-    SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
+        // Read default parameters.
+        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_BORDER_COLOR, &DefaultTextureBorderColor[0]);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_T, &DefaultTextureWrapT);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
+        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
+        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
+        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_LOD_BIAS, &DefaultTextureLODBias);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
+        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
+        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
+        OpenGL::CheckErrors();
 
-    // Read default parameters.
-    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_BORDER_COLOR, &DefaultTextureBorderColor[0]);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_T, &DefaultTextureWrapT);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
-    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
-    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
-    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_LOD_BIAS, &DefaultTextureLODBias);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
-    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
-    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
-    OpenGL::CheckErrors();
-
-    // Finish initialization.
-    DefaultsInitialized = true;
+        // Finish initialization.
+        DefaultsInitialized = true;
+    }
 }
 
 SamplerInfo::SamplerInfo()
 {
     // Initialize default values.
-    Sampler::InitializeDefaults();
+    InitializeDefaults();
 
     // Initialize member variables.
     textureBorderColor = DefaultTextureBorderColor;
@@ -80,12 +79,6 @@ SamplerInfo::SamplerInfo()
     textureMaxAniso = DefaultTextureMaxAniso;
 }
 
-Sampler::Sampler() :
-    m_renderContext(nullptr),
-    m_handle(OpenGL::InvalidHandle)
-{
-}
-
 Sampler::~Sampler()
 {
     this->DestroyHandle();
@@ -94,13 +87,11 @@ Sampler::~Sampler()
 Sampler::Sampler(Sampler&& other) :
     Sampler()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 Sampler& Sampler::operator=(Sampler&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_handle, other.m_handle);
     
@@ -220,7 +211,6 @@ bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 GLuint Sampler::GetHandle() const
 {
     ASSERT(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
-
     return m_handle;
 }
 

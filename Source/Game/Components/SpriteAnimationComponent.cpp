@@ -8,16 +8,6 @@
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
 using namespace Game;
 
-SpriteAnimationComponent::SpriteAnimationComponent() :
-    m_spriteComponent(nullptr),
-    m_spriteAnimationList(),
-    m_spriteAnimation(nullptr),
-    m_playbackInfo(PlaybackFlags::None),
-    m_currentAnimationTime(0.0f),
-    m_previousAnimationTime(0.0f)
-{
-}
-
 SpriteAnimationComponent::SpriteAnimationComponent(SpriteAnimationComponent&& other) :
     SpriteAnimationComponent()
 {

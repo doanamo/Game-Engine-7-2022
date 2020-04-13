@@ -2,9 +2,9 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "TestHelpers.hpp"
-#include "Reflection/Reflection.hpp"
 #include <cinttypes>
+#include <Reflection/Reflection.hpp>
+#include <TestHelpers.hpp>
 
 class Undefined
 {
@@ -504,19 +504,10 @@ bool TestExperimental()
     // Find type members and attributes by name.
     // String literal needs to be a static variable passed via template argument to
     // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
-    {
-        TEST_EQ(Reflection::Reflect<Base>().FindMember<BaseMemberName>().Name, "textWithoutAttribute");
-    }
-
-    {
-        
-        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
-        TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Instance.state, false);
-    }
-
-    {
-        TEST_EQ(Reflection::Reflect<Derived>().FindMember<DerivedMemberName>().FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
-    }
+    TEST_EQ(Reflection::Reflect<Base>().FindMember<BaseMemberName>().Name, "textWithoutAttribute");
+    TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
+    TEST_EQ(Reflection::Reflect<Derived>().FindAttribute<DerivedAttributeName>().Instance.state, false);
+    TEST_EQ(Reflection::Reflect<Derived>().FindMember<DerivedMemberName>().FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
 
     return true;
 }
@@ -546,20 +537,9 @@ bool TestSuper()
 
 int main()
 {
-    if(!TestTypes())
-        return 1;
-
-    if(!TestExperimental())
-        return 1;
-
-    if(!TestCreate())
-        return 1;
-
-    if(!TestCast())
-        return 1;
-
-    if(!TestSuper())
-        return 1;
-
-    return 0;
+    TEST_RUN(TestTypes);
+    TEST_RUN(TestExperimental);
+    TEST_RUN(TestCreate);
+    TEST_RUN(TestCast);
+    TEST_RUN(TestSuper);
 }

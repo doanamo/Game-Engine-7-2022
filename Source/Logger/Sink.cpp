@@ -7,15 +7,6 @@
 #include "Logger/Message.hpp"
 using namespace Logger;
 
-Sink::Sink() :
-    m_context()
-{
-}
-
-Sink::~Sink()
-{
-}
-
 void Sink::SetName(std::string name)
 {
     std::scoped_lock<std::mutex> lock(m_lock);

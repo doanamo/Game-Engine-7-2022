@@ -46,14 +46,11 @@
 
 namespace Game
 {
-    // Forward declarations.
     class EntitySystem;
 
-    // Component system class.
     class ComponentSystem : private NonCopyable
     {
     public:
-        // ComponentType declarations.
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
         using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
@@ -62,70 +59,48 @@ namespace Game
         ComponentSystem();
         ~ComponentSystem();
 
-        // Move constructor and operator.
         ComponentSystem(ComponentSystem&& other);
         ComponentSystem& operator=(ComponentSystem&& other);
 
-        // Initializes the component system.
         bool Initialize(EntitySystem* entitySystem);
 
-        // Creates a component.
         template<typename ComponentType>
         ComponentType* Create(EntityHandle handle);
 
-        // Lookups a component.
         template<typename ComponentType>
         ComponentType* Lookup(EntityHandle handle);
 
-        // Gets a component pool.
-        // Creates a new pool if needed.
         template<typename ComponentType>
         ComponentPool<ComponentType>& GetPool();
 
-        // Gets the begin iterator.
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator Begin();
 
-        // Gets the end iterator.
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator End();
 
-        // Gets the entity system reference.
         EntitySystem* GetEntitySystem() const;
 
     private:
-        // Destroys a component.
-        // Cannot be called freely when a component is alive.
         template<typename ComponentType>
         bool Destroy(EntityHandle handle);
 
-        // Creates a component type.
         template<typename ComponentType>
         ComponentPool<ComponentType>* CreatePool();
 
-        // Called when an entity is about to be created.
-        // Used to initialize components that entity contains.
-        bool OnEntityCreate(EntityHandle handle);
+    private:
+        Event::Receiver<bool(EntityHandle)> m_entityCreate;
+        Event::Receiver<void(EntityHandle)> m_entityDestroy;
 
-        // Called when an entity is about to be destroyed.
+        bool OnEntityCreate(EntityHandle handle);
         void OnEntityDestroy(EntityHandle handle);
 
     private:
-        // Initialization state.
-        bool m_initialized;
-
-        // Entity system.
-        EntitySystem* m_entitySystem;
-
-        // Component pools.
+        EntitySystem* m_entitySystem = nullptr;
         ComponentPoolList m_pools;
-
-        // Event receivers.
-        Event::Receiver<bool(EntityHandle)> m_entityCreate;
-        Event::Receiver<void(EntityHandle)> m_entityDestroy;
+        bool m_initialized = false;
     };
 
-    // Template definitions.
     template<typename ComponentType>
     ComponentType* ComponentSystem::Create(EntityHandle handle)
     {

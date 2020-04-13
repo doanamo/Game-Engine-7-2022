@@ -65,6 +65,7 @@ bool Root::Initialize(const InitializeFromParams& initParams)
 
     // Initialize information acquired from the build system.
     Build::Initialize();
+    Build::PrintInfo();
 
     // After low level system have been initialized, begin initializing other systems.
     LOG("Initializing engine...");

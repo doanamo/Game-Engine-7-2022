@@ -38,7 +38,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Editor renderer has already been initialized!");
 
-    // Create a cleanup guard.
+    // Initialization cleanup guard.
     SCOPE_GUARD_IF(!m_initialized, *this = EditorRenderer());
 
     // Validate engine reference.
@@ -72,7 +72,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     // We are expecting ImGui context to be set by the caller.
     ASSERT(ImGui::GetCurrentContext() != nullptr, "Editor interface context is not set!");
 
-    // Create a vertex buffer.
+    // Create vertex buffer.
     Graphics::BufferInfo vertexBufferInfo;
     vertexBufferInfo.usage = GL_STREAM_DRAW;
     vertexBufferInfo.elementSize = sizeof(ImDrawVert);
@@ -83,7 +83,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
         return false;
     }
 
-    // Create an index buffer.
+    // Create index buffer.
     Graphics::BufferInfo indexBufferInfo;
     indexBufferInfo.usage = GL_STREAM_DRAW;
     indexBufferInfo.elementSize = sizeof(ImDrawIdx);
@@ -94,7 +94,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
         return false;
     }
 
-    // Create an input layout.
+    // Create input layout.
     const Graphics::VertexAttribute inputAttributes[] =
     {
         { &m_vertexBuffer, Graphics::VertexAttributeType::Vector2, GL_FLOAT,         false }, // Position
@@ -126,7 +126,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
         return false;
     }
 
-    // Create a font texture.
+    // Create font texture.
     Graphics::Texture::CreateFromParams textureParams;
     textureParams.renderContext = m_renderContext;
     textureParams.width = fontWidth;
@@ -143,7 +143,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
 
     ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)m_fontTexture.GetHandle();
 
-    // Create a sampler.
+    // Create sampler.
     // Set linear filtering otherwise textures without mipmaps will be black.
     Graphics::SamplerInfo samplerInfo;
     samplerInfo.textureMinFilter = GL_LINEAR;
@@ -155,7 +155,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
         return false;
     }
 
-    // Load a shader.
+    // Load shader.
     Graphics::Shader::LoadFromFile shaderParams;
     shaderParams.fileSystem = params.fileSystem;
     shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
@@ -191,7 +191,7 @@ void EditorRenderer::Draw()
     io.DisplaySize.x = (float)windowWidth;
     io.DisplaySize.y = (float)windowHeight;
 
-    // Handle a case where Update() has not been called yet.
+    // Handle case where Update() has not been called yet.
     // Calling NewFrame() twice in a row should be fine.
     if(ImGui::GetFrameCount() == 0)
     {

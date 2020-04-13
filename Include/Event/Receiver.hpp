@@ -8,7 +8,6 @@
 #include "Event/Dispatcher.hpp"
 #include "Event/Delegate.hpp"
 
-// Forward declarations.
 namespace Event
 {
     template<typename Type>
@@ -33,37 +32,26 @@ namespace Event
     class Receiver;
 
     template<typename ReturnType, typename... Arguments>
-    class Receiver<ReturnType(Arguments...)> : public Delegate<ReturnType(Arguments...)>
+    class Receiver<ReturnType(Arguments...)> : public Delegate<ReturnType(Arguments...)>, private NonCopyable
     {
     public:
-        // Friend declarations.
         friend DispatcherBase<ReturnType(Arguments...)>;
         friend ReceiverInvoker<ReturnType(Arguments...)>;
-
-        // Type declarations.
         using ReceiverListNode = typename DispatcherBase<ReturnType(Arguments...)>::ReceiverListNode;
 
     public:
-        // Constructor.
-        Receiver() :
-            m_dispatcher(nullptr)
+        Receiver()
         {
             // Set a strong reference to this node.
             m_listNode.SetReference(this);
         }
 
-        // Destructor.
         virtual ~Receiver()
         {
             // Unsubscribe from the dispatcher.
             this->Unsubscribe();
         }
 
-        // Disallow copying.
-        Receiver(const Receiver& other) = delete;
-        Receiver& operator=(const Receiver& other) = delete;
-
-        // Move operations.
         Receiver(Receiver&& other) :
             Receiver()
         {
@@ -82,14 +70,12 @@ namespace Event
             return *this;
         }
 
-        // Subscribes to a dispatcher.
         bool Subscribe(DispatcherBase<ReturnType(Arguments...)>& dispatcher, 
             bool unsubscribeReceiver = true, bool insertFront = false)
         {
             return dispatcher.Subscribe(*this, unsubscribeReceiver, insertFront);
         }
 
-        // Unsubscribes from the current dispatcher.
         void Unsubscribe()
         {
             if(m_dispatcher != nullptr)
@@ -102,7 +88,7 @@ namespace Event
         }
 
     private:
-        // Receives an event and invokes a bound function.
+        // Receives an event and invokes bound function.
         ReturnType Receive(Arguments... arguments)
         {
             ASSERT(m_dispatcher, "Invoked a receiver without it being subscribed!");
@@ -117,10 +103,7 @@ namespace Event
         }
 
     private:
-        // Receiver linked list node.
         ReceiverListNode m_listNode;
-
-        // Subscribed dispatcher reference.
-        DispatcherBase<ReturnType(Arguments...)>* m_dispatcher;
+        DispatcherBase<ReturnType(Arguments...)>* m_dispatcher = nullptr;
     };
 }

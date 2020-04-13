@@ -5,20 +5,6 @@
 #include "Game/Components/TransformComponent.hpp"
 using namespace Game;
 
-TransformComponent::TransformComponent() :
-    m_currentPosition(0.0f, 0.0f, 0.0f),
-    m_currentRotation(1.0f, 0.0f, 0.0f, 0.0f),
-    m_currentScale(1.0f, 1.0f, 1.0f),
-    m_previousPosition(0.0f, 0.0f, 0.0f),
-    m_previousRotation(1.0f, 0.0f, 0.0f, 0.0f),
-    m_previousScale(1.0f, 1.0f, 1.0f)
-{
-}
-
-TransformComponent::~TransformComponent()
-{
-}
-
 TransformComponent::TransformComponent(TransformComponent&& other) :
     TransformComponent()
 {

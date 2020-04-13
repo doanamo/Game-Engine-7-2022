@@ -6,8 +6,7 @@
 #include "Game/EntitySystem.hpp"
 using namespace Game;
 
-IdentitySystem::IdentitySystem() :
-    m_initialized(false)
+IdentitySystem::IdentitySystem()
 {
     // Bind event receivers.
     m_entityDestroyReceiver.Bind<IdentitySystem, &IdentitySystem::OnEntityDestroyed>(this);

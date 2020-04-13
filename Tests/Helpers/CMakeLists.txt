@@ -12,7 +12,7 @@ include_guard(GLOBAL)
 project(TestHelpers)
 add_library(TestHelpers STATIC
     "TestHelpers.hpp"
-    "TestHelpers.cpp"
+    "Empty.cpp"
 )
 
 target_compile_features(TestHelpers PUBLIC cxx_std_17)

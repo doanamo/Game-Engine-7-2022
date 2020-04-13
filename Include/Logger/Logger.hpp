@@ -46,23 +46,13 @@
 
 namespace Logger
 {
-    // Forward declarations.
     class Sink;
 
-    // Initializes global logger sink.
     void Initialize();
-
-    // Writes message to global logger sink.
     void Write(const Message& message);
-
-    // Advances frame of reference.
-    // Helps distinguish messages from different frames.
     int AdvanceFrameReference();
 
-    // Gets global logger sink.
     Sink& GetGlobalSink();
-
-    // Checks if global logger is initialized.
     bool IsInitialized();
 }
 

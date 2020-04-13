@@ -5,9 +5,7 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-ComponentSystem::ComponentSystem() :
-    m_initialized(false),
-    m_entitySystem(nullptr)
+ComponentSystem::ComponentSystem()
 {
     // Bind event receiver.
     m_entityCreate.Bind<ComponentSystem, &ComponentSystem::OnEntityCreate>(this);

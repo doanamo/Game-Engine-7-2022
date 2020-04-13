@@ -39,7 +39,6 @@
 
 namespace System
 {
-    // Resource pool interface.
     class ResourcePoolInterface
     {
     protected:
@@ -52,60 +51,37 @@ namespace System
         {
         }
 
-        // Released unused resources.
         virtual void ReleaseUnused() = 0;
     };
 
-    // Resource pool class.
     template<typename Type>
     class ResourcePool : public ResourcePoolInterface, private NonCopyable
     {
     public:
-        // Type declarations.
         using ResourcePtr = std::shared_ptr<Type>;
         using ResourceList = std::unordered_map<std::string, ResourcePtr>;
         using ResourceListPair = typename ResourceList::value_type;
 
     public:
-        ResourcePool();
+        ResourcePool() = default;
         ~ResourcePool();
 
-        // Move constructor and assignment.
         ResourcePool(ResourcePool&& other);
         ResourcePool& operator=(ResourcePool&& other);
 
-        // Sets the default resource.
-        // This resource will be returned when acquisition fails.
         void SetDefault(std::shared_ptr<Type> resource);
-
-        // Returns the set default resource.
         std::shared_ptr<Type> GetDefault() const;
 
-        // Acquires a resource and assigns it a name.
-        // Name argument can also be a full path to a resource, which will ensure uniqueness.
         template<typename... Arguments>
         std::shared_ptr<Type> Acquire(std::string name, Arguments... arguments);
 
-        // Releases unused resources.
         void ReleaseUnused() override;
-
-        // Releases all resources.
         void ReleaseAll();
 
     private:
-        // Default resource.
         std::shared_ptr<Type> m_defaultResource;
-
-        // List of resources.
         ResourceList m_resources;
     };
-
-    // Template definitions.
-    template<typename Type>
-    ResourcePool<Type>::ResourcePool() :
-        m_defaultResource(nullptr)
-    {
-    }
 
     template<typename Type>
     ResourcePool<Type>::~ResourcePool()
@@ -118,14 +94,12 @@ namespace System
     ResourcePool<Type>::ResourcePool(ResourcePool&& other) :
         ResourcePool<Type>()
     {
-        // Call the move assignment.
         *this = std::move(other);
     }
 
     template<typename Type>
     ResourcePool<Type>& ResourcePool<Type>::operator=(ResourcePool&& other)
     {
-        // Swap class members.
         std::swap(m_defaultResource, other.m_defaultResource);
         std::swap(m_resources, other.m_resources);
 

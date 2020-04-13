@@ -13,53 +13,37 @@ namespace System
 }
 
 /*
-    Graphics Render Context
+    Render Context
 
     Manages the internal state of a rendering system.
 */
 
 namespace Graphics
 {
-    // Render context class.
     class RenderContext : private NonCopyable
     {
     public:
-        RenderContext();
-        ~RenderContext();
+        RenderContext() = default;
+        ~RenderContext() = default;
 
-        // Move constructor and destructor.
         RenderContext(RenderContext&& other);
         RenderContext& operator=(RenderContext&& other);
 
-        // Initialize the graphics context.
         bool Initialize(System::Window* window);
-
-        // Make the context current.
         void MakeCurrent();
 
-        // Pushes a copy of the state on the top of the stack.
         RenderState& PushState();
-
-        // Pops the current state at the top of the stack.
         void PopState();
 
-        // Gets the current state on top of the stack.
         RenderState& GetState();
-
-        // Checks if the instance is valid.
         bool IsValid() const;
 
     private:
-        // Window instance.
-        System::Window* m_window;
+        System::Window* m_window = nullptr;
 
-        // Current render state.
         RenderState m_currentState;
-
-        // Stack of render states.
         std::stack<RenderState> m_pushedStates;
 
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

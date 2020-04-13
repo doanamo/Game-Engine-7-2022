@@ -7,24 +7,20 @@
 #include <tuple>
 
 /*
-    Graphics Render state
+    Render state
 */
 
 namespace Graphics
 {
-    // OpenGL API enumerations and values.
     namespace OpenGL
     {
-        // Error checking method and macro.
         bool CheckErrors();
 
-        // Constant definitions.
         const GLenum InvalidEnum = GL_INVALID_ENUM;
         const GLuint InvalidHandle = 0;
         const GLuint InvalidAttribute = -1;
         const GLuint InvalidUniform = -1;
 
-        // List of capabilities.
         static const GLenum Capabilities[] =
         {
             // GL_ALPHA_TEST,
@@ -98,7 +94,6 @@ namespace Graphics
 
         const std::size_t CapabilityCount = Utility::StaticArraySize(Capabilities);
 
-        // List of buffer binding targets.
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =
         {
             { GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING },
@@ -119,7 +114,6 @@ namespace Graphics
 
         const std::size_t BufferBindingTargetCount = Utility::StaticArraySize(BufferBindingTargets);
 
-        // List of texture binding targets.
         static const std::tuple<GLenum, GLenum> TextureBindingTargets[] =
         {
             // { GL_TEXTURE_1D, GL_TEXTURE_BINDING_1D },
@@ -137,7 +131,6 @@ namespace Graphics
 
         const std::size_t TextureBindingTargetCount = Utility::StaticArraySize(TextureBindingTargets);
 
-        // List of pixel store parameters.
         static const GLenum PixelStoreParameters[] =
         {
             // GL_PACK_SWAP_BYTES,
@@ -161,29 +154,20 @@ namespace Graphics
         const std::size_t PixelStoreParameterCount = Utility::StaticArraySize(PixelStoreParameters);
     }
 
-    // Render state structure.
     class RenderState
     {
     public:
         RenderState();
-        ~RenderState();
 
-        // Copy constructor and operator.
-        // We can use defaults as we are only using copyable primitive types.
         RenderState(const RenderState& other) = default;
         RenderState& operator=(const RenderState& other) = default;
 
-        // Move constructor and operator.
         RenderState(RenderState&& other);
         RenderState& operator=(RenderState&& other);
 
-        // Initializes the render state.
         bool Initialize();
-
-        // Apply changes from another state.
         void Apply(RenderState& other);
 
-        // Functions that change OpenGL state.
         void Enable(GLenum cap);
         void Disable(GLenum cap);
         GLboolean IsEnabled(GLenum cap) const;
@@ -231,15 +215,11 @@ namespace Graphics
         void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
         std::tuple<GLint, GLint, GLsizei, GLsizei> GetScissorBox() const;
 
-        // Functions that perform OpenGL operations.
         void Clear(GLbitfield mask);
         void DrawArrays(GLenum mode, GLint first, GLsizei count);
         void DrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
 
     private:
-        // Initialization state.
-        bool m_initialized;
-
         // glEnable
         GLboolean m_capabilities[OpenGL::CapabilityCount];
 
@@ -251,7 +231,7 @@ namespace Graphics
 
         // glActiveTexture
         GLenum m_activeTexture;
-        
+
         // glBindTexture
         GLuint m_textureBindings[OpenGL::TextureBindingTargetCount];
 
@@ -284,5 +264,7 @@ namespace Graphics
 
         // glScissor
         std::tuple<GLint, GLint, GLsizei, GLsizei> m_scissorBox;
+
+        bool m_initialized = false;
     };
 }

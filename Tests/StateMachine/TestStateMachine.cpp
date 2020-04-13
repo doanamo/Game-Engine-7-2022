@@ -4,7 +4,7 @@
 
 #include <string>
 #include <Common/StateMachine.hpp>
-#include "TestHelpers.hpp"
+#include <TestHelpers.hpp>
 
 class TestState : public State<TestState>
 {
@@ -61,13 +61,11 @@ bool TestTransitions()
 {
     // Create state machine.
     StateMachine<TestState> stateMachine;
-
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
     // Create state.
     auto stateOne = std::make_shared<TestState>("One", 100);
-
     TEST_FALSE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), nullptr);
 
@@ -82,7 +80,6 @@ bool TestTransitions()
 
     // Change to another state.
     auto stateTwo = std::make_shared<TestState>("Two", 200);
-
     TEST_FALSE(stateTwo->HasStateMachine());
     TEST_EQ(stateTwo->GetStateMachine(), nullptr);
 
@@ -172,7 +169,6 @@ bool TestTransitions()
 
     // Discard current state.
     stateMachine.ChangeState(nullptr);
-
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -187,23 +183,19 @@ bool TestRecursiveTransitions()
 {
     // Create state machine.
     StateMachine<TestState> stateMachine;
-
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
     // Setup transition chain.
     auto stateFirst = std::make_shared<TestState>("First", 100);
-
     TEST_FALSE(stateFirst->HasStateMachine());
     TEST_EQ(stateFirst->GetStateMachine(), nullptr);
 
     auto stateSecond = std::make_shared<TestState>("Second", 200);
-
     TEST_FALSE(stateSecond->HasStateMachine());
     TEST_EQ(stateSecond->GetStateMachine(), nullptr);
 
     auto stateThird = std::make_shared<TestState>("Third", 300);
-
     TEST_FALSE(stateThird->HasStateMachine());
     TEST_EQ(stateThird->GetStateMachine(), nullptr);
 
@@ -235,7 +227,6 @@ int TestExitTransition()
 {
     // Create state machine.
     StateMachine<TestState> stateMachine;
-
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -270,7 +261,6 @@ int TestCleanup()
     {
         // Create state machine.
         StateMachine<TestState> stateMachine;
-
         TEST_FALSE(stateMachine.HasCurrentState());
         TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -294,17 +284,8 @@ int TestCleanup()
 
 int main()
 {
-    if(!TestTransitions())
-        return 1;
-
-    if(!TestRecursiveTransitions())
-        return 1;
-
-    if(!TestExitTransition())
-        return 1;
-
-    if(!TestCleanup())
-        return 1;
-
-    return 0;
+    TEST_RUN(TestTransitions);
+    TEST_RUN(TestRecursiveTransitions);
+    TEST_RUN(TestExitTransition);
+    TEST_RUN(TestCleanup);
 }

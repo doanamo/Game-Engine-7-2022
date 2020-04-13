@@ -14,23 +14,20 @@
 
 namespace Game
 {
-    // Forward declarations.
     struct EntityHandle;
     class ComponentSystem;
 
-    // Component base class.
-    class Component
+    class Component : private NonCopyable
     {
     protected:
         Component() = default;
         virtual ~Component() = default;
 
-        // Delete copy constructor and operator.
         // Derived components must define move operator in order to be used
         // with some containers such as std::vector that requires objects to
         // have MoveInsertable and EmplaceConstructible traits.
-        Component(const Component& other) = delete;
-        Component& operator=(const Component& other) = delete;
+        Component(Component&& other) = default;
+        Component& operator=(Component&& other) = default;
 
     public:
         virtual bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)

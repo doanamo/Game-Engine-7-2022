@@ -12,53 +12,38 @@
 
 namespace Game
 {
-    // Transform component.
     class TransformComponent : public Component
     {
     public:
-        TransformComponent();
-        ~TransformComponent();
+        TransformComponent() = default;
+        ~TransformComponent() = default;
 
         TransformComponent(TransformComponent&& other);
         TransformComponent& operator=(TransformComponent&& other);
 
-        // Resets the transform interpolation.
         // Called at the beginning of each frame.
-        // Should be called after e.g. teleporting an object.
+        // Should be called after teleportation.
         void ResetInterpolation();
 
-        // Sets the current position.
         void SetPosition(const glm::vec3& position);
-
-        // Set the current rotation.
         void SetRotation(const glm::quat& rotation);
-
-        // Sets the current scale.
         void SetScale(const glm::vec3& scale);
 
-        // Gets the current position.
         const glm::vec3& GetPosition() const;
-
-        // Gets the current rotation.
         const glm::quat& GetRotation() const;
-
-        // Gets the current scale.
         const glm::vec3& GetScale() const;
 
-        // Calculates an interpolated transform matrix.
         // Alpha value of 0.0f returns a matrix representing the previous transform.
         // Alpha value of 1.0f returns a matrix representing the current transform.
         glm::mat4 CalculateMatrix(float alpha = 1.0f) const;
 
     public:
-        // Transform parameters.
-        glm::vec3 m_currentPosition;
-        glm::quat m_currentRotation;
-        glm::vec3 m_currentScale;
+        glm::vec3 m_currentPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::quat m_currentRotation = glm::quat(1.0, 0.0, 0.0, 0.0);
+        glm::vec3 m_currentScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        // Transform interpolation.
-        glm::vec3 m_previousPosition;
-        glm::quat m_previousRotation;
-        glm::vec3 m_previousScale;
+        glm::vec3 m_previousPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::quat m_previousRotation = glm::quat(1.0, 0.0, 0.0, 0.0);
+        glm::vec3 m_previousScale = glm::vec3(1.0f, 1.0f, 1.0f);
     };
 }

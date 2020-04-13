@@ -7,19 +7,6 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-SpriteComponent::SpriteComponent() :
-    m_transformComponent(nullptr),
-    m_rectangle(0.0f, 0.0f, 1.0f, 1.0f),
-    m_color(1.0f, 1.0f, 1.0f, 1.0f),
-    m_transparent(false),
-    m_filtered(true)
-{
-}
-
-SpriteComponent::~SpriteComponent()
-{
-}
-
 SpriteComponent::SpriteComponent(SpriteComponent&& other) :
     SpriteComponent()
 {

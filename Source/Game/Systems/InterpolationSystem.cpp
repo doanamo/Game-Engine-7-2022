@@ -8,16 +8,6 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-InterpolationSystem::InterpolationSystem() :
-    m_componentSystem(nullptr),
-    m_initialized(false)
-{
-}
-
-InterpolationSystem::~InterpolationSystem()
-{
-}
-
 InterpolationSystem::InterpolationSystem(InterpolationSystem&& other) :
     InterpolationSystem()
 {

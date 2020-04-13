@@ -7,20 +7,6 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-CameraComponent::CameraComponent() :
-    m_transform(nullptr),
-    m_projection(ProjectionTypes::Perspective),
-    m_viewSize(2.0f, 2.0f),
-    m_nearPlane(0.1f),
-    m_farPlane(1000.0f),
-    m_fov(90.0f)
-{
-}
-
-CameraComponent::~CameraComponent()
-{
-}
-
 CameraComponent::CameraComponent(CameraComponent&& other) :
     CameraComponent()
 {

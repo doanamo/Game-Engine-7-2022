@@ -9,7 +9,6 @@ using namespace Logger;
 
 namespace
 {
-    // Returns marker for specified message type.
     char* MessageSeverityMarker(Severity::Type severity)
     {
         switch(severity)
@@ -25,7 +24,6 @@ namespace
         return " ";
     }
 
-    // Case insensitive character comparison function for std::search().
     bool CaseInsensitiveCharacterComparison(char a, char b)
     {
         return std::tolower(a) == std::tolower(b);

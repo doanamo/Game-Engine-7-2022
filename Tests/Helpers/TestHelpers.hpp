@@ -5,7 +5,15 @@
 #include <Common/Debug.hpp>
 #include <Logger/Logger.hpp>
 
+/*
+    Helper Macros
+*/
+
 #define TEST_VOID(value) (value)
+
+#define TEST_RUN(function) \
+    if((function()) == false) \
+        return 1;
 
 #define TEST_TRUE(value) \
     if((value) != true) \

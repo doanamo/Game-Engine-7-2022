@@ -7,7 +7,7 @@
 #include <string>
 
 /*
-    Logger Format
+    Format
 
     Default logging format used for all outputs.
 
@@ -21,11 +21,9 @@
 
 namespace Logger
 {
-    // Forward declarations.
     class Message;
     struct SinkContext;
 
-    // Default format class.
     class DefaultFormat
     {
     public:

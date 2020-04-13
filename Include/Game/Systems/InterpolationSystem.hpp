@@ -10,30 +10,22 @@
 
 namespace Game
 {
-    // Forward declarations.
     class ComponentSystem;
 
-    // Interpolation system class.
     class InterpolationSystem : private NonCopyable
     {
     public:
-        InterpolationSystem();
-        ~InterpolationSystem();
+        InterpolationSystem() = default;
+        ~InterpolationSystem() = default;
 
         InterpolationSystem(InterpolationSystem&& other);
         InterpolationSystem& operator=(InterpolationSystem&& other);
 
-        // Initializes the interpolation system.
         bool Initialize(ComponentSystem* componentSystem);
-
-        // Updates the interpolation system.
         void Update(float timeDelta);
 
     private:
-        // Component system reference.
-        ComponentSystem* m_componentSystem;
-
-        // Initialization state.
-        bool m_initialized;
+        ComponentSystem* m_componentSystem = nullptr;
+        bool m_initialized = false;
     };
 }

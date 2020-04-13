@@ -5,10 +5,6 @@
 #include "Game/GameState.hpp"
 using namespace Game;
 
-GameState::GameState()
-{
-}
-
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.

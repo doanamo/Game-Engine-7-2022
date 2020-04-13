@@ -68,7 +68,7 @@ bool InputManagerEditor::Initialize(const InitializeFromParams& params)
     LOG("Initializing input manager editor...");
     LOG_SCOPED_INDENT();
 
-    // Make sure class instance is not already initialized.
+    // Make sure class instance has not been initialized yet.
     ASSERT(!m_initialized, "Input manager editor has already been initialized!");
 
     // Initialization scope guard.

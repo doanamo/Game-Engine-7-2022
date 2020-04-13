@@ -10,7 +10,6 @@
 
 namespace System
 {
-    // General input actions.
     struct InputStates
     {
         using Type = unsigned short;
@@ -19,11 +18,11 @@ namespace System
         {
             Invalid,
 
-            Pressed, // Input was pressed just before processed frame.
-            PressedRepeat, // Input was pressed for more than once frame.
+            Pressed,         // Input was pressed just before processed frame.
+            PressedRepeat,   // Input was pressed for more than once frame.
             PressedReleased, // Input was pressed and released in one frame.
-            Released, // Input was released just before processed frame.
-            ReleasedRepeat, // Input was released for more than one frame.
+            Released,        // Input was released just before processed frame.
+            ReleasedRepeat,  // Input was released for more than one frame.
 
             Count,
         };
@@ -31,7 +30,6 @@ namespace System
 
     InputStates::Type TranslateInputAction(int action);
 
-    // Keyboard input keys.
     struct KeyboardKeys
     {
         using Type = unsigned short;
@@ -161,7 +159,6 @@ namespace System
 
     KeyboardKeys::Type TranslateKeyboardKey(int key);
 
-    // Keyboard input modifiers.
     struct KeyboardModifiers
     {
         using Type = unsigned short;
@@ -182,7 +179,6 @@ namespace System
 
     KeyboardModifiers::Type TranslateKeyboardModifiers(int mods);
 
-    // Mouse input buttons.
     struct MouseButtons
     {
         using Type = unsigned short;
@@ -210,17 +206,12 @@ namespace System
 
     MouseButtons::Type TranslateMouseButton(int button);
 
-    // Input event structures.
     namespace InputEvents
     {
-        // Keyboard key event.
         struct KeyboardKey
         {
             KeyboardKey(KeyboardKeys::Type key = KeyboardKeys::KeyUnknown) :
-                key(key),
-                modifiers(KeyboardModifiers::None),
-                state(InputStates::ReleasedRepeat),
-                stateTime(0.0f)
+                key(key)
             {
             }
 
@@ -229,72 +220,40 @@ namespace System
             bool IsRepeat() const;
 
             KeyboardKeys::Type key;
-            KeyboardModifiers::Type modifiers;
-            InputStates::Type state;
-            float stateTime;
+            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
+            InputStates::Type state = InputStates::ReleasedRepeat;
+            float stateTime = 0.0f;
         };
 
-        // Text input event.
         struct TextInput
         {
-            TextInput() :
-                utf32Character(0)
-            {
-            }
-
             // Character is stored in UTF32 format here and can be
             // converted to any other code point as the user wishes.
-            unsigned int utf32Character;
+            unsigned int utf32Character = 0;
         };
 
-        // Mouse button event.
         struct MouseButton
         {
-            MouseButton() :
-                state(InputStates::Invalid),
-                button(MouseButtons::Invalid),
-                modifiers(KeyboardModifiers::Invalid)
-            {
-            }
-
-            InputStates::Type state;
-            MouseButtons::Type button;
-            KeyboardKeys::Type modifiers;
+            InputStates::Type state = InputStates::Invalid;
+            MouseButtons::Type button = MouseButtons::Invalid;
+            KeyboardKeys::Type modifiers = KeyboardModifiers::Invalid;
         };
 
-        // Mouse scroll event.
         struct MouseScroll
         {
-            MouseScroll() :
-                offset(0.0)
-            {
-            }
-
-            double offset;
+            double offset = 0.0;
         };
 
-        // Cursor position event.
         struct CursorPosition
         {
-            CursorPosition() :
-                x(0.0),
-                y(0.0)
-            {
-            }
-
-            double x;
-            double y;
+            double x = 0.0;
+            double y = 0.0;
         };
 
         // Cursor enter events.
         struct CursorEnter
         {
-            CursorEnter() :
-                entered(false)
-            {
-            }
-
-            bool entered;
+            bool entered = false;
         };
     }
 }

@@ -23,8 +23,7 @@ bool OpenGL::CheckErrors()
     return !errorFound;
 }
 
-RenderState::RenderState() :
-    m_initialized(false)
+RenderState::RenderState()
 {
     // glEnable
     for(GLboolean& capability : m_capabilities)
@@ -81,20 +80,14 @@ RenderState::RenderState() :
     m_scissorBox = { 0, 0, 0, 0 };
 }
 
-RenderState::~RenderState()
-{
-}
-
 RenderState::RenderState(RenderState&& other) :
     RenderState()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 RenderState& RenderState::operator=(RenderState&& other)
 {
-    // Swap class members.
     std::swap(m_initialized, other.m_initialized);
     std::swap(m_capabilities, other.m_capabilities);
     std::swap(m_vertexArrayBinding, other.m_vertexArrayBinding);

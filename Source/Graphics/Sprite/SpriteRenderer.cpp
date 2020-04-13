@@ -10,7 +10,6 @@ using namespace Graphics;
 
 namespace
 {
-    // Sprite vertex structure.
     struct SpriteVertex
     {
         glm::vec2 position;
@@ -18,27 +17,14 @@ namespace
     };
 }
 
-SpriteRenderer::SpriteRenderer() :
-    m_renderContext(nullptr),
-    m_spriteBatchSize(0),
-    m_initialized(false)
-{
-}
-
-SpriteRenderer::~SpriteRenderer()
-{
-}
-
 SpriteRenderer::SpriteRenderer(SpriteRenderer&& other) :
     SpriteRenderer()
 {
-    // Call the move assignment.
     *this = std::move(other);
 }
 
 SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
 {
-    // Swap class members.
     std::swap(m_renderContext, other.m_renderContext);
     std::swap(m_vertexBuffer, other.m_vertexBuffer);
     std::swap(m_instanceBuffer, other.m_instanceBuffer);

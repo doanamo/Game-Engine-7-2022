@@ -12,19 +12,14 @@
 
 namespace Event
 {
-    // Event queue class.
-    class Queue
+    class Queue : private NonCopyable
     {
     public:
-        // Type declarations.
         using EventList = std::queue<std::any>;
 
     public:
         Queue() = default;
         ~Queue() = default;
-
-        Queue(const Queue& other) = delete;
-        Queue& operator=(const Queue& other) = delete;
 
         Queue(Queue&& other)
         {
@@ -62,7 +57,6 @@ namespace Event
         }
 
     private:
-        // List of events.
         EventList m_eventList;
     };
 }

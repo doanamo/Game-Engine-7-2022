@@ -40,39 +40,27 @@
 
 namespace System
 {
-    // Forward declarations.
     class Window;
 
-    // Input manager class.
     class InputManager : private NonCopyable
     {
     public:
         InputManager();
-        ~InputManager();
+        ~InputManager() = default;
 
-        // Move constructor and operator.
         InputManager(InputManager&& other);
         InputManager& operator=(InputManager&& other);
 
-        // Initializes the input manager.
         bool Initialize(Window* window);
-
-        // Advances input state after processing an update.
-        // Should be always called before or after frame where input is polled.
         void AdvanceState(float timeDelta);
-
-        // Resets all input states to their untouched values.
         void ResetStates();
 
-        // Checks if specified key is pressed or released.
         bool IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat = true);
         bool IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat = true);
 
     public:
-        // Event dispatchers.
         struct Events
         {
-            // Input event dispatchers.
             Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
             Event::Dispatcher<bool(const InputEvents::TextInput&), Event::CollectWhileFalse> textInput;
             Event::Dispatcher<bool(const InputEvents::MouseButton&), Event::CollectWhileFalse> mouseButton;
@@ -82,7 +70,6 @@ namespace System
         } events;
 
     private:
-        // Input event receivers.
         struct Receivers
         {
             Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
@@ -93,7 +80,6 @@ namespace System
             Event::Receiver<void(const Window::Events::CursorEnter&)> cursorEnter;
         } m_receivers;
 
-        // Input event handlers.
         bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
         bool OnTextInput(const Window::Events::TextInput& event);
         bool OnMouseButton(const Window::Events::MouseButton& event);
@@ -102,10 +88,8 @@ namespace System
         void OnCursorEnter(const Window::Events::CursorEnter& event);
 
     private:
-        // Keyboard key states.
         InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
 
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

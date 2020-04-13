@@ -4,14 +4,15 @@
 
 #pragma once
 
-// Forward declarations.
+#include "Graphics/RenderState.hpp"
+
 namespace System
 {
     class FileSystem;
 }
 
 /*
-    Graphics Texture
+    Texture
     
     Encapsulates an OpenGL texture object which can be loaded from PNG file.
     
@@ -36,84 +37,57 @@ namespace System
 
 namespace Graphics
 {
-    // Forward declarations.
     class RenderContext;
 
-    // Texture class.
     class Texture : private NonCopyable
     {
     public:
-        // Create texture from params.
         struct CreateFromParams
         {
-            CreateFromParams();
-
-            RenderContext* renderContext;
-            int width;
-            int height;
-            GLenum format;
-            bool mipmaps;
-            const void* data;
+            RenderContext* renderContext = nullptr;
+            GLenum format = OpenGL::InvalidEnum;
+            int width = 0;
+            int height = 0;
+            bool mipmaps = true;
+            const void* data = nullptr;
         };
 
-        // Load texture from a file.
         struct LoadFromFile
         {
-            LoadFromFile();
-
-            System::FileSystem* fileSystem;
-            RenderContext* renderContext;
+            System::FileSystem* fileSystem = nullptr;
+            RenderContext* renderContext = nullptr;
             std::string filePath;
-            bool mipmaps;
+            bool mipmaps = true;
         };
 
     public:
-        Texture();
+        Texture() = default;
         ~Texture();
 
-        // Move constructor and operator.
         Texture(Texture&& other);
         Texture& operator=(Texture&& other);
 
-        // Creates a texture instance from parameters.
         bool Initialize(const CreateFromParams& params);
-
-        // Loads the texture from a file.
         bool Initialize(const LoadFromFile& params);
-
-        // Updates the texture data.
         void Update(const void* data);
 
-        // Gets the texture's handle.
         GLuint GetHandle() const;
-
-        // Gets the texture's width.
         int GetWidth() const;
-
-        // Gets the texture's height.
         int GetHeight() const;
-
-        // Checks if the texture instance is valid.
         bool IsValid() const;
 
     private:
-        // Destroys the internal handle.
         void DestroyHandle();
 
     private:
-        // Render context.
         RenderContext* m_renderContext;
 
-        // Texture handle.
-        GLuint m_handle;
-        GLenum m_format;
-
-        // Texture parameters.
-        int m_width;
-        int m_height;
+        GLuint m_handle = OpenGL::InvalidHandle;
+        GLenum m_format = OpenGL::InvalidEnum;
+        int m_width = 0;
+        int m_height = 0;
     };
     
-    // Type declarations.
     using TexturePtr = std::shared_ptr<Texture>;
     using ConstTexturePtr = std::shared_ptr<const Texture>;
 }

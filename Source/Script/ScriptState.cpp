@@ -25,12 +25,6 @@ namespace
     }
 }
 
-ScriptState::ScriptState() :
-    m_state(nullptr),
-    m_initialized(false)
-{
-}
-
 ScriptState::~ScriptState()
 {
     if(m_state != nullptr)
@@ -42,13 +36,11 @@ ScriptState::~ScriptState()
 ScriptState::ScriptState(ScriptState&& other) :
     ScriptState()
 {
-    // Call the move assignment operator.
     *this = std::move(other);
 }
 
 ScriptState& ScriptState::operator=(ScriptState&& other)
 {
-    // Swap class members.
     std::swap(m_state, other.m_state);
     std::swap(m_initialized, other.m_initialized);
 
@@ -205,6 +197,7 @@ bool ScriptState::CollectGarbage(bool singleStep)
     if(singleStep)
     {
         // Perform only one step of the garbage collection process.
+        // Return whether there is more garbage left to collect.
         return lua_gc(m_state, LUA_GCSTEP, 0) == 0;
     }
     else

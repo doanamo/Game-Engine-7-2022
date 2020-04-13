@@ -10,16 +10,6 @@
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
 
-TextureAtlas::TextureAtlas() :
-    m_texture(nullptr),
-    m_initialized(false)
-{
-}
-
-TextureAtlas::~TextureAtlas()
-{
-}
-
 TextureAtlas::TextureAtlas(TextureAtlas&& other) :
     TextureAtlas()
 {

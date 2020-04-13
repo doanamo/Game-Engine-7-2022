@@ -5,7 +5,7 @@
 #pragma once
 
 /*
-    System Platform
+    Platform
 
     Main platform context that must be initialized
     first before other system classes can be used.
@@ -29,25 +29,19 @@
 
 namespace System
 {
-    // Platform class.
     class Platform : private NonCopyable
     {
     public:
-        Platform();
+        Platform() = default;
         ~Platform();
 
-        // Move operations.
         Platform(Platform&& other);
         Platform& operator=(Platform&& other);
 
-        // Initializes the platform context.
         bool Initialize();
-
-        // Checks if the instance is initialized.
         bool IsInitialized() const;
 
     private:
-        // Initialization state.
-        bool m_initialized;
+        bool m_initialized = false;
     };
 }

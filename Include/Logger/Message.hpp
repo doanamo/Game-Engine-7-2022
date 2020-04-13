@@ -8,7 +8,7 @@
 #include "Sink.hpp"
 
 /*
-    Logger Message
+    Message
 
     Object that holds a log message and its properties.
 
@@ -29,7 +29,6 @@
 
 namespace Logger
 {
-    // Message severity.
     struct Severity
     {
         enum Type
@@ -47,19 +46,16 @@ namespace Logger
         };
     };
 
-    // Message class.
     class Message
     {
     public:
-        Message();
+        Message() = default;
         Message(Message&& other);
-        virtual ~Message();
+        virtual ~Message() = default;
 
-        // Disable copying.
         Message(const Message&) = delete;
         Message& operator=(const Message&) = delete;
 
-        // Formats message text.
         template<typename... Args>
         Message& Format(const char* format, Args&&... arguments)
         {
@@ -67,44 +63,27 @@ namespace Logger
             return *this;
         }
 
-        // Sets message text.
         Message& SetText(std::string text);
-
-        // Sets message severity.
         Message& SetSeverity(Severity::Type severity);
-
-        // Sets message source.
         Message& SetSource(const char* source);
-
-        // Sets message line.
         Message& SetLine(unsigned int line);
 
-        // Gets message text.
         const std::string& GetText() const;
-
-        // Gets message severity.
         Severity::Type GetSeverity() const;
-
-        // Gets message source.
         const char* GetSource() const;
-
-        // Gets message line.
         unsigned int GetLine() const;
-
-        // Checks if message is empty.
         bool IsEmpty() const;
 
     private:
-        // Message state.
-        std::string    m_text;
-        Severity::Type m_severity;
-        const char*    m_source;
-        unsigned int   m_line;
+        std::string m_text;
+        Severity::Type m_severity = Severity::Info;
+        const char* m_source = nullptr;
+        unsigned int m_line = 0;
     };
 }
 
 /*
-    Logger Scoped Message
+    Scoped Message
 
     Log message object that writes to a sink at the end of its lifetime.
     Extensively used by LOG() macro to write to the sink at the end of scope.
@@ -112,10 +91,8 @@ namespace Logger
 
 namespace Logger
 {
-    // Forward declarations.
     class Sink;
 
-    // Scoped message class.
     class ScopedMessage : public Message
     {
     public:
@@ -123,7 +100,6 @@ namespace Logger
         ~ScopedMessage();
 
     private:
-        // Message sink output.
         Logger::Sink& m_sink;
     };
 }

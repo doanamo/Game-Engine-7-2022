@@ -13,23 +13,21 @@
 
 /*
     Utility
-
-    Collection of small utility functions.
 */
 
 namespace Utility
 {
-    // Clamps value between lower and upper range.
     template<typename Type>
     constexpr Type Clamp(const Type& value, const Type& lower, const Type& upper)
     {
+        // Return clamped value between lower and upper range.
         return std::max(lower, std::min(value, upper));
     }
 
-    // Gets size of static array known at compile time.
     template<typename Type, std::size_t Size>
     constexpr std::size_t StaticArraySize(const Type(&)[Size])
     {
+        // Return size of static array known at compile time.
         return Size;
     }
 
@@ -47,48 +45,28 @@ namespace Utility
         return static_cast<Target>(value);
     }
 
-    // Frees container's memory by swapping it with an empty container.
     template<typename Type>
     void ClearContainer(Type& container)
     {
+        // Frees container's memory by swapping it with an empty container.
         Type temp;
         container.swap(temp);
     }
 
-    // Gets directory from a file path.
     std::string GetFileDirectory(const std::string filePath);
-
-    // Gets name from a file path.
     std::string GetFileName(const std::string filePath);
-
-    // Gets extension from a file path.
     std::string GetFileExtension(const std::string filePath);
 
-    // Gets content of  text file.
     std::string GetTextFileContent(const std::string filePath);
-
-    // Gets content of a binary file.
     std::vector<char> GetBinaryFileContent(const std::string filePath);
 
-    // Converts text to lower case characters.
     std::string StringLowerCase(const std::string text);
-
-    // Splits string into tokens.
     std::vector<std::string> StringTokenize(const std::string text, char character = ' ');
-
-    // Removes leading characters in a string.
     std::string StringTrimLeft(const std::string text, const char* characters = " ");
-
-    // Removes trailing character in a string.
     std::string StringTrimRight(const std::string text, const char* characters = " ");
-
-    // Removes characters from both ends of a string.
     std::string StringTrim(const std::string text, const char* characters = " ");
 
-    // Calculates unique hash from string.
     uint32_t StringHash(const std::string string);
-
-    // Calculates CRC32 from provided byte data.
     uint32_t CalculateCRC32(uint32_t crc, const char* data, std::size_t size);
 
     // Reorders vector using an array of indices.

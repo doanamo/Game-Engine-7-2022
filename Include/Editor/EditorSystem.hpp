@@ -4,13 +4,11 @@
 
 #pragma once
 
-#include <imgui.h>
 #include <Event/Receiver.hpp>
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorShell.hpp"
 
-// Forward declarations.
 namespace System
 {
     class FileSystem;
@@ -37,7 +35,6 @@ namespace Game
 
 namespace Editor
 {
-    // Editor system class.
     class EditorSystem : private NonCopyable
     {
     public:
@@ -55,55 +52,35 @@ namespace Editor
         EditorSystem();
         ~EditorSystem();
 
-        // Move constructor and assignment.
         EditorSystem(EditorSystem&& other);
         EditorSystem& operator=(EditorSystem&& other);
 
-        // Initializes the editor system.
         bool Initialize(const InitializeFromParams& params);
-
-        // Updates the editor interface.
         void Update(float timeDelta);
-
-        // Draws the editor interface.
         void Draw();
 
     private:
-        // Callback function for cursor position events.
-        void CursorPositionCallback(const System::InputEvents::CursorPosition& event);
-
-        // Callback function for mouse button events.
-        bool MouseButtonCallback(const System::InputEvents::MouseButton& event);
-
-        // Callback function for mouse scroll events.
-        bool MouseScrollCallback(const System::InputEvents::MouseScroll& event);
-
-        // Callback function for keyboard key events.
-        bool KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event);
-
-        // Callback function for text input events.
-        bool TextInputCallback(const System::InputEvents::TextInput& event);
-
-    private:
-        // Destroys the user interface context.
         void DestroyContext();
 
     private:
-        // User interface context.
-        ImGuiContext* m_interface = nullptr;
-
-        // Window event callbacks.
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
         Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
         Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;
         Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
         Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
-        // Editor systems.
+        void CursorPositionCallback(const System::InputEvents::CursorPosition& event);
+        bool MouseButtonCallback(const System::InputEvents::MouseButton& event);
+        bool MouseScrollCallback(const System::InputEvents::MouseScroll& event);
+        bool KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event);
+        bool TextInputCallback(const System::InputEvents::TextInput& event);
+
+    private:
+        ImGuiContext* m_interface = nullptr;
+
         EditorRenderer m_editorRenderer;
         EditorShell m_editorShell;
 
-        // Initialization state.
         bool m_initialized = false;
     };
 }

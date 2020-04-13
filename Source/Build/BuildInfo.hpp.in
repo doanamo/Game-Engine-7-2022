@@ -4,6 +4,10 @@
 
 #pragma once
 
+/*
+    Generated
+*/
+
 namespace BuildInfo
 {
     namespace Engine

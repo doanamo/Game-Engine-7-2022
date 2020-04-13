@@ -5,17 +5,6 @@
 #include "System/Timer.hpp"
 using namespace System;
 
-Timer::Timer() :
-    m_timerFrequency(0),
-    m_currentTimeCounter(0),
-    m_previousTimeCounter(0)
-{
-}
-
-Timer::~Timer()
-{
-}
-
 Timer::Timer(Timer&& other) :
     Timer()
 {
