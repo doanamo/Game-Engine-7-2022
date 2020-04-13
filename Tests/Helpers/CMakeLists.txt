@@ -10,11 +10,7 @@ include_guard(GLOBAL)
 #
 
 project(TestHelpers)
-add_library(TestHelpers STATIC
-    "TestHelpers.hpp"
-    "Empty.cpp"
-)
-
+add_library(TestHelpers STATIC "TestHelpers.hpp" "Empty.cpp")
 target_compile_features(TestHelpers PUBLIC cxx_std_17)
 target_include_directories(TestHelpers PUBLIC ".")
 

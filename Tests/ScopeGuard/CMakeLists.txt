@@ -10,12 +10,9 @@ include_guard(GLOBAL)
 #
 
 project(TestScopeGuard)
-add_executable(TestScopeGuard
-    "TestScopeGuard.cpp"
-)
-
+add_executable(TestScopeGuard "TestScopeGuard.cpp")
 target_compile_features(TestScopeGuard PUBLIC cxx_std_17)
-add_test(ScopeGuard TestScopeGuard)
+add_test("ScopeGuard" TestScopeGuard)
 
 #
 # Dependencies

@@ -10,12 +10,9 @@ include_guard(GLOBAL)
 #
 
 project(TestStateMachine)
-add_executable(TestStateMachine
-    "TestStateMachine.cpp"
-)
-
+add_executable(TestStateMachine "TestStateMachine.cpp")
 target_compile_features(TestStateMachine PUBLIC cxx_std_17)
-add_test(StateMachine TestStateMachine)
+add_test("StateMachine" TestStateMachine)
 
 #
 # Dependencies

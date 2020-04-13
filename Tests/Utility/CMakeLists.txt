@@ -10,12 +10,9 @@ include_guard(GLOBAL)
 #
 
 project(TestUtility)
-add_executable(TestUtility
-    "TestUtility.cpp"
-)
-
+add_executable(TestUtility "TestUtility.cpp")
 target_compile_features(TestUtility PUBLIC cxx_std_17)
-add_test(Utility TestUtility)
+add_test("Utility" TestUtility)
 
 #
 # Dependencies

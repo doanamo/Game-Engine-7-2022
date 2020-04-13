@@ -10,12 +10,9 @@ include_guard(GLOBAL)
 #
 
 project(TestEvent)
-add_executable(TestEvent
-    "TestEvent.cpp"
-)
-
+add_executable(TestEvent "TestEvent.cpp")
 target_compile_features(TestEvent PUBLIC cxx_std_17)
-add_test(Event TestEvent)
+add_test("Event" TestEvent)
 
 #
 # Dependencies

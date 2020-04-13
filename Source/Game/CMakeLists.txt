@@ -3,7 +3,6 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
-include("../CMakeShared.cmake")
 include_guard(GLOBAL)
 
 #
@@ -61,7 +60,6 @@ add_library(Game STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Game PUBLIC cxx_std_17)
 target_include_directories(Game PUBLIC "../../Include")
 target_precompile_headers(Game PRIVATE "Precompiled.hpp")
-set_custom_compiler_options()
 
 #
 # Dependencies

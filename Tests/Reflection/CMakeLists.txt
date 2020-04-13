@@ -10,12 +10,9 @@ include_guard(GLOBAL)
 #
 
 project(TestReflection)
-add_executable(TestReflection
-    "TestReflection.cpp"
-)
-
+add_executable(TestReflection "TestReflection.cpp")
 target_compile_features(TestReflection PUBLIC cxx_std_17)
-add_test(Reflection TestReflection)
+add_test("Reflection" TestReflection)
 
 #
 # Dependencies
