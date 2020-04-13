@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include("../CMakeShared.cmake")
 include_guard(GLOBAL)
 
 #
@@ -66,6 +67,7 @@ add_library(Graphics STATIC ${INCLUDE_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
 target_compile_features(Graphics PUBLIC cxx_std_17)
 target_include_directories(Graphics PUBLIC "../../Include")
 target_precompile_headers(Graphics PRIVATE "Precompiled.hpp")
+set_custom_compiler_options()
 
 #
 # Dependencies

@@ -104,61 +104,52 @@ bool TestDelegate()
 
 bool TestCollector()
 {
-    {
-        Event::CollectDefault<void> collectDefault;
+    Event::CollectDefault<void> collectDefault;
 
-        collectDefault.ConsumeResult();
-        TEST_TRUE(collectDefault.ShouldContinue());
-        TEST_VOID(collectDefault.GetResult());
-    }
+    collectDefault.ConsumeResult();
+    TEST_TRUE(collectDefault.ShouldContinue());
+    TEST_VOID(collectDefault.GetResult());
 
-    {
-        Event::CollectLast<int> collectLast(0);
-        TEST_EQ(collectLast.GetResult(), 0);
+    Event::CollectLast<int> collectLast(0);
+    TEST_EQ(collectLast.GetResult(), 0);
 
-        collectLast.ConsumeResult(1);
-        TEST_TRUE(collectLast.ShouldContinue());
-        TEST_EQ(collectLast.GetResult(), 1);
+    collectLast.ConsumeResult(1);
+    TEST_TRUE(collectLast.ShouldContinue());
+    TEST_EQ(collectLast.GetResult(), 1);
 
-        collectLast.ConsumeResult(2);
-        TEST_TRUE(collectLast.ShouldContinue());
-        TEST_EQ(collectLast.GetResult(), 2);
+    collectLast.ConsumeResult(2);
+    TEST_TRUE(collectLast.ShouldContinue());
+    TEST_EQ(collectLast.GetResult(), 2);
 
-        collectLast.ConsumeResult(3);
-        TEST_TRUE(collectLast.ShouldContinue());
-        TEST_EQ(collectLast.GetResult(), 3);
+    collectLast.ConsumeResult(3);
+    TEST_TRUE(collectLast.ShouldContinue());
+    TEST_EQ(collectLast.GetResult(), 3);
 
-        collectLast.ConsumeResult(4);
-        TEST_TRUE(collectLast.ShouldContinue());
-        TEST_EQ(collectLast.GetResult(), 4);
-    }
-    
-    {
-        Event::CollectWhileTrue collectWhileTrue(true);
-        TEST_EQ(collectWhileTrue.GetResult(), true);
+    collectLast.ConsumeResult(4);
+    TEST_TRUE(collectLast.ShouldContinue());
+    TEST_EQ(collectLast.GetResult(), 4);
 
-        collectWhileTrue.ConsumeResult(true);
-        TEST_TRUE(collectWhileTrue.ShouldContinue());
-        TEST_EQ(collectWhileTrue.GetResult(), true);
+    Event::CollectWhileTrue collectWhileTrue(true);
+    TEST_EQ(collectWhileTrue.GetResult(), true);
 
-        collectWhileTrue.ConsumeResult(false);
-        TEST_FALSE(collectWhileTrue.ShouldContinue());
-        TEST_EQ(collectWhileTrue.GetResult(), false);
-    }
-    
-    {
-        Event::CollectWhileFalse collectWhileFalse(false);
-        TEST_EQ(collectWhileFalse.GetResult(), false);
+    collectWhileTrue.ConsumeResult(true);
+    TEST_TRUE(collectWhileTrue.ShouldContinue());
+    TEST_EQ(collectWhileTrue.GetResult(), true);
 
-        collectWhileFalse.ConsumeResult(false);
-        TEST_TRUE(collectWhileFalse.ShouldContinue());
-        TEST_EQ(collectWhileFalse.GetResult(), false);
+    collectWhileTrue.ConsumeResult(false);
+    TEST_FALSE(collectWhileTrue.ShouldContinue());
+    TEST_EQ(collectWhileTrue.GetResult(), false);
 
-        collectWhileFalse.ConsumeResult(true);
-        TEST_FALSE(collectWhileFalse.ShouldContinue());
-        TEST_EQ(collectWhileFalse.GetResult(), true);
-    }
+    Event::CollectWhileFalse collectWhileFalse(false);
+    TEST_EQ(collectWhileFalse.GetResult(), false);
 
+    collectWhileFalse.ConsumeResult(false);
+    TEST_TRUE(collectWhileFalse.ShouldContinue());
+    TEST_EQ(collectWhileFalse.GetResult(), false);
+
+    collectWhileFalse.ConsumeResult(true);
+    TEST_FALSE(collectWhileFalse.ShouldContinue());
+    TEST_EQ(collectWhileFalse.GetResult(), true);
 
     return true;
 }

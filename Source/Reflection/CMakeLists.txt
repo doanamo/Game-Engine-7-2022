@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include("../CMakeShared.cmake")
 include_guard(GLOBAL)
 
 #
@@ -31,3 +32,4 @@ project(Reflection)
 add_library(Reflection STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Reflection PUBLIC cxx_std_17)
 target_include_directories(Reflection PUBLIC "../../Include")
+set_custom_compiler_options()

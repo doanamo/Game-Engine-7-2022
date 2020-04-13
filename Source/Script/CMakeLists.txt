@@ -3,6 +3,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
+include("../CMakeShared.cmake")
 include_guard(GLOBAL)
 
 #
@@ -33,6 +34,7 @@ add_library(Script STATIC ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Script PUBLIC cxx_std_17)
 target_include_directories(Script PUBLIC "../../Include")
 target_precompile_headers(Script PRIVATE "Precompiled.hpp")
+set_custom_compiler_options()
 
 #
 # Dependencies
