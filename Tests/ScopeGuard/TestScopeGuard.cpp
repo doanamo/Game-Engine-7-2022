@@ -113,20 +113,9 @@ bool TestConditionalBracedScopeGuardMacro()
 
 int main()
 {
-    if(!TestMakeScopeGuard())
-        return 1;
-
-    if(!TestScopeGuardMacro())
-        return 1;
-
-    if(!TestConditionalScopeGuardMacro())
-        return 1;
-
-    if(!TestBracedScopeGuardMacro())
-        return 1;
-
-    if(!TestConditionalBracedScopeGuardMacro())
-        return 1;
-
-    return 0;
+    TEST_RUN(TestMakeScopeGuard);
+    TEST_RUN(TestScopeGuardMacro);
+    TEST_RUN(TestConditionalScopeGuardMacro);
+    TEST_RUN(TestBracedScopeGuardMacro);
+    TEST_RUN(TestConditionalBracedScopeGuardMacro);
 }
