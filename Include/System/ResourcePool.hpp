@@ -55,7 +55,7 @@ namespace System
     };
 
     template<typename Type>
-    class ResourcePool : public ResourcePoolInterface, private NonCopyable
+    class ResourcePool final : public ResourcePoolInterface, private NonCopyable, public Resettable<ResourcePool<Type>>
     {
     public:
         using ResourcePtr = std::shared_ptr<Type>;
@@ -65,9 +65,6 @@ namespace System
     public:
         ResourcePool() = default;
         ~ResourcePool();
-
-        ResourcePool(ResourcePool&& other);
-        ResourcePool& operator=(ResourcePool&& other);
 
         void SetDefault(std::shared_ptr<Type> resource);
         std::shared_ptr<Type> GetDefault() const;
@@ -86,24 +83,7 @@ namespace System
     template<typename Type>
     ResourcePool<Type>::~ResourcePool()
     {
-        // Release all resources now.
         this->ReleaseAll();
-    }
-
-    template<typename Type>
-    ResourcePool<Type>::ResourcePool(ResourcePool&& other) :
-        ResourcePool<Type>()
-    {
-        *this = std::move(other);
-    }
-
-    template<typename Type>
-    ResourcePool<Type>& ResourcePool<Type>::operator=(ResourcePool&& other)
-    {
-        std::swap(m_defaultResource, other.m_defaultResource);
-        std::swap(m_resources, other.m_resources);
-
-        return *this;
     }
 
     template<typename Type>
@@ -122,7 +102,7 @@ namespace System
     template<typename... Arguments>
     std::shared_ptr<Type> ResourcePool<Type>::Acquire(std::string name, Arguments... arguments)
     {
-        // Return an existing resource if loaded.
+        // Return existing resource if loaded.
         auto it = m_resources.find(name);
         if(it != m_resources.end())
         {
@@ -132,7 +112,7 @@ namespace System
             return it->second;
         }
 
-        // Create a new named resource instance.
+        // Create new named resource instance.
         std::shared_ptr<Type> resource = std::make_shared<Type>();
         if(!resource->Initialize(std::forward<Arguments>(arguments)...))
             return m_defaultResource;
@@ -141,7 +121,7 @@ namespace System
         auto result = m_resources.emplace(name, std::move(resource));
         ASSERT(result.second, "Failed to emplace new resource in resource pool!");
 
-        // Return the resource pointer.
+        // Return resource pointer.
         return result.first->second;
     }
 
@@ -154,13 +134,11 @@ namespace System
         {
             if(it->second.use_count() == 1)
             {
-                // Retrieve the name to print it later.
+                // Retrieve name to print it later.
                 std::string name = it->first;
 
-                // Print a log message.
+                // Release resource.
                 LOG_INFO("Releasing resource: \"{}\"", name);
-
-                // Release the resource.
                 it = m_resources.erase(it);
             }
             else
@@ -177,13 +155,11 @@ namespace System
         auto it = m_resources.begin();
         while(it != m_resources.end())
         {
-            // Retrieve the name to print it later.
+            // Retrieve name to print it later.
             std::string name = it->first;
 
-            // Print a log message.
+            // Release resource.
             LOG_INFO("Releasing resource: \"{}\"", name);
-
-            // Release the resource.
             it = m_resources.erase(it);
         }
 

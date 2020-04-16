@@ -5,72 +5,29 @@
 #include "System/Window.hpp"
 using namespace System;
 
+Window::Window() = default;
+
 Window::~Window()
 {
-    // We have to destroy an allocated handle.
-    this->DestroyWindow();
-}
-
-Window::Window(Window&& other) :
-    Window()
-{
-    *this = std::move(other);
-}
-
-Window& Window::operator=(Window&& other)
-{
-    std::swap(events, other.events);
-    std::swap(m_title, other.m_title);
-    std::swap(m_handle, other.m_handle);
-    std::swap(m_sizeChanged, other.m_sizeChanged);
-
-    // Update user data pointers.
     if(m_handle)
-    {
-        glfwSetWindowUserPointer(m_handle, this);
-    }
-
-    if(other.m_handle)
-    {
-        glfwSetWindowUserPointer(other.m_handle, &other);
-    }
-
-    return *this;
-}
-
-void Window::DestroyWindow()
-{
-    // Destroy the window.
-    if(m_handle != nullptr)
     {
         glfwDestroyWindow(m_handle);
         m_handle = nullptr;
     }
 }
 
-bool Window::Initialize(const WindowInfo& info)
+Window::InitializeResult Window::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing window...");
     LOG_SCOPED_INDENT();
 
-    // Check if instance is already initialized.
-    VERIFY(m_handle == nullptr, "Window instance is already initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
-    // Setup a cleanup guard variable.
-    bool initialized = false;
-
-    // Validate arguments.
-    if(info.width < 0)
-    {
-        LOG_ERROR("Invalid argument - \"info.width\" cannot be negative!");
-        return false;
-    }
-
-    if(info.height < 0)
-    {
-        LOG_ERROR("Invalid argument - \"info.height\" cannot be negative!");
-        return false;
-    }
+    // Check arguments.
+    CHECK_ARGUMENT_OR_RETURN(params.width >= 0, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.height >= 0, Failure(InitializeErrors::InvalidArgument));
 
     // Setup window hints.
     glfwWindowHint(GLFW_RED_BITS, 8);
@@ -79,29 +36,25 @@ bool Window::Initialize(const WindowInfo& info)
     glfwWindowHint(GLFW_ALPHA_BITS, 8);
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Show or hide the window after creation.
-    glfwWindowHint(GLFW_VISIBLE, info.visible ? 1 : 0);
+    // Show or hide window after creation.
+    glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
 
-    // Create a window.
-    // Bug: This function call can randomly take twice as much memory after a system call to SetPixelFormat().
-    m_handle = glfwCreateWindow(info.width, info.height, info.title.c_str(), nullptr, nullptr);
+    // Create window.
+    m_handle = glfwCreateWindow(params.width, params.height, params.title.c_str(), nullptr, nullptr);
 
     if(m_handle == nullptr)
     {
         LOG_ERROR("Could not create a window!");
-        return false;
+        return Failure(InitializeErrors::FailedWindowCreation);
     }
 
-    SCOPE_GUARD_IF(!initialized, this->DestroyWindow());
-
     // Set window size limits.
-    glfwSetWindowSizeLimits(m_handle, info.minWidth, info.minHeight, info.maxWidth, info.maxHeight);
+    glfwSetWindowSizeLimits(m_handle, params.minWidth, params.minHeight, params.maxWidth, params.maxHeight);
 
     // Set window user data.
     glfwSetWindowUserPointer(m_handle, this);
@@ -121,8 +74,8 @@ bool Window::Initialize(const WindowInfo& info)
     // Make window context current.
     glfwMakeContextCurrent(m_handle);
 
-    // Set the swap interval.
-    glfwSwapInterval((int)info.vsync);
+    // Set swap interval.
+    glfwSwapInterval((int)params.vsync);
 
     // Initialize GLEW library for the current context.
     GLenum error = glewInit();
@@ -131,7 +84,7 @@ bool Window::Initialize(const WindowInfo& info)
     {
         LOG_ERROR("GLEW Error: {}", glewGetErrorString(error));
         LOG_ERROR("Could not initialize GLEW library!");
-        return false;
+        return Failure(InitializeErrors::FailedGlewInitialization);
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
@@ -139,25 +92,24 @@ bool Window::Initialize(const WindowInfo& info)
     // Log created window info.
     int windowWidth, windowHeight;
     glfwGetFramebufferSize(m_handle, &windowWidth, &windowHeight);
-
     LOG_INFO("Resolution is {}x{}.", windowWidth, windowHeight);
 
     // Log created OpenGL context.
     int glMajor = glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MAJOR);
     int glMinor = glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MINOR);
-
     LOG_INFO("Using OpenGL {}.{} context.", glMajor, glMinor);
 
-    // Store window's title as it cannot be retrieved back via GLFW.
-    m_title = info.title;
+    // Store window title as it cannot be retrieved back via GLFW.
+    m_title = params.title;
 
     // Success!
-    return initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void Window::MakeContextCurrent()
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
     // Mark associated OpenGL context as current.
     glfwMakeContextCurrent(m_handle);
@@ -165,7 +117,7 @@ void Window::MakeContextCurrent()
 
 void Window::ProcessEvents()
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
     // Poll and process events using callbacks.
     glfwPollEvents();
@@ -175,7 +127,6 @@ void Window::ProcessEvents()
     {
         int windowWidth, windowHeight;
         glfwGetFramebufferSize(m_handle, &windowWidth, &windowHeight);
-
         LOG_INFO("Window has been resized to {}x{}.", windowWidth, windowHeight);
 
         m_sizeChanged = false;
@@ -184,12 +135,11 @@ void Window::ProcessEvents()
 
 void Window::Present()
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
-    // Swap frame buffers.
+    // Swap frame buffers and check if there are any uncaught OpenGL errors.
     glfwSwapBuffers(m_handle);
 
-    // Check if there are any uncaught OpenGL errors.
     GLenum error;
     while((error = glGetError()) != GL_NO_ERROR)
     {
@@ -201,188 +151,22 @@ void Window::Present()
 
 void Window::Close()
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
-
-    // Force the window to close.
+    VERIFY(m_initialized, "Window has not been initialized!");
     glfwSetWindowShouldClose(m_handle, GL_TRUE);
-}
-
-void Window::MoveCallback(GLFWwindow* window, int x, int y)
-{
-    ASSERT(window != nullptr, "Window handle is invalid!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::Move eventData;
-    eventData.x = x;
-    eventData.y = y;
-
-    instance->events.move(eventData);
-}
-
-void Window::ResizeCallback(GLFWwindow* window, int width, int height)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Remember that window size has changed.
-    instance->m_sizeChanged = true;
-
-    // Send an event.
-    Window::Events::Resize eventData;
-    eventData.width = width;
-    eventData.height = height;
-
-    instance->events.resize(eventData);
-}
-
-void Window::FocusCallback(GLFWwindow* window, int focused)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::Focus eventData;
-    eventData.focused = focused > 0;
-
-    instance->events.focus(eventData);
-}
-
-void Window::CloseCallback(GLFWwindow* window)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::Close eventData;
-
-    instance->events.close(eventData);
-}
-
-void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::KeyboardKey eventData;
-    eventData.key = key;
-    eventData.scancode = scancode;
-    eventData.action = action;
-    eventData.modifiers = mods;
-
-    instance->events.keyboardKey(eventData);
-}
-
-void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::TextInput eventData;
-    eventData.utf32Character = character;
-
-    instance->events.textInput(eventData);
-}
-
-void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::MouseButton eventData;
-    eventData.button = button;
-    eventData.action = action;
-    eventData.modifiers = mods;
-
-    instance->events.mouseButton(eventData);
-}
-
-void Window::MouseScrollCallback(GLFWwindow* window, double offsetx, double offsety)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::MouseScroll eventData;
-    eventData.offset = offsety;
-
-    instance->events.mouseScroll(eventData);
-}
-
-void Window::CursorPositionCallback(GLFWwindow* window, double x, double y)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::CursorPosition eventData;
-    eventData.x = x;
-    eventData.y = y;
-
-    instance->events.cursorPosition(eventData);
-}
-
-void Window::CursorEnterCallback(GLFWwindow* window, int entered)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    // Get the window's instance.
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    // Send an event.
-    Window::Events::CursorEnter eventData;
-    eventData.entered = entered != 0;
-
-    instance->events.cursorEnter(eventData);
 }
 
 void Window::SetTitle(std::string title)
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
-    // Set the window's new title.
     glfwSetWindowTitle(m_handle, title.c_str());
-
-    // Cache the window's title as it cannot be retrieved back via GLFW.
     m_title = title;
 }
 
 void Window::SetVisibility(bool show)
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
-    // Toggle visibility state.
     if(show)
     {
         glfwShowWindow(m_handle);
@@ -395,17 +179,14 @@ void Window::SetVisibility(bool show)
 
 std::string Window::GetTitle() const
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
-
-    // Return the cached window's title.
+    VERIFY(m_initialized, "Window has not been initialized!");
     return m_title;
 }
 
 int Window::GetWidth() const
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
-    // Return the current frame buffer's width.
     int width = 0;
     glfwGetFramebufferSize(m_handle, &width, nullptr);
     return width;
@@ -413,9 +194,8 @@ int Window::GetWidth() const
 
 int Window::GetHeight() const
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
-    // Return the current frame buffer's height.
     int height = 0;
     glfwGetFramebufferSize(m_handle, nullptr, &height);
     return height;
@@ -423,7 +203,7 @@ int Window::GetHeight() const
 
 bool Window::IsOpen() const
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
+    VERIFY(m_initialized, "Window has not been initialized!");
 
     // Window is considered open as long as there was no request made to close it.
     return glfwWindowShouldClose(m_handle) == 0;
@@ -431,21 +211,147 @@ bool Window::IsOpen() const
 
 bool Window::IsFocused() const
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
-
-    // Check if the window is currently in the foreground.
+    VERIFY(m_initialized, "Window has not been initialized!");
     return glfwGetWindowAttrib(m_handle, GLFW_FOCUSED) > 0;
 }
 
-bool Window::IsValid() const
+bool Window::IsInitialized() const
 {
-    return m_handle != nullptr;
+    return m_initialized;
 }
 
 GLFWwindow* Window::GetPrivateHandle()
 {
-    VERIFY(m_handle != nullptr, "Window instance is not initialized!");
-
-    // Return the private window handle.
+    VERIFY(m_initialized, "Window has not been initialized!");
     return m_handle;
+}
+
+void Window::MoveCallback(GLFWwindow* window, int x, int y)
+{
+    ASSERT(window != nullptr, "Window handle is invalid!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::Move eventData;
+    eventData.x = x;
+    eventData.y = y;
+    instance->events.move(eventData);
+}
+
+void Window::ResizeCallback(GLFWwindow* window, int width, int height)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::Resize eventData;
+    eventData.width = width;
+    eventData.height = height;
+    instance->events.resize(eventData);
+
+    // Remember that window size has changed.
+    instance->m_sizeChanged = true;
+}
+
+void Window::FocusCallback(GLFWwindow* window, int focused)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::Focus eventData;
+    eventData.focused = focused > 0;
+    instance->events.focus(eventData);
+}
+
+void Window::CloseCallback(GLFWwindow* window)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::Close eventData;
+    instance->events.close(eventData);
+}
+
+void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::KeyboardKey eventData;
+    eventData.key = key;
+    eventData.scancode = scancode;
+    eventData.action = action;
+    eventData.modifiers = mods;
+    instance->events.keyboardKey(eventData);
+}
+
+void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::TextInput eventData;
+    eventData.utf32Character = character;
+    instance->events.textInput(eventData);
+}
+
+void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::MouseButton eventData;
+    eventData.button = button;
+    eventData.action = action;
+    eventData.modifiers = mods;
+    instance->events.mouseButton(eventData);
+}
+
+void Window::MouseScrollCallback(GLFWwindow* window, double offsetx, double offsety)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::MouseScroll eventData;
+    eventData.offset = offsety;
+    instance->events.mouseScroll(eventData);
+}
+
+void Window::CursorPositionCallback(GLFWwindow* window, double x, double y)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::CursorPosition eventData;
+    eventData.x = x;
+    eventData.y = y;
+    instance->events.cursorPosition(eventData);
+}
+
+void Window::CursorEnterCallback(GLFWwindow* window, int entered)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::CursorEnter eventData;
+    eventData.entered = entered != 0;
+    instance->events.cursorEnter(eventData);
 }

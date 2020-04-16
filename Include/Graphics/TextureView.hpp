@@ -20,8 +20,8 @@ namespace Graphics
         using ConstTexturePtr = std::shared_ptr<const Texture>;
 
     public:
-        TextureView() = default;
-        ~TextureView() = default;
+        TextureView();
+        ~TextureView();
 
         TextureView(ConstTexturePtr texture);
         TextureView(ConstTexturePtr texture, glm::ivec4 imageRect);

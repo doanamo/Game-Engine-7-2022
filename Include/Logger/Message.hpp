@@ -49,9 +49,9 @@ namespace Logger
     class Message
     {
     public:
-        Message() = default;
+        Message();
         Message(Message&& other);
-        virtual ~Message() = default;
+        virtual ~Message();
 
         Message(const Message&) = delete;
         Message& operator=(const Message&) = delete;

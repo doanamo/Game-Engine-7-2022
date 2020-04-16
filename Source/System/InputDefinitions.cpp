@@ -8,7 +8,6 @@ namespace System
 {
     InputStates::Type TranslateInputAction(int action)
     {
-        // Translate GLFW input action.
         switch(action)
         {
             case GLFW_PRESS: return InputStates::Pressed;
@@ -147,22 +146,17 @@ namespace System
     KeyboardModifiers::Type TranslateKeyboardModifiers(int mods)
     {
         KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
-
         if(mods & GLFW_MOD_ALT) modifiers |= KeyboardModifiers::Alt;
         if(mods & GLFW_MOD_SHIFT) modifiers |= KeyboardModifiers::Shift;
         if(mods & GLFW_MOD_CONTROL) modifiers |= KeyboardModifiers::Ctrl;
         if(mods & GLFW_MOD_SUPER) modifiers |= KeyboardModifiers::Super;
-
         return modifiers;
     }
 
     MouseButtons::Type TranslateMouseButton(int button)
     {
         MouseButtons::Type result = MouseButtons::Button1 + button;
-
-        ASSERT(result >= MouseButtons::Button1 && button < MouseButtons::Count,
-            "Unexpected mouse button index argument!");
-
+        ASSERT(result >= MouseButtons::Button1 && button < MouseButtons::Count, "Unexpected mouse button index argument!");
         return result < MouseButtons::Count ? result : MouseButtons::Invalid;
     }
 

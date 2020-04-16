@@ -29,9 +29,17 @@ namespace Graphics
 
 namespace Editor
 {
-    class EditorRenderer : private NonCopyable
+    class EditorRenderer final : private NonCopyable, public Resettable<EditorRenderer>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedResourceCreation,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::Window* window = nullptr;
@@ -41,13 +49,10 @@ namespace Editor
         };
 
     public:
-        EditorRenderer() = default;
-        ~EditorRenderer() = default;
+        EditorRenderer();
+        ~EditorRenderer();
 
-        EditorRenderer(EditorRenderer&& other);
-        EditorRenderer& operator=(EditorRenderer&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         void Draw();
 
     private:

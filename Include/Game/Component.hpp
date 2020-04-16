@@ -17,17 +17,11 @@ namespace Game
     struct EntityHandle;
     class ComponentSystem;
 
-    class Component : private NonCopyable
+    class Component
     {
     protected:
         Component() = default;
         virtual ~Component() = default;
-
-        // Derived components must define move operator in order to be used
-        // with some containers such as std::vector that requires objects to
-        // have MoveInsertable and EmplaceConstructible traits.
-        Component(Component&& other) = default;
-        Component& operator=(Component&& other) = default;
 
     public:
         virtual bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)

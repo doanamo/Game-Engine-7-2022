@@ -16,14 +16,11 @@ namespace Game
 {
     class TransformComponent;
 
-    class SpriteComponent : public Component
+    class SpriteComponent final : public Component
     {
     public:
-        SpriteComponent() = default;
-        ~SpriteComponent() = default;
-
-        SpriteComponent(SpriteComponent&& other);
-        SpriteComponent& operator=(SpriteComponent&& other);
+        SpriteComponent();
+        ~SpriteComponent();
 
         void SetTextureView(Graphics::TextureView texture);
         void SetRectangle(const glm::vec4& rectangle);
@@ -38,10 +35,9 @@ namespace Game
         bool IsTransparent() const;
         bool IsFiltered() const;
 
-    protected:
+    private:
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
-    private:
         TransformComponent* m_transformComponent = nullptr;
         Graphics::TextureView m_textureView;
         glm::vec4 m_rectangle = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);

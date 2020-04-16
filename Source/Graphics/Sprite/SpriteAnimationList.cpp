@@ -9,15 +9,17 @@
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
 
+SpriteAnimationList::Frame::Frame() = default;
+
 SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration) :
     textureView(std::move(textureView)), duration(duration)
 {
 }
 
-const SpriteAnimationList::Frame SpriteAnimationList::Animation::GetFrameByTime(float animationTime) const
+SpriteAnimationList::Frame SpriteAnimationList::Animation::GetFrameByTime(float animationTime) const
 {
-    // Calculate the current frame.
-    for(auto& frame : frames)
+    // Calculate current frame.
+    for(const auto& frame : frames)
     {
         if(animationTime <= frame.duration)
             return frame;
@@ -29,70 +31,41 @@ const SpriteAnimationList::Frame SpriteAnimationList::Animation::GetFrameByTime(
     return SpriteAnimationList::Frame();
 }
 
-SpriteAnimationList::SpriteAnimationList(SpriteAnimationList&& other) :
-    SpriteAnimationList()
-{
-    *this = std::move(other);
-}
+SpriteAnimationList::SpriteAnimationList() = default;
+SpriteAnimationList::~SpriteAnimationList() = default;
 
-SpriteAnimationList& SpriteAnimationList::operator=(SpriteAnimationList&& other)
-{
-    std::swap(m_animationList, other.m_animationList);
-    std::swap(m_animationMap, other.m_animationMap);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool SpriteAnimationList::Initialize()
+SpriteAnimationList::InitializeResult SpriteAnimationList::Initialize()
 {
     LOG("Initializing sprite animation list...");
     LOG_SCOPED_INDENT();
 
-    // Make sure that this instance has not been already initialized.
-    VERIFY(!m_initialized, "Sprite animation list has already been initialized!");
-
-    // Create a scope guard in case initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = SpriteAnimationList());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
-bool SpriteAnimationList::Initialize(const LoadFromFile& params)
+SpriteAnimationList::InitializeResult SpriteAnimationList::Initialize(const LoadFromFile& params)
 {
     LOG("Loading sprite animation list from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
 
-    // Initialize the sprite animation list instance.
-    if(!this->Initialize())
-        return false;
+    // Initialize sprite animation list instance.
+    SUCCESS_OR_RETURN_RESULT(this->Initialize());
 
-    // Create a scope guard in case initialization fails.
+    // Setup initialization guard.
     bool initialized = false;
-
-    SCOPE_GUARD_IF(!initialized, *this = SpriteAnimationList());
+    SCOPE_GUARD_IF(!initialized, this->Reset());
 
     // Validate arguments.
-    if(params.fileSystem == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
 
-    if(params.resourceManager == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"resourceManager\" is null!");
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
-        return false;
-    }
-
-    // Create a script state.
+    // Create script state.
     Script::ScriptState::LoadFromFile scriptParams;
     scriptParams.fileSystem = params.fileSystem;
     scriptParams.filePath = params.filePath;
@@ -100,21 +73,21 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     Script::ScriptState scriptState;
     if(!scriptState.Initialize(scriptParams))
     {
-        LOG_ERROR("Could not load file!");
-        return false;
+        LOG_ERROR("Could not load sprite animation list resource file!");
+        return Failure(InitializeErrors::FailedResourceLoading);
     }
 
-    // Get the global table.
+    // Get global table.
     lua_getglobal(scriptState, "SpriteAnimationList");
     SCOPE_GUARD(lua_pop(scriptState, 1));
 
     if(!lua_istable(scriptState, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList\" is missing!");
-        return false;
+        return Failure(InitializeErrors::InvalidResourceContent);
     }
 
-    // Load the texture atlas.
+    // Load texture atlas.
     std::shared_ptr<TextureAtlas> textureAtlas;
 
     {
@@ -124,7 +97,7 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
         if(!lua_isstring(scriptState, -1))
         {
             LOG_ERROR("String \"SpriteAnimationList.TextureAtlas\" is missing!");
-            return false;
+            return Failure(InitializeErrors::InvalidResourceContent);
         }
 
         TextureAtlas::LoadFromFile textureAtlasParams;
@@ -137,8 +110,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
 
         if(!textureAtlas)
         {
-            LOG_ERROR("Could not load texture atlas!");
-            return false;
+            LOG_ERROR("Could not load referenced texture atlas!");
+            return Failure(InitializeErrors::FailedResourceLoading);
         }
     }
 
@@ -149,15 +122,15 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     if(!lua_istable(scriptState, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList.Animations\" is missing!");
-        return false;
+        return Failure(InitializeErrors::InvalidResourceContent);
     }
 
     for(lua_pushnil(scriptState); lua_next(scriptState, -2); lua_pop(scriptState, 1))
     {
-        // Check if the key is a string.
+        // Check if key is a string.
         if(!lua_isstring(scriptState, -2))
         {
-            LOG_WARNING("Key in \"SpriteAnimationList.Animations\" is not a string!");
+            LOG_WARNING("Key \"SpriteAnimationList.Animations\" is not a string!");
             LOG_WARNING("Skipping one ill formated sprite animation!");
             continue;
         }
@@ -224,7 +197,8 @@ bool SpriteAnimationList::Initialize(const LoadFromFile& params)
     }
 
     // Success!
-    return initialized = true;
+    initialized = true;
+    return Success();
 }
 
 std::optional<std::size_t> SpriteAnimationList::GetAnimationIndex(std::string animationName) const
@@ -248,6 +222,6 @@ const SpriteAnimationList::Animation* SpriteAnimationList::GetAnimationByIndex(s
     bool isIndexValid = animationIndex >= 0 && animationIndex < m_animationList.size();
     ASSERT(isIndexValid, "Invalid sprite animation index!");
  
-    // Return an animation pointed by the index.
+    // Return animation pointed by index.
     return isIndexValid ? &m_animationList[animationIndex] : nullptr;
 }

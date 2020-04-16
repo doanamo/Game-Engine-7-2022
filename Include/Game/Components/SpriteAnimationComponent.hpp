@@ -16,7 +16,7 @@ namespace Game
 {
     class SpriteComponent;
 
-    class SpriteAnimationComponent : public Component
+    class SpriteAnimationComponent final : public Component
     {
     public:
         struct PlaybackFlags
@@ -34,19 +34,14 @@ namespace Game
         using SpriteAnimationListPtr = std::shared_ptr<Graphics::SpriteAnimationList>;
         using SpriteAnimation = Graphics::SpriteAnimationList::Animation;
 
-    public:
-        SpriteAnimationComponent() = default;
-        ~SpriteAnimationComponent() = default;
-
-        SpriteAnimationComponent(SpriteAnimationComponent&& other);
-        SpriteAnimationComponent& operator=(SpriteAnimationComponent&& other);
+        SpriteAnimationComponent();
+        ~SpriteAnimationComponent();
 
         void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
         void ResetInterpolation();
 
         void Play(std::string animationName, bool loop);
         bool IsPlaying() const;
-
         void Pause();
         void Resume();
         void Stop();
@@ -61,7 +56,6 @@ namespace Game
     private:
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
-    private:
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;
         const SpriteAnimation* m_spriteAnimation = nullptr;

@@ -3,14 +3,14 @@
 */
 
 #include "Script/ScriptState.hpp"
-#include "System/FileSystem.hpp"
+#include <System/FileSystem.hpp>
 using namespace Script;
 
 namespace
 {
     extern "C"
     {
-        // Prints a string on the stack to the log stream.
+        // Prints string on top of stack to log stream.
         static int LuaLog(lua_State* L)
         {
             ASSERT(L != nullptr, "Lua state is null!");
@@ -25,6 +25,8 @@ namespace
     }
 }
 
+ScriptState::ScriptState() = default;
+
 ScriptState::~ScriptState()
 {
     if(m_state != nullptr)
@@ -33,30 +35,14 @@ ScriptState::~ScriptState()
     }
 }
 
-ScriptState::ScriptState(ScriptState&& other) :
-    ScriptState()
-{
-    *this = std::move(other);
-}
-
-ScriptState& ScriptState::operator=(ScriptState&& other)
-{
-    std::swap(m_state, other.m_state);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool ScriptState::Initialize()
+ScriptState::InitializeResult ScriptState::Initialize()
 {
     LOG("Initializing script state...");
     LOG_SCOPED_INDENT();
 
-    // Check if state has already been initialized.
-    VERIFY(!m_initialized, "Script state has already been initialized!");
-
-    // Setup a cleanup guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = ScriptState());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Create Lua state.
     m_state = luaL_newstate();
@@ -64,21 +50,21 @@ bool ScriptState::Initialize()
     if(m_state == nullptr)
     {
         LOG_ERROR("Could not create Lua state!");
-        return false;
+        return Failure(InitializeErrors::FailedLuaStateCreation);
     }
 
-    // Load the base library.
+    // Load base library.
     lua_pushcfunction(m_state, luaopen_base);
     lua_pushstring(m_state, "");
 
     if(lua_pcall(m_state, 1, 0, 0) != 0)
     {
-        LOG_ERROR("Could not load the base library!");
+        LOG_ERROR("Could not load base Lua library!");
         this->PrintError();
-        return false;
+        return Failure(InitializeErrors::FailedLuaLibraryLoading);
     }
 
-    // Register the logging function.
+    // Register logging function.
     lua_pushcfunction(m_state, LuaLog);
     lua_setglobal(m_state, "Log");
 
@@ -86,99 +72,93 @@ bool ScriptState::Initialize()
     ASSERT(lua_gettop(m_state) == 0, "Lua stack is not empty!");
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
-bool ScriptState::Initialize(const LoadFromText& params)
+ScriptState::InitializeResult ScriptState::Initialize(const LoadFromText& params)
 {
     LOG("Loading script state from text...");
     LOG_SCOPED_INDENT();
 
-    // Call the main initialization methods.
-    if(!this->Initialize())
-        return false;
+    // Call main initialization method.
+    SUCCESS_OR_RETURN_RESULT(this->Initialize());
 
-    // Setup a cleanup method.
+    // Setup initialization guard.
     bool initialized = false;
-    SCOPE_GUARD_IF(!initialized, *this = ScriptState());
+    SCOPE_GUARD_IF(!initialized, this->Reset());
 
-    // Validate arguments.
-    if(params.scriptText.empty())
-    {
-        LOG_ERROR("Invalid parameter - \"scriptText\" is empty!");
-        return false;
-    }
+    // Check arguments.
+    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(), Failure(InitializeErrors::InvalidArgument));
 
-    // Parse the text string.
+    // Execute script text.
     if(luaL_dostring(m_state, params.scriptText.c_str()) != 0)
     {
-        LOG_ERROR("Could not parse script!");
+        LOG_ERROR("Could not execute script!");
         this->PrintError();
-        return false;
+        return Failure(InitializeErrors::FailedLuaScriptExecution);
     }
 
     // Success!
-    return initialized = true;
+    initialized = true;
+    return Success();
 }
 
-bool ScriptState::Initialize(const LoadFromFile& params)
+ScriptState::InitializeResult ScriptState::Initialize(const LoadFromFile& params)
 {
     LOG("Loading script state from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
 
-    // Call the main initialization methods.
-    if(!this->Initialize())
-        return false;
+    // Call main initialization method.
+    SUCCESS_OR_RETURN_RESULT(this->Initialize());
 
-    // Setup a cleanup method.
+    // Setup initialization guard.
     bool initialized = false;
-    SCOPE_GUARD_IF(!initialized, *this = ScriptState());
+    SCOPE_GUARD_IF(!initialized, this->Reset());
 
     // Validate arguments.
-    if(params.fileSystem == nullptr)
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Failure(InitializeErrors::InvalidArgument));
+
+    // Resolve path to script file.
+    auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
+
+    if(!resolvePathResult)
     {
-        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
-        return false;
+        LOG_ERROR("Could not resolve file path!");
+        return Failure(InitializeErrors::FailedScriptFileResolve);
     }
 
-    if(params.filePath.empty())
-    {
-        LOG_ERROR("Invalid parameter - \"filePath\" is empty!");
-        return false;
-    }
-
-    // Resolve file path.
-    std::string resolvedFilePath = params.fileSystem->ResolvePath(params.filePath);
-
-    // Parse the text file.
-    if(luaL_dofile(m_state, resolvedFilePath.c_str()) != 0)
+    // Execute script file.
+    if(luaL_dofile(m_state, resolvePathResult.Unwrap().c_str()) != 0)
     {
         LOG_ERROR("Could not load script file!");
         this->PrintError();
-        return false;
+        return Failure(InitializeErrors::FailedLuaScriptExecution);
     }
 
     // Success!
-    return initialized = true;
+    initialized = true;
+    return Success();
 }
 
 void ScriptState::PrintError()
 {
-    VERIFY(m_initialized, "Scripting state has not been initialized!");
+    VERIFY(m_initialized, "Script state has not been initialized!");
 
     // Make sure that there is a string on top of the stack.
     ASSERT(lua_isstring(m_state, -1), "Expected a string!");
 
-    // Print error string to the log.
+    // Print error string to log.
     LOG_DEBUG("Lua Error: {}", lua_tostring(m_state, -1));
 
-    // Pop error string from the stack.
+    // Pop error string from stack.
     lua_pop(m_state, 1);
 }
 
 void ScriptState::CleanStack()
 {
-    VERIFY(m_initialized, "Scripting state has not been initialized!");
+    VERIFY(m_initialized, "Script state has not been initialized!");
 
     // Discard remaining objects on the stack.
     int size = lua_gettop(m_state);
@@ -208,7 +188,7 @@ bool ScriptState::CollectGarbage(bool singleStep)
     }
 }
 
-bool ScriptState::IsValid() const
+bool ScriptState::IsInitialized() const
 {
     return m_initialized;
 }
@@ -216,6 +196,5 @@ bool ScriptState::IsValid() const
 ScriptState::operator lua_State*()
 {
     VERIFY(m_initialized, "Script state has not been initialized!");
-
     return m_state;
 }

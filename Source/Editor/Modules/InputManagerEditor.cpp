@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include <Editor/Modules/InputManagerEditor.hpp>
+#include "Editor/Modules/InputManagerEditor.hpp"
 #include <System/InputDefinitions.hpp>
 using namespace Editor;
 
@@ -17,75 +17,24 @@ InputManagerEditor::InputManagerEditor()
     m_cursorEnterReceiver.Bind<InputManagerEditor, &InputManagerEditor::OnCursorEnter>(this);
 }
 
-InputManagerEditor::~InputManagerEditor()
-{
-}
+InputManagerEditor::~InputManagerEditor() = default;
 
-InputManagerEditor::InputManagerEditor(InputManagerEditor&& other) :
-    InputManagerEditor()
-{
-    *this = std::move(other);
-}
-
-InputManagerEditor& InputManagerEditor::operator=(InputManagerEditor&& other)
-{
-    std::swap(mainWindowOpen, other.mainWindowOpen);
-    std::swap(m_window, other.m_window);
-
-    std::swap(m_windowFocusReceiver, other.m_windowFocusReceiver);
-    std::swap(m_keyboardKeyReceiver, other.m_keyboardKeyReceiver);
-    std::swap(m_textInputReceiver, other.m_textInputReceiver);
-    std::swap(m_mouseButtonReceiver, other.m_mouseButtonReceiver);
-    std::swap(m_mouseScrollReceiver, other.m_mouseScrollReceiver);
-    std::swap(m_cursorPositionReceiver, other.m_cursorPositionReceiver);
-    std::swap(m_cursorEnterReceiver, other.m_cursorEnterReceiver);
-
-    std::swap(m_incomingEventFreeze, other.m_incomingEventFreeze);
-    std::swap(m_incomingWindowFocus, other.m_incomingWindowFocus);
-    std::swap(m_incomingKeyboardKey, other.m_incomingKeyboardKey);
-    std::swap(m_incomingKeyboardKeyPress, other.m_incomingKeyboardKeyPress);
-    std::swap(m_incomingKeyboardKeyRelease, other.m_incomingKeyboardKeyRelease);
-    std::swap(m_incomingKeyboardKeyRepeat, other.m_incomingKeyboardKeyRepeat);
-    std::swap(m_incomingTextInput, other.m_incomingTextInput);
-    std::swap(m_incomingMouseButton, other.m_incomingMouseButton);
-    std::swap(m_incomingMouseButtonPress, other.m_incomingMouseButtonPress);
-    std::swap(m_incomingMouseButtonRelease, other.m_incomingMouseButtonRelease);
-    std::swap(m_incomingMouseButtonRepeat, other.m_incomingMouseButtonRepeat);
-    std::swap(m_incomingMouseScroll, other.m_incomingMouseScroll);
-    std::swap(m_incomingCursorPosition, other.m_incomingCursorPosition);
-    std::swap(m_incomingCursorEnter, other.m_incomingCursorEnter);
-
-    std::swap(m_incomingEventLog, other.m_incomingEventLog);
-    std::swap(m_incomingEventCounter, other.m_incomingEventCounter);
-    
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool InputManagerEditor::Initialize(const InitializeFromParams& params)
+InputManagerEditor::InitializeResult InputManagerEditor::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing input manager editor...");
     LOG_SCOPED_INDENT();
 
-    // Make sure class instance has not been initialized yet.
-    ASSERT(!m_initialized, "Input manager editor has already been initialized!");
-
-    // Initialization scope guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = InputManagerEditor());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate engine reference.
-    if(params.window == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"window\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_window = params.window;
 
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
-
     subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_window->events.keyboardKey);
     subscriptionResults &= m_textInputReceiver.Subscribe(m_window->events.textInput);
     subscriptionResults &= m_windowFocusReceiver.Subscribe(m_window->events.focus);
@@ -97,11 +46,12 @@ bool InputManagerEditor::Initialize(const InitializeFromParams& params)
     if(!subscriptionResults)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
-        return false;
+        return Failure(InitializeErrors::FailedEventSubscription);
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void InputManagerEditor::Update(float timeDelta)

@@ -26,9 +26,17 @@ namespace Game
 {
     class GameState;
 
-    class GameFramework : private NonCopyable
+    class GameFramework final : private NonCopyable, public Resettable<GameFramework>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedEventRouterInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::Timer* timer = nullptr;
@@ -38,13 +46,10 @@ namespace Game
         };
 
     public:
-        GameFramework() = default;
-        ~GameFramework() = default;
+        GameFramework();
+        ~GameFramework();
 
-        GameFramework(GameFramework&& other);
-        GameFramework& operator=(GameFramework&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         bool Update();
         void Draw();
 

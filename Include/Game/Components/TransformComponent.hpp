@@ -12,14 +12,11 @@
 
 namespace Game
 {
-    class TransformComponent : public Component
+    class TransformComponent final : public Component
     {
     public:
-        TransformComponent() = default;
-        ~TransformComponent() = default;
-
-        TransformComponent(TransformComponent&& other);
-        TransformComponent& operator=(TransformComponent&& other);
+        TransformComponent();
+        ~TransformComponent();
 
         // Called at the beginning of each frame.
         // Should be called after teleportation.
@@ -37,11 +34,10 @@ namespace Game
         // Alpha value of 1.0f returns a matrix representing the current transform.
         glm::mat4 CalculateMatrix(float alpha = 1.0f) const;
 
-    public:
+    private:
         glm::vec3 m_currentPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::quat m_currentRotation = glm::quat(1.0, 0.0, 0.0, 0.0);
         glm::vec3 m_currentScale = glm::vec3(1.0f, 1.0f, 1.0f);
-
         glm::vec3 m_previousPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::quat m_previousRotation = glm::quat(1.0, 0.0, 0.0, 0.0);
         glm::vec3 m_previousScale = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -154,7 +154,7 @@ namespace Graphics
         const std::size_t PixelStoreParameterCount = Utility::StaticArraySize(PixelStoreParameters);
     }
 
-    class RenderState
+    class RenderState final : public Resettable<RenderState>
     {
     public:
         RenderState();
@@ -162,10 +162,7 @@ namespace Graphics
         RenderState(const RenderState& other) = default;
         RenderState& operator=(const RenderState& other) = default;
 
-        RenderState(RenderState&& other);
-        RenderState& operator=(RenderState&& other);
-
-        bool Initialize();
+        GenericResult Initialize();
         void Apply(RenderState& other);
 
         void Enable(GLenum cap);

@@ -42,16 +42,22 @@ namespace System
 {
     class Window;
 
-    class InputManager : private NonCopyable
+    class InputManager final : private NonCopyable, public Resettable<InputManager>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedSubscription,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+    public:
         InputManager();
-        ~InputManager() = default;
+        ~InputManager();
 
-        InputManager(InputManager&& other);
-        InputManager& operator=(InputManager&& other);
-
-        bool Initialize(Window* window);
+        InitializeResult Initialize(Window* window);
         void AdvanceState(float timeDelta);
         void ResetStates();
 
@@ -89,7 +95,6 @@ namespace System
 
     private:
         InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
-
         bool m_initialized = false;
     };
 }

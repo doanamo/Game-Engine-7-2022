@@ -22,9 +22,18 @@ namespace Graphics
     class Texture;
     class TextureView;
 
-    class TextureAtlas : private NonCopyable
+    class TextureAtlas final : private NonCopyable, public Resettable<TextureAtlas>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedResourceLoading,
+            InvalidResourceContent,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct LoadFromFile
         {
             System::FileSystem* fileSystem = nullptr;
@@ -37,14 +46,11 @@ namespace Graphics
         using RegionMap = std::unordered_map<std::string, glm::ivec4>;
 
     public:
-        TextureAtlas() = default;
-        ~TextureAtlas() = default;
+        TextureAtlas();
+        ~TextureAtlas();
 
-        TextureAtlas(TextureAtlas&& other);
-        TextureAtlas& operator=(TextureAtlas&& other);
-
-        bool Initialize();
-        bool Initialize(const LoadFromFile& params);
+        InitializeResult Initialize();
+        InitializeResult Initialize(const LoadFromFile& params);
 
         bool AddRegion(std::string name, glm::ivec4 pixelCoords);
         TextureView GetRegion(std::string name);

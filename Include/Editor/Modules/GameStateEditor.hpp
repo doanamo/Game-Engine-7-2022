@@ -18,9 +18,16 @@ namespace Game
 
 namespace Editor
 {
-    class GameStateEditor : private NonCopyable
+    class GameStateEditor final : private NonCopyable, public Resettable<GameStateEditor>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             Game::GameFramework* gameFramework = nullptr;
@@ -30,10 +37,7 @@ namespace Editor
         GameStateEditor();
         ~GameStateEditor();
 
-        GameStateEditor(GameStateEditor&& other);
-        GameStateEditor& operator=(GameStateEditor&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
 
         Game::GameState* GetGameState() const;

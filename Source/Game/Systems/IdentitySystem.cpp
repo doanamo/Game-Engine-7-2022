@@ -8,54 +8,29 @@ using namespace Game;
 
 IdentitySystem::IdentitySystem()
 {
-    // Bind event receivers.
     m_entityDestroyReceiver.Bind<IdentitySystem, &IdentitySystem::OnEntityDestroyed>(this);
 }
 
-IdentitySystem::~IdentitySystem()
-{
-}
+IdentitySystem::~IdentitySystem() = default;
 
-IdentitySystem::IdentitySystem(IdentitySystem&& other) :
-    IdentitySystem()
-{
-    // Call the move assignment.
-    *this = std::move(other);
-}
-
-IdentitySystem& IdentitySystem::operator=(IdentitySystem&& other)
-{
-    // Swap class members.
-    std::swap(m_initialized, other.m_initialized);
-
-    std::swap(m_entityLookup, other.m_entityLookup);
-    std::swap(m_nameLookup, other.m_nameLookup);
-
-    std::swap(m_entityDestroyReceiver, other.m_entityDestroyReceiver);
-
-    return *this;
-}
-
-bool IdentitySystem::Initialize(EntitySystem* entitySystem)
+IdentitySystem::InitializeResult IdentitySystem::Initialize(EntitySystem* entitySystem)
 {
     LOG("Initializing identity system...");
     LOG_SCOPED_INDENT();
 
-    // Make sure instance is not already initialized.
-    ASSERT(!m_initialized, "Identity system instance has already been initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(entitySystem == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"entitySystem\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     // Subscribe event receiver.
     m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool rename)
@@ -123,7 +98,7 @@ bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool r
     }
     else
     {
-        // Create a new entity lookup entry.
+        // Create new entity lookup entry.
         auto entityInsertResult = m_entityLookup.emplace(entity, name);
         ASSERT(entityInsertResult.second, "Failed to insert a new named entity lookup entry!");
 
@@ -138,7 +113,7 @@ bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool r
         }
         else
         {
-            // Create a new name lookup registry.
+            // Create new name lookup registry.
             auto nameInsertResult = m_nameLookup.emplace(name, NameRegistry{ entity });
             ASSERT(nameInsertResult.second, "Failed to insert a new entity name lookup registry!");
         }
@@ -156,11 +131,11 @@ EntityHandle IdentitySystem::GetEntityByName(std::string name) const
 
     if(nameIt != m_nameLookup.end())
     {
-        // Retrieve the name registry.
+        // Retrieve name registry.
         const NameRegistry& nameRegistry = nameIt->second;
         ASSERT(!nameRegistry.empty(), "Retrieved an empty registry name!");
 
-        // Return the first named entity.
+        // Return first named entity.
         return nameRegistry.front();
     }
 
@@ -176,11 +151,11 @@ std::vector<EntityHandle> IdentitySystem::GetEntitiesWithName(std::string name) 
 
     if(nameIt != m_nameLookup.end())
     {
-        // Retrieve the name registry.
+        // Retrieve name registry.
         const NameRegistry& nameRegistry = nameIt->second;
         ASSERT(!nameRegistry.empty(), "Retrieved an empty registry name!");
 
-        // Return a copy of the name registry.
+        // Return copy of name registry.
         return nameRegistry;
     }
 

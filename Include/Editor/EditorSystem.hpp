@@ -35,9 +35,19 @@ namespace Game
 
 namespace Editor
 {
-    class EditorSystem : private NonCopyable
+    class EditorSystem final : private NonCopyable, public Resettable<EditorSystem>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedContextCreation,
+            FailedEventSubscription,
+            FailedSubsystemInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::FileSystem* fileSystem = nullptr;
@@ -52,15 +62,9 @@ namespace Editor
         EditorSystem();
         ~EditorSystem();
 
-        EditorSystem(EditorSystem&& other);
-        EditorSystem& operator=(EditorSystem&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
         void Draw();
-
-    private:
-        void DestroyContext();
 
     private:
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;

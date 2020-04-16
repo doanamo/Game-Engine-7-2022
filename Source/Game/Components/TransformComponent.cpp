@@ -5,28 +5,12 @@
 #include "Game/Components/TransformComponent.hpp"
 using namespace Game;
 
-TransformComponent::TransformComponent(TransformComponent&& other) :
-    TransformComponent()
-{
-    *this = std::move(other);
-}
-
-TransformComponent& TransformComponent::operator=(TransformComponent&& other)
-{
-    std::swap(m_currentPosition, other.m_currentPosition);
-    std::swap(m_currentRotation, other.m_currentRotation);
-    std::swap(m_currentScale, other.m_currentScale);
-
-    std::swap(m_previousPosition, other.m_previousPosition);
-    std::swap(m_previousRotation, other.m_previousRotation);
-    std::swap(m_previousScale, other.m_previousScale);
-
-    return *this;
-}
+TransformComponent::TransformComponent() = default;
+TransformComponent::~TransformComponent() = default;
 
 void TransformComponent::ResetInterpolation()
 {
-    // Update the previous transform to match the current one.
+    // Update previous transform to match current one.
     m_previousPosition = m_currentPosition;
     m_previousRotation = m_currentRotation;
     m_previousScale = m_currentScale;
@@ -65,10 +49,8 @@ const glm::vec3& TransformComponent::GetScale() const
 glm::mat4 TransformComponent::CalculateMatrix(float alpha) const
 {
     glm::mat4 output(1.0f);
-
     output = glm::translate(output, glm::lerp(m_previousPosition, m_currentPosition, alpha));
     output = output * glm::mat4_cast(glm::slerp(m_previousRotation, m_currentRotation, alpha));
     output = glm::scale(output, glm::lerp(m_previousScale, m_currentScale, alpha));
-
     return output;
 }

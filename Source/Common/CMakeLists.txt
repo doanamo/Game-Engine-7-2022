@@ -13,7 +13,9 @@ set(INCLUDE_FILES
     "Utility.hpp"
     "Debug.hpp"
     "NonCopyable.hpp"
+    "Resettable.hpp"
     "ScopeGuard.hpp"
+    "Result.hpp"
     "LinkedList.hpp"
     "StateMachine.hpp"
 )

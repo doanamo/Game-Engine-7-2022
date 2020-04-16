@@ -5,13 +5,8 @@
 #include "Graphics/Sprite/SpriteDrawList.hpp"
 using namespace Graphics;
 
-SpriteDrawList::SpriteDrawList()
-{
-}
-
-SpriteDrawList::~SpriteDrawList()
-{
-}
+SpriteDrawList::SpriteDrawList() = default;
+SpriteDrawList::~SpriteDrawList() = default;
 
 void SpriteDrawList::ReserveSprites(std::size_t count)
 {
@@ -38,7 +33,7 @@ void SpriteDrawList::SortSprites()
     ASSERT(m_spriteInfo.size() == m_spriteData.size(),
         "Arrays of sprite info and data have different size!");
 
-    // Define a sorting function.
+    // Define sorting function.
     // Assumes typical orthogonal 2D projection.
     const std::vector<Sprite::Info>& spriteInfo = m_spriteInfo;
     const std::vector<Sprite::Data>& spriteData = m_spriteData;
@@ -69,7 +64,7 @@ void SpriteDrawList::SortSprites()
     m_spriteSort.resize(m_spriteInfo.size());
     std::iota(m_spriteSort.begin(), m_spriteSort.end(), 0);
 
-    // Create a sort permutation for the most efficient drawing.
+    // Create sort permutation for the most efficient drawing.
     // We use stable sort to not introduce possible flickering in rendered images.
     std::stable_sort(m_spriteSort.begin(), m_spriteSort.end(), SpriteSort);
 
@@ -82,9 +77,7 @@ void SpriteDrawList::SortSprites()
 
 std::size_t Graphics::SpriteDrawList::GetSpriteCount() const
 {
-    ASSERT(m_spriteInfo.size() == m_spriteData.size(),
-        "Arrays of sprite info and data have different size!");
-
+    ASSERT(m_spriteInfo.size() == m_spriteData.size(), "Arrays of sprite info and data have different size!");
     return m_spriteInfo.size();
 }
 

@@ -38,7 +38,7 @@ namespace Game
     };
 
     template<typename ComponentType>
-    class ComponentPool : public ComponentPoolInterface, private NonCopyable
+    class ComponentPool final : public ComponentPoolInterface, private NonCopyable, public Resettable<ComponentPool<ComponentType>>
     {
     public:
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
@@ -47,14 +47,9 @@ namespace Game
         {
             enum
             {
-                // Components is unused and wait in the free list.
-                Unused = 0,
-
-                // Component exists and can be accessed.
-                Exists = 1 << 0,
-
-                // Component has been initialized.
-                Initialized = 1 << 1,
+                Unused = 0, // Components is unused and wait in the free list.
+                Exists = 1 << 0, // Component exists and can be accessed.
+                Initialized = 1 << 1, // Component has been initialized.
             };
 
             using Type = unsigned int;
@@ -100,9 +95,6 @@ namespace Game
     public:
         ComponentPool(ComponentSystem* componentSystem);
         ~ComponentPool();
-
-        ComponentPool(ComponentPool&& other);
-        ComponentPool& operator=(ComponentPool&& other);
 
         // Returns nullptr if component could not be created.
         ComponentType* CreateComponent(EntityHandle entity);
@@ -197,29 +189,7 @@ namespace Game
     }
 
     template<typename ComponentType>
-    ComponentPool<ComponentType>::~ComponentPool()
-    {
-    }
-
-    template<typename ComponentType>
-    ComponentPool<ComponentType>::ComponentPool(ComponentPool&& other) :
-        ComponentPool<ComponentType>()
-    {
-        // Call the move assignment.
-        *this = std::move(other);
-    }
-
-    template<typename ComponentType>
-    ComponentPool<ComponentType>& ComponentPool<ComponentType>::operator=(ComponentPool&& other)
-    {
-        // Swap class members.
-        std::swap(m_componentSystem, other.m_componentSystem);
-        std::swap(m_entries, other.m_entries);
-        std::swap(m_lookup, other.m_lookup);
-        std::swap(m_freeList, other.m_freeList);
-
-        return *this;
-    }
+    ComponentPool<ComponentType>::~ComponentPool() = default;
 
     template<typename ComponentType>
     ComponentType* ComponentPool<ComponentType>::CreateComponent(EntityHandle entity)

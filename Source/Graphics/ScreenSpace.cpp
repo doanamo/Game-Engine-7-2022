@@ -5,31 +5,8 @@
 #include "Graphics/ScreenSpace.hpp"
 using namespace Graphics;
 
-ScreenSpace::ScreenSpace(ScreenSpace&& other) :
-    ScreenSpace()
-{
-    *this = std::move(other);
-}
-
-ScreenSpace& ScreenSpace::operator=(ScreenSpace&& other)
-{
-    std::swap(m_targetSize, other.m_targetSize);
-
-    std::swap(m_sourceSize, other.m_sourceSize);
-    std::swap(m_sourceAspectRatio, other.m_sourceAspectRatio);
-
-    std::swap(m_coords, other.m_coords);
-    std::swap(m_offset, other.m_offset);
-
-    std::swap(m_projection, other.m_projection);
-    std::swap(m_view, other.m_view);
-    std::swap(m_transform, other.m_transform);
-
-    std::swap(m_rebuild, other.m_rebuild);
-    std::swap(m_rebuildSourceSize, other.m_rebuildSourceSize);
-
-    return *this;
-}
+ScreenSpace::ScreenSpace() = default;
+ScreenSpace::~ScreenSpace() = default;
 
 void ScreenSpace::SetTargetSize(int width, int height)
 {

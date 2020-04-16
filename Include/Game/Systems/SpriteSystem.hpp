@@ -15,16 +15,21 @@ namespace Game
 
 namespace Game
 {
-    class SpriteSystem : private NonCopyable
+    class SpriteSystem final : private NonCopyable, public Resettable<SpriteSystem>
     {
     public:
-        SpriteSystem() = default;
-        ~SpriteSystem() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+        };
 
-        SpriteSystem(SpriteSystem&& other);
-        SpriteSystem& operator=(SpriteSystem&& other);
+        using InitializeResult = Result<void, InitializeErrors>;
 
-        bool Initialize(ComponentSystem* componentSystem);
+    public:
+        SpriteSystem();
+        ~SpriteSystem();
+
+        InitializeResult Initialize(ComponentSystem* componentSystem);
         void Update(float timeDelta);
 
     private:

@@ -8,28 +8,14 @@
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
 using namespace Game;
 
-SpriteAnimationComponent::SpriteAnimationComponent(SpriteAnimationComponent&& other) :
-    SpriteAnimationComponent()
-{
-    *this = std::move(other);
-}
-
-SpriteAnimationComponent& SpriteAnimationComponent::operator=(SpriteAnimationComponent&& other)
-{
-    std::swap(m_spriteComponent, other.m_spriteComponent);
-    std::swap(m_spriteAnimationList, other.m_spriteAnimationList);
-    std::swap(m_spriteAnimation, other.m_spriteAnimation);
-    std::swap(m_playbackInfo, other.m_playbackInfo);
-    std::swap(m_currentAnimationTime, other.m_currentAnimationTime);
-    std::swap(m_previousAnimationTime, other.m_previousAnimationTime);
-
-    return *this;
-}
+SpriteAnimationComponent::SpriteAnimationComponent() = default;
+SpriteAnimationComponent::~SpriteAnimationComponent() = default;
 
 bool SpriteAnimationComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
     m_spriteComponent = componentSystem->Lookup<SpriteComponent>(entitySelf);
-    if(m_spriteComponent == nullptr) return false;
+    if(m_spriteComponent == nullptr)
+        return false;
 
     return true;
 }

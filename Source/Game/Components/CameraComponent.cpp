@@ -7,29 +7,15 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-CameraComponent::CameraComponent(CameraComponent&& other) :
-    CameraComponent()
-{
-    *this = std::move(other);
-}
-
-CameraComponent& CameraComponent::operator=(CameraComponent&& other)
-{
-    std::swap(m_transform, other.m_transform);
-    std::swap(m_projection, other.m_projection);
-    std::swap(m_viewSize, other.m_viewSize);
-    std::swap(m_nearPlane, other.m_nearPlane);
-    std::swap(m_farPlane, other.m_farPlane);
-    std::swap(m_fov, other.m_fov);
-
-    return *this;
-}
+CameraComponent::CameraComponent() = default;
+CameraComponent::~CameraComponent() = default;
 
 bool CameraComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
-    // Retrieve the transform component.
+    // Retrieve transform component.
     m_transform = componentSystem->Lookup<TransformComponent>(entitySelf);
-    if(m_transform == nullptr) return false;
+    if(m_transform == nullptr)
+        return false;
 
     return true;
 }

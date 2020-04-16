@@ -12,57 +12,35 @@
 #include <Game/GameState.hpp>
 using namespace Renderer;
 
-StateRenderer::StateRenderer(StateRenderer&& other) :
-    StateRenderer()
-{
-    *this = std::move(other);
-}
+StateRenderer::StateRenderer() = default;
+StateRenderer::~StateRenderer() = default;
 
-StateRenderer& StateRenderer::operator=(StateRenderer&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_spriteRenderer, other.m_spriteRenderer);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool StateRenderer::Initialize(const InitializeFromParams& params)
+StateRenderer::InitializeResult StateRenderer::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing state renderer...");
     LOG_SCOPED_INDENT();
 
-    // Make sure class instance has not been already initialized.
-    ASSERT(!m_initialized, "State renderer has already been initialized!");
-
-    // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = StateRenderer());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is nullptr!");
-        return false;
-    }
-
-    if(params.spriteRenderer == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"spriteRenderer\" is nullptr!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_renderContext = params.renderContext;
     m_spriteRenderer = params.spriteRenderer;
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void StateRenderer::Draw(const DrawParams& drawParams)
 {
     ASSERT(m_initialized, "State renderer has not been initialized yet!");
 
-    // Clear the frame buffer.
+    // Clear frame buffer.
     m_renderContext->GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Checks if game state is null.
@@ -97,11 +75,11 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         }
     }
 
-    // Push the render state.
+    // Push render state.
     auto& renderState = m_renderContext->PushState();
     SCOPE_GUARD(m_renderContext->PopState());
 
-    // Setup the drawing viewport.
+    // Setup drawing viewport.
     renderState.Viewport(
         drawParams.viewportRect.x,
         drawParams.viewportRect.y,
@@ -139,17 +117,17 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         LOG_WARNING("Could not retrieve \"{}\" camera entity.", drawParams.cameraName);
     }
 
-    // Create a list of sprites that will be drawn.
+    // Create list of sprites that will be drawn.
     Graphics::SpriteDrawList spriteDrawList;
 
     // Get all sprite components.
     for(auto& spriteComponent : componentSystem.GetPool<Game::SpriteComponent>())
     {
-        // Get the transform component.
+        // Get transform component.
         Game::TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
         ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
-        // Add a sprite to the draw list.
+        // Add sprite to the draw list.
         Graphics::Sprite sprite;
         sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
         sprite.info.transparent = spriteComponent.IsTransparent();
@@ -162,7 +140,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         spriteDrawList.AddSprite(sprite);
     }
 
-    // Sort the sprite draw list.
+    // Sort sprite draw list.
     spriteDrawList.SortSprites();
 
     // Draw sprite components.

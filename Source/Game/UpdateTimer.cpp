@@ -5,22 +5,8 @@
 #include "Game/UpdateTimer.hpp"
 using namespace Game;
 
-UpdateTimer::UpdateTimer(UpdateTimer&& other) :
-    UpdateTimer()
-{
-    *this = std::move(other);
-}
-
-UpdateTimer& UpdateTimer::operator=(UpdateTimer&& other)
-{
-    Timer::operator=(std::move(other));
-
-    std::swap(m_forwardUpdateCounter, other.m_forwardUpdateCounter);
-    std::swap(m_totalUpdateCounter, other.m_totalUpdateCounter);
-    std::swap(m_lastUpdateTime, other.m_lastUpdateTime);
-
-    return *this;
-}
+UpdateTimer::UpdateTimer() = default;
+UpdateTimer::~UpdateTimer() = default;
 
 bool UpdateTimer::Initialize()
 {
@@ -28,14 +14,14 @@ bool UpdateTimer::Initialize()
     LOG_SCOPED_INDENT();
 
     // Initialize the base class.
-    if(!Timer::Initialize())
+    if(!m_timer.Initialize())
     {
         LOG_ERROR("Could not initialize base timer class!");
         return false;
     }
 
     // Set forward update counter to trigger on next update.
-    m_forwardUpdateCounter = m_currentTimeCounter;
+    m_forwardUpdateCounter = m_timer.GetCurrentTimeCounter();
 
     // Success!
     return true;
@@ -43,10 +29,10 @@ bool UpdateTimer::Initialize()
 
 void UpdateTimer::Reset()
 {
-    Timer::Reset();
+    m_timer.Reset();
 
     // Reset update time counters.
-    m_forwardUpdateCounter = m_currentTimeCounter;
+    m_forwardUpdateCounter = m_timer.GetCurrentTimeCounter();
     m_totalUpdateCounter = 0;
     m_lastUpdateTime = 0.0f;
 }
@@ -54,11 +40,11 @@ void UpdateTimer::Reset()
 float UpdateTimer::GetAlphaTime() const
 {
     // Calculate accumulated ticks since the last update.
-    uint64_t accumulatedUpdateTicks = m_forwardUpdateCounter - m_currentTimeCounter;
+    uint64_t accumulatedUpdateTicks = m_forwardUpdateCounter - m_timer.GetCurrentTimeCounter();
     ASSERT(accumulatedUpdateTicks >= 0, "Accumulated update ticks cannot be negative!");
 
     // Calculate a normalized range between last two updates.
-    float accumulatedUpdateTime = accumulatedUpdateTicks * (1.0f / m_timerFrequency);
+    float accumulatedUpdateTime = accumulatedUpdateTicks * (1.0f / m_timer.GetTimerFrequency());
     float normalizedUpdateAlpha = (m_lastUpdateTime - accumulatedUpdateTime) / m_lastUpdateTime;
     ASSERT(normalizedUpdateAlpha >= 0.0f && normalizedUpdateAlpha <= 1.0f, "Update alpha is not clamped in normal range!");
 
@@ -66,19 +52,24 @@ float UpdateTimer::GetAlphaTime() const
     return normalizedUpdateAlpha;
 }
 
+void UpdateTimer::Tick(const System::Timer& timer)
+{
+    m_timer.Tick(timer);
+}
+
 bool UpdateTimer::Update(float updateTime)
 {
-    ASSERT(m_timerFrequency != 0, "Timer frequency is invalid!");
+    ASSERT(m_timer.IsInitialized(), "Base timer has not been initialized!");
 
     // Convert update time to update ticks.
-    uint64_t updateTicks = (uint64_t)(m_timerFrequency * (double)updateTime + 0.5);
+    uint64_t updateTicks = (uint64_t)(m_timer.GetTimerFrequency() * (double)updateTime + 0.5);
 
     // Do not allow forward update counter to fall behind the previous tick time.
     // This allows timer with capped delta time to prevent a large number of updates.
-    m_forwardUpdateCounter = std::max(m_previousTimeCounter, m_forwardUpdateCounter);
+    m_forwardUpdateCounter = std::max(m_timer.GetPreviousTimeCounter(), m_forwardUpdateCounter);
 
     // Check if we should perform an update.
-    if(m_currentTimeCounter >= m_forwardUpdateCounter)
+    if(m_timer.GetCurrentTimeCounter() >= m_forwardUpdateCounter)
     {
         // Move update counter forward.
         m_forwardUpdateCounter += updateTicks;
@@ -106,5 +97,5 @@ float UpdateTimer::GetLastUpdateTime() const
 double UpdateTimer::GetTotalUpdateTime() const
 {
     // Return the total update time in seconds.
-    return m_totalUpdateCounter * (1.0 / m_timerFrequency);
+    return m_totalUpdateCounter * (1.0 / m_timer.GetTimerFrequency());
 }

@@ -5,92 +5,80 @@
 #include "System/FileSystem.hpp"
 using namespace System;
 
-FileSystem::FileSystem(FileSystem&& other) :
-    FileSystem()
-{
-    *this = std::move(other);
-}
+FileSystem::FileSystem() = default;
+FileSystem::~FileSystem() = default;
 
-FileSystem& FileSystem::operator=(FileSystem&& other)
+GenericResult FileSystem::Initialize()
 {
-    std::swap(m_mountedDirs, other.m_mountedDirs);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool FileSystem::Initialize()
-{
+    // Print initialization info.
     LOG("Initializing file system...");
     LOG_SCOPED_INDENT();
 
-    // Make sure that the class instance has not been already initialized.
-    VERIFY(!m_initialized, "File system has already been initialized!");
-
-    // Setup a cleanup guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = FileSystem());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
-bool FileSystem::MountDirectory(std::string dirPath)
+FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string directory)
 {
     ASSERT(m_initialized, "File system has not been initialzied!");
 
     // Validate argument.
-    if(dirPath.empty())
+    if(directory.empty())
     {
         LOG_WARNING("Attempted to mount an empty directory path!");
-        return false;
+        return Failure(MountDirectoryErrors::EmptyPathArgument);
     }
 
     // Normalize path separators.
-    std::replace(dirPath.begin(), dirPath.end(), '\\', '/');
+    std::replace(directory.begin(), directory.end(), '\\', '/');
 
-    // Add a trailing separator if it is missing.
-    if(dirPath.back() != '/')
+    // Add trailing separator if it is missing.
+    if(directory.back() != '/')
     {
-        dirPath += '/';
+        directory += '/';
     }
 
-    // Add a mount directory.
-    m_mountedDirs.push_back(dirPath);
-
-    LOG_INFO("Mounted \"{}\" directory.", dirPath);
+    // Add mount directory.
+    m_mountedDirs.push_back(directory);
+    LOG_INFO("Mounted \"{}\" directory.", directory);
 
     // Success!
-    return true;
+    return Success();
 }
 
-std::string FileSystem::ResolvePath(const std::string filePath)
+FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) const
 {
     ASSERT(m_initialized, "File system has not been initialzied!");
 
     // Validate argument.
-    if(filePath.empty())
+    if(path.empty())
     {
         LOG_WARNING("Attempting to resolve empty file path!");
-        return filePath;
+        return Failure(ResolvePathErrors::EmptyPathArgument);
     }
 
     // Check file path for each mounted directory (iterated in reverse).
     for(auto it = m_mountedDirs.crbegin(); it != m_mountedDirs.crend(); ++it)
     {
-        // Create a resolved path.
-        std::string resolvedPath = *it + filePath;
+        // Create resolved path.
+        std::string resolvedPath = *it + path;
 
         // Check if file or directory exists (good() works with directories as well).
-        // This may be bit slow, but does its job for now.
+        // This may be too slow for the purpose, but does its job for now.
         std::ifstream file(resolvedPath);
 
         if(file.good())
         {
-            // Return the resolved path.
-            return resolvedPath;
+            // Return resolved path.
+            return Success(resolvedPath);
         }
     }
 
-    // Return the provided argument if path has not been resolved.
-    return filePath;
+    // Failed to resolve path.
+    return Failure(ResolvePathErrors::UnresolvablePath);
 }

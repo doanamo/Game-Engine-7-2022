@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include "Event/Dispatcher.hpp"
+#include <Event/Dispatcher.hpp>
 #include "InputDefinitions.hpp"
 
 /*
@@ -52,31 +52,37 @@
 
 namespace System
 {
-    // Window info structure.
-    struct WindowInfo
-    {
-        std::string title = "Window";
-        int width = 1024;
-        int height = 576;
-        bool vsync = true;
-        bool visible = true;
-
-        int minWidth = GLFW_DONT_CARE;
-        int minHeight = GLFW_DONT_CARE;
-        int maxWidth = GLFW_DONT_CARE;
-        int maxHeight = GLFW_DONT_CARE;
-    };
-
-    class Window : private NonCopyable
+    class Window final : private NonCopyable, public Resettable<Window>
     {
     public:
-        Window() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedWindowCreation,
+            FailedGlewInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+        struct InitializeFromParams
+        {
+            std::string title = "Window";
+            int width = 1024;
+            int height = 576;
+            bool vsync = true;
+            bool visible = true;
+
+            int minWidth = GLFW_DONT_CARE;
+            int minHeight = GLFW_DONT_CARE;
+            int maxWidth = GLFW_DONT_CARE;
+            int maxHeight = GLFW_DONT_CARE;
+        };
+
+    public:
+        Window();
         ~Window();
 
-        Window(Window&& other);
-        Window& operator=(Window&& other);
-
-        bool Initialize(const WindowInfo& info = WindowInfo());
+        InitializeResult Initialize(const InitializeFromParams& params = InitializeFromParams());
         void MakeContextCurrent();
         void ProcessEvents();
         void Present();
@@ -90,11 +96,12 @@ namespace System
         int GetHeight() const;
         bool IsOpen() const;
         bool IsFocused() const;
-        bool IsValid() const;
+        bool IsInitialized() const;
 
         GLFWwindow* GetPrivateHandle();
 
     public:
+        // Publicly exposed window event dispatchers.
         struct Events
         {
             struct Move
@@ -190,11 +197,9 @@ namespace System
         static void CursorEnterCallback(GLFWwindow* window, int entered);
 
     private:
-        void DestroyWindow();
-
-    private:
         std::string m_title;
         GLFWwindow* m_handle = nullptr;
         bool m_sizeChanged = false;
+        bool m_initialized = false;
     };
 }

@@ -7,91 +7,45 @@
 #include <System/FileSystem.hpp>
 using namespace Graphics;
 
+Texture::Texture() = default;
+
 Texture::~Texture()
 {
-    this->DestroyHandle();
-}
-
-Texture::Texture(Texture&& other) :
-    Texture()
-{
-    *this = std::move(other);
-}
-
-Texture& Texture::operator=(Texture&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_handle, other.m_handle);
-    std::swap(m_format, other.m_format);
-    std::swap(m_width, other.m_width);
-    std::swap(m_height, other.m_height);
-
-    return *this;
-}
-
-void Texture::DestroyHandle()
-{
-    // Destroy the texture handle.
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteTextures(1, &m_handle);
         OpenGL::CheckErrors();
-
-        m_handle = OpenGL::InvalidHandle;
     }
 }
 
-bool Texture::Initialize(const CreateFromParams& params)
+Texture::InitializeResult Texture::Initialize(const CreateFromParams& params)
 {
     LOG("Creating texture...");
     LOG_SCOPED_INDENT();
 
-    // Check if handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has been already initialized!");
-
-    // Setup a cleanup guard.
-    bool initialized = false;
-
-    SCOPE_GUARD_IF(!initialized, *this = Texture());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
-        return false;
-    }
-
-    if(params.width <= 0)
-    {
-        LOG_ERROR("Invalid parameter - \"width\" is invalid!");
-        return false;
-    }
-
-    if(params.height <= 0)
-    {
-        LOG_ERROR("Invalid parameter - \"height\" is invalid!");
-        return false;
-    }
-
-    if(params.format == GL_INVALID_ENUM)
-    {
-        LOG_ERROR("Invalid parameter - \"format\" is invalid!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.width > 0, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.height > 0, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum, Failure(InitializeErrors::InvalidArgument));
 
     m_renderContext = params.renderContext;
 
-    // Create a texture handle.
+    // Create texture handle.
     glGenTextures(1, &m_handle);
     OpenGL::CheckErrors();
 
     if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Texture could not be created!");
-        return false;
+        return Failure(InitializeErrors::FailedTextureCreation);
     }
 
-    // Bind the texture.
+    // Bind texture.
     glBindTexture(GL_TEXTURE_2D, m_handle);
     OpenGL::CheckErrors();
 
@@ -108,7 +62,7 @@ bool Texture::Initialize(const CreateFromParams& params)
     SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT,
         m_renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
 
-    // Allocated a texture surface on the hardware.
+    // Allocate texture surface on the hardware.
     glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height,
         0, params.format, GL_UNSIGNED_BYTE, params.data);
 
@@ -125,49 +79,42 @@ bool Texture::Initialize(const CreateFromParams& params)
     m_height = params.height;
 
     // Success!
-    return initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
-bool Texture::Initialize(const LoadFromFile& params)
+Texture::InitializeResult Texture::Initialize(const LoadFromFile& params)
 {
     LOG("Loading texture from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
 
-    // Check if handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Texture instance has already been initialized!");
+    // Setup initialization guard.
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(params.fileSystem == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"fileSystem\" is null!");
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid parameter - \"renderContext\" is null!");
-        return false;
-    }
-
-    if(params.filePath.empty())
-    {
-        LOG_ERROR("Invalid parameter - \"filePath\" is empty!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Failure(InitializeErrors::InvalidArgument));
 
     // Resolve file path.
-    std::string resolvedFilePath = params.fileSystem->ResolvePath(params.filePath);
+    auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
 
-    // Open the file stream.
-    std::ifstream file(resolvedFilePath, std::ios::binary);
+    if(!resolvePathResult)
+    {
+        LOG_ERROR("Could not resolve file path!");
+        return Failure(InitializeErrors::FailedFilePathResolve);
+    }
+
+    // Open file stream.
+    std::ifstream file(resolvePathResult.Unwrap(), std::ios::binary);
 
     if(!file.is_open())
     {
         LOG_ERROR("File could not be opened!");
-        return false;
+        return Failure(InitializeErrors::FailedFileOpening);
     }
 
-    // Validate the file header.
+    // Validate file header.
     const size_t png_sig_size = 8;
     png_byte png_sig[png_sig_size];
 
@@ -175,8 +122,8 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     if(png_sig_cmp(png_sig, 0, png_sig_size) != 0)
     {
-        LOG_ERROR("File path does not contain a valid PNG file!");
-        return false;
+        LOG_ERROR("File path does not contain valid PNG file!");
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     // Create format decoder structures.
@@ -185,7 +132,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     if(png_read_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG read structure!");
-        return false;
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     png_infop png_info_ptr = png_create_info_struct(png_read_ptr);
@@ -193,7 +140,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     if(png_info_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG info structure!");
-        return false;
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     SCOPE_GUARD_BEGIN();
@@ -220,7 +167,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     }
     SCOPE_GUARD_END();
 
-    // Setup the error handling routine.
+    // Setup error handling routine.
     // Apparently a standard way of handling errors with libpng...
     // Library jumps here if one of its functions encounters an error!!!
     // This is the reason why scope guards and other objects are declared
@@ -229,8 +176,8 @@ bool Texture::Initialize(const LoadFromFile& params)
     // destructors called if the library jumps back here on an error.
     if(setjmp(png_jmpbuf(png_read_ptr)))
     {
-        LOG_ERROR("Error(s) occurred while reading the file!");
-        return false;
+        LOG_ERROR("Error occurred while reading file!");
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     // Setup the file read function.
@@ -282,7 +229,7 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     default:
         LOG_ERROR("Unsupported image format!");
-        return false;
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     // Make sure we only get 8bits per channel.
@@ -294,7 +241,7 @@ bool Texture::Initialize(const LoadFromFile& params)
     if(depth != 8)
     {
         LOG_ERROR("Unsupported image depth size!");
-        return false;
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
     // Allocate image buffers.
@@ -341,10 +288,10 @@ bool Texture::Initialize(const LoadFromFile& params)
 
     default:
         LOG_ERROR("Unsupported number of channels!");
-        return false;
+        return Failure(InitializeErrors::FailedPngLoading);
     }
 
-    // Call the initialization method.
+    // Call initialization method.
     CreateFromParams createParams;
     createParams.renderContext = params.renderContext;
     createParams.width = width;
@@ -353,20 +300,13 @@ bool Texture::Initialize(const LoadFromFile& params)
     createParams.mipmaps = params.mipmaps;
     createParams.data = png_data_ptr;
 
-    if(!this->Initialize(createParams))
-    {
-        LOG_ERROR("Could not initialize texture!");
-        return false;
-    }
-
-    // Success!
-    return true;
+    return this->Initialize(createParams);
 }
 
 void Texture::Update(const void* data)
 {
-    VERIFY(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
-    VERIFY(data != nullptr, "Invalid argument - \"data\" is null!");
+    ASSERT(m_initialized, "Texture has not been initialized!");
+    VERIFY_ARGUMENT(data != nullptr);
 
     // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
@@ -377,26 +317,23 @@ void Texture::Update(const void* data)
 
 GLuint Texture::GetHandle() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
-
+    ASSERT(m_initialized, "Texture has not been initialized!");
     return m_handle;
 }
 
 int Texture::GetWidth() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
-
+    ASSERT(m_initialized, "Texture has not been initialized!");
     return m_width;
 }
 
 int Texture::GetHeight() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Texture handle has not been created!");
-
+    ASSERT(m_initialized, "Texture has not been initialized!");
     return m_height;
 }
 
-bool Texture::IsValid() const
+bool Texture::IsInitialized() const
 {
-    return m_handle != OpenGL::InvalidHandle;
+    return m_initialized;
 }

@@ -23,9 +23,18 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteAnimationList : private NonCopyable
+    class SpriteAnimationList final : private NonCopyable, public Resettable<SpriteAnimationList>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedResourceLoading,
+            InvalidResourceContent,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct LoadFromFile
         {
             System::FileSystem* fileSystem = nullptr;
@@ -36,7 +45,7 @@ namespace Graphics
 
         struct Frame
         {
-            Frame() = default;
+            Frame();
             Frame(TextureView&& textureView, float duration);
 
             TextureView textureView;
@@ -48,20 +57,18 @@ namespace Graphics
             std::vector<Frame> frames;
             float duration = 0.0f;
 
-            const Frame GetFrameByTime(float animationTime) const;
+            Frame GetFrameByTime(float animationTime) const;
         };
 
         using AnimationList = std::vector<Animation>;
         using AnimationMap = std::unordered_map<std::string, std::size_t>;
 
     public:
-        SpriteAnimationList() = default;
+        SpriteAnimationList();
+        ~SpriteAnimationList();
 
-        SpriteAnimationList(SpriteAnimationList&& other);
-        SpriteAnimationList& operator=(SpriteAnimationList&& other);
-
-        bool Initialize();
-        bool Initialize(const LoadFromFile& params);
+        InitializeResult Initialize();
+        InitializeResult Initialize(const LoadFromFile& params);
 
         std::optional<std::size_t> GetAnimationIndex(std::string animationName) const;
         const Animation* GetAnimationByIndex(std::size_t animationIndex) const;

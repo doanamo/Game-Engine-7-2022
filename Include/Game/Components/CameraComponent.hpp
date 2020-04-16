@@ -14,7 +14,7 @@ namespace Game
 {
     class TransformComponent;
 
-    class CameraComponent : public Component
+    class CameraComponent final : public Component
     {
     public:
         struct ProjectionTypes
@@ -29,11 +29,8 @@ namespace Game
         };
 
     public:
-        CameraComponent() = default;
-        ~CameraComponent() = default;
-
-        CameraComponent(CameraComponent&& other);
-        CameraComponent& operator=(CameraComponent&& other);
+        CameraComponent();
+        ~CameraComponent();
 
         void SetupOrthogonal(const glm::vec2& viewSize, float nearPlane, float farPlane);
         void SetupPerspective(float fov, float nearPlane, float farPlane);
@@ -41,7 +38,7 @@ namespace Game
 
         TransformComponent* GetTransformComponent();
 
-    protected:
+    private:
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
     private:

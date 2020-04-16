@@ -25,11 +25,11 @@
         vertexArrayInfo.attributeCount = Utility::StaticArraySize(inputAttributes);
         vertexArrayInfo.attributes = &inputAttributes[0];
     
-        // Create a vertex array instance.
+        // Create vertex array instance.
         Graphics::VertexArray vertexArray();
         vertexArray.Initialize(renderContext, vertexArrayInfo);
     
-        // Bind a vertex array.
+        // Bind vertex array.
         glBindVertexArray(vertexArray.GetHandle());
     }
 */
@@ -44,11 +44,9 @@ namespace Graphics
         Invalid,
 
         Value,
-        
         Vector2,
         Vector3,
         Vector4,
-
         Matrix4x4,
 
         Count,
@@ -68,25 +66,30 @@ namespace Graphics
         std::size_t attributeCount = 0;
     };
 
-    class VertexArray : private NonCopyable
+    class VertexArray final : private NonCopyable, public Resettable<VertexArray>
     {
     public:
-        VertexArray() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            InvalidAttribute,
+            FailedResourceCreation,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+    public:
+        VertexArray();
         ~VertexArray();
 
-        VertexArray(VertexArray&& other);
-        VertexArray& operator=(VertexArray&& other);
-
-        bool Initialize(RenderContext* renderContext, const VertexArrayInfo& info);
+        InitializeResult Initialize(RenderContext* renderContext, const VertexArrayInfo& info);
 
         GLuint GetHandle() const;
-        bool IsValid() const;
-
-    private:
-        void DestroyHandle();
+        bool IsInitialized() const;
 
     private:
         RenderContext* m_renderContext = nullptr;
         GLuint m_handle = OpenGL::InvalidHandle;
+        bool m_initialized = false;
     };
 }

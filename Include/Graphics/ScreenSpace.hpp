@@ -32,7 +32,7 @@
     
     void ExampleGraphicsScreenSpace()
     {
-        // Create a screen space instance.
+        // Create screen space instance.
         Graphics::ScreenSpace screenSpace;
         screenSpace.SetSourceSize(1024.0f, 576.0f);
         
@@ -42,7 +42,7 @@
             // Update target size.
             m_screenSpace.SetTargetSize(windowWidth, windowHeight);
 
-            // Setup a viewport and camera transform.
+            // Setup viewport and camera transform.
             glViewport(0, 0, windowWidth, windowHeight);
             glm::mat4 transform = screenSpace.GetTransform();
         }
@@ -51,14 +51,11 @@
 
 namespace Graphics
 {
-    class ScreenSpace : private NonCopyable
+    class ScreenSpace final : private NonCopyable, public Resettable<ScreenSpace>
     {
     public:
-        ScreenSpace() = default;
-        ~ScreenSpace() = default;
-
-        ScreenSpace(ScreenSpace&& other);
-        ScreenSpace& operator=(ScreenSpace&& other);
+        ScreenSpace();
+        ~ScreenSpace();
 
         // Needs to be set once to define maintained screen space size.
         void SetSourceSize(float width, float height);

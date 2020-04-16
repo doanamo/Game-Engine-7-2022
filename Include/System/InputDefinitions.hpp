@@ -210,19 +210,14 @@ namespace System
     {
         struct KeyboardKey
         {
-            KeyboardKey(KeyboardKeys::Type key = KeyboardKeys::KeyUnknown) :
-                key(key)
-            {
-            }
+            KeyboardKeys::Type key = KeyboardKeys::Invalid;
+            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
+            InputStates::Type state = InputStates::ReleasedRepeat;
+            float stateTime = 0.0f;
 
             bool IsPressed(bool repeat = true) const;
             bool IsReleased(bool repeat = true) const;
             bool IsRepeat() const;
-
-            KeyboardKeys::Type key;
-            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
-            InputStates::Type state = InputStates::ReleasedRepeat;
-            float stateTime = 0.0f;
         };
 
         struct TextInput
@@ -250,7 +245,6 @@ namespace System
             double y = 0.0;
         };
 
-        // Cursor enter events.
         struct CursorEnter
         {
             bool entered = false;

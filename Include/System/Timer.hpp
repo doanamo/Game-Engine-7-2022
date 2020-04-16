@@ -34,31 +34,40 @@
 
 namespace System
 {
-    class Timer : private NonCopyable
+    class Timer final : private NonCopyable, public Resettable<Timer>
     {
     public:
-        static constexpr float MaximumFloat = std::numeric_limits<float>::max();
+        enum class InitializeErrors
+        {
+            InvalidFrequencyRetrieved,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
 
     public:
-        Timer() = default;
-        virtual ~Timer() = default;
+        Timer();
+        ~Timer();
 
-        Timer(Timer&& other);
-        Timer& operator=(Timer&& other);
-
-        virtual bool Initialize();
-        virtual void Reset();
+        InitializeResult Initialize();
+        void Reset();
 
         void Tick(float maximumDelta = 0.0f);
         void Tick(const Timer& timer);
 
-        uint64_t GetDeltaTicks() const;
         float GetDeltaTime() const;
-        double GetSystemTime() const;
+        double GetElapsedTime() const;
 
-    protected:
+        uint64_t GetTimerFrequency() const;
+        uint64_t GetCurrentTimeCounter() const;
+        uint64_t GetPreviousTimeCounter() const;
+        uint64_t GetDeltaTimeCounter() const;
+
+        bool IsInitialized() const;
+
+    private:
         uint64_t m_timerFrequency = 0;
         uint64_t m_currentTimeCounter = 0;
         uint64_t m_previousTimeCounter = 0;
+        bool m_initialized = false;
     };
 }

@@ -32,7 +32,7 @@ namespace
 
 std::string DefaultFormat::ComposeSessionStart()
 {
-    // Retrieve the current system time.
+    // Retrieve current system time.
     time_t timeData = time(nullptr);
     tm* timeInfo = localtime(&timeData);
 
@@ -63,13 +63,13 @@ std::string DefaultFormat::ComposeSessionStart()
     stream << "[Time][Frame][Type] Message {source:line}\n";
     stream << "\n";
 
-    // Return a composed string.
+    // Return composed string.
     return stream.str();
 }
 
 std::string DefaultFormat::ComposeMessage(const Message& message, const SinkContext& context)
 {
-    // Retrieve the current system time.
+    // Retrieve current system time.
     time_t timeData = time(nullptr);
     tm* timeInfo = localtime(&timeData);
 
@@ -143,7 +143,7 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
             }
         }
 
-        // Remove the base path to a file.
+        // Remove base path to a file.
         if(reverseIt != sourcePath.rend())
         {
             sourcePath.erase(sourcePath.begin(), reverseIt.base());
@@ -160,13 +160,13 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
     // Write message suffix.
     stream << "\n";
 
-    // Return a composed string.
+    // Return composed string.
     return stream.str();
 }
 
 std::string DefaultFormat::ComposeSessionEnd()
 {
-    // Retrieve the current system time.
+    // Retrieve current system time.
     time_t timeData = time(nullptr);
     tm* timeInfo = localtime(&timeData);
 
@@ -183,6 +183,6 @@ std::string DefaultFormat::ComposeSessionEnd()
     stream << std::setw(2) << timeInfo->tm_sec;
     stream << "\n\n";
 
-    // Return a composed string.
+    // Return composed string.
     return stream.str();
 }

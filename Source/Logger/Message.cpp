@@ -6,6 +6,9 @@
 #include "Logger/Sink.hpp"
 using namespace Logger;
 
+Message::Message() = default;
+Message::~Message() = default;
+
 Message::Message(Message&& other)
 {
     m_text = std::move(other.m_text);

@@ -9,26 +9,28 @@
 #include "Logger/Sink.hpp"
 using namespace Logger;
 
+FileOutput::FileOutput() = default;
+
 FileOutput::~FileOutput()
 {
-    // Close the file stream.
+    // Close file stream.
     if(m_file.is_open())
     {
         // Write session end.
         m_file << DefaultFormat::ComposeSessionEnd();
         m_file.flush();
 
-        // Close the file.
+        // Close file.
         m_file.close();
     }
 }
 
 bool FileOutput::Open(std::string filename)
 {
-    // Check if the file stream is already open.
+    // Check if file stream is already open.
     assert(!m_file.is_open() && "File stream is already open!");
 
-    // Open the file stream for writing.
+    // Open file stream for writing.
     m_file.open(filename);
 
     if(!m_file.is_open())
@@ -49,7 +51,7 @@ void FileOutput::Write(const Message& message, const SinkContext& context)
 {
     assert(m_file.is_open() && "File stream is not open!");
 
-    // Write a log message.
+    // Write log message.
     m_file << DefaultFormat::ComposeMessage(message, context);
     m_file.flush();
 }
@@ -68,9 +70,12 @@ ConsoleOutput::~ConsoleOutput()
 
 void ConsoleOutput::Write(const Message& message, const SinkContext& context)
 {
-    // Write a log message.
+    // Write log message.
     std::cout << DefaultFormat::ComposeMessage(message, context);
 }
+
+DebuggerOutput::DebuggerOutput() = default;
+DebuggerOutput::~DebuggerOutput() = default;
 
 void DebuggerOutput::Write(const Message& message, const SinkContext& context)
 {
@@ -79,7 +84,7 @@ void DebuggerOutput::Write(const Message& message, const SinkContext& context)
     if(!IsDebuggerPresent())
         return;
 
-    // Write a log message.
+    // Write log message.
     std::string output = DefaultFormat::ComposeMessage(message, context);
     OutputDebugStringA(output.c_str());
 #endif

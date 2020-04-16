@@ -2,7 +2,6 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;
@@ -16,76 +15,36 @@ Buffer::Buffer(GLenum type) :
 {
 }
 
-Buffer::Buffer(Buffer&& other) :
-    Buffer(other.m_type)
-{
-    *this = std::move(other);
-}
-
-Buffer& Buffer::operator=(Buffer&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_type, other.m_type);
-    std::swap(m_usage, other.m_usage);
-    std::swap(m_handle, other.m_handle);
-    std::swap(m_elementSize, other.m_elementSize);
-    std::swap(m_elementCount, other.m_elementCount);
-
-    return *this;
-}
-
 Buffer::~Buffer()
 {
-    this->DestroyHandle();
-}
-
-void Buffer::DestroyHandle()
-{
-    // Release the buffer's handle.
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteBuffers(1, &m_handle);
         OpenGL::CheckErrors();
-
-        m_handle = OpenGL::InvalidHandle;
     }
 }
 
-bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
+Buffer::InitializeResult Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
     LOG("Creating {}...", this->GetName());
     LOG_SCOPED_INDENT();
 
-    // Check if the handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Buffer instance has been already initialized!");
+    // Check if instance has already been initialized.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
 
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
-    if(renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(info.elementSize != 0, Failure(InitializeErrors::InvalidArgument));
 
-    if(info.elementSize == 0)
-    {
-        LOG_ERROR("Invalid argument - \"elementSize\" is 0!");
-        return false;
-    }
-
-    // Setup a cleanup guard variable.
-    bool initialized = false;
-
-    // Create a buffer handle.
-    SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
-    
+    // Create buffer handle.
     glGenBuffers(1, &m_handle);
     OpenGL::CheckErrors();
 
     if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Buffer handle could not be created!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Allocate buffer memory.
@@ -110,14 +69,15 @@ bool Buffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
     m_renderContext = renderContext;
 
     // Success!
-    return initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
-void Graphics::Buffer::Update(const void* data, std::size_t elementCount)
+void Buffer::Update(const void* data, std::size_t elementCount)
 {
-    VERIFY(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-    VERIFY(data != nullptr, "Invalid argument - \"data\" is null!");
-    VERIFY(elementCount > 0, "Invalid argument - \"elementCount\" is invalid!");
+    ASSERT(m_initialized, "Buffer has not been initialized!");
+    VERIFY_ARGUMENT(data != nullptr);
+    VERIFY_ARGUMENT(elementCount > 0);
 
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);
@@ -128,46 +88,42 @@ void Graphics::Buffer::Update(const void* data, std::size_t elementCount)
 
 GLenum Buffer::GetType() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return m_type;
 }
 
 GLuint Buffer::GetHandle() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return m_handle;
 }
 
-std::size_t Graphics::Buffer::GetElementSize() const
+std::size_t Buffer::GetElementSize() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return m_elementSize;
 }
 
-std::size_t Graphics::Buffer::GetElementCount() const
+std::size_t Buffer::GetElementCount() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return m_elementCount;
+}
+
+bool Buffer::IsInitialized() const
+{
+    return m_initialized;
 }
 
 GLenum Buffer::GetElementType() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Buffer handle has not been created!");
-
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return OpenGL::InvalidEnum;
-}
-
-bool Buffer::IsValid() const
-{
-    return m_handle != 0;
 }
 
 bool Buffer::IsInstanced() const
 {
+    ASSERT(m_initialized, "Buffer has not been initialized!");
     return false;
 }
 
@@ -180,15 +136,19 @@ VertexBuffer::VertexBuffer() :
 {
 }
 
-VertexBuffer::VertexBuffer(VertexBuffer&& other) :
-    Buffer(std::move(other))
-{
-}
+VertexBuffer::~VertexBuffer() = default;
 
-VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other)
+Buffer::InitializeResult VertexBuffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
-    Buffer::operator=(std::move(other));
-    return *this;
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+
+    // Initialize base class.
+    SUCCESS_OR_RETURN_RESULT(Buffer::Initialize(renderContext, info));
+
+    // Success!
+    return Success();
 }
 
 const char* VertexBuffer::GetName() const
@@ -205,15 +165,19 @@ IndexBuffer::IndexBuffer() :
 {
 }
 
-IndexBuffer::IndexBuffer(IndexBuffer&& other) :
-    Buffer(std::move(other))
-{
-}
+IndexBuffer::~IndexBuffer() = default;
 
-IndexBuffer& IndexBuffer::operator=(IndexBuffer&& other)
+Buffer::InitializeResult IndexBuffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
-    Buffer::operator=(std::move(other));
-    return *this;
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+
+    // Initialize base class.
+    SUCCESS_OR_RETURN_RESULT(Buffer::Initialize(renderContext, info));
+
+    // Success!
+    return Success();
 }
 
 const char* IndexBuffer::GetName() const
@@ -247,17 +211,20 @@ InstanceBuffer::InstanceBuffer() :
 {
 }
 
-InstanceBuffer::InstanceBuffer(InstanceBuffer&& other) :
-    Buffer(std::move(other))
-{
-}
+InstanceBuffer::~InstanceBuffer() = default;
 
-InstanceBuffer& InstanceBuffer::operator=(InstanceBuffer&& other)
+Buffer::InitializeResult InstanceBuffer::Initialize(RenderContext* renderContext, const BufferInfo& info)
 {
-    Buffer::operator=(std::move(other));
-    return *this;
-}
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
+    // Initialize base class.
+    SUCCESS_OR_RETURN_RESULT(Buffer::Initialize(renderContext, info));
+
+    // Success!
+    return Success();
+}
 
 const char* InstanceBuffer::GetName() const
 {

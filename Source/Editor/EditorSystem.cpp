@@ -36,36 +36,6 @@ EditorSystem::EditorSystem()
 
 EditorSystem::~EditorSystem()
 {
-    this->DestroyContext();
-}
-
-EditorSystem::EditorSystem(EditorSystem&& other) :
-    EditorSystem()
-{
-    *this = std::move(other);
-}
-
-EditorSystem& EditorSystem::operator=(EditorSystem&& other)
-{
-    std::swap(m_interface, other.m_interface);
-
-    std::swap(m_receiverCursorPosition, other.m_receiverCursorPosition);
-    std::swap(m_receiverMouseButton, other.m_receiverMouseButton);
-    std::swap(m_receiverMouseScroll, other.m_receiverMouseScroll);
-    std::swap(m_receiverKeyboardKey, other.m_receiverKeyboardKey);
-    std::swap(m_receiverTextInput, other.m_receiverTextInput);
-
-    std::swap(m_editorRenderer, other.m_editorRenderer);
-    std::swap(m_editorShell, other.m_editorShell);
-
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-void EditorSystem::DestroyContext()
-{
-    // Destroy the user interface context.
     if(m_interface)
     {
         ImGui::DestroyContext(m_interface);
@@ -73,53 +43,22 @@ void EditorSystem::DestroyContext()
     }
 }
 
-bool EditorSystem::Initialize(const InitializeFromParams& params)
+EditorSystem::InitializeResult EditorSystem::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor system...");
     LOG_SCOPED_INDENT();
 
-    // Check if the instance is already initialized.
-    VERIFY(!m_initialized, "Editor system instance is already initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
-    // Reset class instance if initialization fails.
-    SCOPE_GUARD_IF(!m_initialized, *this = EditorSystem());
-
-    // Validate engine reference.
-    if(params.fileSystem == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.fileSystem\" is invalid!");
-        return false;
-    }
-
-    if(params.resourceManager == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.resourceManager\" is invalid!");
-        return false;
-    }
-
-    if(params.inputManager == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.inputManager\" is invalid!");
-        return false;
-    }
-
-    if(params.window == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.window\" is invalid!");
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.renderContext\" is invalid!");
-        return false;
-    }
-
-    if(params.gameFramework == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.gameFramework\" is invalid!");
-        return false;
-    }
+    // Validate arguments.
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     // Create ImGui context.
     m_interface = ImGui::CreateContext();
@@ -127,7 +66,7 @@ bool EditorSystem::Initialize(const InitializeFromParams& params)
     if(m_interface == nullptr)
     {
         LOG_ERROR("Failed to initialize user interface context!");
-        return false;
+        return Failure(InitializeErrors::FailedContextCreation);
     }
 
     // Setup user interface.
@@ -182,10 +121,10 @@ bool EditorSystem::Initialize(const InitializeFromParams& params)
     if(!subscriptionResult)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
-        return false;
+        return Failure(InitializeErrors::FailedEventSubscription);
     }
 
-    // Initialize the editor renderer.
+    // Initialize editor renderer.
     EditorRenderer::InitializeFromParams editorRendererParams;
     editorRendererParams.fileSystem = params.fileSystem;
     editorRendererParams.resourceManager = params.resourceManager;
@@ -195,10 +134,10 @@ bool EditorSystem::Initialize(const InitializeFromParams& params)
     if(!m_editorRenderer.Initialize(editorRendererParams))
     {
         LOG_ERROR("Could not initialize editor renderer!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the editor shell.
+    // Initialize editor shell.
     EditorShell::InitializeFromParams editorShellParams;
     editorShellParams.window = params.window;
     editorShellParams.gameFramework = params.gameFramework;
@@ -206,11 +145,12 @@ bool EditorSystem::Initialize(const InitializeFromParams& params)
     if(!m_editorShell.Initialize(editorShellParams))
     {
         LOG_ERROR("Could not initialize editor shell!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void EditorSystem::Update(float timeDelta)
@@ -224,7 +164,7 @@ void EditorSystem::Update(float timeDelta)
     // Set current delta time.
     io.DeltaTime = timeDelta;
 
-    // Start a new interface frame.
+    // Start new interface frame.
     ImGui::NewFrame();
 
     // Update the editor shell.
@@ -235,7 +175,7 @@ void EditorSystem::Draw()
 {
     ASSERT(m_initialized, "Editor system has not been initialized!");
 
-    // Set the context and draw the editor interface.
+    // Set context and draw the editor interface.
     ImGui::SetCurrentContext(m_interface);
     m_editorRenderer.Draw();
 }
@@ -261,13 +201,13 @@ bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& e
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Determine the number of supported mouse buttons.
+    // Determine number of supported mouse buttons.
     const std::size_t SupportedMouseButtonCount = std::min(
         Utility::StaticArraySize(io.MouseDown),
         (std::size_t)System::MouseButtons::Count
     );
 
-    // We can only handle a specific number of mouse buttons.
+    // We can only handle specific number of mouse buttons.
     if(event.button < System::MouseButtons::Button1)
         return false;
 

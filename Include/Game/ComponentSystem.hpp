@@ -48,9 +48,17 @@ namespace Game
 {
     class EntitySystem;
 
-    class ComponentSystem : private NonCopyable
+    class ComponentSystem final : private NonCopyable, public Resettable<ComponentSystem>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedEventSubscription,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
         using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
@@ -59,10 +67,7 @@ namespace Game
         ComponentSystem();
         ~ComponentSystem();
 
-        ComponentSystem(ComponentSystem&& other);
-        ComponentSystem& operator=(ComponentSystem&& other);
-
-        bool Initialize(EntitySystem* entitySystem);
+        InitializeResult Initialize(EntitySystem* entitySystem);
 
         template<typename ComponentType>
         ComponentType* Create(EntityHandle handle);

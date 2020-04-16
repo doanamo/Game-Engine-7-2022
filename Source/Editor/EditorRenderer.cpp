@@ -7,64 +7,23 @@
 #include <System/ResourceManager.hpp>
 using namespace Editor;
 
-EditorRenderer::EditorRenderer(EditorRenderer&& other) :
-    EditorRenderer()
-{
-    *this = std::move(other);
-}
+EditorRenderer::EditorRenderer() = default;
+EditorRenderer::~EditorRenderer() = default;
 
-EditorRenderer& EditorRenderer::operator=(EditorRenderer&& other)
-{
-    std::swap(m_window, other.m_window);
-    std::swap(m_renderContext, other.m_renderContext);
-
-    std::swap(m_vertexBuffer, other.m_vertexBuffer);
-    std::swap(m_indexBuffer, other.m_indexBuffer);
-    std::swap(m_vertexArray, other.m_vertexArray);
-    std::swap(m_fontTexture, other.m_fontTexture);
-    std::swap(m_sampler, other.m_sampler);
-    std::swap(m_shader, other.m_shader);
-
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool EditorRenderer::Initialize(const InitializeFromParams& params)
+EditorRenderer::InitializeResult EditorRenderer::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor renderer...");
     LOG_SCOPED_INDENT();
 
-    // Make sure class instance has not been initialized yet.
-    ASSERT(!m_initialized, "Editor renderer has already been initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
-    // Initialization cleanup guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = EditorRenderer());
-
-    // Validate engine reference.
-    if(params.window == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"window\" is invalid!");
-        return false;
-    }
-
-    if(params.fileSystem == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"fileSystem\" is invalid!");
-        return false;
-    }
-
-    if(params.resourceManager == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"resourceManager\" is invalid!");
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is invalid!");
-        return false;
-    }
+    // Validate references.
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_window = params.window;
     m_renderContext = params.renderContext;
@@ -80,7 +39,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(!m_vertexBuffer.Initialize(m_renderContext, vertexBufferInfo))
     {
         LOG_ERROR("Could not initialize vertex buffer!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Create index buffer.
@@ -91,7 +50,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(!m_indexBuffer.Initialize(m_renderContext, indexBufferInfo))
     {
         LOG_ERROR("Could not initialize index buffer!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Create input layout.
@@ -109,7 +68,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(!m_vertexArray.Initialize(m_renderContext, inputLayoutInfo))
     {
         LOG_ERROR("Could not initialize vertex array!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Retrieve built in font data.
@@ -123,7 +82,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
     {
         LOG_ERROR("Could not retrieve font data!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Create font texture.
@@ -138,7 +97,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(!m_fontTexture.Initialize(textureParams))
     {
         LOG_ERROR("Could not initialize font texture!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)m_fontTexture.GetHandle();
@@ -152,7 +111,7 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(!m_sampler.Initialize(m_renderContext, samplerInfo))
     {
         LOG_ERROR("Could not initialize sampler!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Load shader.
@@ -166,11 +125,12 @@ bool EditorRenderer::Initialize(const InitializeFromParams& params)
     if(m_shader == nullptr)
     {
         LOG_ERROR("Could not initialize shader!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void EditorRenderer::Draw()
@@ -208,7 +168,7 @@ void EditorRenderer::Draw()
     // Calculate rendering transform.
     glm::mat4 transform = glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f);
 
-    // Push a rendering state.
+    // Push rendering state.
     auto& renderState = m_renderContext->PushState();
     SCOPE_GUARD(m_renderContext->PopState());
 

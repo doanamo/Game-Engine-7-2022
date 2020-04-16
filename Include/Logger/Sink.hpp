@@ -49,9 +49,8 @@ namespace Logger
     public:
         using OutputList = std::vector<Logger::Output*>;
 
-    public:
-        Sink() = default;
-        ~Sink() = default;
+        Sink();
+        ~Sink();
 
         Sink(const Sink&) = delete;
         Sink& operator=(const Sink&) = delete;

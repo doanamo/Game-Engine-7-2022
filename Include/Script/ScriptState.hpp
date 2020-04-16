@@ -5,7 +5,7 @@
 #pragma once
 
 #include <lua.hpp>
-#include <string.h>
+#include <string>
 
 namespace System
 {
@@ -20,9 +20,20 @@ namespace System
 
 namespace Script
 {
-    class ScriptState : private NonCopyable
+    class ScriptState final : private NonCopyable, public Resettable<ScriptState>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedLuaStateCreation,
+            FailedLuaLibraryLoading,
+            FailedLuaScriptExecution,
+            FailedScriptFileResolve,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct LoadFromText
         {
             std::string scriptText;
@@ -35,21 +46,17 @@ namespace Script
         };
 
     public:
-        ScriptState() = default;
+        ScriptState();
         ~ScriptState();
 
-        ScriptState(ScriptState&& other);
-        ScriptState& operator=(ScriptState&& other);
-
-        bool Initialize();
-        bool Initialize(const LoadFromText& params);
-        bool Initialize(const LoadFromFile& params);
+        InitializeResult Initialize();
+        InitializeResult Initialize(const LoadFromText& params);
+        InitializeResult Initialize(const LoadFromFile& params);
+        bool IsInitialized() const;
 
         void PrintError();
         void CleanStack();
         bool CollectGarbage(bool singleStep);
-
-        bool IsValid() const;
 
         operator lua_State*();
 

@@ -9,42 +9,26 @@
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
 using namespace Game;
 
-SpriteSystem::SpriteSystem(SpriteSystem&& other) :
-    SpriteSystem()
-{
-    *this = std::move(other);
-}
+SpriteSystem::SpriteSystem() = default;
+SpriteSystem::~SpriteSystem() = default;
 
-SpriteSystem& SpriteSystem::operator=(SpriteSystem&& other)
-{
-    std::swap(m_componentSystem, other.m_componentSystem);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool SpriteSystem::Initialize(ComponentSystem* componentSystem)
+SpriteSystem::InitializeResult SpriteSystem::Initialize(ComponentSystem* componentSystem)
 {
     LOG("Initializing sprite system...");
     LOG_SCOPED_INDENT();
 
-    // Make sure that the instance has not been initialized yet.
-    ASSERT(!m_initialized, "Sprite system has already been initialized!");
-
-    // Create initialization scope guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = SpriteSystem());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate component system reference.
-    if(componentSystem == nullptr)
-    {
-        LOG_ERROR("Invalid arguments - \"componentSystem\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_componentSystem = componentSystem;
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void SpriteSystem::Update(float timeDelta)
@@ -54,7 +38,7 @@ void SpriteSystem::Update(float timeDelta)
     // Get all sprite animation components.
     for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {
-        // Update the sprite animation component.
+        // Update sprite animation component.
         spriteAnimationComponent.Update(timeDelta);
     }
 }

@@ -5,33 +5,21 @@
 #include "System/ResourceManager.hpp"
 using namespace System;
 
-ResourceManager::ResourceManager(ResourceManager&& other) :
-    ResourceManager()
-{
-    *this = std::move(other);
-}
+ResourceManager::ResourceManager() = default;
+ResourceManager::~ResourceManager() = default;
 
-ResourceManager& ResourceManager::operator=(ResourceManager&& other)
-{
-    std::swap(m_pools, other.m_pools);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool ResourceManager::Initialize()
+GenericResult ResourceManager::Initialize()
 {
     LOG("Initializing resource manager...");
     LOG_SCOPED_INDENT();
 
-    // Check if resource manager has already been initialized.
-    VERIFY(!m_initialized, "Resource manager has already been initialized!");
-
-    // Setup a cleanup guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = ResourceManager());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void ResourceManager::ReleaseUnused()

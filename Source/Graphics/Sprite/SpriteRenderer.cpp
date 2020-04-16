@@ -17,64 +17,25 @@ namespace
     };
 }
 
-SpriteRenderer::SpriteRenderer(SpriteRenderer&& other) :
-    SpriteRenderer()
-{
-    *this = std::move(other);
-}
+SpriteRenderer::SpriteRenderer() = default;
+SpriteRenderer::~SpriteRenderer() = default;
 
-SpriteRenderer& SpriteRenderer::operator=(SpriteRenderer&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_vertexBuffer, other.m_vertexBuffer);
-    std::swap(m_instanceBuffer, other.m_instanceBuffer);
-    std::swap(m_vertexArray, other.m_vertexArray);
-    std::swap(m_nearestSampler, other.m_nearestSampler);
-    std::swap(m_linearSampler, other.m_linearSampler);
-    std::swap(m_shader, other.m_shader);
-    std::swap(m_spriteBatchSize, other.m_spriteBatchSize);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool SpriteRenderer::Initialize(const InitializeFromParams& params)
+SpriteRenderer::InitializeResult SpriteRenderer::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing sprite renderer...");
     LOG_SCOPED_INDENT();
 
-    // Make sure that the instance is not already initialized.
-    ASSERT(!m_initialized, "Sprite renderer instance has already been initialized!");
-
-    // Reset class instance on failed initialization.
-    SCOPE_GUARD_IF(!m_initialized, *this = SpriteRenderer());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(params.fileSystem == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"fileSystem\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Failure(InitializeErrors::InvalidArgument));
 
-    if(params.resourceManager == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"resourceManager\" is null!");
-        return false;
-    }
-
-    if(params.renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
-        return false;
-    }
-
-    if(params.spriteBatchSize <= 0)
-    {
-        LOG_ERROR("Invalid argument - \"spriteBatchSize\" is zero or less!");
-        return false;
-    }
-
-    // Create the vertex buffer.
+    // Create vertex buffer.
     const SpriteVertex SpriteVertices[4] =
     {
         { glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f) }, // Bottom-Left
@@ -92,10 +53,10 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(!m_vertexBuffer.Initialize(params.renderContext, vertexBufferInfo))
     {
         LOG_ERROR("Could not create vertex buffer!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Create the instance buffer.
+    // Create instance buffer.
     BufferInfo instanceBufferInfo;
     instanceBufferInfo.usage = GL_STREAM_DRAW;
     instanceBufferInfo.elementSize = sizeof(Sprite::Data);
@@ -105,10 +66,10 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(!m_instanceBuffer.Initialize(params.renderContext, instanceBufferInfo))
     {
         LOG_ERROR("Could not create instance buffer!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Create the vertex array.
+    // Create vertex array.
     const VertexAttribute vertexAttributes[] =
     {
         { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Position
@@ -126,10 +87,10 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(!m_vertexArray.Initialize(params.renderContext, vertexArrayInfo))
     {
         LOG_ERROR("Could not create vertex array!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Create a nearest sampler.
+    // Create nearest sampler.
     SamplerInfo nearestSamplerInfo;
     nearestSamplerInfo.textureMinFilter = GL_NEAREST;
     nearestSamplerInfo.textureMagFilter = GL_NEAREST;
@@ -137,10 +98,10 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(!m_nearestSampler.Initialize(params.renderContext, nearestSamplerInfo))
     {
         LOG_ERROR("Could not create a nearest sampler!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Create a linear sampler.
+    // Create linear sampler.
     SamplerInfo linearSamplerInfo;
     linearSamplerInfo.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     linearSamplerInfo.textureMagFilter = GL_LINEAR;
@@ -148,10 +109,10 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(!m_linearSampler.Initialize(params.renderContext, linearSamplerInfo))
     {
         LOG_ERROR("Could not create linear sampler!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Load the shader.
+    // Load shader.
     Shader::LoadFromFile shaderParams;
     shaderParams.fileSystem = params.fileSystem;
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
@@ -162,17 +123,18 @@ bool SpriteRenderer::Initialize(const InitializeFromParams& params)
     if(m_shader == nullptr)
     {
         LOG_ERROR("Could not load sprite shader!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceInitialization);
     }
 
-    // Remember the sprite batch size.
+    // Remember sprite batch size.
     m_spriteBatchSize = params.spriteBatchSize;
 
     // Save render context reference.
     m_renderContext = params.renderContext;
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform)
@@ -201,15 +163,15 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
 
     while(spritesDrawn < sprites.GetSpriteCount())
     {
-        // Gets the next sprite info to represent the current batch.
+        // Gets next sprite info to represent current batch.
         const Sprite::Info& batchInfo = spriteInfo[spritesDrawn];
 
-        // Create a batch of similar sprites.
+        // Create batch of similar sprites.
         std::size_t spritesBatched = 1;
 
         while(spritesBatched <= m_spriteBatchSize)
         {
-            // Get the index of the next sprite.
+            // Get index of next sprite.
             std::size_t nextSprite = spritesDrawn + spritesBatched;
 
             // Check if we have already processed all sprites.
@@ -220,7 +182,7 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
             if(batchInfo != spriteInfo[nextSprite])
                 break;
 
-            // Add sprite to the batch.
+            // Add sprite to batch.
             ++spritesBatched;
         }
 
@@ -263,11 +225,10 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
         }
 
         // Draw instanced sprite batch.
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4,
-            Utility::NumericalCast<GLsizei>(spritesBatched));
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Utility::NumericalCast<GLsizei>(spritesBatched));
         OpenGL::CheckErrors();
 
-        // Update the counter of drawn sprites.
+        // Update counter of drawn sprites.
         spritesDrawn += spritesBatched;
     }
 }

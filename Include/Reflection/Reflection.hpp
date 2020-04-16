@@ -10,7 +10,7 @@
 /*
     Reflection
 
-    Implementation is based on refl-cpp library:
+    Based on implementation and articles from:
     - https://github.com/veselink1/refl-cpp
     - https://medium.com/@vesko.karaganev/compile-time-reflection-in-c-17-55c14ee8106b
     - https://veselink1.github.io/blog/cpp/metaprogramming/2019/07/13/refl-cpp-deep-dive.html

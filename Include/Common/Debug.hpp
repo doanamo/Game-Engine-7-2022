@@ -68,7 +68,7 @@ namespace Debug
 
     Behavior in different build configurations:
     - Debug: Triggers abort
-    - Release: Check is stripped
+    - Release: Stripped out
 
     Example usage:
         ASSERT(m_initialized);
@@ -130,3 +130,48 @@ namespace Debug
 #define VERIFY_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
 #define VERIFY_CHOOSER(...) DEBUG_EXPAND_MACRO(VERIFY_DEDUCE(__VA_ARGS__, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_SIMPLE))
 #define VERIFY(...) DEBUG_EXPAND_MACRO(VERIFY_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+
+/*
+    Check Macro
+
+    Behavior in different build configurations:
+    - Debug: Logs error
+    - Release: Logs error
+
+    Example usage:
+        CHECK(m_initialized);
+        CHECK(instance != nullptr, "Invalid instance.");
+*/
+
+#define CHECK_SIMPLE(expression) \
+    if(expression) { } else \
+    { \
+        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression)); \
+    }
+
+#define CHECK_MESSAGE(expression, message, ...) \
+    if(expression) { } else \
+    { \
+        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+    }
+
+#define CHECK_OR_RETURN(expression, value, message, ...) \
+    if(expression) { } else \
+    { \
+        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+        return value; \
+    }
+
+#define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
+#define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
+#define CHECK(...) DEBUG_EXPAND_MACRO(CHECK_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+
+/*
+    Argument Handling
+*/
+
+#define ASSERT_ARGUMENT(expression) ASSERT_MESSAGE(expression, "Invalid argument!")
+#define VERIFY_ARGUMENT(expression) VERIFY_MESSAGE(expression, "Invalid argument!")
+#define CHECK_ARGUMENT(expression) CHECK_MESSAGE(expression, "Invalid argument!");
+
+#define CHECK_ARGUMENT_OR_RETURN(expression, value) CHECK_OR_RETURN(expression, value, "Invalid argument!");

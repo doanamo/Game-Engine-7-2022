@@ -18,47 +18,23 @@
 
 GameScene::GameScene()
 {
-    // Bind event receivers.
     m_customUpdate.Bind<GameScene, &GameScene::Update>(this);
 }
 
-GameScene::~GameScene()
-{
-}
+GameScene::~GameScene() = default;
 
-GameScene::GameScene(GameScene&& other) :
-    GameScene()
-{
-    *this = std::move(other);
-}
-
-GameScene& GameScene::operator=(GameScene&& other)
-{
-    std::swap(m_engine, other.m_engine);
-    std::swap(m_gameState, other.m_gameState);
-    std::swap(m_customUpdate, other.m_customUpdate);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool GameScene::Initialize(Engine::Root* engine)
+GameScene::InitializeResult GameScene::Initialize(Engine::Root* engine)
 {
     LOG("Initializing game scene...");
     LOG_SCOPED_INDENT();
 
-    // Make sure instance has not been initialized.
-    VERIFY(!m_initialized, "Game scene has already been initialized!");
-
-    // Reset class instance on failed initialization.
-    SCOPE_GUARD_IF(!m_initialized, *this = GameScene());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate engine reference.
-    if(engine == nullptr && engine->IsInitialized())
-    {
-        LOG_ERROR("Invalid argument - \"engine\" is invalid!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(engine->IsInitialized(), Failure(InitializeErrors::InvalidArgument));
 
     m_engine = engine;
 
@@ -67,7 +43,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     if(!m_gameState->Initialize())
     {
         LOG_ERROR("Could not initialize game state!");
-        return false;
+        return Failure(InitializeErrors::FailedGameStateCreation);
     }
 
     // Setup custom update callback.
@@ -89,7 +65,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     if(!spriteAnimationList)
     {
         LOG_ERROR("Could not load sprite animation list!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceLoading);
     }
 
     // Load texture atlas.
@@ -104,7 +80,7 @@ bool GameScene::Initialize(Engine::Root* engine)
     if(!spriteAnimationList)
     {
         LOG_ERROR("Could not load texture atlas!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceLoading);
     }
 
     // Create camera entity.
@@ -163,7 +139,8 @@ bool GameScene::Initialize(Engine::Root* engine)
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void GameScene::Update(float updateTime)

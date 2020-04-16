@@ -17,40 +17,8 @@
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
 
-Root::Root() :
-    m_maximumTickDelta(0.0f),
-    m_initialized(false)
-{
-}
-
-Root::~Root()
-{
-}
-
-Root::Root(Root&& other) :
-    Root()
-{
-    *this = std::move(other);
-}
-
-Root& Root::operator=(Root&& other)
-{
-    std::swap(m_maximumTickDelta, other.m_maximumTickDelta);
-    std::swap(m_platform, other.m_platform);
-    std::swap(m_fileSystem, other.m_fileSystem);
-    std::swap(m_window, other.m_window);
-    std::swap(m_timer, other.m_timer);
-    std::swap(m_inputManager, other.m_inputManager);
-    std::swap(m_resourceManager, other.m_resourceManager);
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_spriteRenderer, other.m_spriteRenderer);
-    std::swap(m_stateRenderer, other.m_stateRenderer);
-    std::swap(m_gameFramework, other.m_gameFramework);
-    std::swap(m_editorSystem, other.m_editorSystem);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
+Root::Root() = default;
+Root::~Root() = default;
 
 bool Root::Initialize(const InitializeFromParams& initParams)
 {
@@ -72,7 +40,7 @@ bool Root::Initialize(const InitializeFromParams& initParams)
     LOG_SCOPED_INDENT();
 
     // Reset class instance on initialization failure.
-    SCOPE_GUARD_IF(!m_initialized, *this = Root());
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Initialize the system platform context.
     // This will allow us to create and use platform systems such as window or input.
@@ -105,15 +73,15 @@ bool Root::Initialize(const InitializeFromParams& initParams)
     // Initialize the main window.
     // We will be collecting input and then drawing into this window.
     // Window instance will create an unique OpenGL context for us.
-    System::WindowInfo windowInfo;
-    windowInfo.title = "Game";
-    windowInfo.width = 1024;
-    windowInfo.height = 576;
-    windowInfo.vsync = true;
-    windowInfo.visible = true;
+    System::Window::InitializeFromParams windowParams;
+    windowParams.title = "Game";
+    windowParams.width = 1024;
+    windowParams.height = 576;
+    windowParams.vsync = true;
+    windowParams.visible = true;
 
     m_window = std::make_unique<System::Window>();
-    if(!m_window->Initialize(windowInfo))
+    if(!m_window->Initialize(windowParams))
     {
         LOG_ERROR("Could not initialize window!");
         return false;

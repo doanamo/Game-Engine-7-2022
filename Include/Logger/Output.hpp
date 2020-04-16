@@ -48,7 +48,7 @@ namespace Logger
     class FileOutput : public Output
     {
     public:
-        FileOutput() = default;
+        FileOutput();
         ~FileOutput();
 
         bool Open(std::string filename);
@@ -112,8 +112,8 @@ namespace Logger
     class DebuggerOutput : public Output
     {
     public:
-        DebuggerOutput() = default;
-        ~DebuggerOutput() = default;
+        DebuggerOutput();
+        ~DebuggerOutput();
 
         void Write(const Message& message, const SinkContext& context) override;
 

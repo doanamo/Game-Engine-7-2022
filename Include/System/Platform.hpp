@@ -29,16 +29,21 @@
 
 namespace System
 {
-    class Platform : private NonCopyable
+    class Platform final : private NonCopyable, public Resettable<Platform>
     {
     public:
-        Platform() = default;
+        enum class InitializeErrors
+        {
+            FailedGlfwInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+    public:
+        Platform();
         ~Platform();
 
-        Platform(Platform&& other);
-        Platform& operator=(Platform&& other);
-
-        bool Initialize();
+        InitializeResult Initialize();
         bool IsInitialized() const;
 
     private:

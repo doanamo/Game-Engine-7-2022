@@ -43,7 +43,7 @@
 
 namespace System
 {
-    class ResourceManager : private NonCopyable
+    class ResourceManager final : private NonCopyable, public Resettable<ResourceManager>
     {
     public:
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
@@ -51,13 +51,10 @@ namespace System
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
-        ResourceManager() = default;
-        ~ResourceManager() = default;
+        ResourceManager();
+        ~ResourceManager();
 
-        ResourceManager(ResourceManager&& other);
-        ResourceManager& operator=(ResourceManager&& other);
-
-        bool Initialize();
+        GenericResult Initialize();
 
         template<typename Type>
         void SetDefault(std::shared_ptr<Type> resource);
@@ -91,7 +88,7 @@ namespace System
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
-        // Set the default resource.
+        // Set default resource.
         pool->SetDefault(resource);
     }
 
@@ -104,7 +101,7 @@ namespace System
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
-        // Return the default resource.
+        // Return default resource.
         return pool->GetDefault();
     }
 
@@ -132,7 +129,7 @@ namespace System
         auto result = m_pools.emplace(std::move(pair));
         ASSERT(result.second, "Could not emplace a new resource pool!");
 
-        // Return the created resource pool.
+        // Return created resource pool.
         return reinterpret_cast<ResourcePool<Type>*>(result.first->second.get());
     }
 
@@ -151,7 +148,7 @@ namespace System
         }
         else
         {
-            // Create and return a new resource pool.
+            // Create and return new resource pool.
             return this->CreatePool<Type>();
         }
     }

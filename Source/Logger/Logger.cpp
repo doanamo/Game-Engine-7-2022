@@ -9,56 +9,60 @@
 
 namespace
 {
-    Logger::Sink sink;
+    Logger::Sink GlobalSink;
+    Logger::FileOutput GlobalFileOutput;
+    Logger::ConsoleOutput GlobalConsoleOutput;
+    Logger::DebuggerOutput GlobalDebuggerOutput;
 
-    Logger::FileOutput fileOutput;
-    Logger::ConsoleOutput consoleOutput;
-    Logger::DebuggerOutput debuggerOutput;
+    bool GlobalLoggerInitialized = false;
 
-    bool initialized = false;
+    void LazyInitialize()
+    {
+        // Make sure not to initialize twice.
+        if(GlobalLoggerInitialized)
+            return;
+
+        // Add file output.
+        if(GlobalFileOutput.Open("Log.txt"))
+        {
+            GlobalSink.AddOutput(&GlobalFileOutput);
+        }
+
+        // Add console output.
+        GlobalSink.AddOutput(&GlobalConsoleOutput);
+
+        // Add debugger output.
+        GlobalSink.AddOutput(&GlobalDebuggerOutput);
+
+        // Set initialization state.
+        GlobalLoggerInitialized = true;
+    }
 }
 
 void Logger::Initialize()
 {
-    // Make sure not to initialize twice.
-    if(IsInitialized())
-        return;
-
-    // Add the file output.
-    if(fileOutput.Open("Log.txt"))
-    {
-        sink.AddOutput(&fileOutput);
-    }
-
-    // Add the console output.
-    sink.AddOutput(&consoleOutput);
-
-    // Add the debugger output.
-    sink.AddOutput(&debuggerOutput);
-
-    // Set initialization state.
-    initialized = true;
+    LazyInitialize();
 }
 
 void Logger::Write(const Logger::Message& message)
 {
-    Logger::Initialize();
-    sink.Write(message);
+    LazyInitialize();
+    GlobalSink.Write(message);
 }
 
 int Logger::AdvanceFrameReference()
 {
-    Logger::Initialize();
-    return sink.AdvanceFrameReference();
+    LazyInitialize();
+    return GlobalSink.AdvanceFrameReference();
 }
 
 Logger::Sink& Logger::GetGlobalSink()
 {
-    Logger::Initialize();
-    return sink;
+    LazyInitialize();
+    return GlobalSink;
 }
 
 bool Logger::IsInitialized()
 {
-    return initialized;
+    return GlobalLoggerInitialized;
 }

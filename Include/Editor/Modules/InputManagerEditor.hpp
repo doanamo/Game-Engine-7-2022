@@ -13,9 +13,17 @@
 
 namespace Editor
 {
-    class InputManagerEditor : private NonCopyable
+    class InputManagerEditor final : private NonCopyable, public Resettable<InputManagerEditor>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedEventSubscription,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::Window* window = nullptr;
@@ -25,10 +33,7 @@ namespace Editor
         InputManagerEditor();
         ~InputManagerEditor();
 
-        InputManagerEditor(InputManagerEditor&& other);
-        InputManagerEditor& operator=(InputManagerEditor&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
 
     public:

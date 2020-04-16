@@ -20,16 +20,21 @@
 
 namespace Game
 {
-    class GameState : private NonCopyable
+    class GameState final : private NonCopyable, public Resettable<GameState>
     {
     public:
-        GameState() = default;
+        enum class InitializeErrors
+        {
+            FailedSubsystemInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+    public:
+        GameState();
         ~GameState();
 
-        GameState(GameState&& other);
-        GameState& operator=(GameState&& other);
-
-        bool Initialize();
+        InitializeResult Initialize();
         bool Update(const System::Timer& timer);
 
         // Pushes an event that will affects the game state.

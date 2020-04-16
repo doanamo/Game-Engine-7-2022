@@ -2,7 +2,6 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Buffer.hpp"
@@ -83,115 +82,53 @@ namespace
     }
 }
 
+VertexArray::VertexArray() = default;
+
 VertexArray::~VertexArray()
 {
-    this->DestroyHandle();
-}
-
-VertexArray::VertexArray(VertexArray&& other) :
-    VertexArray()
-{
-    *this = std::move(other);
-}
-
-VertexArray& VertexArray::operator=(VertexArray&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_handle, other.m_handle);
-
-    return *this;
-}
-
-void VertexArray::DestroyHandle()
-{
-    // Release the vertex array handle.
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteVertexArrays(1, &m_handle);
         OpenGL::CheckErrors();
-
-        m_handle = OpenGL::InvalidHandle;
     }
 }
 
-bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
+VertexArray::InitializeResult VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
 {
-    LOG("Creating vertex input...");
+    LOG("Creating vertex array...");
     LOG_SCOPED_INDENT();
 
-    // Check if handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Vertex array instance has been already initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
-        return false;
-    }
-
-    if(info.attributeCount <= 0)
-    {
-        LOG_ERROR("Invalid argument - \"count\" is zero!");
-        return false;
-    }
-
-    if(info.attributes == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"attributes\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(info.attributeCount > 0, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(info.attributes != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     for(std::size_t i = 0; i < info.attributeCount; ++i)
     {
         const VertexAttribute& attribute = info.attributes[i];
 
-        if(attribute.buffer == nullptr)
-        {
-            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is null!", i);
-            return false;
-        }
-
-        if(!attribute.buffer->IsValid())
-        {
-            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is invalid!", i);
-            return false;
-        }
-
-        if(attribute.buffer->GetType() != GL_ARRAY_BUFFER)
-        {
-            LOG_ERROR("Invalid argument - \"attribute[{}].buffer\" is not a vertex or an instance buffer!", i);
-            return false;
-        }
-
-        if(attribute.attributeType == VertexAttributeType::Invalid)
-        {
-            LOG_ERROR("Invalid argument - \"attribute[{}].storage\" is invalid!", i);
-            return false;
-        }
-
-        if(attribute.valueType == OpenGL::InvalidEnum)
-        {
-            LOG_ERROR("Invalid argument - \"attribute[{}].type\" is invalid!", i);
-            return false;
-        }
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Failure(InitializeErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->IsInitialized(), Failure(InitializeErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Failure(InitializeErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != VertexAttributeType::Invalid, Failure(InitializeErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Failure(InitializeErrors::InvalidAttribute));
     }
 
-    // Setup a cleanup guard variable.
-    bool initialized = false;
-
-    // Create a vertex array object.
-    SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
-
+    // Create vertex array object.
     glGenVertexArrays(1, &m_handle);
     OpenGL::CheckErrors();
 
     if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Vertex array handle could not be created!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
-    // Bind the vertex array handle.
+    // Bind vertex array handle.
     glBindVertexArray(m_handle);
 
     SCOPE_GUARD_BEGIN();
@@ -201,7 +138,7 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
     }
     SCOPE_GUARD_END();
 
-    // Setup the vertex attribute array.
+    // Setup vertex attribute array.
     const Buffer* currentBuffer = nullptr;
 
     int currentLocation = 0;
@@ -259,17 +196,17 @@ bool Graphics::VertexArray::Initialize(RenderContext* renderContext, const Verte
     m_renderContext = renderContext;
 
     // Success!
-    return initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 GLuint VertexArray::GetHandle() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Vertex array handle has not been created!");
-
+    ASSERT(m_initialized, "Vertex array has not been initialized!");
     return m_handle;
 }
 
-bool VertexArray::IsValid() const
+bool VertexArray::IsInitialized() const
 {
-    return m_handle != OpenGL::InvalidHandle;
+    return m_initialized;
 }

@@ -18,7 +18,7 @@
         samplerInfo.textureWrapS = GL_REPEAT;
         samplerInfo.textureWrapR = GL_REPEAT;
 
-        // Create a sampler instance.
+        // Create sampler instance.
         Graphics::Sampler sampler();
         sampler.Initialize(renderContext, samplerInfo);
         
@@ -54,36 +54,39 @@ namespace Graphics
         GLfloat textureMaxAniso;
     };
 
-    // Sampler class.
-    class Sampler : private NonCopyable
+    class Sampler final : private NonCopyable, public Resettable<Sampler>
     {
     public:
-        Sampler() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedResourceCreation,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
+    public:
+        Sampler();
         ~Sampler();
 
-        Sampler(Sampler&& other);
-        Sampler& operator=(Sampler&& other);
-
-        bool Initialize(RenderContext* renderContext, const SamplerInfo& info = SamplerInfo());
+        InitializeResult Initialize(RenderContext* renderContext, const SamplerInfo& info = SamplerInfo());
 
         template<typename Type>
         void SetParameter(GLenum parameter, const Type& value);
 
         GLuint GetHandle() const;
-        bool IsValid() const;
-
-    private:
-        void DestroyHandle();
+        bool IsInitialized() const;
 
     private:
         RenderContext* m_renderContext = nullptr;
         GLuint m_handle = OpenGL::InvalidHandle;
+        bool m_initialized = false;
     };
 
     template<>
     inline void Sampler::SetParameter<GLint>(GLenum parameter, const GLint& value)
     {
-        VERIFY(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
+        ASSERT(m_initialized, "Sampler has not been initialized!");
         glSamplerParameteri(m_handle, parameter, value);
         OpenGL::CheckErrors();
     }
@@ -91,7 +94,7 @@ namespace Graphics
     template<>
     inline void Sampler::SetParameter<GLfloat>(GLenum parameter, const GLfloat& value)
     {
-        VERIFY(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
+        ASSERT(m_initialized, "Sampler has not been initialized!");
         glSamplerParameterf(m_handle, parameter, value);
         OpenGL::CheckErrors();
     }
@@ -99,7 +102,7 @@ namespace Graphics
     template<>
     inline void Sampler::SetParameter<glm::vec4>(GLenum parameter, const glm::vec4& value)
     {
-        VERIFY(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
+        ASSERT(m_initialized, "Sampler has not been initialized!");
         glSamplerParameterfv(m_handle, parameter, glm::value_ptr(value));
         OpenGL::CheckErrors();
     }

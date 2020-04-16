@@ -6,39 +6,20 @@
 #include <System/Window.hpp>
 using namespace Editor;
 
-EditorShell::EditorShell(EditorShell&& other) :
-    EditorShell()
-{
-    *this = std::move(other);
-}
+EditorShell::EditorShell() = default;
+EditorShell::~EditorShell() = default;
 
-EditorShell& EditorShell::operator=(EditorShell&& other)
-{
-    std::swap(m_window, other.m_window);
-    std::swap(m_gameStateEditor, other.m_gameStateEditor);
-    std::swap(m_showDemoWindow, other.m_showDemoWindow);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool EditorShell::Initialize(const InitializeFromParams& params)
+EditorShell::InitializeResult EditorShell::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing editor shell...");
     LOG_SCOPED_INDENT();
 
-    // Make sure instance is not initialized.
-    ASSERT(!m_initialized, "Editor shell instance is already initialized!");
-
-    // Create initialization guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = EditorShell());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate engine reference.
-    if(params.window == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"params.window\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_window = params.window;
 
@@ -49,7 +30,7 @@ bool EditorShell::Initialize(const InitializeFromParams& params)
     if(!m_inputManagerEditor.Initialize(inputManagerEditorParams))
     {
         LOG_ERROR("Could not initialize input manager editor!");
-        return false;
+        return Failure(InitializeErrors::FailedModuleInitialization);
     }
 
     // Initialize game state editor.
@@ -59,11 +40,12 @@ bool EditorShell::Initialize(const InitializeFromParams& params)
     if(!m_gameStateEditor.Initialize(gameStateEditorParams))
     {
         LOG_ERROR("Could not initialize game state editor!");
-        return false;
+        return Failure(InitializeErrors::FailedModuleInitialization);
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void EditorShell::Update(float timeDelta)

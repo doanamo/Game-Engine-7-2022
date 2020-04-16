@@ -10,7 +10,6 @@ using namespace Game;
 
 EventRouter::EventRouter()
 {
-    // Bind event listeners.
     m_receivers.keyboardKeyReceiver.Bind<EventRouter, &EventRouter::PushEventReturnFalse<System::InputEvents::KeyboardKey>>(this);
     m_receivers.textInputReceiver.Bind<EventRouter, &EventRouter::PushEventReturnFalse<System::InputEvents::TextInput>>(this);
     m_receivers.mouseButtonReceiver.Bind<EventRouter, &EventRouter::PushEventReturnFalse<System::InputEvents::MouseButton>>(this);
@@ -19,50 +18,25 @@ EventRouter::EventRouter()
     m_receivers.cursorEnter.Bind<EventRouter, &EventRouter::PushEventReturnVoid<System::InputEvents::CursorEnter>>(this);
 }
 
-EventRouter::EventRouter(EventRouter&& other) :
-    EventRouter()
-{
-    *this = std::move(other);
-}
+EventRouter::~EventRouter() = default;
 
-EventRouter& EventRouter::operator=(EventRouter&& other)
-{
-    std::swap(m_gameFramework, other.m_gameFramework);
-    std::swap(m_receivers, other.m_receivers);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool EventRouter::Initialize(const InitializeFromParams& params)
+EventRouter::InitializeResult EventRouter::Initialize(const InitializeFromParams& params)
 {
     LOG("Initializing event router...");
     LOG_SCOPED_INDENT();
 
-    // Ensure that event router has not been initialized yet.
-    ASSERT(!m_initialized, "Event router has already been initialized!");
-
-    // Create an initialization guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = EventRouter());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(params.inputManager == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"inputManager\" is null!");
-        return false;
-    }
-
-    if(params.gameFramework == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"gameFramework\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_gameFramework = params.gameFramework;
 
     // Subscribe event receivers.
     bool subscriptionResult = true;
-
     subscriptionResult &= m_receivers.keyboardKeyReceiver.Subscribe(params.inputManager->events.keyboardKey);
     subscriptionResult &= m_receivers.textInputReceiver.Subscribe(params.inputManager->events.textInput);
     subscriptionResult &= m_receivers.mouseButtonReceiver.Subscribe(params.inputManager->events.mouseButton);
@@ -73,14 +47,16 @@ bool EventRouter::Initialize(const InitializeFromParams& params)
     if(!subscriptionResult)
     {
         LOG_ERROR("Could not subscribe event receivers!");
-        return false;
+        return Failure(InitializeErrors::FailedEventSubscription);
     }
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 GameState* EventRouter::GetCurrentGameState()
 {
+    ASSERT(m_initialized, "Event listener has not been initialized!");
     return m_gameFramework->GetGameState().get();
 }

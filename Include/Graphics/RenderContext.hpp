@@ -15,28 +15,34 @@ namespace System
 /*
     Render Context
 
-    Manages the internal state of a rendering system.
+    Manages internal state of rendering system.
 */
 
 namespace Graphics
 {
-    class RenderContext : private NonCopyable
+    class RenderContext final : private NonCopyable, public Resettable<RenderContext>
     {
     public:
-        RenderContext() = default;
-        ~RenderContext() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedStateInitialization,
+        };
 
-        RenderContext(RenderContext&& other);
-        RenderContext& operator=(RenderContext&& other);
+        using InitializeResult = Result<void, InitializeErrors>;
 
-        bool Initialize(System::Window* window);
+    public:
+        RenderContext();
+        ~RenderContext();
+
+        InitializeResult Initialize(System::Window* window);
         void MakeCurrent();
 
         RenderState& PushState();
         void PopState();
 
         RenderState& GetState();
-        bool IsValid() const;
+        bool IsInitialized() const;
 
     private:
         System::Window* m_window = nullptr;

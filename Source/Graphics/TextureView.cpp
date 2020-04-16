@@ -6,6 +6,9 @@
 #include "Graphics/Texture.hpp"
 using namespace Graphics;
 
+TextureView::TextureView() = default;
+TextureView::~TextureView() = default;
+
 TextureView::TextureView(ConstTexturePtr texture) :
     TextureView()
 {

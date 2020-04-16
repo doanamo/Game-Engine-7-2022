@@ -34,5 +34,7 @@
 #include <Common/Debug.hpp>
 #include <Common/Utility.hpp>
 #include <Common/NonCopyable.hpp>
+#include <Common/Resettable.hpp>
 #include <Common/ScopeGuard.hpp>
+#include <Common/Result.hpp>
 #include <Reflection/Reflection.hpp>

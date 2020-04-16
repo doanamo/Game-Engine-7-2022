@@ -25,9 +25,17 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteRenderer : private NonCopyable
+    class SpriteRenderer final : private NonCopyable, public Resettable<SpriteRenderer>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedResourceInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::FileSystem* fileSystem = nullptr;
@@ -37,15 +45,10 @@ namespace Graphics
         };
 
     public:
-        SpriteRenderer() = default;
-        ~SpriteRenderer() = default;
+        SpriteRenderer();
+        ~SpriteRenderer();
 
-        SpriteRenderer(SpriteRenderer&& other);
-        SpriteRenderer& operator=(SpriteRenderer&& other);
-
-        bool Initialize(const InitializeFromParams& params);
-
-        // Very efficient rendering if array of sprites is already sorted to reduces state changes.
+        InitializeResult Initialize(const InitializeFromParams& params);
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
     private:

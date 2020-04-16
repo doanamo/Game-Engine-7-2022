@@ -8,42 +8,26 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-InterpolationSystem::InterpolationSystem(InterpolationSystem&& other) :
-    InterpolationSystem()
-{
-    *this = std::move(other);
-}
+InterpolationSystem::InterpolationSystem() = default;
+InterpolationSystem::~InterpolationSystem() = default;
 
-InterpolationSystem& InterpolationSystem::operator=(InterpolationSystem&& other)
-{
-    std::swap(m_componentSystem, other.m_componentSystem);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool InterpolationSystem::Initialize(ComponentSystem* componentSystem)
+InterpolationSystem::InitializeResult InterpolationSystem::Initialize(ComponentSystem* componentSystem)
 {
     LOG("Initializing interpolation system...");
     LOG_SCOPED_INDENT();
 
-    // Make sure this instance has not been initialized yet.
-    ASSERT(!m_initialized, "Interpolation systems has already been initialized!");
-
-    // Create a scope guard.
-    SCOPE_GUARD_IF(!m_initialized, *this = InterpolationSystem());
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate component system reference.
-    if(componentSystem == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"componentSystem\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
 
     m_componentSystem = componentSystem;
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void InterpolationSystem::Update(float timeDelta)

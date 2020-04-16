@@ -40,7 +40,7 @@
 
 namespace Game
 {
-    class EntitySystem : private NonCopyable
+    class EntitySystem final : private NonCopyable, public Resettable<EntitySystem>
     {
     public:
         struct HandleFlags
@@ -68,7 +68,6 @@ namespace Game
             using Type = unsigned int;
         };
 
-    private:
         struct HandleEntry
         {
             HandleEntry(EntityHandle::ValueType identifier);
@@ -103,13 +102,10 @@ namespace Game
         using CommandList = std::queue<EntityCommand>;
 
     public:
-        EntitySystem() = default;
+        EntitySystem();
         ~EntitySystem();
 
-        EntitySystem(EntitySystem&& other);
-        EntitySystem& operator=(EntitySystem&& other);
-
-        bool Initialize();
+        GenericResult Initialize();
 
         EntityHandle CreateEntity();
         void DestroyEntity(const EntityHandle& entity);

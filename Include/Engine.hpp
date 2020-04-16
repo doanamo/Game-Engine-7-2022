@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <Event/Dispatcher.hpp>
 #include <Core/Core.hpp>
 
 namespace System
@@ -49,16 +48,12 @@ namespace Engine
         float maximumTickDelta = 1.0f;
     };
 
-    class Root : private NonCopyable
+    class Root final : private NonCopyable, public Resettable<Root> 
     {
     public:
         Root();
         ~Root();
 
-        Root(Root&& other);
-        Root& operator=(Root&& other);
-
-        bool IsInitialized() const;
         bool Initialize(const InitializeFromParams& initParams = InitializeFromParams());
         int Run();
 
@@ -74,6 +69,8 @@ namespace Engine
         Game::GameFramework& GetGameFramework();
         Editor::EditorSystem& GetEditorSystem();
 
+        bool IsInitialized() const;
+
     private:
         std::unique_ptr<System::Platform> m_platform;
         std::unique_ptr<System::FileSystem> m_fileSystem;
@@ -87,7 +84,7 @@ namespace Engine
         std::unique_ptr<Game::GameFramework> m_gameFramework;
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
 
-        float m_maximumTickDelta;
-        bool m_initialized;
+        float m_maximumTickDelta = 1.0f;
+        bool m_initialized = false;
     };
 }

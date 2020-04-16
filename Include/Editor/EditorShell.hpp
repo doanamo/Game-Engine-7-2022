@@ -23,9 +23,17 @@ namespace Game
 
 namespace Editor
 {
-    class EditorShell : private NonCopyable
+    class EditorShell final : private NonCopyable, public Resettable<EditorShell>
     {
     public:
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+            FailedModuleInitialization,
+        };
+
+        using InitializeResult = Result<void, InitializeErrors>;
+
         struct InitializeFromParams
         {
             System::Window* window = nullptr;
@@ -33,13 +41,10 @@ namespace Editor
         };
 
     public:
-        EditorShell() = default;
-        ~EditorShell() = default;
+        EditorShell();
+        ~EditorShell();
 
-        EditorShell(EditorShell&& other);
-        EditorShell& operator=(EditorShell&& other);
-
-        bool Initialize(const InitializeFromParams& params);
+        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
 
     private:

@@ -12,21 +12,33 @@
 
 namespace System
 {
-    class FileSystem : private NonCopyable
+    class FileSystem final : private NonCopyable, public Resettable<FileSystem>
     {
     public:
         using MountedDirList = std::vector<std::string>;
 
+        enum class MountDirectoryErrors
+        {
+            EmptyPathArgument,
+        };
+
+        using MountDirectoryResult = Result<void, MountDirectoryErrors>;
+
+        enum class ResolvePathErrors
+        {
+            EmptyPathArgument,
+            UnresolvablePath,
+        };
+
+        using ResolvePathResult = Result<std::string, ResolvePathErrors>;
+
     public:
-        FileSystem() = default;
-        ~FileSystem() = default;
+        FileSystem();
+        ~FileSystem();
 
-        FileSystem(FileSystem&& other);
-        FileSystem& operator=(FileSystem&& other);
-
-        bool Initialize();
-        bool MountDirectory(std::string dirPath);
-        std::string ResolvePath(const std::string filePath);
+        GenericResult Initialize();
+        MountDirectoryResult MountDirectory(std::string directory);
+        ResolvePathResult ResolvePath(const std::string path) const;
 
     private:
         MountedDirList m_mountedDirs;

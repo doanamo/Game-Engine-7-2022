@@ -12,24 +12,23 @@
 
 namespace Game
 {
-    class UpdateTimer : public System::Timer
+    class UpdateTimer final : public Resettable<UpdateTimer>
     {
     public:
-        UpdateTimer() = default;
-        ~UpdateTimer() = default;
+        UpdateTimer();
+        ~UpdateTimer();
 
-        UpdateTimer(UpdateTimer&& other);
-        UpdateTimer& operator=(UpdateTimer&& other);
-
-        bool Initialize() override;
-        void Reset() override;
+        bool Initialize();
+        void Tick(const System::Timer& timer);
         bool Update(float updateTime);
+        void Reset();
 
         float GetAlphaTime() const;
         float GetLastUpdateTime() const;
         double GetTotalUpdateTime() const;
 
     private:
+        System::Timer m_timer;
         uint64_t m_forwardUpdateCounter = 0;
         uint64_t m_totalUpdateCounter = 0;
         float m_lastUpdateTime = 0.0f;

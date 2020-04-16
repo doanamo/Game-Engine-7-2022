@@ -5,94 +5,68 @@
 #include "Game/GameState.hpp"
 using namespace Game;
 
+GameState::GameState() = default;
+
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.
     events.instanceDestructed.Dispatch();
 }
 
-GameState::GameState(GameState&& other) :
-    GameState()
-{
-    *this = std::move(other);
-}
-
-GameState& GameState::operator=(GameState&& other)
-{
-    std::swap(events, other.events);
-    std::swap(eventQueue, other.eventQueue);
-    std::swap(eventBroker, other.eventBroker);
-
-    std::swap(updateTimer, other.updateTimer);
-    std::swap(entitySystem, other.entitySystem);
-    std::swap(componentSystem, other.componentSystem);
-    std::swap(identitySystem, other.identitySystem);
-    std::swap(interpolationSystem, other.interpolationSystem);
-    std::swap(spriteSystem, other.spriteSystem);
-
-    std::swap(m_changeUpdateTime, other.m_changeUpdateTime);
-    std::swap(m_updateTime, other.m_updateTime);
-    std::swap(m_initialized, other.m_initialized);
-
-    return *this;
-}
-
-bool GameState::Initialize()
+GameState::InitializeResult GameState::Initialize()
 {
     LOG("Initializing game state...");
     LOG_SCOPED_INDENT();
 
-    // Check if class instance has already been initialized.
-    VERIFY(!m_initialized, "Game state has already been initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
-    // Reset class instance on initialization failure.
-    SCOPE_GUARD_IF(!m_initialized, *this = GameState());
-
-    // Initialize the entity system.
+    // Initialize entity system.
     // Assigns unique identifiers that all other systems use to identify objects in a game.
     if(!entitySystem.Initialize())
     {
         LOG_ERROR("Could not initialize entity system!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the component system.
+    // Initialize component system.
     // Stores and manages components that entities have.
     if(!componentSystem.Initialize(&entitySystem))
     {
         LOG_ERROR("Could not initialize component system!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the identity system.
+    // Initialize identity system.
     // Allows readable names to be assigned to entities.
     if(!identitySystem.Initialize(&entitySystem))
     {
         LOG_ERROR("Could not initialize identity system!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the interpolation system.
+    // Initialize interpolation system.
     // Controls how and when entities are interpolated.
     if(!interpolationSystem.Initialize(&componentSystem))
     {
         LOG_ERROR("Could not initialize interpolation system!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the sprite system.
+    // Initialize sprite system.
     // Updates sprites and their animations.
     if(!spriteSystem.Initialize(&componentSystem))
     {
         LOG_ERROR("Could not initialize sprite system!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize the update timer.
+    // Initialize update timer.
     if(!updateTimer.Initialize())
     {
         LOG_ERROR("Could not initialize update timer!");
-        return false;
+        return Failure(InitializeErrors::FailedSubsystemInitialization);
     }
 
     // Bind and subscribe event receivers.
@@ -105,14 +79,15 @@ bool GameState::Initialize()
     eventBroker.Subscribe(m_changeUpdateTime);
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 void GameState::PushEvent(std::any event)
 {
     ASSERT(m_initialized, "Game state has not been initialized!");
 
-    // Add an event to be processed later.
+    // Add event to be processed later.
     eventQueue.Push(event);
 }
 
@@ -123,7 +98,7 @@ bool GameState::Update(const System::Timer& timer)
     // Inform about update being called.
     events.updateCalled.Dispatch();
 
-    // Tick the update timer along with the application timer.
+    // Tick update timer along with the application timer.
     updateTimer.Tick(timer);
 
     // Return flag indicating if state was updated.
@@ -144,10 +119,10 @@ bool GameState::Update(const System::Timer& timer)
         // Process entity commands.
         entitySystem.ProcessCommands();
 
-        // Update the interpolation system.
+        // Update interpolation system.
         interpolationSystem.Update(updateTime);
 
-        // Update the sprite animation system.
+        // Update sprite animation system.
         spriteSystem.Update(updateTime);
 
         // Inform that state had its update processed.
@@ -164,5 +139,6 @@ bool GameState::Update(const System::Timer& timer)
 
 float GameState::GetUpdateTime() const
 {
+    ASSERT(m_initialized, "Game state has not been initialized!");
     return m_updateTime;
 }

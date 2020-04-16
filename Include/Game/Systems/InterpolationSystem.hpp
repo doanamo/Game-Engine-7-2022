@@ -12,16 +12,21 @@ namespace Game
 {
     class ComponentSystem;
 
-    class InterpolationSystem : private NonCopyable
+    class InterpolationSystem final : private NonCopyable, public Resettable<InterpolationSystem>
     {
     public:
-        InterpolationSystem() = default;
-        ~InterpolationSystem() = default;
+        enum class InitializeErrors
+        {
+            InvalidArgument,
+        };
 
-        InterpolationSystem(InterpolationSystem&& other);
-        InterpolationSystem& operator=(InterpolationSystem&& other);
+        using InitializeResult = Result<void, InitializeErrors>;
 
-        bool Initialize(ComponentSystem* componentSystem);
+    public:
+        InterpolationSystem();
+        ~InterpolationSystem();
+
+        InitializeResult Initialize(ComponentSystem* componentSystem);
         void Update(float timeDelta);
 
     private:

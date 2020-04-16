@@ -2,7 +2,6 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;
@@ -30,13 +29,12 @@ namespace
         if(DefaultsInitialized)
             return;
 
-        // Create a temporary sampler.
+        // Create temporary sampler.
         GLuint defaultSampler = OpenGL::InvalidHandle;
         glGenSamplers(1, &defaultSampler);
         OpenGL::CheckErrors();
 
-        VERIFY(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
-
+        ASSERT(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
         SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
 
         // Read default parameters.
@@ -54,17 +52,15 @@ namespace
         glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
         OpenGL::CheckErrors();
 
-        // Finish initialization.
+        // Success!
         DefaultsInitialized = true;
     }
 }
 
 SamplerInfo::SamplerInfo()
 {
-    // Initialize default values.
     InitializeDefaults();
 
-    // Initialize member variables.
     textureBorderColor = DefaultTextureBorderColor;
     textureMinFilter = DefaultTextureMinFilter;
     textureMagFilter = DefaultTextureMagFilter;
@@ -79,65 +75,37 @@ SamplerInfo::SamplerInfo()
     textureMaxAniso = DefaultTextureMaxAniso;
 }
 
+Sampler::Sampler() = default;
+
 Sampler::~Sampler()
 {
-    this->DestroyHandle();
-}
-
-Sampler::Sampler(Sampler&& other) :
-    Sampler()
-{
-    *this = std::move(other);
-}
-
-Sampler& Sampler::operator=(Sampler&& other)
-{
-    std::swap(m_renderContext, other.m_renderContext);
-    std::swap(m_handle, other.m_handle);
-    
-    return *this;
-}
-
-void Sampler::DestroyHandle()
-{
-    // Release sampler handle.
     if(m_handle != OpenGL::InvalidHandle)
     {
         glDeleteSamplers(1, &m_handle);
         OpenGL::CheckErrors();
-
-        m_handle = OpenGL::InvalidHandle;
     }
 }
 
-bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
+Sampler::InitializeResult Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
 {
     LOG("Creating sampler...");
     LOG_SCOPED_INDENT();
 
-    // Check if handle has been already created.
-    VERIFY(m_handle == OpenGL::InvalidHandle, "Sampler instance has been already initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Validate arguments.
-    if(renderContext == nullptr)
-    {
-        LOG_ERROR("Invalid argument - \"renderContext\" is null!");
-        return false;
-    }
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
 
-    // Setup a cleanup guard.
-    bool initialized = false;
-
-    // Create a sampler handle.
-    SCOPE_GUARD_IF(!initialized, this->DestroyHandle());
-    
+    // Create sampler handle.
     glGenSamplers(1, &m_handle);
     OpenGL::CheckErrors();
 
     if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Sampler could not be created!");
-        return false;
+        return Failure(InitializeErrors::FailedResourceCreation);
     }
 
     // Set sampling parameters.
@@ -205,16 +173,17 @@ bool Sampler::Initialize(RenderContext* renderContext, const SamplerInfo& info)
     m_renderContext = renderContext;
 
     // Success!
-    return initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 GLuint Sampler::GetHandle() const
 {
-    ASSERT(m_handle != OpenGL::InvalidHandle, "Sampler handle has not been created!");
+    ASSERT(m_initialized, "Sampler has not been initialized!");
     return m_handle;
 }
 
-bool Sampler::IsValid() const
+bool Sampler::IsInitialized() const
 {
-    return m_handle != OpenGL::InvalidHandle;
+    return m_initialized;
 }

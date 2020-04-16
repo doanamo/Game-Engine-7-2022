@@ -7,28 +7,14 @@
 #include "Game/ComponentSystem.hpp"
 using namespace Game;
 
-SpriteComponent::SpriteComponent(SpriteComponent&& other) :
-    SpriteComponent()
-{
-    *this = std::move(other);
-}
-
-SpriteComponent& SpriteComponent::operator=(SpriteComponent&& other)
-{
-    std::swap(m_transformComponent, other.m_transformComponent);
-    std::swap(m_textureView, other.m_textureView);
-    std::swap(m_rectangle, other.m_rectangle);
-    std::swap(m_color, other.m_color);
-    std::swap(m_transparent, other.m_transparent);
-    std::swap(m_filtered, other.m_filtered);
-
-    return *this;
-}
+SpriteComponent::SpriteComponent() = default;
+SpriteComponent::~SpriteComponent() = default;
 
 bool SpriteComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
     m_transformComponent = componentSystem->Lookup<TransformComponent>(entitySelf);
-    if(m_transformComponent == nullptr) return false;
+    if(m_transformComponent == nullptr)
+        return false;
 
     return true;
 }
@@ -86,6 +72,5 @@ bool SpriteComponent::IsFiltered() const
 TransformComponent* SpriteComponent::GetTransformComponent() const
 {
     ASSERT(m_transformComponent != nullptr, "Returning not yet acquired transform!");
-
     return m_transformComponent;
 }

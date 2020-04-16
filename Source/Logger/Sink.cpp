@@ -7,6 +7,9 @@
 #include "Logger/Message.hpp"
 using namespace Logger;
 
+Sink::Sink() = default;
+Sink::~Sink() = default;
+
 void Sink::SetName(std::string name)
 {
     std::scoped_lock<std::mutex> lock(m_lock);
@@ -20,7 +23,7 @@ void Sink::AddOutput(Logger::Output* output)
 
     std::scoped_lock<std::mutex> lock(m_lock);
 
-    // Add an output to the list.
+    // Add output to the list.
     m_outputs.push_back(output);
 }
 
@@ -44,7 +47,7 @@ void Sink::Write(const Logger::Message& message)
         return;
 #endif
 
-    // Write a message to all outputs.
+    // Write message to all outputs.
     for(auto output : m_outputs)
     {
         output->Write(message, m_context);

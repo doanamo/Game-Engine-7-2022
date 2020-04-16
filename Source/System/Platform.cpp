@@ -8,82 +8,65 @@ using namespace System;
 namespace
 {
     // GLFW initialization guard counter.
-    static int GLFWRefCounter = 0;
+    static int GlfwRefCounter = 0;
 
-    void TerminateGLFW()
-    {
-        // Decrement the reference counter.
-        GLFWRefCounter--;
-
-        // Release GLFW library when the counter reaches zero.
-        if(GLFWRefCounter == 0)
-        {
-            glfwTerminate();
-        }
-    }
-}
-
-namespace
-{
     void ErrorCallback(int error, const char* description)
     {
         LOG_ERROR("GLFW Error: {}", description);
     }
 }
 
+Platform::Platform() = default;
+
 Platform::~Platform()
 {
-    // Release GLFW library.
+    // Release reference to GLFW library.
     if(m_initialized)
     {
-        TerminateGLFW();
+        // Decrement reference counter.
+        GlfwRefCounter--;
+
+        // Terminate GLFW library when the counter reaches zero.
+        if(GlfwRefCounter == 0)
+        {
+            glfwTerminate();
+        }
     }
 }
 
-Platform::Platform(Platform&& other) :
-    Platform()
-{
-    *this = std::move(other);
-}
-
-Platform& Platform::operator=(Platform&& other)
-{
-    std::swap(m_initialized, other.m_initialized);
-    return *this;
-}
-
-bool Platform::Initialize()
+Platform::InitializeResult Platform::Initialize()
 {
     LOG("Initializing platform...");
     LOG_SCOPED_INDENT();
 
-    // Check if system context is already initialized.
-    ASSERT(!m_initialized, "Platform is already initialized!");
+    // Setup initialization guard.
+    VERIFY(!m_initialized, "Instance has already been initialized!");
+    SCOPE_GUARD_IF(!m_initialized, this->Reset());
 
     // Initialize GLFW library only once when the reference counter is zero.
-    if(GLFWRefCounter == 0)
+    if(GlfwRefCounter == 0)
     {
-        // Set a callback function for future GLFW errors.
+        // Set callback function for future GLFW errors.
         glfwSetErrorCallback(ErrorCallback);
 
         // Initialize GLFW library.
         if(!glfwInit())
         {
             LOG_ERROR("Could not initialize GLFW library!");
-            return false;
+            return Failure(InitializeErrors::FailedGlfwInitialization);
         }
 
-        GLFWRefCounter++;
+        GlfwRefCounter++;
     }
 
     // Write GLFW details to log.
     int major, minor, revision;
     glfwGetVersion(&major, &minor, &revision);
-
     LOG_INFO("Using GLFW {}.{}.{} library.", major, minor, revision);
 
     // Success!
-    return m_initialized = true;
+    m_initialized = true;
+    return Success();
 }
 
 bool Platform::IsInitialized() const
