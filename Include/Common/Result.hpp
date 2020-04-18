@@ -124,12 +124,12 @@ public:
         return std::move(std::get<1>(m_variant));
     }
 
-    DeductedSuccessType UnwrapOr(DeductedSuccessType default)
+    DeductedSuccessType UnwrapOr(DeductedSuccessType defaultReturn)
     {
-        return UnwrapSuccessOr(std::move(default));
+        return UnwrapSuccessOr(std::move(defaultReturn));
     }
 
-    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType default)
+    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType defaultReturn)
     {
         if(IsSuccess())
         {
@@ -137,11 +137,11 @@ public:
         }
         else
         {
-            return std::move(default);
+            return std::move(defaultReturn);
         }
     }
 
-    DeductedFailureType UnwrapFailureOr(DeductedFailureType default)
+    DeductedFailureType UnwrapFailureOr(DeductedFailureType defaultReturn)
     {
         if(IsFailure())
         {
@@ -149,7 +149,7 @@ public:
         }
         else
         {
-            return std::move(default);
+            return std::move(defaultReturn);
         }
     }
 
