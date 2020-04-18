@@ -129,26 +129,12 @@ public:
 
     DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType&& defaultReturn)
     {
-        if(IsSuccess())
-        {
-            return UnwrapSuccess();
-        }
-        else
-        {
-            return std::move(defaultReturn);
-        }
+        return IsSuccess() ? UnwrapSuccess() : std::move(defaultReturn);
     }
 
     DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
     {
-        if(IsFailure())
-        {
-            return UnwrapFailure();
-        }
-        else
-        {
-            return std::move(defaultReturn);
-        }
+        return IsFailure() ? UnwrapFailure() : std::move(defaultReturn);
     }
 
     bool IsSuccess() const
