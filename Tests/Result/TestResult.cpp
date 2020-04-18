@@ -2,6 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
+#include <memory>
 #include <Common/Result.hpp>
 #include <TestHelpers.hpp>
 
