@@ -82,7 +82,7 @@ namespace System
         Window();
         ~Window();
 
-        InitializeResult Initialize(const InitializeFromParams& params = InitializeFromParams());
+        InitializeResult Initialize(const InitializeFromParams& params);
         void MakeContextCurrent();
         void ProcessEvents();
         void Present();
