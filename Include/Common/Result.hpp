@@ -97,12 +97,12 @@ public:
 
     Result(Detail::Success<SuccessType>&& success)
     {
-        m_variant.emplace<0>(std::move(success.value));
+        m_variant.template emplace<0>(std::move(success.value));
     }
 
     Result(Detail::Failure<FailureType>&& failure)
     {
-        m_variant.emplace<1>(std::move(failure.value));
+        m_variant.template emplace<1>(std::move(failure.value));
     }
 
     DeductedSuccessType Unwrap()
