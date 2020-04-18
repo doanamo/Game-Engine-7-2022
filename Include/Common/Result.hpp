@@ -23,45 +23,45 @@ namespace Detail
     template<typename Type>
     struct Success
     {
-        constexpr Success(const Type& value) :
+        Success(const Type& value) :
             value(value)
         {
         }
 
-        constexpr Success(Type&& value) :
+        Success(Type&& value) :
             value(std::move(value))
         {
         }
 
-        const Type value;
+        Type value;
     };
 
     template<>
     struct Success<void>
     {
-        const Empty value;
+        Empty value;
     };
 
     template<typename Type>
     struct Failure
     {
-        constexpr Failure(const Type& value) :
+        Failure(const Type& value) :
             value(value)
         {
         }
 
-        constexpr Failure(Type&& value) :
+        Failure(Type&& value) :
             value(std::move(value))
         {
         }
 
-        const Type value;
+        Type value;
     };
 
     template<>
     struct Failure<void>
     {
-        const Empty value;
+        Empty value;
     };
 }
 
@@ -97,81 +97,83 @@ public:
     using ResultType = Result<DeductedSuccessType, DeductedFailureType>;
     using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
 
-    constexpr Result(Detail::Success<SuccessType>&& success) :
+    Result(Detail::Success<SuccessType>&& success) :
         m_variant(CreateSuccessVariant(std::forward<Detail::Success<SuccessType>>(success)))
     {
     }
 
-    constexpr Result(Detail::Failure<FailureType>&& failure) :
+    Result(Detail::Failure<FailureType>&& failure) :
         m_variant(CreateFailureVariant(std::forward<Detail::Failure<FailureType>>(failure)))
     {
     }
 
-    constexpr DeductedSuccessType Unwrap() const
+    DeductedSuccessType Unwrap()
     {
         return UnwrapSuccess();
     }
 
-    constexpr DeductedSuccessType UnwrapSuccess() const
+    DeductedSuccessType UnwrapSuccess()
     {
-        return std::get<0>(m_variant);
+        ASSERT(IsSuccess(), "Invalid result unwrap!");
+        return std::move(std::get<0>(m_variant));
     }
 
-    constexpr DeductedFailureType UnwrapFailure() const
+    DeductedFailureType UnwrapFailure()
     {
-        return std::get<1>(m_variant);
+        ASSERT(IsFailure(), "Invalid result unwrap!");
+        return std::move(std::get<1>(m_variant));
     }
 
-    constexpr DeductedSuccessType UnwrapOr(DeductedSuccessType default) const
+    DeductedSuccessType UnwrapOr(DeductedSuccessType default)
     {
-        return UnwrapSuccessOr(default);
+        return UnwrapSuccessOr(std::move(default));
     }
 
-    constexpr DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType default) const
+    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType default)
     {
         if(IsSuccess())
         {
-            return std::get<0>(m_variant);
+            return UnwrapSuccess();
         }
         else
         {
-            return default;
+            return std::move(default);
         }
     }
 
-    constexpr DeductedFailureType UnwrapFailureOr(DeductedFailureType default) const
+    DeductedFailureType UnwrapFailureOr(DeductedFailureType default)
     {
         if(IsFailure())
         {
-            return std::get<1>(m_variant);
+            return UnwrapFailure();
         }
         else
         {
-            return default;
+            return std::move(default);
         }
     }
 
-    constexpr bool IsSuccess() const
+    bool IsSuccess() const
     {
         return std::get_if<0>(&m_variant) != nullptr;
     }
 
-    constexpr bool IsFailure() const
+    bool IsFailure() const
     {
         return std::get_if<1>(&m_variant) != nullptr;
     }
 
-    constexpr bool operator==(const bool boolean) const
+    bool operator==(const bool boolean) const
     {
         return IsSuccess() == boolean;
     }
 
-    constexpr bool operator!=(const bool boolean) const
+    bool operator!=(const bool boolean) const
     {
         return IsSuccess() != boolean;
     }
 
-    constexpr explicit operator bool() const
+    explicit operator bool() const
     {
         return IsSuccess();
     }
@@ -180,18 +182,18 @@ private:
     static constexpr VariantType CreateSuccessVariant(Detail::Success<SuccessType>&& success)
     {
         VariantType variant;
-        variant.emplace<0>(success.value);
+        variant.emplace<0>(std::move(success.value));
         return variant;
     }
 
     static constexpr VariantType CreateFailureVariant(Detail::Failure<FailureType>&& failure)
     {
         VariantType variant;
-        variant.emplace<1>(failure.value);
+        variant.emplace<1>(std::move(failure.value));
         return variant;
     }
 
-    const VariantType m_variant;
+    VariantType m_variant;
 };
 
 using GenericResult = typename Result<void, void>;

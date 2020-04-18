@@ -98,8 +98,52 @@ bool TestString()
     return true;
 }
 
+class ResultUnwrap
+{
+public:
+    using InitializeResult = Result<std::unique_ptr<ResultUnwrap>, void>;
+
+    static InitializeResult Create(std::string text)
+    {
+        if(text == "Goodbye world!")
+            return Failure();
+
+        auto instance = std::make_unique<ResultUnwrap>();
+        instance->text = text;
+
+        return Success(std::move(instance));
+    }
+
+    std::string text;
+};
+
+bool TestUnwrap()
+{
+    {
+        auto result = ResultUnwrap::Create("Hello world!");
+        auto instance = result.Unwrap();
+
+        TEST_EQ(instance->text, "Hello world!");
+        TEST_TRUE(result.IsSuccess());
+        TEST_FALSE(result.IsFailure());
+    }
+
+    {
+        auto result = ResultUnwrap::Create("Goodbye world!");
+        auto instance = result.UnwrapOr(nullptr);
+
+        TEST_EQ(instance, nullptr);
+        TEST_FALSE(result.IsSuccess());
+        TEST_TRUE(result.IsFailure());
+    }
+
+    return true;
+}
+
 int main()
 {
     TEST_RUN(TestVoid);
     TEST_RUN(TestEnum);
+    TEST_RUN(TestString);
+    TEST_RUN(TestUnwrap);
 }
