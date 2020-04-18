@@ -196,7 +196,7 @@ private:
     VariantType m_variant;
 };
 
-using GenericResult = typename Result<void, void>;
+using GenericResult = Result<void, void>;
 
 // Macro helpers.
 #define SUCCESS_OR_RETURN_RESULT(expression) \
