@@ -93,18 +93,16 @@ class Result
 public:
     using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
     using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
-
-    using ResultType = Result<DeductedSuccessType, DeductedFailureType>;
     using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
 
-    Result(Detail::Success<SuccessType>&& success) :
-        m_variant(CreateSuccessVariant(std::forward<Detail::Success<SuccessType>>(success)))
+    Result(Detail::Success<SuccessType>&& success)
     {
+        m_variant.emplace<0>(std::move(success.value));
     }
 
-    Result(Detail::Failure<FailureType>&& failure) :
-        m_variant(CreateFailureVariant(std::forward<Detail::Failure<FailureType>>(failure)))
+    Result(Detail::Failure<FailureType>&& failure)
     {
+        m_variant.emplace<1>(std::move(failure.value));
     }
 
     DeductedSuccessType Unwrap()
@@ -124,12 +122,12 @@ public:
         return std::move(std::get<1>(m_variant));
     }
 
-    DeductedSuccessType UnwrapOr(DeductedSuccessType defaultReturn)
+    DeductedSuccessType UnwrapOr(DeductedSuccessType&& defaultReturn)
     {
         return UnwrapSuccessOr(std::move(defaultReturn));
     }
 
-    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType defaultReturn)
+    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType&& defaultReturn)
     {
         if(IsSuccess())
         {
@@ -141,7 +139,7 @@ public:
         }
     }
 
-    DeductedFailureType UnwrapFailureOr(DeductedFailureType defaultReturn)
+    DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
     {
         if(IsFailure())
         {
@@ -179,20 +177,6 @@ public:
     }
 
 private:
-    static constexpr VariantType CreateSuccessVariant(Detail::Success<SuccessType>&& success)
-    {
-        VariantType variant;
-        variant.emplace<0>(std::move(success.value));
-        return variant;
-    }
-
-    static constexpr VariantType CreateFailureVariant(Detail::Failure<FailureType>&& failure)
-    {
-        VariantType variant;
-        variant.emplace<1>(std::move(failure.value));
-        return variant;
-    }
-
     VariantType m_variant;
 };
 
