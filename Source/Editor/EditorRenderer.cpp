@@ -12,7 +12,7 @@ EditorRenderer::~EditorRenderer() = default;
 
 EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& params)
 {
-    LOG("Initializing editor renderer...");
+    LOG("Creating editor renderer...");
     LOG_SCOPED_INDENT();
 
     // Validate references.
@@ -125,7 +125,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
 
     if(instance->m_shader == nullptr)
     {
-        LOG_ERROR("Could not initialize shader!");
+        LOG_ERROR("Could not create shader!");
         return Failure(CreateErrors::FailedResourceCreation);
     }
 

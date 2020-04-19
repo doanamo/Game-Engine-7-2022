@@ -28,13 +28,13 @@ namespace Graphics
             const void* data = nullptr;
         };
 
-        enum class CreateErrors
+        enum class BufferErrors
         {
             InvalidArgument,
             FailedResourceCreation,
         };
 
-        using CreateResult = Result<void, CreateErrors>;
+        using BufferResult = Result<void, BufferErrors>;
 
     public:
         void Update(const void* data, std::size_t elementCount);
@@ -50,7 +50,7 @@ namespace Graphics
         Buffer();
         virtual ~Buffer();
 
-        CreateResult CreateBase(RenderContext* renderContext, GLenum type, const CreateFromParams& params);
+        BufferResult Initialize(RenderContext* renderContext, GLenum type, const CreateFromParams& params);
 
     protected:
         RenderContext* m_renderContext = nullptr;
@@ -73,8 +73,8 @@ namespace Graphics
     class VertexBuffer final : public Buffer
     {
     public:
-        using CreateResult = Result<std::unique_ptr<VertexBuffer>, Buffer::CreateErrors>;
-        static CreateResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        using BufferResult = Result<std::unique_ptr<VertexBuffer>, Buffer::BufferErrors>;
+        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:
         ~VertexBuffer();
@@ -93,8 +93,8 @@ namespace Graphics
     class IndexBuffer final : public Buffer
     {
     public:
-        using CreateResult = Result<std::unique_ptr<IndexBuffer>, Buffer::CreateErrors>;
-        static CreateResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        using BufferResult = Result<std::unique_ptr<IndexBuffer>, Buffer::BufferErrors>;
+        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:
         ~IndexBuffer();
@@ -115,8 +115,8 @@ namespace Graphics
     class InstanceBuffer final : public Buffer
     {
     public:
-        using CreateResult = Result<std::unique_ptr<InstanceBuffer>, Buffer::CreateErrors>;
-        static CreateResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        using BufferResult = Result<std::unique_ptr<InstanceBuffer>, Buffer::BufferErrors>;
+        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:
         ~InstanceBuffer();

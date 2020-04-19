@@ -53,7 +53,7 @@ namespace Editor
             InvalidArgument,
             FailedContextCreation,
             FailedEventSubscription,
-            FailedSubsystemInitialization,
+            FailedSubsystemCreation,
         };
 
         using CreateResult = Result<std::unique_ptr<EditorSystem>, CreateErrors>;

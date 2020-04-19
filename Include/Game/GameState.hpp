@@ -25,7 +25,7 @@ namespace Game
     public:
         enum class CreateErrors
         {
-            FailedSubsystemInitialization,
+            FailedSubsystemCreation,
         };
 
         using CreateResult = Result<std::unique_ptr<GameState>, CreateErrors>;

@@ -26,7 +26,7 @@ namespace Graphics
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedStateInitialization,
+            FailedStateCreation,
         };
 
         using CreateResult = Result<std::unique_ptr<RenderContext>, CreateErrors>;

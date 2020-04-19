@@ -24,7 +24,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     // Create instance.
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
 
-    // Initialize the event router.
+    // Create event router.
     // Listens and replicates event to the current game state.
     EventRouter::CreateFromParams eventRouterParams;
     eventRouterParams.inputManager = params.inputManager;

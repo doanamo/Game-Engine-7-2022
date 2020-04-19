@@ -28,7 +28,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     if(instance->m_inputManagerEditor == nullptr)
     {
         LOG_ERROR("Could not create input manager editor!");
-        return Failure(CreateErrors::FailedModuleInitialization);
+        return Failure(CreateErrors::FailedModuleCreation);
     }
 
     // Create game state editor.
@@ -39,7 +39,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     if(instance->m_gameStateEditor == nullptr)
     {
         LOG_ERROR("Could not create game state editor!");
-        return Failure(CreateErrors::FailedModuleInitialization);
+        return Failure(CreateErrors::FailedModuleCreation);
     }
 
     // Save window reference.

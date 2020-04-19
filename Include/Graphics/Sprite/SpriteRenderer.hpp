@@ -39,7 +39,7 @@ namespace Graphics
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedResourceInitialization,
+            FailedResourceCreation,
         };
 
         using CreateResult = Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;

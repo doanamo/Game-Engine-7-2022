@@ -35,7 +35,7 @@ namespace Editor
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedModuleInitialization,
+            FailedModuleCreation,
         };
 
         using CreateResult = Result<std::unique_ptr<EditorShell>, CreateErrors>;

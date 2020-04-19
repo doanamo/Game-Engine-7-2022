@@ -97,7 +97,7 @@ namespace Game
 
             if(entityFlags & EntitySystem::HandleFlags::Created)
             {
-                // Initialize the component.
+                // Initialize component.
                 if(!pool.InitializeComponent(handle))
                 {
                     // Destroy component if initialization fails.

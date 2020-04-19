@@ -134,7 +134,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(instance->m_editorRenderer == nullptr)
     {
         LOG_ERROR("Could not create editor renderer!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create editor shell.
@@ -146,7 +146,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(instance->m_editorShell == nullptr)
     {
         LOG_ERROR("Could not create editor shell!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Success!

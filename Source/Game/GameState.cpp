@@ -27,7 +27,7 @@ GameState::CreateResult GameState::Create()
     if(instance->entitySystem == nullptr)
     {
         LOG_ERROR("Could not create entity system!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create component system.
@@ -36,7 +36,7 @@ GameState::CreateResult GameState::Create()
     if(instance->componentSystem == nullptr)
     {
         LOG_ERROR("Could not create component system!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create identity system.
@@ -45,7 +45,7 @@ GameState::CreateResult GameState::Create()
     if(instance->identitySystem == nullptr)
     {
         LOG_ERROR("Could not create identity system!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create interpolation system.
@@ -54,7 +54,7 @@ GameState::CreateResult GameState::Create()
     if(instance->interpolationSystem == nullptr)
     {
         LOG_ERROR("Could not create interpolation system!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create sprite system.
@@ -63,15 +63,15 @@ GameState::CreateResult GameState::Create()
     if(instance->spriteSystem == nullptr)
     {
         LOG_ERROR("Could not create sprite system!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize update timer.
+    // Create update timer.
     instance->updateTimer = UpdateTimer::Create().UnwrapOr(nullptr);
     if(instance->updateTimer == nullptr)
     {
         LOG_ERROR("Could not create update timer!");
-        return Failure(CreateErrors::FailedSubsystemInitialization);
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Bind and subscribe event receivers.

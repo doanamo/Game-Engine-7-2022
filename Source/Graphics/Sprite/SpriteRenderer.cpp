@@ -53,7 +53,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create instance buffer.
@@ -67,7 +67,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_instanceBuffer == nullptr)
     {
         LOG_ERROR("Could not create instance buffer!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create vertex array.
@@ -89,7 +89,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create nearest sampler.
@@ -101,7 +101,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_nearestSampler == nullptr)
     {
         LOG_ERROR("Could not create nearest sampler!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create linear sampler.
@@ -113,7 +113,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_linearSampler == nullptr)
     {
         LOG_ERROR("Could not create linear sampler!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Load shader.
@@ -127,7 +127,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_shader == nullptr)
     {
         LOG_ERROR("Could not load sprite shader!");
-        return Failure(CreateErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Remember sprite batch size.
