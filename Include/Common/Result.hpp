@@ -140,6 +140,7 @@ public:
 
     DeductedSharedType UnwrapEither()
     {
+        static_assert(std::is_same<SuccessType, FailureType>::value, "Types must be the same to use UnwrapEither()!");
         return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
     }
 

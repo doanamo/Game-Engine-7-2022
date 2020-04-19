@@ -138,6 +138,16 @@ bool TestUnwrap()
         TEST_TRUE(result.IsFailure());
     }
 
+    {
+        ResultWithString instance;
+
+        auto resultSuccess = instance.Initialize(true).UnwrapEither();
+        TEST_EQ(resultSuccess, "hello world!");
+
+        auto resultFailure = instance.Initialize(false).UnwrapEither();
+        TEST_EQ(resultFailure, "goodbye world!");
+    }
+
     return true;
 }
 
