@@ -39,7 +39,7 @@ namespace System
         std::shared_ptr<Type> GetDefault() const;
 
         template<typename Type, typename... Arguments>
-        std::shared_ptr<Type> Acquire(std::string name, Arguments... arguments);
+        typename ResourcePool<Type>::AcquireResult Acquire(std::string name, Arguments... arguments);
 
         void ReleaseUnused();
 
@@ -79,7 +79,7 @@ namespace System
     }
 
     template<typename Type, typename... Arguments>
-    std::shared_ptr<Type> ResourceManager::Acquire(std::string name, Arguments... arguments)
+    typename ResourcePool<Type>::AcquireResult ResourceManager::Acquire(std::string name, Arguments... arguments)
     {
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();

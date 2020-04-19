@@ -81,12 +81,15 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
         textureParams.renderContext = params.renderContext;
         textureParams.mipmaps = true;
 
-        instance->m_texture = params.resourceManager->Acquire<Graphics::Texture>(textureParams.filePath, textureParams);
+        auto loadTextureResult = params.resourceManager->Acquire<Graphics::Texture>(
+            textureParams.filePath, textureParams);
 
-        if(instance->m_texture == nullptr)
+        if(!loadTextureResult)
         {
             LOG_WARNING("Could not load texture!");
         }
+
+        instance->m_texture = loadTextureResult.UnwrapEither();
     }
 
     // Read texture regions.

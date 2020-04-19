@@ -122,7 +122,8 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
     shaderParams.renderContext = params.renderContext;
 
-    instance->m_shader = params.resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
+    instance->m_shader = params.resourceManager->Acquire<Shader>(
+        shaderParams.filePath, shaderParams).UnwrapOr(nullptr);
 
     if(instance->m_shader == nullptr)
     {

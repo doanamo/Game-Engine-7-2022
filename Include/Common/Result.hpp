@@ -93,6 +93,7 @@ class Result
 public:
     using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
     using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
+    using DeductedSharedType = typename std::conditional<std::is_same<SuccessType, FailureType>::value, SuccessType, Detail::Empty>::type;
     using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
 
     Result(Detail::Success<SuccessType>&& success)
@@ -135,6 +136,11 @@ public:
     DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
     {
         return IsFailure() ? UnwrapFailure() : std::move(defaultReturn);
+    }
+
+    DeductedSharedType UnwrapEither()
+    {
+        return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
     }
 
     bool IsSuccess() const

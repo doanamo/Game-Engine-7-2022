@@ -56,9 +56,9 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
     auto spriteAnimationList = engine->GetResourceManager().Acquire<Graphics::SpriteAnimationList>(
-        spriteAnimationListParams.filePath, spriteAnimationListParams);
+        spriteAnimationListParams.filePath, spriteAnimationListParams).UnwrapOr(nullptr);
 
-    if(!spriteAnimationList)
+    if(spriteAnimationList == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list!");
         return Failure(CreateErrors::FailedResourceLoading);
@@ -71,9 +71,9 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
     auto textureAtlas = engine->GetResourceManager().Acquire<Graphics::TextureAtlas>(
-        textureAtlasParams.filePath, textureAtlasParams);
+        textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
 
-    if(!spriteAnimationList)
+    if(textureAtlas == nullptr)
     {
         LOG_ERROR("Could not load texture atlas!");
         return Failure(CreateErrors::FailedResourceLoading);
@@ -107,7 +107,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
         Graphics::TexturePtr texture = engine->GetResourceManager().Acquire<Graphics::Texture>(
-            textureParams.filePath, textureParams);
+            textureParams.filePath, textureParams).UnwrapEither();
 
         // Create named entity.
         Game::EntityHandle playerEntity = instance->m_gameState->entitySystem->CreateEntity();

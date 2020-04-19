@@ -106,9 +106,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
         textureAtlasParams.renderContext = params.renderContext;
         textureAtlasParams.filePath = lua_tostring(*resourceScript, -1);
 
-        textureAtlas = params.resourceManager->Acquire<TextureAtlas>(textureAtlasParams.filePath, textureAtlasParams);
+        textureAtlas = params.resourceManager->Acquire<TextureAtlas>(
+            textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
 
-        if(!textureAtlas)
+        if(textureAtlas == nullptr)
         {
             LOG_ERROR("Could not load referenced texture atlas!");
             return Failure(CreateErrors::FailedResourceLoading);

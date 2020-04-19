@@ -37,6 +37,7 @@ namespace System
         using ResourcePtr = std::shared_ptr<Type>;
         using ResourceList = std::unordered_map<std::string, ResourcePtr>;
         using ResourceListPair = typename ResourceList::value_type;
+        using AcquireResult = Result<ResourcePtr, ResourcePtr>;
 
     public:
         ResourcePool() = default;
@@ -46,7 +47,7 @@ namespace System
         std::shared_ptr<Type> GetDefault() const;
 
         template<typename... Arguments>
-        std::shared_ptr<Type> Acquire(std::string name, Arguments... arguments);
+        AcquireResult Acquire(std::string name, Arguments... arguments);
 
         void ReleaseUnused() override;
         void ReleaseAll();
@@ -76,7 +77,7 @@ namespace System
 
     template<typename Type>
     template<typename... Arguments>
-    std::shared_ptr<Type> ResourcePool<Type>::Acquire(std::string name, Arguments... arguments)
+    typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(std::string name, Arguments... arguments)
     {
         // Return existing resource if loaded.
         auto it = m_resources.find(name);
@@ -85,15 +86,14 @@ namespace System
             ASSERT(it->second != nullptr, "Found resource is null!");
 
             // Return found resource.
-            return it->second;
+            return Success(it->second);
         }
 
         // Create resource instance.
         auto createResult = Type::Create(std::forward<Arguments>(arguments)...);
-
         if(!createResult)
         {
-            return m_defaultResource;
+            return Failure(m_defaultResource);
         }
 
         std::shared_ptr<Type> resource = createResult.Unwrap();
@@ -104,7 +104,7 @@ namespace System
         ASSERT(result.second, "Failed to emplace new resource in resource pool!");
 
         // Return resource pointer.
-        return result.first->second;
+        return Success(result.first->second);
     }
 
     template<typename Type>
