@@ -20,20 +20,19 @@ namespace
 SpriteRenderer::SpriteRenderer() = default;
 SpriteRenderer::~SpriteRenderer() = default;
 
-SpriteRenderer::InitializeResult SpriteRenderer::Initialize(const InitializeFromParams& params)
+SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& params)
 {
-    LOG("Initializing sprite renderer...");
+    LOG("Creating sprite renderer...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+    // Check arguments.
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Failure(CreateErrors::InvalidArgument));
 
-    // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Failure(InitializeErrors::InvalidArgument));
+    // Create instance.
+    auto instance = std::unique_ptr<SpriteRenderer>(new SpriteRenderer());
 
     // Create vertex buffer.
     const SpriteVertex SpriteVertices[4] =
@@ -44,72 +43,77 @@ SpriteRenderer::InitializeResult SpriteRenderer::Initialize(const InitializeFrom
         { glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 1.0f) }, // Top-Right
     };
 
-    BufferInfo vertexBufferInfo;
-    vertexBufferInfo.usage = GL_STATIC_DRAW;
-    vertexBufferInfo.elementSize = sizeof(SpriteVertex);
-    vertexBufferInfo.elementCount = Utility::StaticArraySize(SpriteVertices);
-    vertexBufferInfo.data = &SpriteVertices[0];
+    Buffer::CreateFromParams vertexBufferParams;
+    vertexBufferParams.usage = GL_STATIC_DRAW;
+    vertexBufferParams.elementSize = sizeof(SpriteVertex);
+    vertexBufferParams.elementCount = Utility::StaticArraySize(SpriteVertices);
+    vertexBufferParams.data = &SpriteVertices[0];
 
-    if(!m_vertexBuffer.Initialize(params.renderContext, vertexBufferInfo))
+    instance->m_vertexBuffer = VertexBuffer::Create(params.renderContext, vertexBufferParams).UnwrapOr(nullptr);
+    if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Create instance buffer.
-    BufferInfo instanceBufferInfo;
-    instanceBufferInfo.usage = GL_STREAM_DRAW;
-    instanceBufferInfo.elementSize = sizeof(Sprite::Data);
-    instanceBufferInfo.elementCount = params.spriteBatchSize;
-    instanceBufferInfo.data = nullptr;
+    Buffer::CreateFromParams instanceBufferParams;
+    instanceBufferParams.usage = GL_STREAM_DRAW;
+    instanceBufferParams.elementSize = sizeof(Sprite::Data);
+    instanceBufferParams.elementCount = params.spriteBatchSize;
+    instanceBufferParams.data = nullptr;
 
-    if(!m_instanceBuffer.Initialize(params.renderContext, instanceBufferInfo))
+    instance->m_instanceBuffer = InstanceBuffer::Create(params.renderContext, instanceBufferParams).UnwrapOr(nullptr);
+    if(instance->m_instanceBuffer == nullptr)
     {
         LOG_ERROR("Could not create instance buffer!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Create vertex array.
-    const VertexAttribute vertexAttributes[] =
+    const VertexArray::Attribute vertexAttributes[] =
     {
-        { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Position
-        { &m_vertexBuffer,   VertexAttributeType::Vector2,   GL_FLOAT, false }, // Texture
-        { &m_instanceBuffer, VertexAttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Coordinates
-        { &m_instanceBuffer, VertexAttributeType::Vector4,   GL_FLOAT, false }, // Color
+        { instance->m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false }, // Position
+        { instance->m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false }, // Texture
+        { instance->m_instanceBuffer.get(), VertexArray::AttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
+        { instance->m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
+        { instance->m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Coordinates
+        { instance->m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Color
     };
 
-    Graphics::VertexArrayInfo vertexArrayInfo;
-    vertexArrayInfo.attributeCount = Utility::StaticArraySize(vertexAttributes);
-    vertexArrayInfo.attributes = &vertexAttributes[0];
+    Graphics::VertexArray::FromArrayParams vertexArrayParams;
+    vertexArrayParams.attributeCount = Utility::StaticArraySize(vertexAttributes);
+    vertexArrayParams.attributes = &vertexAttributes[0];
 
-    if(!m_vertexArray.Initialize(params.renderContext, vertexArrayInfo))
+    instance->m_vertexArray = Graphics::VertexArray::Create(params.renderContext, vertexArrayParams).UnwrapOr(nullptr);
+    if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Create nearest sampler.
-    SamplerInfo nearestSamplerInfo;
-    nearestSamplerInfo.textureMinFilter = GL_NEAREST;
-    nearestSamplerInfo.textureMagFilter = GL_NEAREST;
+    Sampler::CreateFromParams nearestSamplerParams;
+    nearestSamplerParams.textureMinFilter = GL_NEAREST;
+    nearestSamplerParams.textureMagFilter = GL_NEAREST;
 
-    if(!m_nearestSampler.Initialize(params.renderContext, nearestSamplerInfo))
+    instance->m_nearestSampler = Sampler::Create(params.renderContext, nearestSamplerParams).UnwrapOr(nullptr);
+    if(instance->m_nearestSampler == nullptr)
     {
-        LOG_ERROR("Could not create a nearest sampler!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        LOG_ERROR("Could not create nearest sampler!");
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Create linear sampler.
-    SamplerInfo linearSamplerInfo;
-    linearSamplerInfo.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
-    linearSamplerInfo.textureMagFilter = GL_LINEAR;
+    Sampler::CreateFromParams linearSamplerParams;
+    linearSamplerParams.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
+    linearSamplerParams.textureMagFilter = GL_LINEAR;
 
-    if(!m_linearSampler.Initialize(params.renderContext, linearSamplerInfo))
+    instance->m_linearSampler = Sampler::Create(params.renderContext, linearSamplerParams).UnwrapOr(nullptr);
+    if(instance->m_linearSampler == nullptr)
     {
         LOG_ERROR("Could not create linear sampler!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Load shader.
@@ -118,36 +122,33 @@ SpriteRenderer::InitializeResult SpriteRenderer::Initialize(const InitializeFrom
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
     shaderParams.renderContext = params.renderContext;
 
-    m_shader = params.resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
+    instance->m_shader = params.resourceManager->Acquire<Shader>(shaderParams.filePath, shaderParams);
 
-    if(m_shader == nullptr)
+    if(instance->m_shader == nullptr)
     {
         LOG_ERROR("Could not load sprite shader!");
-        return Failure(InitializeErrors::FailedResourceInitialization);
+        return Failure(CreateErrors::FailedResourceInitialization);
     }
 
     // Remember sprite batch size.
-    m_spriteBatchSize = params.spriteBatchSize;
+    instance->m_spriteBatchSize = params.spriteBatchSize;
 
     // Save render context reference.
-    m_renderContext = params.renderContext;
+    instance->m_renderContext = params.renderContext;
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform)
 {
-    ASSERT(m_initialized, "Sprite renderer has not been initialized!");
-
     // Push render state.
     auto& renderState = m_renderContext->PushState();
     SCOPE_GUARD(m_renderContext->PopState());
 
     // Set initial render state.
     renderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    renderState.BindVertexArray(m_vertexArray.GetHandle());
+    renderState.BindVertexArray(m_vertexArray->GetHandle());
     renderState.UseProgram(m_shader->GetHandle());
 
     // Set shader uniforms.
@@ -187,7 +188,7 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
         }
 
         // Update buffer with sprite data and instances.
-        m_instanceBuffer.Update(&spriteData[spritesDrawn], spritesBatched);
+        m_instanceBuffer->Update(&spriteData[spritesDrawn], spritesBatched);
 
         // Set batch render state.
         if(batchInfo.transparent)
@@ -210,11 +211,11 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
             // Bind texture sampler.
             if(batchInfo.filtered)
             {
-                renderState.BindSampler(0, m_linearSampler.GetHandle());
+                renderState.BindSampler(0, m_linearSampler->GetHandle());
             }
             else
             {
-                renderState.BindSampler(0, m_nearestSampler.GetHandle());
+                renderState.BindSampler(0, m_nearestSampler->GetHandle());
             }
         }
         else

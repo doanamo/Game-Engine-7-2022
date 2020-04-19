@@ -20,36 +20,33 @@ namespace System
 
 namespace Graphics
 {
-    class RenderContext final : private NonCopyable, public Resettable<RenderContext>
+    class RenderContext final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
             FailedStateInitialization,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<RenderContext>, CreateErrors>;
+        static CreateResult Create(System::Window* window);
 
     public:
-        RenderContext();
         ~RenderContext();
 
-        InitializeResult Initialize(System::Window* window);
         void MakeCurrent();
-
         RenderState& PushState();
+        RenderState& GetState();
         void PopState();
 
-        RenderState& GetState();
-        bool IsInitialized() const;
+    private:
+        RenderContext();
 
     private:
         System::Window* m_window = nullptr;
 
         RenderState m_currentState;
         std::stack<RenderState> m_pushedStates;
-
-        bool m_initialized = false;
     };
 }

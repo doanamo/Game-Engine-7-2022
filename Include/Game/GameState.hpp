@@ -20,27 +20,25 @@
 
 namespace Game
 {
-    class GameState final : private NonCopyable, public Resettable<GameState>
+    class GameState final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             FailedSubsystemInitialization,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<GameState>, CreateErrors>;
+        static CreateResult Create();
 
     public:
-        GameState();
         ~GameState();
-
-        InitializeResult Initialize();
-        bool Update(const System::Timer& timer);
 
         // Pushes an event that will affects the game state.
         // We encapsulate the game state and allow it to mutate only through events.
         void PushEvent(std::any event);
 
+        bool Update(const System::Timer& timer);
         float GetUpdateTime() const;
 
     public:
@@ -69,22 +67,22 @@ namespace Game
             Event::Dispatcher<void(float)> updateProcessed;
         } events;
 
-    public:
         Event::Queue eventQueue;
         Event::Broker eventBroker;
 
-        UpdateTimer updateTimer;
-        EntitySystem entitySystem;
-        ComponentSystem componentSystem;
+        std::unique_ptr<UpdateTimer> updateTimer;
+        std::unique_ptr<EntitySystem> entitySystem;
+        std::unique_ptr<ComponentSystem> componentSystem;
 
-        IdentitySystem identitySystem;
-        InterpolationSystem interpolationSystem;
-        SpriteSystem spriteSystem;
+        std::unique_ptr<IdentitySystem> identitySystem;
+        std::unique_ptr<InterpolationSystem> interpolationSystem;
+        std::unique_ptr<SpriteSystem> spriteSystem;
+
+    private:
+        GameState();
 
     private:
         Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
-
         float m_updateTime = 1.0f / 10.0f;
-        bool m_initialized = false;
     };
 }

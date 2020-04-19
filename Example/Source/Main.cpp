@@ -7,15 +7,24 @@
 int main()
 {
     // Create engine.
-    Engine::Root engine;
-    if(!engine.Initialize())
+    Engine::Root::CreateFromParams engineParams;
+    engineParams.maximumTickDelta = 1.0f;
+
+    auto engine = Engine::Root::Create(engineParams).UnwrapOr(nullptr);
+    if(engine == nullptr)
+    {
+        LOG_ERROR("Could not create engine!");
         return -1;
+    }
 
     // Create game scene.
-    GameScene gameScene;
-    if(!gameScene.Initialize(&engine))
+    auto gameScene = GameScene::Create(engine.get()).UnwrapOr(nullptr);
+    if(gameScene == nullptr)
+    {
+        LOG_ERROR("Could not create game scene!");
         return -1;
+    }
 
     // Run example loop.
-    return engine.Run();
+    return engine->Run();
 };

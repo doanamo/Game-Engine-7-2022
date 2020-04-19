@@ -26,18 +26,10 @@ namespace Game
 {
     class GameState;
 
-    class GameFramework final : private NonCopyable, public Resettable<GameFramework>
+    class GameFramework final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedEventRouterInitialization,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::Timer* timer = nullptr;
             System::Window* window = nullptr;
@@ -45,11 +37,18 @@ namespace Game
             Renderer::StateRenderer* stateRenderer = nullptr;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedEventRouterCreation,
+        };
+
+        using CreateResult = Result<std::unique_ptr<GameFramework>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        GameFramework();
         ~GameFramework();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         bool Update();
         void Draw();
 
@@ -63,13 +62,14 @@ namespace Game
         } events;
 
     private:
+        GameFramework();
+
+    private:
         System::Timer* m_timer = nullptr;
         System::Window* m_window = nullptr;
         Renderer::StateRenderer* m_stateRenderer = nullptr;
 
-        EventRouter m_eventRouter;
+        std::unique_ptr<EventRouter> m_eventRouter;
         std::shared_ptr<GameState> m_gameState;
-
-        bool m_initialized = false;
     };
 }

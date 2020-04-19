@@ -36,21 +36,21 @@ Shader::~Shader()
     }
 }
 
-Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
+Shader::CreateResult Shader::Create(const LoadFromString& params)
 {
     LOG("Creating shader...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Failure(CreateErrors::InvalidArgument));
 
-    m_renderContext = params.renderContext;
+    // Create instance.
+    auto instance = std::unique_ptr<Shader>(new Shader());
+
+    // Save render context reference.
+    instance->m_renderContext = params.renderContext;
 
     // Create array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -102,7 +102,7 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
             if(shaderObject == OpenGL::InvalidHandle)
             {
                 LOG_ERROR("Shader object could not be created!");
-                return Failure(InitializeErrors::FailedShaderCreation);
+                return Failure(CreateErrors::FailedShaderCreation);
             }
 
             // Prepare preprocessor define.
@@ -150,7 +150,7 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
                     LOG_ERROR("Shader compile errors: \"{}\"", errorText.data());
                 }
 
-                return Failure(InitializeErrors::FailedShaderCompilation);
+                return Failure(CreateErrors::FailedShaderCompilation);
             }
         }
     }
@@ -159,17 +159,17 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
     if(shaderObjectsFound == false)
     {
         LOG_ERROR("Could not find any shader objects!");
-        return Failure(InitializeErrors::FailedShaderCompilation);
+        return Failure(CreateErrors::FailedShaderCompilation);
     }
 
     // Create shader program.
-    m_handle = glCreateProgram();
+    instance->m_handle = glCreateProgram();
     OpenGL::CheckErrors();
 
-    if(m_handle == OpenGL::InvalidHandle)
+    if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Shader program could not be created!");
-        return Failure(InitializeErrors::FailedProgramCreation);
+        return Failure(CreateErrors::FailedProgramCreation);
     }
 
     // Attach compiled shader objects.
@@ -179,7 +179,7 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
 
         if(shaderObject != OpenGL::InvalidHandle)
         {
-            glAttachShader(m_handle, shaderObject);
+            glAttachShader(instance->m_handle, shaderObject);
             OpenGL::CheckErrors();
         }
     }
@@ -187,7 +187,7 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
     // Link attached shader objects.
     LOG_INFO("Linking shader program...");
 
-    glLinkProgram(m_handle);
+    glLinkProgram(instance->m_handle);
     OpenGL::CheckErrors();
 
     // Detach already linked shader objects.
@@ -197,14 +197,14 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
 
         if(shaderObject != OpenGL::InvalidHandle)
         {
-            glDetachShader(m_handle, shaderObject);
+            glDetachShader(instance->m_handle, shaderObject);
             OpenGL::CheckErrors();
         }
     }
 
     // Check linking results.
     GLint linkStatus = 0;
-    glGetProgramiv(m_handle, GL_LINK_STATUS, &linkStatus);
+    glGetProgramiv(instance->m_handle, GL_LINK_STATUS, &linkStatus);
     OpenGL::CheckErrors();
 
     if(linkStatus == GL_FALSE)
@@ -212,36 +212,32 @@ Shader::InitializeResult Shader::Initialize(const LoadFromString& params)
         LOG_ERROR("Shader program could not be linked!");
 
         GLint errorLength = 0;
-        glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &errorLength);
+        glGetProgramiv(instance->m_handle, GL_INFO_LOG_LENGTH, &errorLength);
         OpenGL::CheckErrors();
 
         if(errorLength != 0)
         {
             std::vector<char> errorText(errorLength);
-            glGetProgramInfoLog(m_handle, errorLength, &errorLength, &errorText[0]);
+            glGetProgramInfoLog(instance->m_handle, errorLength, &errorLength, &errorText[0]);
             OpenGL::CheckErrors();
 
             LOG_ERROR("Shader link errors: \"{}\"", errorText.data());
         }
 
-        return Failure(InitializeErrors::FailedProgramLinkage);
+        return Failure(CreateErrors::FailedProgramLinkage);
     }
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
-Shader::InitializeResult Shader::Initialize(const LoadFromFile& params)
+Shader::CreateResult Shader::Create(const LoadFromFile& params)
 {
     LOG("Loading shader from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
 
     // Resolve file path.
     auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
@@ -249,7 +245,7 @@ Shader::InitializeResult Shader::Initialize(const LoadFromFile& params)
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
-        return Failure(InitializeErrors::FailedFilePathResolve);
+        return Failure(CreateErrors::FailedFilePathResolve);
     }
 
     // Load shader code from a file.
@@ -258,43 +254,32 @@ Shader::InitializeResult Shader::Initialize(const LoadFromFile& params)
     if(shaderCode.empty())
     {
         LOG_ERROR("File could not be read!");
-        return Failure(InitializeErrors::InvalidFileContent);
+        return Failure(CreateErrors::InvalidFileContent);
     }
 
-    // Call base initialization method.
+    // Create instance.
     LoadFromString compileParams;
     compileParams.fileSystem = params.fileSystem;
     compileParams.shaderCode = std::move(shaderCode);
     compileParams.renderContext = params.renderContext;
-
-    return this->Initialize(compileParams);
+    return Create(compileParams);
 }
 
 GLint Shader::GetAttributeIndex(std::string name) const
 {
-    ASSERT(m_initialized, "Shader has not been initialized!");
     ASSERT(!name.empty(), "Attribute name cannot be empty!");
-
     GLint location = glGetAttribLocation(m_handle, name.c_str());
     return location;
 }
 
 GLint Shader::GetUniformIndex(std::string name) const
 {
-    ASSERT(m_initialized, "Shader has not been initialized!");
     ASSERT(!name.empty(), "Uniform name cannot be empty!");
-
     GLint location = glGetUniformLocation(m_handle, name.c_str());
     return location;
 }
 
 GLuint Shader::GetHandle() const
 {
-    ASSERT(m_initialized, "Shader has not been initialized!");
     return m_handle;
-}
-
-bool Shader::IsInitialized() const
-{
-    return m_initialized;
 }

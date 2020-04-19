@@ -35,20 +35,10 @@ namespace Game
 
 namespace Editor
 {
-    class EditorSystem final : private NonCopyable, public Resettable<EditorSystem>
+    class EditorSystem final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedContextCreation,
-            FailedEventSubscription,
-            FailedSubsystemInitialization,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::FileSystem* fileSystem = nullptr;
             System::ResourceManager* resourceManager = nullptr;
@@ -58,15 +48,26 @@ namespace Editor
             Game::GameFramework* gameFramework = nullptr;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedContextCreation,
+            FailedEventSubscription,
+            FailedSubsystemInitialization,
+        };
+
+        using CreateResult = Result<std::unique_ptr<EditorSystem>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        EditorSystem();
         ~EditorSystem();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
         void Draw();
 
     private:
+        EditorSystem();
+
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
         Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
         Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;
@@ -82,9 +83,7 @@ namespace Editor
     private:
         ImGuiContext* m_interface = nullptr;
 
-        EditorRenderer m_editorRenderer;
-        EditorShell m_editorShell;
-
-        bool m_initialized = false;
+        std::unique_ptr<EditorRenderer> m_editorRenderer;
+        std::unique_ptr<EditorShell> m_editorShell;
     };
 }

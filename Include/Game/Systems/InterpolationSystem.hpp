@@ -12,25 +12,26 @@ namespace Game
 {
     class ComponentSystem;
 
-    class InterpolationSystem final : private NonCopyable, public Resettable<InterpolationSystem>
+    class InterpolationSystem final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<InterpolationSystem>, CreateErrors>;
+        static CreateResult Create(ComponentSystem* componentSystem);
 
     public:
-        InterpolationSystem();
         ~InterpolationSystem();
 
-        InitializeResult Initialize(ComponentSystem* componentSystem);
         void Update(float timeDelta);
 
     private:
+        InterpolationSystem();
+
+    private:
         ComponentSystem* m_componentSystem = nullptr;
-        bool m_initialized = false;
     };
 }

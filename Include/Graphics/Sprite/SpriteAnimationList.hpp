@@ -23,18 +23,9 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteAnimationList final : private NonCopyable, public Resettable<SpriteAnimationList>
+    class SpriteAnimationList final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedResourceLoading,
-            InvalidResourceContent,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
         struct LoadFromFile
         {
             System::FileSystem* fileSystem = nullptr;
@@ -42,6 +33,17 @@ namespace Graphics
             Graphics::RenderContext* renderContext = nullptr;
             std::string filePath;
         };
+
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedResourceLoading,
+            InvalidResourceContent,
+        };
+
+        using CreateResult = Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
+        static CreateResult Create();
+        static CreateResult Create(const LoadFromFile& params);
 
         struct Frame
         {
@@ -64,18 +66,16 @@ namespace Graphics
         using AnimationMap = std::unordered_map<std::string, std::size_t>;
 
     public:
-        SpriteAnimationList();
         ~SpriteAnimationList();
-
-        InitializeResult Initialize();
-        InitializeResult Initialize(const LoadFromFile& params);
 
         std::optional<std::size_t> GetAnimationIndex(std::string animationName) const;
         const Animation* GetAnimationByIndex(std::size_t animationIndex) const;
 
     private:
+        SpriteAnimationList();
+
+    private:
         AnimationList m_animationList;
         AnimationMap m_animationMap;
-        bool m_initialized = false;
     };
 }

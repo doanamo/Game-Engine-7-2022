@@ -13,33 +13,34 @@
 
 namespace Editor
 {
-    class InputManagerEditor final : private NonCopyable, public Resettable<InputManagerEditor>
+    class InputManagerEditor final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        struct CreateFromParams
+        {
+            System::Window* window = nullptr;
+        };
+
+        enum class CreateErrors
         {
             InvalidArgument,
             FailedEventSubscription,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
-        {
-            System::Window* window = nullptr;
-        };
+        using CreateResult = Result<std::unique_ptr<InputManagerEditor>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
 
     public:
-        InputManagerEditor();
         ~InputManagerEditor();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
 
     public:
         bool mainWindowOpen = false;
 
     private:
+        InputManagerEditor();
+
         Event::Receiver<void(const System::Window::Events::Focus&)> m_windowFocusReceiver;
         Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_keyboardKeyReceiver;
         Event::Receiver<bool(const System::Window::Events::TextInput&)> m_textInputReceiver;
@@ -79,7 +80,5 @@ namespace Editor
         std::deque<std::string> m_incomingEventLog;
         const std::size_t m_incomingEventLogSize = 100;
         unsigned short m_incomingEventCounter = 0;
-
-        bool m_initialized = false;
     };
 }

@@ -20,43 +20,41 @@ EventRouter::EventRouter()
 
 EventRouter::~EventRouter() = default;
 
-EventRouter::InitializeResult EventRouter::Initialize(const InitializeFromParams& params)
+EventRouter::CreateResult EventRouter::Create(const CreateFromParams& params)
 {
-    LOG("Initializing event router...");
+    LOG("Creating event router...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    m_gameFramework = params.gameFramework;
+    // Create instance.
+    auto instance = std::unique_ptr<EventRouter>(new EventRouter());
 
     // Subscribe event receivers.
     bool subscriptionResult = true;
-    subscriptionResult &= m_receivers.keyboardKeyReceiver.Subscribe(params.inputManager->events.keyboardKey);
-    subscriptionResult &= m_receivers.textInputReceiver.Subscribe(params.inputManager->events.textInput);
-    subscriptionResult &= m_receivers.mouseButtonReceiver.Subscribe(params.inputManager->events.mouseButton);
-    subscriptionResult &= m_receivers.mouseScrollReceiver.Subscribe(params.inputManager->events.mouseScroll);
-    subscriptionResult &= m_receivers.cursorPosition.Subscribe(params.inputManager->events.cursorPosition);
-    subscriptionResult &= m_receivers.cursorEnter.Subscribe(params.inputManager->events.cursorEnter);
+    subscriptionResult &= instance->m_receivers.keyboardKeyReceiver.Subscribe(params.inputManager->events.keyboardKey);
+    subscriptionResult &= instance->m_receivers.textInputReceiver.Subscribe(params.inputManager->events.textInput);
+    subscriptionResult &= instance->m_receivers.mouseButtonReceiver.Subscribe(params.inputManager->events.mouseButton);
+    subscriptionResult &= instance->m_receivers.mouseScrollReceiver.Subscribe(params.inputManager->events.mouseScroll);
+    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(params.inputManager->events.cursorPosition);
+    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(params.inputManager->events.cursorEnter);
 
     if(!subscriptionResult)
     {
         LOG_ERROR("Could not subscribe event receivers!");
-        return Failure(InitializeErrors::FailedEventSubscription);
+        return Failure(CreateErrors::FailedEventSubscription);
     }
 
+    // Save game framework reference.
+    instance->m_gameFramework = params.gameFramework;
+
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 GameState* EventRouter::GetCurrentGameState()
 {
-    ASSERT(m_initialized, "Event listener has not been initialized!");
     return m_gameFramework->GetGameState().get();
 }

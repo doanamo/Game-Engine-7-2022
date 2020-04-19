@@ -20,179 +20,177 @@ using namespace Engine;
 Root::Root() = default;
 Root::~Root() = default;
 
-bool Root::Initialize(const InitializeFromParams& initParams)
+Root::CreateResult Root::Create(const CreateFromParams& params)
 {
-    // Verify that engine is not currently initialized.
-    VERIFY(!m_initialized, "Engine instance has already been initialized!");
+    LOG_INFO("Creating engine...");
+    LOG_SCOPED_INDENT();
+
+    // Check arguments.
+    CHECK_ARGUMENT_OR_RETURN(params.maximumTickDelta > 0.0f, Failure(CreateErrors::InvalidArgument));
 
     // Initialize various debugging helpers.
     Debug::Initialize();
 
-    // Initialize the default logger output.
+    // Initialize default logger output.
     Logger::Initialize();
 
     // Initialize information acquired from the build system.
     Build::Initialize();
     Build::PrintInfo();
 
-    // After low level system have been initialized, begin initializing other systems.
-    LOG("Initializing engine...");
-    LOG_SCOPED_INDENT();
+    // Create instance.
+    auto instance = std::unique_ptr<Root>(new Root());
 
-    // Reset class instance on initialization failure.
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
-    // Initialize the system platform context.
-    // This will allow us to create and use platform systems such as window or input.
-    m_platform = std::make_unique<System::Platform>();
-    if(!m_platform->Initialize())
+    // Create system platform context.
+    // Allows us to use platform systems such as window or input.
+    instance->m_platform = System::Platform::Create().UnwrapOr(nullptr);
+    if(instance->m_platform == nullptr)
     {
-        LOG_ERROR("Could not initialize platform!");
-        return false;
+        LOG_ERROR("Could not create platform!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the file system.
-    m_fileSystem = std::make_unique<System::FileSystem>();
-    if(!m_fileSystem->Initialize())
+    // Create file system.
+    // Allows path resolving with multiple mounted directories.
+    instance->m_fileSystem = System::FileSystem::Create().UnwrapOr(nullptr);
+    if(instance->m_fileSystem == nullptr)
     {
-        LOG_ERROR("Could not initialize file system!");
-        return false;
+        LOG_ERROR("Could not create file system!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Mount file system directories (order affects the resolve order).
     if(!Build::GetEngineDir().empty())
     {
-        m_fileSystem->MountDirectory(Build::GetEngineDir());
+        instance->m_fileSystem->MountDirectory(Build::GetEngineDir());
     }
 
     if(!Build::GetGameDir().empty())
     {
-        m_fileSystem->MountDirectory(Build::GetGameDir());
+        instance->m_fileSystem->MountDirectory(Build::GetGameDir());
     }
 
-    // Initialize the main window.
+    // Create main window.
     // We will be collecting input and then drawing into this window.
-    // Window instance will create an unique OpenGL context for us.
-    System::Window::InitializeFromParams windowParams;
+    // Window instance will create unique OpenGL context for us.
+    System::Window::CreateFromParams windowParams;
     windowParams.title = "Game";
     windowParams.width = 1024;
     windowParams.height = 576;
     windowParams.vsync = true;
     windowParams.visible = true;
 
-    m_window = std::make_unique<System::Window>();
-    if(!m_window->Initialize(windowParams))
+    instance->m_window = System::Window::Create(windowParams).UnwrapOr(nullptr);
+    if(instance->m_window == nullptr)
     {
-        LOG_ERROR("Could not initialize window!");
-        return false;
+        LOG_ERROR("Could not create window!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the main timer.
+    // Create timer.
     // There can be many timers but this one will be used to calculate frame time.
-    m_timer = std::make_unique<System::Timer>();
-    if(!m_timer->Initialize())
+    instance->m_timer = System::Timer::Create().UnwrapOr(nullptr);
+    if(instance->m_timer == nullptr)
     {
-        LOG_ERROR("Could not initialize timer!");
-        return false;
+        LOG_ERROR("Could not create timer!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    m_maximumTickDelta = initParams.maximumTickDelta;
+    instance->m_maximumTickDelta = params.maximumTickDelta;
 
-    // Initialize the input manager.
+    // Create input manager.
     // Collects and routes all events related to input.
-    m_inputManager = std::make_unique<System::InputManager>();
-    if(!m_inputManager->Initialize(m_window.get()))
+    instance->m_inputManager = System::InputManager::Create(instance->m_window.get()).UnwrapOr(nullptr);
+    if(instance->m_inputManager == nullptr)
     {
-        LOG_ERROR("Could not initialize input manager!");
-        return false;
+        LOG_ERROR("Could not create input manager!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the resource manager.
-    // Resource manager will help avoid duplication of resources.
-    m_resourceManager = std::make_unique<System::ResourceManager>();
-    if(!m_resourceManager->Initialize())
+    // Create resource manager.
+    // Help avoid duplication of loaded resources.
+    instance->m_resourceManager = System::ResourceManager::Create().UnwrapOr(nullptr);
+    if(instance->m_resourceManager == nullptr)
     {
-        LOG_ERROR("Could not initialize resource manager!");
-        return false;
+        LOG_ERROR("Could not create resource manager!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the graphics context.
-    // Manages the rendering context created along with the window.
-    m_renderContext = std::make_unique<Graphics::RenderContext>();
-    if(!m_renderContext->Initialize(m_window.get()))
+    // Create render context.
+    // Manages rendering context created along with window.
+    instance->m_renderContext = Graphics::RenderContext::Create(instance->m_window.get()).UnwrapOr(nullptr);
+    if(instance->m_renderContext == nullptr)
     {
-        LOG_ERROR("Could not initialize graphics context!");
-        return false;
+        LOG_ERROR("Could not create render context!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the sprite renderer.
+    // Create sprite renderer.
     // Rendering subsystem for drawing sprites.
-    Graphics::SpriteRenderer::InitializeFromParams spriteRendererParams;
-    spriteRendererParams.fileSystem = m_fileSystem.get();
-    spriteRendererParams.resourceManager = m_resourceManager.get();
-    spriteRendererParams.renderContext = m_renderContext.get();
+    Graphics::SpriteRenderer::CreateFromParams spriteRendererParams;
+    spriteRendererParams.fileSystem = instance->m_fileSystem.get();
+    spriteRendererParams.resourceManager = instance->m_resourceManager.get();
+    spriteRendererParams.renderContext = instance->m_renderContext.get();
     spriteRendererParams.spriteBatchSize = 128;
 
-    m_spriteRenderer = std::make_unique<Graphics::SpriteRenderer>();
-    if(!m_spriteRenderer->Initialize(spriteRendererParams))
+    instance->m_spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams).UnwrapOr(nullptr);
+    if(instance->m_spriteRenderer == nullptr)
     {
-        LOG_ERROR("Could not initialize sprite renderer!");
-        return false;
+        LOG_ERROR("Could not create sprite renderer!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the state renderer.
-    // Renders a game state described in its components.
-    Renderer::StateRenderer::InitializeFromParams stateRendererParams;
-    stateRendererParams.renderContext = m_renderContext.get();
-    stateRendererParams.spriteRenderer = m_spriteRenderer.get();
+    // Create state renderer.
+    // Renders game state described in its components.
+    Renderer::StateRenderer::CreateFromParams stateRendererParams;
+    stateRendererParams.renderContext = instance->m_renderContext.get();
+    stateRendererParams.spriteRenderer = instance->m_spriteRenderer.get();
 
-    m_stateRenderer = std::make_unique<Renderer::StateRenderer>();
-    if(!m_stateRenderer->Initialize(stateRendererParams))
+    instance->m_stateRenderer = Renderer::StateRenderer::Create(stateRendererParams).UnwrapOr(nullptr);
+    if(instance->m_stateRenderer == nullptr)
     {
-        LOG_ERROR("Could not initialize state renderer!");
-        return false;
+        LOG_ERROR("Could not create state renderer!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the game framework.
+    // Create game framework.
     // Controls how game state is managed and how it interacts with the rest of the engine.
-    Game::GameFramework::InitializeFromParams gameFrameworkParams;
-    gameFrameworkParams.timer = m_timer.get();
-    gameFrameworkParams.inputManager = m_inputManager.get();
-    gameFrameworkParams.window = m_window.get();
-    gameFrameworkParams.stateRenderer = m_stateRenderer.get();
+    Game::GameFramework::CreateFromParams gameFrameworkParams;
+    gameFrameworkParams.timer = instance->m_timer.get();
+    gameFrameworkParams.inputManager = instance->m_inputManager.get();
+    gameFrameworkParams.window = instance->m_window.get();
+    gameFrameworkParams.stateRenderer = instance->m_stateRenderer.get();
 
-    m_gameFramework = std::make_unique<Game::GameFramework>();
-    if(!m_gameFramework->Initialize(gameFrameworkParams))
+    instance->m_gameFramework = Game::GameFramework::Create(gameFrameworkParams).UnwrapOr(nullptr);
+    if(instance->m_gameFramework == nullptr)
     {
-        LOG_ERROR("Could not initialize game framework!");
-        return false;
+        LOG_ERROR("Could not create game framework!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Initialize the editor system.
-    // Built in editor for creating and modifying content within a game.
-    Editor::EditorSystem::InitializeFromParams editorSystemParams;
-    editorSystemParams.fileSystem = m_fileSystem.get();
-    editorSystemParams.resourceManager = m_resourceManager.get();
-    editorSystemParams.inputManager = m_inputManager.get();
-    editorSystemParams.window = m_window.get();
-    editorSystemParams.renderContext = m_renderContext.get();
-    editorSystemParams.gameFramework = m_gameFramework.get();
+    // Create editor system.
+    // Built in editor for creating and modifying content within game.
+    Editor::EditorSystem::CreateFromParams editorSystemParams;
+    editorSystemParams.fileSystem = instance->m_fileSystem.get();
+    editorSystemParams.resourceManager = instance->m_resourceManager.get();
+    editorSystemParams.inputManager = instance->m_inputManager.get();
+    editorSystemParams.window = instance->m_window.get();
+    editorSystemParams.renderContext = instance->m_renderContext.get();
+    editorSystemParams.gameFramework = instance->m_gameFramework.get();
 
-    m_editorSystem = std::make_unique<Editor::EditorSystem>();
-    if(!m_editorSystem->Initialize(editorSystemParams))
+    instance->m_editorSystem = Editor::EditorSystem::Create(editorSystemParams).UnwrapOr(nullptr);
+    if(instance->m_editorSystem == nullptr)
     {
-        LOG_ERROR("Could not initialize editor system!");
-        return false;
+        LOG_ERROR("Could not create editor system!");
+        return Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Success!
-    return m_initialized = true;
+    return Success(std::move(instance));
 }
 
 int Root::Run()
 {
-    ASSERT(m_initialized, "Engine instance has not been initialized!");
-
     // Reset time that has accumulated during initialization.
     m_timer->Reset();
 
@@ -235,11 +233,6 @@ int Root::Run()
     }
 
     return 0;
-}
-
-bool Root::IsInitialized() const
-{
-    return m_initialized;
 }
 
 System::Platform& Root::GetPlatform()

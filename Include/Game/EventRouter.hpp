@@ -25,33 +25,33 @@ namespace Game
     class GameFramework;
     class GameState;
 
-    class EventRouter final : private NonCopyable, public Resettable<EventRouter>
+    class EventRouter final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedEventSubscription,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::InputManager* inputManager = nullptr;
             GameFramework* gameFramework = nullptr;
         };
 
-    public:
-        EventRouter();
-        ~EventRouter();
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedEventSubscription,
+        };
 
-        InitializeResult Initialize(const InitializeFromParams& params);
+        using CreateResult = Result<std::unique_ptr<EventRouter>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
+    public:
+        ~EventRouter();
 
         template<typename EventType>
         void PushEvent(const EventType& event);
 
     private:
+        EventRouter();
+
         template<typename EventType>
         void PushEventReturnVoid(const EventType& event);
 
@@ -72,15 +72,11 @@ namespace Game
             Event::Receiver<void(const System::InputEvents::CursorPosition&)> cursorPosition;
             Event::Receiver<void(const System::InputEvents::CursorEnter&)> cursorEnter;
         } m_receivers;
-
-        bool m_initialized = false;
     };
 
     template<typename EventType>
     void EventRouter::PushEvent(const EventType& event)
     {
-        ASSERT(m_initialized, "Event listener has not been initialized!");
-
         // Push event to current game state.
         GameState* gameState = this->GetCurrentGameState();
 
@@ -93,8 +89,6 @@ namespace Game
     template<typename EventType>
     void EventRouter::PushEventReturnVoid(const EventType& event)
     {
-        ASSERT(m_initialized, "Event listener has not been initialized!");
-
         // Push event to current game state.
         this->PushEvent(event);
 
@@ -105,8 +99,6 @@ namespace Game
     template<typename EventType>
     bool EventRouter::PushEventReturnFalse(const EventType& event)
     {
-        ASSERT(m_initialized, "Event listener has not been initialized!");
-
         // Push event to current game state.
         this->PushEvent(event);
 

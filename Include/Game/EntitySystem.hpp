@@ -15,34 +15,16 @@
 
     Manages unique identifiers for each existing entity. Gives means to identify
     different entities and takes care of their safe creation and destruction.
-
-    void ExampleEntitySystem
-    {
-        // Create an entity system.
-        Game::EntitySystem entitySystem;
-        entitySystem.Initialize();
-    
-        // Create a new entity.
-        EntityHandle entity = entitySystem.CreateEntity();
-        {
-            // Entity has been created and components can be added.
-        }
-        entitySystem.ProcessCommands();
-    
-        // Destroy the created entity
-        entitySystem.DestroyEntity(entity);
-        {
-            // Entity can be referenced until the next ProcessCommands() call.
-        }
-        entitySystem.ProcessCommands();
-    }
 */
 
 namespace Game
 {
-    class EntitySystem final : private NonCopyable, public Resettable<EntitySystem>
+    class EntitySystem final : private NonCopyable
     {
     public:
+        using CreateResult = Result<std::unique_ptr<EntitySystem>, void>;
+        static CreateResult Create();
+
         struct HandleFlags
         {
             enum
@@ -102,10 +84,7 @@ namespace Game
         using CommandList = std::queue<EntityCommand>;
 
     public:
-        EntitySystem();
         ~EntitySystem();
-
-        GenericResult Initialize();
 
         EntityHandle CreateEntity();
         void DestroyEntity(const EntityHandle& entity);
@@ -131,6 +110,8 @@ namespace Game
         } events;
 
     private:
+        EntitySystem();
+
         const HandleEntry& GetHandleEntry(const EntityHandle& entity) const;
         HandleEntry& GetHandleEntry(const EntityHandle& entity);
         void FreeHandle(HandleEntry& handleEntry);
@@ -140,6 +121,5 @@ namespace Game
         EntryList m_handleEntries;
         FreeList m_freeIdentifiers;
         unsigned int m_entityCount = 0;
-        bool m_initialized = false;
     };
 }

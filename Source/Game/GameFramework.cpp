@@ -11,45 +11,43 @@ using namespace Game;
 GameFramework::GameFramework() = default;
 GameFramework::~GameFramework() = default;
 
-GameFramework::InitializeResult GameFramework::Initialize(const InitializeFromParams& params)
+GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params)
 {
-    LOG("Initializing game framework...");
+    LOG("Creating game framework...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.timer != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.stateRenderer != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.timer != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.stateRenderer != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    m_timer = params.timer;
-    m_window = params.window;
-    m_stateRenderer = params.stateRenderer;
+    // Create instance.
+    auto instance = std::unique_ptr<GameFramework>(new GameFramework());
 
     // Initialize the event router.
     // Listens and replicates event to the current game state.
-    EventRouter::InitializeFromParams eventRouterParams;
+    EventRouter::CreateFromParams eventRouterParams;
     eventRouterParams.inputManager = params.inputManager;
-    eventRouterParams.gameFramework = this;
+    eventRouterParams.gameFramework = instance.get();
 
-    if(!m_eventRouter.Initialize(eventRouterParams))
+    instance->m_eventRouter = EventRouter::Create(eventRouterParams).UnwrapOr(nullptr);
+    if(instance->m_eventRouter == nullptr)
     {
-        LOG_ERROR("Could not initialize event router!");
-        return Failure(InitializeErrors::FailedEventRouterInitialization);
+        LOG_ERROR("Could not create event router!");
+        return Failure(CreateErrors::FailedEventRouterCreation);
     }
 
+    // Save system references.
+    instance->m_timer = params.timer;
+    instance->m_window = params.window;
+    instance->m_stateRenderer = params.stateRenderer;
+
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 bool GameFramework::Update()
 {
-    ASSERT(m_initialized, "Game framework has not been initialized!");
-
     // Update game state.
     if(m_gameState)
     {
@@ -63,8 +61,6 @@ bool GameFramework::Update()
 
 void GameFramework::Draw()
 {
-    ASSERT(m_initialized, "Game framework has not been initialized!");
-
     // Get window viewport rect.
     glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
 
@@ -78,8 +74,6 @@ void GameFramework::Draw()
 
 void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)
 {
-    ASSERT(m_initialized, "Game framework has not been initialized!");
-
     // Make sure we are not setting the same game state.
     if(gameState == m_gameState)
     {
@@ -114,6 +108,5 @@ void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)
 
 std::shared_ptr<GameState> GameFramework::GetGameState()
 {
-    ASSERT(m_initialized, "Game framework has not been initialized!");
     return m_gameState;
 }

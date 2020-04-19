@@ -13,93 +13,94 @@ GameState::~GameState()
     events.instanceDestructed.Dispatch();
 }
 
-GameState::InitializeResult GameState::Initialize()
+GameState::CreateResult GameState::Create()
 {
-    LOG("Initializing game state...");
+    LOG("Creating game state...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+    // Create instance.
+    auto instance = std::unique_ptr<GameState>(new GameState());
 
-    // Initialize entity system.
+    // Create entity system.
     // Assigns unique identifiers that all other systems use to identify objects in a game.
-    if(!entitySystem.Initialize())
+    instance->entitySystem = EntitySystem::Create().UnwrapOr(nullptr);
+    if(instance->entitySystem == nullptr)
     {
-        LOG_ERROR("Could not initialize entity system!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create entity system!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize component system.
+    // Create component system.
     // Stores and manages components that entities have.
-    if(!componentSystem.Initialize(&entitySystem))
+    instance->componentSystem = ComponentSystem::Create(instance->entitySystem.get()).UnwrapOr(nullptr);
+    if(instance->componentSystem == nullptr)
     {
-        LOG_ERROR("Could not initialize component system!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create component system!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize identity system.
+    // Create identity system.
     // Allows readable names to be assigned to entities.
-    if(!identitySystem.Initialize(&entitySystem))
+    instance->identitySystem = IdentitySystem::Create(instance->entitySystem.get()).UnwrapOr(nullptr);
+    if(instance->identitySystem == nullptr)
     {
-        LOG_ERROR("Could not initialize identity system!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create identity system!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize interpolation system.
+    // Create interpolation system.
     // Controls how and when entities are interpolated.
-    if(!interpolationSystem.Initialize(&componentSystem))
+    instance->interpolationSystem = InterpolationSystem::Create(instance->componentSystem.get()).UnwrapOr(nullptr);
+    if(instance->interpolationSystem == nullptr)
     {
-        LOG_ERROR("Could not initialize interpolation system!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create interpolation system!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize sprite system.
+    // Create sprite system.
     // Updates sprites and their animations.
-    if(!spriteSystem.Initialize(&componentSystem))
+    instance->spriteSystem = SpriteSystem::Create(instance->componentSystem.get()).UnwrapOr(nullptr);
+    if(instance->spriteSystem == nullptr)
     {
-        LOG_ERROR("Could not initialize sprite system!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create sprite system!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
     // Initialize update timer.
-    if(!updateTimer.Initialize())
+    instance->updateTimer = UpdateTimer::Create().UnwrapOr(nullptr);
+    if(instance->updateTimer == nullptr)
     {
-        LOG_ERROR("Could not initialize update timer!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create update timer!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
     // Bind and subscribe event receivers.
-    m_changeUpdateTime.Bind([this](const Events::ChangeUpdateTime& event) -> bool
+    GameState* instancePtr = instance.get();
+    instance->m_changeUpdateTime.Bind([instancePtr](const Events::ChangeUpdateTime& event) -> bool
     {
-        m_updateTime = event.updateTime;
+        instancePtr->m_updateTime = event.updateTime;
         return true;
     });
 
-    eventBroker.Subscribe(m_changeUpdateTime);
+    instance->eventBroker.Subscribe(instance->m_changeUpdateTime);
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void GameState::PushEvent(std::any event)
 {
-    ASSERT(m_initialized, "Game state has not been initialized!");
-
     // Add event to be processed later.
     eventQueue.Push(event);
 }
 
 bool GameState::Update(const System::Timer& timer)
 {
-    ASSERT(m_initialized, "Game state has not been initialized!");
-
     // Inform about update being called.
     events.updateCalled.Dispatch();
 
     // Tick update timer along with the application timer.
-    updateTimer.Tick(timer);
+    updateTimer->Tick(timer);
 
     // Return flag indicating if state was updated.
     bool stateUpdated = false;
@@ -107,7 +108,7 @@ bool GameState::Update(const System::Timer& timer)
     // Main game state update loop.
     const float updateTime = m_updateTime;
 
-    while(updateTimer.Update(updateTime))
+    while(updateTimer->Update(updateTime))
     {
         // Process events.
         while(!eventQueue.IsEmpty())
@@ -117,13 +118,13 @@ bool GameState::Update(const System::Timer& timer)
         }
 
         // Process entity commands.
-        entitySystem.ProcessCommands();
+        entitySystem->ProcessCommands();
 
         // Update interpolation system.
-        interpolationSystem.Update(updateTime);
+        interpolationSystem->Update(updateTime);
 
         // Update sprite animation system.
-        spriteSystem.Update(updateTime);
+        spriteSystem->Update(updateTime);
 
         // Inform that state had its update processed.
         // Allows for custom update logic to be executed.
@@ -139,6 +140,5 @@ bool GameState::Update(const System::Timer& timer)
 
 float GameState::GetUpdateTime() const
 {
-    ASSERT(m_initialized, "Game state has not been initialized!");
     return m_updateTime;
 }

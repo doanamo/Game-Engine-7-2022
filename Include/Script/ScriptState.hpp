@@ -20,20 +20,9 @@ namespace System
 
 namespace Script
 {
-    class ScriptState final : private NonCopyable, public Resettable<ScriptState>
+    class ScriptState final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedLuaStateCreation,
-            FailedLuaLibraryLoading,
-            FailedLuaScriptExecution,
-            FailedScriptFileResolve,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
         struct LoadFromText
         {
             std::string scriptText;
@@ -45,14 +34,22 @@ namespace Script
             std::string filePath;
         };
 
-    public:
-        ScriptState();
-        ~ScriptState();
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedLuaStateCreation,
+            FailedLuaLibraryLoading,
+            FailedLuaScriptExecution,
+            FailedScriptFileResolve,
+        };
 
-        InitializeResult Initialize();
-        InitializeResult Initialize(const LoadFromText& params);
-        InitializeResult Initialize(const LoadFromFile& params);
-        bool IsInitialized() const;
+        using CreateResult = Result<std::unique_ptr<ScriptState>, CreateErrors>;
+        static CreateResult Create();
+        static CreateResult Create(const LoadFromText& params);
+        static CreateResult Create(const LoadFromFile& params);
+
+    public:
+        ~ScriptState();
 
         void PrintError();
         void CleanStack();
@@ -61,7 +58,9 @@ namespace Script
         operator lua_State*();
 
     private:
+        ScriptState();
+
+    private:
         lua_State* m_state = nullptr;
-        bool m_initialized = false;
     };
 }

@@ -9,49 +9,48 @@ using namespace Editor;
 EditorShell::EditorShell() = default;
 EditorShell::~EditorShell() = default;
 
-EditorShell::InitializeResult EditorShell::Initialize(const InitializeFromParams& params)
+EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
 {
-    LOG("Initializing editor shell...");
+    LOG("Creating editor shell...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    m_window = params.window;
+    // Create instance.
+    auto instance = std::unique_ptr<EditorShell>(new EditorShell());
 
-    // Initialize input manager editor.
-    InputManagerEditor::InitializeFromParams inputManagerEditorParams;
+    // Create input manager editor.
+    InputManagerEditor::CreateFromParams inputManagerEditorParams;
     inputManagerEditorParams.window = params.window;
 
-    if(!m_inputManagerEditor.Initialize(inputManagerEditorParams))
+    instance->m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
+    if(instance->m_inputManagerEditor == nullptr)
     {
-        LOG_ERROR("Could not initialize input manager editor!");
-        return Failure(InitializeErrors::FailedModuleInitialization);
+        LOG_ERROR("Could not create input manager editor!");
+        return Failure(CreateErrors::FailedModuleInitialization);
     }
 
-    // Initialize game state editor.
-    GameStateEditor::InitializeFromParams gameStateEditorParams;
+    // Create game state editor.
+    GameStateEditor::CreateFromParams gameStateEditorParams;
     gameStateEditorParams.gameFramework = params.gameFramework;
 
-    if(!m_gameStateEditor.Initialize(gameStateEditorParams))
+    instance->m_gameStateEditor = GameStateEditor::Create(gameStateEditorParams).UnwrapOr(nullptr);
+    if(instance->m_gameStateEditor == nullptr)
     {
-        LOG_ERROR("Could not initialize game state editor!");
-        return Failure(InitializeErrors::FailedModuleInitialization);
+        LOG_ERROR("Could not create game state editor!");
+        return Failure(CreateErrors::FailedModuleInitialization);
     }
 
+    // Save window reference.
+    instance->m_window = params.window;
+
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void EditorShell::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Editor shell has not been initialized!");
-
     // Show demo window.
     if(m_showDemoWindow)
     {
@@ -78,13 +77,13 @@ void EditorShell::Update(float timeDelta)
 
         if(ImGui::BeginMenu("System"))
         {
-            ImGui::MenuItem("Input Manager", "", &m_inputManagerEditor.mainWindowOpen, true);
+            ImGui::MenuItem("Input Manager", "", &m_inputManagerEditor->mainWindowOpen, true);
             ImGui::EndMenu();
         }
 
         if(ImGui::BeginMenu("Game"))
         {
-            ImGui::MenuItem("Game State", "", &m_gameStateEditor.mainWindowOpen, true);
+            ImGui::MenuItem("Game State", "", &m_gameStateEditor->mainWindowOpen, true);
             ImGui::EndMenu();
         }
 
@@ -92,6 +91,6 @@ void EditorShell::Update(float timeDelta)
     }
 
     // Update editor modules.
-    m_inputManagerEditor.Update(timeDelta);
-    m_gameStateEditor.Update(timeDelta);
+    m_inputManagerEditor->Update(timeDelta);
+    m_gameStateEditor->Update(timeDelta);
 }

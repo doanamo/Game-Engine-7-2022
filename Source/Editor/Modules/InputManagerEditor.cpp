@@ -19,45 +19,42 @@ InputManagerEditor::InputManagerEditor()
 
 InputManagerEditor::~InputManagerEditor() = default;
 
-InputManagerEditor::InitializeResult InputManagerEditor::Initialize(const InitializeFromParams& params)
+InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromParams& params)
 {
-    LOG("Initializing input manager editor...");
+    LOG("Creating input manager editor...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    m_window = params.window;
+    // Create instance.
+    auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
 
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
-    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_window->events.keyboardKey);
-    subscriptionResults &= m_textInputReceiver.Subscribe(m_window->events.textInput);
-    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_window->events.focus);
-    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_window->events.mouseButton);
-    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_window->events.mouseScroll);
-    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_window->events.cursorPosition);
-    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_window->events.cursorEnter);
+    subscriptionResults &= instance->m_keyboardKeyReceiver.Subscribe(params.window->events.keyboardKey);
+    subscriptionResults &= instance->m_textInputReceiver.Subscribe(params.window->events.textInput);
+    subscriptionResults &= instance->m_windowFocusReceiver.Subscribe(params.window->events.focus);
+    subscriptionResults &= instance->m_mouseButtonReceiver.Subscribe(params.window->events.mouseButton);
+    subscriptionResults &= instance->m_mouseScrollReceiver.Subscribe(params.window->events.mouseScroll);
+    subscriptionResults &= instance->m_cursorPositionReceiver.Subscribe(params.window->events.cursorPosition);
+    subscriptionResults &= instance->m_cursorEnterReceiver.Subscribe(params.window->events.cursorEnter);
 
     if(!subscriptionResults)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
-        return Failure(InitializeErrors::FailedEventSubscription);
+        return Failure(CreateErrors::FailedEventSubscription);
     }
 
+    // Save window reference.
+    instance->m_window = params.window;
+
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void InputManagerEditor::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Show main window.
     if(mainWindowOpen)
     {
@@ -121,8 +118,6 @@ void InputManagerEditor::Update(float timeDelta)
 
 void InputManagerEditor::AddIncomingEventLog(std::string text)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Check if event log has been frozen by the user.
     if(m_incomingEventFreeze)
         return;
@@ -146,8 +141,6 @@ void InputManagerEditor::AddIncomingEventLog(std::string text)
 
 void InputManagerEditor::OnWindowFocus(const System::Window::Events::Focus& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Add event text log for window focus.
     if(m_incomingWindowFocus)
     {
@@ -161,8 +154,6 @@ void InputManagerEditor::OnWindowFocus(const System::Window::Events::Focus& even
 
 bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Filter keyboard key events.
     if((event.action == GLFW_PRESS && !m_incomingKeyboardKeyPress) ||
         (event.action == GLFW_RELEASE && !m_incomingKeyboardKeyRelease) ||
@@ -231,8 +222,6 @@ bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey
 
 bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Add event text log for text input.
     if(m_incomingTextInput)
     {
@@ -249,8 +238,6 @@ bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& ev
 
 bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Filter mouse button events.
     if((event.action == GLFW_PRESS && !m_incomingMouseButtonPress) ||
         (event.action == GLFW_RELEASE && !m_incomingMouseButtonRelease) ||
@@ -318,8 +305,6 @@ bool InputManagerEditor::OnMouseButton(const System::Window::Events::MouseButton
 
 bool InputManagerEditor::OnMouseScroll(const System::Window::Events::MouseScroll& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Add event text log for mouse scroll.
     if(m_incomingMouseScroll)
     {
@@ -336,8 +321,6 @@ bool InputManagerEditor::OnMouseScroll(const System::Window::Events::MouseScroll
 
 void InputManagerEditor::OnCursorPosition(const System::Window::Events::CursorPosition& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Add event text log for cursor position.
     if(m_incomingCursorPosition)
     {
@@ -351,8 +334,6 @@ void InputManagerEditor::OnCursorPosition(const System::Window::Events::CursorPo
 
 void InputManagerEditor::OnCursorEnter(const System::Window::Events::CursorEnter& event)
 {
-    ASSERT(m_initialized, "Input manager editor has not been initialized!");
-
     // Add event text log for cursor enter.
     if(m_incomingCursorEnter)
     {

@@ -51,7 +51,7 @@
 
 namespace Graphics
 {
-    class ScreenSpace final : private NonCopyable, public Resettable<ScreenSpace>
+    class ScreenSpace final : public Resettable<ScreenSpace>
     {
     public:
         ScreenSpace();

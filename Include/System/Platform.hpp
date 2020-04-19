@@ -13,40 +13,28 @@
     This class encapsulated initialization routines
     that must be called at the very beginning of
     the main() function of the main thread.
-
-    void ExmapleSystemPlatform()
-    {
-        // Initialize the platform context.
-        System::Platform platform;
-        if(!platform.Initialize())
-            return;
-
-        // Now all system classes can be used.
-        System::Window window;
-        System::Timer timer;
-    }
 */
 
 namespace System
 {
-    class Platform final : private NonCopyable, public Resettable<Platform>
+    class Platform final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             FailedGlfwInitialization,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<Platform>, CreateErrors>;
+        static CreateResult Create();
 
     public:
-        Platform();
         ~Platform();
 
-        InitializeResult Initialize();
-        bool IsInitialized() const;
+    private:
+        Platform();
 
     private:
-        bool m_initialized = false;
+        static int InstanceCounter;
     };
 }

@@ -9,56 +9,51 @@ using namespace Graphics;
 RenderContext::RenderContext() = default;
 RenderContext::~RenderContext() = default;
 
-RenderContext::InitializeResult RenderContext::Initialize(System::Window* window)
+RenderContext::CreateResult RenderContext::Create(System::Window* window)
 {
-    LOG("Initializing rendering context...");
+    LOG("Creating rendering context...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(CreateErrors::InvalidArgument));
+
+    // Create instance.
+    auto instance = std::unique_ptr<RenderContext>(new RenderContext());
 
     // Make window context current.
     window->MakeContextCurrent();
 
-    // Initialize initial state.
-    if(!m_currentState.Initialize())
-    {
-        LOG_ERROR("Failed to initialize render state!");
-        return Failure(InitializeErrors::FailedStateInitialization);
-    }
+    // Save initial render state.
+    instance->m_currentState.Save();
 
     // Save window reference.
-    m_window = window;
+    instance->m_window = window;
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void RenderContext::MakeCurrent()
 {
-    ASSERT(m_initialized, "Render context has not been initialized!");
     m_window->MakeContextCurrent();
 }
 
 RenderState& RenderContext::PushState()
 {
-    ASSERT(m_initialized, "Render context has not been initialized!");
-
-    // Push copy of the current state.
-    m_pushedStates.emplace(m_currentState);
+    // Push copy of current state.
+    m_pushedStates.push(m_currentState);
 
     // Return current state for convenience.
     return m_currentState;
 }
 
+RenderState& RenderContext::GetState()
+{
+    return m_currentState;
+}
+
 void RenderContext::PopState()
 {
-    ASSERT(m_initialized, "Render context has not been initialized!");
     ASSERT(!m_pushedStates.empty(), "Trying to pop non existing render state!");
 
     // Apply changes from the stack below.
@@ -66,15 +61,4 @@ void RenderContext::PopState()
 
     // Remove applied state.
     m_pushedStates.pop();
-}
-
-RenderState& RenderContext::GetState()
-{
-    ASSERT(m_initialized, "Render context has not been initialized!");
-    return m_currentState;
-}
-
-bool RenderContext::IsInitialized() const
-{
-    return m_initialized;
 }

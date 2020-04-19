@@ -43,30 +43,29 @@ EditorSystem::~EditorSystem()
     }
 }
 
-EditorSystem::InitializeResult EditorSystem::Initialize(const InitializeFromParams& params)
+EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 {
-    LOG("Initializing editor system...");
+    LOG("Creating editor system...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(CreateErrors::InvalidArgument));
+
+    // Create instance.
+    auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
 
     // Create ImGui context.
-    m_interface = ImGui::CreateContext();
+    instance->m_interface = ImGui::CreateContext();
 
-    if(m_interface == nullptr)
+    if(instance->m_interface == nullptr)
     {
         LOG_ERROR("Failed to initialize user interface context!");
-        return Failure(InitializeErrors::FailedContextCreation);
+        return Failure(CreateErrors::FailedContextCreation);
     }
 
     // Setup user interface.
@@ -112,51 +111,50 @@ EditorSystem::InitializeResult EditorSystem::Initialize(const InitializeFromPara
     // We insert receivers in front of dispatcher queue
     // as we want to have priority for input events.
     bool subscriptionResult = true;
-    subscriptionResult &= params.inputManager->events.keyboardKey.Subscribe(m_receiverKeyboardKey, false, true);
-    subscriptionResult &= params.inputManager->events.textInput.Subscribe(m_receiverTextInput, false, true);
-    subscriptionResult &= params.inputManager->events.mouseButton.Subscribe(m_receiverMouseButton, false, true);
-    subscriptionResult &= params.inputManager->events.mouseScroll.Subscribe(m_receiverMouseScroll, false, true);
-    subscriptionResult &= params.inputManager->events.cursorPosition.Subscribe(m_receiverCursorPosition, false, true);
+    subscriptionResult &= params.inputManager->events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, false, true);
+    subscriptionResult &= params.inputManager->events.textInput.Subscribe(instance->m_receiverTextInput, false, true);
+    subscriptionResult &= params.inputManager->events.mouseButton.Subscribe(instance->m_receiverMouseButton, false, true);
+    subscriptionResult &= params.inputManager->events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, false, true);
+    subscriptionResult &= params.inputManager->events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, false, true);
 
     if(!subscriptionResult)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
-        return Failure(InitializeErrors::FailedEventSubscription);
+        return Failure(CreateErrors::FailedEventSubscription);
     }
 
-    // Initialize editor renderer.
-    EditorRenderer::InitializeFromParams editorRendererParams;
+    // Create editor renderer.
+    EditorRenderer::CreateFromParams editorRendererParams;
     editorRendererParams.fileSystem = params.fileSystem;
     editorRendererParams.resourceManager = params.resourceManager;
     editorRendererParams.window = params.window;
     editorRendererParams.renderContext = params.renderContext;
 
-    if(!m_editorRenderer.Initialize(editorRendererParams))
+    instance->m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
+    if(instance->m_editorRenderer == nullptr)
     {
-        LOG_ERROR("Could not initialize editor renderer!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create editor renderer!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
-    // Initialize editor shell.
-    EditorShell::InitializeFromParams editorShellParams;
+    // Create editor shell.
+    EditorShell::CreateFromParams editorShellParams;
     editorShellParams.window = params.window;
     editorShellParams.gameFramework = params.gameFramework;
 
-    if(!m_editorShell.Initialize(editorShellParams))
+    instance->m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
+    if(instance->m_editorShell == nullptr)
     {
-        LOG_ERROR("Could not initialize editor shell!");
-        return Failure(InitializeErrors::FailedSubsystemInitialization);
+        LOG_ERROR("Could not create editor shell!");
+        return Failure(CreateErrors::FailedSubsystemInitialization);
     }
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void EditorSystem::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -167,23 +165,19 @@ void EditorSystem::Update(float timeDelta)
     // Start new interface frame.
     ImGui::NewFrame();
 
-    // Update the editor shell.
-    m_editorShell.Update(timeDelta);
+    // Update editor shell.
+    m_editorShell->Update(timeDelta);
 }
 
 void EditorSystem::Draw()
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context and draw the editor interface.
     ImGui::SetCurrentContext(m_interface);
-    m_editorRenderer.Draw();
+    m_editorRenderer->Draw();
 }
 
 void EditorSystem::CursorPositionCallback(const System::InputEvents::CursorPosition& event)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -195,8 +189,6 @@ void EditorSystem::CursorPositionCallback(const System::InputEvents::CursorPosit
 
 bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& event)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -224,8 +216,6 @@ bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& e
 
 bool EditorSystem::MouseScrollCallback(const System::InputEvents::MouseScroll& event)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -239,8 +229,6 @@ bool EditorSystem::MouseScrollCallback(const System::InputEvents::MouseScroll& e
 
 bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
@@ -268,8 +256,6 @@ bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& e
 
 bool EditorSystem::TextInputCallback(const System::InputEvents::TextInput& event)
 {
-    ASSERT(m_initialized, "Editor system has not been initialized!");
-
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();

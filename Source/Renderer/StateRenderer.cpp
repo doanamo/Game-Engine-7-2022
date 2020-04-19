@@ -15,31 +15,28 @@ using namespace Renderer;
 StateRenderer::StateRenderer() = default;
 StateRenderer::~StateRenderer() = default;
 
-StateRenderer::InitializeResult StateRenderer::Initialize(const InitializeFromParams& params)
+StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params)
 {
-    LOG("Initializing state renderer...");
+    LOG("Creating state renderer...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    m_renderContext = params.renderContext;
-    m_spriteRenderer = params.spriteRenderer;
+    // Create instance.
+    auto instance = std::unique_ptr<StateRenderer>(new StateRenderer());
+
+    // Save system references.
+    instance->m_renderContext = params.renderContext;
+    instance->m_spriteRenderer = params.spriteRenderer;
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void StateRenderer::Draw(const DrawParams& drawParams)
 {
-    ASSERT(m_initialized, "State renderer has not been initialized yet!");
-
     // Clear frame buffer.
     m_renderContext->GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -51,7 +48,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     }
 
     // Get time alpha from the game state.
-    float timeAlpha = drawParams.gameState->updateTimer.GetAlphaTime();
+    float timeAlpha = drawParams.gameState->updateTimer->GetAlphaTime();
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
 
     // Get game state systems.
@@ -60,7 +57,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     auto& identitySystem = drawParams.gameState->identitySystem;
 
     // Update sprite animation components for rendering.
-    for(auto& spriteAnimationComponent : componentSystem.GetPool<Game::SpriteAnimationComponent>())
+    for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())
     {
         // Update sprite texture view using currently playing animation.
         if(spriteAnimationComponent.IsPlaying())
@@ -91,11 +88,11 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     glm::mat4 cameraTransform(1.0f);
 
     // Retrieve transform from camera entity.
-    Game::EntityHandle cameraEntity = identitySystem.GetEntityByName(drawParams.cameraName);
+    Game::EntityHandle cameraEntity = identitySystem->GetEntityByName(drawParams.cameraName);
 
-    if(entitySystem.IsHandleValid(cameraEntity))
+    if(entitySystem->IsHandleValid(cameraEntity))
     {
-        auto cameraComponent = componentSystem.Lookup<Game::CameraComponent>(cameraEntity);
+        auto cameraComponent = componentSystem->Lookup<Game::CameraComponent>(cameraEntity);
 
         if(cameraComponent != nullptr)
         {
@@ -121,7 +118,7 @@ void StateRenderer::Draw(const DrawParams& drawParams)
     Graphics::SpriteDrawList spriteDrawList;
 
     // Get all sprite components.
-    for(auto& spriteComponent : componentSystem.GetPool<Game::SpriteComponent>())
+    for(auto& spriteComponent : componentSystem->GetPool<Game::SpriteComponent>())
     {
         // Get transform component.
         Game::TransformComponent* transformComponent = spriteComponent.GetTransformComponent();

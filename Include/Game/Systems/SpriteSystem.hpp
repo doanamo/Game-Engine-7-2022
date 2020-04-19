@@ -10,30 +10,31 @@ namespace Game
 }
 
 /*
-    Sprite Animation System
+    Sprite System
 */
 
 namespace Game
 {
-    class SpriteSystem final : private NonCopyable, public Resettable<SpriteSystem>
+    class SpriteSystem final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<SpriteSystem>, CreateErrors>;
+        static CreateResult Create(ComponentSystem* componentSystem);
 
     public:
-        SpriteSystem();
         ~SpriteSystem();
 
-        InitializeResult Initialize(ComponentSystem* componentSystem);
         void Update(float timeDelta);
 
     private:
+        SpriteSystem();
+
+    private:
         ComponentSystem* m_componentSystem = nullptr;
-        bool m_initialized = false;
     };
 }

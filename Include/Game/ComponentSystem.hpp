@@ -15,59 +15,30 @@
     Component System
 
     Manages component types and their instances.
-
-    void ExampleEntitySystem()
-    {
-        // Declaring a component type.
-        class Class : public Game::Component
-        {
-            // ...
-        };
-
-        // Adding components to entities.
-        EntityHandle entity = entitySystem.CreateEntity();
-        auto transform = componentSystem.Create<Game::Components::Transform>(entity);
-        auto render = componentSystem.Create<Game::Components::Render>(entity);
-        entitySystem.ProcessCommands();
-
-        // Iterate over all components of a given type.
-        auto componentsBegin = m_componentSystem->Begin<Components::Class>();
-        auto componentsEnd = m_componentSystem->End<Components::Class>();
-    
-        for(auto it = componentsBegin; it != componentsEnd; ++it)
-        {
-            const EntityHandle& entity = it->first;
-            Components::Class& component = it->second;
-        
-            // ...
-        }
-    }
 */
 
 namespace Game
 {
     class EntitySystem;
 
-    class ComponentSystem final : private NonCopyable, public Resettable<ComponentSystem>
+    class ComponentSystem final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
             FailedEventSubscription,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<ComponentSystem>, CreateErrors>;
+        static CreateResult Create(EntitySystem* entitySystem);
 
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
         using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
 
     public:
-        ComponentSystem();
         ~ComponentSystem();
-
-        InitializeResult Initialize(EntitySystem* entitySystem);
 
         template<typename ComponentType>
         ComponentType* Create(EntityHandle handle);
@@ -87,13 +58,14 @@ namespace Game
         EntitySystem* GetEntitySystem() const;
 
     private:
+        ComponentSystem();
+
         template<typename ComponentType>
         bool Destroy(EntityHandle handle);
 
         template<typename ComponentType>
         ComponentPool<ComponentType>* CreatePool();
 
-    private:
         Event::Receiver<bool(EntityHandle)> m_entityCreate;
         Event::Receiver<void(EntityHandle)> m_entityDestroy;
 
@@ -103,21 +75,18 @@ namespace Game
     private:
         EntitySystem* m_entitySystem = nullptr;
         ComponentPoolList m_pools;
-        bool m_initialized = false;
     };
 
     template<typename ComponentType>
     ComponentType* ComponentSystem::Create(EntityHandle handle)
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get the component pool.
+        // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
-        // Create a new component.
+        // Create new component.
         ComponentType* component = pool.CreateComponent(handle);
 
         if(component != nullptr)
@@ -146,12 +115,10 @@ namespace Game
     template<typename ComponentType>
     ComponentType* ComponentSystem::Lookup(EntityHandle handle)
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get the component pool.
+        // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
         // Lookup and return the component.
@@ -161,12 +128,10 @@ namespace Game
     template<typename ComponentType>
     bool ComponentSystem::Destroy(EntityHandle handle)
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get the component pool.
+        // Get component pool.
         ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
         ASSERT(pool != nullptr, "Retrieved a null component pool!");
 
@@ -177,8 +142,6 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>& ComponentSystem::GetPool()
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
@@ -201,8 +164,6 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>* ComponentSystem::CreatePool()
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
@@ -215,37 +176,33 @@ namespace Game
 
         ASSERT(result.second == true, "Failed to insert new component pool type!");
 
-        // Return the created pool.
+        // Return created pool.
         return reinterpret_cast<ComponentPool<ComponentType>*>(result.first->second.get());
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentSystem::Begin()
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get the component pool.
+        // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
-        // Return the iterator.
+        // Return iterator.
         return pool.Begin();
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentSystem::End()
     {
-        ASSERT(m_initialized, "Component system instance is not initialized!");
-
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get the component pool.
+        // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
-        // Return the iterator.
+        // Return iterator.
         return pool.End();
     }
 }

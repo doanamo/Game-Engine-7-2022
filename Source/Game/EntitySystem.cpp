@@ -30,34 +30,25 @@ EntitySystem::EntitySystem() = default;
 
 EntitySystem::~EntitySystem()
 {
-    if(m_initialized)
-    {
-        // Destroy all remaining entities.
-        this->DestroyAllEntities();
+    // Destroy all remaining entities.
+    this->DestroyAllEntities();
 
-        // Empty the processing queue.
-        this->ProcessCommands();
-    }
+    // Empty the processing queue.
+    this->ProcessCommands();
 }
 
-GenericResult EntitySystem::Initialize()
+EntitySystem::CreateResult EntitySystem::Create()
 {
-    LOG("Initializing entity system...");
+    LOG("Creating entity system...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
-    // Success!
-    m_initialized = true;
-    return Success();
+    // Create instance.
+    auto instance = std::unique_ptr<EntitySystem>(new EntitySystem());
+    return Success(std::move(instance));
 }
 
 EntityHandle EntitySystem::CreateEntity()
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Check if we have reached the numerical limits.
     VERIFY(m_handleEntries.size() != MaximumIdentifier, "Entity identifier limit has been reached!");
 
@@ -124,8 +115,6 @@ EntityHandle EntitySystem::CreateEntity()
 
 void EntitySystem::DestroyEntity(const EntityHandle& entity)
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Check if handle is valid.
     if(!IsHandleValid(entity))
         return;
@@ -146,8 +135,6 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
 
 void EntitySystem::DestroyAllEntities()
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Process outstanding entity commands.
     ProcessCommands();
 
@@ -166,8 +153,6 @@ void EntitySystem::DestroyAllEntities()
 
 void EntitySystem::ProcessCommands()
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Process entity commands.
     while(!m_commands.empty())
     {
@@ -233,8 +218,6 @@ void EntitySystem::ProcessCommands()
 
 bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Retrieve handle entry.
     const HandleEntry& handleEntry = this->GetHandleEntry(entity);
 
@@ -255,8 +238,6 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
 
 EntitySystem::HandleFlags::Type EntitySystem::GetEntityFlags(const EntityHandle& entity)
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Retrieve handle entry.
     const HandleEntry& handleEntry = this->GetHandleEntry(entity);
 
@@ -270,8 +251,6 @@ EntitySystem::HandleFlags::Type EntitySystem::GetEntityFlags(const EntityHandle&
 
 const EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity) const
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Calculate entity handle entry index.
     int handleIndex = entity.identifier - StartingIdentifier;
 
@@ -285,15 +264,11 @@ const EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle
 
 EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity)
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     return const_cast<HandleEntry&>(const_cast<const EntitySystem*>(this)->GetHandleEntry(entity));
 }
 
 void EntitySystem::FreeHandle(HandleEntry& handleEntry)
 {
-    ASSERT(m_initialized, "Entity system has not been initialized!");
-
     // Make sure that flags are correct.
     // Does not have to be created yet, as creation process may fail.
     ASSERT(handleEntry.flags & HandleFlags::Exists);

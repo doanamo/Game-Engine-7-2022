@@ -23,21 +23,22 @@ namespace Game
 
 namespace Renderer
 {
-    class StateRenderer final : private NonCopyable, public Resettable<StateRenderer>
+    class StateRenderer final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             Graphics::RenderContext* renderContext = nullptr;
             Graphics::SpriteRenderer* spriteRenderer = nullptr;
         };
+
+        using CreateResult = Result<std::unique_ptr<StateRenderer>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
 
         struct DrawParams
         {
@@ -48,15 +49,15 @@ namespace Renderer
         };
 
     public:
-        StateRenderer();
         ~StateRenderer();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Draw(const DrawParams& drawParams);
+
+    private:
+        StateRenderer();
 
     private:
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
-        bool m_initialized = false;
     };
 }

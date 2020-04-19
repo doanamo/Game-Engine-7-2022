@@ -9,23 +9,23 @@ using namespace Graphics;
 
 namespace
 {
-    int GetVertexAttributeTypeRowElements(VertexAttributeType type)
+    int GetVertexAttributeTypeRowElements(VertexArray::AttributeType type)
     {
         switch(type)
         {
-        case VertexAttributeType::Value:
+        case VertexArray::AttributeType::Value:
             return 1;
 
-        case VertexAttributeType::Vector2:
+        case VertexArray::AttributeType::Vector2:
             return 2;
 
-        case VertexAttributeType::Vector3:
+        case VertexArray::AttributeType::Vector3:
             return 3;
 
-        case VertexAttributeType::Vector4:
+        case VertexArray::AttributeType::Vector4:
             return 4;
 
-        case VertexAttributeType::Matrix4x4:
+        case VertexArray::AttributeType::Matrix4x4:
             return 4;
 
         default:
@@ -34,17 +34,17 @@ namespace
         }
     }
 
-    int GetVertexAttributeTypeRowCount(VertexAttributeType type)
+    int GetVertexAttributeTypeRowCount(VertexArray::AttributeType type)
     {
         switch(type)
         {
-        case VertexAttributeType::Value:
-        case VertexAttributeType::Vector2:
-        case VertexAttributeType::Vector3:
-        case VertexAttributeType::Vector4:
+        case VertexArray::AttributeType::Value:
+        case VertexArray::AttributeType::Vector2:
+        case VertexArray::AttributeType::Vector3:
+        case VertexArray::AttributeType::Vector4:
             return 1;
 
-        case VertexAttributeType::Matrix4x4:
+        case VertexArray::AttributeType::Matrix4x4:
             return 4;
 
         default:
@@ -93,43 +93,41 @@ VertexArray::~VertexArray()
     }
 }
 
-VertexArray::InitializeResult VertexArray::Initialize(RenderContext* renderContext, const VertexArrayInfo& info)
+VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, const FromArrayParams& params)
 {
     LOG("Creating vertex array...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(info.attributeCount > 0, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(info.attributes != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributeCount > 0, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributes != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    for(std::size_t i = 0; i < info.attributeCount; ++i)
+    for(std::size_t i = 0; i < params.attributeCount; ++i)
     {
-        const VertexAttribute& attribute = info.attributes[i];
+        const Attribute& attribute = params.attributes[i];
 
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Failure(InitializeErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->IsInitialized(), Failure(InitializeErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Failure(InitializeErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != VertexAttributeType::Invalid, Failure(InitializeErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Failure(InitializeErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != AttributeType::Invalid, Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Failure(CreateErrors::InvalidAttribute));
     }
 
+    // Create instance.
+    auto instance = std::unique_ptr<VertexArray>(new VertexArray());
+
     // Create vertex array object.
-    glGenVertexArrays(1, &m_handle);
+    glGenVertexArrays(1, &instance->m_handle);
     OpenGL::CheckErrors();
 
-    if(m_handle == OpenGL::InvalidHandle)
+    if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Vertex array handle could not be created!");
-        return Failure(InitializeErrors::FailedResourceCreation);
+        return Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Bind vertex array handle.
-    glBindVertexArray(m_handle);
+    glBindVertexArray(instance->m_handle);
 
     SCOPE_GUARD_BEGIN();
     {
@@ -144,9 +142,9 @@ VertexArray::InitializeResult VertexArray::Initialize(RenderContext* renderConte
     int currentLocation = 0;
     int currentOffset = 0;
 
-    for(std::size_t i = 0; i < info.attributeCount; ++i)
+    for(std::size_t i = 0; i < params.attributeCount; ++i)
     {
-        const VertexAttribute& attribute = info.attributes[i];
+        const Attribute& attribute = params.attributes[i];
 
         // Bind a vertex buffer.
         if(currentBuffer != attribute.buffer)
@@ -193,20 +191,13 @@ VertexArray::InitializeResult VertexArray::Initialize(RenderContext* renderConte
     }
 
     // Save render context reference.
-    m_renderContext = renderContext;
+    instance->m_renderContext = renderContext;
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 GLuint VertexArray::GetHandle() const
 {
-    ASSERT(m_initialized, "Vertex array has not been initialized!");
     return m_handle;
-}
-
-bool VertexArray::IsInitialized() const
-{
-    return m_initialized;
 }

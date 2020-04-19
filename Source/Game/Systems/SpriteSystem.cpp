@@ -12,29 +12,26 @@ using namespace Game;
 SpriteSystem::SpriteSystem() = default;
 SpriteSystem::~SpriteSystem() = default;
 
-SpriteSystem::InitializeResult SpriteSystem::Initialize(ComponentSystem* componentSystem)
+SpriteSystem::CreateResult SpriteSystem::Create(ComponentSystem* componentSystem)
 {
-    LOG("Initializing sprite system...");
+    LOG("Create sprite system...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+    // Check arguments.
+    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    // Validate component system reference.
-    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    // Create instance.
+    auto instance = std::unique_ptr<SpriteSystem>(new SpriteSystem());
 
-    m_componentSystem = componentSystem;
+    // Save component system reference.
+    instance->m_componentSystem = componentSystem;
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void SpriteSystem::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Sprite system has not been initialized!");
-
     // Get all sprite animation components.
     for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {

@@ -56,6 +56,7 @@ namespace Game
     private:
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
+    private:
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;
         const SpriteAnimation* m_spriteAnimation = nullptr;

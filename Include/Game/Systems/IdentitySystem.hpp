@@ -20,38 +20,36 @@ namespace Game
 {
     class EntitySystem;
 
-    class IdentitySystem final : private NonCopyable, public Resettable<IdentitySystem>
+    class IdentitySystem final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<IdentitySystem>, CreateErrors>;
+        static CreateResult Create(EntitySystem* entitySystem);
 
         using NameRegistry = std::vector<EntityHandle>;
         using EntityLookup = std::unordered_map<EntityHandle, std::string>;
         using NameLookup = std::unordered_map<std::string, NameRegistry>;
 
     public:
-        IdentitySystem();
         ~IdentitySystem();
-
-        InitializeResult Initialize(EntitySystem* entitySystem);
 
         bool SetEntityName(EntityHandle entity, std::string name, bool rename = true);
         EntityHandle GetEntityByName(std::string name) const;
         std::vector<EntityHandle> GetEntitiesWithName(std::string name) const;
 
     private:
+        IdentitySystem();
+
         Event::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
         void OnEntityDestroyed(EntityHandle entity);
 
     private:
         EntityLookup m_entityLookup;
         NameLookup m_nameLookup;
-
-        bool m_initialized = false;
     };
 }

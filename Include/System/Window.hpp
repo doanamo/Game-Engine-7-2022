@@ -13,58 +13,14 @@
 
     Creates and handles a multimedia window that also manages its own OpenGL
     context along with input. Supports multiple windows and OpenGL contexts.
-
-    void ExampleSystemWindow()
-    {
-        // Describe a window.
-        WindowInfo windowInfo;
-        windowInfo.width = 1024;
-        windowInfo.height = 576;
-
-        // Open a new window.
-        System::Window window;
-        if(!window.Initialize(windowInfo))
-            return;
-
-        // Run a window loop.
-        while(window.IsOpen())
-        {
-            window.ProcessEvents();
-
-            // Update and draw here.
-
-            window.Present();
-        }
-    }
-
-    void ExampleEvents(Class& instance)
-    {
-        // Create an event receiver with a signature matching the dispatcher.
-        Receiver<void(const Window::Events::KeyboardKey&)> receiver;
-
-        // Bind a class method with the same signature as both receiver and dispatcher.
-        receiver.Bind<Instance, &Instance::HandleWindowEvent>(&instance);
-
-        // Subscribe to window's event dispatcher.
-        receiver.Subscribe(window.events.keyboardKey);
-    }
 */
 
 namespace System
 {
-    class Window final : private NonCopyable, public Resettable<Window>
+    class Window final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedWindowCreation,
-            FailedGlewInitialization,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             std::string title = "Window";
             int width = 1024;
@@ -78,11 +34,19 @@ namespace System
             int maxHeight = GLFW_DONT_CARE;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedWindowCreation,
+            FailedGlewInitialization,
+        };
+
+        using CreateResult = Result<std::unique_ptr<Window>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        Window();
         ~Window();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void MakeContextCurrent();
         void ProcessEvents();
         void Present();
@@ -96,7 +60,6 @@ namespace System
         int GetHeight() const;
         bool IsOpen() const;
         bool IsFocused() const;
-        bool IsInitialized() const;
 
         GLFWwindow* GetPrivateHandle();
 
@@ -185,6 +148,8 @@ namespace System
         } events;
 
     private:
+        Window();
+
         static void MoveCallback(GLFWwindow* window, int x, int y);
         static void ResizeCallback(GLFWwindow* window, int width, int height);
         static void FocusCallback(GLFWwindow* window, int focused);
@@ -200,6 +165,5 @@ namespace System
         std::string m_title;
         GLFWwindow* m_handle = nullptr;
         bool m_sizeChanged = false;
-        bool m_initialized = false;
     };
 }

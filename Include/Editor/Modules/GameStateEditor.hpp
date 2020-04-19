@@ -18,34 +18,34 @@ namespace Game
 
 namespace Editor
 {
-    class GameStateEditor final : private NonCopyable, public Resettable<GameStateEditor>
+    class GameStateEditor final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             Game::GameFramework* gameFramework = nullptr;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+        };
+
+        using CreateResult = Result<std::unique_ptr<GameStateEditor>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        GameStateEditor();
         ~GameStateEditor();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
-
         Game::GameState* GetGameState() const;
 
     public:
         bool mainWindowOpen = false;
 
     private:
+        GameStateEditor();
+
         struct Receivers
         {
             Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
@@ -71,7 +71,5 @@ namespace Editor
         float m_updateNoiseSlider = 0.0f;
         float m_updateNoiseValue = 0.0f;
         float m_updateFreezeSlider = 1.0f;
-
-        bool m_initialized = false;
     };
 }

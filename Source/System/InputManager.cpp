@@ -18,47 +18,41 @@ InputManager::InputManager()
 
 InputManager::~InputManager() = default;
 
-InputManager::InitializeResult InputManager::Initialize(Window* window)
+InputManager::CreateResult InputManager::Create(Window* window)
 {
-    // Print initialization info.
-    LOG("Initializing input manager...");
+    LOG("Creating input manager...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(window->IsInitialized(), Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(CreateErrors::InvalidArgument));
+
+    // Create instance.
+    auto instance = std::unique_ptr<InputManager>(new InputManager());
 
     // Subscribe to window input events.
     bool subscriptionResult = true;
-    subscriptionResult &= m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
-    subscriptionResult &= m_receivers.textInput.Subscribe(window->events.textInput);
-    subscriptionResult &= m_receivers.mouseButton.Subscribe(window->events.mouseButton);
-    subscriptionResult &= m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
-    subscriptionResult &= m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
-    subscriptionResult &= m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
+    subscriptionResult &= instance->m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
+    subscriptionResult &= instance->m_receivers.textInput.Subscribe(window->events.textInput);
+    subscriptionResult &= instance->m_receivers.mouseButton.Subscribe(window->events.mouseButton);
+    subscriptionResult &= instance->m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
+    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
+    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
 
     if(!subscriptionResult)
     {
         LOG_ERROR("Could not subscribe to window input events!");
-        return Failure(InitializeErrors::FailedSubscription);
+        return Failure(CreateErrors::FailedEventSubscription);
     }
 
     // Set default input states.
-    this->ResetStates();
+    instance->ResetStates();
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void InputManager::AdvanceState(float timeDelta)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Update state times for all keyboard keys.
     for(auto& keyboardKeyState : m_keyboardKeyStates)
     {
@@ -97,8 +91,6 @@ void InputManager::ResetStates()
 
 bool InputManager::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Validate specified keyboard key.
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
         return false;
@@ -109,8 +101,6 @@ bool InputManager::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
 
 bool InputManager::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Validate specified keyboard key.
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
         return false;
@@ -121,8 +111,6 @@ bool InputManager::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
 
 bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Translate keyboard event.
     KeyboardKeys::Type key = TranslateKeyboardKey(event.key);
     InputStates::Type state = TranslateInputAction(event.action);
@@ -174,12 +162,9 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 
 bool InputManager::OnTextInput(const Window::Events::TextInput& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Send outgoing text input event.
     InputEvents::TextInput outgoingEvent;
     outgoingEvent.utf32Character = event.utf32Character;
-
     events.textInput.Dispatch(outgoingEvent);
 
     // Do not consume input event.
@@ -188,14 +173,11 @@ bool InputManager::OnTextInput(const Window::Events::TextInput& event)
 
 bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Send outgoing mouse button event.
     InputEvents::MouseButton outgoingEvent;
     outgoingEvent.button = TranslateMouseButton(event.button);
     outgoingEvent.state = TranslateInputAction(event.action);
     outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
-
     events.mouseButton.Dispatch(outgoingEvent);
 
     // Do not consume input event.
@@ -204,12 +186,9 @@ bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
 
 bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Send outgoing mouse scroll event.
     InputEvents::MouseScroll outgoingEvent;
     outgoingEvent.offset = event.offset;
-
     events.mouseScroll.Dispatch(outgoingEvent);
 
     // Do not consume input event.
@@ -218,23 +197,17 @@ bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
 
 void InputManager::OnCursorPosition(const Window::Events::CursorPosition& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Send outgoing cursor position event.
     InputEvents::CursorPosition outgoingEvent;
     outgoingEvent.x = event.x;
     outgoingEvent.y = event.y;
-
     events.cursorPosition.Dispatch(outgoingEvent);
 }
 
 void InputManager::OnCursorEnter(const Window::Events::CursorEnter& event)
 {
-    ASSERT(m_initialized, "Input system has not been initialized!");
-
     // Send outgoing cursor enter event.
     InputEvents::CursorEnter outgoingEvent;
     outgoingEvent.entered = event.entered;
-
     events.cursorEnter.Dispatch(outgoingEvent);
 }

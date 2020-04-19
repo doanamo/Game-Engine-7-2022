@@ -17,33 +17,29 @@ GameStateEditor::GameStateEditor()
 
 GameStateEditor::~GameStateEditor() = default;
 
-GameStateEditor::InitializeResult GameStateEditor::Initialize(const InitializeFromParams& params)
+GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& params)
 {
-    LOG("Initializing game state editor...");
+    LOG("Creating game state editor...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(CreateErrors::InvalidArgument));
+
+    // Create instance.
+    auto instance = std::unique_ptr<GameStateEditor>(new GameStateEditor());
 
     // Subscribe to game state being changed.
-    m_receivers.gameStateChanged.Subscribe(params.gameFramework->events.gameStateChanged);
+    instance->m_receivers.gameStateChanged.Subscribe(params.gameFramework->events.gameStateChanged);
 
     // Set histogram size.
-    m_updateTimeHistogram.resize(100, 0.0f);
+    instance->m_updateTimeHistogram.resize(100, 0.0f);
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void GameStateEditor::Update(float timeDelta)
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
-
     // Do not create a window if game state reference is not set.
     if(!m_gameState)
     {
@@ -184,8 +180,6 @@ void GameStateEditor::Update(float timeDelta)
 
 void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
-
     if(gameState)
     {
         // Replace with new game state reference.
@@ -215,8 +209,6 @@ void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>&
 
 void GameStateEditor::OnGameStateDestructed()
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
-
     // Reset game state reference.
     m_gameState = nullptr;
     m_receivers = Receivers();
@@ -224,8 +216,6 @@ void GameStateEditor::OnGameStateDestructed()
 
 void GameStateEditor::OnGameStateUpdateCalled()
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
-
     // Do not process histogram data if paused.
     if(m_updateTimeHistogramPaused)
         return;
@@ -245,8 +235,6 @@ void GameStateEditor::OnGameStateUpdateCalled()
 
 void GameStateEditor::OnGameStateUpdateProcessed(float updateTime)
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
-
     // Do not process histogram data if paused.
     if(m_updateTimeHistogramPaused)
         return;
@@ -260,6 +248,5 @@ void GameStateEditor::OnGameStateUpdateProcessed(float updateTime)
 
 Game::GameState* GameStateEditor::GetGameState() const
 {
-    ASSERT(m_initialized, "Game state editor has not been initialized!");
     return m_gameState;
 }

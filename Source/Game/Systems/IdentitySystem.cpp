@@ -13,30 +13,26 @@ IdentitySystem::IdentitySystem()
 
 IdentitySystem::~IdentitySystem() = default;
 
-IdentitySystem::InitializeResult IdentitySystem::Initialize(EntitySystem* entitySystem)
+IdentitySystem::CreateResult IdentitySystem::Create(EntitySystem* entitySystem)
 {
-    LOG("Initializing identity system...");
+    LOG("Creating identity system...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
-
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Failure(CreateErrors::InvalidArgument));
+
+    // Create instance.
+    auto instance = std::unique_ptr<IdentitySystem>(new IdentitySystem());
 
     // Subscribe event receiver.
-    m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
+    instance->m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool rename)
 {
-    ASSERT(m_initialized, "Identity system has not been initialized!");
-
     // Check if provided entity is already named.
     auto entityIt = m_entityLookup.find(entity);
 
@@ -124,8 +120,6 @@ bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool r
 
 EntityHandle IdentitySystem::GetEntityByName(std::string name) const
 {
-    ASSERT(m_initialized, "Identity system has not been initialized!");
-
     // Find name in name lookup table.
     auto nameIt = m_nameLookup.find(name);
 
@@ -144,8 +138,6 @@ EntityHandle IdentitySystem::GetEntityByName(std::string name) const
 
 std::vector<EntityHandle> IdentitySystem::GetEntitiesWithName(std::string name) const
 {
-    ASSERT(m_initialized, "Identity system has not been initialized!");
-
     // Find name in name lookup table.
     auto nameIt = m_nameLookup.find(name);
 
@@ -164,8 +156,6 @@ std::vector<EntityHandle> IdentitySystem::GetEntitiesWithName(std::string name) 
 
 void IdentitySystem::OnEntityDestroyed(EntityHandle entity)
 {
-    ASSERT(m_initialized, "Identity system has not been initialized!");
-
     // Find entity in the entity lookup table.
     auto entityIt = m_entityLookup.find(entity);
 

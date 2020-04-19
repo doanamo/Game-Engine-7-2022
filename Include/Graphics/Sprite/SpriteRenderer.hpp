@@ -25,18 +25,10 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteRenderer final : private NonCopyable, public Resettable<SpriteRenderer>
+    class SpriteRenderer final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedResourceInitialization,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::FileSystem* fileSystem = nullptr;
             System::ResourceManager* resourceManager = nullptr;
@@ -44,24 +36,32 @@ namespace Graphics
             int spriteBatchSize = 128;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedResourceInitialization,
+        };
+
+        using CreateResult = Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        SpriteRenderer();
         ~SpriteRenderer();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
+
+    private:
+        SpriteRenderer();
 
     private:
         RenderContext* m_renderContext = nullptr;
         std::size_t m_spriteBatchSize = 0;
 
-        VertexBuffer m_vertexBuffer;
-        InstanceBuffer m_instanceBuffer;
-        VertexArray m_vertexArray;
-        Sampler m_nearestSampler;
-        Sampler m_linearSampler;
+        std::unique_ptr<VertexBuffer> m_vertexBuffer;
+        std::unique_ptr<InstanceBuffer> m_instanceBuffer;
+        std::unique_ptr<VertexArray> m_vertexArray;
+        std::unique_ptr<Sampler> m_nearestSampler;
+        std::unique_ptr<Sampler> m_linearSampler;
         std::shared_ptr<Shader> m_shader;
-
-        bool m_initialized = false;
     };
 }

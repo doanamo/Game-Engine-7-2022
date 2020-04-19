@@ -8,24 +8,20 @@ using namespace System;
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
 
-GenericResult ResourceManager::Initialize()
+ResourceManager::CreateResult ResourceManager::Create()
 {
-    LOG("Initializing resource manager...");
+    LOG("Creating resource manager...");
     LOG_SCOPED_INDENT();
-
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+    
+    // Create instance.
+    auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 void ResourceManager::ReleaseUnused()
 {
-    ASSERT(m_initialized, "Resource manager has not been initialized!");
-
     // Release all unused resources.
     for(auto& pair : m_pools)
     {

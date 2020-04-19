@@ -23,37 +23,38 @@ namespace Game
 
 namespace Editor
 {
-    class EditorShell final : private NonCopyable, public Resettable<EditorShell>
+    class EditorShell final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedModuleInitialization,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::Window* window = nullptr;
             Game::GameFramework* gameFramework = nullptr;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedModuleInitialization,
+        };
+
+        using CreateResult = Result<std::unique_ptr<EditorShell>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        EditorShell();
         ~EditorShell();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Update(float timeDelta);
+
+    private:
+        EditorShell();
 
     private:
         System::Window* m_window = nullptr;
 
-        InputManagerEditor m_inputManagerEditor;
-        GameStateEditor m_gameStateEditor;
+        std::unique_ptr<InputManagerEditor> m_inputManagerEditor;
+        std::unique_ptr<GameStateEditor> m_gameStateEditor;
 
         bool m_showDemoWindow = false;
-        bool m_initialized = false;
     };
 }

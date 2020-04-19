@@ -158,11 +158,9 @@ namespace Graphics
     {
     public:
         RenderState();
+        ~RenderState();
 
-        RenderState(const RenderState& other) = default;
-        RenderState& operator=(const RenderState& other) = default;
-
-        GenericResult Initialize();
+        void Save();
         void Apply(RenderState& other);
 
         void Enable(GLenum cap);
@@ -261,7 +259,5 @@ namespace Graphics
 
         // glScissor
         std::tuple<GLint, GLint, GLsizei, GLsizei> m_scissorBox;
-
-        bool m_initialized = false;
     };
 }

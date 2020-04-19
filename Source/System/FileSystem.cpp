@@ -8,25 +8,20 @@ using namespace System;
 FileSystem::FileSystem() = default;
 FileSystem::~FileSystem() = default;
 
-GenericResult FileSystem::Initialize()
+FileSystem::CreateResult FileSystem::Create()
 {
-    // Print initialization info.
-    LOG("Initializing file system...");
+    LOG("Creating file system...");
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    VERIFY(!m_initialized, "Instance has already been initialized!");
-    SCOPE_GUARD_IF(!m_initialized, this->Reset());
+    // Create instance.
+    auto instance = std::unique_ptr<FileSystem>(new FileSystem());
 
     // Success!
-    m_initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string directory)
 {
-    ASSERT(m_initialized, "File system has not been initialzied!");
-
     // Validate argument.
     if(directory.empty())
     {
@@ -47,14 +42,11 @@ FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string director
     m_mountedDirs.push_back(directory);
     LOG_INFO("Mounted \"{}\" directory.", directory);
 
-    // Success!
     return Success();
 }
 
 FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) const
 {
-    ASSERT(m_initialized, "File system has not been initialzied!");
-
     // Validate argument.
     if(path.empty())
     {

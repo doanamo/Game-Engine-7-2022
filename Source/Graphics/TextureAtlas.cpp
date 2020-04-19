@@ -13,121 +13,123 @@ using namespace Graphics;
 TextureAtlas::TextureAtlas() = default;
 TextureAtlas::~TextureAtlas() = default;
 
-TextureAtlas::InitializeResult TextureAtlas::Initialize()
+TextureAtlas::CreateResult TextureAtlas::Create()
 {
-    LOG("Initializing texture atlas...");
+    LOG("Creating texture atlas...");
     LOG_SCOPED_INDENT();
 
-    // Success!
-    m_initialized = true;
-    return Success();
+    // Create instance.
+    auto instance = std::unique_ptr<TextureAtlas>(new TextureAtlas());
+    return Success(std::move(instance));
 }
 
-TextureAtlas::InitializeResult TextureAtlas::Initialize(const LoadFromFile& params)
+TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
 {
     LOG("Loading texture atlas from \"{}\" file...", params.filePath);
     LOG_SCOPED_INDENT();
 
-    // Setup initialization guard.
-    bool initialized = false;
-    SCOPE_GUARD_IF(!initialized, this->Reset());
-
-    // Call base initialization method.
-    SUCCESS_OR_RETURN_RESULT(this->Initialize());
-
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(InitializeErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(InitializeErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
 
-    // Load texture atlas from file using script state.
-    Script::ScriptState::LoadFromFile scriptParams;
-    scriptParams.fileSystem = params.fileSystem;
-    scriptParams.filePath = params.filePath;
-
-    Script::ScriptState scriptState;
-    if(!scriptState.Initialize(scriptParams))
+    // Create base instance.
+    auto createResult = Create();
+    if(!createResult)
     {
-        LOG_ERROR("Could not load file!");
-        return Failure(InitializeErrors::FailedResourceLoading);
+        return createResult;
     }
 
-    // Get the global table.
-    lua_getglobal(scriptState, "TextureAtlas");
-    SCOPE_GUARD(lua_pop(scriptState, 1));
+    auto instance = createResult.Unwrap();
 
-    if(!lua_istable(scriptState, -1))
+    // Load resource script.
+    Script::ScriptState::LoadFromFile resourceParams;
+    resourceParams.fileSystem = params.fileSystem;
+    resourceParams.filePath = params.filePath;
+
+    auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
+    if(resourceScript == nullptr)
+    {
+        LOG_ERROR("Could not load texture atlas resource file!");
+        return Failure(CreateErrors::FailedResourceLoading);
+    }
+
+    // Get global table.
+    lua_getglobal(*resourceScript, "TextureAtlas");
+    SCOPE_GUARD(lua_pop(*resourceScript, 1));
+
+    if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas\" is missing!");
-        return Failure(InitializeErrors::InvalidResourceContent);
+        return Failure(CreateErrors::InvalidResourceContent);
     }
 
     // Load texture.
     {
-        lua_getfield(scriptState, -1, "Texture");
-        SCOPE_GUARD(lua_pop(scriptState, 1));
+        lua_getfield(*resourceScript, -1, "Texture");
+        SCOPE_GUARD(lua_pop(*resourceScript, 1));
 
-        if(!lua_isstring(scriptState, -1))
+        if(!lua_isstring(*resourceScript, -1))
         {
             LOG_ERROR("String \"TextureAtlas.Texture\" is missing!");
-            return Failure(InitializeErrors::InvalidResourceContent);
+            return Failure(CreateErrors::InvalidResourceContent);
         }
 
         Texture::LoadFromFile textureParams;
         textureParams.fileSystem = params.fileSystem;
-        textureParams.filePath = lua_tostring(scriptState, -1);
+        textureParams.filePath = lua_tostring(*resourceScript, -1);
         textureParams.renderContext = params.renderContext;
         textureParams.mipmaps = true;
 
-        m_texture = params.resourceManager->Acquire<Graphics::Texture>(textureParams.filePath, textureParams);
+        instance->m_texture = params.resourceManager->Acquire<Graphics::Texture>(textureParams.filePath, textureParams);
 
-        if(m_texture == nullptr)
+        if(instance->m_texture == nullptr)
         {
             LOG_WARNING("Could not load texture!");
         }
     }
 
     // Read texture regions.
-    lua_getfield(scriptState, -1, "Regions");
-    SCOPE_GUARD(lua_pop(scriptState, 1));
+    lua_getfield(*resourceScript, -1, "Regions");
+    SCOPE_GUARD(lua_pop(*resourceScript, 1));
 
-    if(!lua_istable(scriptState, -1))
+    if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas.Regions\" is missing!");
-        return Failure(InitializeErrors::InvalidResourceContent);
+        return Failure(CreateErrors::InvalidResourceContent);
     }
 
-    for(lua_pushnil(scriptState); lua_next(scriptState, -2); lua_pop(scriptState, 1))
+    for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
     {
         // Check if key is a string.
-        if(!lua_isstring(scriptState, -2))
+        if(!lua_isstring(*resourceScript, -2))
         {
             LOG_WARNING("Key in \"TextureAtlas.Regions\" is not string!");
             continue;
         }
 
-        std::string regionName = lua_tostring(scriptState, -2);
+        std::string regionName = lua_tostring(*resourceScript, -2);
 
         // Read the region rectangle.
         glm::ivec4 pixelCoords(0);
 
         for(int i = 0; i < 4; ++i)
         {
-            lua_pushinteger(scriptState, i + 1);
-            lua_gettable(scriptState, -2);
+            lua_pushinteger(*resourceScript, i + 1);
+            lua_gettable(*resourceScript, -2);
 
-            if(!lua_isinteger(scriptState, -1))
+            if(!lua_isinteger(*resourceScript, -1))
             {
                 LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!", regionName, i);
             }
 
-            pixelCoords[i] = Utility::NumericalCast<int>(lua_tointeger(scriptState, -1));
+            pixelCoords[i] = Utility::NumericalCast<int>(lua_tointeger(*resourceScript, -1));
 
-            lua_pop(scriptState, 1);
+            lua_pop(*resourceScript, 1);
         }
 
         // Add a new texture region.
-        if(!this->AddRegion(regionName, pixelCoords))
+        if(!instance->AddRegion(regionName, pixelCoords))
         {
             LOG_WARNING("Could not add region with \"{}\" name!", regionName);
             continue;
@@ -135,14 +137,11 @@ TextureAtlas::InitializeResult TextureAtlas::Initialize(const LoadFromFile& para
     }
 
     // Success!
-    initialized = true;
-    return Success();
+    return Success(std::move(instance));
 }
 
 bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)
 {
-    VERIFY(m_initialized, "Texture atlas has not been initialized!");
-
     // Add texture region to map.
     auto result = m_regions.emplace(name, pixelCoords);
     return result.second;
@@ -150,8 +149,6 @@ bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)
 
 TextureView TextureAtlas::GetRegion(std::string name)
 {
-    VERIFY(m_initialized, "Texture atlas has not been initialized!");
-
     // Find and return texture region.
     auto it = m_regions.find(name);
 

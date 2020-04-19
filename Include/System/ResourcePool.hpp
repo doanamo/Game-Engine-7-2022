@@ -11,30 +11,6 @@
 
     Manages an instance pool for a single type of a resource.
     See ResourceManager class for more context.
-
-    void ExampleResourcePool()
-    {
-        // Create a resource pool instance.
-        System::ResourcePool<Texture> texturePool;
-
-        // Set a default resource that will be used as a 
-        // fall back in case of a failed resource acquisition.
-        std::shared_ptr<Texture> defaultTexture = std::make_shared<Texture>();
-        texturePool->SetDefault(defaultTexture);
-
-        // Create resources in a scope so they can be released when unused.
-        {
-            // Load a resource from the pool. Returns an existing resource if exist.
-            // Resource type must provide Load(std::string, ...) method for the template.
-            std::shared_ptr<const Texture> textureA = texture->Load("Data/Textures/checkerboard.png");
-
-            // This will return the previously loaded resource.
-            std::shared_ptr<const Texture> textureB = texture->Load("Data/Textures/checkerboard.png");
-        }
-        
-        // Release resources that are no longer referenced.
-        resourceManager.ReleaseUnused();
-    }
 */
 
 namespace System
@@ -55,7 +31,7 @@ namespace System
     };
 
     template<typename Type>
-    class ResourcePool final : public ResourcePoolInterface, private NonCopyable, public Resettable<ResourcePool<Type>>
+    class ResourcePool final : public ResourcePoolInterface, private NonCopyable
     {
     public:
         using ResourcePtr = std::shared_ptr<Type>;
@@ -112,10 +88,16 @@ namespace System
             return it->second;
         }
 
-        // Create new named resource instance.
-        std::shared_ptr<Type> resource = std::make_shared<Type>();
-        if(!resource->Initialize(std::forward<Arguments>(arguments)...))
+        // Create resource instance.
+        auto createResult = Type::Create(std::forward<Arguments>(arguments)...);
+
+        if(!createResult)
+        {
             return m_defaultResource;
+        }
+
+        std::shared_ptr<Type> resource = createResult.Unwrap();
+        ASSERT(resource != nullptr, "Successfully created resource is null!");
 
         // Add resource to the list.
         auto result = m_resources.emplace(name, std::move(resource));

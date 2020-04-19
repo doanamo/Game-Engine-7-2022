@@ -15,46 +15,22 @@
     Tracks resource references and releases them when no longer needed.
     Wraps multiple ResourcePool instances that can hold resources
     of different types in a single ResourceManager instance.
-
-    void ExampleResourceManager()
-    {
-        // Create a resource manager instance.
-        System::ResourceManager resourceManager;
-        if(!resourceManager.Initialize())
-            return;
-    
-        // Set a default resource that will be returned on failed acquisitions.
-        resourceManager->SetDefault<Texture>(std::make_shared<Texture>());
-    
-        // Load different resources in a scope.
-        {
-            // Load a resource from the pool. Returns an existing resource if exist.
-            auto floorTexture = resourceManager->Acquire<Texture("Data/Textures/floor.png");
-            auto grassTexture = resourceManager->Acquire<Texture>("Data/Textures/grass.png");
-
-            // Load a shader using the same ResourceManager instance.
-            std::shared_ptr<Shader> shader = resourceManager->Load<Shader>("Data/Shader/shiny.png");
-        }
-
-        // Release resources that are no longer referenced.
-        resourceManager.ReleaseUnused();
-    }
 */
 
 namespace System
 {
-    class ResourceManager final : private NonCopyable, public Resettable<ResourceManager>
+    class ResourceManager final : private NonCopyable
     {
     public:
+        using CreateResult = Result<std::unique_ptr<ResourceManager>, void>;
+        static CreateResult Create();
+
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
         using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
-        ResourceManager();
         ~ResourceManager();
-
-        GenericResult Initialize();
 
         template<typename Type>
         void SetDefault(std::shared_ptr<Type> resource);
@@ -68,6 +44,8 @@ namespace System
         void ReleaseUnused();
 
     private:
+        ResourceManager();
+
         template<typename Type>
         ResourcePool<Type>* CreatePool();
 
@@ -76,14 +54,11 @@ namespace System
 
     private:
         ResourcePoolList m_pools;
-        bool m_initialized = false;
     };
 
     template<typename Type>
     void ResourceManager::SetDefault(std::shared_ptr<Type> resource)
     {
-        ASSERT(m_initialized, "Resource manager has not been initialized!");
-
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
@@ -95,8 +70,6 @@ namespace System
     template<typename Type>
     std::shared_ptr<Type> ResourceManager::GetDefault() const
     {
-        ASSERT(m_initialized, "Resource manager has not been initialized!");
-
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
@@ -108,8 +81,6 @@ namespace System
     template<typename Type, typename... Arguments>
     std::shared_ptr<Type> ResourceManager::Acquire(std::string name, Arguments... arguments)
     {
-        ASSERT(m_initialized, "Resource manager has not been initialized!");
-
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
@@ -121,8 +92,6 @@ namespace System
     template<typename Type>
     ResourcePool<Type>* ResourceManager::CreatePool()
     {
-        ASSERT(m_initialized, "Resource manager has not been initialized!");
-
         // Create and add new resource pool.
         auto pool = std::make_unique<ResourcePool<Type>>();
         auto pair = ResourcePoolPair(typeid(Type), std::move(pool));
@@ -136,8 +105,6 @@ namespace System
     template<typename Type>
     ResourcePool<Type>* ResourceManager::GetPool()
     {
-        ASSERT(m_initialized, "Resource manager has not been initialized!");
-
         // Find pool by resource type.
         auto it = m_pools.find(typeid(Type));
         if(it != m_pools.end())

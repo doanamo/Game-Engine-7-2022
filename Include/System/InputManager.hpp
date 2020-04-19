@@ -11,53 +11,27 @@
     Input Manager
 
     Listens to all input related events and propagates them further.
-
-    void ExampleSystemInputSystem(System::Window& window)
-    {
-        // Create an input manager instance.
-        System::InputManager inputSystem;
-
-        // Subscribe the input system to window's input events.
-        inputSystem.Initialize(window);
-    
-        // Run the main window loop.
-        while(window.IsOpen())
-        {
-            // Prepare the state for incoming events.
-            inputSystem.AdvanceState();
-
-            // Process events that will be dispatched to the input state.
-            window.ProcessEvents();
-
-            // Check if the escape key was pressed once.
-            if(inputSystem.IsKeyDown(GLFW_KEY_ESCAPE, false))
-            {
-                Log() << "Escape key has been pressed!";
-            }
-        }
-    }
 */
 
 namespace System
 {
     class Window;
 
-    class InputManager final : private NonCopyable, public Resettable<InputManager>
+    class InputManager final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
+        enum class CreateErrors
         {
             InvalidArgument,
-            FailedSubscription,
+            FailedEventSubscription,
         };
 
-        using InitializeResult = Result<void, InitializeErrors>;
+        using CreateResult = Result<std::unique_ptr<InputManager>, CreateErrors>;
+        static CreateResult Create(Window* window);
 
     public:
-        InputManager();
         ~InputManager();
 
-        InitializeResult Initialize(Window* window);
         void AdvanceState(float timeDelta);
         void ResetStates();
 
@@ -76,6 +50,8 @@ namespace System
         } events;
 
     private:
+        InputManager();
+
         struct Receivers
         {
             Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
@@ -95,6 +71,5 @@ namespace System
 
     private:
         InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
-        bool m_initialized = false;
     };
 }

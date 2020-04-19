@@ -20,30 +20,29 @@ namespace System
     Game Scene
 */
 
-class GameScene final : public NonCopyable, public Resettable<GameScene>
+class GameScene final : public NonCopyable
 {
 public:
-    enum class InitializeErrors
+    enum class CreateErrors
     {
         InvalidArgument,
         FailedGameStateCreation,
         FailedResourceLoading,
     };
 
-    using InitializeResult = Result<void, InitializeErrors>;
+    using CreateResult = Result<std::unique_ptr<GameScene>, CreateErrors>;
+    static CreateResult Create(Engine::Root* engine);
 
 public:
-    GameScene();
     ~GameScene();
 
-    InitializeResult Initialize(Engine::Root* engine);
-
 private:
+    GameScene();
+
     Event::Receiver<void(float)> m_customUpdate;
     void Update(float updateTime);
 
 private:
     Engine::Root* m_engine = nullptr;
     std::shared_ptr<Game::GameState> m_gameState;
-    bool m_initialized = false;
 };

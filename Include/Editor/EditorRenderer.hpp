@@ -29,18 +29,10 @@ namespace Graphics
 
 namespace Editor
 {
-    class EditorRenderer final : private NonCopyable, public Resettable<EditorRenderer>
+    class EditorRenderer final : private NonCopyable
     {
     public:
-        enum class InitializeErrors
-        {
-            InvalidArgument,
-            FailedResourceCreation,
-        };
-
-        using InitializeResult = Result<void, InitializeErrors>;
-
-        struct InitializeFromParams
+        struct CreateFromParams
         {
             System::Window* window = nullptr;
             System::FileSystem* fileSystem = nullptr;
@@ -48,24 +40,32 @@ namespace Editor
             Graphics::RenderContext* renderContext = nullptr;
         };
 
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedResourceCreation,
+        };
+
+        using CreateResult = Result<std::unique_ptr<EditorRenderer>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
     public:
-        EditorRenderer();
         ~EditorRenderer();
 
-        InitializeResult Initialize(const InitializeFromParams& params);
         void Draw();
+
+    private:
+        EditorRenderer();
 
     private:
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 
-        Graphics::VertexBuffer m_vertexBuffer;
-        Graphics::IndexBuffer m_indexBuffer;
-        Graphics::VertexArray m_vertexArray;
-        Graphics::Texture m_fontTexture;
-        Graphics::Sampler m_sampler;
-        Graphics::ShaderPtr m_shader;
-
-        bool m_initialized = false;
+        std::unique_ptr<Graphics::VertexBuffer> m_vertexBuffer;
+        std::unique_ptr<Graphics::IndexBuffer> m_indexBuffer;
+        std::unique_ptr<Graphics::VertexArray> m_vertexArray;
+        std::unique_ptr<Graphics::Texture> m_fontTexture;
+        std::unique_ptr<Graphics::Sampler> m_sampler;
+        std::shared_ptr<Graphics::Shader> m_shader;
     };
 }

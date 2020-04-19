@@ -43,18 +43,26 @@ namespace Editor
 
 namespace Engine
 {
-    struct InitializeFromParams
-    {
-        float maximumTickDelta = 1.0f;
-    };
-
-    class Root final : private NonCopyable, public Resettable<Root> 
+    class Root final : private NonCopyable
     {
     public:
-        Root();
+        struct CreateFromParams
+        {
+            float maximumTickDelta = 1.0f;
+        };
+
+        enum class CreateErrors
+        {
+            InvalidArgument,
+            FailedSubsystemCreation,
+        };
+
+        using CreateResult = Result<std::unique_ptr<Root>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
+
+    public:
         ~Root();
 
-        bool Initialize(const InitializeFromParams& initParams = InitializeFromParams());
         int Run();
 
         System::Platform& GetPlatform();
@@ -69,7 +77,8 @@ namespace Engine
         Game::GameFramework& GetGameFramework();
         Editor::EditorSystem& GetEditorSystem();
 
-        bool IsInitialized() const;
+    private:
+        Root();
 
     private:
         std::unique_ptr<System::Platform> m_platform;
@@ -85,6 +94,5 @@ namespace Engine
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
 
         float m_maximumTickDelta = 1.0f;
-        bool m_initialized = false;
     };
 }
