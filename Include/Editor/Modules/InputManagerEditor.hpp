@@ -13,7 +13,7 @@
 
 namespace Editor
 {
-    class InputManagerEditor final : private NonCopyable
+    class InputManagerEditor final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -27,7 +27,7 @@ namespace Editor
             FailedEventSubscription,
         };
 
-        using CreateResult = Result<std::unique_ptr<InputManagerEditor>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<InputManagerEditor>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

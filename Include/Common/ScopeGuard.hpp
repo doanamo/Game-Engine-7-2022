@@ -49,83 +49,86 @@
         SCOPE_GUARD_END();
 */
 
-template<typename Type>
-class ScopeGuard : private NonCopyable
+namespace Common
 {
-public:
-    ScopeGuard(Type function) :
-        m_function(function)
-    {
-    }
-
-    ScopeGuard(ScopeGuard<Type>&& other) :
-        m_function(std::move(other.m_function))
-    {
-    }
-
-    ScopeGuard<Type>& operator=(ScopeGuard<Type>&& other)
-    {
-        if(this != &other)
-        {
-            m_function = std::move(other.m_function);
-        }
-
-        return *this;
-    }
-
-    ~ScopeGuard()
-    {
-        m_function();
-    }
-
-private:
-    Type m_function;
-};
-
-template<>
-class ScopeGuard<void> : private NonCopyable
-{
-public:
-    // Helper condition wrapper.
-    class Condition
+    template<typename Type>
+    class ScopeGuard : private NonCopyable
     {
     public:
-        Condition() :
-            m_value(true)
+        ScopeGuard(Type function) :
+            m_function(function)
         {
         }
 
-        Condition(bool value) :
-            m_value(value)
+        ScopeGuard(ScopeGuard<Type>&& other) :
+            m_function(std::move(other.m_function))
         {
         }
 
-        operator bool()
+        ScopeGuard<Type>& operator=(ScopeGuard<Type>&& other)
         {
-            return m_value;
+            if(this != &other)
+            {
+                m_function = std::move(other.m_function);
+            }
+
+            return *this;
+        }
+
+        ~ScopeGuard()
+        {
+            m_function();
         }
 
     private:
-        bool m_value;
+        Type m_function;
     };
-};
 
-// Utility function.
-template<typename Type>
-ScopeGuard<Type> MakeScopeGuard(Type function)
-{
-    return ScopeGuard<Type>(function);
+    template<>
+    class ScopeGuard<void> : private NonCopyable
+    {
+    public:
+        // Helper condition wrapper.
+        class Condition
+        {
+        public:
+            Condition() :
+                m_value(true)
+            {
+            }
+
+            Condition(bool value) :
+                m_value(value)
+            {
+            }
+
+            operator bool()
+            {
+                return m_value;
+            }
+
+        private:
+            bool m_value;
+        };
+    };
+
+    // Utility function.
+    template<typename Type>
+    ScopeGuard<Type> MakeScopeGuard(Type function)
+    {
+        return ScopeGuard<Type>(function);
+    }
 }
 
 // Utility macros.
 #define SCOPE_GUARD_STRING(line) scopeGuardLine ## line
 #define SCOPE_GUARD_NAME(line) SCOPE_GUARD_STRING(line)
 
-#define SCOPE_GUARD_BEGIN(...) auto SCOPE_GUARD_NAME(__LINE__) = MakeScopeGuard([&]() { if(ScopeGuard<void>::Condition(__VA_ARGS__)) { 
+#define SCOPE_GUARD_BEGIN(...) auto SCOPE_GUARD_NAME(__LINE__) = Common::MakeScopeGuard([&]() { if(Common::ScopeGuard<void>::Condition(__VA_ARGS__)) { 
 #define SCOPE_GUARD_END() } });
 
-#define SCOPE_GUARD_MAKE(code) MakeScopeGuard([&]() { code; })
+#define SCOPE_GUARD_MAKE(code) Common::MakeScopeGuard([&]() { code; })
 #define SCOPE_GUARD(code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_MAKE(code)
 
-#define SCOPE_GUARD_IF_MAKE(condition, code) MakeScopeGuard([&]() { if(condition) { code; } })
+#define SCOPE_GUARD_IF_MAKE(condition, code) Common::MakeScopeGuard([&]() { if(condition) { code; } })
 #define SCOPE_GUARD_IF(condition, code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_IF_MAKE(condition, code)

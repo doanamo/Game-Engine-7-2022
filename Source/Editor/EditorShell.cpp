@@ -15,7 +15,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<EditorShell>(new EditorShell());
@@ -28,7 +28,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     if(instance->m_inputManagerEditor == nullptr)
     {
         LOG_ERROR("Could not create input manager editor!");
-        return Failure(CreateErrors::FailedModuleCreation);
+        return Common::Failure(CreateErrors::FailedModuleCreation);
     }
 
     // Create game state editor.
@@ -39,14 +39,14 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     if(instance->m_gameStateEditor == nullptr)
     {
         LOG_ERROR("Could not create game state editor!");
-        return Failure(CreateErrors::FailedModuleCreation);
+        return Common::Failure(CreateErrors::FailedModuleCreation);
     }
 
     // Save window reference.
     instance->m_window = params.window;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void EditorShell::Update(float timeDelta)

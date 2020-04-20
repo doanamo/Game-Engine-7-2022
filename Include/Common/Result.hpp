@@ -14,7 +14,7 @@
     - https://github.com/oktal/result
 */
 
-namespace Detail
+namespace Common::Detail
 {
     struct Empty
     {
@@ -65,115 +65,118 @@ namespace Detail
     };
 }
 
-template<typename Type, typename DecayedType = typename std::decay<Type>::type>
-constexpr Detail::Success<DecayedType> Success(Type&& value)
+namespace Common
 {
-    return Detail::Success<DecayedType>(std::forward<Type>(value));
+    template<typename Type, typename DecayedType = typename std::decay<Type>::type>
+    constexpr Detail::Success<DecayedType> Success(Type&& value)
+    {
+        return Detail::Success<DecayedType>(std::forward<Type>(value));
+    }
+
+    constexpr Detail::Success<void> Success()
+    {
+        return Detail::Success<void>();
+    }
+
+    template<typename Type, typename DecayedType = typename std::decay<Type>::type>
+    constexpr Detail::Failure<DecayedType> Failure(Type&& value)
+    {
+        return Detail::Failure<DecayedType>(std::forward<Type>(value));
+    }
+
+    constexpr Detail::Failure<void> Failure()
+    {
+        return Detail::Failure<void>();
+    }
+
+    template<typename SuccessType, typename FailureType>
+    class Result
+    {
+    public:
+        using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
+        using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
+        using DeductedSharedType = typename std::conditional<std::is_same<SuccessType, FailureType>::value, SuccessType, Detail::Empty>::type;
+        using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
+
+        Result(Detail::Success<SuccessType>&& success)
+        {
+            m_variant.template emplace<0>(std::move(success.value));
+        }
+
+        Result(Detail::Failure<FailureType>&& failure)
+        {
+            m_variant.template emplace<1>(std::move(failure.value));
+        }
+
+        DeductedSuccessType Unwrap()
+        {
+            return UnwrapSuccess();
+        }
+
+        DeductedSuccessType UnwrapSuccess()
+        {
+            ASSERT(IsSuccess(), "Invalid result unwrap!");
+            return std::move(std::get<0>(m_variant));
+        }
+
+        DeductedFailureType UnwrapFailure()
+        {
+            ASSERT(IsFailure(), "Invalid result unwrap!");
+            return std::move(std::get<1>(m_variant));
+        }
+
+        DeductedSuccessType UnwrapOr(DeductedSuccessType&& defaultReturn)
+        {
+            return UnwrapSuccessOr(std::move(defaultReturn));
+        }
+
+        DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType&& defaultReturn)
+        {
+            return IsSuccess() ? UnwrapSuccess() : std::move(defaultReturn);
+        }
+
+        DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
+        {
+            return IsFailure() ? UnwrapFailure() : std::move(defaultReturn);
+        }
+
+        DeductedSharedType UnwrapEither()
+        {
+            static_assert(std::is_same<SuccessType, FailureType>::value, "Types must be the same to use UnwrapEither()!");
+            return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
+        }
+
+        bool IsSuccess() const
+        {
+            return std::get_if<0>(&m_variant) != nullptr;
+        }
+
+        bool IsFailure() const
+        {
+            return std::get_if<1>(&m_variant) != nullptr;
+        }
+
+        bool operator==(const bool boolean) const
+        {
+            return IsSuccess() == boolean;
+        }
+
+        bool operator!=(const bool boolean) const
+        {
+            return IsSuccess() != boolean;
+        }
+
+        explicit operator bool() const
+        {
+            return IsSuccess();
+        }
+
+    private:
+        VariantType m_variant;
+    };
+
+    using GenericResult = Result<void, void>;
 }
-
-constexpr Detail::Success<void> Success()
-{
-    return Detail::Success<void>();
-}
-
-template<typename Type, typename DecayedType = typename std::decay<Type>::type>
-constexpr Detail::Failure<DecayedType> Failure(Type&& value)
-{
-    return Detail::Failure<DecayedType>(std::forward<Type>(value));
-}
-
-constexpr Detail::Failure<void> Failure()
-{
-    return Detail::Failure<void>();
-}
-
-template<typename SuccessType, typename FailureType>
-class Result
-{
-public:
-    using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
-    using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
-    using DeductedSharedType = typename std::conditional<std::is_same<SuccessType, FailureType>::value, SuccessType, Detail::Empty>::type;
-    using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
-
-    Result(Detail::Success<SuccessType>&& success)
-    {
-        m_variant.template emplace<0>(std::move(success.value));
-    }
-
-    Result(Detail::Failure<FailureType>&& failure)
-    {
-        m_variant.template emplace<1>(std::move(failure.value));
-    }
-
-    DeductedSuccessType Unwrap()
-    {
-        return UnwrapSuccess();
-    }
-
-    DeductedSuccessType UnwrapSuccess()
-    {
-        ASSERT(IsSuccess(), "Invalid result unwrap!");
-        return std::move(std::get<0>(m_variant));
-    }
-
-    DeductedFailureType UnwrapFailure()
-    {
-        ASSERT(IsFailure(), "Invalid result unwrap!");
-        return std::move(std::get<1>(m_variant));
-    }
-
-    DeductedSuccessType UnwrapOr(DeductedSuccessType&& defaultReturn)
-    {
-        return UnwrapSuccessOr(std::move(defaultReturn));
-    }
-
-    DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType&& defaultReturn)
-    {
-        return IsSuccess() ? UnwrapSuccess() : std::move(defaultReturn);
-    }
-
-    DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
-    {
-        return IsFailure() ? UnwrapFailure() : std::move(defaultReturn);
-    }
-
-    DeductedSharedType UnwrapEither()
-    {
-        static_assert(std::is_same<SuccessType, FailureType>::value, "Types must be the same to use UnwrapEither()!");
-        return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
-    }
-
-    bool IsSuccess() const
-    {
-        return std::get_if<0>(&m_variant) != nullptr;
-    }
-
-    bool IsFailure() const
-    {
-        return std::get_if<1>(&m_variant) != nullptr;
-    }
-
-    bool operator==(const bool boolean) const
-    {
-        return IsSuccess() == boolean;
-    }
-
-    bool operator!=(const bool boolean) const
-    {
-        return IsSuccess() != boolean;
-    }
-
-    explicit operator bool() const
-    {
-        return IsSuccess();
-    }
-
-private:
-    VariantType m_variant;
-};
-
-using GenericResult = Result<void, void>;
 
 // Macro helpers.
 #define SUCCESS_OR_RETURN_RESULT(expression) \

@@ -17,7 +17,7 @@ namespace Graphics
     class RenderContext;
     class Buffer;
 
-    class VertexArray final : private NonCopyable
+    class VertexArray final : private Common::NonCopyable
     {
     public:
         enum class AttributeType
@@ -54,7 +54,7 @@ namespace Graphics
             FailedResourceCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<VertexArray>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<VertexArray>, CreateErrors>;
         static CreateResult Create(RenderContext* renderContext, const FromArrayParams& params);
 
     public:

@@ -22,7 +22,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class Shader final : private NonCopyable
+    class Shader final : private Common::NonCopyable
     {
     public:
         struct LoadFromString
@@ -50,7 +50,7 @@ namespace Graphics
             FailedProgramLinkage,
         };
 
-        using CreateResult = Result<std::unique_ptr<Shader>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Shader>, CreateErrors>;
         static CreateResult Create(const LoadFromString& params);
         static CreateResult Create(const LoadFromFile& params);
 

@@ -12,7 +12,7 @@
 
 namespace System
 {
-    class FileSystem final : private NonCopyable
+    class FileSystem final : private Common::NonCopyable
     {
     public:
         enum class MountDirectoryErrors
@@ -26,11 +26,11 @@ namespace System
             UnresolvablePath,
         };
 
-        using CreateResult = Result<std::unique_ptr<FileSystem>, void>;
+        using CreateResult = Common::Result<std::unique_ptr<FileSystem>, void>;
         static CreateResult Create();
 
-        using MountDirectoryResult = Result<void, MountDirectoryErrors>;
-        using ResolvePathResult = Result<std::string, ResolvePathErrors>;
+        using MountDirectoryResult = Common::Result<void, MountDirectoryErrors>;
+        using ResolvePathResult = Common::Result<std::string, ResolvePathErrors>;
         using MountedDirList = std::vector<std::string>;
 
     public:

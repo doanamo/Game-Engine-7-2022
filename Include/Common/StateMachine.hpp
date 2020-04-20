@@ -44,142 +44,145 @@
     }
 */
 
-template<typename Type>
-class StateMachine;
-
-template<typename Type>
-class State
+namespace Common
 {
-public:
-    StateMachine<Type>* GetStateMachine() const
-    {
-        return m_stateMachine;
-    }
+    template<typename Type>
+    class StateMachine;
 
-    bool HasStateMachine() const
+    template<typename Type>
+    class State
     {
-        return m_stateMachine != nullptr;
-    }
-
-protected:
-    State() = default;
-    virtual ~State() = default;
-
-    virtual bool CanEnterState(Type* currentState) const
-    {
-        return true;
-    }
-    
-    virtual bool CanExitState(Type* nextState) const
-    {
-        return true;
-    }
-
-    virtual void OnEnterState(Type* previousState)
-    {
-    }
-
-    virtual void OnExitState(Type* nextState)
-    {
-    }
-
-private:
-    friend StateMachine<Type>;
-
-    void SetStateMachine(StateMachine<Type>* stateMachine)
-    {
-        if(stateMachine)
+    public:
+        StateMachine<Type>* GetStateMachine() const
         {
-            ASSERT(!m_stateMachine, "Assigning state machine reference twice!");
+            return m_stateMachine;
         }
 
-        m_stateMachine = stateMachine;
-    }
-
-    StateMachine<Type>* m_stateMachine = nullptr;
-};
-
-template<typename Type>
-class StateMachine
-{
-public:
-    static_assert(std::is_base_of<State<Type>, Type>::value, "Type is not derived from State<Type>!");
-    using StateSharedPtr = std::shared_ptr<Type>;
-
-public:
-    StateMachine() = default;
-    ~StateMachine()
-    {
-        // Explicitly transition out of current
-        // state so OnExitState() is called.
-        ChangeState(nullptr);
-    }
-
-    bool ChangeState(StateSharedPtr newState)
-    {
-        // Check if we can exit current state.
-        if(m_currentState)
+        bool HasStateMachine() const
         {
-            ASSERT(m_currentState->GetStateMachine() == this, "Current state does not have reference set to this state machine!");
-
-            if(!m_currentState->CanExitState(newState.get()))
-            {
-                return false;
-            }
+            return m_stateMachine != nullptr;
         }
 
-        // Check if we can enter new state.
-        if(newState)
+    protected:
+        State() = default;
+        virtual ~State() = default;
+
+        virtual bool CanEnterState(Type* currentState) const
         {
-            if(newState->HasStateMachine())
+            return true;
+        }
+
+        virtual bool CanExitState(Type* nextState) const
+        {
+            return true;
+        }
+
+        virtual void OnEnterState(Type* previousState)
+        {
+        }
+
+        virtual void OnExitState(Type* nextState)
+        {
+        }
+
+    private:
+        friend StateMachine<Type>;
+
+        void SetStateMachine(StateMachine<Type>* stateMachine)
+        {
+            if(stateMachine)
             {
-                LOG_WARNING("State machine stopped transition to state that is already in use!");
-                return false;
+                ASSERT(!m_stateMachine, "Assigning state machine reference twice!");
             }
 
-            if(!newState->CanEnterState(m_currentState.get()))
+            m_stateMachine = stateMachine;
+        }
+
+        StateMachine<Type>* m_stateMachine = nullptr;
+    };
+
+    template<typename Type>
+    class StateMachine
+    {
+    public:
+        static_assert(std::is_base_of<State<Type>, Type>::value, "Type is not derived from State<Type>!");
+        using StateSharedPtr = std::shared_ptr<Type>;
+
+    public:
+        StateMachine() = default;
+        ~StateMachine()
+        {
+            // Explicitly transition out of current
+            // state so OnExitState() is called.
+            ChangeState(nullptr);
+        }
+
+        bool ChangeState(StateSharedPtr newState)
+        {
+            // Check if we can exit current state.
+            if(m_currentState)
             {
-                return false;
+                ASSERT(m_currentState->GetStateMachine() == this, "Current state does not have reference set to this state machine!");
+
+                if(!m_currentState->CanExitState(newState.get()))
+                {
+                    return false;
+                }
             }
+
+            // Check if we can enter new state.
+            if(newState)
+            {
+                if(newState->HasStateMachine())
+                {
+                    LOG_WARNING("State machine stopped transition to state that is already in use!");
+                    return false;
+                }
+
+                if(!newState->CanEnterState(m_currentState.get()))
+                {
+                    return false;
+                }
+            }
+
+            // Exit current state.
+            StateSharedPtr previousState;
+
+            if(m_currentState)
+            {
+                // Specific call order to disallow changing state on exit.
+                previousState = m_currentState;
+                previousState->SetStateMachine(nullptr);
+                previousState->OnExitState(newState.get());
+
+                ASSERT(m_currentState == previousState, "Illegal state transition occured during exit of current state!");
+                m_currentState = nullptr;
+            }
+
+            // Enter new state.
+            if(newState)
+            {
+                // Specific call order to allow changing state on enter.
+                m_currentState = newState;
+                m_currentState->SetStateMachine(this);
+                m_currentState->OnEnterState(previousState.get());
+            }
+
+            // Success!
+            return true;
         }
 
-        // Exit current state.
-        StateSharedPtr previousState;
-
-        if(m_currentState)
+        const StateSharedPtr& GetCurrentState() const
         {
-            // Specific call order to disallow changing state on exit.
-            previousState = m_currentState;
-            previousState->SetStateMachine(nullptr);
-            previousState->OnExitState(newState.get());
-            
-            ASSERT(m_currentState == previousState, "Illegal state transition occured during exit of current state!");
-            m_currentState = nullptr;
+            return m_currentState;
         }
 
-        // Enter new state.
-        if(newState)
+        bool HasCurrentState() const
         {
-            // Specific call order to allow changing state on enter.
-            m_currentState = newState;
-            m_currentState->SetStateMachine(this);
-            m_currentState->OnEnterState(previousState.get());
+            return m_currentState != nullptr;
         }
 
-        // Success!
-        return true;
-    }
-
-    const StateSharedPtr& GetCurrentState() const
-    {
-        return m_currentState;
-    }
-
-    bool HasCurrentState() const
-    {
-        return m_currentState != nullptr;
-    }
-
-private:
-    StateSharedPtr m_currentState = nullptr;
-};
+    private:
+        StateSharedPtr m_currentState = nullptr;
+    };
+}

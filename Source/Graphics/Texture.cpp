@@ -24,10 +24,10 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.width > 0, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.height > 0, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.width > 0, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.height > 0, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Texture>(new Texture());
@@ -39,7 +39,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Texture could not be created!");
-        return Failure(CreateErrors::FailedTextureCreation);
+        return Common::Failure(CreateErrors::FailedTextureCreation);
     }
 
     // Bind texture.
@@ -79,7 +79,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     instance->m_height = params.height;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 Texture::CreateResult Texture::Create(const LoadFromFile& params)
@@ -88,9 +88,9 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Resolve file path.
     auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
@@ -98,7 +98,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
-        return Failure(CreateErrors::FailedFilePathResolve);
+        return Common::Failure(CreateErrors::FailedFilePathResolve);
     }
 
     // Open file stream.
@@ -107,7 +107,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(!file.is_open())
     {
         LOG_ERROR("File could not be opened!");
-        return Failure(CreateErrors::FailedFileOpening);
+        return Common::Failure(CreateErrors::FailedFileOpening);
     }
 
     // Validate file header.
@@ -119,7 +119,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(png_sig_cmp(png_sig, 0, png_sig_size) != 0)
     {
         LOG_ERROR("File path does not contain valid PNG file!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     // Create format decoder structures.
@@ -128,7 +128,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(png_read_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG read structure!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     png_infop png_info_ptr = png_create_info_struct(png_read_ptr);
@@ -136,7 +136,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(png_info_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG info structure!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     SCOPE_GUARD_BEGIN();
@@ -173,7 +173,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(setjmp(png_jmpbuf(png_read_ptr)))
     {
         LOG_ERROR("Error occurred while reading file!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     // Setup the file read function.
@@ -225,7 +225,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     default:
         LOG_ERROR("Unsupported image format!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     // Make sure we only get 8bits per channel.
@@ -237,7 +237,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     if(depth != 8)
     {
         LOG_ERROR("Unsupported image depth size!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     // Allocate image buffers.
@@ -284,7 +284,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     default:
         LOG_ERROR("Unsupported number of channels!");
-        return Failure(CreateErrors::FailedPngLoading);
+        return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
     // Create instance.

@@ -17,7 +17,7 @@
 
 namespace System
 {
-    class Platform final : private NonCopyable
+    class Platform final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -25,7 +25,7 @@ namespace System
             FailedGlfwInitialization,
         };
 
-        using CreateResult = Result<std::unique_ptr<Platform>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Platform>, CreateErrors>;
         static CreateResult Create();
 
     public:

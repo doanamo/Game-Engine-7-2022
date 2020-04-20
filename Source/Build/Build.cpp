@@ -15,8 +15,8 @@ namespace
 void Build::Initialize()
 {
     // Read directory overrides from files in current working directory.
-    GameDir = Utility::GetTextFileContent("GameDir.txt");
-    EngineDir = Utility::GetTextFileContent("EngineDir.txt");
+    GameDir = Common::GetTextFileContent("GameDir.txt");
+    EngineDir = Common::GetTextFileContent("EngineDir.txt");
 
     if(EngineDir.empty())
     {

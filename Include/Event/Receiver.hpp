@@ -32,7 +32,7 @@ namespace Event
     class Receiver;
 
     template<typename ReturnType, typename... Arguments>
-    class Receiver<ReturnType(Arguments...)> : public Delegate<ReturnType(Arguments...)>, private NonCopyable
+    class Receiver<ReturnType(Arguments...)> : public Delegate<ReturnType(Arguments...)>, private Common::NonCopyable
     {
     public:
         friend DispatcherBase<ReturnType(Arguments...)>;

@@ -99,18 +99,18 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.attributeCount > 0, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.attributes != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributeCount > 0, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributes != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     for(std::size_t i = 0; i < params.attributeCount; ++i)
     {
         const Attribute& attribute = params.attributes[i];
 
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != AttributeType::Invalid, Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != AttributeType::Invalid, Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Common::Failure(CreateErrors::InvalidAttribute));
     }
 
     // Create instance.
@@ -123,7 +123,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Vertex array handle could not be created!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Bind vertex array handle.
@@ -169,7 +169,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
                 GetVertexAttributeTypeRowElements(attribute.attributeType),
                 attribute.valueType,
                 attribute.normalize ? GL_TRUE : GL_FALSE,
-                Utility::NumericalCast<GLsizei>(attribute.buffer->GetElementSize()),
+                Common::NumericalCast<GLsizei>(attribute.buffer->GetElementSize()),
                 (void*)(intptr_t)currentOffset
             );
 
@@ -194,7 +194,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     instance->m_renderContext = renderContext;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 GLuint VertexArray::GetHandle() const

@@ -20,7 +20,7 @@
 
 namespace Game
 {
-    class GameState final : private NonCopyable
+    class GameState final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -28,7 +28,7 @@ namespace Game
             FailedSubsystemCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<GameState>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameState>, CreateErrors>;
         static CreateResult Create();
 
     public:

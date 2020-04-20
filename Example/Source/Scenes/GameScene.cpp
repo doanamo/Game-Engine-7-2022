@@ -29,7 +29,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     LOG_SCOPED_INDENT();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<GameScene>(new GameScene());
@@ -39,7 +39,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     if(instance->m_gameState == nullptr)
     {
         LOG_ERROR("Could not create game state!");
-        return Failure(CreateErrors::FailedGameStateCreation);
+        return Common::Failure(CreateErrors::FailedGameStateCreation);
     }
 
     // Setup custom update callback.
@@ -61,7 +61,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     if(spriteAnimationList == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list!");
-        return Failure(CreateErrors::FailedResourceLoading);
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Load texture atlas.
@@ -76,7 +76,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     if(textureAtlas == nullptr)
     {
         LOG_ERROR("Could not load texture atlas!");
-        return Failure(CreateErrors::FailedResourceLoading);
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Create camera entity.
@@ -138,7 +138,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     instance->m_engine = engine;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void GameScene::Update(float updateTime)

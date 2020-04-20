@@ -20,7 +20,7 @@ TextureAtlas::CreateResult TextureAtlas::Create()
 
     // Create instance.
     auto instance = std::unique_ptr<TextureAtlas>(new TextureAtlas());
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
@@ -29,9 +29,9 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();
@@ -51,7 +51,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load texture atlas resource file!");
-        return Failure(CreateErrors::FailedResourceLoading);
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Get global table.
@@ -61,7 +61,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas\" is missing!");
-        return Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContent);
     }
 
     // Load texture.
@@ -72,7 +72,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
         if(!lua_isstring(*resourceScript, -1))
         {
             LOG_ERROR("String \"TextureAtlas.Texture\" is missing!");
-            return Failure(CreateErrors::InvalidResourceContent);
+            return Common::Failure(CreateErrors::InvalidResourceContent);
         }
 
         Texture::LoadFromFile textureParams;
@@ -99,7 +99,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas.Regions\" is missing!");
-        return Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContent);
     }
 
     for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
@@ -126,7 +126,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
                 LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!", regionName, i);
             }
 
-            pixelCoords[i] = Utility::NumericalCast<int>(lua_tointeger(*resourceScript, -1));
+            pixelCoords[i] = Common::NumericalCast<int>(lua_tointeger(*resourceScript, -1));
 
             lua_pop(*resourceScript, 1);
         }
@@ -140,7 +140,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)

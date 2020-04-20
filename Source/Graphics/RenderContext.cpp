@@ -15,7 +15,7 @@ RenderContext::CreateResult RenderContext::Create(System::Window* window)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<RenderContext>(new RenderContext());
@@ -30,7 +30,7 @@ RenderContext::CreateResult RenderContext::Create(System::Window* window)
     instance->m_window = window;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void RenderContext::MakeCurrent()

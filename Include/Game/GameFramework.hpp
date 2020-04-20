@@ -26,7 +26,7 @@ namespace Game
 {
     class GameState;
 
-    class GameFramework final : private NonCopyable
+    class GameFramework final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -43,7 +43,7 @@ namespace Game
             FailedEventRouterCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<GameFramework>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameFramework>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

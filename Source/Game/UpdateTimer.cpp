@@ -21,14 +21,14 @@ UpdateTimer::CreateResult UpdateTimer::Create()
     if(instance->m_timer == nullptr)
     {
         LOG_ERROR("Could not create timer!");
-        return Failure();
+        return Common::Failure();
     }
 
     // Set forward update counter to trigger on next update.
     instance->m_forwardUpdateCounter = instance->m_timer->GetCurrentTimeCounter();
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void UpdateTimer::Reset()

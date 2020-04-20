@@ -35,7 +35,7 @@ namespace Game
 
 namespace Editor
 {
-    class EditorSystem final : private NonCopyable
+    class EditorSystem final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -56,7 +56,7 @@ namespace Editor
             FailedSubsystemCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<EditorSystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<EditorSystem>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

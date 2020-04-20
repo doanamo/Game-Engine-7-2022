@@ -22,8 +22,8 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.width >= 0, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.height >= 0, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.width >= 0, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.height >= 0, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Window>(new Window());
@@ -49,7 +49,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     if(instance->m_handle == nullptr)
     {
         LOG_ERROR("Could not create GLFW window!");
-        return Failure(CreateErrors::FailedWindowCreation);
+        return Common::Failure(CreateErrors::FailedWindowCreation);
     }
 
     // Set window size limits.
@@ -83,7 +83,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     {
         LOG_ERROR("GLEW Error: {}", glewGetErrorString(error));
         LOG_ERROR("Could not initialize GLEW library!");
-        return Failure(CreateErrors::FailedGlewInitialization);
+        return Common::Failure(CreateErrors::FailedGlewInitialization);
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
@@ -102,7 +102,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     instance->m_title = params.title;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void Window::MakeContextCurrent()

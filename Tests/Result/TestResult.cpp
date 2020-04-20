@@ -9,16 +9,16 @@
 class ResultWithVoid
 {
 public:
-    using InitializeResult = Result<void, void>;
+    using InitializeResult = Common::Result<void, void>;
 
     InitializeResult Initialize(bool success)
     {
         if(!success)
         {
-            return Failure();
+            return Common::Failure();
         }
 
-        return Success();
+        return Common::Success();
     }
 };
 
@@ -42,16 +42,16 @@ public:
     };
 
     using FailureResult = int;
-    using InitializeResult = Result<SuccessResult, FailureResult>;
+    using InitializeResult = Common::Result<SuccessResult, FailureResult>;
 
     InitializeResult Initialize(bool success)
     {
         if(!success)
         {
-            return Failure(42);
+            return Common::Failure(42);
         }
 
-        return Success(VeryGood);
+        return Common::Success(VeryGood);
     }
 };
 
@@ -73,17 +73,17 @@ bool TestEnum()
 class ResultWithString
 {
 public:
-    using InitializeResult = Result<std::string, std::string>;
+    using InitializeResult = Common::Result<std::string, std::string>;
 
     InitializeResult Initialize(bool success)
     {
         if(!success)
         {
             std::string text = "goodbye world!";
-            return Failure(text);
+            return Common::Failure(text);
         }
 
-        return Success(std::string("hello world!"));
+        return Common::Success(std::string("hello world!"));
     }
 };
 
@@ -102,17 +102,17 @@ bool TestString()
 class ResultUnwrap
 {
 public:
-    using InitializeResult = Result<std::unique_ptr<ResultUnwrap>, void>;
+    using InitializeResult = Common::Result<std::unique_ptr<ResultUnwrap>, void>;
 
     static InitializeResult Create(std::string text)
     {
         if(text == "Goodbye world!")
-            return Failure();
+            return Common::Failure();
 
         auto instance = std::make_unique<ResultUnwrap>();
         instance->text = text;
 
-        return Success(std::move(instance));
+        return Common::Success(std::move(instance));
     }
 
     std::string text;

@@ -15,7 +15,7 @@
 
 namespace Graphics
 {
-    class SpriteDrawList final : private NonCopyable
+    class SpriteDrawList final : private Common::NonCopyable
     {
     public:
         SpriteDrawList();

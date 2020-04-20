@@ -26,7 +26,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.maximumTickDelta > 0.0f, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.maximumTickDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
 
     // Initialize various debugging helpers.
     Debug::Initialize();
@@ -47,7 +47,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_platform == nullptr)
     {
         LOG_ERROR("Could not create platform!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create file system.
@@ -56,7 +56,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_fileSystem == nullptr)
     {
         LOG_ERROR("Could not create file system!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Mount file system directories (order affects the resolve order).
@@ -84,7 +84,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_window == nullptr)
     {
         LOG_ERROR("Could not create window!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create timer.
@@ -93,7 +93,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_timer == nullptr)
     {
         LOG_ERROR("Could not create timer!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     instance->m_maximumTickDelta = params.maximumTickDelta;
@@ -104,7 +104,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_inputManager == nullptr)
     {
         LOG_ERROR("Could not create input manager!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create resource manager.
@@ -113,7 +113,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_resourceManager == nullptr)
     {
         LOG_ERROR("Could not create resource manager!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create render context.
@@ -122,7 +122,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_renderContext == nullptr)
     {
         LOG_ERROR("Could not create render context!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create sprite renderer.
@@ -137,7 +137,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_spriteRenderer == nullptr)
     {
         LOG_ERROR("Could not create sprite renderer!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create state renderer.
@@ -150,7 +150,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_stateRenderer == nullptr)
     {
         LOG_ERROR("Could not create state renderer!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create game framework.
@@ -165,7 +165,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_gameFramework == nullptr)
     {
         LOG_ERROR("Could not create game framework!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create editor system.
@@ -182,11 +182,11 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     if(instance->m_editorSystem == nullptr)
     {
         LOG_ERROR("Could not create editor system!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 int Root::Run()

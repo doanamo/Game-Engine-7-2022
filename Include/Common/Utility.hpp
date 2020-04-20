@@ -15,7 +15,7 @@
     Utility
 */
 
-namespace Utility
+namespace Common
 {
     template<typename Type>
     constexpr Type Clamp(const Type& value, const Type& lower, const Type& upper)

@@ -23,7 +23,7 @@ namespace Game
 
 namespace Editor
 {
-    class EditorShell final : private NonCopyable
+    class EditorShell final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -38,7 +38,7 @@ namespace Editor
             FailedModuleCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<EditorShell>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<EditorShell>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

@@ -17,7 +17,7 @@ namespace System
 {
     class Window;
 
-    class InputManager final : private NonCopyable
+    class InputManager final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -26,7 +26,7 @@ namespace System
             FailedEventSubscription,
         };
 
-        using CreateResult = Result<std::unique_ptr<InputManager>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
         static CreateResult Create(Window* window);
 
     public:

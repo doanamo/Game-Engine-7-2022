@@ -49,7 +49,7 @@ ScriptState::CreateResult ScriptState::Create()
     if(instance->m_state == nullptr)
     {
         LOG_ERROR("Could not create Lua state!");
-        return Failure(CreateErrors::FailedLuaStateCreation);
+        return Common::Failure(CreateErrors::FailedLuaStateCreation);
     }
 
     // Load base library.
@@ -60,7 +60,7 @@ ScriptState::CreateResult ScriptState::Create()
     {
         LOG_ERROR("Could not load base Lua library!");
         instance->PrintError();
-        return Failure(CreateErrors::FailedLuaLibraryLoading);
+        return Common::Failure(CreateErrors::FailedLuaLibraryLoading);
     }
 
     // Register logging function.
@@ -71,7 +71,7 @@ ScriptState::CreateResult ScriptState::Create()
     ASSERT(lua_gettop(instance->m_state) == 0, "Lua stack is not empty!");
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
@@ -80,7 +80,7 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(), Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
@@ -97,11 +97,11 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
     {
         LOG_ERROR("Could not execute script!");
         instance->PrintError();
-        return Failure(CreateErrors::FailedLuaScriptExecution);
+        return Common::Failure(CreateErrors::FailedLuaScriptExecution);
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
@@ -110,8 +110,8 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
@@ -129,7 +129,7 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
-        return Failure(CreateErrors::FailedScriptFileResolve);
+        return Common::Failure(CreateErrors::FailedScriptFileResolve);
     }
 
     // Execute script file.
@@ -137,11 +137,11 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     {
         LOG_ERROR("Could not load script file!");
         instance->PrintError();
-        return Failure(CreateErrors::FailedLuaScriptExecution);
+        return Common::Failure(CreateErrors::FailedLuaScriptExecution);
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void ScriptState::PrintError()

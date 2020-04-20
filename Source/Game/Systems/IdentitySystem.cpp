@@ -19,7 +19,7 @@ IdentitySystem::CreateResult IdentitySystem::Create(EntitySystem* entitySystem)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<IdentitySystem>(new IdentitySystem());
@@ -28,7 +28,7 @@ IdentitySystem::CreateResult IdentitySystem::Create(EntitySystem* entitySystem)
     instance->m_entityDestroyReceiver.Subscribe(entitySystem->events.entityDestroy);
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool rename)

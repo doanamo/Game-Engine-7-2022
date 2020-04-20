@@ -17,7 +17,7 @@ InterpolationSystem::CreateResult InterpolationSystem::Create(ComponentSystem* c
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<InterpolationSystem>(new InterpolationSystem());
@@ -26,7 +26,7 @@ InterpolationSystem::CreateResult InterpolationSystem::Create(ComponentSystem* c
     instance->m_componentSystem = componentSystem;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void InterpolationSystem::Update(float timeDelta)

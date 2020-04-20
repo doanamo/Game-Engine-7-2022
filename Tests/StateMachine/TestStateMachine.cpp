@@ -6,7 +6,7 @@
 #include <Common/StateMachine.hpp>
 #include <TestHelpers.hpp>
 
-class TestState : public State<TestState>
+class TestState : public Common::State<TestState>
 {
 public:
     TestState(const char* name = "", int counter = 0) :
@@ -60,7 +60,7 @@ public:
 bool TestTransitions()
 {
     // Create state machine.
-    StateMachine<TestState> stateMachine;
+    Common::StateMachine<TestState> stateMachine;
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -182,7 +182,7 @@ bool TestTransitions()
 bool TestRecursiveTransitions()
 {
     // Create state machine.
-    StateMachine<TestState> stateMachine;
+    Common::StateMachine<TestState> stateMachine;
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -226,7 +226,7 @@ bool TestRecursiveTransitions()
 int TestExitTransition()
 {
     // Create state machine.
-    StateMachine<TestState> stateMachine;
+    Common::StateMachine<TestState> stateMachine;
     TEST_FALSE(stateMachine.HasCurrentState());
     TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 
@@ -260,7 +260,7 @@ int TestCleanup()
 
     {
         // Create state machine.
-        StateMachine<TestState> stateMachine;
+        Common::StateMachine<TestState> stateMachine;
         TEST_FALSE(stateMachine.HasCurrentState());
         TEST_EQ(stateMachine.GetCurrentState(), nullptr);
 

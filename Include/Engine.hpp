@@ -43,7 +43,7 @@ namespace Editor
 
 namespace Engine
 {
-    class Root final : private NonCopyable
+    class Root final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -57,7 +57,7 @@ namespace Engine
             FailedSubsystemCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<Root>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

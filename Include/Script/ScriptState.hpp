@@ -20,7 +20,7 @@ namespace System
 
 namespace Script
 {
-    class ScriptState final : private NonCopyable
+    class ScriptState final : private Common::NonCopyable
     {
     public:
         struct LoadFromText
@@ -43,7 +43,7 @@ namespace Script
             FailedScriptFileResolve,
         };
 
-        using CreateResult = Result<std::unique_ptr<ScriptState>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<ScriptState>, CreateErrors>;
         static CreateResult Create();
         static CreateResult Create(const LoadFromText& params);
         static CreateResult Create(const LoadFromFile& params);

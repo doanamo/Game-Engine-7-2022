@@ -17,7 +17,7 @@ FileSystem::CreateResult FileSystem::Create()
     auto instance = std::unique_ptr<FileSystem>(new FileSystem());
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string directory)
@@ -26,7 +26,7 @@ FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string director
     if(directory.empty())
     {
         LOG_WARNING("Attempted to mount an empty directory path!");
-        return Failure(MountDirectoryErrors::EmptyPathArgument);
+        return Common::Failure(MountDirectoryErrors::EmptyPathArgument);
     }
 
     // Normalize path separators.
@@ -42,7 +42,7 @@ FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string director
     m_mountedDirs.push_back(directory);
     LOG_INFO("Mounted \"{}\" directory.", directory);
 
-    return Success();
+    return Common::Success();
 }
 
 FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) const
@@ -51,7 +51,7 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) co
     if(path.empty())
     {
         LOG_WARNING("Attempting to resolve empty file path!");
-        return Failure(ResolvePathErrors::EmptyPathArgument);
+        return Common::Failure(ResolvePathErrors::EmptyPathArgument);
     }
 
     // Check file path for each mounted directory (iterated in reverse).
@@ -67,10 +67,10 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) co
         if(file.good())
         {
             // Return resolved path.
-            return Success(resolvedPath);
+            return Common::Success(resolvedPath);
         }
     }
 
     // Failed to resolve path.
-    return Failure(ResolvePathErrors::UnresolvablePath);
+    return Common::Failure(ResolvePathErrors::UnresolvablePath);
 }

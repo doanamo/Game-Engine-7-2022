@@ -12,7 +12,7 @@ namespace Game
 {
     class ComponentSystem;
 
-    class InterpolationSystem final : private NonCopyable
+    class InterpolationSystem final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -20,7 +20,7 @@ namespace Game
             InvalidArgument,
         };
 
-        using CreateResult = Result<std::unique_ptr<InterpolationSystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<InterpolationSystem>, CreateErrors>;
         static CreateResult Create(ComponentSystem* componentSystem);
 
     public:

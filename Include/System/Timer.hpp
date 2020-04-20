@@ -15,7 +15,7 @@
 
 namespace System
 {
-    class Timer final : private NonCopyable
+    class Timer final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -23,7 +23,7 @@ namespace System
             InvalidFrequencyRetrieved,
         };
 
-        using CreateResult = Result<std::unique_ptr<Timer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Timer>, CreateErrors>;
         static CreateResult Create();
 
     public:

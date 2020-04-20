@@ -23,7 +23,7 @@ namespace Game
 
 namespace Renderer
 {
-    class StateRenderer final : private NonCopyable
+    class StateRenderer final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -37,7 +37,7 @@ namespace Renderer
             Graphics::SpriteRenderer* spriteRenderer = nullptr;
         };
 
-        using CreateResult = Result<std::unique_ptr<StateRenderer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<StateRenderer>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
         struct DrawParams

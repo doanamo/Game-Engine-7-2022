@@ -49,12 +49,12 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
@@ -65,7 +65,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(instance->m_interface == nullptr)
     {
         LOG_ERROR("Failed to initialize user interface context!");
-        return Failure(CreateErrors::FailedContextCreation);
+        return Common::Failure(CreateErrors::FailedContextCreation);
     }
 
     // Setup user interface.
@@ -120,7 +120,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(!subscriptionResult)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
-        return Failure(CreateErrors::FailedEventSubscription);
+        return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
     // Create editor renderer.
@@ -134,7 +134,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(instance->m_editorRenderer == nullptr)
     {
         LOG_ERROR("Could not create editor renderer!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Create editor shell.
@@ -146,11 +146,11 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     if(instance->m_editorShell == nullptr)
     {
         LOG_ERROR("Could not create editor shell!");
-        return Failure(CreateErrors::FailedSubsystemCreation);
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void EditorSystem::Update(float timeDelta)
@@ -195,7 +195,7 @@ bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& e
 
     // Determine number of supported mouse buttons.
     const std::size_t SupportedMouseButtonCount = std::min(
-        Utility::StaticArraySize(io.MouseDown),
+        Common::StaticArraySize(io.MouseDown),
         (std::size_t)System::MouseButtons::Count
     );
 
@@ -234,7 +234,7 @@ bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& e
     ImGuiIO& io = ImGui::GetIO();
 
     // Make sure that the array is of an expected size.
-    const size_t MaxKeyboardKeyCount = Utility::StaticArraySize(io.KeysDown);
+    const size_t MaxKeyboardKeyCount = Common::StaticArraySize(io.KeysDown);
     ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Insufficient ImGUI keyboard state array size!");
 
     // We can only handle a specific number of keys.

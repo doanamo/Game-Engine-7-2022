@@ -19,10 +19,10 @@
 
 namespace Game
 {
-    class EntitySystem final : private NonCopyable
+    class EntitySystem final : private Common::NonCopyable
     {
     public:
-        using CreateResult = Result<std::unique_ptr<EntitySystem>, void>;
+        using CreateResult = Common::Result<std::unique_ptr<EntitySystem>, void>;
         static CreateResult Create();
 
         struct HandleFlags

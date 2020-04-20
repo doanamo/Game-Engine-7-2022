@@ -13,7 +13,7 @@
 
 namespace Event
 {
-    class Queue : private NonCopyable
+    class Queue : private Common::NonCopyable
     {
     public:
         using EventList = std::queue<std::any>;

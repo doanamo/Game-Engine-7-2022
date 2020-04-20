@@ -12,10 +12,10 @@
 
 namespace Game
 {
-    class UpdateTimer final : public NonCopyable
+    class UpdateTimer final : public Common::NonCopyable
     {
     public:
-        using CreateResult = Result<std::unique_ptr<UpdateTimer>, void>;
+        using CreateResult = Common::Result<std::unique_ptr<UpdateTimer>, void>;
         static CreateResult Create();
 
     public:

@@ -25,7 +25,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteRenderer final : private NonCopyable
+    class SpriteRenderer final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -42,7 +42,7 @@ namespace Graphics
             FailedResourceCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

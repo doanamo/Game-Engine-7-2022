@@ -11,7 +11,7 @@ bool TestMakeScopeGuard()
 
     {
         i = new int(4);
-        auto cleanup = MakeScopeGuard([&]()
+        auto cleanup = Common::MakeScopeGuard([&]()
         {
             delete i;
             i = nullptr;

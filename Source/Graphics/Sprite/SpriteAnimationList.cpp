@@ -43,7 +43,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
     auto instance = std::unique_ptr<SpriteAnimationList>(new SpriteAnimationList());
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile& params)
@@ -52,9 +52,9 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();
@@ -74,7 +74,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list resource file!");
-        return Failure(CreateErrors::FailedResourceLoading);
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Get global table.
@@ -84,7 +84,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList\" is missing!");
-        return Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContent);
     }
 
     // Load texture atlas.
@@ -97,7 +97,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
         if(!lua_isstring(*resourceScript, -1))
         {
             LOG_ERROR("String \"SpriteAnimationList.TextureAtlas\" is missing!");
-            return Failure(CreateErrors::InvalidResourceContent);
+            return Common::Failure(CreateErrors::InvalidResourceContent);
         }
 
         TextureAtlas::LoadFromFile textureAtlasParams;
@@ -112,7 +112,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
         if(textureAtlas == nullptr)
         {
             LOG_ERROR("Could not load referenced texture atlas!");
-            return Failure(CreateErrors::FailedResourceLoading);
+            return Common::Failure(CreateErrors::FailedResourceLoading);
         }
     }
 
@@ -123,7 +123,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList.Animations\" is missing!");
-        return Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContent);
     }
 
     for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
@@ -198,7 +198,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 std::optional<std::size_t> SpriteAnimationList::GetAnimationIndex(std::string animationName) const

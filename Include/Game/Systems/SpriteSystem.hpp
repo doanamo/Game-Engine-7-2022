@@ -15,7 +15,7 @@ namespace Game
 
 namespace Game
 {
-    class SpriteSystem final : private NonCopyable
+    class SpriteSystem final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -23,7 +23,7 @@ namespace Game
             InvalidArgument,
         };
 
-        using CreateResult = Result<std::unique_ptr<SpriteSystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<SpriteSystem>, CreateErrors>;
         static CreateResult Create(ComponentSystem* componentSystem);
 
     public:

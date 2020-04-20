@@ -7,10 +7,10 @@
 
 bool TestClamp()
 {
-    TEST_EQ(Utility::Clamp(0, 1, 2), 1);
-    TEST_EQ(Utility::Clamp(3, 1, 2), 2);
-    TEST_EQ(Utility::Clamp(0.0f, 1.0f, 2.0f), 1.0f);
-    TEST_EQ(Utility::Clamp(3.0f, 1.0f, 2.0f), 2.0f);
+    TEST_EQ(Common::Clamp(0, 1, 2), 1);
+    TEST_EQ(Common::Clamp(3, 1, 2), 2);
+    TEST_EQ(Common::Clamp(0.0f, 1.0f, 2.0f), 1.0f);
+    TEST_EQ(Common::Clamp(3.0f, 1.0f, 2.0f), 2.0f);
 
     return true;
 }
@@ -19,7 +19,7 @@ bool TestStaticArraySize()
 {
     int array[4] = { 0 };
 
-    TEST_EQ(Utility::StaticArraySize(array), 4);
+    TEST_EQ(Common::StaticArraySize(array), 4);
 
     return true;
 }
@@ -27,7 +27,7 @@ bool TestStaticArraySize()
 bool TestNumericCast()
 {
     uint64_t source = (uint64_t)std::numeric_limits<uint32_t>::max();
-    uint32_t target = Utility::NumericalCast<uint32_t>(source);
+    uint32_t target = Common::NumericalCast<uint32_t>(source);
 
     return true;
 }
@@ -39,7 +39,7 @@ bool TestClearContainer()
     elements.push_back(243);
     elements.push_back(432);
     elements.push_back(342);
-    Utility::ClearContainer(elements);
+    Common::ClearContainer(elements);
 
     TEST_EQ(elements.size(), 0);
     TEST_EQ(elements.capacity(), 0);
@@ -55,40 +55,40 @@ const std::string filePathEmpty = "";
 
 bool TestGetFileDirectory()
 {
-    TEST_EQ(Utility::GetFileDirectory(filePathValid), "C:/secret\\project\\");
-    TEST_EQ(Utility::GetFileDirectory(filePathWithoutDirectory), "");
-    TEST_EQ(Utility::GetFileDirectory(filePathWithoutName), "C:/secret\\project/");
-    TEST_EQ(Utility::GetFileDirectory(filePathWithoutExtension), "C:/secret\\project\\");
-    TEST_EQ(Utility::GetFileDirectory(filePathEmpty), "");
+    TEST_EQ(Common::GetFileDirectory(filePathValid), "C:/secret\\project\\");
+    TEST_EQ(Common::GetFileDirectory(filePathWithoutDirectory), "");
+    TEST_EQ(Common::GetFileDirectory(filePathWithoutName), "C:/secret\\project/");
+    TEST_EQ(Common::GetFileDirectory(filePathWithoutExtension), "C:/secret\\project\\");
+    TEST_EQ(Common::GetFileDirectory(filePathEmpty), "");
     
     return true;
 }
 
 bool TestGetFileName()
 {
-    TEST_EQ(Utility::GetFileName(filePathValid), "file");
-    TEST_EQ(Utility::GetFileName(filePathWithoutDirectory), "file");
-    TEST_EQ(Utility::GetFileName(filePathWithoutName), "");
-    TEST_EQ(Utility::GetFileName(filePathWithoutExtension), "file");
-    TEST_EQ(Utility::GetFileName(filePathEmpty), "");
+    TEST_EQ(Common::GetFileName(filePathValid), "file");
+    TEST_EQ(Common::GetFileName(filePathWithoutDirectory), "file");
+    TEST_EQ(Common::GetFileName(filePathWithoutName), "");
+    TEST_EQ(Common::GetFileName(filePathWithoutExtension), "file");
+    TEST_EQ(Common::GetFileName(filePathEmpty), "");
 
     return true;
 }
 
 bool TestGetFileExtension()
 {
-    TEST_EQ(Utility::GetFileExtension(filePathValid), "cpp");
-    TEST_EQ(Utility::GetFileExtension(filePathWithoutDirectory), "cpp");
-    TEST_EQ(Utility::GetFileExtension(filePathWithoutName), "cpp");
-    TEST_EQ(Utility::GetFileExtension(filePathWithoutExtension), "");
-    TEST_EQ(Utility::GetFileExtension(filePathEmpty), "");
+    TEST_EQ(Common::GetFileExtension(filePathValid), "cpp");
+    TEST_EQ(Common::GetFileExtension(filePathWithoutDirectory), "cpp");
+    TEST_EQ(Common::GetFileExtension(filePathWithoutName), "cpp");
+    TEST_EQ(Common::GetFileExtension(filePathWithoutExtension), "");
+    TEST_EQ(Common::GetFileExtension(filePathEmpty), "");
 
     return true;
 }
 
 bool TestGetTextFileContent()
 {
-    std::string text = Utility::GetTextFileContent(TESTS_DIRECTORY "/Resources/TextFile.txt");
+    std::string text = Common::GetTextFileContent(TESTS_DIRECTORY "/Resources/TextFile.txt");
     TEST_EQ(text, "Hello world!");
 
     return true;
@@ -96,7 +96,7 @@ bool TestGetTextFileContent()
 
 bool TestGetBinaryFileContent()
 {
-    std::vector<char> binary = Utility::GetBinaryFileContent(TESTS_DIRECTORY "/Resources/BinaryFile.bin");
+    std::vector<char> binary = Common::GetBinaryFileContent(TESTS_DIRECTORY "/Resources/BinaryFile.bin");
 
     TEST_EQ(binary.size(), 4);
     TEST_EQ(binary[0], '\0');
@@ -110,7 +110,7 @@ bool TestGetBinaryFileContent()
 bool TestStringLowerCase()
 {
     std::string text = "HeLLo WoNDERfUL WoRlD! :)";
-    TEST_EQ(Utility::StringLowerCase(text), "hello wonderful world! :)");
+    TEST_EQ(Common::StringLowerCase(text), "hello wonderful world! :)");
 
     return true;
 }
@@ -118,7 +118,7 @@ bool TestStringLowerCase()
 bool TestStringTokenize()
 {
     std::string text = "Hello wonderful world! :)";
-    std::vector<std::string> tokens = Utility::StringTokenize(text, ' ');
+    std::vector<std::string> tokens = Common::StringTokenize(text, ' ');
 
     TEST_EQ(tokens.size(), 4);
     TEST_EQ(tokens[0], "Hello");
@@ -133,17 +133,17 @@ bool TestStringTrim()
 {
     std::string text = "   @)#($*%&^  hello world !   )*(&$^%#@     ";
 
-    TEST_EQ(Utility::StringTrimLeft(text, " @#$%^&*()"), "hello world !   )*(&$^%#@     ");
-    TEST_EQ(Utility::StringTrimRight(text, " @#$%^&*()"), "   @)#($*%&^  hello world !");
-    TEST_EQ(Utility::StringTrim(text, " @#$%^&*()"), "hello world !");
+    TEST_EQ(Common::StringTrimLeft(text, " @#$%^&*()"), "hello world !   )*(&$^%#@     ");
+    TEST_EQ(Common::StringTrimRight(text, " @#$%^&*()"), "   @)#($*%&^  hello world !");
+    TEST_EQ(Common::StringTrim(text, " @#$%^&*()"), "hello world !");
 
     return true;
 }
 
 bool TestStringHash()
 {
-    TEST_NEQ(Utility::StringHash("Armored orange"), 0);
-    TEST_NEQ(Utility::StringHash("Naked banana"), Utility::StringHash("Dressed apple"));
+    TEST_NEQ(Common::StringHash("Armored orange"), 0);
+    TEST_NEQ(Common::StringHash("Naked banana"), Common::StringHash("Dressed apple"));
 
     return true;
 }
@@ -153,9 +153,9 @@ bool TestCalculateCRC()
     char dataFirst[4] = { '2', '0', '3', '5' };
     char dataSecond[4] = { '1', '9', '4', '5' };
 
-    TEST_NEQ(Utility::CalculateCRC32(0, &dataFirst[0], Utility::StaticArraySize(dataFirst)), 0);
-    TEST_NEQ(Utility::CalculateCRC32(0, &dataFirst[0], Utility::StaticArraySize(dataFirst)),
-        Utility::CalculateCRC32(0, &dataSecond[0], Utility::StaticArraySize(dataSecond)));
+    TEST_NEQ(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)), 0);
+    TEST_NEQ(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)),
+        Common::CalculateCRC32(0, &dataSecond[0], Common::StaticArraySize(dataSecond)));
 
     return true;
 }
@@ -167,7 +167,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array;
         std::vector<std::size_t> indices;
 
-        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_TRUE(Common::ReorderWithIndices(array, indices));
     }
 
     // One element count.
@@ -175,7 +175,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "First" };
         std::vector<std::size_t> indices = { 0 };
 
-        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_TRUE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "First");
     }
 
@@ -184,7 +184,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "Second", "First" };
         std::vector<std::size_t> indices = { 1, 0 };
 
-        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_TRUE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "First");
         TEST_EQ(array[1], "Second");
     }
@@ -194,7 +194,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "First", "Third", "Second" };
         std::vector<std::size_t> indices = { 0, 2, 1 };
 
-        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_TRUE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "First");
         TEST_EQ(array[1], "Second");
         TEST_EQ(array[2], "Third");
@@ -205,7 +205,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
         std::vector<std::size_t> indices = { 1, 3, 2, 0 };
 
-        TEST_TRUE(Utility::ReorderWithIndices(array, indices));
+        TEST_TRUE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "First");
         TEST_EQ(array[1], "Second");
         TEST_EQ(array[2], "Third");
@@ -217,7 +217,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
         std::vector<std::size_t> indices = { 1, 3, 2 };
 
-        TEST_FALSE(Utility::ReorderWithIndices(array, indices));
+        TEST_FALSE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "Fourth");
         TEST_EQ(array[1], "First");
         TEST_EQ(array[2], "Third");
@@ -229,7 +229,7 @@ bool TestReorderWithIndices()
         std::vector<std::string> array = { "Fourth", "First", "Third", "Second" };
         std::vector<std::size_t> indices = { 1, 4, 2, 0 };
 
-        TEST_FALSE(Utility::ReorderWithIndices(array, indices));
+        TEST_FALSE(Common::ReorderWithIndices(array, indices));
         TEST_EQ(array[0], "Fourth");
         TEST_EQ(array[1], "First");
         TEST_EQ(array[2], "Third");

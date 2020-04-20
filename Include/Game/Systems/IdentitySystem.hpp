@@ -20,7 +20,7 @@ namespace Game
 {
     class EntitySystem;
 
-    class IdentitySystem final : private NonCopyable
+    class IdentitySystem final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -28,7 +28,7 @@ namespace Game
             InvalidArgument,
         };
 
-        using CreateResult = Result<std::unique_ptr<IdentitySystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<IdentitySystem>, CreateErrors>;
         static CreateResult Create(EntitySystem* entitySystem);
 
         using NameRegistry = std::vector<EntityHandle>;

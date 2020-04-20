@@ -46,7 +46,7 @@ Platform::CreateResult Platform::Create()
         if(!glfwInit())
         {
             LOG_ERROR("Could not initialize GLFW library!");
-            return Failure(CreateErrors::FailedGlfwInitialization);
+            return Common::Failure(CreateErrors::FailedGlfwInitialization);
         }
 
         // Write GLFW details to log.
@@ -62,5 +62,5 @@ Platform::CreateResult Platform::Create()
     auto instance = std::unique_ptr<Platform>(new Platform());
     
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }

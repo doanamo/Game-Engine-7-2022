@@ -17,7 +17,7 @@ namespace Event
     template<typename Type>
     class Receiver;
 
-    class Broker : private NonCopyable
+    class Broker : private Common::NonCopyable
     {
     public:
         using EventHandle = std::any;

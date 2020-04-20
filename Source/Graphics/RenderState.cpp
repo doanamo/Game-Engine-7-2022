@@ -122,7 +122,7 @@ void RenderState::Save()
 
     for(std::size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        glActiveTexture(Utility::NumericalCast<GLenum>(GL_TEXTURE0 + i));
+        glActiveTexture(Common::NumericalCast<GLenum>(GL_TEXTURE0 + i));
         glGetIntegerv(GL_SAMPLER_BINDING, (GLint*)&m_samplerBindings[i]);
         OpenGL::CheckErrors();
     }
@@ -240,7 +240,7 @@ void RenderState::Apply(RenderState& other)
 
     for(std::size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        this->BindSampler(Utility::NumericalCast<GLuint>(i), other.m_samplerBindings[i]);
+        this->BindSampler(Common::NumericalCast<GLuint>(i), other.m_samplerBindings[i]);
     }
 
     // glPixelStore

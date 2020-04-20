@@ -22,7 +22,7 @@ Timer::CreateResult Timer::Create()
     if(instance->m_timerFrequency == 0)
     {
         LOG_ERROR("Could not retrieve correct timer frequency!");
-        return Failure(CreateErrors::InvalidFrequencyRetrieved);
+        return Common::Failure(CreateErrors::InvalidFrequencyRetrieved);
     }
 
     // Retrieve current time counters.
@@ -30,7 +30,7 @@ Timer::CreateResult Timer::Create()
     instance->m_previousTimeCounter = instance->m_currentTimeCounter;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void Timer::Tick(float maximumDelta)

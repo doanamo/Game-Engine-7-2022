@@ -17,9 +17,9 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.timer != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.stateRenderer != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.timer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.stateRenderer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
@@ -34,7 +34,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     if(instance->m_eventRouter == nullptr)
     {
         LOG_ERROR("Could not create event router!");
-        return Failure(CreateErrors::FailedEventRouterCreation);
+        return Common::Failure(CreateErrors::FailedEventRouterCreation);
     }
 
     // Save system references.
@@ -43,7 +43,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     instance->m_stateRenderer = params.stateRenderer;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 bool GameFramework::Update()

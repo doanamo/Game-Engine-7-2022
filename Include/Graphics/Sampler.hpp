@@ -16,7 +16,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class Sampler final : private NonCopyable
+    class Sampler final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -43,7 +43,7 @@ namespace Graphics
             FailedResourceCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<Sampler>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Sampler>, CreateErrors>;
         static CreateResult Create(RenderContext* renderContext, const CreateFromParams& params);
 
     public:

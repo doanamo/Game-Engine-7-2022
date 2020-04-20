@@ -24,7 +24,7 @@ InputManager::CreateResult InputManager::Create(Window* window)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<InputManager>(new InputManager());
@@ -41,14 +41,14 @@ InputManager::CreateResult InputManager::Create(Window* window)
     if(!subscriptionResult)
     {
         LOG_ERROR("Could not subscribe to window input events!");
-        return Failure(CreateErrors::FailedEventSubscription);
+        return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
     // Set default input states.
     instance->ResetStates();
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void InputManager::AdvanceState(float timeDelta)

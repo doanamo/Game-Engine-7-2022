@@ -17,7 +17,7 @@
 
 namespace System
 {
-    class Window final : private NonCopyable
+    class Window final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -41,7 +41,7 @@ namespace System
             FailedGlewInitialization,
         };
 
-        using CreateResult = Result<std::unique_ptr<Window>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Window>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

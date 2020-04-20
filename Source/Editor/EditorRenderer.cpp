@@ -16,10 +16,10 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     LOG_SCOPED_INDENT();
 
     // Validate references.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<EditorRenderer>(new EditorRenderer());
@@ -36,7 +36,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create index buffer.
@@ -48,7 +48,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(instance->m_indexBuffer == nullptr)
     {
         LOG_ERROR("Could not create index buffer!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create input layout.
@@ -60,14 +60,14 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     };
 
     Graphics::VertexArray::FromArrayParams inputLayoutParams;
-    inputLayoutParams.attributeCount = Utility::StaticArraySize(inputAttributes);
+    inputLayoutParams.attributeCount = Common::StaticArraySize(inputAttributes);
     inputLayoutParams.attributes = &inputAttributes[0];
 
     instance->m_vertexArray = Graphics::VertexArray::Create(params.renderContext, inputLayoutParams).UnwrapOr(nullptr);
     if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Retrieve built in font data.
@@ -81,7 +81,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
     {
         LOG_ERROR("Could not retrieve font data!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create font texture.
@@ -97,7 +97,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(instance->m_fontTexture == nullptr)
     {
         LOG_ERROR("Could not create font texture!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     ImGui::GetIO().Fonts->TexID = (void*)(intptr_t)instance->m_fontTexture->GetHandle();
@@ -112,7 +112,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(instance->m_sampler == nullptr)
     {
         LOG_ERROR("Could not create sampler!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Load shader.
@@ -127,7 +127,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     if(instance->m_shader == nullptr)
     {
         LOG_ERROR("Could not create shader!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Save system references.
@@ -135,7 +135,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     instance->m_renderContext = params.renderContext;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void EditorRenderer::Draw()

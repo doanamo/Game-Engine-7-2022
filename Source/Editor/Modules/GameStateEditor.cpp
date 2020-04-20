@@ -23,7 +23,7 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<GameStateEditor>(new GameStateEditor());
@@ -35,7 +35,7 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     instance->m_updateTimeHistogram.resize(100, 0.0f);
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void GameStateEditor::Update(float timeDelta)

@@ -22,7 +22,7 @@ namespace Graphics
     class Texture;
     class TextureView;
 
-    class TextureAtlas final : private NonCopyable
+    class TextureAtlas final : private Common::NonCopyable
     {
     public:
         struct LoadFromFile
@@ -40,7 +40,7 @@ namespace Graphics
             InvalidResourceContent,
         };
 
-        using CreateResult = Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
         static CreateResult Create();
         static CreateResult Create(const LoadFromFile& params);
 

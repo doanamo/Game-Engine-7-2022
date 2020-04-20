@@ -21,8 +21,8 @@ StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params
     LOG_SCOPED_INDENT();
 
     // Validate arguments
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<StateRenderer>(new StateRenderer());
@@ -32,7 +32,7 @@ StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params
     instance->m_spriteRenderer = params.spriteRenderer;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void StateRenderer::Draw(const DrawParams& drawParams)

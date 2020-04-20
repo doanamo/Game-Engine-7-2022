@@ -17,7 +17,7 @@
 namespace Common
 {
     template<typename Type>
-    class ListNode : private NonCopyable
+    class ListNode : private Common::NonCopyable
     {
     public:
         ListNode() :

@@ -92,7 +92,7 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Sampler>(new Sampler());
@@ -104,7 +104,7 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Sampler could not be created!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Set sampling parameters.
@@ -172,7 +172,7 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     instance->m_renderContext = renderContext;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 GLuint Sampler::GetHandle() const

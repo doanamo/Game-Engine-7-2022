@@ -17,7 +17,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class Buffer : private NonCopyable
+    class Buffer : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -34,7 +34,7 @@ namespace Graphics
             FailedResourceCreation,
         };
 
-        using BufferResult = Result<void, BufferErrors>;
+        using BufferResult = Common::Result<void, BufferErrors>;
 
     public:
         void Update(const void* data, std::size_t elementCount);
@@ -73,7 +73,7 @@ namespace Graphics
     class VertexBuffer final : public Buffer
     {
     public:
-        using BufferResult = Result<std::unique_ptr<VertexBuffer>, Buffer::BufferErrors>;
+        using BufferResult = Common::Result<std::unique_ptr<VertexBuffer>, Buffer::BufferErrors>;
         static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:
@@ -93,7 +93,7 @@ namespace Graphics
     class IndexBuffer final : public Buffer
     {
     public:
-        using BufferResult = Result<std::unique_ptr<IndexBuffer>, Buffer::BufferErrors>;
+        using BufferResult = Common::Result<std::unique_ptr<IndexBuffer>, Buffer::BufferErrors>;
         static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:
@@ -115,7 +115,7 @@ namespace Graphics
     class InstanceBuffer final : public Buffer
     {
     public:
-        using BufferResult = Result<std::unique_ptr<InstanceBuffer>, Buffer::BufferErrors>;
+        using BufferResult = Common::Result<std::unique_ptr<InstanceBuffer>, Buffer::BufferErrors>;
         static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
 
     public:

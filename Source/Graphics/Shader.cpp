@@ -42,9 +42,9 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Shader>(new Shader());
@@ -102,7 +102,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
             if(shaderObject == OpenGL::InvalidHandle)
             {
                 LOG_ERROR("Shader object could not be created!");
-                return Failure(CreateErrors::FailedShaderCreation);
+                return Common::Failure(CreateErrors::FailedShaderCreation);
             }
 
             // Prepare preprocessor define.
@@ -118,10 +118,10 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
                 shaderCode.c_str(),
             };
 
-            const std::size_t shaderCodeSegmentCount = Utility::StaticArraySize(shaderCodeSegments);
+            const std::size_t shaderCodeSegmentCount = Common::StaticArraySize(shaderCodeSegments);
 
             glShaderSource(shaderObject,
-                Utility::NumericalCast<GLsizei>(shaderCodeSegmentCount),
+                Common::NumericalCast<GLsizei>(shaderCodeSegmentCount),
                 (const GLchar**)&shaderCodeSegments, nullptr);
             OpenGL::CheckErrors();
 
@@ -150,7 +150,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
                     LOG_ERROR("Shader compile errors: \"{}\"", errorText.data());
                 }
 
-                return Failure(CreateErrors::FailedShaderCompilation);
+                return Common::Failure(CreateErrors::FailedShaderCompilation);
             }
         }
     }
@@ -159,7 +159,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     if(shaderObjectsFound == false)
     {
         LOG_ERROR("Could not find any shader objects!");
-        return Failure(CreateErrors::FailedShaderCompilation);
+        return Common::Failure(CreateErrors::FailedShaderCompilation);
     }
 
     // Create shader program.
@@ -169,7 +169,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     if(instance->m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Shader program could not be created!");
-        return Failure(CreateErrors::FailedProgramCreation);
+        return Common::Failure(CreateErrors::FailedProgramCreation);
     }
 
     // Attach compiled shader objects.
@@ -224,11 +224,11 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
             LOG_ERROR("Shader link errors: \"{}\"", errorText.data());
         }
 
-        return Failure(CreateErrors::FailedProgramLinkage);
+        return Common::Failure(CreateErrors::FailedProgramLinkage);
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 Shader::CreateResult Shader::Create(const LoadFromFile& params)
@@ -237,7 +237,7 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Resolve file path.
     auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
@@ -245,16 +245,16 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
-        return Failure(CreateErrors::FailedFilePathResolve);
+        return Common::Failure(CreateErrors::FailedFilePathResolve);
     }
 
     // Load shader code from a file.
-    std::string shaderCode = Utility::GetTextFileContent(resolvePathResult.Unwrap());
+    std::string shaderCode = Common::GetTextFileContent(resolvePathResult.Unwrap());
 
     if(shaderCode.empty())
     {
         LOG_ERROR("File could not be read!");
-        return Failure(CreateErrors::InvalidFileContent);
+        return Common::Failure(CreateErrors::InvalidFileContent);
     }
 
     // Create instance.

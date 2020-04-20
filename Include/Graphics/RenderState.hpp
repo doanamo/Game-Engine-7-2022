@@ -92,7 +92,7 @@ namespace Graphics
             // GL_VERTEX_PROGRAM_TWO_SIDE,
         };
 
-        const std::size_t CapabilityCount = Utility::StaticArraySize(Capabilities);
+        const std::size_t CapabilityCount = Common::StaticArraySize(Capabilities);
 
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =
         {
@@ -112,7 +112,7 @@ namespace Graphics
             // { GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING },
         };
 
-        const std::size_t BufferBindingTargetCount = Utility::StaticArraySize(BufferBindingTargets);
+        const std::size_t BufferBindingTargetCount = Common::StaticArraySize(BufferBindingTargets);
 
         static const std::tuple<GLenum, GLenum> TextureBindingTargets[] =
         {
@@ -129,7 +129,7 @@ namespace Graphics
             // { GL_TEXTURE_2D_MULTISAMPLE_ARRAY, GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY },
         };
 
-        const std::size_t TextureBindingTargetCount = Utility::StaticArraySize(TextureBindingTargets);
+        const std::size_t TextureBindingTargetCount = Common::StaticArraySize(TextureBindingTargets);
 
         static const GLenum PixelStoreParameters[] =
         {
@@ -151,10 +151,10 @@ namespace Graphics
             GL_UNPACK_ALIGNMENT,
         };
 
-        const std::size_t PixelStoreParameterCount = Utility::StaticArraySize(PixelStoreParameters);
+        const std::size_t PixelStoreParameterCount = Common::StaticArraySize(PixelStoreParameters);
     }
 
-    class RenderState final : public Resettable<RenderState>
+    class RenderState final : public Common::Resettable<RenderState>
     {
     public:
         RenderState();

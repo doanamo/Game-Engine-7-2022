@@ -10,17 +10,20 @@
     Gives ability for class instance to completely reset itself to its original state. 
 */
 
-template<typename Type>
-class Resettable
+namespace Common
 {
-public:
-    void Reset()
+    template<typename Type>
+    class Resettable
     {
-        static_assert(std::is_base_of<Resettable<Type>, Type>::value, "Incorrect use of resettable base class!");
-        static_assert(std::is_final<Type>::value, "Resettable base class is dangerous when used with non-final classes!");
+    public:
+        void Reset()
+        {
+            static_assert(std::is_base_of<Resettable<Type>, Type>::value, "Incorrect use of resettable base class!");
+            static_assert(std::is_final<Type>::value, "Resettable base class is dangerous when used with non-final classes!");
 
-        // Reconstruct instance in place.
-        static_cast<Type*>(this)->~Type();
-        new (static_cast<Type*>(this)) Type();
-    }
-};
+            // Reconstruct instance in place.
+            static_cast<Type*>(this)->~Type();
+            new (static_cast<Type*>(this)) Type();
+        }
+    };
+}

@@ -19,7 +19,7 @@ ComponentSystem::CreateResult ComponentSystem::Create(EntitySystem* entitySystem
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<ComponentSystem>(new ComponentSystem());
@@ -28,20 +28,20 @@ ComponentSystem::CreateResult ComponentSystem::Create(EntitySystem* entitySystem
     if(!instance->m_entityCreate.Subscribe(entitySystem->events.entityCreate))
     {
         LOG_ERROR("Failed to subscribe to entity system!");
-        return Failure(CreateErrors::FailedEventSubscription);
+        return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
     if(!instance->m_entityDestroy.Subscribe(entitySystem->events.entityDestroy))
     {
         LOG_ERROR("Failed to subscribe to entity system!");
-        return Failure(CreateErrors::FailedEventSubscription);
+        return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
     // Save entity system reference
     instance->m_entitySystem = entitySystem;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 bool ComponentSystem::OnEntityCreate(EntityHandle handle)

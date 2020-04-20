@@ -70,8 +70,8 @@ void SpriteDrawList::SortSprites()
 
     // Reorder sprite info and data arrays to match sorted indices.
     bool reorderResult = true;
-    reorderResult &= Utility::ReorderWithIndices(m_spriteInfo, m_spriteSort);
-    reorderResult &= Utility::ReorderWithIndices(m_spriteData, m_spriteSort);
+    reorderResult &= Common::ReorderWithIndices(m_spriteInfo, m_spriteSort);
+    reorderResult &= Common::ReorderWithIndices(m_spriteData, m_spriteSort);
     ASSERT(reorderResult, "Reorder with indices failed!");
 }
 

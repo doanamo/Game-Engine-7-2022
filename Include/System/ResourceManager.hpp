@@ -19,10 +19,10 @@
 
 namespace System
 {
-    class ResourceManager final : private NonCopyable
+    class ResourceManager final : private Common::NonCopyable
     {
     public:
-        using CreateResult = Result<std::unique_ptr<ResourceManager>, void>;
+        using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, void>;
         static CreateResult Create();
 
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;

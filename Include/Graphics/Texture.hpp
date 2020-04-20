@@ -21,7 +21,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class Texture final : private NonCopyable
+    class Texture final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -51,7 +51,7 @@ namespace Graphics
             FailedPngLoading,
         };
 
-        using CreateResult = Result<std::unique_ptr<Texture>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Texture>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
         static CreateResult Create(const LoadFromFile& params);
 

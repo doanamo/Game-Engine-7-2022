@@ -97,7 +97,7 @@ namespace Event
     class DispatcherBase;
 
     template<typename ReturnType, typename... Arguments>
-    class DispatcherBase<ReturnType(Arguments...)> : private NonCopyable
+    class DispatcherBase<ReturnType(Arguments...)> : private Common::NonCopyable
     {
     public:
         using ReceiverReturnType = ReturnType;

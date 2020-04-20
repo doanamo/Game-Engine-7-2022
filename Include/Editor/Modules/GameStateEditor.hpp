@@ -18,7 +18,7 @@ namespace Game
 
 namespace Editor
 {
-    class GameStateEditor final : private NonCopyable
+    class GameStateEditor final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -31,7 +31,7 @@ namespace Editor
             InvalidArgument,
         };
 
-        using CreateResult = Result<std::unique_ptr<GameStateEditor>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameStateEditor>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

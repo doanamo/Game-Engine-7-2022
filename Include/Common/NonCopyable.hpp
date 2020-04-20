@@ -10,17 +10,20 @@
     Prevents instance of derived class from being copied.
 
     Example usage:
-        class Object : private NonCopyable
+        class Object : private Common::NonCopyable
         {
         }
 */
 
-class NonCopyable
+namespace Common
 {
-protected:
-    NonCopyable() = default;
-    ~NonCopyable() = default;
+    class NonCopyable
+    {
+    protected:
+        NonCopyable() = default;
+        ~NonCopyable() = default;
 
-    NonCopyable(const NonCopyable&) = delete;
-    NonCopyable& operator=(const NonCopyable&) = delete;
-};
+        NonCopyable(const NonCopyable&) = delete;
+        NonCopyable& operator=(const NonCopyable&) = delete;
+    };
+}

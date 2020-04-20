@@ -20,7 +20,7 @@ namespace System
 
 namespace Graphics
 {
-    class RenderContext final : private NonCopyable
+    class RenderContext final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -29,7 +29,7 @@ namespace Graphics
             FailedStateCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<RenderContext>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<RenderContext>, CreateErrors>;
         static CreateResult Create(System::Window* window);
 
     public:

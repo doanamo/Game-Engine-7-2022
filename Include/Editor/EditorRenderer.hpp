@@ -29,7 +29,7 @@ namespace Graphics
 
 namespace Editor
 {
-    class EditorRenderer final : private NonCopyable
+    class EditorRenderer final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -46,7 +46,7 @@ namespace Editor
             FailedResourceCreation,
         };
 
-        using CreateResult = Result<std::unique_ptr<EditorRenderer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<EditorRenderer>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:

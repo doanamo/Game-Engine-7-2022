@@ -21,7 +21,7 @@ namespace Game
 {
     class EntitySystem;
 
-    class ComponentSystem final : private NonCopyable
+    class ComponentSystem final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -30,7 +30,7 @@ namespace Game
             FailedEventSubscription,
         };
 
-        using CreateResult = Result<std::unique_ptr<ComponentSystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<ComponentSystem>, CreateErrors>;
         static CreateResult Create(EntitySystem* entitySystem);
 
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;

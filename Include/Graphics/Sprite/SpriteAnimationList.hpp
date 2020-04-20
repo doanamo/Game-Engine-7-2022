@@ -23,7 +23,7 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteAnimationList final : private NonCopyable
+    class SpriteAnimationList final : private Common::NonCopyable
     {
     public:
         struct LoadFromFile
@@ -41,7 +41,7 @@ namespace Graphics
             InvalidResourceContent,
         };
 
-        using CreateResult = Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
         static CreateResult Create();
         static CreateResult Create(const LoadFromFile& params);
 

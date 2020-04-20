@@ -17,7 +17,7 @@ ResourceManager::CreateResult ResourceManager::Create()
     auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void ResourceManager::ReleaseUnused()

@@ -26,10 +26,10 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteRenderer>(new SpriteRenderer());
@@ -46,14 +46,14 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     Buffer::CreateFromParams vertexBufferParams;
     vertexBufferParams.usage = GL_STATIC_DRAW;
     vertexBufferParams.elementSize = sizeof(SpriteVertex);
-    vertexBufferParams.elementCount = Utility::StaticArraySize(SpriteVertices);
+    vertexBufferParams.elementCount = Common::StaticArraySize(SpriteVertices);
     vertexBufferParams.data = &SpriteVertices[0];
 
     instance->m_vertexBuffer = VertexBuffer::Create(params.renderContext, vertexBufferParams).UnwrapOr(nullptr);
     if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create instance buffer.
@@ -67,7 +67,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_instanceBuffer == nullptr)
     {
         LOG_ERROR("Could not create instance buffer!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create vertex array.
@@ -82,14 +82,14 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     };
 
     Graphics::VertexArray::FromArrayParams vertexArrayParams;
-    vertexArrayParams.attributeCount = Utility::StaticArraySize(vertexAttributes);
+    vertexArrayParams.attributeCount = Common::StaticArraySize(vertexAttributes);
     vertexArrayParams.attributes = &vertexAttributes[0];
 
     instance->m_vertexArray = Graphics::VertexArray::Create(params.renderContext, vertexArrayParams).UnwrapOr(nullptr);
     if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create nearest sampler.
@@ -101,7 +101,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_nearestSampler == nullptr)
     {
         LOG_ERROR("Could not create nearest sampler!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Create linear sampler.
@@ -113,7 +113,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_linearSampler == nullptr)
     {
         LOG_ERROR("Could not create linear sampler!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Load shader.
@@ -128,7 +128,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     if(instance->m_shader == nullptr)
     {
         LOG_ERROR("Could not load sprite shader!");
-        return Failure(CreateErrors::FailedResourceCreation);
+        return Common::Failure(CreateErrors::FailedResourceCreation);
     }
 
     // Remember sprite batch size.
@@ -138,7 +138,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     instance->m_renderContext = params.renderContext;
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform)
@@ -227,7 +227,7 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
         }
 
         // Draw instanced sprite batch.
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Utility::NumericalCast<GLsizei>(spritesBatched));
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Common::NumericalCast<GLsizei>(spritesBatched));
         OpenGL::CheckErrors();
 
         // Update counter of drawn sprites.

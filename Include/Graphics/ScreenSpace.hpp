@@ -51,7 +51,7 @@
 
 namespace Graphics
 {
-    class ScreenSpace final : public Resettable<ScreenSpace>
+    class ScreenSpace final : public Common::Resettable<ScreenSpace>
     {
     public:
         ScreenSpace();

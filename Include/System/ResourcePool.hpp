@@ -31,13 +31,13 @@ namespace System
     };
 
     template<typename Type>
-    class ResourcePool final : public ResourcePoolInterface, private NonCopyable
+    class ResourcePool final : public ResourcePoolInterface, private Common::NonCopyable
     {
     public:
         using ResourcePtr = std::shared_ptr<Type>;
         using ResourceList = std::unordered_map<std::string, ResourcePtr>;
         using ResourceListPair = typename ResourceList::value_type;
-        using AcquireResult = Result<ResourcePtr, ResourcePtr>;
+        using AcquireResult = Common::Result<ResourcePtr, ResourcePtr>;
 
     public:
         ResourcePool() = default;
@@ -86,14 +86,14 @@ namespace System
             ASSERT(it->second != nullptr, "Found resource is null!");
 
             // Return found resource.
-            return Success(it->second);
+            return Common::Success(it->second);
         }
 
         // Create resource instance.
         auto createResult = Type::Create(std::forward<Arguments>(arguments)...);
         if(!createResult)
         {
-            return Failure(m_defaultResource);
+            return Common::Failure(m_defaultResource);
         }
 
         std::shared_ptr<Type> resource = createResult.Unwrap();
@@ -104,7 +104,7 @@ namespace System
         ASSERT(result.second, "Failed to emplace new resource in resource pool!");
 
         // Return resource pointer.
-        return Success(result.first->second);
+        return Common::Success(result.first->second);
     }
 
     template<typename Type>

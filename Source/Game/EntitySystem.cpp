@@ -44,7 +44,7 @@ EntitySystem::CreateResult EntitySystem::Create()
 
     // Create instance.
     auto instance = std::unique_ptr<EntitySystem>(new EntitySystem());
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 EntityHandle EntitySystem::CreateEntity()
@@ -85,13 +85,13 @@ EntityHandle EntitySystem::CreateEntity()
     {
         // Calculate next unused identifier.
         std::size_t calculatedIdentifier = StartingIdentifier + m_handleEntries.size();
-        auto identifier = Utility::NumericalCast<EntityHandle::ValueType>(calculatedIdentifier);
+        auto identifier = Common::NumericalCast<EntityHandle::ValueType>(calculatedIdentifier);
 
         // Create new handle entry.
         m_handleEntries.emplace_back(identifier);
 
         // Add new handle entry to the free list queue.
-        ASSERT(identifier - StartingIdentifier == Utility::NumericalCast<EntityHandle::ValueType>(m_handleEntries.size()) - 1,
+        ASSERT(identifier - StartingIdentifier == Common::NumericalCast<EntityHandle::ValueType>(m_handleEntries.size()) - 1,
             "Handle index does not match the added entity identifier!");
 
         m_freeIdentifiers.emplace(identifier);

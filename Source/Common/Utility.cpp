@@ -4,7 +4,7 @@
 
 #include "Common/Utility.hpp"
 
-std::string Utility::GetFileDirectory(const std::string filePath)
+std::string Common::GetFileDirectory(const std::string filePath)
 {
     std::string directory;
 
@@ -17,7 +17,7 @@ std::string Utility::GetFileDirectory(const std::string filePath)
     return directory;
 }
 
-std::string Utility::GetFileName(const std::string filePath)
+std::string Common::GetFileName(const std::string filePath)
 {
     std::size_t begin = filePath.find_last_of("/\\");
     std::size_t end = filePath.find_last_of(".");
@@ -39,7 +39,7 @@ std::string Utility::GetFileName(const std::string filePath)
     return filePath.substr(begin, end - begin);
 }
 
-std::string Utility::GetFileExtension(const std::string filePath)
+std::string Common::GetFileExtension(const std::string filePath)
 {
     std::string extension;
 
@@ -52,7 +52,7 @@ std::string Utility::GetFileExtension(const std::string filePath)
     return extension;
 }
 
-std::string Utility::GetTextFileContent(const std::string filePath)
+std::string Common::GetTextFileContent(const std::string filePath)
 {
     std::ifstream file(filePath);
     std::string content;
@@ -69,7 +69,7 @@ std::string Utility::GetTextFileContent(const std::string filePath)
     return content;
 }
 
-std::vector<char> Utility::GetBinaryFileContent(const std::string filePath)
+std::vector<char> Common::GetBinaryFileContent(const std::string filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
     std::vector<char> content;
@@ -86,7 +86,7 @@ std::vector<char> Utility::GetBinaryFileContent(const std::string filePath)
     return content;
 }
 
-std::string Utility::StringLowerCase(const std::string text)
+std::string Common::StringLowerCase(const std::string text)
 {
     std::string result;
 
@@ -98,7 +98,7 @@ std::string Utility::StringLowerCase(const std::string text)
     return result;
 }
 
-std::vector<std::string> Utility::StringTokenize(const std::string text, char delimeter)
+std::vector<std::string> Common::StringTokenize(const std::string text, char delimeter)
 {
     std::vector<std::string> result;
 
@@ -126,24 +126,24 @@ std::vector<std::string> Utility::StringTokenize(const std::string text, char de
     return result;
 }
 
-std::string Utility::StringTrimLeft(const std::string text, const char* characters)
+std::string Common::StringTrimLeft(const std::string text, const char* characters)
 {
     std::string result = text;
     return result.erase(0, text.find_first_not_of(characters));
 }
 
-std::string Utility::StringTrimRight(const std::string text, const char* characters)
+std::string Common::StringTrimRight(const std::string text, const char* characters)
 {
     std::string result = text;
     return result.erase(text.find_last_not_of(characters) + 1);
 }
 
-std::string Utility::StringTrim(std::string text, const char* characters)
+std::string Common::StringTrim(std::string text, const char* characters)
 {
     return StringTrimLeft(StringTrimRight(text, characters), characters);
 }
 
-uint32_t Utility::StringHash(const std::string string)
+uint32_t Common::StringHash(const std::string string)
 {
     // Small and simple hashing function for strings.
     // May need to be replaced in case of collisions.
@@ -160,7 +160,7 @@ uint32_t Utility::StringHash(const std::string string)
     return hash;
 }
 
-uint32_t Utility::CalculateCRC32(uint32_t crc, const char* data, std::size_t size)
+uint32_t Common::CalculateCRC32(uint32_t crc, const char* data, std::size_t size)
 {
     // Implementation based on: https://stackoverflow.com/a/27950866
     crc = ~crc;

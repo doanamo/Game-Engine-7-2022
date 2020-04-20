@@ -28,9 +28,9 @@ Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum typ
 
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
-    CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum, Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(info.elementSize != 0, Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum, Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(info.elementSize != 0, Common::Failure(BufferErrors::InvalidArgument));
 
     // Create buffer handle.
     ASSERT(m_handle == OpenGL::InvalidHandle);
@@ -41,7 +41,7 @@ Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum typ
     if(m_handle == OpenGL::InvalidHandle)
     {
         LOG_ERROR("Buffer handle could not be created!");
-        return Failure(BufferErrors::FailedResourceCreation);
+        return Common::Failure(BufferErrors::FailedResourceCreation);
     }
 
     // Allocate buffer memory.
@@ -67,7 +67,7 @@ Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum typ
     m_renderContext = renderContext;
 
     // Success!
-    return Success();
+    return Common::Success();
 }
 
 void Buffer::Update(const void* data, std::size_t elementCount)
@@ -133,11 +133,11 @@ VertexBuffer::BufferResult VertexBuffer::Create(RenderContext* renderContext, co
     if(!initializeResult)
     {
         LOG_ERROR("Failed to initialize buffer!");
-        return Failure(initializeResult.UnwrapFailure());
+        return Common::Failure(initializeResult.UnwrapFailure());
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 /*
@@ -161,11 +161,11 @@ IndexBuffer::BufferResult IndexBuffer::Create(RenderContext* renderContext, cons
     if(!initializeResult)
     {
         LOG_ERROR("Failed to initialize buffer!");
-        return Failure(initializeResult.UnwrapFailure());
+        return Common::Failure(initializeResult.UnwrapFailure());
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 GLenum IndexBuffer::GetElementType() const
@@ -204,11 +204,11 @@ InstanceBuffer::BufferResult InstanceBuffer::Create(RenderContext* renderContext
     if(!initializeResult)
     {
         LOG_ERROR("Failed to initialize buffer!");
-        return Failure(initializeResult.UnwrapFailure());
+        return Common::Failure(initializeResult.UnwrapFailure());
     }
 
     // Success!
-    return Success(std::move(instance));
+    return Common::Success(std::move(instance));
 }
 
 bool InstanceBuffer::IsInstanced() const

@@ -20,7 +20,7 @@ namespace System
     Game Scene
 */
 
-class GameScene final : public NonCopyable
+class GameScene final : private Common::NonCopyable
 {
 public:
     enum class CreateErrors
@@ -30,7 +30,7 @@ public:
         FailedResourceLoading,
     };
 
-    using CreateResult = Result<std::unique_ptr<GameScene>, CreateErrors>;
+    using CreateResult = Common::Result<std::unique_ptr<GameScene>, CreateErrors>;
     static CreateResult Create(Engine::Root* engine);
 
 public:

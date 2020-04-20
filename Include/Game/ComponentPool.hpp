@@ -38,7 +38,7 @@ namespace Game
     };
 
     template<typename ComponentType>
-    class ComponentPool final : public ComponentPoolInterface, private NonCopyable
+    class ComponentPool final : public ComponentPoolInterface, private Common::NonCopyable
     {
     public:
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
