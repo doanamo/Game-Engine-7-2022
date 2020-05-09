@@ -242,7 +242,7 @@ namespace Reflection
         static constexpr auto Name = TypeInfo.Name;
 
         template<typename OtherType>
-        constexpr bool IsType() const
+        static constexpr bool IsType()
         {
             return std::is_same<Type, OtherType>::value;
         }
@@ -273,26 +273,33 @@ namespace Reflection
         static constexpr auto AttributeTypes = Detail::MakeAttributeDescriptionWithoutInstanceList<ReflectedType>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
 
         template<typename OtherType>
-        constexpr bool IsType() const
+        static constexpr bool IsType()
         {
             return std::is_same<Type, OtherType>::value;
         }
 
-        constexpr bool HasAttributes() const
+        static constexpr bool HasAttributes()
         {
             return Attributes.Count > 0;
         }
 
         template<std::size_t AttributeIndex>
-        constexpr auto Attribute() const -> decltype(Attributes.template Get<AttributeIndex>())
+        static constexpr auto Attribute() -> decltype(Attributes.template Get<AttributeIndex>())
         {
             return Attributes.template Get<AttributeIndex>();
         }
 
         template<auto& AttributeName>
-        constexpr auto FindAttribute() const
+        static constexpr auto FindAttribute()
         {
-            constexpr auto Index = FindFirstIndex(AttributeTypes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+            constexpr auto Index = FindFirstIndex(AttributeTypes,
+                [](auto Attribute) constexpr -> bool
+                {
+                    using AttributeType = decltype(Attribute);
+                    return AttributeType::Name == AttributeName;
+                }
+            );
+
             return Attributes.template Get<Index>();
         }
     };
@@ -312,60 +319,73 @@ namespace Reflection
         static constexpr auto AttributeTypes = Detail::MakeAttributeDescriptionWithoutInstanceList<Type>(TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
         static constexpr auto Members = Detail::MakeMemberDescriptionList<Type>(std::make_index_sequence<TypeInfo.Members.Count>());
 
-        constexpr bool IsNullType() const
+        static constexpr bool IsNullType()
         {
             return std::is_same<Type, NullType>::value;
         }
 
         template<typename OtherType>
-        constexpr bool IsType() const
+        static constexpr bool IsType()
         {
             return std::is_same<Type, OtherType>::value;
         }
 
-        constexpr bool HasBaseType() const
+        static constexpr bool HasBaseType()
         {
             return !std::is_same<BaseType, NullType>::value;
         }
 
-        constexpr TypeDescription<BaseType> GetBaseType() const
+        static constexpr TypeDescription<BaseType> GetBaseType()
         {
             return {};
         }
 
-        constexpr bool HasAttributes() const
+        static constexpr bool HasAttributes()
         {
             return Attributes.Count > 0;
         }
 
         template<std::size_t AttributeIndex>
-        constexpr auto Attribute() const -> decltype(Attributes.template Get<AttributeIndex>())
+        static constexpr auto Attribute() -> decltype(Attributes.template Get<AttributeIndex>())
         {
             return Attributes.template Get<AttributeIndex>();
         }
 
         template<auto& AttributeName>
-        constexpr auto FindAttribute() const
+        static constexpr auto FindAttribute()
         {
-            constexpr auto Index = FindFirstIndex(AttributeTypes, [](auto Attribute) -> bool { return Attribute.Name == AttributeName; });
+            constexpr auto Index = FindFirstIndex(AttributeTypes,
+                [](auto Attribute) constexpr -> bool
+                {
+                    using AttributeType = decltype(Attribute);
+                    return AttributeType::Name == AttributeName;
+                }
+            );
+
             return Attributes.template Get<Index>();
         }
 
-        constexpr bool HasMembers() const
+        static constexpr bool HasMembers()
         {
             return Members.Count > 0;
         }
 
         template<std::size_t MemberIndex>
-        constexpr auto Member() const -> decltype(Members.template Get<MemberIndex>())
+        static constexpr auto Member() -> decltype(Members.template Get<MemberIndex>())
         {
             return Members.template Get<MemberIndex>();
         }
 
         template<auto& MemberName>
-        constexpr auto FindMember() const
+        static constexpr auto FindMember()
         {
-            return FindOne(Members, [](auto Member) -> bool { return Member.Name == MemberName; });
+            return FindOne(Members, 
+                [](auto Member) constexpr -> bool
+                {
+                    using MemberType = decltype(Member);
+                    return MemberType::Name == MemberName;
+                }
+            );
         }
     };
 
