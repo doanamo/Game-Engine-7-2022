@@ -5,98 +5,194 @@ stages:
     - build
     - test
 
-generate_cmake32:
+generate_gcc_x86:
     stage: generate
     script:
-        - mkdir cmake-build32
-        - cd cmake-build32
+        - mkdir cmake-gcc-x86
+        - cd cmake-gcc-x86
         - cmake -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -m32" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32" ../.
     artifacts:
         paths:
-            - cmake-build32/
+            - cmake-gcc-x86/
         
-generate_cmake64:
+generate_gcc_x64:
     stage: generate
     script:
-        - mkdir cmake-build64
-        - cd cmake-build64
+        - mkdir cmake-gcc-x64
+        - cd cmake-gcc-x64
         - cmake ../.
     artifacts:
         paths:
-            - cmake-build64/
+            - cmake-gcc-x64/
     
-build_debug32:
+build_debug_gcc_x86:
     stage: build
     dependencies:
-        - generate_cmake32
+        - generate_gcc_x86
     script:
-        - cd cmake-build32
+        - cd cmake-gcc-x86
         - cmake --build . --config Debug
     artifacts:
         paths:
-            - cmake-build32/
+            - cmake-gcc-x86/
             
-build_release32:
+build_release_gcc_x86:
     stage: build
     dependencies:
-        - generate_cmake32
+        - generate_gcc_x86
     script:
-        - cd cmake-build32
+        - cd cmake-gcc-x86
         - cmake --build . --config Release
     artifacts:
         paths:
-            - cmake-build32/
+            - cmake-gcc-x86/
 
-build_debug64:
+build_debug_gcc_x64:
     stage: build
     dependencies:
-        - generate_cmake64
+        - generate_gcc_x64
     script:
-        - cd cmake-build64
+        - cd cmake-gcc-x64
         - cmake --build . --config Debug
     artifacts:
         paths:
-            - cmake-build64/
+            - cmake-gcc-x64/
             
-build_release64:
+build_release_gcc_x64:
     stage: build
     dependencies:
-        - generate_cmake64
+        - generate_gcc_x64
     script:
-        - cd cmake-build64
+        - cd cmake-gcc-x64
         - cmake --build . --config Release
     artifacts:
         paths:
-            - cmake-build64/
+            - cmake-gcc-x64/
             
 test_debug32:
     stage: test
     dependencies:
-        - build_debug32
+        - build_debug_gcc_x86
     script:
-        - cd cmake-build32
+        - cd cmake-gcc-x86
         - ctest -C Debug
         
 test_release32:
     stage: test
     dependencies:
-        - build_release32
+        - build_release_gcc_x86
     script:
-        - cd cmake-build32
+        - cd cmake-gcc-x86
         - ctest -C Release
         
 test_debug64:
     stage: test
     dependencies:
-        - build_debug64
+        - build_debug_gcc_x64
     script:
-        - cd cmake-build64
+        - cd cmake-gcc-x64
         - ctest -C Debug
         
 test_release64:
     stage: test
     dependencies:
-        - build_release64
+        - build_release_gcc_x64
     script:
-        - cd cmake-build64
+        - cd cmake-gcc-x64
+        - ctest -C Release
+
+generate_clang_x86:
+    stage: generate
+    script:
+        - mkdir cmake-clang-x86
+        - cd cmake-clang-x86
+        - CC=clang CXX=clang++ cmake -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -m32" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32" ../.
+    artifacts:
+        paths:
+            - cmake-clang-x86/
+        
+generate_clang_x64:
+    stage: generate
+    script:
+        - mkdir cmake-clang-x64
+        - cd cmake-clang-x64
+        - CC=clang CXX=clang++ cmake ../.
+    artifacts:
+        paths:
+            - cmake-clang-x64/
+    
+build_debug_clang_x86:
+    stage: build
+    dependencies:
+        - generate_clang_x86
+    script:
+        - cd cmake-clang-x86
+        - cmake --build . --config Debug
+    artifacts:
+        paths:
+            - cmake-clang-x86/
+            
+build_release_clang_x86:
+    stage: build
+    dependencies:
+        - generate_clang_x86
+    script:
+        - cd cmake-clang-x86
+        - cmake --build . --config Release
+    artifacts:
+        paths:
+            - cmake-clang-x86/
+
+build_debug_clang_x64:
+    stage: build
+    dependencies:
+        - generate_clang_x64
+    script:
+        - cd cmake-clang-x64
+        - cmake --build . --config Debug
+    artifacts:
+        paths:
+            - cmake-clang-x64/
+            
+build_release_clang_x64:
+    stage: build
+    dependencies:
+        - generate_clang_x64
+    script:
+        - cd cmake-clang-x64
+        - cmake --build . --config Release
+    artifacts:
+        paths:
+            - cmake-clang-x64/
+            
+test_debug32:
+    stage: test
+    dependencies:
+        - build_debug_clang_x86
+    script:
+        - cd cmake-clang-x86
+        - ctest -C Debug
+        
+test_release32:
+    stage: test
+    dependencies:
+        - build_release_clang_x86
+    script:
+        - cd cmake-clang-x86
+        - ctest -C Release
+        
+test_debug64:
+    stage: test
+    dependencies:
+        - build_debug_clang_x64
+    script:
+        - cd cmake-clang-x64
+        - ctest -C Debug
+        
+test_release64:
+    stage: test
+    dependencies:
+        - build_release_clang_x64
+    script:
+        - cd cmake-clang-x64
         - ctest -C Release
