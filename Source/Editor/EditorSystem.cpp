@@ -2,6 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
+#include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include <System/InputManager.hpp>
 #include <Game/GameState.hpp>
