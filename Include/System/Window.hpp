@@ -38,7 +38,7 @@ namespace System
         {
             InvalidArgument,
             FailedWindowCreation,
-            FailedGlewInitialization,
+            FailedExtensionLoad,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Window>, CreateErrors>;

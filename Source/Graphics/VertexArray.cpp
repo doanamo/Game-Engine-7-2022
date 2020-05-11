@@ -73,9 +73,6 @@ namespace
         case GL_FLOAT:
             return 4;
 
-        case GL_DOUBLE:
-            return 8;
-
         default:
             ASSERT(false, "Unknown input data type!");
             return 0;

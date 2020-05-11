@@ -17,13 +17,13 @@ namespace
         GLenum type;
     };
 
-    const int ShaderTypeCount = 3;
-    const ShaderType ShaderTypes[ShaderTypeCount] =
+    const ShaderType ShaderTypes[] =
     {
         { "vertex shader",   "VERTEX_SHADER",   GL_VERTEX_SHADER   },
-        { "geometry shader", "GEOMETRY_SHADER", GL_GEOMETRY_SHADER },
         { "fragment shader", "FRAGMENT_SHADER", GL_FRAGMENT_SHADER },
     };
+
+    const int ShaderTypeCount = Common::StaticArraySize(ShaderTypes);
 }
 
 Shader::Shader() = default;

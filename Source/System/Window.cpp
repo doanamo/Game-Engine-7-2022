@@ -36,6 +36,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     glfwWindowHint(GLFW_ALPHA_BITS, 8);
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -77,14 +78,11 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     // Set swap interval.
     glfwSwapInterval((int)params.vsync);
 
-    // Initialize GLEW library for the current context.
-    GLenum error = glewInit();
-
-    if(error != GLEW_OK)
+    // Load OpenGL extensions.
+    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("GLEW Error: {}", glewGetErrorString(error));
-        LOG_ERROR("Could not initialize GLEW library!");
-        return Common::Failure(CreateErrors::FailedGlewInitialization);
+        LOG_ERROR("Could not load OpenGL extensions!");
+        return Common::Failure(CreateErrors::FailedExtensionLoad);
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");

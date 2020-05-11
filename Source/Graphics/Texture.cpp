@@ -51,7 +51,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
         params.renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
 
     // Set packing alignment for provided data.
-    if(params.format == GL_R || params.format == GL_RED)
+    if(params.format == GL_RED)
     {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OpenGL::CheckErrors();
@@ -268,7 +268,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     switch(channels)
     {
     case 1:
-        textureFormat = GL_R;
+        textureFormat = GL_RED;
         break;
 
     case 2:

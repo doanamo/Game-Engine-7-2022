@@ -11,7 +11,6 @@ namespace
 {
     bool DefaultsInitialized = false;
 
-    glm::vec4 DefaultTextureBorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
     GLint DefaultTextureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     GLint DefaultTextureMagFilter = GL_LINEAR;
     GLint DefaultTextureWrapS = GL_REPEAT;
@@ -19,10 +18,8 @@ namespace
     GLint DefaultTextureWrapR = GL_REPEAT;
     GLfloat DefaultTextureMinLOD = -1000.0f;
     GLfloat DefaultTextureMaxLOD = 1000.0f;
-    GLfloat DefaultTextureLODBias = 0.0f;
     GLint DefaultTextureCompareMode = GL_NONE;
     GLint DefaultTextureCompareFunc = GL_LEQUAL;
-    GLfloat DefaultTextureMaxAniso = 1.0f;
 
     void InitializeDefaults()
     {
@@ -39,7 +36,6 @@ namespace
         SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
 
         // Read default parameters.
-        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_BORDER_COLOR, &DefaultTextureBorderColor[0]);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
@@ -47,10 +43,8 @@ namespace
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
         glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
         glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
-        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_LOD_BIAS, &DefaultTextureLODBias);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
-        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, &DefaultTextureMaxAniso);
         OpenGL::CheckErrors();
 
         // Success!
@@ -62,7 +56,6 @@ Sampler::CreateFromParams::CreateFromParams()
 {
     InitializeDefaults();
 
-    textureBorderColor = DefaultTextureBorderColor;
     textureMinFilter = DefaultTextureMinFilter;
     textureMagFilter = DefaultTextureMagFilter;
     textureWrapS = DefaultTextureWrapS;
@@ -70,10 +63,8 @@ Sampler::CreateFromParams::CreateFromParams()
     textureWrapR = DefaultTextureWrapR;
     textureMinLOD = DefaultTextureMinLOD;
     textureMaxLOD = DefaultTextureMaxLOD;
-    textureLODBias = DefaultTextureLODBias;
     textureCompareMode = DefaultTextureCompareMode;
     textureCompareFunc = DefaultTextureCompareFunc;
-    textureMaxAniso = DefaultTextureMaxAniso;
 }
 
 Sampler::Sampler() = default;
@@ -109,11 +100,6 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     }
 
     // Set sampling parameters.
-    if(DefaultTextureBorderColor != params.textureBorderColor)
-    {
-        glSamplerParameterfv(instance->m_handle, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(params.textureBorderColor));
-    }
-
     if(DefaultTextureMinFilter != params.textureMinFilter)
     {
         glSamplerParameteri(instance->m_handle, GL_TEXTURE_MIN_FILTER, params.textureMinFilter);
@@ -149,11 +135,6 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
         glSamplerParameterf(instance->m_handle, GL_TEXTURE_MAX_LOD, params.textureMaxLOD);
     }
 
-    if(DefaultTextureLODBias != params.textureLODBias)
-    {
-        glSamplerParameterf(instance->m_handle, GL_TEXTURE_LOD_BIAS, params.textureLODBias);
-    }
-
     if(DefaultTextureCompareMode != params.textureCompareMode)
     {
         glSamplerParameteri(instance->m_handle, GL_TEXTURE_COMPARE_MODE, params.textureCompareMode);
@@ -162,11 +143,6 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     if(DefaultTextureCompareFunc != params.textureCompareFunc)
     {
         glSamplerParameteri(instance->m_handle, GL_TEXTURE_COMPARE_FUNC, params.textureCompareFunc);
-    }
-
-    if(DefaultTextureMaxAniso != params.textureMaxAniso)
-    {
-        glSamplerParameterf(instance->m_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, params.textureMaxAniso);
     }
 
     // Save render context reference.

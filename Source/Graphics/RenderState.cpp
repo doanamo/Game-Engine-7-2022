@@ -62,7 +62,7 @@ RenderState::RenderState()
     m_viewport = { 0, 0, 0, 0 };
 
     // glClearDeapth
-    m_clearDepth = 0.0;
+    m_clearDepth = 0.0f;
 
     // glClearColor
     m_clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -149,7 +149,7 @@ void RenderState::Save()
     m_viewport = std::tie(viewport[0], viewport[1], viewport[2], viewport[3]);
 
     // glClearDeapth
-    glGetDoublev(GL_DEPTH_CLEAR_VALUE, &m_clearDepth);
+    glGetFloatv(GL_DEPTH_CLEAR_VALUE, &m_clearDepth);
     OpenGL::CheckErrors();
 
     // glClearColor
@@ -548,21 +548,21 @@ std::tuple<GLint, GLint, GLsizei, GLsizei> RenderState::GetViewport() const
     return m_viewport;
 }
 
-void RenderState::ClearDepth(GLdouble depth)
+void RenderState::ClearDepth(GLfloat depth)
 {
     // Check if state changed.
     if(GetClearDepth() == depth)
         return;
 
     // Call OpenGL function.
-    glClearDepth(depth);
+    glClearDepthf(depth);
     OpenGL::CheckErrors();
 
     // Save changed state.
     m_clearDepth = depth;
 }
 
-GLdouble RenderState::GetClearDepth() const
+GLfloat RenderState::GetClearDepth() const
 {
     return m_clearDepth;
 }

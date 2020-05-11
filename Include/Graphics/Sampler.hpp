@@ -23,7 +23,6 @@ namespace Graphics
         {
             CreateFromParams();
 
-            glm::vec4 textureBorderColor;
             GLint textureMinFilter;
             GLint textureMagFilter;
             GLint textureWrapS;
@@ -31,10 +30,8 @@ namespace Graphics
             GLint textureWrapR;
             GLfloat textureMinLOD;
             GLfloat textureMaxLOD;
-            GLfloat textureLODBias;
             GLint textureCompareMode;
             GLint textureCompareFunc;
-            GLfloat textureMaxAniso;
         };
 
         enum class CreateErrors
