@@ -42,7 +42,7 @@ namespace Debug
 #ifdef _MSC_VER
     #define DEBUG_BREAK() __debugbreak()
 #else
-    #include <sys/signal.h>
+    #include <signal.h>
     #define DEBUG_BREAK() raise(SIGTRAP)
 #endif
 
