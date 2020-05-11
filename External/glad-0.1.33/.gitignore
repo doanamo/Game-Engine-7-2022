@@ -11,8 +11,7 @@ main.c
 .idea
 dist/
 *.egg-info
-/khrplatform.h
-/eglplatform.h
-/vk_platform.h
 rust/
 glad-rs/
+!src/**/*
+!include/**/*
