@@ -1,4 +1,4 @@
-#version 330
+#version 300 es
 
 /*
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.

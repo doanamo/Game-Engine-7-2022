@@ -37,10 +37,9 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     // Show or hide window after creation.
     glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
@@ -79,9 +78,9 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     glfwSwapInterval((int)params.vsync);
 
     // Load OpenGL extensions.
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Could not load OpenGL extensions!");
+        LOG_ERROR("Could not load OpenGL ES extensions!");
         return Common::Failure(CreateErrors::FailedExtensionLoad);
     }
 
@@ -95,7 +94,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     // Log created OpenGL context.
     int glMajor = glfwGetWindowAttrib(instance->m_handle, GLFW_CONTEXT_VERSION_MAJOR);
     int glMinor = glfwGetWindowAttrib(instance->m_handle, GLFW_CONTEXT_VERSION_MINOR);
-    LOG_INFO("Using OpenGL {}.{} context.", glMajor, glMinor);
+    LOG_INFO("Using OpenGL ES {}.{} context.", glMajor, glMinor);
 
     // Store window title as it cannot be retrieved back via GLFW.
     instance->m_title = params.title;
