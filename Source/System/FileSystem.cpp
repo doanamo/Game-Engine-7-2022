@@ -14,8 +14,32 @@ FileSystem::CreateResult FileSystem::Create()
     LOG("Creating file system...");
     LOG_SCOPED_INDENT();
 
+    // Print contents of the working directory.
+    {
+        LOG_DEBUG("Printing working directory contents...");
+        LOG_SCOPED_INDENT();
+
+        for(const auto& entry : std::filesystem::directory_iterator("."))
+        {
+            LOG_DEBUG("{}", entry.path().string());
+        }
+
+        #ifndef NDEBUG
+            if(std::filesystem::exists("Data"))
+            {
+                for(const auto& entry : std::filesystem::recursive_directory_iterator("Data"))
+                {
+                    LOG_DEBUG("{}", entry.path().string());
+                }
+            }
+        #endif
+    }
+
     // Create instance.
     auto instance = std::unique_ptr<FileSystem>(new FileSystem());
+
+    // Mount working directory.
+    instance->MountDirectory("./");
 
     // Success!
     return Common::Success(std::move(instance));
@@ -56,22 +80,39 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) co
     }
 
     // Check file path for each mounted directory (iterated in reverse).
-    for(auto it = m_mountedDirs.crbegin(); it != m_mountedDirs.crend(); ++it)
+    #ifndef NDEBUG
+        std::vector<std::string> unresolvedPaths;
+    #endif
+
+    for(auto mountedDir = m_mountedDirs.crbegin(); mountedDir != m_mountedDirs.crend(); ++mountedDir)
     {
-        // Create resolved path.
-        std::string resolvedPath = *it + path;
+        // Check if file or directory exists.
+        std::string resolvePath = *mountedDir + path;
 
-        // Check if file or directory exists (good() works with directories as well).
-        // This may be too slow for the purpose, but does its job for now.
-        std::ifstream file(resolvedPath);
-
-        if(file.good())
+        if(std::filesystem::exists(resolvePath))
         {
-            // Return resolved path.
-            return Common::Success(resolvedPath);
+            return Common::Success(resolvePath);
         }
+
+        #ifndef NDEBUG
+            unresolvedPaths.push_back(resolvePath);
+        #endif
     }
 
     // Failed to resolve path.
+    LOG_WARNING("Failed to resolve \"{}\" path!", path);
+
+    #ifndef NDEBUG
+        {
+            LOG_DEBUG("Following paths did not resolve to any known file:");
+            LOG_SCOPED_INDENT();
+
+            for(const std::string& unresolvedPath : unresolvedPaths)
+            {
+                LOG_DEBUG("{}", unresolvedPath);
+            }
+        }
+    #endif
+
     return Common::Failure(ResolvePathErrors::UnresolvablePath);
 }

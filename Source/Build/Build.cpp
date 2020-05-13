@@ -29,14 +29,14 @@ void Build::PrintInfo()
     LOG_INFO("Printing build info...");
     LOG_SCOPED_INDENT();
 
-    LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "Default" : EngineDir);
+    LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "./" : EngineDir);
     LOG_INFO("Engine repository: {}-{}-{} ({})",
         Build::GetEngineChangeNumber(),
         Build::GetEngineChangeHash(),
         Build::GetEngineBranchName(),
         Build::GetEngineChangeDate());
 
-    LOG_INFO("Game directory: \"{}\"", GameDir.empty() ? "Default" : GameDir);
+    LOG_INFO("Game directory: \"{}\"", GameDir.empty() ? "./" : GameDir);
     LOG_INFO("Game repository: {}-{}-{} ({})",
         Build::GetGameChangeNumber(),
         Build::GetGameChangeHash(),
