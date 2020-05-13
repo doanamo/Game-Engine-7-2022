@@ -73,3 +73,23 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 # Write file pointing at engine deploy directory.
 get_filename_component(ABSOLUTE_ENGINE_DIR "../Deploy" ABSOLUTE)
 file(WRITE "${CMAKE_BINARY_DIR}/EngineDir.txt" ${ABSOLUTE_ENGINE_DIR})
+
+# Emscripten environment.
+if(EMSCRIPTEN)
+    # Workaround for bug causing compilation to fail with
+    # precompiled headers enabled on Clang under Emscripten.
+    # https://github.com/emscripten-core/emscripten/issues/11172
+    set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON CACHE BOOL "")
+
+    # Enable output of example HTML file on compilation.
+    set(CMAKE_EXECUTABLE_SUFFIX ".html" PARENT_SCOPE)
+
+    # Package engine data files for preload.
+    target_link_options(Engine PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
+
+    # Enable debugging flags on debug configurations.
+    target_compile_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:SHELL: -s SAFE_HEAP=1>")
+    target_link_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:SHELL: -s SAFE_HEAP=1>")
+    target_compile_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:--profiling-funcs>")
+    target_link_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:--profiling-funcs>")
+endif()

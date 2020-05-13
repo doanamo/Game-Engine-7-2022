@@ -81,6 +81,7 @@ namespace Editor
         bool TextInputCallback(const System::InputEvents::TextInput& event);
 
     private:
+        System::Window* m_window = nullptr;
         ImGuiContext* m_interface = nullptr;
 
         std::unique_ptr<EditorRenderer> m_editorRenderer;

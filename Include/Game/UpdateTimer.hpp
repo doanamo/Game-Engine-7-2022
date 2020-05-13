@@ -15,6 +15,8 @@ namespace Game
     class UpdateTimer final : public Common::NonCopyable
     {
     public:
+        using TimeUnit = System::Timer::TimeUnit;
+
         using CreateResult = Common::Result<std::unique_ptr<UpdateTimer>, void>;
         static CreateResult Create();
 
@@ -22,20 +24,20 @@ namespace Game
         ~UpdateTimer();
 
         void Tick(const System::Timer& timer);
-        bool Update(float updateTime);
+        bool Update(float updateSeconds);
         void Reset();
 
-        float GetAlphaTime() const;
-        float GetLastUpdateTime() const;
-        double GetTotalUpdateTime() const;
+        float GetAlphaSeconds() const;
+        float GetLastUpdateSeconds() const;
+        double GetTotalUpdateSeconds() const;
 
     private:
         UpdateTimer();
 
     private:
         std::unique_ptr<System::Timer> m_timer;
-        uint64_t m_forwardUpdateCounter = 0;
-        uint64_t m_totalUpdateCounter = 0;
-        float m_lastUpdateTime = 0.0f;
+        TimeUnit m_forwardUpdateTimeUnits = 0;
+        TimeUnit m_totalUpdateTimeUnits = 0;
+        float m_lastUpdateSeconds = 0.0f;
     };
 }

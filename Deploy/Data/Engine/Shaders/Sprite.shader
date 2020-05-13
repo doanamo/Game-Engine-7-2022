@@ -59,7 +59,7 @@
 
         coords *= mat2(cosFactor, sinFactor, sinFactor, cosFactor);
 
-        // Output a sprite vertex.
+        // Output sprite vertex.
         gl_Position = position;
         fragmentCoords = coords;
         fragmentColor = instanceColor;
@@ -67,15 +67,17 @@
 #endif
 
 #if defined(FRAGMENT_SHADER)
-    in  vec2 fragmentCoords;
-    in  vec4 fragmentColor;
+    precision mediump float;
+
+    in vec2 fragmentCoords;
+    in vec4 fragmentColor;
     out vec4 finalColor;
 
     uniform sampler2D textureDiffuse;
 
     void main()
     {
-        // Output a fragment color.
+        // Output fragment color.
         finalColor = texture(textureDiffuse, fragmentCoords) * fragmentColor;
     }
 #endif

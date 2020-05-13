@@ -151,22 +151,10 @@ void EditorRenderer::Draw()
     // Access ImGui context.
     ImGuiIO& io = ImGui::GetIO();
 
-    // Set current display size.
-    io.DisplaySize.x = (float)windowWidth;
-    io.DisplaySize.y = (float)windowHeight;
-
-    // Handle case where Update() has not been called yet.
-    // Calling NewFrame() twice in a row should be fine.
-    if(ImGui::GetFrameCount() == 0)
-    {
-        ImGui::NewFrame();
-    }
-
-    // End our rendering frame.
-    ImGui::EndFrame();
+    // Generate draw data.
     ImGui::Render();
 
-    // Get interface render data.
+    // Acquire draw data.
     ImDrawData* drawData = ImGui::GetDrawData();
 
     // Calculate rendering transform.

@@ -23,11 +23,13 @@
 #endif
 
 #if defined(FRAGMENT_SHADER)
-    uniform sampler2D textureDiffuse;
+    precision mediump float;
 
     in vec2 fragmentTexture;
     in vec4 fragmentColor;
     out vec4 finalColor;
+
+    uniform sampler2D textureDiffuse;
 
     void main()
     {

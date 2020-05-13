@@ -56,6 +56,12 @@ set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_
 get_filename_component(ABSOLUTE_GAME_DIR "../Deploy" ABSOLUTE)
 file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" ${ABSOLUTE_GAME_DIR})
 
+# Emscripten environment.
+if(EMSCRIPTEN)
+    # Package game data files for preload.
+    target_link_options(Game PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
+endif()
+
 #
 # Packaging
 #

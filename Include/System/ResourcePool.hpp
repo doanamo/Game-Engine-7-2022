@@ -116,11 +116,8 @@ namespace System
         {
             if(it->second.use_count() == 1)
             {
-                // Retrieve name to print it later.
-                std::string name = it->first;
-
                 // Release resource.
-                LOG_INFO("Releasing resource: \"{}\"", name);
+                LOG_INFO("Releasing resource: \"{}\"", it->first);
                 it = m_resources.erase(it);
             }
             else

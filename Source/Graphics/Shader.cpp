@@ -129,6 +129,23 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
             glCompileShader(shaderObject);
             OpenGL::CheckErrors();
 
+            // Check compiling info.
+            {
+                GLint infoLength = 0;
+                glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &infoLength);
+                OpenGL::CheckErrors();
+
+                if(infoLength > 1)
+                {
+                    std::vector<char> infoText(infoLength);
+                    glGetShaderInfoLog(shaderObject, infoLength, &infoLength, &infoText[0]);
+                    OpenGL::CheckErrors();
+
+                    LOG_ERROR("Shader compile info output:");
+                    LOG_ERROR("{}", infoText.data());
+                }
+            }
+
             // Check compiling results.
             GLint compileStatus = 0;
             glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compileStatus);
@@ -137,20 +154,6 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
             if(compileStatus == GL_FALSE)
             {
                 LOG_ERROR("Shader object could not be compiled!");
-
-                GLint errorLength = 0;
-                glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &errorLength);
-                OpenGL::CheckErrors();
-
-                if(errorLength != 0)
-                {
-                    std::vector<char> errorText(errorLength);
-                    glGetShaderInfoLog(shaderObject, errorLength, &errorLength, &errorText[0]);
-                    OpenGL::CheckErrors();
-
-                    LOG_ERROR("Shader compile errors: \"{}\"", errorText.data());
-                }
-
                 return Common::Failure(CreateErrors::FailedShaderCompilation);
             }
         }
@@ -203,6 +206,23 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
         }
     }
 
+    // Check linking output.
+    {
+        GLint infoLength = 0;
+        glGetProgramiv(instance->m_handle, GL_INFO_LOG_LENGTH, &infoLength);
+        OpenGL::CheckErrors();
+
+        if(infoLength > 1)
+        {
+            std::vector<char> infoText(infoLength);
+            glGetProgramInfoLog(instance->m_handle, infoLength, &infoLength, &infoText[0]);
+            OpenGL::CheckErrors();
+
+            LOG_ERROR("Shader link info output:");
+            LOG_ERROR("{}", infoText.data());
+        }
+    }
+
     // Check linking results.
     GLint linkStatus = 0;
     glGetProgramiv(instance->m_handle, GL_LINK_STATUS, &linkStatus);
@@ -211,20 +231,6 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     if(linkStatus == GL_FALSE)
     {
         LOG_ERROR("Shader program could not be linked!");
-
-        GLint errorLength = 0;
-        glGetProgramiv(instance->m_handle, GL_INFO_LOG_LENGTH, &errorLength);
-        OpenGL::CheckErrors();
-
-        if(errorLength != 0)
-        {
-            std::vector<char> errorText(errorLength);
-            glGetProgramInfoLog(instance->m_handle, errorLength, &errorLength, &errorText[0]);
-            OpenGL::CheckErrors();
-
-            LOG_ERROR("Shader link errors: \"{}\"", errorText.data());
-        }
-
         return Common::Failure(CreateErrors::FailedProgramLinkage);
     }
 

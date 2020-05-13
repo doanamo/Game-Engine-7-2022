@@ -195,44 +195,59 @@ int Root::Run()
     // Reset time that has accumulated during initialization.
     m_timer->Reset();
 
-    // Run the main loop.
-    while(m_window->IsOpen())
+    // Define main loop iteration.
+    auto mainLoopIteration = [](void* engine)
     {
+        // Retrieve engine root.
+        ASSERT(engine != nullptr);
+        Root& root = *static_cast<Root*>(engine);
+
         // Advance logger's frame of reference.
         Logger::AdvanceFrameReference();
 
-        // Draw the editor system.
-        m_editorSystem->Draw();
-
-        // Present the window content.
-        m_window->Present();
-
         // Release unused resources.
-        m_resourceManager->ReleaseUnused();
+        root.m_resourceManager->ReleaseUnused();
 
-        // Tick the timer.
-        m_timer->Tick(m_maximumTickDelta);
+        // Tick timer.
+        root.m_timer->Tick(root.m_maximumTickDelta);
 
         // Calculate frame delta time.
-        float timeDelta = m_timer->GetDeltaTime();
+        float timeDelta = root.m_timer->GetDeltaSeconds();
 
         // Process window events.
-        m_window->ProcessEvents();
+        root.m_window->ProcessEvents();
 
-        // Update the editor system.
-        m_editorSystem->Update(timeDelta);
+        // Update editor system.
+        root.m_editorSystem->Update(timeDelta);
 
-        // Update the game state.
-        if(m_gameFramework->Update())
+        // Update game state.
+        if(root.m_gameFramework->Update())
         {
             // Prepare input manager for incoming events.
-            m_inputManager->AdvanceState(timeDelta);
+            root.m_inputManager->AdvanceState(timeDelta);
         }
 
-        // Draw the game state.
-        m_gameFramework->Draw();
-    }
+        // Draw game state.
+        root.m_gameFramework->Draw();
 
+        // Draw editor system.
+        root.m_editorSystem->Draw();
+
+        // Present window content.
+        root.m_window->Present();
+    };
+
+    // Run main loop.
+    #ifndef __EMSCRIPTEN__
+        while(m_window->IsOpen())
+        {
+            mainLoopIteration(this);
+        }
+    #else
+        emscripten_set_main_loop_arg(mainLoopIteration, this, 0, 1);
+    #endif
+
+    // Return error code.
     return 0;
 }
 

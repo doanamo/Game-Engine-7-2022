@@ -6,6 +6,12 @@
 
 #include <limits>
 
+#ifndef __EMSCRIPTEN__
+    // Use precise time counters on platforms that support it.
+    // Emscripten does not implement GLFW function for reading high frequency clock.
+    #define USE_PRECISE_TIME_COUNTERS
+#endif
+
 /*
     Timer
 
@@ -18,35 +24,40 @@ namespace System
     class Timer final : private Common::NonCopyable
     {
     public:
-        enum class CreateErrors
-        {
-            InvalidFrequencyRetrieved,
-        };
+        #ifdef USE_PRECISE_TIME_COUNTERS
+            // Time units in integers with constant frequency per second.
+            using TimeUnit = uint64_t;
+        #else
+            // Time units in fractional seconds.
+            using TimeUnit = double;
+        #endif
 
-        using CreateResult = Common::Result<std::unique_ptr<Timer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<Timer>, void>;
         static CreateResult Create();
 
     public:
         ~Timer();
 
-        void Tick(float maximumDelta = 0.0f);
+        void Tick(float maxDeltaSeconds = 0.0f);
         void Tick(const Timer& timer);
         void Reset();
 
-        float GetDeltaTime() const;
-        double GetElapsedTime() const;
+        float GetDeltaSeconds() const;
+        double GetElapsedSeconds() const;
+        TimeUnit GetCurrentTimeUnits() const;
+        TimeUnit GetPreviousTimeUnits() const;
 
-        uint64_t GetTimerFrequency() const;
-        uint64_t GetCurrentTimeCounter() const;
-        uint64_t GetPreviousTimeCounter() const;
-        uint64_t GetDeltaTimeCounter() const;
+        static TimeUnit ConvertToUnits(double seconds);
+        static double ConvertToSeconds(TimeUnit units);
 
     private:
         Timer();
 
+        static TimeUnit ReadClockUnits();
+        static TimeUnit ReadClockFrequency();
+
     private:
-        uint64_t m_timerFrequency = 0;
-        uint64_t m_currentTimeCounter = 0;
-        uint64_t m_previousTimeCounter = 0;
+        TimeUnit m_currentTimeUnits;
+        TimeUnit m_previousTimeUnits;
     };
 }

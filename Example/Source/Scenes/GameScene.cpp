@@ -151,7 +151,7 @@ void GameScene::Update(float updateTime)
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    double timeAccumulated = m_gameState->updateTimer->GetTotalUpdateTime();
+    double timeAccumulated = m_gameState->updateTimer->GetTotalUpdateSeconds();
 
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));

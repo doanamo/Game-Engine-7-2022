@@ -60,6 +60,9 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     // Create instance.
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
 
+    // Remember window reference.
+    instance->m_window = params.window;
+
     // Create ImGui context.
     instance->m_interface = ImGui::CreateContext();
 
@@ -163,6 +166,10 @@ void EditorSystem::Update(float timeDelta)
     // Set current delta time.
     io.DeltaTime = timeDelta;
 
+    // Set current display size.
+    io.DisplaySize.x = (float)m_window->GetWidth();
+    io.DisplaySize.y = (float)m_window->GetHeight();
+
     // Start new interface frame.
     ImGui::NewFrame();
 
@@ -172,6 +179,9 @@ void EditorSystem::Update(float timeDelta)
 
 void EditorSystem::Draw()
 {
+    // Ends current interface frame.
+    ImGui::EndFrame();
+
     // Set context and draw the editor interface.
     ImGui::SetCurrentContext(m_interface);
     m_editorRenderer->Draw();

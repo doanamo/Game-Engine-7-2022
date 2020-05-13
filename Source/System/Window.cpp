@@ -77,7 +77,7 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     // Set swap interval.
     glfwSwapInterval((int)params.vsync);
 
-    // Load OpenGL extensions.
+    // Load OpenGL ES extensions.
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
         LOG_ERROR("Could not load OpenGL ES extensions!");
@@ -169,15 +169,21 @@ std::string Window::GetTitle() const
 
 int Window::GetWidth() const
 {
-    int width = 0;
-    glfwGetFramebufferSize(m_handle, &width, nullptr);
+    // Due to bug in Emscripten both pointers for output arguments
+    // need to be provided, otherwise segmentation fault will occur.
+    // https://github.com/emscripten-core/emscripten/pull/11157
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_handle, &width, &height);
     return width;
 }
 
 int Window::GetHeight() const
 {
-    int height = 0;
-    glfwGetFramebufferSize(m_handle, nullptr, &height);
+    // Due to bug in Emscripten both pointers for output arguments
+    // need to be provided, otherwise segmentation fault will occur.
+    // https://github.com/emscripten-core/emscripten/pull/11157
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(m_handle, &width, &height);
     return height;
 }
 
