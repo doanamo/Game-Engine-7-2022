@@ -65,6 +65,7 @@ if(NOT EMSCRIPTEN)
     set_property(TARGET "zlibstatic" PROPERTY PROJECT_LABEL "zlib")
     set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
 
+    set(PNG_BUILD_ZLIB ON)
     add_subdirectory("../../External/libpng-1.6.34" "External/libpng")
     target_include_directories("png_static" PRIVATE "../../External/zlib-1.2.11")
     target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
