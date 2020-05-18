@@ -6,7 +6,7 @@ Work in progress. Project for a reusable game engine that is currently undergoin
 Repository
 ===
 
-* *Build/* - Build configurations tools and files
+* *Build/* - Build configuration files
 * *Include/* - Include files for engine library
 * *Source/* - Source files for engine library
 * *External/* - External dependencies such as third party libraries
