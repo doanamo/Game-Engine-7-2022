@@ -112,34 +112,34 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
         // Normalize source path delimiters.
         std::replace(sourcePath.begin(), sourcePath.end(), '\\', '/');
 
-        // Find and remove base path to source directory.
-        std::string sourceDir = "Source/";
+        // Find and remove base path to include directory.
+        std::string includeDir = "Include/";
 
         auto reverseIt = std::search(
             sourcePath.rbegin(), sourcePath.rend(),
-            sourceDir.rbegin(), sourceDir.rend(),
+            includeDir.rbegin(), includeDir.rend(),
             CaseInsensitiveCharacterComparison
         );
 
         if(reverseIt != sourcePath.rend())
         {
-            reverseIt += sourceDir.length();
+            reverseIt += includeDir.length();
         }
 
-        // Find and remove base path to include directory.
-        std::string includeDir = "Include/";
-
+        // Find and remove base path to source directory.
         if(reverseIt == sourcePath.rend())
         {
+            std::string sourceDir = "Source/";
+
             reverseIt = std::search(
                 sourcePath.rbegin(), sourcePath.rend(),
-                includeDir.rbegin(), includeDir.rend(),
+                sourceDir.rbegin(), sourceDir.rend(),
                 CaseInsensitiveCharacterComparison
             );
 
             if(reverseIt != sourcePath.rend())
             {
-                reverseIt += includeDir.length();
+                reverseIt += sourceDir.length();
             }
         }
 
