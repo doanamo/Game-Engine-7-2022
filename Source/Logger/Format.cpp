@@ -10,7 +10,7 @@ using namespace Logger;
 
 namespace
 {
-    char* MessageSeverityMarker(Severity::Type severity)
+    const char* MessageSeverityMarker(Severity::Type severity)
     {
         switch(severity)
         {
@@ -20,9 +20,8 @@ namespace
             case Severity::Warning: return "?";
             case Severity::Error:   return "!";
             case Severity::Fatal:   return "X";
+            default:                return " ";
         }
-
-        return " ";
     }
 
     bool CaseInsensitiveCharacterComparison(char a, char b)
@@ -51,12 +50,12 @@ std::string DefaultFormat::ComposeSessionStart()
 
     // Print log message legend.
     stream << "Log message legend: ";
-    stream << "[" << MessageSeverityMarker(Severity::Trace) << "] Trace, ";
-    stream << "[" << MessageSeverityMarker(Severity::Debug) << "] Debug, ";
-    stream << "[" << MessageSeverityMarker(Severity::Info) << "] Info, ";
+    stream << "[" << MessageSeverityMarker(Severity::Trace)   << "] Trace, ";
+    stream << "[" << MessageSeverityMarker(Severity::Debug)   << "] Debug, ";
+    stream << "[" << MessageSeverityMarker(Severity::Info)    << "] Info, ";
     stream << "[" << MessageSeverityMarker(Severity::Warning) << "] Warning, ";
-    stream << "[" << MessageSeverityMarker(Severity::Error) << "] Error, ";
-    stream << "[" << MessageSeverityMarker(Severity::Fatal) << "] Fatal";
+    stream << "[" << MessageSeverityMarker(Severity::Error)   << "] Error, ";
+    stream << "[" << MessageSeverityMarker(Severity::Fatal)   << "] Fatal";
     stream << "\n";
 
     // Print log message format.
