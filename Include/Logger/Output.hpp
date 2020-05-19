@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <sstream>
-
 /*
     Base Output
     
@@ -116,8 +114,5 @@ namespace Logger
         ~DebuggerOutput();
 
         void Write(const Message& message, const SinkContext& context) override;
-
-    private:
-        std::stringstream m_stream;
     };
 }
