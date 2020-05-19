@@ -32,79 +32,54 @@ namespace
 
 std::string DefaultFormat::ComposeSessionStart()
 {
+    std::string sessionText;
+
     // Retrieve current system time.
-    time_t timeData = time(nullptr);
-    tm* timeInfo = localtime(&timeData);
+    std::tm time = fmt::localtime(std::time(nullptr));
 
-    // Compose session start string.
-    std::stringstream stream;
-    stream << "Session started at ";
-    stream << std::setfill('0');
-    stream << std::setw(4) << timeInfo->tm_year + 1900 << "-";
-    stream << std::setw(2) << timeInfo->tm_mon + 1     << "-";
-    stream << std::setw(2) << timeInfo->tm_mday        << " ";
-    stream << std::setw(2) << timeInfo->tm_hour        << ":";
-    stream << std::setw(2) << timeInfo->tm_min         << ":";
-    stream << std::setw(2) << timeInfo->tm_sec;
-    stream << "\n\n";
+    // Format session start text.
+    sessionText += fmt::format("Session started at {:%Y-%m-%d %H:%M:%S}\n\n", time);
 
-    // Print log message legend.
-    stream << "Log message legend: ";
-    stream << "[" << MessageSeverityMarker(Severity::Trace)   << "] Trace, ";
-    stream << "[" << MessageSeverityMarker(Severity::Debug)   << "] Debug, ";
-    stream << "[" << MessageSeverityMarker(Severity::Info)    << "] Info, ";
-    stream << "[" << MessageSeverityMarker(Severity::Warning) << "] Warning, ";
-    stream << "[" << MessageSeverityMarker(Severity::Error)   << "] Error, ";
-    stream << "[" << MessageSeverityMarker(Severity::Fatal)   << "] Fatal";
-    stream << "\n";
+    // Format log message legend text.
+    sessionText += fmt::format(
+        "Log message legend: [{}] Trace, [{}] Debug, [{}] Info, [{}] Warning, [{}] Error, [{}] Fatal\n",
+        MessageSeverityMarker(Severity::Trace),
+        MessageSeverityMarker(Severity::Debug),
+        MessageSeverityMarker(Severity::Info),
+        MessageSeverityMarker(Severity::Warning),
+        MessageSeverityMarker(Severity::Error),
+        MessageSeverityMarker(Severity::Fatal)
+    );
 
-    // Print log message format.
-    stream << "Log message format: ";
-    stream << "[Time][Frame][Type] Message {source:line}\n";
-    stream << "\n";
+    // Format log message format text.
+    sessionText += fmt::format("Log message format: [Time][Frame][Type] Message {{source:line}}\n\n");
 
-    // Return composed string.
-    return stream.str();
+    // Return formated string.
+    return sessionText;
 }
 
 std::string DefaultFormat::ComposeMessage(const Message& message, const SinkContext& context)
 {
+    std::string messageText;
+    messageText.reserve(256);
+
     // Retrieve current system time.
-    time_t timeData = time(nullptr);
-    tm* timeInfo = localtime(&timeData);
+    // fmt::localtime() is a thread safe version of std::localtime().
+    std::tm time = fmt::localtime(std::time(nullptr));
 
-    // Write current time.
-    std::stringstream stream;
-    stream << "[";
-    stream << std::setfill('0');
-    stream << std::setw(2) << timeInfo->tm_hour << ":";
-    stream << std::setw(2) << timeInfo->tm_min << ":";
-    stream << std::setw(2) << timeInfo->tm_sec;
-    stream << std::setfill(' ') << std::setw(0);
-    stream << "]";
+    // Format current time.
+    messageText += fmt::format("[{:%H:%M:%S}]", time);
 
-    // Write frame reference.
-    stream << "[";
-    stream << std::setfill('0') << std::setw(3);
-    stream << context.referenceFrame % 1000;
-    stream << std::setfill(' ') << std::setw(0);
-    stream << "]";
+    // Format frame reference.
+    messageText += fmt::format("[{:03d}]", context.referenceFrame % 1000);
 
-    // Write message severity.
-    stream << "[";
-    stream << MessageSeverityMarker(message.GetSeverity());
-    stream << "]";
+    // Format message severity.
+    messageText += fmt::format("[{}]", MessageSeverityMarker(message.GetSeverity()));
 
-    // Write message indent.
-    for(int i = 0; i < context.messageIndent; ++i)
-    {
-        stream << " ";
-    }
-
-    // Write message text.
-    stream << " " << message.GetText();
-
-    // Write message source.
+    // Format message text with indent.
+    messageText += fmt::format(" {: >{}}{}", "", context.messageIndent, message.GetText());
+        
+    // Format message source.
     if(message.GetSource())
     {
         std::string sourcePath = message.GetSource();
@@ -149,40 +124,27 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
             sourcePath.erase(sourcePath.begin(), reverseIt.base());
         }
 
-        // Output formatted source path.
-        stream << " {";
-        stream << sourcePath;
-        stream << ":";
-        stream << message.GetLine();
-        stream << "}";
+        // Format source path.
+        messageText += fmt::format(" {{{}:{}}}", sourcePath, message.GetLine());
     }
 
     // Write message suffix.
-    stream << "\n";
+    messageText += '\n';
 
     // Return composed string.
-    return stream.str();
+    return messageText;
 }
 
 std::string DefaultFormat::ComposeSessionEnd()
 {
-    // Retrieve current system time.
-    time_t timeData = time(nullptr);
-    tm* timeInfo = localtime(&timeData);
+    std::string sessionText;
 
-    // Compose session end string.
-    std::stringstream stream;
-    stream << "\n";
-    stream << "Session ended at ";
-    stream << std::setfill('0');
-    stream << std::setw(4) << timeInfo->tm_year + 1900 << "-";
-    stream << std::setw(2) << timeInfo->tm_mon + 1     << "-";
-    stream << std::setw(2) << timeInfo->tm_mday        << " ";
-    stream << std::setw(2) << timeInfo->tm_hour        << ":";
-    stream << std::setw(2) << timeInfo->tm_min         << ":";
-    stream << std::setw(2) << timeInfo->tm_sec;
-    stream << "\n\n";
+    // Retrieve current system time.
+    std::tm time = fmt::localtime(std::time(nullptr));
+
+    // Format session end string.
+    sessionText += fmt::format("\nSession ended at {:%Y-%m-%d %H:%M:%S}\n\n", time);
 
     // Return composed string.
-    return stream.str();
+    return sessionText;
 }
