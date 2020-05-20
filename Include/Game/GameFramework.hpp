@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include "Game/EventRouter.hpp"
 
 namespace System
@@ -31,10 +32,7 @@ namespace Game
     public:
         struct CreateFromParams
         {
-            System::Timer* timer = nullptr;
-            System::Window* window = nullptr;
-            System::InputManager* inputManager = nullptr;
-            Renderer::StateRenderer* stateRenderer = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

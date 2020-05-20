@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <Core/ServiceStorage.hpp>
 
 namespace Graphics
 {
@@ -33,8 +34,7 @@ namespace Renderer
 
         struct CreateFromParams
         {
-            Graphics::RenderContext* renderContext = nullptr;
-            Graphics::SpriteRenderer* spriteRenderer = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         using CreateResult = Common::Result<std::unique_ptr<StateRenderer>, CreateErrors>;

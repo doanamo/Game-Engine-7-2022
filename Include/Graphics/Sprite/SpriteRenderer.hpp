@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Sampler.hpp"
@@ -30,9 +31,7 @@ namespace Graphics
     public:
         struct CreateFromParams
         {
-            System::FileSystem* fileSystem = nullptr;
-            System::ResourceManager* resourceManager = nullptr;
-            RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             int spriteBatchSize = 128;
         };
 

@@ -43,15 +43,14 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Shader>(new Shader());
 
     // Save render context reference.
-    instance->m_renderContext = params.renderContext;
+    instance->m_renderContext = params.services->GetRenderContext();
 
     // Create array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -244,10 +243,13 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire file system service.
+    System::FileSystem* fileSystem = params.services->GetFileSystem();
 
     // Resolve file path.
-    auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
 
     if(!resolvePathResult)
     {
@@ -266,9 +268,9 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
 
     // Create instance.
     LoadFromString compileParams;
-    compileParams.fileSystem = params.fileSystem;
+    compileParams.services = params.services;
     compileParams.shaderCode = std::move(shaderCode);
-    compileParams.renderContext = params.renderContext;
+
     return Create(compileParams);
 }
 

@@ -111,8 +111,11 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::FileSystem* fileSystem = params.services->GetFileSystem();
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
@@ -125,7 +128,7 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     auto instance = createResult.Unwrap();
 
     // Resolve path to script file.
-    auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
 
     if(!resolvePathResult)
     {

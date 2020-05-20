@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <System/InputDefinitions.hpp>
 #include <Event/Receiver.hpp>
+#include <Core/ServiceStorage.hpp>
+#include <System/InputDefinitions.hpp>
 #include "Game/GameState.hpp"
 
 namespace System
@@ -30,7 +31,7 @@ namespace Game
     public:
         struct CreateFromParams
         {
-            System::InputManager* inputManager = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             GameFramework* gameFramework = nullptr;
         };
 

@@ -23,6 +23,8 @@ namespace Graphics
         {
             CreateFromParams();
 
+            Graphics::RenderContext* renderContext;
+
             GLint textureMinFilter;
             GLint textureMagFilter;
             GLint textureWrapS;
@@ -41,7 +43,7 @@ namespace Graphics
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Sampler>, CreateErrors>;
-        static CreateResult Create(RenderContext* renderContext, const CreateFromParams& params);
+        static CreateResult Create(const CreateFromParams& params);
 
     public:
         ~Sampler();

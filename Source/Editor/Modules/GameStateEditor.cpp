@@ -24,13 +24,16 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire game framework service.
+    Game::GameFramework* gameFramework = params.services->GetGameFramework();
 
     // Create instance.
     auto instance = std::unique_ptr<GameStateEditor>(new GameStateEditor());
 
     // Subscribe to game state being changed.
-    instance->m_receivers.gameStateChanged.Subscribe(params.gameFramework->events.gameStateChanged);
+    instance->m_receivers.gameStateChanged.Subscribe(gameFramework->events.gameStateChanged);
 
     // Set histogram size.
     instance->m_updateTimeHistogram.resize(100, 0.0f);

@@ -17,10 +17,12 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     LOG_SCOPED_INDENT();
 
     // Validate references.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::Window* window = params.services->GetWindow();
+    System::ResourceManager* resourceManager = params.services->GetResourceManager();
+    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
 
     // Create instance.
     auto instance = std::unique_ptr<EditorRenderer>(new EditorRenderer());
@@ -30,10 +32,11 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
 
     // Create vertex buffer.
     Graphics::Buffer::CreateFromParams vertexBufferParams;
+    vertexBufferParams.renderContext = renderContext;
     vertexBufferParams.usage = GL_STREAM_DRAW;
     vertexBufferParams.elementSize = sizeof(ImDrawVert);
 
-    instance->m_vertexBuffer = Graphics::VertexBuffer::Create(params.renderContext, vertexBufferParams).UnwrapOr(nullptr);
+    instance->m_vertexBuffer = Graphics::VertexBuffer::Create(vertexBufferParams).UnwrapOr(nullptr);
     if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
@@ -42,10 +45,11 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
 
     // Create index buffer.
     Graphics::Buffer::CreateFromParams indexBufferParams;
+    indexBufferParams.renderContext = renderContext;
     indexBufferParams.usage = GL_STREAM_DRAW;
     indexBufferParams.elementSize = sizeof(ImDrawIdx);
 
-    instance->m_indexBuffer = Graphics::IndexBuffer::Create(params.renderContext, indexBufferParams).UnwrapOr(nullptr);
+    instance->m_indexBuffer = Graphics::IndexBuffer::Create(indexBufferParams).UnwrapOr(nullptr);
     if(instance->m_indexBuffer == nullptr)
     {
         LOG_ERROR("Could not create index buffer!");
@@ -64,7 +68,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     inputLayoutParams.attributeCount = Common::StaticArraySize(inputAttributes);
     inputLayoutParams.attributes = &inputAttributes[0];
 
-    instance->m_vertexArray = Graphics::VertexArray::Create(params.renderContext, inputLayoutParams).UnwrapOr(nullptr);
+    instance->m_vertexArray = Graphics::VertexArray::Create(renderContext, inputLayoutParams).UnwrapOr(nullptr);
     if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
@@ -87,7 +91,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
 
     // Create font texture.
     Graphics::Texture::CreateFromParams textureParams;
-    textureParams.renderContext = params.renderContext;
+    textureParams.renderContext = renderContext;
     textureParams.width = fontWidth;
     textureParams.height = fontHeight;
     textureParams.format = GL_RGBA;
@@ -106,10 +110,11 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     // Create sampler.
     // Set linear filtering otherwise textures without mipmaps will be black.
     Graphics::Sampler::CreateFromParams samplerParams;
+    samplerParams.renderContext = renderContext;
     samplerParams.textureMinFilter = GL_LINEAR;
     samplerParams.textureMagFilter = GL_LINEAR;
 
-    instance->m_sampler = Graphics::Sampler::Create(params.renderContext, samplerParams).UnwrapOr(nullptr);
+    instance->m_sampler = Graphics::Sampler::Create(samplerParams).UnwrapOr(nullptr);
     if(instance->m_sampler == nullptr)
     {
         LOG_ERROR("Could not create sampler!");
@@ -118,11 +123,10 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
 
     // Load shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.fileSystem = params.fileSystem;
+    shaderParams.services = params.services;
     shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
-    shaderParams.renderContext = params.renderContext;
 
-    instance->m_shader = params.resourceManager->Acquire<Graphics::Shader>(
+    instance->m_shader = resourceManager->Acquire<Graphics::Shader>(
         shaderParams.filePath, shaderParams).UnwrapOr(nullptr);
 
     if(instance->m_shader == nullptr)
@@ -132,8 +136,8 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     }
 
     // Save system references.
-    instance->m_window = params.window;
-    instance->m_renderContext = params.renderContext;
+    instance->m_window = window;
+    instance->m_renderContext = renderContext;
 
     // Success!
     return Common::Success(std::move(instance));

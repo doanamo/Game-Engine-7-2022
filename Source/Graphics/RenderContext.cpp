@@ -16,19 +16,19 @@ RenderContext::CreateResult RenderContext::Create(const CreateParams& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<RenderContext>(new RenderContext());
 
+    // Acquire and save window reference.
+    instance->m_window = params.services->GetWindow();
+
     // Make window context current.
-    params.window->MakeContextCurrent();
+    instance->m_window->MakeContextCurrent();
 
     // Save initial render state.
     instance->m_currentState.Save();
-
-    // Save window reference.
-    instance->m_window = params.window;
 
     // Success!
     return Common::Success(std::move(instance));

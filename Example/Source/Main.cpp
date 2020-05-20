@@ -9,7 +9,7 @@ int main()
 {
     // Create engine.
     Engine::Root::CreateFromParams engineParams;
-    engineParams.maximumTickDelta = 1.0f;
+    engineParams.maxTickDelta = 1.0f;
 
     auto engine = Engine::Root::Create(engineParams).UnwrapOr(nullptr);
     if(engine == nullptr)

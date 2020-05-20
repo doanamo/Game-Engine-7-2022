@@ -61,7 +61,7 @@ double Timer::ConvertToSeconds(TimeUnit units)
     #endif
 }
 
-void Timer::Tick(float maxDeltaSeconds)
+float Timer::Tick(float maxDeltaSeconds)
 {
     // Remember time points of two last ticks.
     m_previousTimeUnits = m_currentTimeUnits;
@@ -73,6 +73,9 @@ void Timer::Tick(float maxDeltaSeconds)
         TimeUnit tickTimeUnits = std::min(ConvertToUnits((double)maxDeltaSeconds), m_currentTimeUnits);
         m_previousTimeUnits = std::max(m_previousTimeUnits, m_currentTimeUnits - tickTimeUnits);
     }
+
+    // Return time delta in seconds.
+    return GetDeltaSeconds();
 }
 
 void Timer::Tick(const Timer& timer)

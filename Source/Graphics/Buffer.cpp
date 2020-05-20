@@ -22,7 +22,7 @@ Buffer::~Buffer()
     }
 }
 
-Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum type, const CreateFromParams& info)
+Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& params)
 {
     LOG("Initializing buffer...");
     LOG_SCOPED_INDENT();
@@ -30,8 +30,8 @@ Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum typ
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
     CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum, Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(info.elementSize != 0, Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.elementSize != 0, Common::Failure(BufferErrors::InvalidArgument));
 
     // Create buffer handle.
     ASSERT(m_handle == OpenGL::InvalidHandle);
@@ -46,26 +46,26 @@ Buffer::BufferResult Buffer::Initialize(RenderContext* renderContext, GLenum typ
     }
 
     // Allocate buffer memory.
-    std::size_t bufferSize = info.elementSize * info.elementCount;
+    std::size_t bufferSize = params.elementSize * params.elementCount;
 
     if(bufferSize != 0)
     {
         LOG_INFO("Uploading {} bytes of buffer data...", bufferSize);
 
         glBindBuffer(type, m_handle);
-        glBufferData(type, bufferSize, info.data, info.usage);
-        glBindBuffer(type, renderContext->GetState().GetBufferBinding(type));
+        glBufferData(type, bufferSize, params.data, params.usage);
+        glBindBuffer(type, params.renderContext->GetState().GetBufferBinding(type));
         OpenGL::CheckErrors();
     }
 
     // Save buffer parameters.
     m_type = type;
-    m_usage = info.usage;
-    m_elementSize = info.elementSize;
-    m_elementCount = info.elementCount;
+    m_usage = params.usage;
+    m_elementSize = params.elementSize;
+    m_elementCount = params.elementCount;
 
     // Save render context reference.
-    m_renderContext = renderContext;
+    m_renderContext = params.renderContext;
 
     // Success!
     return Common::Success();
@@ -120,7 +120,7 @@ bool Buffer::IsInstanced() const
 VertexBuffer::VertexBuffer() = default;
 VertexBuffer::~VertexBuffer() = default;
 
-VertexBuffer::BufferResult VertexBuffer::Create(RenderContext* renderContext, const Buffer::CreateFromParams& params)
+VertexBuffer::BufferResult VertexBuffer::Create(const Buffer::CreateFromParams& params)
 {
     LOG("Creating vertex buffer...");
     LOG_SCOPED_INDENT();
@@ -129,7 +129,7 @@ VertexBuffer::BufferResult VertexBuffer::Create(RenderContext* renderContext, co
     auto instance = std::unique_ptr<VertexBuffer>(new VertexBuffer());
 
     // Create base.
-    auto initializeResult = instance->Initialize(renderContext, GL_ARRAY_BUFFER, params);
+    auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params);
 
     if(!initializeResult)
     {
@@ -148,7 +148,7 @@ VertexBuffer::BufferResult VertexBuffer::Create(RenderContext* renderContext, co
 IndexBuffer::IndexBuffer() = default;
 IndexBuffer::~IndexBuffer() = default;
 
-IndexBuffer::BufferResult IndexBuffer::Create(RenderContext* renderContext, const Buffer::CreateFromParams& params)
+IndexBuffer::BufferResult IndexBuffer::Create(const Buffer::CreateFromParams& params)
 {
     LOG("Creating index buffer...");
     LOG_SCOPED_INDENT();
@@ -157,7 +157,7 @@ IndexBuffer::BufferResult IndexBuffer::Create(RenderContext* renderContext, cons
     auto instance = std::unique_ptr<IndexBuffer>(new IndexBuffer());
 
     // Initialize base class.
-    auto initializeResult = instance->Initialize(renderContext, GL_ELEMENT_ARRAY_BUFFER, params);
+    auto initializeResult = instance->Initialize(GL_ELEMENT_ARRAY_BUFFER, params);
 
     if(!initializeResult)
     {
@@ -191,7 +191,7 @@ GLenum IndexBuffer::GetElementType() const
 InstanceBuffer::InstanceBuffer() = default;
 InstanceBuffer::~InstanceBuffer() = default;
 
-InstanceBuffer::BufferResult InstanceBuffer::Create(RenderContext* renderContext, const Buffer::CreateFromParams& params)
+InstanceBuffer::BufferResult InstanceBuffer::Create(const Buffer::CreateFromParams& params)
 {
     LOG("Creating index buffer...");
     LOG_SCOPED_INDENT();
@@ -200,7 +200,7 @@ InstanceBuffer::BufferResult InstanceBuffer::Create(RenderContext* renderContext
     auto instance = std::unique_ptr<InstanceBuffer>(new InstanceBuffer());
 
     // Initialize base class.
-    auto initializeResult = instance->Initialize(renderContext, GL_ARRAY_BUFFER, params);
+    auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params);
 
     if(!initializeResult)
     {

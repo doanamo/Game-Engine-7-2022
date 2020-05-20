@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/VertexArray.hpp>
@@ -34,10 +35,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            System::Window* window = nullptr;
-            System::FileSystem* fileSystem = nullptr;
-            System::ResourceManager* resourceManager = nullptr;
-            Graphics::RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

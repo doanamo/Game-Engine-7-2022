@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include "Graphics/RenderState.hpp"
 
 namespace System
@@ -36,8 +37,7 @@ namespace Graphics
 
         struct LoadFromFile
         {
-            System::FileSystem* fileSystem = nullptr;
-            RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             std::string filePath;
             bool mipmaps = true;
         };

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <queue>
+#include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
 
 /*
@@ -18,7 +19,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            System::Window* window = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

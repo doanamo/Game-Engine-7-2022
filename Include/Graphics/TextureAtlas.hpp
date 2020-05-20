@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
+
 namespace System
 {
     class FileSystem;
@@ -27,9 +29,7 @@ namespace Graphics
     public:
         struct LoadFromFile
         {
-            System::FileSystem* fileSystem = nullptr;
-            System::ResourceManager* resourceManager = nullptr;
-            Graphics::RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             std::string filePath;
         };
 
@@ -41,6 +41,7 @@ namespace Graphics
         };
 
         using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
+
         static CreateResult Create();
         static CreateResult Create(const LoadFromFile& params);
 

@@ -32,6 +32,10 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
+    // Acquire engine services.
+    System::ResourceManager* resourceManager = engine->GetServices().GetResourceManager();
+    Game::GameFramework* gameFramework = engine->GetServices().GetGameFramework();
+
     // Create instance.
     auto instance = std::unique_ptr<GameScene>(new GameScene());
 
@@ -47,16 +51,14 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     instance->m_customUpdate.Subscribe(instance->m_gameState->events.updateProcessed);
 
     // Set game state as current.
-    engine->GetGameFramework().SetGameState(instance->m_gameState);
+    gameFramework->SetGameState(instance->m_gameState);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
-    spriteAnimationListParams.fileSystem = &engine->GetFileSystem();
-    spriteAnimationListParams.resourceManager = &engine->GetResourceManager();
-    spriteAnimationListParams.renderContext = &engine->GetRenderContext();
+    spriteAnimationListParams.services = &engine->GetServices();
     spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
 
-    auto spriteAnimationList = engine->GetResourceManager().Acquire<Graphics::SpriteAnimationList>(
+    auto spriteAnimationList = resourceManager->Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams).UnwrapOr(nullptr);
 
     if(spriteAnimationList == nullptr)
@@ -67,11 +69,10 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
 
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
-    textureAtlasParams.fileSystem = &engine->GetFileSystem();
-    textureAtlasParams.resourceManager = &engine->GetResourceManager();
+    textureAtlasParams.services = &engine->GetServices();
     textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
 
-    auto textureAtlas = engine->GetResourceManager().Acquire<Graphics::TextureAtlas>(
+    auto textureAtlas = resourceManager->Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
 
     if(textureAtlas == nullptr)
@@ -103,11 +104,10 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     {
         // Load texture.
         Graphics::Texture::LoadFromFile textureParams;
-        textureParams.fileSystem = &engine->GetFileSystem();
-        textureParams.renderContext = &engine->GetRenderContext();
+        textureParams.services = &engine->GetServices();
         textureParams.filePath = "Data/Engine/Textures/Checker.png";
 
-        Graphics::TexturePtr texture = engine->GetResourceManager().Acquire<Graphics::Texture>(
+        Graphics::TexturePtr texture = resourceManager->Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams).UnwrapEither();
 
         // Create named entity.
@@ -156,25 +156,28 @@ void GameScene::Update(float updateTime)
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
+    // Acquire input manager service.
+    System::InputManager* inputManager = m_engine->GetServices().GetInputManager();
+
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
+    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
     }
 
-    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
+    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
     {
         direction.x += 1.0f;
     }
 
-    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
+    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
     {
         direction.y += 1.0f;
     }
 
-    if(m_engine->GetInputManager().IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
+    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
     {
         direction.y -= 1.0f;
     }

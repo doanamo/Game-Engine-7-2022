@@ -53,9 +53,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::ResourceManager* resourceManager = params.services->GetResourceManager();
 
     // Create base instance.
     auto createResult = Create();
@@ -68,7 +69,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
 
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
-    resourceParams.fileSystem = params.fileSystem;
+    resourceParams.services = params.services;
     resourceParams.filePath = params.filePath;
 
     auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
@@ -102,12 +103,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
         }
 
         TextureAtlas::LoadFromFile textureAtlasParams;
-        textureAtlasParams.fileSystem = params.fileSystem;
-        textureAtlasParams.resourceManager = params.resourceManager;
-        textureAtlasParams.renderContext = params.renderContext;
+        textureAtlasParams.services = params.services;
         textureAtlasParams.filePath = lua_tostring(*resourceScript, -1);
 
-        textureAtlas = params.resourceManager->Acquire<TextureAtlas>(
+        textureAtlas = resourceManager->Acquire<TextureAtlas>(
             textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
 
         if(textureAtlas == nullptr)

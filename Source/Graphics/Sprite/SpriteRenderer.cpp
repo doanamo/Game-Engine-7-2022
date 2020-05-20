@@ -27,10 +27,12 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::ResourceManager* resourceManager = params.services->GetResourceManager();
+    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteRenderer>(new SpriteRenderer());
@@ -45,12 +47,13 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     };
 
     Buffer::CreateFromParams vertexBufferParams;
+    vertexBufferParams.renderContext = renderContext;
     vertexBufferParams.usage = GL_STATIC_DRAW;
     vertexBufferParams.elementSize = sizeof(SpriteVertex);
     vertexBufferParams.elementCount = Common::StaticArraySize(SpriteVertices);
     vertexBufferParams.data = &SpriteVertices[0];
 
-    instance->m_vertexBuffer = VertexBuffer::Create(params.renderContext, vertexBufferParams).UnwrapOr(nullptr);
+    instance->m_vertexBuffer = VertexBuffer::Create(vertexBufferParams).UnwrapOr(nullptr);
     if(instance->m_vertexBuffer == nullptr)
     {
         LOG_ERROR("Could not create vertex buffer!");
@@ -59,12 +62,13 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
 
     // Create instance buffer.
     Buffer::CreateFromParams instanceBufferParams;
+    instanceBufferParams.renderContext = renderContext;
     instanceBufferParams.usage = GL_STREAM_DRAW;
     instanceBufferParams.elementSize = sizeof(Sprite::Data);
     instanceBufferParams.elementCount = params.spriteBatchSize;
     instanceBufferParams.data = nullptr;
 
-    instance->m_instanceBuffer = InstanceBuffer::Create(params.renderContext, instanceBufferParams).UnwrapOr(nullptr);
+    instance->m_instanceBuffer = InstanceBuffer::Create(instanceBufferParams).UnwrapOr(nullptr);
     if(instance->m_instanceBuffer == nullptr)
     {
         LOG_ERROR("Could not create instance buffer!");
@@ -86,7 +90,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     vertexArrayParams.attributeCount = Common::StaticArraySize(vertexAttributes);
     vertexArrayParams.attributes = &vertexAttributes[0];
 
-    instance->m_vertexArray = Graphics::VertexArray::Create(params.renderContext, vertexArrayParams).UnwrapOr(nullptr);
+    instance->m_vertexArray = Graphics::VertexArray::Create(renderContext, vertexArrayParams).UnwrapOr(nullptr);
     if(instance->m_vertexArray == nullptr)
     {
         LOG_ERROR("Could not create vertex array!");
@@ -95,10 +99,11 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
 
     // Create nearest sampler.
     Sampler::CreateFromParams nearestSamplerParams;
+    nearestSamplerParams.renderContext = renderContext;
     nearestSamplerParams.textureMinFilter = GL_NEAREST;
     nearestSamplerParams.textureMagFilter = GL_NEAREST;
 
-    instance->m_nearestSampler = Sampler::Create(params.renderContext, nearestSamplerParams).UnwrapOr(nullptr);
+    instance->m_nearestSampler = Sampler::Create(nearestSamplerParams).UnwrapOr(nullptr);
     if(instance->m_nearestSampler == nullptr)
     {
         LOG_ERROR("Could not create nearest sampler!");
@@ -107,10 +112,11 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
 
     // Create linear sampler.
     Sampler::CreateFromParams linearSamplerParams;
+    linearSamplerParams.renderContext = renderContext;
     linearSamplerParams.textureMinFilter = GL_NEAREST_MIPMAP_LINEAR;
     linearSamplerParams.textureMagFilter = GL_LINEAR;
 
-    instance->m_linearSampler = Sampler::Create(params.renderContext, linearSamplerParams).UnwrapOr(nullptr);
+    instance->m_linearSampler = Sampler::Create(linearSamplerParams).UnwrapOr(nullptr);
     if(instance->m_linearSampler == nullptr)
     {
         LOG_ERROR("Could not create linear sampler!");
@@ -119,11 +125,10 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
 
     // Load shader.
     Shader::LoadFromFile shaderParams;
-    shaderParams.fileSystem = params.fileSystem;
+    shaderParams.services = params.services;
     shaderParams.filePath = "Data/Engine/Shaders/Sprite.shader";
-    shaderParams.renderContext = params.renderContext;
 
-    instance->m_shader = params.resourceManager->Acquire<Shader>(
+    instance->m_shader = resourceManager->Acquire<Shader>(
         shaderParams.filePath, shaderParams).UnwrapOr(nullptr);
 
     if(instance->m_shader == nullptr)
@@ -136,7 +141,7 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     instance->m_spriteBatchSize = params.spriteBatchSize;
 
     // Save render context reference.
-    instance->m_renderContext = params.renderContext;
+    instance->m_renderContext = renderContext;
 
     // Success!
     return Common::Success(std::move(instance));

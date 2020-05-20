@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include "Graphics/RenderContext.hpp"
 
 namespace System
@@ -27,15 +28,13 @@ namespace Graphics
     public:
         struct LoadFromString
         {
-            System::FileSystem* fileSystem = nullptr;
-            RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             std::string shaderCode;
         };
 
         struct LoadFromFile
         {
-            System::FileSystem* fileSystem = nullptr;
-            RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             std::string filePath;
         };
 

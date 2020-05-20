@@ -22,6 +22,7 @@ namespace Graphics
     public:
         struct CreateFromParams
         {
+            Graphics::RenderContext* renderContext = nullptr;
             GLenum usage = GL_STATIC_DRAW;
             std::size_t elementSize = 0;
             std::size_t elementCount = 0;
@@ -50,7 +51,7 @@ namespace Graphics
         Buffer();
         virtual ~Buffer();
 
-        BufferResult Initialize(RenderContext* renderContext, GLenum type, const CreateFromParams& params);
+        BufferResult Initialize(GLenum type, const CreateFromParams& params);
 
     protected:
         RenderContext* m_renderContext = nullptr;
@@ -74,7 +75,7 @@ namespace Graphics
     {
     public:
         using BufferResult = Common::Result<std::unique_ptr<VertexBuffer>, Buffer::BufferErrors>;
-        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        static BufferResult Create(const Buffer::CreateFromParams& params);
 
     public:
         ~VertexBuffer();
@@ -94,7 +95,7 @@ namespace Graphics
     {
     public:
         using BufferResult = Common::Result<std::unique_ptr<IndexBuffer>, Buffer::BufferErrors>;
-        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        static BufferResult Create(const Buffer::CreateFromParams& params);
 
     public:
         ~IndexBuffer();
@@ -116,7 +117,7 @@ namespace Graphics
     {
     public:
         using BufferResult = Common::Result<std::unique_ptr<InstanceBuffer>, Buffer::BufferErrors>;
-        static BufferResult Create(RenderContext* renderContext, const Buffer::CreateFromParams& params);
+        static BufferResult Create(const Buffer::CreateFromParams& params);
 
     public:
         ~InstanceBuffer();

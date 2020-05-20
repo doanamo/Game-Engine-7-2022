@@ -25,19 +25,22 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire window service.
+    Window* window = params.services->GetWindow();
 
     // Create instance.
     auto instance = std::unique_ptr<InputManager>(new InputManager());
 
     // Subscribe to window input events.
     bool subscriptionResult = true;
-    subscriptionResult &= instance->m_receivers.keyboardKey.Subscribe(params.window->events.keyboardKey);
-    subscriptionResult &= instance->m_receivers.textInput.Subscribe(params.window->events.textInput);
-    subscriptionResult &= instance->m_receivers.mouseButton.Subscribe(params.window->events.mouseButton);
-    subscriptionResult &= instance->m_receivers.mouseScroll.Subscribe(params.window->events.mouseScroll);
-    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(params.window->events.cursorPosition);
-    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(params.window->events.cursorEnter);
+    subscriptionResult &= instance->m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
+    subscriptionResult &= instance->m_receivers.textInput.Subscribe(window->events.textInput);
+    subscriptionResult &= instance->m_receivers.mouseButton.Subscribe(window->events.mouseButton);
+    subscriptionResult &= instance->m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
+    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
+    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
 
     if(!subscriptionResult)
     {

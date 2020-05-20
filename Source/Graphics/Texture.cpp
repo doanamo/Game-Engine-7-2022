@@ -89,12 +89,15 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
+    // Acquire engine services.
+    System::FileSystem* fileSystem = params.services->GetFileSystem();
+    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
+
     // Resolve file path.
-    auto resolvePathResult = params.fileSystem->ResolvePath(params.filePath);
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
 
     if(!resolvePathResult)
     {
@@ -290,7 +293,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     // Create instance.
     CreateFromParams createParams;
-    createParams.renderContext = params.renderContext;
+    createParams.renderContext = renderContext;
     createParams.width = width;
     createParams.height = height;
     createParams.format = textureFormat;

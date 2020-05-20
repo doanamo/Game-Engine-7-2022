@@ -26,20 +26,23 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
     LOG_SCOPED_INDENT();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire window service.
+    System::Window* window = params.services->GetWindow();
 
     // Create instance.
     auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
 
     // Subscribe to incoming window events, same as InputManager does.
     bool subscriptionResults = true;
-    subscriptionResults &= instance->m_keyboardKeyReceiver.Subscribe(params.window->events.keyboardKey);
-    subscriptionResults &= instance->m_textInputReceiver.Subscribe(params.window->events.textInput);
-    subscriptionResults &= instance->m_windowFocusReceiver.Subscribe(params.window->events.focus);
-    subscriptionResults &= instance->m_mouseButtonReceiver.Subscribe(params.window->events.mouseButton);
-    subscriptionResults &= instance->m_mouseScrollReceiver.Subscribe(params.window->events.mouseScroll);
-    subscriptionResults &= instance->m_cursorPositionReceiver.Subscribe(params.window->events.cursorPosition);
-    subscriptionResults &= instance->m_cursorEnterReceiver.Subscribe(params.window->events.cursorEnter);
+    subscriptionResults &= instance->m_keyboardKeyReceiver.Subscribe(window->events.keyboardKey);
+    subscriptionResults &= instance->m_textInputReceiver.Subscribe(window->events.textInput);
+    subscriptionResults &= instance->m_windowFocusReceiver.Subscribe(window->events.focus);
+    subscriptionResults &= instance->m_mouseButtonReceiver.Subscribe(window->events.mouseButton);
+    subscriptionResults &= instance->m_mouseScrollReceiver.Subscribe(window->events.mouseScroll);
+    subscriptionResults &= instance->m_cursorPositionReceiver.Subscribe(window->events.cursorPosition);
+    subscriptionResults &= instance->m_cursorEnterReceiver.Subscribe(window->events.cursorEnter);
 
     if(!subscriptionResults)
     {
@@ -48,7 +51,7 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
     }
 
     // Save window reference.
-    instance->m_window = params.window;
+    instance->m_window = window;
 
     // Success!
     return Common::Success(std::move(instance));

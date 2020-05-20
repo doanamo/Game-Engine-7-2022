@@ -11,6 +11,7 @@ include_guard(GLOBAL)
 
 set(INCLUDE_FILES
     "Core.hpp"
+    "ServiceStorage.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Core/")
@@ -19,6 +20,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Core/" PREFIX "Head
 set(SOURCE_FILES
     "Precompiled.hpp"
     "Core.cpp"
+    "ServiceStorage.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")

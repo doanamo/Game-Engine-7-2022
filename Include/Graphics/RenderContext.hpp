@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stack>
+#include <Core/ServiceStorage.hpp>
 #include "Graphics/RenderState.hpp"
 
 namespace System
@@ -25,7 +26,7 @@ namespace Graphics
     public:
         struct CreateParams
         {
-            System::Window* window = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

@@ -7,3 +7,5 @@
 /*
     Precompiled Header
 */
+
+#include <Core/Core.hpp>

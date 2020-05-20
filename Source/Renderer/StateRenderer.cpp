@@ -22,15 +22,14 @@ StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params
     LOG_SCOPED_INDENT();
 
     // Validate arguments
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.spriteRenderer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<StateRenderer>(new StateRenderer());
 
     // Save system references.
-    instance->m_renderContext = params.renderContext;
-    instance->m_spriteRenderer = params.spriteRenderer;
+    instance->m_renderContext = params.services->GetRenderContext();
+    instance->m_spriteRenderer = params.services->GetSpriteRenderer();
 
     // Success!
     return Common::Success(std::move(instance));

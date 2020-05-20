@@ -18,9 +18,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.timer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.stateRenderer != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
@@ -28,7 +26,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     // Create event router.
     // Listens and replicates event to the current game state.
     EventRouter::CreateFromParams eventRouterParams;
-    eventRouterParams.inputManager = params.inputManager;
+    eventRouterParams.services = params.services;
     eventRouterParams.gameFramework = instance.get();
 
     instance->m_eventRouter = EventRouter::Create(eventRouterParams).UnwrapOr(nullptr);
@@ -39,9 +37,9 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     }
 
     // Save system references.
-    instance->m_timer = params.timer;
-    instance->m_window = params.window;
-    instance->m_stateRenderer = params.stateRenderer;
+    instance->m_timer = params.services->GetTimer();
+    instance->m_window = params.services->GetWindow();
+    instance->m_stateRenderer = params.services->GetStateRenderer();
 
     // Success!
     return Common::Success(std::move(instance));

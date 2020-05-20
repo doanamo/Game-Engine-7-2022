@@ -6,6 +6,7 @@
 
 #include "Window.hpp"
 #include "InputDefinitions.hpp"
+#include <Core/ServiceStorage.hpp>
 
 /*
     Input Manager
@@ -22,7 +23,7 @@ namespace System
     public:
         struct CreateParams
         {
-            Window* window = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

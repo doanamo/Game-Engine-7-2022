@@ -5,37 +5,7 @@
 #pragma once
 
 #include <Core/Core.hpp>
-
-namespace System
-{
-    class Platform;
-    class FileSystem;
-    class Window;
-    class Timer;
-    class InputManager;
-    class ResourceManager;
-}
-
-namespace Graphics
-{
-    class RenderContext;
-    class SpriteRenderer;
-}
-
-namespace Renderer
-{
-    class StateRenderer;
-}
-
-namespace Game
-{
-    class GameFramework;
-}
-
-namespace Editor
-{
-    class EditorSystem;
-}
+#include <Core/ServiceStorage.hpp>
 
 /*
     Engine Root
@@ -48,13 +18,13 @@ namespace Engine
     public:
         struct CreateFromParams
         {
-            float maximumTickDelta = 1.0f;
+            float maxTickDelta = 1.0f;
         };
 
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedSubsystemCreation,
+            FailedServiceCreation,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
@@ -65,34 +35,13 @@ namespace Engine
 
         int Run();
 
-        System::Platform& GetPlatform();
-        System::FileSystem& GetFileSystem();
-        System::Window& GetWindow();
-        System::Timer& GetTimer();
-        System::InputManager& GetInputManager();
-        System::ResourceManager& GetResourceManager();
-        Graphics::RenderContext& GetRenderContext();
-        Graphics::SpriteRenderer& GetSpriteRenderer();
-        Renderer::StateRenderer& GetStateRenderer();
-        Game::GameFramework& GetGameFramework();
-        Editor::EditorSystem& GetEditorSystem();
+        const Core::ServiceStorage& GetServices() const;
 
     private:
         Root();
 
     private:
-        std::unique_ptr<System::Platform> m_platform;
-        std::unique_ptr<System::FileSystem> m_fileSystem;
-        std::unique_ptr<System::Window> m_window;
-        std::unique_ptr<System::Timer> m_timer;
-        std::unique_ptr<System::InputManager> m_inputManager;
-        std::unique_ptr<System::ResourceManager> m_resourceManager;
-        std::unique_ptr<Graphics::RenderContext> m_renderContext;
-        std::unique_ptr<Graphics::SpriteRenderer> m_spriteRenderer;
-        std::unique_ptr<Renderer::StateRenderer> m_stateRenderer;
-        std::unique_ptr<Game::GameFramework> m_gameFramework;
-        std::unique_ptr<Editor::EditorSystem> m_editorSystem;
-
-        float m_maximumTickDelta = 1.0f;
+        Core::ServiceStorage m_services;
+        float m_maxTickDelta = 1.0f;
     };
 }

@@ -30,9 +30,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     LOG_SCOPED_INDENT();
 
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::ResourceManager* resourceManager = params.services->GetResourceManager();
 
     // Create base instance.
     auto createResult = Create();
@@ -45,7 +46,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
 
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
-    resourceParams.fileSystem = params.fileSystem;
+    resourceParams.services = params.services;
     resourceParams.filePath = params.filePath;
 
     auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
@@ -77,12 +78,11 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
         }
 
         Texture::LoadFromFile textureParams;
-        textureParams.fileSystem = params.fileSystem;
+        textureParams.services = params.services;
         textureParams.filePath = lua_tostring(*resourceScript, -1);
-        textureParams.renderContext = params.renderContext;
         textureParams.mipmaps = true;
 
-        auto loadTextureResult = params.resourceManager->Acquire<Graphics::Texture>(
+        auto loadTextureResult = resourceManager->Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams);
 
         if(!loadTextureResult)

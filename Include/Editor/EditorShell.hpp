@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Core/ServiceStorage.hpp>
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameStateEditor.hpp"
 
@@ -28,8 +29,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            System::Window* window = nullptr;
-            Game::GameFramework* gameFramework = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

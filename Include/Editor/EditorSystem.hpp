@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Event/Receiver.hpp>
+#include <Core/ServiceStorage.hpp>
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorShell.hpp"
@@ -40,12 +41,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            System::FileSystem* fileSystem = nullptr;
-            System::ResourceManager* resourceManager = nullptr;
-            System::InputManager* inputManager = nullptr;
-            System::Window* window = nullptr;
-            Graphics::RenderContext* renderContext = nullptr;
-            Game::GameFramework* gameFramework = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

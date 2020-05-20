@@ -56,6 +56,7 @@ Sampler::CreateFromParams::CreateFromParams()
 {
     InitializeDefaults();
 
+    renderContext = nullptr;
     textureMinFilter = DefaultTextureMinFilter;
     textureMagFilter = DefaultTextureMagFilter;
     textureWrapS = DefaultTextureWrapS;
@@ -78,13 +79,13 @@ Sampler::~Sampler()
     }
 }
 
-Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const CreateFromParams& params)
+Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
 {
     LOG("Creating sampler...");
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Sampler>(new Sampler());
@@ -146,7 +147,7 @@ Sampler::CreateResult Sampler::Create(RenderContext* renderContext, const Create
     }
 
     // Save render context reference.
-    instance->m_renderContext = renderContext;
+    instance->m_renderContext = params.renderContext;
 
     // Success!
     return Common::Success(std::move(instance));

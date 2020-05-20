@@ -27,20 +27,23 @@ EventRouter::CreateResult EventRouter::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire input manager service.
+    System::InputManager* inputManager = params.services->GetInputManager();
 
     // Create instance.
     auto instance = std::unique_ptr<EventRouter>(new EventRouter());
 
     // Subscribe event receivers.
     bool subscriptionResult = true;
-    subscriptionResult &= instance->m_receivers.keyboardKeyReceiver.Subscribe(params.inputManager->events.keyboardKey);
-    subscriptionResult &= instance->m_receivers.textInputReceiver.Subscribe(params.inputManager->events.textInput);
-    subscriptionResult &= instance->m_receivers.mouseButtonReceiver.Subscribe(params.inputManager->events.mouseButton);
-    subscriptionResult &= instance->m_receivers.mouseScrollReceiver.Subscribe(params.inputManager->events.mouseScroll);
-    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(params.inputManager->events.cursorPosition);
-    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(params.inputManager->events.cursorEnter);
+    subscriptionResult &= instance->m_receivers.keyboardKeyReceiver.Subscribe(inputManager->events.keyboardKey);
+    subscriptionResult &= instance->m_receivers.textInputReceiver.Subscribe(inputManager->events.textInput);
+    subscriptionResult &= instance->m_receivers.mouseButtonReceiver.Subscribe(inputManager->events.mouseButton);
+    subscriptionResult &= instance->m_receivers.mouseScrollReceiver.Subscribe(inputManager->events.mouseScroll);
+    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(inputManager->events.cursorPosition);
+    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(inputManager->events.cursorEnter);
 
     if(!subscriptionResult)
     {

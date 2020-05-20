@@ -50,18 +50,17 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.fileSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.resourceManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.inputManager != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.gameFramework != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire engine services.
+    System::Window* window = params.services->GetWindow();
+    System::InputManager* inputManager = params.services->GetInputManager();
 
     // Create instance.
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
 
-    // Remember window reference.
-    instance->m_window = params.window;
+    // Save window reference.
+    instance->m_window = window;
 
     // Create ImGui context.
     instance->m_interface = ImGui::CreateContext();
@@ -109,17 +108,17 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = params.window->GetPrivateHandle();
+    io.ClipboardUserData = window->GetPrivateHandle();
 
     // Subscribe input event receivers.
     // We insert receivers in front of dispatcher queue
     // as we want to have priority for input events.
     bool subscriptionResult = true;
-    subscriptionResult &= params.inputManager->events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, false, true);
-    subscriptionResult &= params.inputManager->events.textInput.Subscribe(instance->m_receiverTextInput, false, true);
-    subscriptionResult &= params.inputManager->events.mouseButton.Subscribe(instance->m_receiverMouseButton, false, true);
-    subscriptionResult &= params.inputManager->events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, false, true);
-    subscriptionResult &= params.inputManager->events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, false, true);
+    subscriptionResult &= inputManager->events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, false, true);
+    subscriptionResult &= inputManager->events.textInput.Subscribe(instance->m_receiverTextInput, false, true);
+    subscriptionResult &= inputManager->events.mouseButton.Subscribe(instance->m_receiverMouseButton, false, true);
+    subscriptionResult &= inputManager->events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, false, true);
+    subscriptionResult &= inputManager->events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, false, true);
 
     if(!subscriptionResult)
     {
@@ -129,10 +128,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 
     // Create editor renderer.
     EditorRenderer::CreateFromParams editorRendererParams;
-    editorRendererParams.fileSystem = params.fileSystem;
-    editorRendererParams.resourceManager = params.resourceManager;
-    editorRendererParams.window = params.window;
-    editorRendererParams.renderContext = params.renderContext;
+    editorRendererParams.services = params.services;
 
     instance->m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
     if(instance->m_editorRenderer == nullptr)
@@ -143,8 +139,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 
     // Create editor shell.
     EditorShell::CreateFromParams editorShellParams;
-    editorShellParams.window = params.window;
-    editorShellParams.gameFramework = params.gameFramework;
+    editorShellParams.services = params.services;
 
     instance->m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
     if(instance->m_editorShell == nullptr)

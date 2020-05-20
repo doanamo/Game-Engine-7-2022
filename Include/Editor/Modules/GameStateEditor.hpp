@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Event/Receiver.hpp>
+#include <Core/ServiceStorage.hpp>
 
 namespace Game
 {
@@ -23,7 +24,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            Game::GameFramework* gameFramework = nullptr;
+            const Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors

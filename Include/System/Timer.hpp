@@ -38,7 +38,7 @@ namespace System
     public:
         ~Timer();
 
-        void Tick(float maxDeltaSeconds = 0.0f);
+        float Tick(float maxDeltaSeconds = 0.0f);
         void Tick(const Timer& timer);
         void Reset();
 

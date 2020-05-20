@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <optional>
 #include <vector>
+#include <optional>
 #include <unordered_map>
+#include <Core/ServiceStorage.hpp>
 #include "Graphics/TextureView.hpp"
 
 namespace System
@@ -28,9 +29,7 @@ namespace Graphics
     public:
         struct LoadFromFile
         {
-            System::FileSystem* fileSystem = nullptr;
-            System::ResourceManager* resourceManager = nullptr;
-            Graphics::RenderContext* renderContext = nullptr;
+            const Core::ServiceStorage* services = nullptr;
             std::string filePath;
         };
 
@@ -42,6 +41,7 @@ namespace Graphics
         };
 
         using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
+
         static CreateResult Create();
         static CreateResult Create(const LoadFromFile& params);
 

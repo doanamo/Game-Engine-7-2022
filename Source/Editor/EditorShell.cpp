@@ -16,14 +16,17 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(params.window != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
+    // Acquire window service.
+    System::Window* window = params.services->GetWindow();
 
     // Create instance.
     auto instance = std::unique_ptr<EditorShell>(new EditorShell());
 
     // Create input manager editor.
     InputManagerEditor::CreateFromParams inputManagerEditorParams;
-    inputManagerEditorParams.window = params.window;
+    inputManagerEditorParams.services = params.services;
 
     instance->m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
     if(instance->m_inputManagerEditor == nullptr)
@@ -34,7 +37,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
 
     // Create game state editor.
     GameStateEditor::CreateFromParams gameStateEditorParams;
-    gameStateEditorParams.gameFramework = params.gameFramework;
+    gameStateEditorParams.services = params.services;
 
     instance->m_gameStateEditor = GameStateEditor::Create(gameStateEditorParams).UnwrapOr(nullptr);
     if(instance->m_gameStateEditor == nullptr)
@@ -44,7 +47,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     }
 
     // Save window reference.
-    instance->m_window = params.window;
+    instance->m_window = window;
 
     // Success!
     return Common::Success(std::move(instance));
