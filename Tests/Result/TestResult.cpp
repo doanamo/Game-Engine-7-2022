@@ -3,8 +3,8 @@
 */
 
 #include <memory>
-#include <Common/Result.hpp>
 #include <TestHelpers.hpp>
+#include <Common/Result.hpp>
 
 class ResultWithVoid
 {

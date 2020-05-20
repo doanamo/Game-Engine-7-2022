@@ -3,8 +3,8 @@
 */
 
 #include <cinttypes>
-#include <Reflection/Reflection.hpp>
 #include <TestHelpers.hpp>
+#include <Reflection/Reflection.hpp>
 
 class Undefined
 {

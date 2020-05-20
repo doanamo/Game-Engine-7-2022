@@ -2,8 +2,8 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include <Common/Utility.hpp>
 #include <TestHelpers.hpp>
+#include <Common/Utility.hpp>
 
 bool TestClamp()
 {

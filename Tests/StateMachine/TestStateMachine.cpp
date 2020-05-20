@@ -3,8 +3,8 @@
 */
 
 #include <string>
-#include <Common/StateMachine.hpp>
 #include <TestHelpers.hpp>
+#include <Common/StateMachine.hpp>
 
 class TestState : public Common::State<TestState>
 {
