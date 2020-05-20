@@ -46,7 +46,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_maxTickDelta = params.maxTickDelta;
 
     // Create system platform context.
-    // Allows us to use platform systems such as window or input.
+    // Enables use of platform specific systems such as window or input.
     auto platform = System::Platform::Create().UnwrapOr(nullptr);
     if(platform == nullptr)
     {
@@ -57,8 +57,8 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(platform));
 
     // Create file system.
-    // Allows path resolving with multiple mounted directories.
-    // Mount file system directories (order affects resolve order).
+    // Enables path resolving with multiple mounted directories.
+    // Mount default directories (call order affects resolve order).
     auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr);
     if(fileSystem == nullptr)
     {
@@ -79,8 +79,8 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(fileSystem));
 
     // Create main window.
-    // We will be collecting input and then drawing into this window.
-    // Window instance will create unique OpenGL context for us.
+    // Collects input and presents swap chain content.
+    // Window instance will create unique OpenGL context.
     System::Window::CreateFromParams windowParams;
     windowParams.title = "Game";
     windowParams.width = 1024;
@@ -213,6 +213,9 @@ int Root::Run()
     // Acquire engine services.
     System::Timer* timer = m_services.GetTimer();
     System::Window* window = m_services.GetWindow();
+
+    // Ensure that window context is current.
+    window->MakeContextCurrent();
 
     // Reset time that has accumulated during initialization.
     timer->Reset();
