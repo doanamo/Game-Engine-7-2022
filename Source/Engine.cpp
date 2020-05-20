@@ -101,7 +101,10 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Create input manager.
     // Collects and routes all events related to input.
-    instance->m_inputManager = System::InputManager::Create(instance->m_window.get()).UnwrapOr(nullptr);
+    System::InputManager::CreateParams inputManagerParams;
+    inputManagerParams.window = instance->m_window.get();
+
+    instance->m_inputManager = System::InputManager::Create(inputManagerParams).UnwrapOr(nullptr);
     if(instance->m_inputManager == nullptr)
     {
         LOG_ERROR("Could not create input manager!");
@@ -119,7 +122,10 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Create render context.
     // Manages rendering context created along with window.
-    instance->m_renderContext = Graphics::RenderContext::Create(instance->m_window.get()).UnwrapOr(nullptr);
+    Graphics::RenderContext::CreateParams renderContextParams;
+    renderContextParams.window = instance->m_window.get();
+
+    instance->m_renderContext = Graphics::RenderContext::Create(renderContextParams).UnwrapOr(nullptr);
     if(instance->m_renderContext == nullptr)
     {
         LOG_ERROR("Could not create render context!");

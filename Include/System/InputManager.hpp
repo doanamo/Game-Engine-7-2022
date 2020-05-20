@@ -20,6 +20,11 @@ namespace System
     class InputManager final : private Common::NonCopyable
     {
     public:
+        struct CreateParams
+        {
+            Window* window = nullptr;
+        };
+
         enum class CreateErrors
         {
             InvalidArgument,
@@ -27,7 +32,7 @@ namespace System
         };
 
         using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
-        static CreateResult Create(Window* window);
+        static CreateResult Create(const CreateParams& params);
 
     public:
         ~InputManager();

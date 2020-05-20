@@ -23,6 +23,11 @@ namespace Graphics
     class RenderContext final : private Common::NonCopyable
     {
     public:
+        struct CreateParams
+        {
+            System::Window* window = nullptr;
+        };
+
         enum class CreateErrors
         {
             InvalidArgument,
@@ -30,7 +35,7 @@ namespace Graphics
         };
 
         using CreateResult = Common::Result<std::unique_ptr<RenderContext>, CreateErrors>;
-        static CreateResult Create(System::Window* window);
+        static CreateResult Create(const CreateParams& params);
 
     public:
         ~RenderContext();
