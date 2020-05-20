@@ -98,7 +98,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(window));
 
     // Create timer.
-    // There can be many timers but this one will be used to calculate frame time.
+    // Main timer that drives the main loop.
     auto timer = System::Timer::Create().UnwrapOr(nullptr);
     if(timer == nullptr)
     {
@@ -123,7 +123,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(inputManager));
 
     // Create resource manager.
-    // Help avoid duplication of loaded resources.
+    // Helps avoid duplication of loaded resources.
     auto resourceManager = System::ResourceManager::Create().UnwrapOr(nullptr);
     if(resourceManager == nullptr)
     {
@@ -163,7 +163,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(spriteRenderer));
 
     // Create state renderer.
-    // Renders game state described in its components.
+    // Draws game state represented by its render components.
     Renderer::StateRenderer::CreateFromParams stateRendererParams;
     stateRendererParams.services = &instance->m_services;
 
@@ -177,7 +177,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(stateRenderer));
 
     // Create game framework.
-    // Controls how game state is managed and how it interacts with the rest of the engine.
+    // Wraps base functionality of shared game logic.
     Game::GameFramework::CreateFromParams gameFrameworkParams;
     gameFrameworkParams.services = &instance->m_services;
 
@@ -191,7 +191,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     instance->m_services.Provide(std::move(gameFramework));
 
     // Create editor system.
-    // Built in editor for creating and modifying content within game.
+    // Built in editor for creating and modifying content within running game.
     Editor::EditorSystem::CreateFromParams editorSystemParams;
     editorSystemParams.services = &instance->m_services;
 
