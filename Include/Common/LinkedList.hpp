@@ -67,8 +67,8 @@ namespace Common
             return m_reference != nullptr;
         }
 
-        template<typename Function>
-        bool ForEach(Function function)
+        template<typename Function, typename ...Arguments>
+        bool ForEach(Function function, Arguments&&... arguments)
         {
             // Iterate over all linked receivers (excluding ourselves)
             // in an ordered fashion. This handles adding/removing current
@@ -87,7 +87,7 @@ namespace Common
                 ListNode<Type>* nextIterator = iterator->GetNext();
 
                 // Invoke function with current node.
-                if(!function(*iterator))
+                if(!function(*iterator, std::forward<Arguments>(arguments)...))
                     return false;
 
                 // Advance to next node.

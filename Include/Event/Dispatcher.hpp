@@ -36,7 +36,7 @@ namespace Event
     class ReceiverInvoker<ReturnType(Arguments...)>
     {
     protected:
-        ReturnType Dispatch(Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
+        ReturnType Dispatch(Receiver<ReturnType(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr, "Receiver is nullptr!");
             return receiver->Receive(std::forward<Arguments>(arguments)...);
@@ -50,7 +50,7 @@ namespace Event
     class CollectorDispatcher<Collector, ReturnType(Arguments...)> : public ReceiverInvoker<ReturnType(Arguments...)>
     {
     public:
-        void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments... arguments)
+        void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr, "Receiver is nullptr!");
             collector.ConsumeResult(this->Dispatch(receiver, std::forward<Arguments>(arguments)...));
@@ -61,7 +61,7 @@ namespace Event
     class CollectorDispatcher<Collector, void(Arguments...)> : public ReceiverInvoker<void(Arguments...)>
     {
     public:
-        void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments... arguments)
+        void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr, "Receiver is nullptr!");
             this->Dispatch(receiver, std::forward<Arguments>(arguments)...);
@@ -213,13 +213,11 @@ namespace Event
     protected:
         // Invokes receivers with following arguments.
         template<typename Collector>
-        void Dispatch(Collector& collector, Arguments... arguments)
+        void Dispatch(Collector& collector, Arguments&&... arguments)
         {
             // Send dispatch event to all receivers.
-            auto argumentTuple = std::make_tuple(std::forward<Arguments>(arguments)...);
-
             m_receiverList.ForEach(
-                [&collector = collector, argumentTuple = std::move(argumentTuple)](ReceiverListNode& node)
+                [&collector = collector](ReceiverListNode& node, Arguments&&... arguments)
                 {
                     // Check is we should continue processing receivers.
                     if(!collector.ShouldContinue())
@@ -230,17 +228,13 @@ namespace Event
                     ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
 
                     // Invoke receiver and collect result.
-                    auto invokeReceiver = [&collector = collector, receiver](auto... arguments)
-                    {
-                        CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
-                        invocation(collector, receiver, std::forward<Arguments>(arguments)...);
-                    };
-
-                    std::apply(invokeReceiver, argumentTuple);
+                    CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
+                    invocation(collector, receiver, std::forward<Arguments>(arguments)...);
 
                     // Continue iterating.
                     return true;
-                }
+                },
+                std::forward<Arguments>(arguments)...
             );
         }
 

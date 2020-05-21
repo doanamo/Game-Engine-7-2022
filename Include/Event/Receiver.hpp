@@ -89,7 +89,7 @@ namespace Event
 
     private:
         // Receives event and invokes bound function.
-        ReturnType Receive(Arguments... arguments)
+        ReturnType Receive(Arguments&&... arguments)
         {
             ASSERT(m_dispatcher, "Invoked a receiver without it being subscribed!");
             return this->Invoke(std::forward<Arguments>(arguments)...);
@@ -97,7 +97,7 @@ namespace Event
 
         // Make derived invoke method private.
         // We do not want other classes calling this.
-        ReturnType Invoke(Arguments... arguments)
+        ReturnType Invoke(Arguments&&... arguments)
         {
             return Delegate<ReturnType(Arguments...)>::Invoke(std::forward<Arguments>(arguments)...);
         }

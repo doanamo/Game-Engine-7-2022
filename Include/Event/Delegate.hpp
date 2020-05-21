@@ -14,7 +14,8 @@
     instance that no longer exists. Check Receiver and Dispatcher class
     templates for subscription based solution that wraps delegates.
     
-    Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
+    Implementation based on:
+    - http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 */
 
 namespace Event
@@ -27,23 +28,23 @@ namespace Event
     {
     private:
         using InstancePtr = void*;
-        using FunctionPtr = ReturnType(*)(InstancePtr, Arguments...);
+        using FunctionPtr = ReturnType(*)(InstancePtr, Arguments&&...);
 
         // Compile time invocation stubs.
         template<ReturnType(*Function)(Arguments...)>
-        static ReturnType FunctionStub(InstancePtr instance, Arguments... arguments)
+        static ReturnType FunctionStub(InstancePtr instance, Arguments&&... arguments)
         {
             return (Function)(std::forward<Arguments>(arguments)...);
         }
 
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
-        static ReturnType MethodStub(InstancePtr instance, Arguments... arguments)
+        static ReturnType MethodStub(InstancePtr instance, Arguments&&... arguments)
         {
             return (static_cast<InstanceType*>(instance)->*Function)(std::forward<Arguments>(arguments)...);
         }
 
         template<class InstanceType>
-        static ReturnType FunctorStub(InstancePtr instance, Arguments... arguments)
+        static ReturnType FunctorStub(InstancePtr instance, Arguments&&... arguments)
         {
             return (*static_cast<InstanceType*>(instance))(std::forward<Arguments>(arguments)...);
         }

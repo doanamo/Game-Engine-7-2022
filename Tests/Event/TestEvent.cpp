@@ -8,6 +8,33 @@
 #include <Event/Dispatcher.hpp>
 #include <Event/Receiver.hpp>
 
+static int CopyCount = 0;
+
+class CopyCounter
+{
+public:
+    CopyCounter() = default;
+
+    CopyCounter(const CopyCounter&)
+    {
+        CopyCount++;
+    }
+
+    CopyCounter& operator=(const CopyCounter&)
+    {
+        CopyCount++;
+        return *this;
+    }
+
+    void Method(CopyCounter)
+    {
+    }
+};
+
+void CopyCounterFunction(CopyCounter)
+{
+}
+
 char Function(const char* c, int i)
 {
     return c[i];
@@ -96,8 +123,33 @@ bool TestDelegate()
     }
 
     // Delegate unbinding.
-    delegate.Bind(nullptr);
-    TEST_FALSE(delegate.IsBound());
+    {
+        delegate.Bind(nullptr);
+        TEST_FALSE(delegate.IsBound());
+    }
+
+    // Test copy count of arguments during invocation.
+    // There is hidden copy here on each invocation that does not trigger for dispatcher.
+    {
+        CopyCounter caller;
+
+        Event::Delegate<void(CopyCounter)> delegate;
+
+        CopyCount = 0;
+        delegate.Bind<&CopyCounterFunction>();
+        delegate.Invoke(CopyCounter());
+        TEST_EQ(CopyCount, 1);
+
+        CopyCount = 0;
+        delegate.Bind<CopyCounter, &CopyCounter::Method>(&caller);
+        delegate.Invoke(CopyCounter());
+        TEST_EQ(CopyCount, 1);
+
+        CopyCount = 0;
+        delegate.Bind([](CopyCounter object) {});
+        delegate.Invoke(CopyCounter());
+        TEST_EQ(CopyCount, 1);
+    }
 
     return true;
 }
@@ -480,6 +532,29 @@ bool TestDispatcher()
 
         TEST_TRUE(result);
         TEST_EQ(value, 1111111);
+    }
+
+    // Test copy count of arguments during dispatch.
+    {
+        CopyCounter caller;
+
+        Event::Dispatcher<void(CopyCounter)> dispatcher;
+        Event::Receiver<void(CopyCounter)> receiver;
+
+        CopyCount = 0;
+        receiver.Bind<&CopyCounterFunction>();
+        dispatcher.Dispatch(CopyCounter());
+        TEST_EQ(CopyCount, 0);
+
+        CopyCount = 0;
+        receiver.Bind<CopyCounter, &CopyCounter::Method>(&caller);
+        dispatcher.Dispatch(CopyCounter());
+        TEST_EQ(CopyCount, 0);
+
+        CopyCount = 0;
+        receiver.Bind([](CopyCounter object) {});
+        dispatcher.Dispatch(CopyCounter());
+        TEST_EQ(CopyCount, 0);
     }
 
     return true;
