@@ -1,6 +1,6 @@
 SpriteAnimationList =
 {
-    TextureAtlas = "Data/Textures/Checker.atlas",
+    TextureAtlas = "Checker.atlas",
     
     Animations =
     {

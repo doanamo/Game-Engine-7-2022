@@ -70,29 +70,55 @@ FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string director
     return Common::Success();
 }
 
-FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) const
+FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, const std::string relative) const
 {
-    // Validate argument.
+    // Validate path argument.
     if(path.empty())
     {
         LOG_WARNING("Attempting to resolve empty file path!");
         return Common::Failure(ResolvePathErrors::EmptyPathArgument);
     }
 
-    // Check file path for each mounted directory (iterated in reverse).
+    // Array of unresolved paths for debugging.
     #ifndef NDEBUG
         std::vector<std::string> unresolvedPaths;
     #endif
 
+    // Extract relative directory from relative path.
+    std::string relativeResolvedDir;
+
+    if(!relative.empty())
+    {
+        relativeResolvedDir = Common::GetFileDirectory(relative);
+
+        // Relative path should be already resolved and valid.
+        // Saves time of resolving and there should be no reason to not have it resolved already.
+        #ifndef NDEBUG
+            if(!std::filesystem::exists(relative))
+            {
+                LOG_WARNING("Trying to resolve \"{}\" path with relative \"{}\" path that does not exist!");
+            }
+        #endif
+    }
+
+    // Try to resolve path using specified relative directory.
+    if(!relativeResolvedDir.empty())
+    {
+        std::string resolvePath = relativeResolvedDir + path;
+        if(std::filesystem::exists(resolvePath))
+            return Common::Success(resolvePath);
+
+        #ifndef NDEBUG
+            unresolvedPaths.push_back(resolvePath);
+        #endif
+    }
+
+    // Check file path for each mounted directory (iterated in reverse).
     for(auto mountedDir = m_mountedDirs.crbegin(); mountedDir != m_mountedDirs.crend(); ++mountedDir)
     {
-        // Check if file or directory exists.
         std::string resolvePath = *mountedDir + path;
-
         if(std::filesystem::exists(resolvePath))
-        {
             return Common::Success(resolvePath);
-        }
 
         #ifndef NDEBUG
             unresolvedPaths.push_back(resolvePath);
@@ -103,15 +129,15 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path) co
     LOG_WARNING("Failed to resolve \"{}\" path!", path);
 
     #ifndef NDEBUG
-        {
-            LOG_DEBUG("Following paths did not resolve to any known file:");
-            LOG_SCOPED_INDENT();
+    {
+        LOG_DEBUG("Following paths did not resolve to any existing file:");
+        LOG_SCOPED_INDENT();
 
-            for(const std::string& unresolvedPath : unresolvedPaths)
-            {
-                LOG_DEBUG("{}", unresolvedPath);
-            }
+        for(const std::string& unresolvedPath : unresolvedPaths)
+        {
+            LOG_DEBUG("{}", unresolvedPath);
         }
+    }
     #endif
 
     return Common::Failure(ResolvePathErrors::UnresolvablePath);

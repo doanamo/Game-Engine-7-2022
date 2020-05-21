@@ -56,12 +56,22 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
+    System::FileSystem* fileSystem = params.services->GetFileSystem();
     System::ResourceManager* resourceManager = params.services->GetResourceManager();
+
+    // Resolve file path.
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
+    if(!resolvePathResult)
+    {
+        LOG_ERROR("Could not resolve file path!");
+        return Common::Failure(CreateErrors::FailedFilePathResolve);
+    }
 
     // Create base instance.
     auto createResult = Create();
     if(!createResult)
     {
+        LOG_ERROR("Could not create base instance!");
         return createResult;
     }
 
@@ -71,6 +81,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     Script::ScriptState::LoadFromFile resourceParams;
     resourceParams.services = params.services;
     resourceParams.filePath = params.filePath;
+    resourceParams.relativePath = params.relativePath;
 
     auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
@@ -86,7 +97,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContents);
     }
 
     // Load texture atlas.
@@ -99,12 +110,13 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
         if(!lua_isstring(*resourceScript, -1))
         {
             LOG_ERROR("String \"SpriteAnimationList.TextureAtlas\" is missing!");
-            return Common::Failure(CreateErrors::InvalidResourceContent);
+            return Common::Failure(CreateErrors::InvalidResourceContents);
         }
 
         TextureAtlas::LoadFromFile textureAtlasParams;
         textureAtlasParams.services = params.services;
         textureAtlasParams.filePath = lua_tostring(*resourceScript, -1);
+        textureAtlasParams.relativePath = resolvePathResult.Unwrap();
 
         textureAtlas = resourceManager->Acquire<TextureAtlas>(
             textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
@@ -123,7 +135,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"SpriteAnimationList.Animations\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContents);
     }
 
     for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))

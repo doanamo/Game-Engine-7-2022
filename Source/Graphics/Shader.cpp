@@ -249,8 +249,7 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
     System::FileSystem* fileSystem = params.services->GetFileSystem();
 
     // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
-
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
@@ -259,18 +258,16 @@ Shader::CreateResult Shader::Create(const LoadFromFile& params)
 
     // Load shader code from a file.
     std::string shaderCode = Common::GetTextFileContent(resolvePathResult.Unwrap());
-
     if(shaderCode.empty())
     {
         LOG_ERROR("File could not be read!");
-        return Common::Failure(CreateErrors::InvalidFileContent);
+        return Common::Failure(CreateErrors::InvalidFileContents);
     }
 
     // Create instance.
     LoadFromString compileParams;
     compileParams.services = params.services;
     compileParams.shaderCode = std::move(shaderCode);
-
     return Create(compileParams);
 }
 

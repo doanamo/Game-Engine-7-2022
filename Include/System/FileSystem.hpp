@@ -36,8 +36,12 @@ namespace System
     public:
         ~FileSystem();
 
+        // Mounts directories used for resolving paths.
         MountDirectoryResult MountDirectory(std::string directory);
-        ResolvePathResult ResolvePath(const std::string path) const;
+
+        // Resolves path by searching for it in mounted directories.
+        // Relative path can be specified where search will begin first, but it must be already resolved.
+        ResolvePathResult ResolvePath(const std::string path, const std::string relative = "") const;
 
     private:
         FileSystem();

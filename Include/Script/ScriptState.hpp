@@ -33,6 +33,7 @@ namespace Script
         {
             const Core::ServiceStorage* services = nullptr;
             std::string filePath;
+            std::string relativePath;
         };
 
         enum class CreateErrors

@@ -39,6 +39,7 @@ namespace Graphics
         {
             const Core::ServiceStorage* services = nullptr;
             std::string filePath;
+            std::string relativePath;
             bool mipmaps = true;
         };
 

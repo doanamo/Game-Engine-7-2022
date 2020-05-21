@@ -33,12 +33,22 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
+    System::FileSystem* fileSystem = params.services->GetFileSystem();
     System::ResourceManager* resourceManager = params.services->GetResourceManager();
+
+    // Resolve file path.
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
+    if(!resolvePathResult)
+    {
+        LOG_ERROR("Could not resolve file path!");
+        return Common::Failure(CreateErrors::FailedFilePathResolve);
+    }
 
     // Create base instance.
     auto createResult = Create();
     if(!createResult)
     {
+        LOG_ERROR("Could not create base instance!");
         return createResult;
     }
 
@@ -48,6 +58,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     Script::ScriptState::LoadFromFile resourceParams;
     resourceParams.services = params.services;
     resourceParams.filePath = params.filePath;
+    resourceParams.relativePath = params.relativePath;
 
     auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
@@ -63,7 +74,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContents);
     }
 
     // Load texture.
@@ -74,12 +85,13 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
         if(!lua_isstring(*resourceScript, -1))
         {
             LOG_ERROR("String \"TextureAtlas.Texture\" is missing!");
-            return Common::Failure(CreateErrors::InvalidResourceContent);
+            return Common::Failure(CreateErrors::InvalidResourceContents);
         }
 
         Texture::LoadFromFile textureParams;
         textureParams.services = params.services;
         textureParams.filePath = lua_tostring(*resourceScript, -1);
+        textureParams.relativePath = resolvePathResult.Unwrap();
         textureParams.mipmaps = true;
 
         instance->m_texture = resourceManager->Acquire<Graphics::Texture>(
@@ -93,7 +105,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     if(!lua_istable(*resourceScript, -1))
     {
         LOG_ERROR("Table \"TextureAtlas.Regions\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContent);
+        return Common::Failure(CreateErrors::InvalidResourceContents);
     }
 
     for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))

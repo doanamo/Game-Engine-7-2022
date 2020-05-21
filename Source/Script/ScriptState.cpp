@@ -128,7 +128,7 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
     auto instance = createResult.Unwrap();
 
     // Resolve path to script file.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
 
     if(!resolvePathResult)
     {

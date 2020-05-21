@@ -31,13 +31,15 @@ namespace Graphics
         {
             const Core::ServiceStorage* services = nullptr;
             std::string filePath;
+            std::string relativePath;
         };
 
         enum class CreateErrors
         {
             InvalidArgument,
+            FailedFilePathResolve,
             FailedResourceLoading,
-            InvalidResourceContent,
+            InvalidResourceContents,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;

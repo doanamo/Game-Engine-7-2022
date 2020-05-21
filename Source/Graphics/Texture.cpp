@@ -97,8 +97,7 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     Graphics::RenderContext* renderContext = params.services->GetRenderContext();
 
     // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath);
-
+    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
     if(!resolvePathResult)
     {
         LOG_ERROR("Could not resolve file path!");
@@ -107,7 +106,6 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     // Open file stream.
     std::ifstream file(resolvePathResult.Unwrap(), std::ios::binary);
-
     if(!file.is_open())
     {
         LOG_ERROR("File could not be opened!");
@@ -119,7 +117,6 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     png_byte png_sig[png_sig_size];
 
     file.read((char*)png_sig, png_sig_size);
-
     if(png_sig_cmp(png_sig, 0, png_sig_size) != 0)
     {
         LOG_ERROR("File path does not contain valid PNG file!");
@@ -128,7 +125,6 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     // Create format decoder structures.
     png_structp png_read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-
     if(png_read_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG read structure!");
@@ -136,7 +132,6 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
     }
 
     png_infop png_info_ptr = png_create_info_struct(png_read_ptr);
-
     if(png_info_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG info structure!");
@@ -250,7 +245,6 @@ Texture::CreateResult Texture::Create(const LoadFromFile& params)
 
     // Setup an array of row pointers to the actual data buffer.
     png_uint_32 png_stride = width * channels;
-
     for(png_uint_32 i = 0; i < height; ++i)
     {
         // Reverse the order of rows to flip the image.

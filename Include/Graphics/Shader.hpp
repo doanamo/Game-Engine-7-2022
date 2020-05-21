@@ -36,13 +36,14 @@ namespace Graphics
         {
             const Core::ServiceStorage* services = nullptr;
             std::string filePath;
+            std::string relativePath;
         };
 
         enum class CreateErrors
         {
             InvalidArgument,
             FailedFilePathResolve,
-            InvalidFileContent,
+            InvalidFileContents,
             FailedShaderCreation,
             FailedShaderCompilation,
             FailedProgramCreation,
