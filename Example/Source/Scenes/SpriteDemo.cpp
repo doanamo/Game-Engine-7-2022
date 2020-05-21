@@ -56,7 +56,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
     spriteAnimationListParams.services = &engine->GetServices();
-    spriteAnimationListParams.filePath = "Data/Engine/Textures/Checker.animation";
+    spriteAnimationListParams.filePath = "Data/Textures/Checker.animation";
 
     auto spriteAnimationList = resourceManager->Acquire<Graphics::SpriteAnimationList>(
         spriteAnimationListParams.filePath, spriteAnimationListParams).UnwrapOr(nullptr);
@@ -70,7 +70,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
     textureAtlasParams.services = &engine->GetServices();
-    textureAtlasParams.filePath = "Data/Engine/Textures/Checker.atlas";
+    textureAtlasParams.filePath = "Data/Textures/Checker.atlas";
 
     auto textureAtlas = resourceManager->Acquire<Graphics::TextureAtlas>(
         textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
@@ -105,7 +105,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         // Load texture.
         Graphics::Texture::LoadFromFile textureParams;
         textureParams.services = &engine->GetServices();
-        textureParams.filePath = "Data/Engine/Textures/Checker.png";
+        textureParams.filePath = "Data/Textures/Checker.png";
 
         Graphics::TexturePtr texture = resourceManager->Acquire<Graphics::Texture>(
             textureParams.filePath, textureParams).UnwrapEither();

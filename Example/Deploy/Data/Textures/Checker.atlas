@@ -1,6 +1,6 @@
 TextureAtlas =
 {
-    Texture = "Data/Engine/Textures/Checker.png",
+    Texture = "Data/Textures/Checker.png",
     
     Regions =
     {
