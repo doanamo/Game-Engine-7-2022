@@ -216,55 +216,32 @@ namespace Event
         void Dispatch(Collector& collector, Arguments... arguments)
         {
             // Send dispatch event to all receivers.
-            ReceiverListNode* iterator = m_receiverList.GetNext();
+            auto argumentTuple = std::make_tuple(std::forward<Arguments>(arguments)...);
 
-            while(iterator != &m_receiverList)
-            {
-                // Retrieve receiver instance.
-                Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
-                ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
-
-                // Check is we should continue processing receivers.
-                if(!collector.ShouldContinue())
-                    break;
-
-                // Cache previous and next iterators.
-                // This is needed to determine cases where currently invoked received is
-                // unsubscribed or it subscribes another receiver during its invocation.
-                ReceiverListNode* previousIterator = iterator->GetPrevious();
-                ReceiverListNode* nextIterator = iterator->GetNext();
-
-                // Invoke receiver and collect result.
-                CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
-                invocation(collector, receiver, std::forward<Arguments>(arguments)...);
-
-                // Advance to next receiver.
-                // There are three cases to consider:
-                // 1. Current receiver has been unsubscribed.
-                //    Current iterator is invalid, we use cached next iterator.
-                // 2. New receiver has been subscribed.
-                //    Cached next iterator is invalid, we acquire next iterator again.
-                // 3. Current receiver has been unsubscribed and new receiver has been subscribed.
-                //    Current and next iterators are invalid, we acquire next iterator from cached previous iterator.
-                if(nextIterator == &m_receiverList)
+            m_receiverList.ForEach(
+                [&collector = collector, argumentTuple = std::move(argumentTuple)](ReceiverListNode& node)
                 {
-                    if(iterator->IsFree())
+                    // Check is we should continue processing receivers.
+                    if(!collector.ShouldContinue())
+                        return false;
+
+                    // Retrieve receiver instance.
+                    Receiver<ReturnType(Arguments...)>* receiver = node.GetReference();
+                    ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
+
+                    // Invoke receiver and collect result.
+                    auto invokeReceiver = [&collector = collector, receiver](auto... arguments)
                     {
-                        // Case 3: Acquire next iterator from cached previous iterator.
-                        iterator = previousIterator->GetNext();
-                    }
-                    else
-                    {
-                        // Case 2: Acquire next iterator again.
-                        iterator = iterator->GetNext();
-                    }
+                        CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
+                        invocation(collector, receiver, std::forward<Arguments>(arguments)...);
+                    };
+
+                    std::apply(invokeReceiver, argumentTuple);
+
+                    // Continue iterating.
+                    return true;
                 }
-                else
-                {
-                    // Case 1: Use cached next iterator.
-                    iterator = nextIterator;
-                }
-            }
+            );
         }
 
     protected:
@@ -345,7 +322,8 @@ namespace Event
             CollectDefault<void> collector;
 
             // Dispatch to receivers.
-            DispatcherBase<void(Arguments...)>::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+            DispatcherBase<void(Arguments...)>::template
+                Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
         }
 
         // Overloaded call operator that is used as a dispatch.

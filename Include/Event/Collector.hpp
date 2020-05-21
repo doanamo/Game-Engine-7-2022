@@ -8,19 +8,8 @@
     Collector
     
     Utility template classes for storing return values of multiple receiver invocations.
-    Returns boolean on a call that indicates the final result of multiple invocations.
+    Returns boolean on call that indicates the final result of multiple invocations.
     Some collector rules may terminate further receiver invocations on specific returns.
-
-    void ExampleCollector()
-    {
-        // Definition of a dispatcher that will keep invoking receivers
-        // as long as they keep returning true as the result.
-        Dispatcher<bool(void), CollectWhileTrue<bool>> dispatcher(defaultResult);
-
-        // Returns true if all receivers returned true.
-        // Returns false when the first receiver returns false.
-        bool result = dispatcher.Dispatch();
-    }
 */
 
 namespace Event
@@ -52,7 +41,7 @@ namespace Event
         {
         }
 
-        bool ShouldContinue()
+        bool ShouldContinue() const
         {
             return true;
         }
@@ -77,7 +66,7 @@ namespace Event
             m_result = result;
         }
 
-        bool ShouldContinue()
+        bool ShouldContinue() const
         {
             return true;
         }
@@ -105,7 +94,7 @@ namespace Event
             m_result = result;
         }
 
-        bool ShouldContinue()
+        bool ShouldContinue() const
         {
             return m_result;
         }
@@ -133,7 +122,7 @@ namespace Event
             m_result = result;
         }
 
-        bool ShouldContinue()
+        bool ShouldContinue() const
         {
             return !m_result;
         }

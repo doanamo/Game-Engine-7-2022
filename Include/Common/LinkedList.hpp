@@ -62,6 +62,66 @@ namespace Common
             return m_reference;
         }
 
+        bool HasReference() const
+        {
+            return m_reference != nullptr;
+        }
+
+        template<typename Function>
+        bool ForEach(Function function)
+        {
+            // Iterate over all linked receivers (excluding ourselves)
+            // in an ordered fashion. This handles adding/removing current
+            // and next nodes that are or will be processed, but will not
+            // process nodes added before currently processed node.
+            ListNode<Type>* iterator = this->GetNext();
+
+            while(iterator != this)
+            {
+                ASSERT(iterator != nullptr);
+
+                // Cache previous and next iterators.
+                // This is needed to determine cases where currently invoked
+                // function is adding or removing nodes during its invocation.
+                ListNode<Type>* previousIterator = iterator->GetPrevious();
+                ListNode<Type>* nextIterator = iterator->GetNext();
+
+                // Invoke function with current node.
+                if(!function(*iterator))
+                    return false;
+
+                // Advance to next node.
+                // There are three cases to consider:
+                // 1. Current node has been removed.
+                //    Current iterator is invalid, we use cached next iterator.
+                // 2. New node has been inserted.
+                //    Cached next iterator may be invalid, we acquire next iterator again.
+                // 3. Current node has been removed and new node has been inserted.
+                //    Current iterator is invalid and next iterator may be invalid,
+                //    we need to acquire next iterator from cached previous iterator.
+                if(nextIterator == this)
+                {
+                    if(iterator->IsFree())
+                    {
+                        // Case 3: Acquire next iterator from cached previous iterator.
+                        iterator = previousIterator->GetNext();
+                    }
+                    else
+                    {
+                        // Case 2: Acquire next iterator again.
+                        iterator = iterator->GetNext();
+                    }
+                }
+                else
+                {
+                    // Case 1: Use cached next iterator.
+                    iterator = nextIterator;
+                }
+            }
+
+            return true;
+        }
+
         bool InsertBefore(ListNode<Type>* other)
         {
             // Check if other node is null.
