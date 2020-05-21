@@ -84,8 +84,6 @@ namespace System
         if(it != m_resources.end())
         {
             ASSERT(it->second != nullptr, "Found resource is null!");
-
-            // Return found resource.
             return Common::Success(it->second);
         }
 
@@ -134,11 +132,8 @@ namespace System
         auto it = m_resources.begin();
         while(it != m_resources.end())
         {
-            // Retrieve name to print it later.
-            std::string name = it->first;
-
             // Release resource.
-            LOG_INFO("Releasing resource: \"{}\"", name);
+            LOG_INFO("Releasing resource: \"{}\"", it->first);
             it = m_resources.erase(it);
         }
 
