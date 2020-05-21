@@ -20,7 +20,7 @@ namespace Event
 /*
     Receiver
 
-    Invokes a delegate after receiving a signal from a dispatcher.
+    Invokes delegate after receiving signal from dispatcher.
     Single receiver instance can be subscribed to only one dispatcher.
 
     See Dispatcher template class for more information.
@@ -42,20 +42,20 @@ namespace Event
     public:
         Receiver()
         {
-            // Set a strong reference to this node.
+            // Set strong reference to this node.
             m_listNode.SetReference(this);
         }
 
         virtual ~Receiver()
         {
-            // Unsubscribe from the dispatcher.
+            // Unsubscribe from dispatcher.
             this->Unsubscribe();
         }
 
         Receiver(Receiver&& other) :
             Receiver()
         {
-            // Call the assignment operator.
+            // Call assignment operator.
             *this = std::move(other);
         }
 
@@ -88,7 +88,7 @@ namespace Event
         }
 
     private:
-        // Receives an event and invokes bound function.
+        // Receives event and invokes bound function.
         ReturnType Receive(Arguments... arguments)
         {
             ASSERT(m_dispatcher, "Invoked a receiver without it being subscribed!");

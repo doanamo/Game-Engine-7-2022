@@ -19,35 +19,12 @@ namespace Event
 /*
     Dispatcher
 
-    Holds a list of subscribed receivers that can be invoked all at once. 
+    Holds list of subscribed receivers that can be invoked all at once. 
     Safer than using raw delegates as unsubscribing is automated at receiver's
     destruction, so no dangerous dangling pointers are left.
 
-    A single dispatcher instance can have multiple receivers subscribed,
-    but a single receiver can be only subscribed to one dispatcher.
-
-    void ExampleDispatcher()
-    {
-        // Create a class instance that defines following methods:
-        // void Class::FunctionA(const EventData& event) { ... }
-        // void Class::FunctionB(const EventData& event) { ... }
-        Class instance;
-    
-        // Create event receivers.
-        Receiver<void(const EventData&)> receiverA;
-        receiverA.Bind<Class, &Class::FunctionA>(&instance);
-    
-        Receiver<void(const EventData&)> receiverB;
-        receiverB.Bind<Class, &Class::FunctionB>(&instance);
-    
-        // Subscribe event receivers.
-        Dispatcher<void(const EventData&)> dispatcher(defaultResult);
-        dispatcher.Subscribe(receiverA);
-        dispatcher.Subscribe(receiverB);
-
-        // Dispatch an event to receivers.
-        dispatcher.Dispatch(EventData(...));
-    }
+    ASingle dispatcher instance can have multiple receivers subscribed,
+    but single receiver can be only subscribed to one dispatcher.
 */
 
 namespace Event
@@ -116,7 +93,7 @@ namespace Event
         DispatcherBase(DispatcherBase&& other) :
             DispatcherBase()
         {
-            // Invoke a move operation.
+            // Invoke move operation.
             *this = std::move(other);
         }
 
@@ -130,14 +107,14 @@ namespace Event
 
             while(iterator != &this->m_receiverList)
             {
-                // Retrieve a receiver instance.
+                // Retrieve receiver instance.
                 Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
                 ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
 
-                // Assign a new dispatcher reference
+                // Assign new dispatcher reference
                 receiver->m_dispatcher = this;
 
-                // Move to the next receiver.
+                // Move to next receiver.
                 iterator = iterator->GetNext();
             }
 
@@ -145,14 +122,14 @@ namespace Event
 
             while(otherIterator != &other.m_receiverList)
             {
-                // Retrieve a receiver instance.
+                // Retrieve receiver instance.
                 Receiver<ReturnType(Arguments...)>* receiver = otherIterator->GetReference();
                 ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
 
-                // Assign a new dispatcher reference
+                // Assign new dispatcher reference
                 receiver->m_dispatcher = &other;
 
-                // Move to the next receiver.
+                // Move to next receiver.
                 otherIterator = otherIterator->GetNext();
             }
 
@@ -178,15 +155,15 @@ namespace Event
                 receiver.Unsubscribe();
             }
 
-            // Add receiver to the linked list.
+            // Add receiver to linked list.
             if(insertFront)
             {
-                // Add receiver node to the beginning of the receiver list.
+                // Add receiver node to the beginning of receiver list.
                 receiver.m_listNode.InsertBefore(m_receiverList.GetNext());
             }
             else
             {
-                // Add receiver node to the end of the receiver list.
+                // Add receiver node to the end of receiver list.
                 receiver.m_listNode.InsertAfter(m_receiverList.GetPrevious());
             }
 
@@ -210,7 +187,7 @@ namespace Event
 
         void UnsubscribeAll()
         {
-            // Iterate through the linked list to unsubscribe all receivers.
+            // Iterate through linked list to unsubscribe all receivers.
             ReceiverListNode* iterator = m_receiverList.GetNext();
 
             while(iterator != &m_receiverList)
@@ -219,11 +196,11 @@ namespace Event
                 Receiver<ReturnType(Arguments...)>* receiver = iterator->GetReference();
                 ASSERT(receiver != nullptr, "Retrieved receiver is nullptr!");
 
-                // Advance to the next receiver.
+                // Advance to next receiver.
                 // Do this here before receiver node gets removed.
                 iterator = iterator->GetNext();
 
-                // Unsubscribe a receiver.
+                // Unsubscribe receiver.
                 receiver->Unsubscribe();
             }
         }
@@ -238,7 +215,7 @@ namespace Event
         template<typename Collector>
         void Dispatch(Collector& collector, Arguments... arguments)
         {
-            // Send a dispatch event to all receivers.
+            // Send dispatch event to all receivers.
             ReceiverListNode* iterator = m_receiverList.GetNext();
 
             while(iterator != &m_receiverList)
@@ -251,16 +228,42 @@ namespace Event
                 if(!collector.ShouldContinue())
                     break;
 
-                // Cache the next receiver, as we may lose the current iterator if it suddenly gets removed.
-                // This may happen when we unsubscribe the current receiver in an invoked function.
+                // Cache previous and next iterators.
+                // This is needed to determine cases where currently invoked received is
+                // unsubscribed or it subscribes another receiver during its invocation.
+                ReceiverListNode* previousIterator = iterator->GetPrevious();
                 ReceiverListNode* nextIterator = iterator->GetNext();
 
-                // Invoke a receiver and collect the result.
+                // Invoke receiver and collect result.
                 CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
                 invocation(collector, receiver, std::forward<Arguments>(arguments)...);
 
-                // Advance to the next receiver.
-                iterator = nextIterator;
+                // Advance to next receiver.
+                // There are three cases to consider:
+                // 1. Current receiver has been unsubscribed.
+                //    Current iterator is invalid, we use cached next iterator.
+                // 2. New receiver has been subscribed.
+                //    Cached next iterator is invalid, we acquire next iterator again.
+                // 3. Current receiver has been unsubscribed and new receiver has been subscribed.
+                //    Current and next iterators are invalid, we acquire next iterator from cached previous iterator.
+                if(nextIterator == &m_receiverList)
+                {
+                    if(iterator->IsFree())
+                    {
+                        // Case 3: Acquire next iterator from cached previous iterator.
+                        iterator = previousIterator->GetNext();
+                    }
+                    else
+                    {
+                        // Case 2: Acquire next iterator again.
+                        iterator = iterator->GetNext();
+                    }
+                }
+                else
+                {
+                    // Case 1: Use cached next iterator.
+                    iterator = nextIterator;
+                }
             }
         }
 
@@ -289,7 +292,7 @@ namespace Event
         Dispatcher(Dispatcher&& other) :
             Dispatcher(other.m_defaultCollector)
         {
-            // Invoke a move operation.
+            // Invoke move operation.
             *this = std::move(other);
         }
 
@@ -304,7 +307,7 @@ namespace Event
         // Invokes receivers with following arguments.
         ReturnType Dispatch(Arguments... arguments)
         {
-            // Create a result collector.
+            // Create result collector.
             Collector collector(m_defaultCollector);
 
             // Dispatch to receivers.
@@ -315,7 +318,7 @@ namespace Event
             return collector.GetResult();
         }
 
-        // Overloaded call operator that is used as a dispatch.
+        // Overloaded call operator that is used as dispatch.
         ReturnType operator()(Arguments... arguments)
         {
             return this->Dispatch(std::forward<Arguments>(arguments)...);

@@ -9,55 +9,10 @@
 /*
     Delegate
 
-    Binds a function, a class method or a functor object which can be invoked
-    at a later time. Be careful not to invoke a delegate to a method of an 
-    instance that no longer exists Check Receiver and Dispatcher class
-    templates for a subscription based solution that wraps delegates.
-
-    void ExampleDelegateFunction()
-    {
-        // Create a delegate that can bind to functions such as:
-        // bool Function(const char* c, int i) { ... }
-        Delegate<bool(const char*, int)> delegate;
-
-        // Bind the delegate to a function.
-        delegate.Bind<&Function>();
-
-        // Call the function by invoking the delegate.
-        delegate.Invoke("hello", 5);
-    }
-    
-    void ExampleDelegateMethod(Class& instance)
-    {
-        // Create a delegate that can bind to class methods such as:
-        // bool Class::Function(const char* c, int i) { ... }
-        Delegate<bool(const char*, int)> delegate;
-
-        // Bind the delegate to a method of a class instance.
-        delegate.Bind<Class, &Class::Function>(&instance);
-
-        // Call the method of the instance by invoking the delegate.
-        // Be careful to not call the delegate on an instance that no longer exists.
-        delegate.Invoke("hello", 5);
-    }
-
-    void ExampleDelegateFunctor()
-    {
-        // Create a functor (object that overloads the call operator).
-        auto functor = [](const char* c, int i) -> bool
-        {
-            return true;
-        };
-
-        // Create a delegate that can bind to functors with above arguments.
-        Delegate<bool(const char*, int)> delegate;
-
-        // Bind the delegate to a functor instance.
-        delegate.Bind(&Object);
-
-        // Call the functor by invoking the delegate.
-        delegate.Invoke("hello", 5);
-    }
+    Binds function, class method or functor/lambda which can be invoked
+    at later time. Be careful not to invoke a delegate to method of an 
+    instance that no longer exists. Check Receiver and Dispatcher class
+    templates for subscription based solution that wraps delegates.
     
     Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 */
@@ -109,8 +64,8 @@ namespace Event
         {
         }
 
-        // Performing a move of a delegate is very dangerous,
-        // as they hold references to instances they are referring.
+        // Performing move of a delegate is very dangerous
+        // as they hold references to instances they are invoking.
         // Most often it is preferred to omit moving a delegate.
         Delegate(Delegate&& other) :
             Delegate()
@@ -164,7 +119,7 @@ namespace Event
             m_function = &FunctionStub<Function>;
         }
 
-        // Binds functor object with a reference.
+        // Binds functor object with reference.
         template<class InstanceType>
         void Bind(InstanceType* instance)
         {
@@ -174,7 +129,7 @@ namespace Event
             m_function = &FunctorStub<InstanceType>;
         }
 
-        // Binds instance method with a reference.
+        // Binds instance method with reference.
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
         void Bind(InstanceType* instance)
         {
@@ -202,14 +157,12 @@ namespace Event
         void Bind(const Lambda& lambda)
         {
             // Every lambda has different type. We can abuse
-            // this to create a static instance for every
-            // permutation of this methods called with different
-            // lambda type. Feels bit like a hack.
+            // this to create static instance for every permutation of this
+            // methods called with different lambda type. Feels bit like a hack.
             static Lambda staticLambda = lambda;
 
-            // Any functor can be bound this way, as long
-            // as an object provides a call operator. This
-            // may be unintended when a static copy is created.
+            // Any functor can be bound this way, as long as object provides a call operator.
+            // This may be unintended when static copy is created.
             m_instance = static_cast<void*>(&staticLambda);
             m_function = &FunctorStub<Lambda>;
         }

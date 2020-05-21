@@ -406,6 +406,82 @@ bool TestDispatcher()
         TEST_EQ(i, 82);
     }
 
+    // Test subscription/unsubscription during dispatch.
+    {
+        int value = 0;
+
+        Event::Dispatcher<bool(void), Event::CollectWhileTrue> dispatcher;
+
+        Event::Receiver<bool(void)> receiverA;
+        receiverA.Bind([&receiverA, &value]()
+        {
+            receiverA.Unsubscribe();
+            value += 1;
+            return true;
+        });
+
+        dispatcher.Subscribe(receiverA);
+
+        Event::Receiver<bool(void)> receiverB;
+        receiverB.Bind([&value]()
+        {
+            value += 10;
+            return true;
+        });
+
+        dispatcher.Subscribe(receiverB);
+
+        Event::Receiver<bool(void)> receiverC;
+        receiverC.Bind([&receiverC, &value]()
+        {
+            receiverC.Unsubscribe();
+            value += 100;
+            return true;
+        });
+
+        dispatcher.Subscribe(receiverC);
+
+        Event::Receiver<bool(void)> receiverD;
+        receiverD.Bind([&value]()
+        {
+            value += 1000000;
+            return true;
+        });
+
+        Event::Receiver<bool(void)> receiverE;
+        receiverE.Bind([&dispatcher, &receiverD, &value]()
+        {
+            receiverD.Subscribe(dispatcher);
+            value += 100000;
+            return true;
+        });
+
+        Event::Receiver<bool(void)> receiverF;
+        receiverF.Bind([&dispatcher, &receiverE, &receiverF, &value]()
+        {
+            dispatcher.Subscribe(receiverE);
+            dispatcher.Unsubscribe(receiverF);
+            value += 1000;
+            return true;
+        });
+
+        Event::Receiver<bool(void)> receiverG;
+        receiverG.Bind([&dispatcher, &receiverF, &receiverG, &value]()
+        {
+            dispatcher.Unsubscribe(receiverG);
+            dispatcher.Subscribe(receiverF);
+            value += 10000;
+            return true;
+        });
+
+        dispatcher.Subscribe(receiverG);
+
+        bool result = dispatcher.Dispatch();
+
+        TEST_TRUE(result);
+        TEST_EQ(value, 1111111);
+    }
+
     return true;
 }
 

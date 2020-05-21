@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "Window.hpp"
-#include "InputDefinitions.hpp"
 #include <Core/ServiceStorage.hpp>
+#include "System/InputDefinitions.hpp"
+#include "System/Window.hpp"
 
 /*
     Input Manager
