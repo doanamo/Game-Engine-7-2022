@@ -3,7 +3,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Scenes/GameScene.hpp"
+#include "Scenes/SpriteDemo.hpp"
 
 int main()
 {
@@ -19,7 +19,7 @@ int main()
     }
 
     // Create game scene.
-    auto gameScene = GameScene::Create(engine.get()).UnwrapOr(nullptr);
+    auto gameScene = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
     if(gameScene == nullptr)
     {
         LOG_ERROR("Could not create game scene!");

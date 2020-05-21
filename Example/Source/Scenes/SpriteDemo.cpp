@@ -3,7 +3,7 @@
 */
 
 #include "../Precompiled.hpp"
-#include "GameScene.hpp"
+#include "SpriteDemo.hpp"
 #include <Engine.hpp>
 #include <System/Timer.hpp>
 #include <System/InputManager.hpp>
@@ -17,14 +17,14 @@
 #include <Game/Components/SpriteAnimationComponent.hpp>
 #include <Editor/EditorSystem.hpp>
 
-GameScene::GameScene()
+SpriteDemo::SpriteDemo()
 {
-    m_customUpdate.Bind<GameScene, &GameScene::Update>(this);
+    m_customUpdate.Bind<SpriteDemo, &SpriteDemo::Update>(this);
 }
 
-GameScene::~GameScene() = default;
+SpriteDemo::~SpriteDemo() = default;
 
-GameScene::CreateResult GameScene::Create(Engine::Root* engine)
+SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 {
     LOG("Creating game scene...");
     LOG_SCOPED_INDENT();
@@ -37,7 +37,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     Game::GameFramework* gameFramework = engine->GetServices().GetGameFramework();
 
     // Create instance.
-    auto instance = std::unique_ptr<GameScene>(new GameScene());
+    auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
 
     // Create game state.
     instance->m_gameState = Game::GameState::Create().UnwrapOr(nullptr);
@@ -142,7 +142,7 @@ GameScene::CreateResult GameScene::Create(Engine::Root* engine)
     return Common::Success(std::move(instance));
 }
 
-void GameScene::Update(float updateTime)
+void SpriteDemo::Update(float updateTime)
 {
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameState->identitySystem->GetEntityByName("Player");

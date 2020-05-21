@@ -20,7 +20,7 @@ namespace System
     Game Scene
 */
 
-class GameScene final : private Common::NonCopyable
+class SpriteDemo final : private Common::NonCopyable
 {
 public:
     enum class CreateErrors
@@ -30,14 +30,14 @@ public:
         FailedResourceLoading,
     };
 
-    using CreateResult = Common::Result<std::unique_ptr<GameScene>, CreateErrors>;
+    using CreateResult = Common::Result<std::unique_ptr<SpriteDemo>, CreateErrors>;
     static CreateResult Create(Engine::Root* engine);
 
 public:
-    ~GameScene();
+    ~SpriteDemo();
 
 private:
-    GameScene();
+    SpriteDemo();
 
     Event::Receiver<void(float)> m_customUpdate;
     void Update(float updateTime);
