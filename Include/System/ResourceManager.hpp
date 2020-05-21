@@ -64,7 +64,7 @@ namespace System
         ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
 
         // Set default resource.
-        pool->SetDefault(resource);
+        pool->SetDefault(std::move(resource));
     }
 
     template<typename Type>

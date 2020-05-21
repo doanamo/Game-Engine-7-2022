@@ -25,6 +25,7 @@ namespace Engine
         {
             InvalidArgument,
             FailedServiceCreation,
+            FailedResourceLoading,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
@@ -39,6 +40,8 @@ namespace Engine
 
     private:
         Root();
+
+        bool LoadDefaultResources();
 
     private:
         Core::ServiceStorage m_services;

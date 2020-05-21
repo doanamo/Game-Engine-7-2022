@@ -204,8 +204,38 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     instance->m_services.Provide(std::move(editorSystem));
 
+    // Load default engine resources.
+    if(!instance->LoadDefaultResources())
+    {
+        LOG_ERROR("Could not load default resources!");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
+    }
+
     // Success!
     return Common::Success(std::move(instance));
+}
+
+bool Root::LoadDefaultResources()
+{
+    LOG_INFO("Loading default resources...");
+    LOG_SCOPED_INDENT();
+
+    // Acquire resource manager.
+    System::ResourceManager* resourceManager = m_services.GetResourceManager();
+
+    // Load default texture.
+    Graphics::Texture::LoadFromFile defaultTextureParams;
+    defaultTextureParams.services = &m_services;
+    defaultTextureParams.filePath = "Data/Engine/Default/Texture.png";
+
+    auto defaultTexture = Graphics::Texture::Create(defaultTextureParams).UnwrapOr(nullptr);
+    if(defaultTexture == nullptr)
+        return false;
+
+    resourceManager->SetDefault(std::shared_ptr(std::move(defaultTexture)));
+
+    // Success!
+    return true;
 }
 
 int Root::Run()

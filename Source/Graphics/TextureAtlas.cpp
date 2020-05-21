@@ -82,15 +82,8 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
         textureParams.filePath = lua_tostring(*resourceScript, -1);
         textureParams.mipmaps = true;
 
-        auto loadTextureResult = resourceManager->Acquire<Graphics::Texture>(
-            textureParams.filePath, textureParams);
-
-        if(!loadTextureResult)
-        {
-            LOG_WARNING("Could not load texture!");
-        }
-
-        instance->m_texture = loadTextureResult.UnwrapEither();
+        instance->m_texture = resourceManager->Acquire<Graphics::Texture>(
+            textureParams.filePath, textureParams).UnwrapEither();
     }
 
     // Read texture regions.
