@@ -33,6 +33,9 @@ namespace System
         ~ResourceManager();
 
         template<typename Type>
+        void SetDefault(std::unique_ptr<Type>&& resource);
+
+        template<typename Type>
         void SetDefault(std::shared_ptr<Type> resource);
 
         template<typename Type>
@@ -55,6 +58,13 @@ namespace System
     private:
         ResourcePoolList m_pools;
     };
+
+    template<typename Type>
+    void ResourceManager::SetDefault(std::unique_ptr<Type>&& resource)
+    {
+        // Construct shared pointer from unique pointer.
+        this->SetDefault(std::shared_ptr<Type>(std::move(resource)));
+    }
 
     template<typename Type>
     void ResourceManager::SetDefault(std::shared_ptr<Type> resource)

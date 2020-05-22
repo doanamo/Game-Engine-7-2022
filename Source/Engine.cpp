@@ -232,7 +232,7 @@ bool Root::LoadDefaultResources()
     if(defaultTexture == nullptr)
         return false;
 
-    resourceManager->SetDefault(std::shared_ptr(std::move(defaultTexture)));
+    resourceManager->SetDefault(std::move(defaultTexture));
 
     // Success!
     return true;
