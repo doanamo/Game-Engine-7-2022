@@ -79,7 +79,7 @@ if(EMSCRIPTEN)
     # Workaround for bug causing compilation to fail with
     # precompiled headers enabled on Clang under Emscripten.
     # https://github.com/emscripten-core/emscripten/issues/11172
-    set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON CACHE BOOL "")
+    set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON CACHE BOOL "" FORCE)
 
     # Enable output of example HTML file on compilation.
     set(CMAKE_EXECUTABLE_SUFFIX ".html" PARENT_SCOPE)
