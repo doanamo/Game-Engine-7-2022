@@ -37,9 +37,17 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    #ifdef __EMSCRIPTEN__
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    #else
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #endif
 
     // Show or hide window after creation.
     glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
@@ -92,9 +100,10 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     LOG_INFO("Resolution is {}x{}.", windowWidth, windowHeight);
 
     // Log created OpenGL context.
+    int glInterface = glfwGetWindowAttrib(instance->m_handle, GLFW_CLIENT_API);
     int glMajor = glfwGetWindowAttrib(instance->m_handle, GLFW_CONTEXT_VERSION_MAJOR);
     int glMinor = glfwGetWindowAttrib(instance->m_handle, GLFW_CONTEXT_VERSION_MINOR);
-    LOG_INFO("Using OpenGL ES {}.{} context.", glMajor, glMinor);
+    LOG_INFO("Using OpenGL {}{}.{} context.", glInterface == GLFW_OPENGL_API ? "" : "ES ", glMajor, glMinor);
 
     // Store window title as it cannot be retrieved back via GLFW.
     instance->m_title = params.title;
