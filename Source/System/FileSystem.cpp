@@ -38,15 +38,15 @@ FileSystem::CreateResult FileSystem::Create()
     // Create instance.
     auto instance = std::unique_ptr<FileSystem>(new FileSystem());
 
-    // Mount working directory.
-    instance->MountDirectory("./");
-
     // Success!
     return Common::Success(std::move(instance));
 }
 
-FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string directory)
+FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::filesystem::path directory)
 {
+    // Expand to absolute path.
+    std::filesystem::path directoryAbsolute = std::filesystem::canonical(directory);
+
     // Validate argument.
     if(directory.empty())
     {
@@ -54,23 +54,21 @@ FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::string director
         return Common::Failure(MountDirectoryErrors::EmptyPathArgument);
     }
 
-    // Normalize path separators.
-    std::replace(directory.begin(), directory.end(), '\\', '/');
-
-    // Add trailing separator if it is missing.
-    if(directory.back() != '/')
+    if(!std::filesystem::is_directory(directoryAbsolute))
     {
-        directory += '/';
+        LOG_ERROR("Cannot mount \"{}\" path that is not a directory!", directoryAbsolute.generic_string());
+        return Common::Failure(MountDirectoryErrors::NonDirectoryPathArgument);
     }
 
-    // Add mount directory.
-    m_mountedDirs.push_back(directory);
-    LOG_INFO("Mounted \"{}\" directory.", directory);
+    // Add mount directory, but store it as a relative path (more optimal).
+    LOG_INFO("Mounted \"{}\" directory.", directoryAbsolute.generic_string());
+    m_mountedDirs.push_back(std::filesystem::relative(directoryAbsolute));
 
+    // Success!
     return Common::Success();
 }
 
-FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, const std::string relative) const
+FileSystem::ResolvePathResult FileSystem::ResolvePath(std::filesystem::path path, std::filesystem::path relative) const
 {
     // Validate path argument.
     if(path.empty())
@@ -81,18 +79,23 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, co
 
     // Array of unresolved paths for debugging.
     #ifndef NDEBUG
-        std::vector<std::string> unresolvedPaths;
+        std::vector<std::filesystem::path> unresolvedPaths;
     #endif
 
-    // Extract relative directory from relative path.
-    std::string relativeResolvedDir;
+    // Extract directory path from relative path which may contain a filename.
+    std::filesystem::path relativeResolvedDir;
 
     if(!relative.empty())
     {
-        relativeResolvedDir = Common::GetFileDirectory(relative);
+        relativeResolvedDir = relative;
+
+        if(!std::filesystem::is_directory(relativeResolvedDir))
+        {
+            relativeResolvedDir.remove_filename();
+        }
 
         // Relative path should be already resolved and valid.
-        // Saves time of resolving and there should be no reason to not have it resolved already.
+        // Saves time of resolving and there should be no reason to not have it as such already.
         #ifndef NDEBUG
             if(!std::filesystem::exists(relative))
             {
@@ -104,9 +107,11 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, co
     // Try to resolve path using specified relative directory.
     if(!relativeResolvedDir.empty())
     {
-        std::string resolvePath = relativeResolvedDir + path;
+        std::filesystem::path resolvePath = relativeResolvedDir / path;
         if(std::filesystem::exists(resolvePath))
+        {
             return Common::Success(resolvePath);
+        }
 
         #ifndef NDEBUG
             unresolvedPaths.push_back(resolvePath);
@@ -116,9 +121,11 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, co
     // Check file path for each mounted directory (iterated in reverse).
     for(auto mountedDir = m_mountedDirs.crbegin(); mountedDir != m_mountedDirs.crend(); ++mountedDir)
     {
-        std::string resolvePath = *mountedDir + path;
+        std::filesystem::path resolvePath = *mountedDir / path;
         if(std::filesystem::exists(resolvePath))
+        {
             return Common::Success(resolvePath);
+        }
 
         #ifndef NDEBUG
             unresolvedPaths.push_back(resolvePath);
@@ -126,18 +133,16 @@ FileSystem::ResolvePathResult FileSystem::ResolvePath(const std::string path, co
     }
 
     // Failed to resolve path.
-    LOG_WARNING("Failed to resolve \"{}\" path!", path);
+    LOG_WARNING("Failed to resolve \"{}\" path!", path.generic_string());
 
     #ifndef NDEBUG
-    {
         LOG_DEBUG("Following paths did not resolve to any existing file:");
         LOG_SCOPED_INDENT();
 
-        for(const std::string& unresolvedPath : unresolvedPaths)
+        for(auto& unresolvedPath : unresolvedPaths)
         {
-            LOG_DEBUG("{}", unresolvedPath);
+            LOG_DEBUG("{}", unresolvedPath.generic_string());
         }
-    }
     #endif
 
     return Common::Failure(ResolvePathErrors::UnresolvablePath);

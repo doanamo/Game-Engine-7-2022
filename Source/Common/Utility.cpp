@@ -5,57 +5,9 @@
 #include "Precompiled.hpp"
 #include "Common/Utility.hpp"
 
-std::string Common::GetFileDirectory(const std::string filePath)
+std::string Common::GetTextFileContent(const std::filesystem::path path)
 {
-    std::string directory;
-
-    std::size_t it = filePath.find_last_of("/\\");
-    if(it != std::string::npos)
-    {
-        directory = filePath.substr(0, it + 1);
-    }
-
-    return directory;
-}
-
-std::string Common::GetFileName(const std::string filePath)
-{
-    std::size_t begin = filePath.find_last_of("/\\");
-    std::size_t end = filePath.find_last_of(".");
-
-    if(begin == std::string::npos)
-    {
-        begin = 0;
-    }
-    else
-    {
-        begin += 1;
-    }
-
-    if(end == std::string::npos)
-    {
-        end = filePath.size();
-    }
-
-    return filePath.substr(begin, end - begin);
-}
-
-std::string Common::GetFileExtension(const std::string filePath)
-{
-    std::string extension;
-
-    std::size_t it = filePath.find_last_of(".");
-    if(it != std::string::npos)
-    {
-        extension = filePath.substr(it + 1);
-    }
-
-    return extension;
-}
-
-std::string Common::GetTextFileContent(const std::string filePath)
-{
-    std::ifstream file(filePath);
+    std::ifstream file(path);
     std::string content;
 
     if(file)
@@ -70,9 +22,9 @@ std::string Common::GetTextFileContent(const std::string filePath)
     return content;
 }
 
-std::vector<char> Common::GetBinaryFileContent(const std::string filePath)
+std::vector<char> Common::GetBinaryFileContent(const std::filesystem::path path)
 {
-    std::ifstream file(filePath, std::ios::binary);
+    std::ifstream file(path, std::ios::binary);
     std::vector<char> content;
 
     if(file)

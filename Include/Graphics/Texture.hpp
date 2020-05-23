@@ -38,8 +38,6 @@ namespace Graphics
         struct LoadFromFile
         {
             const Core::ServiceStorage* services = nullptr;
-            std::string filePath;
-            std::string relativePath;
             bool mipmaps = true;
         };
 
@@ -54,7 +52,7 @@ namespace Graphics
 
         using CreateResult = Common::Result<std::unique_ptr<Texture>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
-        static CreateResult Create(const LoadFromFile& params);
+        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
 
     public:
         ~Texture();

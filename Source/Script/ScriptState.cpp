@@ -4,7 +4,6 @@
 
 #include "Precompiled.hpp"
 #include "Script/ScriptState.hpp"
-#include <System/FileSystem.hpp>
 using namespace Script;
 
 namespace
@@ -105,21 +104,17 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
     return Common::Success(std::move(instance));
 }
 
-ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
+ScriptState::CreateResult ScriptState::Create(std::filesystem::path path, const LoadFromFile& params)
 {
-    LOG("Loading script state from \"{}\" file...", params.filePath);
+    LOG("Loading script state from \"{}\" file...", path.generic_string());
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
-
-    // Acquire engine services.
-    System::FileSystem* fileSystem = params.services->GetFileSystem();
+    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
-
     if(!createResult)
     {
         return createResult;
@@ -127,17 +122,8 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromFile& params)
 
     auto instance = createResult.Unwrap();
 
-    // Resolve path to script file.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
-
-    if(!resolvePathResult)
-    {
-        LOG_ERROR("Could not resolve file path!");
-        return Common::Failure(CreateErrors::FailedScriptFileResolve);
-    }
-
     // Execute script file.
-    if(luaL_dofile(instance->m_state, resolvePathResult.Unwrap().c_str()) != 0)
+    if(luaL_dofile(instance->m_state, path.generic_string().c_str()) != 0)
     {
         LOG_ERROR("Could not load script file!");
         instance->PrintError();

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <filesystem>
 
 /*
     Resource Pool
@@ -47,7 +48,7 @@ namespace System
         std::shared_ptr<Type> GetDefault() const;
 
         template<typename... Arguments>
-        AcquireResult Acquire(std::string name, Arguments... arguments);
+        AcquireResult Acquire(std::filesystem::path path, Arguments... arguments);
 
         void ReleaseUnused() override;
         void ReleaseAll();
@@ -77,10 +78,13 @@ namespace System
 
     template<typename Type>
     template<typename... Arguments>
-    typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(std::string name, Arguments... arguments)
+    typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(std::filesystem::path path, Arguments... arguments)
     {
+        // Acquire resource key string.
+        std::string key = path.generic_string();
+
         // Return existing resource if loaded.
-        auto it = m_resources.find(name);
+        auto it = m_resources.find(key);
         if(it != m_resources.end())
         {
             ASSERT(it->second != nullptr, "Found resource is null!");
@@ -88,7 +92,7 @@ namespace System
         }
 
         // Create resource instance.
-        auto createResult = Type::Create(std::forward<Arguments>(arguments)...);
+        auto createResult = Type::Create(path, std::forward<Arguments>(arguments)...);
         if(!createResult)
         {
             return Common::Failure(m_defaultResource);
@@ -98,7 +102,7 @@ namespace System
         ASSERT(resource != nullptr, "Successfully created resource is null!");
 
         // Add resource to the list.
-        auto result = m_resources.emplace(name, std::move(resource));
+        auto result = m_resources.emplace(key, std::move(resource));
         ASSERT(result.second, "Failed to emplace new resource in resource pool!");
 
         // Return resource pointer.

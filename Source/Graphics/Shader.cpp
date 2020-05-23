@@ -5,7 +5,6 @@
 #include "Precompiled.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
-#include <System/FileSystem.hpp>
 using namespace Graphics;
 
 namespace
@@ -43,7 +42,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
@@ -237,27 +236,17 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     return Common::Success(std::move(instance));
 }
 
-Shader::CreateResult Shader::Create(const LoadFromFile& params)
+Shader::CreateResult Shader::Create(std::filesystem::path path, const LoadFromFile& params)
 {
-    LOG("Loading shader from \"{}\" file...", params.filePath);
+    LOG("Loading shader from \"{}\" file...", path.generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Acquire file system service.
-    System::FileSystem* fileSystem = params.services->GetFileSystem();
-
-    // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
-    if(!resolvePathResult)
-    {
-        LOG_ERROR("Could not resolve file path!");
-        return Common::Failure(CreateErrors::FailedFilePathResolve);
-    }
+    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Load shader code from a file.
-    std::string shaderCode = Common::GetTextFileContent(resolvePathResult.Unwrap());
+    std::string shaderCode = Common::GetTextFileContent(path);
     if(shaderCode.empty())
     {
         LOG_ERROR("File could not be read!");

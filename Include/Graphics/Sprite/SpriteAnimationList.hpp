@@ -30,8 +30,6 @@ namespace Graphics
         struct LoadFromFile
         {
             const Core::ServiceStorage* services = nullptr;
-            std::string filePath;
-            std::string relativePath;
         };
 
         enum class CreateErrors
@@ -45,7 +43,7 @@ namespace Graphics
         using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(const LoadFromFile& params);
+        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
 
         struct Frame
         {

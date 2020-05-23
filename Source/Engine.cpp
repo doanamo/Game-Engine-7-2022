@@ -66,6 +66,8 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
+    fileSystem->MountDirectory("./");
+
     if(!Build::GetEngineDir().empty())
     {
         fileSystem->MountDirectory(Build::GetEngineDir());
@@ -124,7 +126,10 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Create resource manager.
     // Helps avoid duplication of loaded resources.
-    auto resourceManager = System::ResourceManager::Create().UnwrapOr(nullptr);
+    System::ResourceManager::CreateFromParams resourceManagerParams;
+    resourceManagerParams.services = &instance->m_services;
+
+    auto resourceManager = System::ResourceManager::Create(resourceManagerParams).UnwrapOr(nullptr);
     if(resourceManager == nullptr)
     {
         LOG_ERROR("Could not create resource manager!");
@@ -221,18 +226,22 @@ bool Root::LoadDefaultResources()
     LOG_SCOPED_INDENT();
 
     // Acquire resource manager.
+    System::FileSystem* fileSystem = m_services.GetFileSystem();
     System::ResourceManager* resourceManager = m_services.GetResourceManager();
 
     // Load default texture.
-    Graphics::Texture::LoadFromFile defaultTextureParams;
-    defaultTextureParams.services = &m_services;
-    defaultTextureParams.filePath = "Data/Engine/Default/Texture.png";
-
-    auto defaultTexture = Graphics::Texture::Create(defaultTextureParams).UnwrapOr(nullptr);
-    if(defaultTexture == nullptr)
+    auto texturePathResult = fileSystem->ResolvePath("Data/Engine/Default/Texture.png");
+    if(!texturePathResult)
         return false;
 
-    resourceManager->SetDefault(std::move(defaultTexture));
+    Graphics::Texture::LoadFromFile defaultTextureParams;
+    defaultTextureParams.services = &m_services;
+
+    auto defaultTextureResult = Graphics::Texture::Create(texturePathResult.Unwrap(), defaultTextureParams);
+    if(!defaultTextureResult)
+        return false;
+
+    resourceManager->SetDefault<Graphics::Texture>(std::move(defaultTextureResult.Unwrap()));
 
     // Success!
     return true;

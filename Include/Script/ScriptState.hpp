@@ -32,8 +32,6 @@ namespace Script
         struct LoadFromFile
         {
             const Core::ServiceStorage* services = nullptr;
-            std::string filePath;
-            std::string relativePath;
         };
 
         enum class CreateErrors
@@ -49,7 +47,7 @@ namespace Script
 
         static CreateResult Create();
         static CreateResult Create(const LoadFromText& params);
-        static CreateResult Create(const LoadFromFile& params);
+        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
 
     public:
         ~ScriptState();

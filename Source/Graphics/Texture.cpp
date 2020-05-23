@@ -5,7 +5,6 @@
 #include "Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
-#include <System/FileSystem.hpp>
 using namespace Graphics;
 
 Texture::Texture() = default;
@@ -83,29 +82,20 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     return Common::Success(std::move(instance));
 }
 
-Texture::CreateResult Texture::Create(const LoadFromFile& params)
+Texture::CreateResult Texture::Create(std::filesystem::path path, const LoadFromFile& params)
 {
-    LOG("Loading texture from \"{}\" file...", params.filePath);
+    LOG("Loading texture from \"{}\" file...", path.generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.filePath.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::FileSystem* fileSystem = params.services->GetFileSystem();
     Graphics::RenderContext* renderContext = params.services->GetRenderContext();
 
-    // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
-    if(!resolvePathResult)
-    {
-        LOG_ERROR("Could not resolve file path!");
-        return Common::Failure(CreateErrors::FailedFilePathResolve);
-    }
-
     // Open file stream.
-    std::ifstream file(resolvePathResult.Unwrap(), std::ios::binary);
+    std::ifstream file(path, std::ios::binary);
     if(!file.is_open())
     {
         LOG_ERROR("File could not be opened!");

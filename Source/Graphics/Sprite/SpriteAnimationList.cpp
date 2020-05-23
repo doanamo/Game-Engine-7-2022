@@ -5,7 +5,6 @@
 #include "../Precompiled.hpp"
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include <System/FileSystem.hpp>
 #include <System/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
@@ -47,25 +46,17 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
     return Common::Success(std::move(instance));
 }
 
-SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile& params)
+SpriteAnimationList::CreateResult SpriteAnimationList::Create(std::filesystem::path path, const LoadFromFile& params)
 {
-    LOG("Loading sprite animation list from \"{}\" file...", params.filePath);
+    LOG("Loading sprite animation list from \"{}\" file...", path.generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::FileSystem* fileSystem = params.services->GetFileSystem();
     System::ResourceManager* resourceManager = params.services->GetResourceManager();
-
-    // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
-    if(!resolvePathResult)
-    {
-        LOG_ERROR("Could not resolve file path!");
-        return Common::Failure(CreateErrors::FailedFilePathResolve);
-    }
 
     // Create base instance.
     auto createResult = Create();
@@ -80,10 +71,8 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
     resourceParams.services = params.services;
-    resourceParams.filePath = params.filePath;
-    resourceParams.relativePath = params.relativePath;
 
-    auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
+    auto resourceScript = Script::ScriptState::Create(path, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list resource file!");
@@ -113,13 +102,13 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(const LoadFromFile
             return Common::Failure(CreateErrors::InvalidResourceContents);
         }
 
+        std::filesystem::path textureAtlasPath = lua_tostring(*resourceScript, -1);
+
         TextureAtlas::LoadFromFile textureAtlasParams;
         textureAtlasParams.services = params.services;
-        textureAtlasParams.filePath = lua_tostring(*resourceScript, -1);
-        textureAtlasParams.relativePath = resolvePathResult.Unwrap();
 
-        textureAtlas = resourceManager->Acquire<TextureAtlas>(
-            textureAtlasParams.filePath, textureAtlasParams).UnwrapOr(nullptr);
+        textureAtlas = resourceManager->AcquireRelative<TextureAtlas>(
+            textureAtlasPath, path, textureAtlasParams).UnwrapOr(nullptr);
 
         if(textureAtlas == nullptr)
         {

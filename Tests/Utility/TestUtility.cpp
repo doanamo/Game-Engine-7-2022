@@ -47,45 +47,6 @@ bool TestClearContainer()
     return true;
 }
 
-const std::string filePathValid = "C:/secret\\project\\file.cpp";
-const std::string filePathWithoutDirectory = "file.cpp";
-const std::string filePathWithoutName = "C:/secret\\project/.cpp";
-const std::string filePathWithoutExtension = "C:/secret\\project\\file";
-const std::string filePathEmpty = "";
-
-bool TestGetFileDirectory()
-{
-    TEST_EQ(Common::GetFileDirectory(filePathValid), "C:/secret\\project\\");
-    TEST_EQ(Common::GetFileDirectory(filePathWithoutDirectory), "");
-    TEST_EQ(Common::GetFileDirectory(filePathWithoutName), "C:/secret\\project/");
-    TEST_EQ(Common::GetFileDirectory(filePathWithoutExtension), "C:/secret\\project\\");
-    TEST_EQ(Common::GetFileDirectory(filePathEmpty), "");
-    
-    return true;
-}
-
-bool TestGetFileName()
-{
-    TEST_EQ(Common::GetFileName(filePathValid), "file");
-    TEST_EQ(Common::GetFileName(filePathWithoutDirectory), "file");
-    TEST_EQ(Common::GetFileName(filePathWithoutName), "");
-    TEST_EQ(Common::GetFileName(filePathWithoutExtension), "file");
-    TEST_EQ(Common::GetFileName(filePathEmpty), "");
-
-    return true;
-}
-
-bool TestGetFileExtension()
-{
-    TEST_EQ(Common::GetFileExtension(filePathValid), "cpp");
-    TEST_EQ(Common::GetFileExtension(filePathWithoutDirectory), "cpp");
-    TEST_EQ(Common::GetFileExtension(filePathWithoutName), "cpp");
-    TEST_EQ(Common::GetFileExtension(filePathWithoutExtension), "");
-    TEST_EQ(Common::GetFileExtension(filePathEmpty), "");
-
-    return true;
-}
-
 bool TestGetTextFileContent()
 {
     std::string text = Common::GetTextFileContent(TESTS_DIRECTORY "/Resources/TextFile.txt");
@@ -245,9 +206,6 @@ int main()
     TEST_RUN(TestStaticArraySize);
     TEST_RUN(TestClearContainer);
     TEST_RUN(TestNumericCast);
-    TEST_RUN(TestGetFileDirectory);
-    TEST_RUN(TestGetFileName);
-    TEST_RUN(TestGetFileExtension);
     TEST_RUN(TestGetTextFileContent);
     TEST_RUN(TestGetBinaryFileContent);
     TEST_RUN(TestStringLowerCase);

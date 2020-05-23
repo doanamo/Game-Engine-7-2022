@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <numeric>
 #include <limits>
+#include <filesystem>
 #include "Debug.hpp"
 
 /*
@@ -53,12 +54,8 @@ namespace Common
         container.swap(temp);
     }
 
-    std::string GetFileDirectory(const std::string filePath);
-    std::string GetFileName(const std::string filePath);
-    std::string GetFileExtension(const std::string filePath);
-
-    std::string GetTextFileContent(const std::string filePath);
-    std::vector<char> GetBinaryFileContent(const std::string filePath);
+    std::string GetTextFileContent(const std::filesystem::path path);
+    std::vector<char> GetBinaryFileContent(const std::filesystem::path path);
 
     std::string StringLowerCase(const std::string text);
     std::vector<std::string> StringTokenize(const std::string text, char character = ' ');

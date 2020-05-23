@@ -6,7 +6,6 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
-#include <System/FileSystem.hpp>
 #include <System/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
@@ -24,25 +23,17 @@ TextureAtlas::CreateResult TextureAtlas::Create()
     return Common::Success(std::move(instance));
 }
 
-TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
+TextureAtlas::CreateResult TextureAtlas::Create(std::filesystem::path path, const LoadFromFile& params)
 {
-    LOG("Loading texture atlas from \"{}\" file...", params.filePath);
+    LOG("Loading texture atlas from \"{}\" file...", path.generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::FileSystem* fileSystem = params.services->GetFileSystem();
     System::ResourceManager* resourceManager = params.services->GetResourceManager();
-
-    // Resolve file path.
-    auto resolvePathResult = fileSystem->ResolvePath(params.filePath, params.relativePath);
-    if(!resolvePathResult)
-    {
-        LOG_ERROR("Could not resolve file path!");
-        return Common::Failure(CreateErrors::FailedFilePathResolve);
-    }
 
     // Create base instance.
     auto createResult = Create();
@@ -57,10 +48,8 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
     resourceParams.services = params.services;
-    resourceParams.filePath = params.filePath;
-    resourceParams.relativePath = params.relativePath;
 
-    auto resourceScript = Script::ScriptState::Create(resourceParams).UnwrapOr(nullptr);
+    auto resourceScript = Script::ScriptState::Create(path, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load texture atlas resource file!");
@@ -88,14 +77,14 @@ TextureAtlas::CreateResult TextureAtlas::Create(const LoadFromFile& params)
             return Common::Failure(CreateErrors::InvalidResourceContents);
         }
 
+        std::filesystem::path texturePath = lua_tostring(*resourceScript, -1);
+
         Texture::LoadFromFile textureParams;
         textureParams.services = params.services;
-        textureParams.filePath = lua_tostring(*resourceScript, -1);
-        textureParams.relativePath = resolvePathResult.Unwrap();
         textureParams.mipmaps = true;
 
-        instance->m_texture = resourceManager->Acquire<Graphics::Texture>(
-            textureParams.filePath, textureParams).UnwrapEither();
+        instance->m_texture = resourceManager->AcquireRelative<Graphics::Texture>(
+            texturePath, path, textureParams).UnwrapEither();
     }
 
     // Read texture regions.

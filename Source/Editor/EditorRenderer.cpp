@@ -124,10 +124,9 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     // Load shader.
     Graphics::Shader::LoadFromFile shaderParams;
     shaderParams.services = params.services;
-    shaderParams.filePath = "Data/Engine/Shaders/Interface.shader";
 
     instance->m_shader = resourceManager->Acquire<Graphics::Shader>(
-        shaderParams.filePath, shaderParams).UnwrapOr(nullptr);
+        "Data/Engine/Shaders/Interface.shader",shaderParams).UnwrapOr(nullptr);
 
     if(instance->m_shader == nullptr)
     {

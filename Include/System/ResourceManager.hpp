@@ -7,7 +7,9 @@
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
-#include "ResourcePool.hpp"
+#include <Core/ServiceStorage.hpp>
+#include "System/ResourcePool.hpp"
+#include "System/FileSystem.hpp"
 
 /*
     Resource Manager
@@ -19,11 +21,23 @@
 
 namespace System
 {
+    class FileSystem;
+
     class ResourceManager final : private Common::NonCopyable
     {
     public:
-        using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, void>;
-        static CreateResult Create();
+        struct CreateFromParams
+        {
+            Core::ServiceStorage* services;
+        };
+
+        enum class CreateErrors
+        {
+            FailedServiceAcquisition,
+        };
+
+        using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, CreateErrors>;
+        static CreateResult Create(const CreateFromParams& params);
 
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
         using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
@@ -42,7 +56,12 @@ namespace System
         std::shared_ptr<Type> GetDefault() const;
 
         template<typename Type, typename... Arguments>
-        typename ResourcePool<Type>::AcquireResult Acquire(std::string name, Arguments... arguments);
+        typename ResourcePool<Type>::AcquireResult Acquire(
+            std::filesystem::path path, Arguments... arguments);
+
+        template<typename Type, typename... Arguments>
+        typename ResourcePool<Type>::AcquireResult AcquireRelative(
+            std::filesystem::path path, std::filesystem::path relative, Arguments... arguments);
 
         void ReleaseUnused();
 
@@ -56,6 +75,7 @@ namespace System
         ResourcePool<Type>* GetPool();
 
     private:
+        FileSystem* m_fileSystem;
         ResourcePoolList m_pools;
     };
 
@@ -71,7 +91,7 @@ namespace System
     {
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
-        ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
+        ASSERT(pool != nullptr, "Could not retrieve resource pool!");
 
         // Set default resource.
         pool->SetDefault(std::move(resource));
@@ -82,21 +102,40 @@ namespace System
     {
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
-        ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
+        ASSERT(pool != nullptr, "Could not retrieve resource pool!");
 
         // Return default resource.
         return pool->GetDefault();
     }
 
     template<typename Type, typename... Arguments>
-    typename ResourcePool<Type>::AcquireResult ResourceManager::Acquire(std::string name, Arguments... arguments)
+    typename ResourcePool<Type>::AcquireResult ResourceManager::Acquire(
+        std::filesystem::path path, Arguments... arguments)
+    {
+        // Call relative acquisition method with empty relative path.
+        return this->AcquireRelative<Type>(path, "", std::forward<Arguments>(arguments)...);
+    }
+
+    template<typename Type, typename... Arguments>
+    typename ResourcePool<Type>::AcquireResult ResourceManager::AcquireRelative(
+        std::filesystem::path path, std::filesystem::path relative, Arguments... arguments)
     {
         // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
-        ASSERT(pool != nullptr, "Could not retrieve a resource pool!");
+        ASSERT(pool != nullptr, "Could not retrieve resource pool!");
 
-        // Delegate call to the resource pool, which will then delegate it further to a new resource instance.
-        return pool->Acquire(name, std::forward<Arguments>(arguments)...);
+        // Resolve file path using relative path.
+        auto resolvedPath = m_fileSystem->ResolvePath(path, relative);
+        if(!resolvedPath)
+        {
+            return Common::Failure(pool->GetDefault());
+        }
+
+        // Convert to relative path (more optimal).
+        std::filesystem::path relativePath = std::filesystem::relative(resolvedPath.Unwrap());
+
+        // Delegate call to resource pool, which will then delegate it further to a new resource instance.
+        return pool->Acquire(relativePath, std::forward<Arguments>(arguments)...);
     }
 
     template<typename Type>
@@ -106,7 +145,7 @@ namespace System
         auto pool = std::make_unique<ResourcePool<Type>>();
         auto pair = ResourcePoolPair(typeid(Type), std::move(pool));
         auto result = m_pools.emplace(std::move(pair));
-        ASSERT(result.second, "Could not emplace a new resource pool!");
+        ASSERT(result.second, "Could not emplace new resource pool!");
 
         // Return created resource pool.
         return reinterpret_cast<ResourcePool<Type>*>(result.first->second.get());
