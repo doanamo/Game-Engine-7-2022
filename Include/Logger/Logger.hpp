@@ -57,7 +57,12 @@ namespace Logger
 }
 
 // Utility macros.
-#define LOG_SCOPED_INDENT() Logger::ScopedIndent loggerIndent ## __LINE__(Logger::GetGlobalSink())
+#define LOG_EXPAND(expression) expression
+#define LOG_STRINGIFY(expression) #expression
+
+#define LOG_SCOPED_INDENT_CONCAT(first, second) first ## second
+#define LOG_SCOPED_INDENT_NAME(line) LOG_SCOPED_INDENT_CONCAT(loggerIndent, line)
+#define LOG_SCOPED_INDENT() Logger::ScopedIndent LOG_SCOPED_INDENT_NAME(__LINE__)(Logger::GetGlobalSink())
 
 #ifndef NDEBUG
     #define LOG_SCOPED_MESSAGE() Logger::ScopedMessage(Logger::GetGlobalSink()).SetSource(__FILE__).SetLine(__LINE__)
