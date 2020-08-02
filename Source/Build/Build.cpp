@@ -22,6 +22,9 @@ void Build::Initialize()
     {
         EngineDir = GameDir;
     }
+
+    // Print build info to log.
+    Build::PrintInfo();
 }
 
 void Build::PrintInfo()

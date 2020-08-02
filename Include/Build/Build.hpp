@@ -15,12 +15,17 @@
 
 namespace Build
 {
+    // Initializes info gathered during build process.
     void Initialize();
+
+    // Prints build info to log.
     void PrintInfo();
 
+    // Returns directories where engine and game data is located.
     std::string GetEngineDir();
     std::string GetGameDir();
 
+    // Returns information from engine and game repository.
     std::string GetEngineChangeNumber();
     std::string GetEngineChangeHash();
     std::string GetEngineChangeDate();

@@ -4,7 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Engine.hpp"
-#include <Common/Build.hpp>
+#include <Build/Build.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
 #include <System/FileSystem.hpp>
@@ -29,15 +29,10 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.maxTickDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Initialize various debugging helpers.
+    // Initialize static systems.
     Debug::Initialize();
-
-    // Initialize default logger output.
     Logger::Initialize();
-
-    // Initialize information acquired from the build system.
     Build::Initialize();
-    Build::PrintInfo();
 
     // Create instance.
     auto instance = std::unique_ptr<Root>(new Root());
