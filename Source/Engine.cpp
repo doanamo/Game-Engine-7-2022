@@ -42,38 +42,40 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Create system platform context.
     // Enables use of platform specific systems such as window or input.
-    auto platform = System::Platform::Create().UnwrapOr(nullptr);
-    if(platform == nullptr)
+    if(auto platform = System::Platform::Create().UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(platform));
+    }
+    else
     {
         LOG_ERROR("Could not create platform!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    instance->m_services.Provide(std::move(platform));
-
     // Create file system.
     // Enables path resolving with multiple mounted directories.
     // Mount default directories (call order affects resolve order).
-    auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr);
-    if(fileSystem == nullptr)
+    if(auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr))
+    {
+        fileSystem->MountDirectory("./");
+
+        if(!Build::GetEngineDir().empty())
+        {
+            fileSystem->MountDirectory(Build::GetEngineDir());
+        }
+
+        if(!Build::GetGameDir().empty())
+        {
+            fileSystem->MountDirectory(Build::GetGameDir());
+        }
+
+        instance->m_services.Provide(std::move(fileSystem));
+    }
+    else
     {
         LOG_ERROR("Could not create file system!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    fileSystem->MountDirectory("./");
-
-    if(!Build::GetEngineDir().empty())
-    {
-        fileSystem->MountDirectory(Build::GetEngineDir());
-    }
-
-    if(!Build::GetGameDir().empty())
-    {
-        fileSystem->MountDirectory(Build::GetGameDir());
-    }
-
-    instance->m_services.Provide(std::move(fileSystem));
 
     // Create main window.
     // Collects input and presents swap chain content.
@@ -85,14 +87,15 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     windowParams.vsync = true;
     windowParams.visible = true;
 
-    auto window = System::Window::Create(windowParams).UnwrapOr(nullptr);
-    if(window == nullptr)
+    if(auto window = System::Window::Create(windowParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(window));
+    }
+    else
     {
         LOG_ERROR("Could not create window!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(window));
 
     // Create timer.
     // Main timer that drives the main loop.
@@ -110,42 +113,45 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     System::InputManager::CreateParams inputManagerParams;
     inputManagerParams.services = &instance->m_services;
 
-    auto inputManager = System::InputManager::Create(inputManagerParams).UnwrapOr(nullptr);
-    if(inputManager == nullptr)
+    if(auto inputManager = System::InputManager::Create(inputManagerParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(inputManager));
+    }
+    else
     {
         LOG_ERROR("Could not create input manager!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(inputManager));
 
     // Create resource manager.
     // Helps avoid duplication of loaded resources.
     System::ResourceManager::CreateFromParams resourceManagerParams;
     resourceManagerParams.services = &instance->m_services;
 
-    auto resourceManager = System::ResourceManager::Create(resourceManagerParams).UnwrapOr(nullptr);
-    if(resourceManager == nullptr)
+    if(auto resourceManager = System::ResourceManager::Create(resourceManagerParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(resourceManager));
+    }
+    else
     {
         LOG_ERROR("Could not create resource manager!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(resourceManager));
 
     // Create render context.
     // Manages rendering context created along with window.
     Graphics::RenderContext::CreateParams renderContextParams;
     renderContextParams.services = &instance->m_services;
 
-    auto renderContext = Graphics::RenderContext::Create(renderContextParams).UnwrapOr(nullptr);
-    if(renderContext == nullptr)
+    if(auto renderContext = Graphics::RenderContext::Create(renderContextParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(renderContext));
+    }
+    else
     {
         LOG_ERROR("Could not create render context!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(renderContext));
 
     // Create sprite renderer.
     // Rendering subsystem for drawing sprites.
@@ -153,56 +159,60 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     spriteRendererParams.services = &instance->m_services;
     spriteRendererParams.spriteBatchSize = 128;
 
-    auto spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams).UnwrapOr(nullptr);
-    if(spriteRenderer == nullptr)
+    if(auto spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(spriteRenderer));
+    }
+    else
     {
         LOG_ERROR("Could not create sprite renderer!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(spriteRenderer));
 
     // Create state renderer.
     // Draws game state represented by its render components.
     Renderer::StateRenderer::CreateFromParams stateRendererParams;
     stateRendererParams.services = &instance->m_services;
 
-    auto stateRenderer = Renderer::StateRenderer::Create(stateRendererParams).UnwrapOr(nullptr);
-    if(stateRenderer == nullptr)
+    if(auto stateRenderer = Renderer::StateRenderer::Create(stateRendererParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(stateRenderer));
+    }
+    else
     {
         LOG_ERROR("Could not create state renderer!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(stateRenderer));
 
     // Create game framework.
     // Wraps base functionality of shared game logic.
     Game::GameFramework::CreateFromParams gameFrameworkParams;
     gameFrameworkParams.services = &instance->m_services;
 
-    auto gameFramework = Game::GameFramework::Create(gameFrameworkParams).UnwrapOr(nullptr);
-    if(gameFramework == nullptr)
+    if(auto gameFramework = Game::GameFramework::Create(gameFrameworkParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(gameFramework));
+    }
+    else
     {
         LOG_ERROR("Could not create game framework!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(gameFramework));
 
     // Create editor system.
     // Built in editor for creating and modifying content within running game.
     Editor::EditorSystem::CreateFromParams editorSystemParams;
     editorSystemParams.services = &instance->m_services;
 
-    auto editorSystem = Editor::EditorSystem::Create(editorSystemParams).UnwrapOr(nullptr);
-    if(editorSystem == nullptr)
+    if(auto editorSystem = Editor::EditorSystem::Create(editorSystemParams).UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(editorSystem));
+    }
+    else
     {
         LOG_ERROR("Could not create editor system!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
-
-    instance->m_services.Provide(std::move(editorSystem));
 
     // Load default engine resources.
     if(!instance->LoadDefaultResources())
