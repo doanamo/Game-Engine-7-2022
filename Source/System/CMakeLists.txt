@@ -15,6 +15,7 @@ set(INCLUDE_FILES
     "Window.hpp"
     "Timer.hpp"
     "InputDefinitions.hpp"
+    "InputState.hpp"
     "InputManager.hpp"
     "ResourcePool.hpp"
     "ResourceManager.hpp"
@@ -30,6 +31,7 @@ set(SOURCE_FILES
     "Window.cpp"
     "Timer.cpp"
     "InputDefinitions.cpp"
+    "InputState.cpp"
     "InputManager.cpp"
     "ResourceManager.cpp"
 )

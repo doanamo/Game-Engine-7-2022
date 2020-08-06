@@ -14,6 +14,7 @@ namespace Engine
 namespace System
 {
     class Timer;
+    class InputState;
 }
 
 /*
@@ -44,5 +45,7 @@ private:
 
 private:
     Engine::Root* m_engine = nullptr;
+
+    std::shared_ptr<System::InputState> m_inputState;
     std::shared_ptr<Game::GameState> m_gameState;
 };

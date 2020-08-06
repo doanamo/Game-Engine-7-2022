@@ -33,11 +33,15 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
+    System::InputManager* inputManager = engine->GetServices().GetInputManager();
     System::ResourceManager* resourceManager = engine->GetServices().GetResourceManager();
     Game::GameFramework* gameFramework = engine->GetServices().GetGameFramework();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
+
+    // Create input state.
+    instance->m_inputState = System::InputState::Create().Unwrap();
 
     // Create game state.
     instance->m_gameState = Game::GameState::Create().UnwrapOr(nullptr);
@@ -49,6 +53,9 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
     // Setup custom update callback.
     instance->m_customUpdate.Subscribe(instance->m_gameState->events.updateProcessed);
+    
+    // Set input state as current.
+    inputManager->SetInputState(instance->m_inputState);
 
     // Set game state as current.
     gameFramework->SetGameState(instance->m_gameState);
@@ -141,28 +148,25 @@ void SpriteDemo::Update(float updateTime)
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
-    // Acquire input manager service.
-    System::InputManager* inputManager = m_engine->GetServices().GetInputManager();
-
     // Control the entity with keyboard.
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
+    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
     }
 
-    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
+    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
     {
         direction.x += 1.0f;
     }
 
-    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
+    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
     {
         direction.y += 1.0f;
     }
 
-    if(inputManager->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
+    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
     {
         direction.y -= 1.0f;
     }

@@ -5,13 +5,13 @@
 #pragma once
 
 #include <Core/ServiceStorage.hpp>
-#include "System/InputDefinitions.hpp"
+#include "System/InputState.hpp"
 #include "System/Window.hpp"
 
 /*
     Input Manager
 
-    Listens to all input related events and propagates them further.
+    Listens to all input related events from window and propagates them to current input state.
 */
 
 namespace System
@@ -38,13 +38,12 @@ namespace System
     public:
         ~InputManager();
 
-        void AdvanceState(float timeDelta);
-        void ResetStates();
+        void SetInputState(std::shared_ptr<InputState> inputState);
+        std::shared_ptr<InputState> GetInputState() const;
 
-        bool IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat = true);
-        bool IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat = true);
+        void UpdateInputState(float timeDelta);
+        void ResetInputState();
 
-    public:
         struct Events
         {
             Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
@@ -58,6 +57,13 @@ namespace System
     private:
         InputManager();
 
+        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
+        bool OnTextInput(const Window::Events::TextInput& event);
+        bool OnMouseButton(const Window::Events::MouseButton& event);
+        bool OnMouseScroll(const Window::Events::MouseScroll& event);
+        void OnCursorPosition(const Window::Events::CursorPosition& event);
+        void OnCursorEnter(const Window::Events::CursorEnter& event);
+
         struct Receivers
         {
             Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
@@ -68,14 +74,6 @@ namespace System
             Event::Receiver<void(const Window::Events::CursorEnter&)> cursorEnter;
         } m_receivers;
 
-        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
-        bool OnTextInput(const Window::Events::TextInput& event);
-        bool OnMouseButton(const Window::Events::MouseButton& event);
-        bool OnMouseScroll(const Window::Events::MouseScroll& event);
-        void OnCursorPosition(const Window::Events::CursorPosition& event);
-        void OnCursorEnter(const Window::Events::CursorEnter& event);
-
-    private:
-        InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
+        std::shared_ptr<InputState> m_inputState = nullptr;
     };
 }

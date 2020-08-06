@@ -71,7 +71,7 @@ void GameFramework::Draw()
     m_stateRenderer->Draw(drawParams);
 }
 
-void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)
+void GameFramework::SetGameState(std::shared_ptr<GameState> gameState)
 {
     // Make sure we are not setting the same game state.
     if(gameState == m_gameState)
@@ -105,7 +105,7 @@ void GameFramework::SetGameState(std::shared_ptr<GameState>& gameState)
     events.gameStateChanged.Dispatch(m_gameState);
 }
 
-std::shared_ptr<GameState> GameFramework::GetGameState()
+std::shared_ptr<GameState> GameFramework::GetGameState() const
 {
     return m_gameState;
 }

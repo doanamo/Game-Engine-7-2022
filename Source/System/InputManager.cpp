@@ -48,170 +48,162 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
         return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
-    // Set default input states.
-    instance->ResetStates();
-
     // Success!
     return Common::Success(std::move(instance));
 }
 
-void InputManager::AdvanceState(float timeDelta)
+void InputManager::SetInputState(std::shared_ptr<InputState> inputState)
 {
-    // Update state times for all keyboard keys.
-    for(auto& keyboardKeyState : m_keyboardKeyStates)
+    if(m_inputState != inputState)
     {
-        keyboardKeyState.stateTime += timeDelta;
-    }
-
-    // Transition keyboard key input states.
-    for(auto& keyboardKeyState : m_keyboardKeyStates)
-    {
-        switch(keyboardKeyState.state)
-        {
-        case InputStates::Pressed:
-            keyboardKeyState.state = InputStates::PressedRepeat;
-            break;
-
-        case InputStates::PressedReleased:
-            keyboardKeyState.state = InputStates::Released;
-            keyboardKeyState.stateTime = 0.0f;
-            break;
-
-        case InputStates::Released:
-            keyboardKeyState.state = InputStates::ReleasedRepeat;
-            break;
-        }
+        m_inputState = inputState;
+        ResetInputState();
     }
 }
 
-void InputManager::ResetStates()
+std::shared_ptr<InputState> InputManager::GetInputState() const
 {
-    // Reset keyboard key states.
-    for(KeyboardKeys::Type key = KeyboardKeys::Invalid; key < KeyboardKeys::Count; ++key)
+    return m_inputState;
+}
+
+void InputManager::UpdateInputState(float timeDelta)
+{
+    if(m_inputState)
     {
-        m_keyboardKeyStates[key] = InputEvents::KeyboardKey{ key };
+        m_inputState->UpdateStates(timeDelta);
     }
 }
 
-bool InputManager::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
+void InputManager::ResetInputState()
 {
-    // Validate specified keyboard key.
-    if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
-        return false;
-
-    // Determine if key was pressed.
-    return m_keyboardKeyStates[key].IsPressed(repeat);
-}
-
-bool InputManager::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
-{
-    // Validate specified keyboard key.
-    if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
-        return false;
-
-    // Determine if key was released.
-    return m_keyboardKeyStates[key].IsReleased(repeat);
+    if(m_inputState)
+    {
+        m_inputState->ResetStates();
+    }
 }
 
 bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
 {
-    // Translate keyboard event.
-    KeyboardKeys::Type key = TranslateKeyboardKey(event.key);
-    InputStates::Type state = TranslateInputAction(event.action);
-    KeyboardModifiers::Type modifiers = TranslateKeyboardModifiers(event.modifiers);
+    // Translate incoming window event.
+    InputEvents::KeyboardKey outgoingEvent;
+    outgoingEvent.key = TranslateKeyboardKey(event.key);
+    outgoingEvent.state = TranslateInputAction(event.action);
+    outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
 
     // Validate key index.
-    if(key <= KeyboardKeys::Invalid || key >= KeyboardKeys::Count)
+    if(outgoingEvent.key <= KeyboardKeys::Invalid || outgoingEvent.key >= KeyboardKeys::Count)
     {
         LOG_WARNING("Invalid keyboard key input received: {}", event.key);
         return false;
     }
 
-    if(key == KeyboardKeys::KeyUnknown)
+    if(outgoingEvent.key == KeyboardKeys::KeyUnknown)
     {
         LOG_WARNING("Unknown keyboard key input received: {}", event.key);
         return false;
     }
 
-    // Send outgoing keyboard key event.
-    InputEvents::KeyboardKey keyboardKeyEvent = m_keyboardKeyStates[key];
+    // Send outgoing input event.
+    bool inputCaptured = events.keyboardKey.Dispatch(outgoingEvent);
 
-    if(keyboardKeyEvent.state == InputStates::Pressed && state == InputStates::Released)
+    // Propagate event to input state.
+    if(!inputCaptured && m_inputState)
     {
-        // Handle keyboard keys being pressed and released quickly within a single frame.
-        // We do not want to reset state time until we transition to released state.
-        keyboardKeyEvent.state = InputStates::PressedReleased;
-    }
-    else
-    {
-        keyboardKeyEvent.state = state;
-        keyboardKeyEvent.stateTime = 0.0f;
+        m_inputState->OnKeyboardKey(outgoingEvent);
     }
 
-    keyboardKeyEvent.modifiers = modifiers;
- 
-    // Send outgoing keyboard key event.
-    bool inputCaptured = events.keyboardKey.Dispatch(keyboardKeyEvent);
-
-    // Save new keyboard key event in cases when it
-    // is not captured or when it is in released state.
-    if(!inputCaptured || keyboardKeyEvent.IsReleased())
-    {
-        m_keyboardKeyStates[key] = keyboardKeyEvent;
-    }
-
-    // Do not consume input event.
+    // Do not consume window event.
     return false;
 }
 
 bool InputManager::OnTextInput(const Window::Events::TextInput& event)
 {
-    // Send outgoing text input event.
+    // Translate incoming window event.
     InputEvents::TextInput outgoingEvent;
     outgoingEvent.utf32Character = event.utf32Character;
-    events.textInput.Dispatch(outgoingEvent);
 
-    // Do not consume input event.
+    // Send outgoing input event.
+    bool inputCaptured = events.textInput.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    if(!inputCaptured && m_inputState)
+    {
+        m_inputState->OnTextInput(outgoingEvent);
+    }
+
+    // Do not consume window event.
     return false;
 }
 
 bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
 {
-    // Send outgoing mouse button event.
+    // Translate incoming window event.
     InputEvents::MouseButton outgoingEvent;
     outgoingEvent.button = TranslateMouseButton(event.button);
     outgoingEvent.state = TranslateInputAction(event.action);
     outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
-    events.mouseButton.Dispatch(outgoingEvent);
 
-    // Do not consume input event.
+    // Send outgoing input event.
+    bool inputCaptured = events.mouseButton.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    if(!inputCaptured && m_inputState)
+    {
+        m_inputState->OnMouseButton(outgoingEvent);
+    }
+
+    // Do not consume window event.
     return false;
 }
 
 bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
 {
-    // Send outgoing mouse scroll event.
+    // Translate incoming window event.
     InputEvents::MouseScroll outgoingEvent;
     outgoingEvent.offset = event.offset;
-    events.mouseScroll.Dispatch(outgoingEvent);
 
-    // Do not consume input event.
+    // Send outgoing input event.
+    bool inputCaptured = events.mouseScroll.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    if(!inputCaptured && m_inputState)
+    {
+        m_inputState->OnMouseScroll(outgoingEvent);
+    }
+
+    // Do not consume window event.
     return false;
 }
 
 void InputManager::OnCursorPosition(const Window::Events::CursorPosition& event)
 {
-    // Send outgoing cursor position event.
+    // Translate incoming window event.
     InputEvents::CursorPosition outgoingEvent;
     outgoingEvent.x = event.x;
     outgoingEvent.y = event.y;
+
+    // Send outgoing input event.
     events.cursorPosition.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    if(m_inputState)
+    {
+        m_inputState->OnCursorPosition(outgoingEvent);
+    }
 }
 
 void InputManager::OnCursorEnter(const Window::Events::CursorEnter& event)
 {
-    // Send outgoing cursor enter event.
+    // Translate incoming window event.
     InputEvents::CursorEnter outgoingEvent;
     outgoingEvent.entered = event.entered;
+
+    // Send outgoing input event.
     events.cursorEnter.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    if(m_inputState)
+    {
+        m_inputState->OnCursorEnter(outgoingEvent);
+    }
 }

@@ -50,8 +50,8 @@ namespace Game
         bool Update();
         void Draw();
 
-        void SetGameState(std::shared_ptr<GameState>& gameState);
-        std::shared_ptr<GameState> GetGameState();
+        void SetGameState(std::shared_ptr<GameState> gameState);
+        std::shared_ptr<GameState> GetGameState() const;
 
     public:
         struct Events

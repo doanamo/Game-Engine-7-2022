@@ -300,7 +300,7 @@ int Root::Run()
         if(gameFramework->Update())
         {
             // Prepare input manager for incoming events.
-            inputManager->AdvanceState(timeDelta);
+            inputManager->UpdateInputState(timeDelta);
         }
 
         // Draw game state.
