@@ -21,13 +21,14 @@ RenderContext::CreateResult RenderContext::Create(const CreateParams& params)
     // Create instance.
     auto instance = std::unique_ptr<RenderContext>(new RenderContext());
 
-    // Acquire and save window reference.
+    // Acquire window service.
     instance->m_window = params.services->GetWindow();
 
-    // Make window context current.
-    instance->m_window->MakeContextCurrent();
-
     // Save initial render state.
+    // Window has to set its OpenGL context as current for this to succeed.
+    // Here we assume that at this point OpenGL context is in pristine state.
+    // Maybe default render state should be collected immediately when context is created?
+    instance->m_window->MakeContextCurrent();
     instance->m_currentState.Save();
 
     // Success!

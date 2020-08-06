@@ -56,7 +56,6 @@ namespace Renderer
     private:
         StateRenderer();
 
-    private:
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };

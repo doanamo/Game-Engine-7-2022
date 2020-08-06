@@ -14,16 +14,14 @@ ResourceManager::CreateResult ResourceManager::Create(const CreateFromParams& pa
     LOG("Creating resource manager...");
     LOG_SCOPED_INDENT();
     
+    // Validate arguments.
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+
     // Create instance.
     auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
 
-    // Acquire file system.
+    // Acquire file system service.
     instance->m_fileSystem = params.services->GetFileSystem();
-    if(!instance->m_fileSystem)
-    {
-        LOG_ERROR("Could not acquire file system service!");
-        return Common::Failure(CreateErrors::FailedServiceAcquisition);
-    }
 
     // Success!
     return Common::Success(std::move(instance));

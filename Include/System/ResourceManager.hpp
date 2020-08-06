@@ -33,7 +33,7 @@ namespace System
 
         enum class CreateErrors
         {
-            FailedServiceAcquisition,
+            InvalidArgument,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, CreateErrors>;

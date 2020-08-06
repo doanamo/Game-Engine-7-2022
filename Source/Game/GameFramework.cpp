@@ -30,7 +30,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     eventRouterParams.gameFramework = instance.get();
 
     instance->m_eventRouter = EventRouter::Create(eventRouterParams).UnwrapOr(nullptr);
-    if(instance->m_eventRouter == nullptr)
+    if(!instance->m_eventRouter)
     {
         LOG_ERROR("Could not create event router!");
         return Common::Failure(CreateErrors::FailedEventRouterCreation);
