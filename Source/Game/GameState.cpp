@@ -75,24 +75,13 @@ GameState::CreateResult GameState::Create()
         return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Bind and subscribe event receivers.
-    GameState* instancePtr = instance.get();
-    instance->m_changeUpdateTime.Bind([instancePtr](const Events::ChangeUpdateTime& event) -> bool
-    {
-        instancePtr->m_updateTime = event.updateTime;
-        return true;
-    });
-
-    instance->eventBroker.Subscribe(instance->m_changeUpdateTime);
-
     // Success!
     return Common::Success(std::move(instance));
 }
 
-void GameState::PushEvent(std::any event)
+void GameState::ChangeUpdateTime(float updateTime)
 {
-    // Add event to be processed later.
-    eventQueue.Push(event);
+    m_updateTime = updateTime;
 }
 
 bool GameState::Update(const System::Timer& timer)
@@ -107,17 +96,11 @@ bool GameState::Update(const System::Timer& timer)
     bool stateUpdated = false;
 
     // Main game state update loop.
+    // Make copy of update time in case it changes.
     const float updateTime = m_updateTime;
 
     while(updateTimer->Update(updateTime))
     {
-        // Process events.
-        while(!eventQueue.IsEmpty())
-        {
-            std::any event = eventQueue.Pop();
-            eventBroker.Dispatch(event);
-        }
-
         // Process entity commands.
         entitySystem->ProcessCommands();
 

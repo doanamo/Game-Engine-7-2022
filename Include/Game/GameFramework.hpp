@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Core/ServiceStorage.hpp>
-#include "Game/EventRouter.hpp"
+#include <Event/Dispatcher.hpp>
 
 namespace System
 {
@@ -62,12 +62,10 @@ namespace Game
     private:
         GameFramework();
 
-    private:
         System::Timer* m_timer = nullptr;
         System::Window* m_window = nullptr;
         Renderer::StateRenderer* m_stateRenderer = nullptr;
 
-        std::unique_ptr<EventRouter> m_eventRouter;
         std::shared_ptr<GameState> m_gameState;
     };
 }

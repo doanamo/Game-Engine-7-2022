@@ -74,9 +74,7 @@ void GameStateEditor::Update(float timeDelta)
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##UpdateTimeApply"))
                     {
-                        Game::GameState::Events::ChangeUpdateTime changeUpdateTime;
-                        changeUpdateTime.updateTime = 1.0f / m_updateRateSlider;
-                        m_gameState->PushEvent(changeUpdateTime);
+                        m_gameState->ChangeUpdateTime(1.0f / m_updateRateSlider);
                     }
 
                     // Show update histogram.

@@ -23,19 +23,6 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     // Create instance.
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
 
-    // Create event router.
-    // Listens and replicates event to the current game state.
-    EventRouter::CreateFromParams eventRouterParams;
-    eventRouterParams.services = params.services;
-    eventRouterParams.gameFramework = instance.get();
-
-    instance->m_eventRouter = EventRouter::Create(eventRouterParams).UnwrapOr(nullptr);
-    if(!instance->m_eventRouter)
-    {
-        LOG_ERROR("Could not create event router!");
-        return Common::Failure(CreateErrors::FailedEventRouterCreation);
-    }
-
     // Save system references.
     instance->m_timer = params.services->GetTimer();
     instance->m_window = params.services->GetWindow();
@@ -80,26 +67,8 @@ void GameFramework::SetGameState(std::shared_ptr<GameState> gameState)
         return;
     }
 
-    // Notify current game state about being changed.
-    if(m_gameState)
-    {
-        Game::GameState::Events::GameStateChanged gameStateChanged;
-        gameStateChanged.stateEntered = false;
-
-        m_gameState->eventQueue.Push(gameStateChanged);
-    }
-
     // Change the current game state.
     m_gameState = gameState;
-
-    // Notify new game state about being changed.
-    if(gameState)
-    {
-        Game::GameState::Events::GameStateChanged gameStateChanged;
-        gameStateChanged.stateEntered = true;
-
-        gameState->eventQueue.Push(gameStateChanged);
-    }
 
     // Notify listeners about game state being changed.
     events.gameStateChanged.Dispatch(m_gameState);

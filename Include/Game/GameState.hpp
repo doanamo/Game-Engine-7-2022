@@ -34,26 +34,21 @@ namespace Game
     public:
         ~GameState();
 
-        // Pushes an event that will affects the game state.
-        // We encapsulate the game state and allow it to mutate only through events.
-        void PushEvent(std::any event);
-
         bool Update(const System::Timer& timer);
+        void ChangeUpdateTime(float updateTime);
         float GetUpdateTime() const;
 
     public:
+        std::unique_ptr<UpdateTimer> updateTimer;
+        std::unique_ptr<EntitySystem> entitySystem;
+        std::unique_ptr<ComponentSystem> componentSystem;
+
+        std::unique_ptr<IdentitySystem> identitySystem;
+        std::unique_ptr<InterpolationSystem> interpolationSystem;
+        std::unique_ptr<SpriteSystem> spriteSystem;
+
         struct Events
         {
-            struct GameStateChanged
-            {
-                bool stateEntered = false;
-            };
-
-            struct ChangeUpdateTime
-            {
-                float updateTime = 0.0f;
-            };
-
             // Called when the class instance is destructed.
             Event::Dispatcher<void()> instanceDestructed;
 
@@ -67,22 +62,9 @@ namespace Game
             Event::Dispatcher<void(float)> updateProcessed;
         } events;
 
-        Event::Queue eventQueue;
-        Event::Broker eventBroker;
-
-        std::unique_ptr<UpdateTimer> updateTimer;
-        std::unique_ptr<EntitySystem> entitySystem;
-        std::unique_ptr<ComponentSystem> componentSystem;
-
-        std::unique_ptr<IdentitySystem> identitySystem;
-        std::unique_ptr<InterpolationSystem> interpolationSystem;
-        std::unique_ptr<SpriteSystem> spriteSystem;
-
     private:
         GameState();
 
-    private:
-        Event::Receiver<bool(const Events::ChangeUpdateTime&)> m_changeUpdateTime;
         float m_updateTime = 1.0f / 10.0f;
     };
 }
