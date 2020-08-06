@@ -27,29 +27,43 @@ InputState::CreateResult System::InputState::Create()
 
 void System::InputState::UpdateStates(float timeDelta)
 {
-    // Update state times for all keyboard keys.
+    // Update input state times.
     for(auto& keyboardKeyState : m_keyboardKeyStates)
     {
         keyboardKeyState.stateTime += timeDelta;
     }
 
+    for(auto& mouseButtonState : m_mouseButtonStates)
+    {
+        mouseButtonState.stateTime += timeDelta;
+    }
+
     // Transition keyboard key input states.
     for(auto& keyboardKeyState : m_keyboardKeyStates)
     {
-        switch(keyboardKeyState.state)
+        TransitionInputState(keyboardKeyState.state);
+    }
+
+    for(auto& mouseButtonState : m_mouseButtonStates)
+    {
+        TransitionInputState(mouseButtonState.state);
+    }
+
+    // Handle case when state time needs resetting after
+    // transitioning from PressedReleased to Released state.
+    for(auto& keyboardKeyState : m_keyboardKeyStates)
+    {
+        if(keyboardKeyState.state == InputStates::Released)
         {
-        case InputStates::Pressed:
-            keyboardKeyState.state = InputStates::PressedRepeat;
-            break;
-
-        case InputStates::PressedReleased:
-            keyboardKeyState.state = InputStates::Released;
             keyboardKeyState.stateTime = 0.0f;
-            break;
+        }
+    }
 
-        case InputStates::Released:
-            keyboardKeyState.state = InputStates::ReleasedRepeat;
-            break;
+    for(auto& mouseButtonState : m_mouseButtonStates)
+    {
+        if(mouseButtonState.state == InputStates::Released)
+        {
+            mouseButtonState.stateTime = 0.0f;
         }
     }
 }
@@ -70,7 +84,7 @@ bool InputState::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
         return false;
 
     // Determine if key was pressed.
-    return m_keyboardKeyStates[key].IsPressed(repeat);
+    return IsInputStatePressed(m_keyboardKeyStates[key].state, repeat);
 }
 
 bool InputState::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
@@ -80,17 +94,44 @@ bool InputState::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
         return false;
 
     // Determine if key was released.
-    return m_keyboardKeyStates[key].IsReleased(repeat);
+    return IsInputStateReleased(m_keyboardKeyStates[key].state, repeat);
+}
+
+bool InputState::IsMouseButtonPressed(MouseButtons::Type button, bool repeat)
+{
+    // Validate specified mouse button.
+    if(button <= MouseButtons::Invalid || button >= MouseButtons::Count)
+        return false;
+
+    // Determine if button was pressed.
+    return IsInputStatePressed(m_mouseButtonStates[button].state, repeat);
+}
+
+bool InputState::IsMouseButtonReleased(MouseButtons::Type button, bool repeat)
+{
+    // Validate specified mouse button.
+    if(button <= MouseButtons::Invalid || button >= MouseButtons::Count)
+        return false;
+
+    // Determine if button was released.
+    return IsInputStateReleased(m_mouseButtonStates[button].state, repeat);
+}
+
+bool InputState::OnTextInput(const InputEvents::TextInput& event)
+{
+    // Dispatch incoming input event.
+    bool inputCaptured = events.textInput.Dispatch(event);
+    return inputCaptured;
 }
 
 bool InputState::OnKeyboardKey(const InputEvents::KeyboardKey& event)
 {
-    // Send outgoing keyboard key event.
+    // Create outgoing keyboard key event.
     InputEvents::KeyboardKey keyboardKeyEvent = m_keyboardKeyStates[event.key];
 
     if(keyboardKeyEvent.state == InputStates::Pressed && event.state == InputStates::Released)
     {
-        // Handle keyboard keys being pressed and released quickly within a single frame.
+        // Handle input state changing from pressed to released within a single frame.
         // We do not want to reset state time until we transition to released state.
         keyboardKeyEvent.state = InputStates::PressedReleased;
     }
@@ -105,9 +146,8 @@ bool InputState::OnKeyboardKey(const InputEvents::KeyboardKey& event)
     // Send outgoing keyboard key event.
     bool inputCaptured = events.keyboardKey.Dispatch(keyboardKeyEvent);
 
-    // Save new keyboard key event in cases when it
-    // is not captured or when it is in released state.
-    if(!inputCaptured || keyboardKeyEvent.IsReleased())
+    // Save event if not captured or in released state.
+    if(!inputCaptured || IsInputStateReleased(keyboardKeyEvent.state))
     {
         m_keyboardKeyStates[event.key] = keyboardKeyEvent;
     }
@@ -116,17 +156,35 @@ bool InputState::OnKeyboardKey(const InputEvents::KeyboardKey& event)
     return inputCaptured;
 }
 
-bool InputState::OnTextInput(const InputEvents::TextInput& event)
-{
-    // Dispatch incoming input event.
-    bool inputCaptured = events.textInput.Dispatch(event);
-    return inputCaptured;
-}
-
 bool InputState::OnMouseButton(const InputEvents::MouseButton& event)
 {
-    // Dispatch incoming input event.
-    bool inputCaptured = events.mouseButton.Dispatch(event);
+    // Create outgoing mouse button event.
+    InputEvents::MouseButton mouseButtonEvent = m_mouseButtonStates[event.button];
+
+    if(mouseButtonEvent.state == InputStates::Pressed && event.state == InputStates::Released)
+    {
+        // Handle input state changing from pressed to released within a single frame.
+        // We do not want to reset state time until we transition to released state.
+        mouseButtonEvent.state = InputStates::PressedReleased;
+    }
+    else
+    {
+        mouseButtonEvent.state = event.state;
+        mouseButtonEvent.stateTime = 0.0f;
+    }
+
+    mouseButtonEvent.modifiers = event.modifiers;
+
+    // Send outgoing mouse button event.
+    bool inputCaptured = events.mouseButton.Dispatch(mouseButtonEvent);
+
+    // Save event if not captured or in released state.
+    if(!inputCaptured || IsInputStateReleased(mouseButtonEvent.state))
+    {
+        m_mouseButtonStates[event.button] = mouseButtonEvent;
+    }
+
+    // Return whether input event was captured.
     return inputCaptured;
 }
 

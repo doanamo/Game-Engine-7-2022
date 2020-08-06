@@ -28,6 +28,11 @@ namespace System
         };
     };
 
+    bool IsInputStatePressed(InputStates::Type state, bool repeat = true);
+    bool IsInputStateReleased(InputStates::Type state, bool repeat = true);
+    bool IsInputStateRepeating(InputStates::Type state);
+
+    InputStates::Type TransitionInputState(InputStates::Type state);
     InputStates::Type TranslateInputAction(int action);
 
     struct KeyboardKeys
@@ -208,18 +213,6 @@ namespace System
 
     namespace InputEvents
     {
-        struct KeyboardKey
-        {
-            KeyboardKeys::Type key = KeyboardKeys::Invalid;
-            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
-            InputStates::Type state = InputStates::ReleasedRepeat;
-            float stateTime = 0.0f;
-
-            bool IsPressed(bool repeat = true) const;
-            bool IsReleased(bool repeat = true) const;
-            bool IsRepeat() const;
-        };
-
         struct TextInput
         {
             // Character is stored in UTF32 format here and can be
@@ -227,11 +220,20 @@ namespace System
             unsigned int utf32Character = 0;
         };
 
+        struct KeyboardKey
+        {
+            KeyboardKeys::Type key = KeyboardKeys::Invalid;
+            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
+            InputStates::Type state = InputStates::ReleasedRepeat;
+            float stateTime = 0.0f;
+        };
+
         struct MouseButton
         {
-            InputStates::Type state = InputStates::Invalid;
             MouseButtons::Type button = MouseButtons::Invalid;
             KeyboardKeys::Type modifiers = KeyboardModifiers::Invalid;
+            InputStates::Type state = InputStates::ReleasedRepeat;
+            float stateTime = 0.0f;
         };
 
         struct MouseScroll

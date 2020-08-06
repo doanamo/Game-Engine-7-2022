@@ -46,8 +46,8 @@ namespace System
 
         struct Events
         {
-            Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
             Event::Dispatcher<bool(const InputEvents::TextInput&), Event::CollectWhileFalse> textInput;
+            Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
             Event::Dispatcher<bool(const InputEvents::MouseButton&), Event::CollectWhileFalse> mouseButton;
             Event::Dispatcher<bool(const InputEvents::MouseScroll&), Event::CollectWhileFalse> mouseScroll;
             Event::Dispatcher<void(const InputEvents::CursorPosition&)> cursorPosition;
@@ -57,8 +57,8 @@ namespace System
     private:
         InputManager();
 
-        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
         bool OnTextInput(const Window::Events::TextInput& event);
+        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
         bool OnMouseButton(const Window::Events::MouseButton& event);
         bool OnMouseScroll(const Window::Events::MouseScroll& event);
         void OnCursorPosition(const Window::Events::CursorPosition& event);
@@ -66,8 +66,8 @@ namespace System
 
         struct Receivers
         {
-            Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
             Event::Receiver<bool(const Window::Events::TextInput&)> textInput;
+            Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
             Event::Receiver<bool(const Window::Events::MouseButton&)> mouseButton;
             Event::Receiver<bool(const Window::Events::MouseScroll&)> mouseScroll;
             Event::Receiver<void(const Window::Events::CursorPosition&)> cursorPosition;

@@ -82,40 +82,6 @@ void InputManager::ResetInputState()
     }
 }
 
-bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
-{
-    // Translate incoming window event.
-    InputEvents::KeyboardKey outgoingEvent;
-    outgoingEvent.key = TranslateKeyboardKey(event.key);
-    outgoingEvent.state = TranslateInputAction(event.action);
-    outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
-
-    // Validate key index.
-    if(outgoingEvent.key <= KeyboardKeys::Invalid || outgoingEvent.key >= KeyboardKeys::Count)
-    {
-        LOG_WARNING("Invalid keyboard key input received: {}", event.key);
-        return false;
-    }
-
-    if(outgoingEvent.key == KeyboardKeys::KeyUnknown)
-    {
-        LOG_WARNING("Unknown keyboard key input received: {}", event.key);
-        return false;
-    }
-
-    // Send outgoing input event.
-    bool inputCaptured = events.keyboardKey.Dispatch(outgoingEvent);
-
-    // Propagate event to input state.
-    if(!inputCaptured && m_inputState)
-    {
-        m_inputState->OnKeyboardKey(outgoingEvent);
-    }
-
-    // Do not consume window event.
-    return false;
-}
-
 bool InputManager::OnTextInput(const Window::Events::TextInput& event)
 {
     // Translate incoming window event.
@@ -135,6 +101,44 @@ bool InputManager::OnTextInput(const Window::Events::TextInput& event)
     return false;
 }
 
+bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
+{
+    // Translate incoming window event.
+    InputEvents::KeyboardKey outgoingEvent;
+    outgoingEvent.key = TranslateKeyboardKey(event.key);
+    outgoingEvent.state = TranslateInputAction(event.action);
+    outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
+
+    // Validate keyboard key index.
+    if(outgoingEvent.key <= KeyboardKeys::Invalid || outgoingEvent.key >= KeyboardKeys::Count)
+    {
+        LOG_WARNING("Invalid keyboard key input received: {}", event.key);
+        return false;
+    }
+
+    if(outgoingEvent.key == KeyboardKeys::KeyUnknown)
+    {
+        LOG_WARNING("Unknown keyboard key input received: {}", event.key);
+        return false;
+    }
+
+    // Send outgoing input event.
+    bool inputCaptured = events.keyboardKey.Dispatch(outgoingEvent);
+
+    // Propagate event to input state.
+    // We do not take capturing into consideration in case of release key events.
+    if(!inputCaptured || IsInputStateReleased(outgoingEvent.state))
+    {
+        if(m_inputState)
+        {
+            m_inputState->OnKeyboardKey(outgoingEvent);
+        }
+    }
+
+    // Do not consume window event.
+    return false;
+}
+
 bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
 {
     // Translate incoming window event.
@@ -143,13 +147,24 @@ bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
     outgoingEvent.state = TranslateInputAction(event.action);
     outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
 
+    // Validate mouse button index.
+    if(outgoingEvent.button <= MouseButtons::Invalid || outgoingEvent.button >= MouseButtons::Count)
+    {
+        LOG_WARNING("Invalid mouse button input received: {}", event.button);
+        return false;
+    }
+
     // Send outgoing input event.
     bool inputCaptured = events.mouseButton.Dispatch(outgoingEvent);
 
     // Propagate event to input state.
-    if(!inputCaptured && m_inputState)
+    // We do not take capturing into consideration in case of release key events.
+    if(!inputCaptured || IsInputStateReleased(outgoingEvent.state))
     {
-        m_inputState->OnMouseButton(outgoingEvent);
+        if(m_inputState)
+        {
+            m_inputState->OnMouseButton(outgoingEvent);
+        }
     }
 
     // Do not consume window event.

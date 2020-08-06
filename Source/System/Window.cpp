@@ -264,6 +264,18 @@ void Window::CloseCallback(GLFWwindow* window)
     instance->events.close(eventData);
 }
 
+void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
+{
+    ASSERT(window != nullptr, "Window reference is null!");
+
+    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
+    ASSERT(instance != nullptr, "Window instance is null!");
+
+    Window::Events::TextInput eventData;
+    eventData.utf32Character = character;
+    instance->events.textInput(eventData);
+}
+
 void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     ASSERT(window != nullptr, "Window reference is null!");
@@ -277,18 +289,6 @@ void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int 
     eventData.action = action;
     eventData.modifiers = mods;
     instance->events.keyboardKey(eventData);
-}
-
-void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
-{
-    ASSERT(window != nullptr, "Window reference is null!");
-
-    auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
-    ASSERT(instance != nullptr, "Window instance is null!");
-
-    Window::Events::TextInput eventData;
-    eventData.utf32Character = character;
-    instance->events.textInput(eventData);
 }
 
 void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)

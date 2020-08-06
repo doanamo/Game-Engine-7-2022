@@ -43,16 +43,16 @@ namespace Editor
         InputManagerEditor();
 
         Event::Receiver<void(const System::Window::Events::Focus&)> m_windowFocusReceiver;
-        Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_keyboardKeyReceiver;
         Event::Receiver<bool(const System::Window::Events::TextInput&)> m_textInputReceiver;
+        Event::Receiver<bool(const System::Window::Events::KeyboardKey&)> m_keyboardKeyReceiver;
         Event::Receiver<bool(const System::Window::Events::MouseButton&)> m_mouseButtonReceiver;
         Event::Receiver<bool(const System::Window::Events::MouseScroll&)> m_mouseScrollReceiver;
         Event::Receiver<void(const System::Window::Events::CursorPosition&)> m_cursorPositionReceiver;
         Event::Receiver<void(const System::Window::Events::CursorEnter&)> m_cursorEnterReceiver;
 
         void OnWindowFocus(const System::Window::Events::Focus& event);
-        bool OnKeyboardKey(const System::Window::Events::KeyboardKey& event);
         bool OnTextInput(const System::Window::Events::TextInput& event);
+        bool OnKeyboardKey(const System::Window::Events::KeyboardKey& event);
         bool OnMouseButton(const System::Window::Events::MouseButton& event);
         bool OnMouseScroll(const System::Window::Events::MouseScroll& event);
         void OnCursorPosition(const System::Window::Events::CursorPosition& event);

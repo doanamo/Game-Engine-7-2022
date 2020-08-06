@@ -7,6 +7,33 @@
 
 namespace System
 {
+    bool IsInputStatePressed(InputStates::Type state, bool repeat)
+    {
+        return state == InputStates::Pressed || state == InputStates::PressedReleased || (state == InputStates::PressedRepeat && repeat);
+    }
+
+    bool IsInputStateReleased(InputStates::Type state, bool repeat)
+    {
+        return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
+    }
+
+    bool IsInputStateRepeating(InputStates::Type state)
+    {
+        return state == InputStates::PressedRepeat || state == InputStates::ReleasedRepeat;
+    }
+
+    InputStates::Type TransitionInputState(InputStates::Type state)
+    {
+        switch(state)
+        {
+            case InputStates::Pressed: return InputStates::PressedRepeat;
+            case InputStates::Released: return InputStates::ReleasedRepeat;
+            case InputStates::PressedReleased: return InputStates::Released;
+        }
+
+        return state;
+    }
+
     InputStates::Type TranslateInputAction(int action)
     {
         switch(action)
@@ -160,20 +187,4 @@ namespace System
         ASSERT(result >= MouseButtons::Button1 && button < MouseButtons::Count, "Unexpected mouse button index argument!");
         return result < MouseButtons::Count ? result : MouseButtons::Invalid;
     }
-
-    bool InputEvents::KeyboardKey::IsPressed(bool repeat) const
-    {
-        return state == InputStates::Pressed || state == InputStates::PressedReleased || (state == InputStates::PressedRepeat && repeat);
-    }
-
-    bool InputEvents::KeyboardKey::IsReleased(bool repeat) const
-    {
-        return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
-    }
-
-    bool InputEvents::KeyboardKey::IsRepeat() const
-    {
-        return state == InputStates::PressedRepeat || state == InputStates::ReleasedRepeat;
-    }
-
 }

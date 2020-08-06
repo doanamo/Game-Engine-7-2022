@@ -156,6 +156,22 @@ void InputManagerEditor::OnWindowFocus(const System::Window::Events::Focus& even
     }
 }
 
+bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& event)
+{
+    // Add event text log for text input.
+    if(m_incomingTextInput)
+    {
+        std::stringstream eventText;
+        eventText << "Text Input\n";
+        eventText << "  Character: " << event.utf32Character;
+
+        AddIncomingEventLog(eventText.str());
+    }
+
+    // Do not capture input.
+    return false;
+}
+
 bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey& event)
 {
     // Filter keyboard key events.
@@ -216,22 +232,6 @@ bool InputManagerEditor::OnKeyboardKey(const System::Window::Events::KeyboardKey
         {
             eventText << "None";
         }
-
-        AddIncomingEventLog(eventText.str());
-    }
-
-    // Do not capture input.
-    return false;
-}
-
-bool InputManagerEditor::OnTextInput(const System::Window::Events::TextInput& event)
-{
-    // Add event text log for text input.
-    if(m_incomingTextInput)
-    {
-        std::stringstream eventText;
-        eventText << "Text Input\n";
-        eventText << "  Character: " << event.utf32Character;
 
         AddIncomingEventLog(eventText.str());
     }
