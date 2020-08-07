@@ -29,12 +29,11 @@ namespace Game
     public:
         ~SpriteSystem();
 
-        void Update(float timeDelta);
+        void Tick(float timeDelta);
 
     private:
         SpriteSystem();
 
-    private:
         ComponentSystem* m_componentSystem = nullptr;
     };
 }

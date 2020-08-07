@@ -12,8 +12,8 @@ GameStateEditor::GameStateEditor()
 {
     m_receivers.gameStateChanged.Bind<GameStateEditor, &GameStateEditor::OnGameStateChanged>(this);
     m_receivers.gameStateDestructed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
-    m_receivers.gameStateUpdateCalled.Bind<GameStateEditor, &GameStateEditor::OnGameStateUpdateCalled>(this);
-    m_receivers.gameStateUpdateProcessed.Bind<GameStateEditor, &GameStateEditor::OnGameStateUpdateProcessed>(this);
+    m_receivers.gameStateTickCalled.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickCalled>(this);
+    m_receivers.gameStateTickProcessed.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickProcessed>(this);
 }
 
 GameStateEditor::~GameStateEditor() = default;
@@ -36,7 +36,7 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     instance->m_receivers.gameStateChanged.Subscribe(gameFramework->events.gameStateChanged);
 
     // Set histogram size.
-    instance->m_updateTimeHistogram.resize(100, 0.0f);
+    instance->m_tickTimeHistogram.resize(100, 0.0f);
 
     // Success!
     return Common::Success(std::move(instance));
@@ -60,66 +60,66 @@ void GameStateEditor::Update(float timeDelta)
         {
             if(ImGui::CollapsingHeader("Core"))
             {
-                if(ImGui::TreeNode("Update Timer"))
+                if(ImGui::TreeNode("Tick Control"))
                 {
-                    // Show update controls.
-                    float currentUpdateTime = m_gameState->GetUpdateTime();
-                    float currentUpdateRate = 1.0f / currentUpdateTime;
-                    ImGui::BulletText("Update time: %fs (%.1f update rate)",
-                        currentUpdateTime, currentUpdateRate);
+                    // Show tick controls.
+                    float currentTickTime = m_gameState->GetTickTime();
+                    float currentTickRate = 1.0f / currentTickTime;
+                    ImGui::BulletText("Tick time: %fs (%.1f tick rate)",
+                        currentTickTime, currentTickRate);
 
-                    ImGui::SliderFloat("##UpdateRateSlider", &m_updateRateSlider,
-                        1.0f, 100.0f, "%.1f update(s) per second", 2.0f);
+                    ImGui::SliderFloat("##TickRateSlider", &m_tickRateSlider,
+                        1.0f, 100.0f, "%.1f ticks(s) per second", 2.0f);
 
                     ImGui::SameLine();
-                    if(ImGui::Button("Apply##UpdateTimeApply"))
+                    if(ImGui::Button("Apply##TickTimeApply"))
                     {
-                        m_gameState->ChangeUpdateTime(1.0f / m_updateRateSlider);
+                        m_gameState->ChangeTickTime(1.0f / m_tickRateSlider);
                     }
 
-                    // Show update histogram.
-                    ImGui::BulletText("Update time histogram:");
-                    ImGui::PlotHistogram("##UpdateTimeHistogram",
-                        &m_updateTimeHistogram[0], (int)m_updateTimeHistogram.size(),
+                    // Show tick histogram.
+                    ImGui::BulletText("Tick time histogram:");
+                    ImGui::PlotHistogram("##TickTimeHistogram",
+                        &m_tickTimeHistogram[0], (int)m_tickTimeHistogram.size(),
                         0, "", FLT_MAX, FLT_MAX, ImVec2(0, 100));
 
                     // Process histogram statistics.
-                    int updateTimeValues = 0;
-                    float updateTimeMinimum = FLT_MAX;
-                    float updateTimeMaximum = 0.0f;
-                    float updateTimeAverage = 0.0f;
+                    int tickTimeValues = 0;
+                    float tickTimeMinimum = FLT_MAX;
+                    float tickTimeMaximum = 0.0f;
+                    float tickTimeAverage = 0.0f;
 
-                    for(float updateTime : m_updateTimeHistogram)
+                    for(float tickTime : m_tickTimeHistogram)
                     {
-                        if(updateTime == 0.0f)
+                        if(tickTime == 0.0f)
                             continue;
 
-                        updateTimeValues += 1;
-                        updateTimeMinimum = std::min(updateTime, updateTimeMinimum);
-                        updateTimeMaximum = std::max(updateTime, updateTimeMaximum);
-                        updateTimeAverage += updateTime;
+                        tickTimeValues += 1;
+                        tickTimeMinimum = std::min(tickTime, tickTimeMinimum);
+                        tickTimeMaximum = std::max(tickTime, tickTimeMaximum);
+                        tickTimeAverage += tickTime;
                     }
 
-                    if(updateTimeMinimum == FLT_MAX)
-                        updateTimeMinimum = 0.0f;
+                    if(tickTimeMinimum == FLT_MAX)
+                        tickTimeMinimum = 0.0f;
 
-                    if(updateTimeValues != 0)
+                    if(tickTimeValues != 0)
                     {
-                        updateTimeAverage /= updateTimeValues;
+                        tickTimeAverage /= tickTimeValues;
                     }
 
                     // Print histogram statistics.
                     ImGui::SameLine();
                     ImGui::BeginGroup();
                     {
-                        ImGui::Text("Min: %0.3f", updateTimeMinimum);
-                        ImGui::Text("Max: %0.3f", updateTimeMaximum);
-                        ImGui::Text("Avg: %0.3f", updateTimeAverage);
+                        ImGui::Text("Min: %0.3f", tickTimeMinimum);
+                        ImGui::Text("Max: %0.3f", tickTimeMaximum);
+                        ImGui::Text("Avg: %0.3f", tickTimeAverage);
 
-                        ImGui::PushID("UpdateTimeHistogramToggle");
-                        if(ImGui::Button(m_updateTimeHistogramPaused ? "Resume" : "Pause"))
+                        ImGui::PushID("TickTimeHistogramToggle");
+                        if(ImGui::Button(m_tickTimeHistogramPaused ? "Resume" : "Pause"))
                         {
-                            m_updateTimeHistogramPaused = !m_updateTimeHistogramPaused;
+                            m_tickTimeHistogramPaused = !m_tickTimeHistogramPaused;
                         }
                         ImGui::PopID();
                     }
@@ -189,16 +189,16 @@ void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>&
 
         // Subscribe to game state dispatchers.
         m_receivers.gameStateDestructed.Subscribe(gameState->events.instanceDestructed);
-        m_receivers.gameStateUpdateCalled.Subscribe(gameState->events.updateCalled);
-        m_receivers.gameStateUpdateProcessed.Subscribe(gameState->events.updateProcessed);
+        m_receivers.gameStateTickCalled.Subscribe(gameState->events.tickCalled);
+        m_receivers.gameStateTickProcessed.Subscribe(gameState->events.tickProcessed);
 
-        // Update update time slider value.
-        m_updateRateSlider = 1.0f / m_gameState->GetUpdateTime();
+        // Update tick time slider value.
+        m_tickRateSlider = 1.0f / m_gameState->GetTickTime();
 
-        // Clear update time histogram.
-        for(auto& updateTime : m_updateTimeHistogram)
+        // Clear tick time histogram.
+        for(auto& tickTime : m_tickTimeHistogram)
         {
-            updateTime = 0.0f;
+            tickTime = 0.0f;
         }
     }
     else
@@ -216,35 +216,35 @@ void GameStateEditor::OnGameStateDestructed()
     m_receivers = Receivers();
 }
 
-void GameStateEditor::OnGameStateUpdateCalled()
+void GameStateEditor::OnGameStateTickCalled()
 {
     // Do not process histogram data if paused.
-    if(m_updateTimeHistogramPaused)
+    if(m_tickTimeHistogramPaused)
         return;
 
-    // Rotate update time histogram array to the right.
-    if(m_updateTimeHistogram.size() >= 2)
+    // Rotate tick time histogram array to the right.
+    if(m_tickTimeHistogram.size() >= 2)
     {
-        std::rotate(m_updateTimeHistogram.begin(), m_updateTimeHistogram.begin() + 1, m_updateTimeHistogram.end());
+        std::rotate(m_tickTimeHistogram.begin(), m_tickTimeHistogram.begin() + 1, m_tickTimeHistogram.end());
     }
 
-    // Reset first value that will accumulate new update time values.
-    if(!m_updateTimeHistogram.empty())
+    // Reset first value that will accumulate new tick time values.
+    if(!m_tickTimeHistogram.empty())
     {
-        m_updateTimeHistogram.back() = 0.0f;
+        m_tickTimeHistogram.back() = 0.0f;
     }
 }
 
-void GameStateEditor::OnGameStateUpdateProcessed(float updateTime)
+void GameStateEditor::OnGameStateTickProcessed(float tickTime)
 {
     // Do not process histogram data if paused.
-    if(m_updateTimeHistogramPaused)
+    if(m_tickTimeHistogramPaused)
         return;
 
-    // Accumulate new update time.
-    if(!m_updateTimeHistogram.empty())
+    // Accumulate new tick time.
+    if(!m_tickTimeHistogram.empty())
     {
-        m_updateTimeHistogram.back() += updateTime;
+        m_tickTimeHistogram.back() += tickTime;
     }
 }
 

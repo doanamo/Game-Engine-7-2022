@@ -40,8 +40,8 @@ public:
 private:
     SpriteDemo();
 
-    Event::Receiver<void(float)> m_customUpdate;
-    void Update(float updateTime);
+    Event::Receiver<void(float)> m_customTick;
+    void Tick(float tickTime);
 
 private:
     Engine::Root* m_engine = nullptr;

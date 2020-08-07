@@ -47,8 +47,8 @@ void StateRenderer::Draw(const DrawParams& drawParams)
         return;
     }
 
-    // Get time alpha from the game state.
-    float timeAlpha = drawParams.gameState->updateTimer->GetAlphaSeconds();
+    // Get time alpha from game state.
+    float timeAlpha = drawParams.gameState->tickTimer->GetAlphaSeconds();
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
 
     // Get game state systems.

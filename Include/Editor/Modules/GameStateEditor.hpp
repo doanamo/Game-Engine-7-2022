@@ -51,22 +51,22 @@ namespace Editor
         {
             Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
             Event::Receiver<void()> gameStateDestructed;
-            Event::Receiver<void()> gameStateUpdateCalled;
-            Event::Receiver<void(float)> gameStateUpdateProcessed;
+            Event::Receiver<void()> gameStateTickCalled;
+            Event::Receiver<void(float)> gameStateTickProcessed;
         } m_receivers;
 
         void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
         void OnGameStateDestructed();
-        void OnGameStateUpdateCalled();
-        void OnGameStateUpdateProcessed(float updateTime);
+        void OnGameStateTickCalled();
+        void OnGameStateTickProcessed(float tickTime);
 
     private:
         Game::GameState* m_gameState = nullptr;
 
-        std::vector<float> m_updateTimeHistogram;
-        bool m_updateTimeHistogramPaused = false;
+        std::vector<float> m_tickTimeHistogram;
+        bool m_tickTimeHistogramPaused = false;
 
-        float m_updateRateSlider = 0.0f;
+        float m_tickRateSlider = 0.0f;
         float m_updateDelaySlider = 0.0f;
         float m_updateDelayValue = 0.0f;
         float m_updateNoiseSlider = 0.0f;

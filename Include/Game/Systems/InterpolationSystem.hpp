@@ -26,12 +26,11 @@ namespace Game
     public:
         ~InterpolationSystem();
 
-        void Update(float timeDelta);
+        void Tick(float timeDelta);
 
     private:
         InterpolationSystem();
 
-    private:
         ComponentSystem* m_componentSystem = nullptr;
     };
 }

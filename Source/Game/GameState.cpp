@@ -59,7 +59,7 @@ GameState::CreateResult GameState::Create()
     }
 
     // Create sprite system.
-    // Updates sprites and their animations.
+    // Controls sprites and their animations.
     instance->spriteSystem = SpriteSystem::Create(instance->componentSystem.get()).UnwrapOr(nullptr);
     if(instance->spriteSystem == nullptr)
     {
@@ -67,11 +67,11 @@ GameState::CreateResult GameState::Create()
         return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Create update timer.
-    instance->updateTimer = UpdateTimer::Create().UnwrapOr(nullptr);
-    if(instance->updateTimer == nullptr)
+    // Create tick timer.
+    instance->tickTimer = TickTimer::Create().UnwrapOr(nullptr);
+    if(instance->tickTimer == nullptr)
     {
-        LOG_ERROR("Could not create update timer!");
+        LOG_ERROR("Could not create tick timer!");
         return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
@@ -79,50 +79,50 @@ GameState::CreateResult GameState::Create()
     return Common::Success(std::move(instance));
 }
 
-void GameState::ChangeUpdateTime(float updateTime)
+void GameState::ChangeTickTime(float tickTime)
 {
-    m_updateTime = updateTime;
+    m_tickTime = tickTime;
 }
 
-bool GameState::Update(const System::Timer& timer)
+bool GameState::Tick(const System::Timer& timer)
 {
-    // Inform about update being called.
-    events.updateCalled.Dispatch();
+    // Inform about tick method being called.
+    events.tickCalled.Dispatch();
 
-    // Advance update timer.
-    updateTimer->Advance(timer);
+    // Advance tick timer.
+    tickTimer->Advance(timer);
 
-    // Return flag indicating if state was updated.
-    bool stateUpdated = false;
+    // Return flag indicating if state was ticked.
+    bool stateTicked = false;
 
-    // Main game state update loop.
-    // Make copy of update time in case it changes.
-    const float updateTime = m_updateTime;
+    // Main game state tick loop.
+    // Make copy of tick time in case it changes.
+    const float tickTime = m_tickTime;
 
-    while(updateTimer->Update(updateTime))
+    while(tickTimer->Tick(tickTime))
     {
         // Process entity commands.
         entitySystem->ProcessCommands();
 
-        // Update interpolation system.
-        interpolationSystem->Update(updateTime);
+        // Tick interpolation system.
+        interpolationSystem->Tick(tickTime);
 
-        // Update sprite animation system.
-        spriteSystem->Update(updateTime);
+        // Tick sprite animation system.
+        spriteSystem->Tick(tickTime);
 
-        // Inform that state had its update processed.
-        // Allows for custom update logic to be executed.
-        events.updateProcessed.Dispatch(updateTime);
+        // Inform that state had its tick processed.
+        // Allows for custom tick logic to be executed.
+        events.tickProcessed.Dispatch(tickTime);
 
-        // State has been updated at least once.
-        stateUpdated = true;
+        // State has been ticked at least once.
+        stateTicked = true;
     }
 
-    // Return whether state could be updated.
-    return stateUpdated;
+    // Return whether state could be ticked.
+    return stateTicked;
 }
 
-float GameState::GetUpdateTime() const
+float GameState::GetTickTime() const
 {
-    return m_updateTime;
+    return m_tickTime;
 }

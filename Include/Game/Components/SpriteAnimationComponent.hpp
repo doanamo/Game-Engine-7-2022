@@ -46,7 +46,7 @@ namespace Game
         void Resume();
         void Stop();
 
-        void Update(float timeDelta);
+        void Tick(float timeDelta);
         float CalculateAnimationTime(float timeAlpha) const;
 
         SpriteComponent* GetSpriteComponent() const;
@@ -56,7 +56,6 @@ namespace Game
     private:
         bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
 
-    private:
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;
         const SpriteAnimation* m_spriteAnimation = nullptr;

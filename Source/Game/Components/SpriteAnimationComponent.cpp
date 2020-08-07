@@ -112,7 +112,7 @@ void SpriteAnimationComponent::Stop()
     m_previousAnimationTime = 0.0f;
 }
 
-void SpriteAnimationComponent::Update(float timeDelta)
+void SpriteAnimationComponent::Tick(float timeDelta)
 {
     // Increment playback time.
     if(m_playbackInfo & PlaybackFlags::Playing)

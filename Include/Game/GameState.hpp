@@ -7,7 +7,7 @@
 #include <any>
 #include <Event/Queue.hpp>
 #include <Event/Broker.hpp>
-#include "Game/UpdateTimer.hpp"
+#include "Game/TickTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
@@ -34,12 +34,12 @@ namespace Game
     public:
         ~GameState();
 
-        bool Update(const System::Timer& timer);
-        void ChangeUpdateTime(float updateTime);
-        float GetUpdateTime() const;
+        bool Tick(const System::Timer& timer);
+        void ChangeTickTime(float tickTime);
+        float GetTickTime() const;
 
     public:
-        std::unique_ptr<UpdateTimer> updateTimer;
+        std::unique_ptr<TickTimer> tickTimer;
         std::unique_ptr<EntitySystem> entitySystem;
         std::unique_ptr<ComponentSystem> componentSystem;
 
@@ -52,19 +52,19 @@ namespace Game
             // Called when the class instance is destructed.
             Event::Dispatcher<void()> instanceDestructed;
 
-            // Called when update method is called.
-            // This does not mean that the state will be actually updated.
-            Event::Dispatcher<void()> updateCalled;
+            // Called when tick method is called.
+            // This does not mean that the state was actually ticked.
+            Event::Dispatcher<void()> tickCalled;
 
-            // Called when state had its update processed.
-            // Event can be dispatched multiple times during the same update call.
-            // This is also good time to run custom update logic.
-            Event::Dispatcher<void(float)> updateProcessed;
+            // Called when state had its tick processed.
+            // Event can be dispatched multiple times during the same tick method call.
+            // This is also good time to run custom tick logic in response.
+            Event::Dispatcher<void(float)> tickProcessed;
         } events;
 
     private:
         GameState();
 
-        float m_updateTime = 1.0f / 10.0f;
+        float m_tickTime = 1.0f / 10.0f;
     };
 }

@@ -19,7 +19,7 @@
 
 SpriteDemo::SpriteDemo()
 {
-    m_customUpdate.Bind<SpriteDemo, &SpriteDemo::Update>(this);
+    m_customTick.Bind<SpriteDemo, &SpriteDemo::Tick>(this);
 }
 
 SpriteDemo::~SpriteDemo() = default;
@@ -51,8 +51,8 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         return Common::Failure(CreateErrors::FailedGameStateCreation);
     }
 
-    // Setup custom update callback.
-    instance->m_customUpdate.Subscribe(instance->m_gameState->events.updateProcessed);
+    // Setup custom tick callback.
+    instance->m_customTick.Subscribe(instance->m_gameState->events.tickProcessed);
     
     // Set input state as current.
     inputManager->SetInputState(instance->m_inputState);
@@ -134,7 +134,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     return Common::Success(std::move(instance));
 }
 
-void SpriteDemo::Update(float updateTime)
+void SpriteDemo::Tick(float tickTime)
 {
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameState->identitySystem->GetEntityByName("Player");
@@ -143,7 +143,7 @@ void SpriteDemo::Update(float updateTime)
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    double timeAccumulated = m_gameState->updateTimer->GetTotalUpdateSeconds();
+    double timeAccumulated = m_gameState->tickTimer->GetTotalTickSeconds();
 
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -173,6 +173,6 @@ void SpriteDemo::Update(float updateTime)
 
     if(direction != glm::vec3(0.0f))
     {
-        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * updateTime);
+        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * tickTime);
     }
 }

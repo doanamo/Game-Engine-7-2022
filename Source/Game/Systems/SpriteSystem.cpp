@@ -31,12 +31,12 @@ SpriteSystem::CreateResult SpriteSystem::Create(ComponentSystem* componentSystem
     return Common::Success(std::move(instance));
 }
 
-void SpriteSystem::Update(float timeDelta)
+void SpriteSystem::Tick(float timeDelta)
 {
     // Get all sprite animation components.
     for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {
-        // Update sprite animation component.
-        spriteAnimationComponent.Update(timeDelta);
+        // Tick sprite animation component.
+        spriteAnimationComponent.Tick(timeDelta);
     }
 }

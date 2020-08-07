@@ -12,7 +12,7 @@ include_guard(GLOBAL)
 set(INCLUDE_FILES
     "GameFramework.hpp"
     "GameState.hpp"
-    "UpdateTimer.hpp"
+    "TickTimer.hpp"
     "EntityHandle.hpp"
     "EntitySystem.hpp"
     "Component.hpp"
@@ -34,7 +34,7 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "GameFramework.cpp"
     "GameState.cpp"
-    "UpdateTimer.cpp"
+    "TickTimer.cpp"
     "EntitySystem.cpp"
     "ComponentSystem.cpp"
     "Components/TransformComponent.cpp"

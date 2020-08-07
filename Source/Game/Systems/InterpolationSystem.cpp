@@ -30,7 +30,7 @@ InterpolationSystem::CreateResult InterpolationSystem::Create(ComponentSystem* c
     return Common::Success(std::move(instance));
 }
 
-void InterpolationSystem::Update(float timeDelta)
+void InterpolationSystem::Tick(float timeDelta)
 {
     // Reset interpolation state of all sprite transform components.
     for(auto& transformComponent : m_componentSystem->GetPool<Game::TransformComponent>())
