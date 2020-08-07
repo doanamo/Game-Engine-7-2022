@@ -139,7 +139,7 @@ IdentitySystem::LookupSingleResult IdentitySystem::GetEntityByName(std::string n
     return Common::Failure(LookupErrors::NotFound);
 }
 
-IdentitySystem::LookupMultipleResult IdentitySystem::GetEntitiesWithName(std::string name) const
+IdentitySystem::LookupMultipleResult IdentitySystem::GetEntitiesByName(std::string name) const
 {
     // Find name in name lookup table.
     auto nameIt = m_nameLookup.find(name);

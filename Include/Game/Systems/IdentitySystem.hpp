@@ -48,7 +48,7 @@ namespace Game
 
         bool SetEntityName(EntityHandle entity, std::string name, bool rename = true);
         LookupSingleResult GetEntityByName(std::string name) const;
-        LookupMultipleResult GetEntitiesWithName(std::string name) const;
+        LookupMultipleResult GetEntitiesByName(std::string name) const;
 
     private:
         IdentitySystem();
