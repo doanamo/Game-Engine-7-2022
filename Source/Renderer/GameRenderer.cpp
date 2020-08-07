@@ -56,7 +56,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     auto& componentSystem = drawParams.gameInstance->componentSystem;
     auto& identitySystem = drawParams.gameInstance->identitySystem;
 
-    // Update sprite animation components for rendering.
+    // Update sprite components for rendering.
     for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())
     {
         // Update sprite texture view using currently playing animation.
