@@ -137,14 +137,12 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 void SpriteDemo::Tick(float tickTime)
 {
     // Retrieve player transform.
-    Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player");
-
+    Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player").Unwrap();
     auto transform = m_gameInstance->componentSystem->Lookup<Game::TransformComponent>(playerEntity);
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
     double timeAccumulated = m_gameInstance->tickTimer->GetTotalTickSeconds();
-
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 

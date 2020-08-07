@@ -119,7 +119,7 @@ bool IdentitySystem::SetEntityName(EntityHandle entity, std::string name, bool r
     return true;
 }
 
-EntityHandle IdentitySystem::GetEntityByName(std::string name) const
+IdentitySystem::LookupSingleResult IdentitySystem::GetEntityByName(std::string name) const
 {
     // Find name in name lookup table.
     auto nameIt = m_nameLookup.find(name);
@@ -131,13 +131,15 @@ EntityHandle IdentitySystem::GetEntityByName(std::string name) const
         ASSERT(!nameRegistry.empty(), "Retrieved an empty registry name!");
 
         // Return first named entity.
-        return nameRegistry.front();
+        // Handle is guaranteed to be valid otherwise it
+        // would have already been removed from registry.
+        return Common::Success(nameRegistry.front());
     }
 
-    return EntityHandle();
+    return Common::Failure(LookupErrors::NotFound);
 }
 
-std::vector<EntityHandle> IdentitySystem::GetEntitiesWithName(std::string name) const
+IdentitySystem::LookupMultipleResult IdentitySystem::GetEntitiesWithName(std::string name) const
 {
     // Find name in name lookup table.
     auto nameIt = m_nameLookup.find(name);
@@ -149,10 +151,12 @@ std::vector<EntityHandle> IdentitySystem::GetEntitiesWithName(std::string name) 
         ASSERT(!nameRegistry.empty(), "Retrieved an empty registry name!");
 
         // Return copy of name registry.
-        return nameRegistry;
+        // Handle is guaranteed to be valid otherwise it
+        // would have already been removed from registry.
+        return Common::Success(nameRegistry);
     }
 
-    return NameRegistry();
+    return Common::Failure(LookupErrors::NotFound);
 }
 
 void IdentitySystem::OnEntityDestroyed(EntityHandle entity)

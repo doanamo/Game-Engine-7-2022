@@ -23,6 +23,10 @@ namespace Game
     class IdentitySystem final : private Common::NonCopyable
     {
     public:
+        using NameRegistry = std::vector<EntityHandle>;
+        using EntityLookup = std::unordered_map<EntityHandle, std::string>;
+        using NameLookup = std::unordered_map<std::string, NameRegistry>;
+
         enum class CreateErrors
         {
             InvalidArgument,
@@ -31,16 +35,20 @@ namespace Game
         using CreateResult = Common::Result<std::unique_ptr<IdentitySystem>, CreateErrors>;
         static CreateResult Create(EntitySystem* entitySystem);
 
-        using NameRegistry = std::vector<EntityHandle>;
-        using EntityLookup = std::unordered_map<EntityHandle, std::string>;
-        using NameLookup = std::unordered_map<std::string, NameRegistry>;
+        enum class LookupErrors
+        {
+            NotFound,
+        };
+
+        using LookupSingleResult = Common::Result<EntityHandle, LookupErrors>;
+        using LookupMultipleResult = Common::Result<std::vector<EntityHandle>, LookupErrors>;
 
     public:
         ~IdentitySystem();
 
         bool SetEntityName(EntityHandle entity, std::string name, bool rename = true);
-        EntityHandle GetEntityByName(std::string name) const;
-        std::vector<EntityHandle> GetEntitiesWithName(std::string name) const;
+        LookupSingleResult GetEntityByName(std::string name) const;
+        LookupMultipleResult GetEntitiesWithName(std::string name) const;
 
     private:
         IdentitySystem();

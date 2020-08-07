@@ -88,11 +88,11 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     glm::mat4 cameraTransform(1.0f);
 
     // Retrieve transform from camera entity.
-    Game::EntityHandle cameraEntity = identitySystem->GetEntityByName(drawParams.cameraName);
+    auto cameraEntityResult = identitySystem->GetEntityByName(drawParams.cameraName);
 
-    if(entitySystem->IsHandleValid(cameraEntity))
+    if(cameraEntityResult.IsSuccess())
     {
-        auto cameraComponent = componentSystem->Lookup<Game::CameraComponent>(cameraEntity);
+        auto cameraComponent = componentSystem->Lookup<Game::CameraComponent>(cameraEntityResult.Unwrap());
 
         if(cameraComponent != nullptr)
         {
