@@ -22,14 +22,14 @@ namespace Graphics
     class SpriteRenderer;
 }
 
-namespace Renderer
-{
-    class StateRenderer;
-}
-
 namespace Game
 {
     class GameFramework;
+}
+
+namespace Renderer
+{
+    class GameRenderer;
 }
 
 namespace Editor
@@ -57,8 +57,8 @@ namespace Core
         void Provide(std::unique_ptr<System::ResourceManager>&& resourceManager);
         void Provide(std::unique_ptr<Graphics::RenderContext>&& renderContext);
         void Provide(std::unique_ptr<Graphics::SpriteRenderer>&& spriteRenderer);
-        void Provide(std::unique_ptr<Renderer::StateRenderer>&& stateRenderer);
         void Provide(std::unique_ptr<Game::GameFramework>&& gameFramework);
+        void Provide(std::unique_ptr<Renderer::GameRenderer>&& gameRenderer);
         void Provide(std::unique_ptr<Editor::EditorSystem>&& editorSystem);
 
         System::Platform* GetPlatform() const;
@@ -69,8 +69,8 @@ namespace Core
         System::ResourceManager* GetResourceManager() const;
         Graphics::RenderContext* GetRenderContext() const;
         Graphics::SpriteRenderer* GetSpriteRenderer() const;
-        Renderer::StateRenderer* GetStateRenderer() const;
         Game::GameFramework* GetGameFramework() const;
+        Renderer::GameRenderer* GetGameRenderer() const;
         Editor::EditorSystem* GetEditorSystem() const;
 
     private:
@@ -82,8 +82,8 @@ namespace Core
         std::unique_ptr<System::ResourceManager> m_resourceManager;
         std::unique_ptr<Graphics::RenderContext> m_renderContext;
         std::unique_ptr<Graphics::SpriteRenderer> m_spriteRenderer;
-        std::unique_ptr<Renderer::StateRenderer> m_stateRenderer;
         std::unique_ptr<Game::GameFramework> m_gameFramework;
+        std::unique_ptr<Renderer::GameRenderer> m_gameRenderer;
         std::unique_ptr<Editor::EditorSystem> m_editorSystem;
     };
 }

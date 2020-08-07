@@ -3,24 +3,24 @@
 */
 
 #include "Precompiled.hpp"
-#include "Game/GameState.hpp"
+#include "Game/GameInstance.hpp"
 using namespace Game;
 
-GameState::GameState() = default;
+GameInstance::GameInstance() = default;
 
-GameState::~GameState()
+GameInstance::~GameInstance()
 {
-    // Notify about game state instance being destructed.
+    // Notify about game instance being destroyed.
     events.instanceDestroyed.Dispatch();
 }
 
-GameState::CreateResult GameState::Create()
+GameInstance::CreateResult GameInstance::Create()
 {
-    LOG("Creating game state...");
+    LOG("Creating game instance...");
     LOG_SCOPED_INDENT();
 
     // Create instance.
-    auto instance = std::unique_ptr<GameState>(new GameState());
+    auto instance = std::unique_ptr<GameInstance>(new GameInstance());
 
     // Create entity system.
     // Assigns unique identifiers that all other systems use to identify objects in a game.
@@ -79,10 +79,10 @@ GameState::CreateResult GameState::Create()
     return Common::Success(std::move(instance));
 }
 
-bool GameState::Tick(const System::Timer& timer)
+bool GameInstance::Tick(const System::Timer& timer)
 {
-    // Return flag indicating if state was ticked.
-    bool stateTicked = false;
+    // Return flag indicating if instance was ticked.
+    bool tickProcessed = false;
 
     // Inform about tick method being called.
     events.tickRequested.Dispatch();
@@ -90,7 +90,7 @@ bool GameState::Tick(const System::Timer& timer)
     // Advance tick timer.
     tickTimer->Advance(timer);
 
-    // Main game state tick loop.
+    // Main game instance tick loop.
     while(tickTimer->Tick())
     {
         // Retrieve last tick time.
@@ -105,14 +105,14 @@ bool GameState::Tick(const System::Timer& timer)
         // Tick sprite animation system.
         spriteSystem->Tick(tickTime);
 
-        // Inform that state had its tick processed.
+        // Inform that instance had its tick processed.
         // Allows for custom tick logic to be executed.
         events.tickProcessed.Dispatch(tickTime);
 
-        // State has been ticked at least once.
-        stateTicked = true;
+        // Instance has been ticked at least once.
+        tickProcessed = true;
     }
 
-    // Return whether state could be ticked.
-    return stateTicked;
+    // Return whether instance could be ticked.
+    return tickProcessed;
 }

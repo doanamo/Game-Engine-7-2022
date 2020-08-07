@@ -36,7 +36,6 @@ namespace Editor
 
         void Update(float timeDelta);
 
-    public:
         bool mainWindowOpen = false;
 
     private:
@@ -60,7 +59,6 @@ namespace Editor
 
         void AddIncomingEventLog(std::string text);
 
-    private:
         System::Window* m_window = nullptr;
 
         bool m_incomingEventFreeze = false;

@@ -3,24 +3,24 @@
 */
 
 #include "../Precompiled.hpp"
-#include "Editor/Modules/GameStateEditor.hpp"
+#include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Game/GameFramework.hpp>
-#include <Game/GameState.hpp>
+#include <Game/GameInstance.hpp>
 using namespace Editor;
 
-GameStateEditor::GameStateEditor()
+GameInstanceEditor::GameInstanceEditor()
 {
-    m_receivers.gameStateChanged.Bind<GameStateEditor, &GameStateEditor::OnGameStateChanged>(this);
-    m_receivers.gameStateDestroyed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
-    m_receivers.gameStateTickRequested.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickRequested>(this);
-    m_receivers.gameStateTickProcessed.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickProcessed>(this);
+    m_receivers.gameInstanceChanged.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceChanged>(this);
+    m_receivers.gameInstanceDestroyed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceDestroyed>(this);
+    m_receivers.gameInstanceTickRequested.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickRequested>(this);
+    m_receivers.gameInstanceTickProcessed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickProcessed>(this);
 }
 
-GameStateEditor::~GameStateEditor() = default;
+GameInstanceEditor::~GameInstanceEditor() = default;
 
-GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& params)
+GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromParams& params)
 {
-    LOG("Creating game state editor...");
+    LOG("Creating game instance editor...");
     LOG_SCOPED_INDENT();
 
     // Check arguments.
@@ -30,10 +30,10 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     Game::GameFramework* gameFramework = params.services->GetGameFramework();
 
     // Create instance.
-    auto instance = std::unique_ptr<GameStateEditor>(new GameStateEditor());
+    auto instance = std::unique_ptr<GameInstanceEditor>(new GameInstanceEditor());
 
-    // Subscribe to game state being changed.
-    instance->m_receivers.gameStateChanged.Subscribe(gameFramework->events.gameStateChanged);
+    // Subscribe to game instance being changed.
+    instance->m_receivers.gameInstanceChanged.Subscribe(gameFramework->events.gameInstanceChanged);
 
     // Set histogram size.
     instance->m_tickTimeHistogram.resize(100, 0.0f);
@@ -42,28 +42,28 @@ GameStateEditor::CreateResult GameStateEditor::Create(const CreateFromParams& pa
     return Common::Success(std::move(instance));
 }
 
-void GameStateEditor::Update(float timeDelta)
+void GameInstanceEditor::Update(float timeDelta)
 {
-    // Do not create a window if game state reference is not set.
-    if(!m_gameState)
+    // Do not create a window if game instance reference is not set.
+    if(!m_gameInstance)
     {
         mainWindowOpen = false;
         return;
     }
 
-    // Show game state window.
+    // Show game instance window.
     if(mainWindowOpen)
     {
         ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 
-        if(ImGui::Begin("Game State", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
+        if(ImGui::Begin("Game Instance", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
         {
             if(ImGui::CollapsingHeader("Core"))
             {
                 if(ImGui::TreeNode("Tick Control"))
                 {
                     // Show tick controls.
-                    float currentTickTime = m_gameState->tickTimer->GetTickSeconds();
+                    float currentTickTime = m_gameInstance->tickTimer->GetTickSeconds();
                     float currentTickRate = 1.0f / currentTickTime;
                     ImGui::BulletText("Tick time: %fs (%.1f tick rate)",
                         currentTickTime, currentTickRate);
@@ -74,7 +74,7 @@ void GameStateEditor::Update(float timeDelta)
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##TickTimeApply"))
                     {
-                        m_gameState->tickTimer->SetTickSeconds(1.0f / m_tickRateSlider);
+                        m_gameInstance->tickTimer->SetTickSeconds(1.0f / m_tickRateSlider);
                     }
 
                     // Show tick histogram.
@@ -180,20 +180,20 @@ void GameStateEditor::Update(float timeDelta)
     }
 }
 
-void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
+void GameInstanceEditor::OnGameInstanceChanged(const std::shared_ptr<Game::GameInstance>& gameInstance)
 {
-    if(gameState)
+    if(gameInstance)
     {
-        // Replace with new game state reference.
-        m_gameState = gameState.get();
+        // Replace with new game instance reference.
+        m_gameInstance = gameInstance.get();
 
-        // Subscribe to game state dispatchers.
-        m_receivers.gameStateDestroyed.Subscribe(gameState->events.instanceDestroyed);
-        m_receivers.gameStateTickRequested.Subscribe(gameState->events.tickRequested);
-        m_receivers.gameStateTickProcessed.Subscribe(gameState->events.tickProcessed);
+        // Subscribe to game instance dispatchers.
+        m_receivers.gameInstanceDestroyed.Subscribe(gameInstance->events.instanceDestroyed);
+        m_receivers.gameInstanceTickRequested.Subscribe(gameInstance->events.tickRequested);
+        m_receivers.gameInstanceTickProcessed.Subscribe(gameInstance->events.tickProcessed);
 
         // Update tick time slider value.
-        m_tickRateSlider = 1.0f / m_gameState->tickTimer->GetTickSeconds();
+        m_tickRateSlider = 1.0f / m_gameInstance->tickTimer->GetTickSeconds();
 
         // Clear tick time histogram.
         for(auto& tickTime : m_tickTimeHistogram)
@@ -203,20 +203,20 @@ void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>&
     }
     else
     {
-        // Remove game state reference.
-        m_gameState = nullptr;
+        // Remove game instance reference.
+        m_gameInstance = nullptr;
         m_receivers = Receivers();
     }
 }
 
-void GameStateEditor::OnGameStateDestructed()
+void GameInstanceEditor::OnGameInstanceDestroyed()
 {
-    // Reset game state reference.
-    m_gameState = nullptr;
+    // Reset game instance reference.
+    m_gameInstance = nullptr;
     m_receivers = Receivers();
 }
 
-void GameStateEditor::OnGameStateTickRequested()
+void GameInstanceEditor::OnGameInstanceTickRequested()
 {
     // Do not process histogram data if paused.
     if(m_tickTimeHistogramPaused)
@@ -235,7 +235,7 @@ void GameStateEditor::OnGameStateTickRequested()
     }
 }
 
-void GameStateEditor::OnGameStateTickProcessed(float tickTime)
+void GameInstanceEditor::OnGameInstanceTickProcessed(float tickTime)
 {
     // Do not process histogram data if paused.
     if(m_tickTimeHistogramPaused)
@@ -246,9 +246,4 @@ void GameStateEditor::OnGameStateTickProcessed(float tickTime)
     {
         m_tickTimeHistogram.back() += tickTime;
     }
-}
-
-Game::GameState* GameStateEditor::GetGameState() const
-{
-    return m_gameState;
 }

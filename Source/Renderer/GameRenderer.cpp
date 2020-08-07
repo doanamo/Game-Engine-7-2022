@@ -3,29 +3,29 @@
 */
 
 #include "Precompiled.hpp"
-#include "Renderer/StateRenderer.hpp"
+#include "Renderer/GameRenderer.hpp"
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Game/Components/TransformComponent.hpp>
 #include <Game/Components/CameraComponent.hpp>
 #include <Game/Components/SpriteComponent.hpp>
 #include <Game/Components/SpriteAnimationComponent.hpp>
-#include <Game/GameState.hpp>
+#include <Game/GameInstance.hpp>
 using namespace Renderer;
 
-StateRenderer::StateRenderer() = default;
-StateRenderer::~StateRenderer() = default;
+GameRenderer::GameRenderer() = default;
+GameRenderer::~GameRenderer() = default;
 
-StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params)
+GameRenderer::CreateResult GameRenderer::Create(const CreateFromParams& params)
 {
-    LOG("Creating state renderer...");
+    LOG("Creating game renderer...");
     LOG_SCOPED_INDENT();
 
     // Validate arguments
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
-    auto instance = std::unique_ptr<StateRenderer>(new StateRenderer());
+    auto instance = std::unique_ptr<GameRenderer>(new GameRenderer());
 
     // Save system references.
     instance->m_renderContext = params.services->GetRenderContext();
@@ -35,26 +35,26 @@ StateRenderer::CreateResult StateRenderer::Create(const CreateFromParams& params
     return Common::Success(std::move(instance));
 }
 
-void StateRenderer::Draw(const DrawParams& drawParams)
+void GameRenderer::Draw(const DrawParams& drawParams)
 {
     // Clear frame buffer.
     m_renderContext->GetState().Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Checks if game state is null.
-    if(drawParams.gameState == nullptr)
+    // Checks if game instance is null.
+    if(!drawParams.gameInstance)
     {
-        LOG_WARNING("Attempted to draw null game state!");
+        LOG_WARNING("Attempted to draw null game instance!");
         return;
     }
 
-    // Get time alpha from game state.
-    float timeAlpha = drawParams.gameState->tickTimer->GetAlphaSeconds();
+    // Get time alpha from game instance.
+    float timeAlpha = drawParams.gameInstance->tickTimer->GetAlphaSeconds();
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
 
-    // Get game state systems.
-    auto& entitySystem = drawParams.gameState->entitySystem;
-    auto& componentSystem = drawParams.gameState->componentSystem;
-    auto& identitySystem = drawParams.gameState->identitySystem;
+    // Get game instance systems.
+    auto& entitySystem = drawParams.gameInstance->entitySystem;
+    auto& componentSystem = drawParams.gameInstance->componentSystem;
+    auto& identitySystem = drawParams.gameInstance->identitySystem;
 
     // Update sprite animation components for rendering.
     for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())

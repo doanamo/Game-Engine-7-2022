@@ -12,8 +12,8 @@
 #include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
-#include <Renderer/StateRenderer.hpp>
 #include <Game/GameFramework.hpp>
+#include <Renderer/GameRenderer.hpp>
 #include <Editor/EditorSystem.hpp>
 using namespace Core;
 
@@ -68,16 +68,16 @@ void ServiceStorage::Provide(std::unique_ptr<Graphics::SpriteRenderer>&& spriteR
     m_spriteRenderer = std::move(spriteRenderer);
 }
 
-void ServiceStorage::Provide(std::unique_ptr<Renderer::StateRenderer>&& stateRenderer)
-{
-    ASSERT(!m_stateRenderer);
-    m_stateRenderer = std::move(stateRenderer);
-}
-
 void ServiceStorage::Provide(std::unique_ptr<Game::GameFramework>&& gameFramework)
 {
     ASSERT(!m_gameFramework);
     m_gameFramework = std::move(gameFramework);
+}
+
+void ServiceStorage::Provide(std::unique_ptr<Renderer::GameRenderer>&& gameRenderer)
+{
+    ASSERT(!m_gameRenderer);
+    m_gameRenderer = std::move(gameRenderer);
 }
 
 void ServiceStorage::Provide(std::unique_ptr<Editor::EditorSystem>&& editorSystem)
@@ -134,16 +134,16 @@ Graphics::SpriteRenderer* ServiceStorage::GetSpriteRenderer() const
     return m_spriteRenderer.get();
 }
 
-Renderer::StateRenderer* ServiceStorage::GetStateRenderer() const
-{
-    ASSERT(m_stateRenderer);
-    return m_stateRenderer.get();
-}
-
 Game::GameFramework* ServiceStorage::GetGameFramework() const
 {
     ASSERT(m_gameFramework);
     return m_gameFramework.get();
+}
+
+Renderer::GameRenderer* ServiceStorage::GetGameRenderer() const
+{
+    ASSERT(m_gameRenderer);
+    return m_gameRenderer.get();
 }
 
 Editor::EditorSystem* ServiceStorage::GetEditorSystem() const

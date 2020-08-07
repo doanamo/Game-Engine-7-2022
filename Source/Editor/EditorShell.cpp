@@ -35,14 +35,14 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
         return Common::Failure(CreateErrors::FailedModuleCreation);
     }
 
-    // Create game state editor.
-    GameStateEditor::CreateFromParams gameStateEditorParams;
-    gameStateEditorParams.services = params.services;
+    // Create game instance editor.
+    GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
+    gameInstanceEditorParams.services = params.services;
 
-    instance->m_gameStateEditor = GameStateEditor::Create(gameStateEditorParams).UnwrapOr(nullptr);
-    if(instance->m_gameStateEditor == nullptr)
+    instance->m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
+    if(instance->m_gameInstanceEditor == nullptr)
     {
-        LOG_ERROR("Could not create game state editor!");
+        LOG_ERROR("Could not create game instance editor!");
         return Common::Failure(CreateErrors::FailedModuleCreation);
     }
 
@@ -87,7 +87,7 @@ void EditorShell::Update(float timeDelta)
 
         if(ImGui::BeginMenu("Game"))
         {
-            ImGui::MenuItem("Game State", "", &m_gameStateEditor->mainWindowOpen, true);
+            ImGui::MenuItem("Game Instance", "", &m_gameInstanceEditor->mainWindowOpen, true);
             ImGui::EndMenu();
         }
 
@@ -96,5 +96,5 @@ void EditorShell::Update(float timeDelta)
 
     // Update editor modules.
     m_inputManagerEditor->Update(timeDelta);
-    m_gameStateEditor->Update(timeDelta);
+    m_gameInstanceEditor->Update(timeDelta);
 }

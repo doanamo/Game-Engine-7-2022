@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Game/GameState.hpp>
+#include <Game/GameInstance.hpp>
 
 namespace Engine
 {
@@ -27,7 +27,7 @@ public:
     enum class CreateErrors
     {
         InvalidArgument,
-        FailedGameStateCreation,
+        FailedGameInstanceCreation,
         FailedResourceLoading,
     };
 
@@ -47,5 +47,5 @@ private:
     Engine::Root* m_engine = nullptr;
 
     std::shared_ptr<System::InputState> m_inputState;
-    std::shared_ptr<Game::GameState> m_gameState;
+    std::shared_ptr<Game::GameInstance> m_gameInstance;
 };

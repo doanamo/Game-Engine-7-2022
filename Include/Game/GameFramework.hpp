@@ -16,7 +16,7 @@ namespace System
 
 namespace Renderer
 {
-    class StateRenderer;
+    class GameRenderer;
 }
 
 /*
@@ -25,7 +25,7 @@ namespace Renderer
 
 namespace Game
 {
-    class GameState;
+    class GameInstance;
 
     class GameFramework final : private Common::NonCopyable
     {
@@ -50,13 +50,12 @@ namespace Game
         bool Update();
         void Draw();
 
-        void SetGameState(std::shared_ptr<GameState> gameState);
-        std::shared_ptr<GameState> GetGameState() const;
+        void SetGameInstance(std::shared_ptr<GameInstance> gameInstance);
+        std::shared_ptr<GameInstance> GetGameInstance() const;
 
-    public:
         struct Events
         {
-            Event::Dispatcher<void(const std::shared_ptr<GameState>&)> gameStateChanged;
+            Event::Dispatcher<void(const std::shared_ptr<GameInstance>&)> gameInstanceChanged;
         } events;
 
     private:
@@ -64,8 +63,8 @@ namespace Game
 
         System::Timer* m_timer = nullptr;
         System::Window* m_window = nullptr;
-        Renderer::StateRenderer* m_stateRenderer = nullptr;
+        Renderer::GameRenderer* m_gameRenderer = nullptr;
 
-        std::shared_ptr<GameState> m_gameState;
+        std::shared_ptr<GameInstance> m_gameInstance;
     };
 }

@@ -10,16 +10,16 @@
 namespace Game
 {
     class GameFramework;
-    class GameState;
+    class GameInstance;
 };
 
 /*
-    Game State Editor
+    Game Instance Editor
 */
 
 namespace Editor
 {
-    class GameStateEditor final : private Common::NonCopyable
+    class GameInstanceEditor final : private Common::NonCopyable
     {
     public:
         struct CreateFromParams
@@ -32,36 +32,33 @@ namespace Editor
             InvalidArgument,
         };
 
-        using CreateResult = Common::Result<std::unique_ptr<GameStateEditor>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameInstanceEditor>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
     public:
-        ~GameStateEditor();
+        ~GameInstanceEditor();
 
         void Update(float timeDelta);
-        Game::GameState* GetGameState() const;
 
-    public:
         bool mainWindowOpen = false;
 
     private:
-        GameStateEditor();
+        GameInstanceEditor();
 
         struct Receivers
         {
-            Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
-            Event::Receiver<void()> gameStateDestroyed;
-            Event::Receiver<void()> gameStateTickRequested;
-            Event::Receiver<void(float)> gameStateTickProcessed;
+            Event::Receiver<void(const std::shared_ptr<Game::GameInstance>&)> gameInstanceChanged;
+            Event::Receiver<void()> gameInstanceDestroyed;
+            Event::Receiver<void()> gameInstanceTickRequested;
+            Event::Receiver<void(float)> gameInstanceTickProcessed;
         } m_receivers;
 
-        void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
-        void OnGameStateDestructed();
-        void OnGameStateTickRequested();
-        void OnGameStateTickProcessed(float tickTime);
+        void OnGameInstanceChanged(const std::shared_ptr<Game::GameInstance>& gameInstance);
+        void OnGameInstanceDestroyed();
+        void OnGameInstanceTickRequested();
+        void OnGameInstanceTickProcessed(float tickTime);
 
-    private:
-        Game::GameState* m_gameState = nullptr;
+        Game::GameInstance* m_gameInstance = nullptr;
 
         std::vector<float> m_tickTimeHistogram;
         bool m_tickTimeHistogramPaused = false;

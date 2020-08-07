@@ -15,12 +15,12 @@
 #include "Game/Systems/SpriteSystem.hpp"
 
 /*
-    Game State
+    Game Instance
 */
 
 namespace Game
 {
-    class GameState final : private Common::NonCopyable
+    class GameInstance final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -28,11 +28,11 @@ namespace Game
             FailedSubsystemCreation,
         };
 
-        using CreateResult = Common::Result<std::unique_ptr<GameState>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameInstance>, CreateErrors>;
         static CreateResult Create();
 
     public:
-        ~GameState();
+        ~GameInstance();
 
         bool Tick(const System::Timer& timer);
 
@@ -61,6 +61,6 @@ namespace Game
         } events;
 
     private:
-        GameState();
+        GameInstance();
     };
 }

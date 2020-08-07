@@ -11,7 +11,7 @@ include_guard(GLOBAL)
 
 set(INCLUDE_FILES
     "GameFramework.hpp"
-    "GameState.hpp"
+    "GameInstance.hpp"
     "TickTimer.hpp"
     "EntityHandle.hpp"
     "EntitySystem.hpp"
@@ -33,7 +33,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/" PREFIX "Head
 set(SOURCE_FILES
     "Precompiled.hpp"
     "GameFramework.cpp"
-    "GameState.cpp"
+    "GameInstance.cpp"
     "TickTimer.cpp"
     "EntitySystem.cpp"
     "ComponentSystem.cpp"

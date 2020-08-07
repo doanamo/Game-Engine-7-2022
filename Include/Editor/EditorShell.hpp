@@ -6,7 +6,7 @@
 
 #include <Core/ServiceStorage.hpp>
 #include "Editor/Modules/InputManagerEditor.hpp"
-#include "Editor/Modules/GameStateEditor.hpp"
+#include "Editor/Modules/GameInstanceEditor.hpp"
 
 namespace System
 {
@@ -53,7 +53,7 @@ namespace Editor
         System::Window* m_window = nullptr;
 
         std::unique_ptr<InputManagerEditor> m_inputManagerEditor;
-        std::unique_ptr<GameStateEditor> m_gameStateEditor;
+        std::unique_ptr<GameInstanceEditor> m_gameInstanceEditor;
 
         bool m_showDemoWindow = false;
     };

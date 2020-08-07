@@ -13,7 +13,7 @@
 #include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
-#include <Renderer/StateRenderer.hpp>
+#include <Renderer/GameRenderer.hpp>
 #include <Game/GameFramework.hpp>
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
@@ -169,18 +169,18 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create state renderer.
-    // Draws game state represented by its render components.
-    Renderer::StateRenderer::CreateFromParams stateRendererParams;
+    // Create game renderer.
+    // Draws game instance represented by its render components.
+    Renderer::GameRenderer::CreateFromParams stateRendererParams;
     stateRendererParams.services = &instance->m_services;
 
-    if(auto stateRenderer = Renderer::StateRenderer::Create(stateRendererParams).UnwrapOr(nullptr))
+    if(auto stateRenderer = Renderer::GameRenderer::Create(stateRendererParams).UnwrapOr(nullptr))
     {
         instance->m_services.Provide(std::move(stateRenderer));
     }
     else
     {
-        LOG_ERROR("Could not create state renderer!");
+        LOG_ERROR("Could not create game renderer!");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
@@ -296,14 +296,14 @@ int Root::Run()
         // Update editor system.
         editorSystem->Update(timeDelta);
 
-        // Update game state.
+        // Update game instance.
         if(gameFramework->Update())
         {
             // Prepare input manager for incoming events.
             inputManager->UpdateInputState(timeDelta);
         }
 
-        // Draw game state.
+        // Draw game instance.
         gameFramework->Draw();
 
         // Draw editor system.

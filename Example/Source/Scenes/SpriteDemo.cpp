@@ -43,22 +43,22 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create input state.
     instance->m_inputState = System::InputState::Create().Unwrap();
 
-    // Create game state.
-    instance->m_gameState = Game::GameState::Create().UnwrapOr(nullptr);
-    if(instance->m_gameState == nullptr)
+    // Create game instance.
+    instance->m_gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
+    if(instance->m_gameInstance == nullptr)
     {
-        LOG_ERROR("Could not create game state!");
-        return Common::Failure(CreateErrors::FailedGameStateCreation);
+        LOG_ERROR("Could not create game instance!");
+        return Common::Failure(CreateErrors::FailedGameInstanceCreation);
     }
 
     // Setup custom tick callback.
-    instance->m_customTick.Subscribe(instance->m_gameState->events.tickProcessed);
+    instance->m_customTick.Subscribe(instance->m_gameInstance->events.tickProcessed);
     
     // Set input state as current.
     inputManager->SetInputState(instance->m_inputState);
 
-    // Set game state as current.
-    gameFramework->SetGameState(instance->m_gameState);
+    // Set game instance as current.
+    gameFramework->SetGameInstance(instance->m_gameInstance);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
@@ -89,16 +89,16 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = instance->m_gameState->entitySystem->CreateEntity();
-        instance->m_gameState->identitySystem->SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = instance->m_gameInstance->entitySystem->CreateEntity();
+        instance->m_gameInstance->identitySystem->SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = instance->m_gameState->componentSystem->Create<Game::TransformComponent>(cameraEntity);
+        auto* transform = instance->m_gameInstance->componentSystem->Create<Game::TransformComponent>(cameraEntity);
         ASSERT(transform != nullptr, "Could not create a transform component!");
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
-        auto* camera = instance->m_gameState->componentSystem->Create<Game::CameraComponent>(cameraEntity);
+        auto* camera = instance->m_gameInstance->componentSystem->Create<Game::CameraComponent>(cameraEntity);
         ASSERT(camera != nullptr, "Could not create a camera component!");
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
     }
@@ -106,15 +106,15 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create player entity.
     {
         // Create named entity.
-        Game::EntityHandle playerEntity = instance->m_gameState->entitySystem->CreateEntity();
-        instance->m_gameState->identitySystem->SetEntityName(playerEntity, "Player");
+        Game::EntityHandle playerEntity = instance->m_gameInstance->entitySystem->CreateEntity();
+        instance->m_gameInstance->identitySystem->SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = instance->m_gameState->componentSystem->Create<Game::TransformComponent>(playerEntity);
+        auto* transform = instance->m_gameInstance->componentSystem->Create<Game::TransformComponent>(playerEntity);
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
         // Create sprite component.
-        auto* sprite = instance->m_gameState->componentSystem->Create<Game::SpriteComponent>(playerEntity);
+        auto* sprite = instance->m_gameInstance->componentSystem->Create<Game::SpriteComponent>(playerEntity);
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         sprite->SetTextureView(textureAtlas->GetRegion("animation_frame_3"));
@@ -122,7 +122,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         sprite->SetFiltered(true);
 
         // Create sprite animation component.
-        auto* spriteAnimation = instance->m_gameState->componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity);
+        auto* spriteAnimation = instance->m_gameInstance->componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity);
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
     }
@@ -137,13 +137,13 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 void SpriteDemo::Tick(float tickTime)
 {
     // Retrieve player transform.
-    Game::EntityHandle playerEntity = m_gameState->identitySystem->GetEntityByName("Player");
+    Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player");
 
-    auto transform = m_gameState->componentSystem->Lookup<Game::TransformComponent>(playerEntity);
+    auto transform = m_gameInstance->componentSystem->Lookup<Game::TransformComponent>(playerEntity);
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    double timeAccumulated = m_gameState->tickTimer->GetTotalTickSeconds();
+    double timeAccumulated = m_gameInstance->tickTimer->GetTotalTickSeconds();
 
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));

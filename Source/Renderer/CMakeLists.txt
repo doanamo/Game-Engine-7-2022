@@ -10,7 +10,7 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
-    "StateRenderer.hpp"
+    "GameRenderer.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Renderer/")
@@ -18,7 +18,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Renderer/" PREFIX "
 
 set(SOURCE_FILES
     "Precompiled.hpp"
-    "StateRenderer.cpp"
+    "GameRenderer.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")

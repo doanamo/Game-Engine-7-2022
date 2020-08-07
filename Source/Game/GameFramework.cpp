@@ -4,9 +4,9 @@
 
 #include "Precompiled.hpp"
 #include "Game/GameFramework.hpp"
-#include "Game/GameState.hpp"
+#include "Game/GameInstance.hpp"
 #include <System/Window.hpp>
-#include <Renderer/StateRenderer.hpp>
+#include <Renderer/GameRenderer.hpp>
 using namespace Game;
 
 GameFramework::GameFramework() = default;
@@ -26,7 +26,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     // Save system references.
     instance->m_timer = params.services->GetTimer();
     instance->m_window = params.services->GetWindow();
-    instance->m_stateRenderer = params.services->GetStateRenderer();
+    instance->m_gameRenderer = params.services->GetGameRenderer();
 
     // Success!
     return Common::Success(std::move(instance));
@@ -34,13 +34,13 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
 
 bool GameFramework::Update()
 {
-    // Tick game state and return true if update occurred.
-    if(m_gameState)
+    // Tick game instance and return true if update occurred.
+    if(m_gameInstance)
     {
-        return m_gameState->Tick(*m_timer);
+        return m_gameInstance->Tick(*m_timer);
     }
 
-    // Return false if game state did not update.
+    // Return false if game instance did not update.
     return false;
 }
 
@@ -49,31 +49,31 @@ void GameFramework::Draw()
     // Get window viewport rect.
     glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
 
-    // Draw game state.
-    Renderer::StateRenderer::DrawParams drawParams;
+    // Draw game instance.
+    Renderer::GameRenderer::DrawParams drawParams;
     drawParams.viewportRect = viewportRect;
-    drawParams.gameState = m_gameState.get();
+    drawParams.gameInstance = m_gameInstance.get();
     drawParams.cameraName = "Camera";
-    m_stateRenderer->Draw(drawParams);
+    m_gameRenderer->Draw(drawParams);
 }
 
-void GameFramework::SetGameState(std::shared_ptr<GameState> gameState)
+void GameFramework::SetGameInstance(std::shared_ptr<GameInstance> gameInstance)
 {
-    // Make sure we are not setting the same game state.
-    if(gameState == m_gameState)
+    // Make sure we are not setting the same game instance.
+    if(gameInstance == m_gameInstance)
     {
-        LOG_WARNING("Attempted to change game state into the current one!");
+        LOG_WARNING("Attempted to change game instance into the current one!");
         return;
     }
 
-    // Change the current game state.
-    m_gameState = gameState;
+    // Change the current game instance.
+    m_gameInstance = gameInstance;
 
-    // Notify listeners about game state being changed.
-    events.gameStateChanged.Dispatch(m_gameState);
+    // Notify listeners about game instance being changed.
+    events.gameInstanceChanged.Dispatch(m_gameInstance);
 }
 
-std::shared_ptr<GameState> GameFramework::GetGameState() const
+std::shared_ptr<GameInstance> GameFramework::GetGameInstance() const
 {
-    return m_gameState;
+    return m_gameInstance;
 }

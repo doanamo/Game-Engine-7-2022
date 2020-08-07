@@ -14,7 +14,7 @@ set(INCLUDE_FILES
     "EditorShell.hpp"
     "EditorRenderer.hpp"
     "Modules/InputManagerEditor.hpp"
-    "Modules/GameStateEditor.hpp"
+    "Modules/GameInstanceEditor.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Editor/")
@@ -26,7 +26,7 @@ set(SOURCE_FILES
     "EditorShell.cpp"
     "EditorRenderer.cpp"
     "Modules/InputManagerEditor.cpp"
-    "Modules/GameStateEditor.cpp"
+    "Modules/GameInstanceEditor.cpp"
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})

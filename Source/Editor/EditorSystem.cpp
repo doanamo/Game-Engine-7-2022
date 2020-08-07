@@ -5,7 +5,7 @@
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
 #include <System/InputManager.hpp>
-#include <Game/GameState.hpp>
+#include <Game/GameInstance.hpp>
 using namespace Editor;
 
 namespace

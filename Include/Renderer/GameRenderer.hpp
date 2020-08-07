@@ -15,16 +15,16 @@ namespace Graphics
 
 namespace Game
 {
-    class GameState;
+    class GameInstance;
 }
 
 /*
-    State Renderer
+    Game Renderer
 */
 
 namespace Renderer
 {
-    class StateRenderer final : private Common::NonCopyable
+    class GameRenderer final : private Common::NonCopyable
     {
     public:
         enum class CreateErrors
@@ -37,24 +37,24 @@ namespace Renderer
             const Core::ServiceStorage* services = nullptr;
         };
 
-        using CreateResult = Common::Result<std::unique_ptr<StateRenderer>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<GameRenderer>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
         struct DrawParams
         {
-            Game::GameState* gameState = nullptr;
+            Game::GameInstance* gameInstance = nullptr;
             std::string cameraName = "Camera";
             glm::ivec4 viewportRect = glm::ivec4(0.0f, 0.0f, 0.0f, 0.0f);
             float timeAlpha = 1.0f;
         };
 
     public:
-        ~StateRenderer();
+        ~GameRenderer();
 
         void Draw(const DrawParams& drawParams);
 
     private:
-        StateRenderer();
+        GameRenderer();
 
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
