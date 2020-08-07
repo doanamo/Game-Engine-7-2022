@@ -11,7 +11,7 @@ GameState::GameState() = default;
 GameState::~GameState()
 {
     // Notify about game state instance being destructed.
-    events.instanceDestructed.Dispatch();
+    events.instanceDestroyed.Dispatch();
 }
 
 GameState::CreateResult GameState::Create()
@@ -85,7 +85,7 @@ bool GameState::Tick(const System::Timer& timer)
     bool stateTicked = false;
 
     // Inform about tick method being called.
-    events.tickCalled.Dispatch();
+    events.tickRequested.Dispatch();
 
     // Advance tick timer.
     tickTimer->Advance(timer);

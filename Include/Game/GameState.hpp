@@ -47,12 +47,12 @@ namespace Game
 
         struct Events
         {
-            // Called when the class instance is destructed.
-            Event::Dispatcher<void()> instanceDestructed;
+            // Called when instance is destroyed.
+            Event::Dispatcher<void()> instanceDestroyed;
 
             // Called when tick method is called.
             // This does not mean that the state was actually ticked.
-            Event::Dispatcher<void()> tickCalled;
+            Event::Dispatcher<void()> tickRequested;
 
             // Called when state had its tick processed.
             // Event can be dispatched multiple times during the same tick method call.

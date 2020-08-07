@@ -11,8 +11,8 @@ using namespace Editor;
 GameStateEditor::GameStateEditor()
 {
     m_receivers.gameStateChanged.Bind<GameStateEditor, &GameStateEditor::OnGameStateChanged>(this);
-    m_receivers.gameStateDestructed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
-    m_receivers.gameStateTickCalled.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickCalled>(this);
+    m_receivers.gameStateDestroyed.Bind<GameStateEditor, &GameStateEditor::OnGameStateDestructed>(this);
+    m_receivers.gameStateTickRequested.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickRequested>(this);
     m_receivers.gameStateTickProcessed.Bind<GameStateEditor, &GameStateEditor::OnGameStateTickProcessed>(this);
 }
 
@@ -188,8 +188,8 @@ void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>&
         m_gameState = gameState.get();
 
         // Subscribe to game state dispatchers.
-        m_receivers.gameStateDestructed.Subscribe(gameState->events.instanceDestructed);
-        m_receivers.gameStateTickCalled.Subscribe(gameState->events.tickCalled);
+        m_receivers.gameStateDestroyed.Subscribe(gameState->events.instanceDestroyed);
+        m_receivers.gameStateTickRequested.Subscribe(gameState->events.tickRequested);
         m_receivers.gameStateTickProcessed.Subscribe(gameState->events.tickProcessed);
 
         // Update tick time slider value.
@@ -216,7 +216,7 @@ void GameStateEditor::OnGameStateDestructed()
     m_receivers = Receivers();
 }
 
-void GameStateEditor::OnGameStateTickCalled()
+void GameStateEditor::OnGameStateTickRequested()
 {
     // Do not process histogram data if paused.
     if(m_tickTimeHistogramPaused)

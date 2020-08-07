@@ -50,14 +50,14 @@ namespace Editor
         struct Receivers
         {
             Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
-            Event::Receiver<void()> gameStateDestructed;
-            Event::Receiver<void()> gameStateTickCalled;
+            Event::Receiver<void()> gameStateDestroyed;
+            Event::Receiver<void()> gameStateTickRequested;
             Event::Receiver<void(float)> gameStateTickProcessed;
         } m_receivers;
 
         void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
         void OnGameStateDestructed();
-        void OnGameStateTickCalled();
+        void OnGameStateTickRequested();
         void OnGameStateTickProcessed(float tickTime);
 
     private:
