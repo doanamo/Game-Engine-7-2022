@@ -79,28 +79,23 @@ GameState::CreateResult GameState::Create()
     return Common::Success(std::move(instance));
 }
 
-void GameState::ChangeTickTime(float tickTime)
-{
-    m_tickTime = tickTime;
-}
-
 bool GameState::Tick(const System::Timer& timer)
 {
+    // Return flag indicating if state was ticked.
+    bool stateTicked = false;
+
     // Inform about tick method being called.
     events.tickCalled.Dispatch();
 
     // Advance tick timer.
     tickTimer->Advance(timer);
 
-    // Return flag indicating if state was ticked.
-    bool stateTicked = false;
-
     // Main game state tick loop.
-    // Make copy of tick time in case it changes.
-    const float tickTime = m_tickTime;
-
-    while(tickTimer->Tick(tickTime))
+    while(tickTimer->Tick())
     {
+        // Retrieve last tick time.
+        float tickTime = tickTimer->GetLastTickSeconds();
+
         // Process entity commands.
         entitySystem->ProcessCommands();
 
@@ -120,9 +115,4 @@ bool GameState::Tick(const System::Timer& timer)
 
     // Return whether state could be ticked.
     return stateTicked;
-}
-
-float GameState::GetTickTime() const
-{
-    return m_tickTime;
 }

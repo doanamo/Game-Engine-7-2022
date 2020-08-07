@@ -35,8 +35,6 @@ namespace Game
         ~GameState();
 
         bool Tick(const System::Timer& timer);
-        void ChangeTickTime(float tickTime);
-        float GetTickTime() const;
 
     public:
         std::unique_ptr<TickTimer> tickTimer;
@@ -64,7 +62,5 @@ namespace Game
 
     private:
         GameState();
-
-        float m_tickTime = 1.0f / 10.0f;
     };
 }

@@ -43,19 +43,9 @@ void TickTimer::Reset()
     m_lastTickSeconds = 0.0f;
 }
 
-float TickTimer::GetAlphaSeconds() const
+void TickTimer::SetTickSeconds(float tickTime)
 {
-    // Calculate accumulated time units since the last tick.
-    TimeUnit accumulatedTickUnits = m_forwardTickTimeUnits - m_timer->GetCurrentTimeUnits();
-    ASSERT(accumulatedTickUnits >= 0, "Accumulated tick units cannot be negative!");
-
-    // Calculate normalized range between last two ticks.
-    float accumulatedTickSeconds = (float)Timer::ConvertToSeconds(accumulatedTickUnits);
-    float normalizedTickAlpha = (m_lastTickSeconds - accumulatedTickSeconds) / m_lastTickSeconds;
-    ASSERT(normalizedTickAlpha >= 0.0f && normalizedTickAlpha <= 1.0f, "Tick alpha is not clamped in normal range!");
-
-    // Return alpha time in normalized range between last two ticks.
-    return normalizedTickAlpha;
+    m_tickSeconds = tickTime;
 }
 
 void TickTimer::Advance(const Timer& timer)
@@ -63,10 +53,10 @@ void TickTimer::Advance(const Timer& timer)
     m_timer->Advance(timer);
 }
 
-bool TickTimer::Tick(float tickSeconds)
+bool TickTimer::Tick()
 {
     // Convert tick seconds to tick units.
-    TimeUnit tickUnits = Timer::ConvertToUnits((double)tickSeconds);
+    TimeUnit tickUnits = Timer::ConvertToUnits((double)m_tickSeconds);
 
     // Do not allow forward tick counter to fall behind the previous tick time.
     // This allows timer with capped delta time to prevent a large number of ticks.
@@ -82,7 +72,7 @@ bool TickTimer::Tick(float tickSeconds)
         m_totalTickTimeUnits += tickUnits;
 
         // Save last successful tick time.
-        m_lastTickSeconds = tickSeconds;
+        m_lastTickSeconds = m_tickSeconds;
 
         // Signal successful tick.
         return true;
@@ -91,6 +81,26 @@ bool TickTimer::Tick(float tickSeconds)
     // Wait until we have enough time accumulated.
     // Return false to indicate that tick did not occur.
     return false;
+}
+
+float TickTimer::GetAlphaSeconds() const
+{
+    // Calculate accumulated time units since the last tick.
+    TimeUnit accumulatedTickUnits = m_forwardTickTimeUnits - m_timer->GetCurrentTimeUnits();
+    ASSERT(accumulatedTickUnits >= 0, "Accumulated tick units cannot be negative!");
+
+    // Calculate normalized range between last two ticks.
+    float accumulatedTickSeconds = (float)Timer::ConvertToSeconds(accumulatedTickUnits);
+    float normalizedTickAlpha = (m_lastTickSeconds - accumulatedTickSeconds) / m_lastTickSeconds;
+    ASSERT(normalizedTickAlpha >= 0.0f && normalizedTickAlpha <= 1.0f, "Tick alpha is not clamped in normal range!");
+
+    // Return alpha time in normalized range between last two ticks.
+    return normalizedTickAlpha;
+}
+
+float TickTimer::GetTickSeconds() const
+{
+    return m_tickSeconds;
 }
 
 double TickTimer::GetTotalTickSeconds() const

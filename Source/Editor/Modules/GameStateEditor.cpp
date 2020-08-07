@@ -63,7 +63,7 @@ void GameStateEditor::Update(float timeDelta)
                 if(ImGui::TreeNode("Tick Control"))
                 {
                     // Show tick controls.
-                    float currentTickTime = m_gameState->GetTickTime();
+                    float currentTickTime = m_gameState->tickTimer->GetTickSeconds();
                     float currentTickRate = 1.0f / currentTickTime;
                     ImGui::BulletText("Tick time: %fs (%.1f tick rate)",
                         currentTickTime, currentTickRate);
@@ -74,7 +74,7 @@ void GameStateEditor::Update(float timeDelta)
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##TickTimeApply"))
                     {
-                        m_gameState->ChangeTickTime(1.0f / m_tickRateSlider);
+                        m_gameState->tickTimer->SetTickSeconds(1.0f / m_tickRateSlider);
                     }
 
                     // Show tick histogram.
@@ -193,7 +193,7 @@ void GameStateEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>&
         m_receivers.gameStateTickProcessed.Subscribe(gameState->events.tickProcessed);
 
         // Update tick time slider value.
-        m_tickRateSlider = 1.0f / m_gameState->GetTickTime();
+        m_tickRateSlider = 1.0f / m_gameState->tickTimer->GetTickSeconds();
 
         // Clear tick time histogram.
         for(auto& tickTime : m_tickTimeHistogram)
