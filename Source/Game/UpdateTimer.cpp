@@ -59,9 +59,9 @@ float UpdateTimer::GetAlphaSeconds() const
     return normalizedUpdateAlpha;
 }
 
-void UpdateTimer::Tick(const Timer& timer)
+void UpdateTimer::Advance(const Timer& timer)
 {
-    m_timer->Tick(timer);
+    m_timer->Advance(timer);
 }
 
 bool UpdateTimer::Update(float updateSeconds)

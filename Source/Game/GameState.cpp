@@ -89,8 +89,8 @@ bool GameState::Update(const System::Timer& timer)
     // Inform about update being called.
     events.updateCalled.Dispatch();
 
-    // Tick update timer along with the application timer.
-    updateTimer->Tick(timer);
+    // Advance update timer.
+    updateTimer->Advance(timer);
 
     // Return flag indicating if state was updated.
     bool stateUpdated = false;

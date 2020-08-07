@@ -38,8 +38,8 @@ namespace System
     public:
         ~Timer();
 
-        float Tick(float maxDeltaSeconds = 0.0f);
-        void Tick(const Timer& timer);
+        float Advance(float maxDeltaSeconds = 0.0f);
+        void Advance(const Timer& timer);
         void Reset();
 
         float GetDeltaSeconds() const;

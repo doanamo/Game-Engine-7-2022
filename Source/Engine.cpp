@@ -287,8 +287,8 @@ int Root::Run()
         // Release unused resources.
         resourceManager->ReleaseUnused();
 
-        // Tick timer to calculate delta.
-        float timeDelta = timer->Tick(root.m_maxTickDelta);
+        // Advance timer to calculate delta.
+        float timeDelta = timer->Advance(root.m_maxTickDelta);
 
         // Process window events.
         window->ProcessEvents();

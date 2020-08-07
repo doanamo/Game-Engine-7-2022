@@ -61,7 +61,7 @@ double Timer::ConvertToSeconds(TimeUnit units)
     #endif
 }
 
-float Timer::Tick(float maxDeltaSeconds)
+float Timer::Advance(float maxDeltaSeconds)
 {
     // Remember time points of two last ticks.
     m_previousTimeUnits = m_currentTimeUnits;
@@ -78,7 +78,7 @@ float Timer::Tick(float maxDeltaSeconds)
     return GetDeltaSeconds();
 }
 
-void Timer::Tick(const Timer& timer)
+void Timer::Advance(const Timer& timer)
 {
     // Copy time points from other timer.
     m_currentTimeUnits = timer.m_currentTimeUnits;

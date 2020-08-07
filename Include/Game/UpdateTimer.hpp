@@ -23,7 +23,7 @@ namespace Game
     public:
         ~UpdateTimer();
 
-        void Tick(const System::Timer& timer);
+        void Advance(const System::Timer& timer);
         bool Update(float updateSeconds);
         void Reset();
 
