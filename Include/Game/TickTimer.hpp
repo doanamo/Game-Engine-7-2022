@@ -7,7 +7,7 @@
 #include <System/Timer.hpp>
 
 /*
-    Update Timer
+    Tick Timer
 */
 
 namespace Game
