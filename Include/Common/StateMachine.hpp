@@ -172,12 +172,12 @@ namespace Common
             return true;
         }
 
-        const StateSharedPtr& GetCurrentState() const
+        const StateSharedPtr& GetState() const
         {
             return m_currentState;
         }
 
-        bool HasCurrentState() const
+        bool HasState() const
         {
             return m_currentState != nullptr;
         }

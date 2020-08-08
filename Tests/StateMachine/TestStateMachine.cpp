@@ -61,8 +61,8 @@ bool TestTransitions()
 {
     // Create state machine.
     Common::StateMachine<TestState> stateMachine;
-    TEST_FALSE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+    TEST_FALSE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), nullptr);
 
     // Create state.
     auto stateOne = std::make_shared<TestState>("One", 100);
@@ -71,8 +71,8 @@ bool TestTransitions()
 
     // Change to state.
     TEST_TRUE(stateMachine.ChangeState(stateOne));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateOne);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateOne);
 
     TEST_TRUE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), &stateMachine);
@@ -84,8 +84,8 @@ bool TestTransitions()
     TEST_EQ(stateTwo->GetStateMachine(), nullptr);
 
     TEST_TRUE(stateMachine.ChangeState(stateTwo));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateTwo);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateTwo);
 
     TEST_FALSE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), nullptr);
@@ -97,8 +97,8 @@ bool TestTransitions()
 
     // Change to current state.
     TEST_FALSE(stateMachine.ChangeState(stateTwo));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateTwo);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateTwo);
 
     TEST_FALSE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), nullptr);
@@ -110,8 +110,8 @@ bool TestTransitions()
 
     // Change to previous state.
     TEST_TRUE(stateMachine.ChangeState(stateOne));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateOne);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateOne);
 
     TEST_TRUE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), &stateMachine);
@@ -125,8 +125,8 @@ bool TestTransitions()
     stateTwo->allowEnter = false;
 
     TEST_FALSE(stateMachine.ChangeState(stateTwo));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateOne);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateOne);
 
     TEST_TRUE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), &stateMachine);
@@ -142,8 +142,8 @@ bool TestTransitions()
     stateOne->allowExit = false;
 
     TEST_FALSE(stateMachine.ChangeState(stateTwo));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateOne);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateOne);
 
     TEST_TRUE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), &stateMachine);
@@ -159,8 +159,8 @@ bool TestTransitions()
     stateOne = nullptr;
     stateTwo = nullptr;
 
-    TEST_TRUE(stateMachine.HasCurrentState());
-    stateOne = stateMachine.GetCurrentState();
+    TEST_TRUE(stateMachine.HasState());
+    stateOne = stateMachine.GetState();
 
     TEST_TRUE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), &stateMachine);
@@ -169,8 +169,8 @@ bool TestTransitions()
 
     // Discard current state.
     stateMachine.ChangeState(nullptr);
-    TEST_FALSE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+    TEST_FALSE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), nullptr);
 
     TEST_FALSE(stateOne->HasStateMachine());
     TEST_EQ(stateOne->GetStateMachine(), nullptr);
@@ -183,8 +183,8 @@ bool TestRecursiveTransitions()
 {
     // Create state machine.
     Common::StateMachine<TestState> stateMachine;
-    TEST_FALSE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+    TEST_FALSE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), nullptr);
 
     // Setup transition chain.
     auto stateFirst = std::make_shared<TestState>("First", 100);
@@ -205,8 +205,8 @@ bool TestRecursiveTransitions()
 
     // Perform chained transitions.
     TEST_TRUE(stateMachine.ChangeState(stateFirst));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateSecond);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateSecond);
 
     TEST_FALSE(stateFirst->HasStateMachine());
     TEST_EQ(stateFirst->GetStateMachine(), nullptr);
@@ -227,8 +227,8 @@ int TestExitTransition()
 {
     // Create state machine.
     Common::StateMachine<TestState> stateMachine;
-    TEST_FALSE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+    TEST_FALSE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), nullptr);
 
     // Create states.
     auto stateFirst = std::make_shared<TestState>();
@@ -243,12 +243,12 @@ int TestExitTransition()
 
     // Trigger transition on exit.
     TEST_TRUE(stateMachine.ChangeState(stateFirst));
-    TEST_TRUE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), stateFirst);
+    TEST_TRUE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), stateFirst);
 
     TEST_TRUE(stateMachine.ChangeState(nullptr));
-    TEST_FALSE(stateMachine.HasCurrentState());
-    TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+    TEST_FALSE(stateMachine.HasState());
+    TEST_EQ(stateMachine.GetState(), nullptr);
 
     return true;
 }
@@ -261,13 +261,13 @@ int TestCleanup()
     {
         // Create state machine.
         Common::StateMachine<TestState> stateMachine;
-        TEST_FALSE(stateMachine.HasCurrentState());
-        TEST_EQ(stateMachine.GetCurrentState(), nullptr);
+        TEST_FALSE(stateMachine.HasState());
+        TEST_EQ(stateMachine.GetState(), nullptr);
 
         // Transition to state
         TEST_TRUE(stateMachine.ChangeState(state));
-        TEST_TRUE(stateMachine.HasCurrentState());
-        TEST_EQ(stateMachine.GetCurrentState(), state);
+        TEST_TRUE(stateMachine.HasState());
+        TEST_EQ(stateMachine.GetState(), state);
 
         TEST_TRUE(state->HasStateMachine());
         TEST_EQ(state->GetStateMachine(), &stateMachine);
