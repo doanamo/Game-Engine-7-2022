@@ -38,7 +38,6 @@ namespace Game
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedEventRouterCreation,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameFramework>, CreateErrors>;
