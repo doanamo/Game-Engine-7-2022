@@ -29,6 +29,7 @@ namespace System
         enum class CreateErrors
         {
             InvalidArgument,
+            FailedInputStateCreation,
             FailedEventSubscription,
         };
 
@@ -46,12 +47,7 @@ namespace System
 
         struct Events
         {
-            Event::Dispatcher<bool(const InputEvents::TextInput&), Event::CollectWhileFalse> textInput;
-            Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
-            Event::Dispatcher<bool(const InputEvents::MouseButton&), Event::CollectWhileFalse> mouseButton;
-            Event::Dispatcher<bool(const InputEvents::MouseScroll&), Event::CollectWhileFalse> mouseScroll;
-            Event::Dispatcher<void(const InputEvents::CursorPosition&)> cursorPosition;
-            Event::Dispatcher<void(const InputEvents::CursorEnter&)> cursorEnter;
+            Event::Dispatcher<void(InputState*)> inputStateChanged;
         } events;
 
     private:

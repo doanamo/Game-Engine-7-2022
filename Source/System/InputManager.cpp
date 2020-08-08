@@ -33,6 +33,15 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
     // Create instance.
     auto instance = std::unique_ptr<InputManager>(new InputManager());
 
+    // Create default input state.
+    // It can be can be replaced or discarded by user.
+    instance->m_inputState = InputState::Create().UnwrapOr(nullptr);
+    if(!instance->m_inputState)
+    {
+        LOG_ERROR("Could not create default input state!");
+        return Common::Failure(CreateErrors::FailedInputStateCreation);
+    }
+
     // Subscribe to window input events.
     bool subscriptionResult = true;
     subscriptionResult &= instance->m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
@@ -58,6 +67,8 @@ void InputManager::SetInputState(std::shared_ptr<InputState> inputState)
     {
         m_inputState = inputState;
         ResetInputState();
+
+        events.inputStateChanged.Dispatch(m_inputState.get());
     }
 }
 
@@ -88,11 +99,8 @@ bool InputManager::OnTextInput(const Window::Events::TextInput& event)
     InputEvents::TextInput outgoingEvent;
     outgoingEvent.utf32Character = event.utf32Character;
 
-    // Send outgoing input event.
-    bool inputCaptured = events.textInput.Dispatch(outgoingEvent);
-
     // Propagate event to input state.
-    if(!inputCaptured && m_inputState)
+    if(m_inputState)
     {
         m_inputState->OnTextInput(outgoingEvent);
     }
@@ -122,17 +130,11 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
         return false;
     }
 
-    // Send outgoing input event.
-    bool inputCaptured = events.keyboardKey.Dispatch(outgoingEvent);
-
     // Propagate event to input state.
     // We do not take capturing into consideration in case of release key events.
-    if(!inputCaptured || IsInputStateReleased(outgoingEvent.state))
+    if(m_inputState)
     {
-        if(m_inputState)
-        {
-            m_inputState->OnKeyboardKey(outgoingEvent);
-        }
+        m_inputState->OnKeyboardKey(outgoingEvent);
     }
 
     // Do not consume window event.
@@ -154,17 +156,10 @@ bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
         return false;
     }
 
-    // Send outgoing input event.
-    bool inputCaptured = events.mouseButton.Dispatch(outgoingEvent);
-
     // Propagate event to input state.
-    // We do not take capturing into consideration in case of release key events.
-    if(!inputCaptured || IsInputStateReleased(outgoingEvent.state))
+    if(m_inputState)
     {
-        if(m_inputState)
-        {
-            m_inputState->OnMouseButton(outgoingEvent);
-        }
+        m_inputState->OnMouseButton(outgoingEvent);
     }
 
     // Do not consume window event.
@@ -177,11 +172,8 @@ bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
     InputEvents::MouseScroll outgoingEvent;
     outgoingEvent.offset = event.offset;
 
-    // Send outgoing input event.
-    bool inputCaptured = events.mouseScroll.Dispatch(outgoingEvent);
-
     // Propagate event to input state.
-    if(!inputCaptured && m_inputState)
+    if(m_inputState)
     {
         m_inputState->OnMouseScroll(outgoingEvent);
     }
@@ -197,9 +189,6 @@ void InputManager::OnCursorPosition(const Window::Events::CursorPosition& event)
     outgoingEvent.x = event.x;
     outgoingEvent.y = event.y;
 
-    // Send outgoing input event.
-    events.cursorPosition.Dispatch(outgoingEvent);
-
     // Propagate event to input state.
     if(m_inputState)
     {
@@ -212,9 +201,6 @@ void InputManager::OnCursorEnter(const Window::Events::CursorEnter& event)
     // Translate incoming window event.
     InputEvents::CursorEnter outgoingEvent;
     outgoingEvent.entered = event.entered;
-
-    // Send outgoing input event.
-    events.cursorEnter.Dispatch(outgoingEvent);
 
     // Propagate event to input state.
     if(m_inputState)

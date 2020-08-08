@@ -12,20 +12,8 @@
 
 namespace System
 {
-    class FileSystem;
-    class ResourceManager;
-    class InputManager;
+    class InputState;
     class Window;
-};
-
-namespace Graphics
-{
-    class RenderContext;
-}
-
-namespace Game
-{
-    class GameFramework;
 };
 
 /*
@@ -64,19 +52,20 @@ namespace Editor
     private:
         EditorSystem();
 
+        void OnInputStateChanged(System::InputState* inputState);
+        bool OnTextInput(const System::InputEvents::TextInput& event);
+        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
+        bool OnMouseButton(const System::InputEvents::MouseButton& event);
+        bool OnMouseScroll(const System::InputEvents::MouseScroll& event);
+        void OnCursorPosition(const System::InputEvents::CursorPosition& event);
+
+        Event::Receiver<void(System::InputState*)> m_receiverInputStateChanged;
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
         Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
         Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;
         Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
         Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
-        void CursorPositionCallback(const System::InputEvents::CursorPosition& event);
-        bool MouseButtonCallback(const System::InputEvents::MouseButton& event);
-        bool MouseScrollCallback(const System::InputEvents::MouseScroll& event);
-        bool KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event);
-        bool TextInputCallback(const System::InputEvents::TextInput& event);
-
-    private:
         System::Window* m_window = nullptr;
         ImGuiContext* m_interface = nullptr;
 

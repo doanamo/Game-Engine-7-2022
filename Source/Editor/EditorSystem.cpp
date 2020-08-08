@@ -28,11 +28,12 @@ namespace
 EditorSystem::EditorSystem()
 {
     // Bind event receivers.
-    m_receiverCursorPosition.Bind<EditorSystem, &EditorSystem::CursorPositionCallback>(this);
-    m_receiverMouseButton.Bind<EditorSystem, &EditorSystem::MouseButtonCallback>(this);
-    m_receiverMouseScroll.Bind<EditorSystem, &EditorSystem::MouseScrollCallback>(this);
-    m_receiverKeyboardKey.Bind<EditorSystem, &EditorSystem::KeyboardKeyCallback>(this);
-    m_receiverTextInput.Bind<EditorSystem, &EditorSystem::TextInputCallback>(this);
+    m_receiverInputStateChanged.Bind<EditorSystem, &EditorSystem::OnInputStateChanged>(this);
+    m_receiverTextInput.Bind<EditorSystem, &EditorSystem::OnTextInput>(this);
+    m_receiverKeyboardKey.Bind<EditorSystem, &EditorSystem::OnKeyboardKey>(this);
+    m_receiverMouseButton.Bind<EditorSystem, &EditorSystem::OnMouseButton>(this);
+    m_receiverMouseScroll.Bind<EditorSystem, &EditorSystem::OnMouseScroll>(this);
+    m_receiverCursorPosition.Bind<EditorSystem, &EditorSystem::OnCursorPosition>(this);
 }
 
 EditorSystem::~EditorSystem()
@@ -110,21 +111,17 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     io.GetClipboardTextFn = GetClipboardTextCallback;
     io.ClipboardUserData = window->GetPrivateHandle();
 
-    // Subscribe input event receivers.
-    // We insert receivers in front of dispatcher queue
-    // as we want to have priority for input events.
-    bool subscriptionResult = true;
-    subscriptionResult &= inputManager->events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, false, true);
-    subscriptionResult &= inputManager->events.textInput.Subscribe(instance->m_receiverTextInput, false, true);
-    subscriptionResult &= inputManager->events.mouseButton.Subscribe(instance->m_receiverMouseButton, false, true);
-    subscriptionResult &= inputManager->events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, false, true);
-    subscriptionResult &= inputManager->events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, false, true);
+    // Subscribe to input events.
+    // Call on input state changed method once after subscribing.
+    bool subscriptionResult = inputManager->events.inputStateChanged.Subscribe(instance->m_receiverInputStateChanged);
 
     if(!subscriptionResult)
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
         return Common::Failure(CreateErrors::FailedEventSubscription);
     }
+
+    instance->OnInputStateChanged(inputManager->GetInputState().get());
 
     // Create editor renderer.
     EditorRenderer::CreateFromParams editorRendererParams;
@@ -182,58 +179,41 @@ void EditorSystem::Draw()
     m_editorRenderer->Draw();
 }
 
-void EditorSystem::CursorPositionCallback(const System::InputEvents::CursorPosition& event)
-{
-    // Set context as current.
-    ImGui::SetCurrentContext(m_interface);
-    ImGuiIO& io = ImGui::GetIO();
 
-    // Set cursor position.
-    io.MousePos.x = (float)event.x;
-    io.MousePos.y = (float)event.y;
+void EditorSystem::OnInputStateChanged(System::InputState* inputState)
+{
+    if(inputState == nullptr)
+        return;
+
+    // We insert receivers in front of dispatcher queue as we want to have priority for input events.
+    inputState->events.keyboardKey.Subscribe(m_receiverKeyboardKey, true, true);
+    inputState->events.textInput.Subscribe(m_receiverTextInput, true, true);
+    inputState->events.mouseButton.Subscribe(m_receiverMouseButton, true, true);
+    inputState->events.mouseScroll.Subscribe(m_receiverMouseScroll, true, true);
+    inputState->events.cursorPosition.Subscribe(m_receiverCursorPosition, true, true);
 }
 
-bool EditorSystem::MouseButtonCallback(const System::InputEvents::MouseButton& event)
+bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Determine number of supported mouse buttons.
-    const std::size_t SupportedMouseButtonCount = std::min(
-        Common::StaticArraySize(io.MouseDown),
-        (std::size_t)System::MouseButtons::Count
-    );
+    // Convert character from UTF-32 to UTF-8 encoding.
+    // We will need an array for four UTF-8 characters and a null terminator.
+    char utf8Character[5] = { 0 };
 
-    // We can only handle specific number of mouse buttons.
-    if(event.button < System::MouseButtons::Button1)
-        return false;
+    ASSERT(utf8::internal::is_code_point_valid(event.utf32Character), "Invalid UTF-32 encoding!");
+    utf8::unchecked::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
 
-    if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
-        return false;
-
-    // Set mouse button state.
-    const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
-    io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
+    // Add text input character.
+    io.AddInputCharactersUTF8(&utf8Character[0]);
 
     // Prevent input from passing through.
-    return io.WantCaptureMouse;
+    return io.WantCaptureKeyboard;
 }
 
-bool EditorSystem::MouseScrollCallback(const System::InputEvents::MouseScroll& event)
-{
-    // Set context as current.
-    ImGui::SetCurrentContext(m_interface);
-    ImGuiIO& io = ImGui::GetIO();
-
-    // Set mouse wheel offset.
-    io.MouseWheel = (float)event.offset;
-
-    // Prevent input from passing through.
-    return io.WantCaptureMouse;
-}
-
-bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& event)
+bool EditorSystem::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
@@ -260,22 +240,53 @@ bool EditorSystem::KeyboardKeyCallback(const System::InputEvents::KeyboardKey& e
     return io.WantCaptureKeyboard;
 }
 
-bool EditorSystem::TextInputCallback(const System::InputEvents::TextInput& event)
+bool EditorSystem::OnMouseButton(const System::InputEvents::MouseButton& event)
 {
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Convert character from UTF-32 to UTF-8 encoding.
-    // We will need an array for four UTF-8 characters and a null terminator.
-    char utf8Character[5] = { 0 };
+    // Determine number of supported mouse buttons.
+    const std::size_t SupportedMouseButtonCount = std::min(
+        Common::StaticArraySize(io.MouseDown),
+        (std::size_t)System::MouseButtons::Count
+    );
 
-    ASSERT(utf8::internal::is_code_point_valid(event.utf32Character), "Invalid UTF-32 encoding!");
-    utf8::unchecked::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
+    // We can only handle specific number of mouse buttons.
+    if(event.button < System::MouseButtons::Button1)
+        return false;
 
-    // Add text input character.
-    io.AddInputCharactersUTF8(&utf8Character[0]);
+    if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
+        return false;
+
+    // Set mouse button state.
+    const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
+    io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
 
     // Prevent input from passing through.
-    return io.WantCaptureKeyboard;
+    return io.WantCaptureMouse;
+}
+
+bool EditorSystem::OnMouseScroll(const System::InputEvents::MouseScroll& event)
+{
+    // Set context as current.
+    ImGui::SetCurrentContext(m_interface);
+    ImGuiIO& io = ImGui::GetIO();
+
+    // Set mouse wheel offset.
+    io.MouseWheel = (float)event.offset;
+
+    // Prevent input from passing through.
+    return io.WantCaptureMouse;
+}
+
+void EditorSystem::OnCursorPosition(const System::InputEvents::CursorPosition& event)
+{
+    // Set context as current.
+    ImGui::SetCurrentContext(m_interface);
+    ImGuiIO& io = ImGui::GetIO();
+
+    // Set cursor position.
+    io.MousePos.x = (float)event.x;
+    io.MousePos.y = (float)event.y;
 }

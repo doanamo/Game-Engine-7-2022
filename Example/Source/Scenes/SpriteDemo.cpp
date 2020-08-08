@@ -40,9 +40,6 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
 
-    // Create input state.
-    instance->m_inputState = System::InputState::Create().Unwrap();
-
     // Create game instance.
     instance->m_gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
     if(instance->m_gameInstance == nullptr)
@@ -54,9 +51,6 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Setup custom tick callback.
     instance->m_customTick.Subscribe(instance->m_gameInstance->events.tickProcessed);
     
-    // Set input state as current.
-    inputManager->SetInputState(instance->m_inputState);
-
     // Set game instance as current.
     gameFramework->SetGameInstance(instance->m_gameInstance);
 
@@ -147,24 +141,26 @@ void SpriteDemo::Tick(float tickTime)
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
+    std::shared_ptr<System::InputState> inputState = m_engine->GetServices().GetInputManager()->GetInputState();
+
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
+    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
     }
 
-    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
+    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
     {
         direction.x += 1.0f;
     }
 
-    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
+    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
     {
         direction.y += 1.0f;
     }
 
-    if(m_inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
+    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
     {
         direction.y -= 1.0f;
     }
