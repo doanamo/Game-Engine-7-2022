@@ -41,12 +41,12 @@ void System::InputState::UpdateStates(float timeDelta)
     // Transition keyboard key input states.
     for(auto& keyboardKeyState : m_keyboardKeyStates)
     {
-        TransitionInputState(keyboardKeyState.state);
+        keyboardKeyState.state = TransitionInputState(keyboardKeyState.state);
     }
 
     for(auto& mouseButtonState : m_mouseButtonStates)
     {
-        TransitionInputState(mouseButtonState.state);
+        mouseButtonState.state = TransitionInputState(mouseButtonState.state);
     }
 
     // Handle case when state time needs resetting after
@@ -70,10 +70,15 @@ void System::InputState::UpdateStates(float timeDelta)
 
 void InputState::ResetStates()
 {
-    // Reset keyboard key states.
+    // Reset input states.
     for(KeyboardKeys::Type key = KeyboardKeys::Invalid; key < KeyboardKeys::Count; ++key)
     {
         m_keyboardKeyStates[key] = InputEvents::KeyboardKey{ key };
+    }
+
+    for(MouseButtons::Type button = MouseButtons::Invalid; button < MouseButtons::Count; ++button)
+    {
+        m_mouseButtonStates[button] = InputEvents::MouseButton{ button };
     }
 }
 
