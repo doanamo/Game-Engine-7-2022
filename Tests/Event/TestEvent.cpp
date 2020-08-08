@@ -330,11 +330,11 @@ bool TestDispatcher()
         TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 0);
 
-        dispatcherWhileFalse.Subscribe(receiverFalse, true);
+        dispatcherWhileFalse.Subscribe(receiverFalse, Event::SubscriptionPolicy::ReplaceSubscription);
         TEST_FALSE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 9);
 
-        dispatcherWhileFalse.Subscribe(receiverTrue, true);
+        dispatcherWhileFalse.Subscribe(receiverTrue, Event::SubscriptionPolicy::ReplaceSubscription);
         TEST_TRUE(dispatcherWhileFalse.Dispatch(&y));
         TEST_EQ(y, 21);
 
@@ -412,28 +412,28 @@ bool TestDispatcher()
 
         dispatcherB.Dispatch(&i);
         TEST_EQ(i, 30);
-        TEST_TRUE(dispatcherB.Subscribe(receiverAddOne, true));
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddOne, Event::SubscriptionPolicy::ReplaceSubscription));
 
         dispatcherA.Dispatch(&i);
         TEST_EQ(i, 39);
 
         dispatcherB.Dispatch(&i);
         TEST_EQ(i, 40);
-        TEST_TRUE(dispatcherB.Subscribe(receiverAddThree, true));
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddThree, Event::SubscriptionPolicy::ReplaceSubscription));
 
         dispatcherA.Dispatch(&i);
         TEST_EQ(i, 46);
 
         dispatcherB.Dispatch(&i);
         TEST_EQ(i, 50);
-        TEST_TRUE(dispatcherB.Subscribe(receiverAddFour, true));
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddFour, Event::SubscriptionPolicy::ReplaceSubscription));
 
         dispatcherA.Dispatch(&i);
         TEST_EQ(i, 52);
 
         dispatcherB.Dispatch(&i);
         TEST_EQ(i, 60);
-        TEST_TRUE(dispatcherB.Subscribe(receiverAddTwo, true));
+        TEST_TRUE(dispatcherB.Subscribe(receiverAddTwo, Event::SubscriptionPolicy::ReplaceSubscription));
 
         dispatcherA.Dispatch(&i);
         TEST_EQ(i, 60);

@@ -8,6 +8,7 @@
 #include <Common/LinkedList.hpp>
 #include "Event/Collector.hpp"
 #include "Event/Receiver.hpp"
+#include "Event/Policies.hpp"
 
 // Forward declarations.
 namespace Event
@@ -138,7 +139,9 @@ namespace Event
 
     public:
         // By default we do not want to replace receiver's current dispatcher.
-        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver, bool unsubscribeReceiver = false, bool insertFront = false)
+        bool Subscribe(Receiver<ReturnType(Arguments...)>& receiver,
+            SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
+            PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
             // Check if receiver is already subscribed somewhere else.
             if(!receiver.m_listNode.IsFree())
@@ -147,8 +150,8 @@ namespace Event
                 if(receiver.m_dispatcher == this)
                     return true;
 
-                // Check if we want to replace receiver's dispatcher
-                if(!unsubscribeReceiver)
+                // Check if we want to retain existing subscription.
+                if(subscriptionPolicy == SubscriptionPolicy::RetainSubscription)
                     return false;
 
                 // Unsubscribe first and then continue.
@@ -156,7 +159,7 @@ namespace Event
             }
 
             // Add receiver to linked list.
-            if(insertFront)
+            if(priorityPolicy == PriorityPolicy::InsertFront)
             {
                 // Add receiver node to the beginning of receiver list.
                 receiver.m_listNode.InsertBefore(m_receiverList.GetNext());

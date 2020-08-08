@@ -7,6 +7,7 @@
 #include "Common/Debug.hpp"
 #include "Event/Dispatcher.hpp"
 #include "Event/Delegate.hpp"
+#include "Event/Policies.hpp"
 
 namespace Event
 {
@@ -71,9 +72,10 @@ namespace Event
         }
 
         bool Subscribe(DispatcherBase<ReturnType(Arguments...)>& dispatcher, 
-            bool unsubscribeReceiver = true, bool insertFront = false)
+            SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::ReplaceSubscription,
+            PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
-            return dispatcher.Subscribe(*this, unsubscribeReceiver, insertFront);
+            return dispatcher.Subscribe(*this, subscriptionPolicy, priorityPolicy);
         }
 
         void Unsubscribe()

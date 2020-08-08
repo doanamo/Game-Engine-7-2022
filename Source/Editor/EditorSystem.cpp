@@ -179,18 +179,20 @@ void EditorSystem::Draw()
     m_editorRenderer->Draw();
 }
 
-
 void EditorSystem::OnInputStateChanged(System::InputState* inputState)
 {
     if(inputState == nullptr)
         return;
 
     // We insert receivers in front of dispatcher queue as we want to have priority for input events.
-    inputState->events.keyboardKey.Subscribe(m_receiverKeyboardKey, true, true);
-    inputState->events.textInput.Subscribe(m_receiverTextInput, true, true);
-    inputState->events.mouseButton.Subscribe(m_receiverMouseButton, true, true);
-    inputState->events.mouseScroll.Subscribe(m_receiverMouseScroll, true, true);
-    inputState->events.cursorPosition.Subscribe(m_receiverCursorPosition, true, true);
+    Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
+    Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
+
+    inputState->events.keyboardKey.Subscribe(m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
+    inputState->events.textInput.Subscribe(m_receiverTextInput, subscriptionPolicy, priorityPolicy);
+    inputState->events.mouseButton.Subscribe(m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
+    inputState->events.mouseScroll.Subscribe(m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
+    inputState->events.cursorPosition.Subscribe(m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
 }
 
 bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)

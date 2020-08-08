@@ -14,6 +14,7 @@ set(INCLUDE_FILES
     "Collector.hpp"
     "Dispatcher.hpp"
     "Receiver.hpp"
+    "Policies.hpp"
     "Queue.hpp"
     "Broker.hpp"
 )
