@@ -66,7 +66,7 @@ GameInstance::CreateResult GameInstance::Create()
     return Common::Success(std::move(instance));
 }
 
-void GameInstance::Tick(const float tickTime)
+void GameInstance::PreTick(const float tickTime)
 {
     // Process entity commands.
     entitySystem->ProcessCommands();
@@ -76,4 +76,8 @@ void GameInstance::Tick(const float tickTime)
 
     // Tick sprite animation system.
     spriteSystem->Tick(tickTime);
+}
+
+void GameInstance::PostTick(const float tickTime)
+{
 }

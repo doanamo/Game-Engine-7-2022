@@ -34,7 +34,8 @@ namespace Game
     public:
         ~GameInstance();
 
-        void Tick(const float tickTime);
+        void PreTick(const float tickTime);
+        void PostTick(const float tickTime);
 
     public:
         std::unique_ptr<EntitySystem> entitySystem;

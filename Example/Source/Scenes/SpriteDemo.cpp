@@ -88,12 +88,12 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
         // Create transform component.
         auto* transform = instance->m_gameInstance->componentSystem->Create<Game::TransformComponent>(cameraEntity);
-        ASSERT(transform != nullptr, "Could not create a transform component!");
+        ASSERT(transform != nullptr, "Could not create transform component!");
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
         auto* camera = instance->m_gameInstance->componentSystem->Create<Game::CameraComponent>(cameraEntity);
-        ASSERT(camera != nullptr, "Could not create a camera component!");
+        ASSERT(camera != nullptr, "Could not create camera component!");
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
     }
 
@@ -106,6 +106,8 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         // Create transform component.
         auto* transform = instance->m_gameInstance->componentSystem->Create<Game::TransformComponent>(playerEntity);
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+        transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(0.0f)));
+        transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(0.0f, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Create sprite component.
         auto* sprite = instance->m_gameInstance->componentSystem->Create<Game::SpriteComponent>(playerEntity);
@@ -133,7 +135,7 @@ void SpriteDemo::Tick(const float tickTime)
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player").Unwrap();
     auto transform = m_gameInstance->componentSystem->Lookup<Game::TransformComponent>(playerEntity);
-    ASSERT(transform != nullptr, "Could not create a transform component!");
+    ASSERT(transform != nullptr, "Could not create transform component!");
 
     // Animate the entity.
     double timeAccumulated = m_tickTimer->GetTotalTickSeconds();

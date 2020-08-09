@@ -61,14 +61,20 @@ bool GameFramework::ProcessGameState(float timeDelta)
             // Determine tick time.
             float tickTime = tickTimer ? tickTimer->GetLastTickSeconds() : timeDelta;
 
-            // Tick game instance.
+            // Pre tick game instance.
             if(gameInstance)
             {
-                gameInstance->Tick(tickTime);
+                gameInstance->PreTick(tickTime);
             }
 
             // Call game state tick method.
             currentState->Tick(tickTime);
+
+            // Post tick game instance.
+            if(gameInstance)
+            {
+                gameInstance->PostTick(tickTime);
+            }
 
             // Inform that tick has been processed.
             events.tickProcessed.Dispatch(tickTime);
