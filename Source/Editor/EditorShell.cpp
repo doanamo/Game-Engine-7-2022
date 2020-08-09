@@ -87,7 +87,7 @@ void EditorShell::Update(float timeDelta)
 
         if(ImGui::BeginMenu("Game"))
         {
-            ImGui::MenuItem("Game Instance", "", &m_gameInstanceEditor->mainWindowOpen, true);
+            ImGui::MenuItem("Game Framework", "", &m_gameInstanceEditor->mainWindowOpen, true);
             ImGui::EndMenu();
         }
 

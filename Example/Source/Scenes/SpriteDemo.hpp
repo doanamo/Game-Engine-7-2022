@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Game/GameState.hpp>
-#include <Game/GameInstance.hpp>
 
 namespace Engine
 {
@@ -27,6 +26,7 @@ public:
     enum class CreateErrors
     {
         InvalidArgument,
+        FailedTickTimerCreation,
         FailedGameInstanceCreation,
         FailedResourceLoading,
     };
@@ -40,13 +40,16 @@ public:
 private:
     SpriteDemo();
 
-    virtual void Update(float timeDelta) override;
-    virtual void Tick(float timeDelta) override;
-    virtual void Draw(float timeAlpha) override;
+    virtual void Update(const float timeDelta) override;
+    virtual void Tick(const float tickTime) override;
+    virtual void Draw(const float timeAlpha) override;
 
+    virtual Game::TickTimer* GetTickTimer() const override;
     virtual Game::GameInstance* GetGameInstance() const override;
 
 private:
     Engine::Root* m_engine = nullptr;
+
+    std::unique_ptr<Game::TickTimer> m_tickTimer;
     std::shared_ptr<Game::GameInstance> m_gameInstance;
 };

@@ -9,6 +9,7 @@
 
 namespace Game
 {
+    class TickTimer;
     class GameFramework;
     class GameInstance;
     class GameState;
@@ -49,16 +50,15 @@ namespace Editor
         struct Receivers
         {
             Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
-            Event::Receiver<void()> gameInstanceDestroyed;
-            Event::Receiver<void()> gameInstanceTickRequested;
-            Event::Receiver<void(float)> gameInstanceTickProcessed;
+            Event::Receiver<void()> tickRequested;
+            Event::Receiver<void(float)> tickProcessed;
         } m_receivers;
 
         void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
-        void OnGameInstanceDestroyed();
-        void OnGameInstanceTickRequested();
-        void OnGameInstanceTickProcessed(float tickTime);
+        void OnTickRequested();
+        void OnTickProcessed(float tickTime);
 
+        Game::TickTimer* m_tickTimer = nullptr;
         Game::GameInstance* m_gameInstance = nullptr;
 
         std::vector<float> m_tickTimeHistogram;

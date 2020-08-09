@@ -53,7 +53,18 @@ namespace Game
 
         struct Events
         {
+            // Called whether game state changes.
+            // This will be dispatched only on successful game state transition.
             Event::Dispatcher<void(const std::shared_ptr<GameState>&)> gameStateChanged;
+
+            // Called when tick method is called.
+            // This does not mean that the state was actually ticked.
+            Event::Dispatcher<void()> tickRequested;
+
+            // Called when state had its tick processed.
+            // Event can be dispatched multiple times during the same tick method call.
+            // This is also good time to run custom tick logic in response.
+            Event::Dispatcher<void(float)> tickProcessed;
         } events;
 
     private:

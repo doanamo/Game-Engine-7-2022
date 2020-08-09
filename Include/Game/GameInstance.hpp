@@ -34,31 +34,14 @@ namespace Game
     public:
         ~GameInstance();
 
-        bool Tick(const System::Timer& timer);
+        void Tick(const float tickTime);
 
     public:
-        std::unique_ptr<TickTimer> tickTimer;
         std::unique_ptr<EntitySystem> entitySystem;
         std::unique_ptr<ComponentSystem> componentSystem;
-
         std::unique_ptr<IdentitySystem> identitySystem;
         std::unique_ptr<InterpolationSystem> interpolationSystem;
         std::unique_ptr<SpriteSystem> spriteSystem;
-
-        struct Events
-        {
-            // Called when instance is destroyed.
-            Event::Dispatcher<void()> instanceDestroyed;
-
-            // Called when tick method is called.
-            // This does not mean that the state was actually ticked.
-            Event::Dispatcher<void()> tickRequested;
-
-            // Called when state had its tick processed.
-            // Event can be dispatched multiple times during the same tick method call.
-            // This is also good time to run custom tick logic in response.
-            Event::Dispatcher<void(float)> tickProcessed;
-        } events;
 
     private:
         GameInstance();

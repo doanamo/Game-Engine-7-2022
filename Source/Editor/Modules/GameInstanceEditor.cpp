@@ -12,9 +12,8 @@ using namespace Editor;
 GameInstanceEditor::GameInstanceEditor()
 {
     m_receivers.gameStateChanged.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameStateChanged>(this);
-    m_receivers.gameInstanceDestroyed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceDestroyed>(this);
-    m_receivers.gameInstanceTickRequested.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickRequested>(this);
-    m_receivers.gameInstanceTickProcessed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickProcessed>(this);
+    m_receivers.tickRequested.Bind<GameInstanceEditor, &GameInstanceEditor::OnTickRequested>(this);
+    m_receivers.tickProcessed.Bind<GameInstanceEditor, &GameInstanceEditor::OnTickProcessed>(this);
 }
 
 GameInstanceEditor::~GameInstanceEditor() = default;
@@ -33,8 +32,10 @@ GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromPara
     // Create instance.
     auto instance = std::unique_ptr<GameInstanceEditor>(new GameInstanceEditor());
 
-    // Subscribe to game state being changed.
+    // Subscribe to game framework events.
     instance->m_receivers.gameStateChanged.Subscribe(gameFramework->events.gameStateChanged);
+    instance->m_receivers.tickRequested.Subscribe(gameFramework->events.tickRequested);
+    instance->m_receivers.tickProcessed.Subscribe(gameFramework->events.tickProcessed);
 
     // Set histogram size.
     instance->m_tickTimeHistogram.resize(100, 0.0f);
@@ -57,14 +58,14 @@ void GameInstanceEditor::Update(float timeDelta)
     {
         ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 
-        if(ImGui::Begin("Game Instance", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
+        if(ImGui::Begin("Game Framework", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
         {
             if(ImGui::CollapsingHeader("Core"))
             {
-                if(ImGui::TreeNode("Tick Control"))
+                if(m_tickTimer && ImGui::TreeNode("Tick Timer"))
                 {
                     // Show tick controls.
-                    float currentTickTime = m_gameInstance->tickTimer->GetTickSeconds();
+                    float currentTickTime = m_tickTimer->GetTickSeconds();
                     float currentTickRate = 1.0f / currentTickTime;
                     ImGui::BulletText("Tick time: %fs (%.1f tick rate)",
                         currentTickTime, currentTickRate);
@@ -75,7 +76,7 @@ void GameInstanceEditor::Update(float timeDelta)
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##TickTimeApply"))
                     {
-                        m_gameInstance->tickTimer->SetTickSeconds(1.0f / m_tickRateSlider);
+                        m_tickTimer->SetTickSeconds(1.0f / m_tickRateSlider);
                     }
 
                     // Show tick histogram.
@@ -174,6 +175,11 @@ void GameInstanceEditor::Update(float timeDelta)
 
                     ImGui::TreePop();
                 }
+
+                if(m_gameInstance && ImGui::TreeNode("Game Instance"))
+                {
+                    ImGui::TreePop();
+                }
             }
         }
 
@@ -183,25 +189,15 @@ void GameInstanceEditor::Update(float timeDelta)
 
 void GameInstanceEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
 {
-    Game::GameInstance* gameInstance = nullptr;
+    // Save references from new game state.
+    m_tickTimer = gameState ? gameState->GetTickTimer() : nullptr;
+    m_gameInstance = gameState ? gameState->GetGameInstance() : nullptr;
 
-    if(gameState)
+    // Update editor state.
+    if(m_tickTimer)
     {
-        gameInstance = gameState->GetGameInstance();
-    }
-
-    if(gameInstance)
-    {
-        // Replace with new game instance reference.
-        m_gameInstance = gameInstance;
-
-        // Subscribe to game instance dispatchers.
-        m_receivers.gameInstanceDestroyed.Subscribe(gameInstance->events.instanceDestroyed);
-        m_receivers.gameInstanceTickRequested.Subscribe(gameInstance->events.tickRequested);
-        m_receivers.gameInstanceTickProcessed.Subscribe(gameInstance->events.tickProcessed);
-
         // Update tick time slider value.
-        m_tickRateSlider = 1.0f / m_gameInstance->tickTimer->GetTickSeconds();
+        m_tickRateSlider = 1.0f / m_tickTimer->GetTickSeconds();
 
         // Clear tick time histogram.
         for(auto& tickTime : m_tickTimeHistogram)
@@ -209,22 +205,9 @@ void GameInstanceEditor::OnGameStateChanged(const std::shared_ptr<Game::GameStat
             tickTime = 0.0f;
         }
     }
-    else
-    {
-        // Remove game instance reference.
-        m_gameInstance = nullptr;
-        m_receivers = Receivers();
-    }
 }
 
-void GameInstanceEditor::OnGameInstanceDestroyed()
-{
-    // Reset game instance reference.
-    m_gameInstance = nullptr;
-    m_receivers = Receivers();
-}
-
-void GameInstanceEditor::OnGameInstanceTickRequested()
+void GameInstanceEditor::OnTickRequested()
 {
     // Do not process histogram data if paused.
     if(m_tickTimeHistogramPaused)
@@ -243,7 +226,7 @@ void GameInstanceEditor::OnGameInstanceTickRequested()
     }
 }
 
-void GameInstanceEditor::OnGameInstanceTickProcessed(float tickTime)
+void GameInstanceEditor::OnTickProcessed(float tickTime)
 {
     // Do not process histogram data if paused.
     if(m_tickTimeHistogramPaused)

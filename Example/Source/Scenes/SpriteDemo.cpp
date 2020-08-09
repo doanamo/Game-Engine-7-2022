@@ -10,6 +10,8 @@
 #include <System/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
+#include <Game/TickTimer.hpp>
+#include <Game/GameInstance.hpp>
 #include <Game/GameFramework.hpp>
 #include <Game/Components/TransformComponent.hpp>
 #include <Game/Components/CameraComponent.hpp>
@@ -35,6 +37,14 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
+
+    // Create tick timer.
+    instance->m_tickTimer = Game::TickTimer::Create().UnwrapOr(nullptr);
+    if(instance->m_tickTimer == nullptr)
+    {
+        LOG_ERROR("Could not create tick timer!");
+        return Common::Failure(CreateErrors::FailedTickTimerCreation);
+    }
 
     // Create game instance.
     instance->m_gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
@@ -118,11 +128,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     return Common::Success(std::move(instance));
 }
 
-void SpriteDemo::Update(float timeDelta)
-{
-}
-
-void SpriteDemo::Tick(float timeDelta)
+void SpriteDemo::Tick(const float tickTime)
 {
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player").Unwrap();
@@ -130,7 +136,7 @@ void SpriteDemo::Tick(float timeDelta)
     ASSERT(transform != nullptr, "Could not create a transform component!");
 
     // Animate the entity.
-    double timeAccumulated = m_gameInstance->tickTimer->GetTotalTickSeconds();
+    double timeAccumulated = m_tickTimer->GetTotalTickSeconds();
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
@@ -161,12 +167,21 @@ void SpriteDemo::Tick(float timeDelta)
 
     if(direction != glm::vec3(0.0f))
     {
-        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
+        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * tickTime);
     }
 }
 
-void SpriteDemo::Draw(float timeAlpha)
+void SpriteDemo::Update(const float timeDelta)
 {
+}
+
+void SpriteDemo::Draw(const float timeAlpha)
+{
+}
+
+Game::TickTimer* SpriteDemo::GetTickTimer() const
+{
+    return m_tickTimer.get();
 }
 
 Game::GameInstance* SpriteDemo::GetGameInstance() const

@@ -8,6 +8,7 @@
 
 namespace Game
 {
+    class TickTimer;
     class GameInstance;
 }
 
@@ -22,10 +23,19 @@ namespace Game
     public:
         virtual ~GameState() = default;
 
-        virtual void Update(float timeDelta) = 0;
-        virtual void Tick(float timeDelta) = 0;
-        virtual void Draw(float timeAlpha) = 0;
+        virtual void Update(const float timeDelta) = 0;
+        virtual void Tick(const float tickTime) = 0;
+        virtual void Draw(const float timeAlpha) = 0;
 
+        // Override if game state wants to control how tick is called.
+        // Without it tick method is always called along update.
+        virtual TickTimer* GetTickTimer() const
+        {
+            return nullptr;
+        }
+
+        // Override if game state provides game instance.
+        // Game framework will then automatically process game instance.
         virtual GameInstance* GetGameInstance() const
         {
             return nullptr;

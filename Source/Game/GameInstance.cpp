@@ -7,12 +7,7 @@
 using namespace Game;
 
 GameInstance::GameInstance() = default;
-
-GameInstance::~GameInstance()
-{
-    // Notify about game instance being destroyed.
-    events.instanceDestroyed.Dispatch();
-}
+GameInstance::~GameInstance() = default;
 
 GameInstance::CreateResult GameInstance::Create()
 {
@@ -67,52 +62,18 @@ GameInstance::CreateResult GameInstance::Create()
         return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
-    // Create tick timer.
-    instance->tickTimer = TickTimer::Create().UnwrapOr(nullptr);
-    if(instance->tickTimer == nullptr)
-    {
-        LOG_ERROR("Could not create tick timer!");
-        return Common::Failure(CreateErrors::FailedSubsystemCreation);
-    }
-
     // Success!
     return Common::Success(std::move(instance));
 }
 
-bool GameInstance::Tick(const System::Timer& timer)
+void GameInstance::Tick(const float tickTime)
 {
-    // Return flag indicating if instance was ticked.
-    bool tickProcessed = false;
+    // Process entity commands.
+    entitySystem->ProcessCommands();
 
-    // Inform about tick method being called.
-    events.tickRequested.Dispatch();
+    // Tick interpolation system.
+    interpolationSystem->Tick(tickTime);
 
-    // Advance tick timer.
-    tickTimer->Advance(timer);
-
-    // Main game instance tick loop.
-    while(tickTimer->Tick())
-    {
-        // Retrieve last tick time.
-        float tickTime = tickTimer->GetLastTickSeconds();
-
-        // Process entity commands.
-        entitySystem->ProcessCommands();
-
-        // Tick interpolation system.
-        interpolationSystem->Tick(tickTime);
-
-        // Tick sprite animation system.
-        spriteSystem->Tick(tickTime);
-
-        // Inform that instance had its tick processed.
-        // Allows for custom tick logic to be executed.
-        events.tickProcessed.Dispatch(tickTime);
-
-        // Instance has been ticked at least once.
-        tickProcessed = true;
-    }
-
-    // Return whether instance could be ticked.
-    return tickProcessed;
+    // Tick sprite animation system.
+    spriteSystem->Tick(tickTime);
 }

@@ -34,39 +34,70 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
 
 bool GameFramework::ProcessGameState(float timeDelta)
 {
+    // Acquire current state and its parts.
+    std::shared_ptr<GameState> currentState = m_stateMachine.GetState();
+    TickTimer* tickTimer = currentState ? currentState->GetTickTimer() : nullptr;
+    GameInstance* gameInstance = currentState ? currentState->GetGameInstance() : nullptr;
+
     // Track whether tick was processed.
     bool tickProcessed = false;
 
-    // Acquire current game state.
-    if(auto currentState = m_stateMachine.GetState())
+    // Process current game state.
+    if(currentState)
     {
-        // Lazy initialized render time alpha.
-        float timeAlpha = 1.0f;
+        // Process tick timer.
+        if(tickTimer)
+        {
+            tickTimer->Advance(*m_timer);
+        }
+
+        // Inform about tick being requested.
+        events.tickRequested.Dispatch();
+
+        // Process game tick.
+        // Tick may be processed multiple times if behind the schedule.
+        while(!tickTimer || tickTimer->Tick())
+        {
+            // Determine tick time.
+            float tickTime = tickTimer ? tickTimer->GetLastTickSeconds() : timeDelta;
+
+            // Tick game instance.
+            if(gameInstance)
+            {
+                gameInstance->Tick(tickTime);
+            }
+
+            // Call game state tick method.
+            currentState->Tick(tickTime);
+
+            // Inform that tick has been processed.
+            events.tickProcessed.Dispatch(tickTime);
+
+            // Mark tick as processed.
+            tickProcessed = true;
+
+            // Tick only once if there is no tick timer.
+            if(!tickTimer)
+                break;
+        }
 
         // Call game state update method.
         currentState->Update(timeDelta);
 
-        // Request game instance tick.
-        if(auto gameInstance = currentState->GetGameInstance())
-        {
-            // Call game state tick method if tick was processed.
-            if(gameInstance->Tick(*m_timer))
-            {
-                currentState->Tick(gameInstance->tickTimer->GetLastTickSeconds());
-                tickProcessed = true;
-            }
+        // Determine time alpha.
+        float timeAlpha = tickTimer ? tickTimer->GetAlphaSeconds() : 1.0f;
 
-            // Pass game instance to game renderer.
+        // Draw game instance.
+        if(gameInstance)
+        {
             glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
 
             Renderer::GameRenderer::DrawParams drawParams;
             drawParams.viewportRect = viewportRect;
             drawParams.gameInstance = gameInstance;
             drawParams.cameraName = "Camera";
+            drawParams.timeAlpha = timeAlpha;
             m_gameRenderer->Draw(drawParams);
-
-            // Retrieve proper time alpha based on last tick.
-            timeAlpha = gameInstance->tickTimer->GetAlphaSeconds();
         }
 
         // Call game state draw method.

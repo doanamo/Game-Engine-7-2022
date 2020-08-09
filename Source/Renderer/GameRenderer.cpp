@@ -47,9 +47,8 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         return;
     }
 
-    // Get time alpha from game instance.
-    float timeAlpha = drawParams.gameInstance->tickTimer->GetAlphaSeconds();
-    ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not clamped!");
+    // Make sure time alpha is normalized.
+    ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f, "Time alpha is not normalized!");
 
     // Get game instance systems.
     auto& entitySystem = drawParams.gameInstance->entitySystem;
@@ -65,7 +64,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
             Game::SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
 
             auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
-            float animationTime = spriteAnimationComponent.CalculateAnimationTime(timeAlpha);
+            float animationTime = spriteAnimationComponent.CalculateAnimationTime(drawParams.timeAlpha);
 
             ASSERT(spriteAnimation, "Sprite animation is null despite being played!");
             spriteComponent->SetTextureView(spriteAnimation->GetFrameByTime(animationTime).textureView);
@@ -129,7 +128,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
         sprite.info.transparent = spriteComponent.IsTransparent();
         sprite.info.filtered = spriteComponent.IsFiltered();
-        sprite.data.transform = transformComponent->CalculateMatrix(timeAlpha);
+        sprite.data.transform = transformComponent->CalculateMatrix(drawParams.timeAlpha);
         sprite.data.rectangle = spriteComponent.GetRectangle();
         sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
         sprite.data.color = spriteComponent.GetColor();
