@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Game/GameState.hpp>
 #include <Game/GameInstance.hpp>
 
 namespace Engine
@@ -20,7 +21,7 @@ namespace System
     Game Scene
 */
 
-class SpriteDemo final : private Common::NonCopyable
+class SpriteDemo final : public Game::GameState
 {
 public:
     enum class CreateErrors
@@ -39,11 +40,13 @@ public:
 private:
     SpriteDemo();
 
-    Event::Receiver<void(float)> m_customTick;
-    void Tick(float tickTime);
+    virtual void Update(float timeDelta) override;
+    virtual void Tick(float timeDelta) override;
+    virtual void Draw(float timeAlpha) override;
+
+    virtual Game::GameInstance* GetGameInstance() const override;
 
 private:
     Engine::Root* m_engine = nullptr;
-
     std::shared_ptr<Game::GameInstance> m_gameInstance;
 };

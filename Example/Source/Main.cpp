@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Scenes/SpriteDemo.hpp"
+#include <Game/GameFramework.hpp>
 
 int main()
 {
@@ -18,13 +19,16 @@ int main()
         return -1;
     }
 
-    // Create game scene.
-    auto gameScene = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
-    if(gameScene == nullptr)
+    // Create game state.
+    std::shared_ptr<Game::GameState> gameState = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
+    if(gameState == nullptr)
     {
-        LOG_ERROR("Could not create game scene!");
+        LOG_ERROR("Could not create game state!");
         return -1;
     }
+
+    // Set game state as current.
+    engine->GetServices().GetGameFramework()->ChangeGameState(gameState);
 
     // Run example loop.
     return engine->Run();

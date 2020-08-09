@@ -11,6 +11,7 @@ namespace Game
 {
     class GameFramework;
     class GameInstance;
+    class GameState;
 };
 
 /*
@@ -47,13 +48,13 @@ namespace Editor
 
         struct Receivers
         {
-            Event::Receiver<void(const std::shared_ptr<Game::GameInstance>&)> gameInstanceChanged;
+            Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
             Event::Receiver<void()> gameInstanceDestroyed;
             Event::Receiver<void()> gameInstanceTickRequested;
             Event::Receiver<void(float)> gameInstanceTickProcessed;
         } m_receivers;
 
-        void OnGameInstanceChanged(const std::shared_ptr<Game::GameInstance>& gameInstance);
+        void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
         void OnGameInstanceDestroyed();
         void OnGameInstanceTickRequested();
         void OnGameInstanceTickProcessed(float tickTime);

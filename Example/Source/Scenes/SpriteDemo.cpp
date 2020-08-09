@@ -17,11 +17,7 @@
 #include <Game/Components/SpriteAnimationComponent.hpp>
 #include <Editor/EditorSystem.hpp>
 
-SpriteDemo::SpriteDemo()
-{
-    m_customTick.Bind<SpriteDemo, &SpriteDemo::Tick>(this);
-}
-
+SpriteDemo::SpriteDemo() = default;
 SpriteDemo::~SpriteDemo() = default;
 
 SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
@@ -47,12 +43,6 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         LOG_ERROR("Could not create game instance!");
         return Common::Failure(CreateErrors::FailedGameInstanceCreation);
     }
-
-    // Setup custom tick callback.
-    instance->m_customTick.Subscribe(instance->m_gameInstance->events.tickProcessed);
-    
-    // Set game instance as current.
-    gameFramework->SetGameInstance(instance->m_gameInstance);
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
@@ -128,7 +118,11 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     return Common::Success(std::move(instance));
 }
 
-void SpriteDemo::Tick(float tickTime)
+void SpriteDemo::Update(float timeDelta)
+{
+}
+
+void SpriteDemo::Tick(float timeDelta)
 {
     // Retrieve player transform.
     Game::EntityHandle playerEntity = m_gameInstance->identitySystem->GetEntityByName("Player").Unwrap();
@@ -167,6 +161,15 @@ void SpriteDemo::Tick(float tickTime)
 
     if(direction != glm::vec3(0.0f))
     {
-        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * tickTime);
+        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * timeDelta);
     }
+}
+
+void SpriteDemo::Draw(float timeAlpha)
+{
+}
+
+Game::GameInstance* SpriteDemo::GetGameInstance() const
+{
+    return m_gameInstance.get();
 }

@@ -58,7 +58,7 @@ namespace System
         std::string GetTitle() const;
         int GetWidth() const;
         int GetHeight() const;
-        bool IsOpen() const;
+        bool ShouldClose() const;
         bool IsFocused() const;
 
         GLFWwindow* GetPrivateHandle();

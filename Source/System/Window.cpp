@@ -196,7 +196,7 @@ int Window::GetHeight() const
     return height;
 }
 
-bool Window::IsOpen() const
+bool Window::ShouldClose() const
 {
     // Window is considered open as long as there was no request made to close it.
     return glfwWindowShouldClose(m_handle) == 0;

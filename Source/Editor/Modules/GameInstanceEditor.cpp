@@ -6,11 +6,12 @@
 #include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Game/GameFramework.hpp>
 #include <Game/GameInstance.hpp>
+#include <Game/GameState.hpp>
 using namespace Editor;
 
 GameInstanceEditor::GameInstanceEditor()
 {
-    m_receivers.gameInstanceChanged.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceChanged>(this);
+    m_receivers.gameStateChanged.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameStateChanged>(this);
     m_receivers.gameInstanceDestroyed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceDestroyed>(this);
     m_receivers.gameInstanceTickRequested.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickRequested>(this);
     m_receivers.gameInstanceTickProcessed.Bind<GameInstanceEditor, &GameInstanceEditor::OnGameInstanceTickProcessed>(this);
@@ -32,8 +33,8 @@ GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromPara
     // Create instance.
     auto instance = std::unique_ptr<GameInstanceEditor>(new GameInstanceEditor());
 
-    // Subscribe to game instance being changed.
-    instance->m_receivers.gameInstanceChanged.Subscribe(gameFramework->events.gameInstanceChanged);
+    // Subscribe to game state being changed.
+    instance->m_receivers.gameStateChanged.Subscribe(gameFramework->events.gameStateChanged);
 
     // Set histogram size.
     instance->m_tickTimeHistogram.resize(100, 0.0f);
@@ -180,12 +181,19 @@ void GameInstanceEditor::Update(float timeDelta)
     }
 }
 
-void GameInstanceEditor::OnGameInstanceChanged(const std::shared_ptr<Game::GameInstance>& gameInstance)
+void GameInstanceEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
 {
+    Game::GameInstance* gameInstance = nullptr;
+
+    if(gameState)
+    {
+        gameInstance = gameState->GetGameInstance();
+    }
+
     if(gameInstance)
     {
         // Replace with new game instance reference.
-        m_gameInstance = gameInstance.get();
+        m_gameInstance = gameInstance;
 
         // Subscribe to game instance dispatchers.
         m_receivers.gameInstanceDestroyed.Subscribe(gameInstance->events.instanceDestroyed);

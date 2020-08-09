@@ -6,6 +6,7 @@
 
 #include <Core/ServiceStorage.hpp>
 #include <Event/Dispatcher.hpp>
+#include "Game/GameState.hpp"
 
 namespace System
 {
@@ -25,7 +26,7 @@ namespace Renderer
 
 namespace Game
 {
-    class GameInstance;
+    class GameState;
 
     class GameFramework final : private Common::NonCopyable
     {
@@ -46,15 +47,13 @@ namespace Game
     public:
         ~GameFramework();
 
-        bool Update();
-        void Draw();
-
-        void SetGameInstance(std::shared_ptr<GameInstance> gameInstance);
-        std::shared_ptr<GameInstance> GetGameInstance() const;
+        bool ChangeGameState(std::shared_ptr<GameState> gameState);
+        bool ProcessGameState(float timeDelta);
+        bool HasGameState() const;
 
         struct Events
         {
-            Event::Dispatcher<void(const std::shared_ptr<GameInstance>&)> gameInstanceChanged;
+            Event::Dispatcher<void(const std::shared_ptr<GameState>&)> gameStateChanged;
         } events;
 
     private:
@@ -64,6 +63,6 @@ namespace Game
         System::Window* m_window = nullptr;
         Renderer::GameRenderer* m_gameRenderer = nullptr;
 
-        std::shared_ptr<GameInstance> m_gameInstance;
+        Common::StateMachine<GameState> m_stateMachine;
     };
 }

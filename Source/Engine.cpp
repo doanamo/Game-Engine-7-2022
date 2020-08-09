@@ -257,6 +257,7 @@ int Root::Run()
     // Acquire engine services.
     System::Timer* timer = m_services.GetTimer();
     System::Window* window = m_services.GetWindow();
+    Game::GameFramework* gameFramework = m_services.GetGameFramework();
 
     // Ensure that window context is current.
     window->MakeContextCurrent();
@@ -296,15 +297,13 @@ int Root::Run()
         // Update editor system.
         editorSystem->Update(timeDelta);
 
-        // Update game instance.
-        if(gameFramework->Update())
+        // Trigger game update, trick and draw logic.
+        // Update returns true if tick was processed.
+        if(gameFramework->ProcessGameState(timeDelta))
         {
             // Prepare input manager for incoming events.
             inputManager->UpdateInputState(timeDelta);
         }
-
-        // Draw game instance.
-        gameFramework->Draw();
 
         // Draw editor system.
         editorSystem->Draw();
@@ -315,8 +314,22 @@ int Root::Run()
 
     // Run main loop.
     #ifndef __EMSCRIPTEN__
-        while(window->IsOpen())
+        while(true)
         {
+            // Check exit conditions.
+            if(!window->ShouldClose())
+            {
+                LOG_INFO("Breaking out of main loop because window has been requested to close.");
+                break;
+            }
+
+            if(!gameFramework->HasGameState())
+            {
+                LOG_INFO("Breaking out of main loop because there is no active game state.");
+                    break;
+            }
+
+            // Run main loop iteration.
             mainLoopIteration(this);
         }
     #else

@@ -32,48 +32,72 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     return Common::Success(std::move(instance));
 }
 
-bool GameFramework::Update()
+bool GameFramework::ProcessGameState(float timeDelta)
 {
-    // Tick game instance and return true if update occurred.
-    if(m_gameInstance)
+    // Track whether tick was processed.
+    bool tickProcessed = false;
+
+    // Acquire current game state.
+    if(auto currentState = m_stateMachine.GetState())
     {
-        return m_gameInstance->Tick(*m_timer);
+        // Lazy initialized render time alpha.
+        float timeAlpha = 1.0f;
+
+        // Call game state update method.
+        currentState->Update(timeDelta);
+
+        // Request game instance tick.
+        if(auto gameInstance = currentState->GetGameInstance())
+        {
+            // Call game state tick method if tick was processed.
+            if(gameInstance->Tick(*m_timer))
+            {
+                currentState->Tick(gameInstance->tickTimer->GetLastTickSeconds());
+                tickProcessed = true;
+            }
+
+            // Pass game instance to game renderer.
+            glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
+
+            Renderer::GameRenderer::DrawParams drawParams;
+            drawParams.viewportRect = viewportRect;
+            drawParams.gameInstance = gameInstance;
+            drawParams.cameraName = "Camera";
+            m_gameRenderer->Draw(drawParams);
+
+            // Retrieve proper time alpha based on last tick.
+            timeAlpha = gameInstance->tickTimer->GetAlphaSeconds();
+        }
+
+        // Call game state draw method.
+        currentState->Draw(timeAlpha);
     }
 
-    // Return false if game instance did not update.
-    return false;
+    // Return whether tick was processed.
+    return tickProcessed;
 }
 
-void GameFramework::Draw()
+bool GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)
 {
-    // Get window viewport rect.
-    glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
-
-    // Draw game instance.
-    Renderer::GameRenderer::DrawParams drawParams;
-    drawParams.viewportRect = viewportRect;
-    drawParams.gameInstance = m_gameInstance.get();
-    drawParams.cameraName = "Camera";
-    m_gameRenderer->Draw(drawParams);
-}
-
-void GameFramework::SetGameInstance(std::shared_ptr<GameInstance> gameInstance)
-{
-    // Make sure we are not setting the same game instance.
-    if(gameInstance == m_gameInstance)
+    // Make sure we are not changing into current game state.
+    if(gameState == m_stateMachine.GetState())
     {
-        LOG_WARNING("Attempted to change game instance into the current one!");
-        return;
+        LOG_WARNING("Attempted to change into current game state!");
+        return false;
     }
 
-    // Change the current game instance.
-    m_gameInstance = gameInstance;
+    // Change into new game state.
+    if(!m_stateMachine.ChangeState(gameState))
+        return false;
 
-    // Notify listeners about game instance being changed.
-    events.gameInstanceChanged.Dispatch(m_gameInstance);
+    // Notify listeners about game state transition.
+    events.gameStateChanged.Dispatch(gameState);
+
+    // State transition succeeded.
+    return true;
 }
 
-std::shared_ptr<GameInstance> GameFramework::GetGameInstance() const
+bool GameFramework::HasGameState() const
 {
-    return m_gameInstance;
+    return m_stateMachine.HasState();
 }
