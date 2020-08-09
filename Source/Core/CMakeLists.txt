@@ -35,6 +35,7 @@ add_library(Core ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Core PUBLIC cxx_std_17)
 target_include_directories(Core PUBLIC "../../Include")
 target_precompile_headers(Core PRIVATE "Precompiled.hpp")
+set_property(TARGET Core PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

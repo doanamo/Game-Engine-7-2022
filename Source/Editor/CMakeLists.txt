@@ -48,6 +48,7 @@ add_library(Editor ${INCLUDE_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
 target_compile_features(Editor PUBLIC cxx_std_17)
 target_include_directories(Editor PUBLIC "../../Include")
 target_precompile_headers(Editor PRIVATE "Precompiled.hpp")
+set_property(TARGET Editor PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

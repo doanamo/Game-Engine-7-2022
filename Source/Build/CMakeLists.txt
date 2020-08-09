@@ -33,6 +33,7 @@ project(Build)
 add_library(Build ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Build PUBLIC cxx_std_17)
 target_include_directories(Build PUBLIC "../../Include")
+set_property(TARGET Build PROPERTY FOLDER "Engine")
 
 #
 # Dependencies
@@ -58,8 +59,8 @@ add_custom_target("BuildInfo"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.cmake"
 )
 
-add_dependencies(Build "BuildInfo")
-set_property(TARGET "BuildInfo" PROPERTY FOLDER "Generated")
+add_dependencies(Build BuildInfo)
+set_property(TARGET BuildInfo PROPERTY FOLDER "Generated")
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.

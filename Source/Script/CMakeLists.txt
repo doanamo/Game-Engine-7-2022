@@ -33,6 +33,7 @@ add_library(Script ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Script PUBLIC cxx_std_17)
 target_include_directories(Script PUBLIC "../../Include")
 target_precompile_headers(Script PRIVATE "Precompiled.hpp")
+set_property(TARGET Script PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

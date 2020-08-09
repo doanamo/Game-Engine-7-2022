@@ -33,6 +33,7 @@ add_library(Renderer ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Renderer PUBLIC cxx_std_17)
 target_include_directories(Renderer PUBLIC "../../Include")
 target_precompile_headers(Renderer PRIVATE "Precompiled.hpp")
+set_property(TARGET Renderer PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

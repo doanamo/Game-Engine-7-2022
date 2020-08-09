@@ -33,6 +33,7 @@ add_library(Engine ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Engine PUBLIC cxx_std_17)
 target_include_directories(Engine PUBLIC "../Include")
 target_precompile_headers(Engine PRIVATE "Precompiled.hpp")
+set_property(TARGET Engine PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

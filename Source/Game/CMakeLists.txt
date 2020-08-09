@@ -59,6 +59,7 @@ add_library(Game ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Game PUBLIC cxx_std_17)
 target_include_directories(Game PUBLIC "../../Include")
 target_precompile_headers(Game PRIVATE "Precompiled.hpp")
+set_property(TARGET Game PROPERTY FOLDER "Engine")
 
 #
 # Dependencies

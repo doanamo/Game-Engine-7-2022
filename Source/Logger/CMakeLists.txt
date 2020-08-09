@@ -41,6 +41,7 @@ add_library(Logger ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Logger PUBLIC cxx_std_17)
 target_include_directories(Logger PUBLIC "../../Include")
 target_precompile_headers(Logger PRIVATE "Precompiled.hpp")
+set_property(TARGET Logger PROPERTY FOLDER "Engine")
 
 #
 # External
