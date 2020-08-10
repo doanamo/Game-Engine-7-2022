@@ -10,8 +10,7 @@
 /*
     Result
 
-    Based on implementation from:
-    - https://github.com/oktal/result
+    Wrapper inspired by Rust language for return values that can indicate either success or failure.
 */
 
 namespace Common::Detail

@@ -10,8 +10,11 @@
 /*
     Linked List
 
-    Circular linked list node which can be interconnected to each other in
-    arbitrary ways with implementation that is quick and favors simplicity.
+    Circular double linked list implementation that is quick and favors simplicity.
+    Nodes never point at null previous/next node and list is represented by a node
+    itself. Having a list with single node means first node has its previous/next
+    nodes pointing at itself (circular property). List being circular does not mean
+    that it cannot be used as a finite sequence.
 */
 
 namespace Common
