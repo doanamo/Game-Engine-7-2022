@@ -99,8 +99,8 @@ namespace Common
             {
             }
 
-            HandleType handle;
             ObjectType object = {};
+            HandleType handle;
             bool valid = false;
         };
 
@@ -118,8 +118,8 @@ namespace Common
             {
             }
 
-            const HandleType handle;
             ObjectType* object = nullptr;
+            const HandleType handle;
             const bool valid = false;
         };
 
