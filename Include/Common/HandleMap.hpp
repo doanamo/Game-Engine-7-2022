@@ -414,7 +414,7 @@ namespace Common
         FreeList m_freeList;
 
         // Size of cached free list handles.
-        // Safe guard over too quick version overflow.
+        // Safe guard for handle exhaustion.
         std::size_t m_cacheSize = 64;
     };
 }
