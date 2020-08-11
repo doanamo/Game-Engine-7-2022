@@ -5,6 +5,7 @@
 #pragma once
 
 #include <deque>
+#include "Common/Utility.hpp"
 
 /*
     Handle Set
@@ -261,12 +262,12 @@ namespace Common
                     VERIFY(m_handles.size() != HandleType::MaximumIdentifier, "Maximum handle identifier limit has been reached!");
 
                     // Create handle entry with new index.
-                    HandleValueType newHandleIdentifier = (HandleValueType)(m_handles.size() + 1);
+                    HandleValueType newHandleIdentifier = Common::NumericalCast<HandleValueType>(m_handles.size() + 1);
                     m_handles.emplace_back(HandleType(newHandleIdentifier));
 
                     // Add new object entry to free list.
-                    std::size_t currentObjectEntryCount = m_handles.size();
-                    m_freeList.push_back((HandleValueType)(currentObjectEntryCount - 1));
+                    HandleValueType newHandleEntryIndex = Common::NumericalCast<HandleValueType>(m_handles.size() - 1);
+                    m_freeList.push_back(newHandleEntryIndex);
 
                     // Check if this is our requested identifier.
                     if(requestedHandle)
