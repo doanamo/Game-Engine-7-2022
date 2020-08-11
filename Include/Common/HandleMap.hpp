@@ -25,6 +25,8 @@ namespace Common
         friend HandleMap<Type>;
 
         using ValueType = uint32_t;
+
+        static constexpr ValueType MaximumIdentifier = std::numeric_limits<ValueType>::max();
         static constexpr ValueType InvalidIdentifier = 0;
         static constexpr ValueType StartingVersion = 0;
 
@@ -206,21 +208,25 @@ namespace Common
         };
 
     public:
-        HandleMap() = default;
+        HandleMap(std::size_t cacheSize = 32) :
+            m_cacheSize(cacheSize)
+        {
+        }
 
         HandleEntryRef<false> CreateHandle(const HandleType handleRequest = HandleType())
         {
             // Next free list entry index that we want to use.
             // Initially pointing at invalid end element and needs to be found or created.
-            auto freeEntry = m_freeList.end();
+            auto freeEntryIterator = m_freeList.end();
+            bool foundFreeEntry = false;
 
             // Check if requested handle identifier is in free list queue.
             bool requestedHandle = handleRequest.IsValid();
 
             if(requestedHandle)
             {
-                // Find handle index in free list queue that interests us.
-                freeEntry = std::find_if(m_freeList.begin(), m_freeList.end(),
+                // Find handle identifier in free list queue that interests us.
+                freeEntryIterator = std::find_if(m_freeList.begin(), m_freeList.end(),
                     [handleRequest](const HandleValueType& index)
                     {
                         return (index + 1) == handleRequest.GetIdentifier();
@@ -229,7 +235,7 @@ namespace Common
 
                 // Could not find requested identifier in free list queue.
                 // Check if handle with requested identifier is already in use.
-                if(freeEntry == m_freeList.end())
+                if(freeEntryIterator == m_freeList.end())
                 {
                     // We did not find free list entry with this identifier, so there is a chance it is already being used.
                     HandleValueType currentMaxIdentifier = (HandleValueType)m_handles.size();
@@ -240,13 +246,20 @@ namespace Common
                         return HandleEntryRef<false>();
                     }
                 }
+                else
+                {
+                    foundFreeEntry = true;
+                }
             }
 
             // Create new handles if free list is empty or until we get requested handle.
-            if(freeEntry == m_freeList.end())
+            if(!foundFreeEntry)
             {
-                while(m_freeList.empty() || requestedHandle)
+                while(m_freeList.size() <= m_cacheSize)
                 {
+                    // Check if we have reached the numerical limits.
+                    VERIFY(m_handles.size() != HandleType::MaximumIdentifier, "Maximum handle identifier limit has been reached!");
+
                     // Create handle entry with new index.
                     HandleValueType newHandleIdentifier = (HandleValueType)(m_handles.size() + 1);
                     m_handles.emplace_back(HandleType(newHandleIdentifier));
@@ -255,9 +268,6 @@ namespace Common
                     std::size_t currentObjectEntryCount = m_handles.size();
                     m_freeList.push_back((HandleValueType)(currentObjectEntryCount - 1));
 
-                    // Reset invalidated iterator.
-                    freeEntry = m_freeList.end();
-
                     // Check if this is our requested identifier.
                     if(requestedHandle)
                     {
@@ -265,22 +275,25 @@ namespace Common
                         {
                             // We got our requested handle, so pop it next.
                             // We can step back using end iterator as we know free list is not empty at this point.
-                            freeEntry = m_freeList.end() - 1;
+                            freeEntryIterator = m_freeList.end() - 1;
+                            foundFreeEntry = true;
+
+                            // We cannot continue creating handles for cache as allocations will invalidate our iterator.
                             break;
                         }
                     }
                 }
+            }
 
-                // Check if we have our handle candidate.
-                if(freeEntry == m_freeList.end())
-                {
-                    // We may still not have a valid free entry selected, so choose free entry in front.
-                    freeEntry = m_freeList.begin();
-                }
+            // Choose first free handle if none was found yet.
+            if(!foundFreeEntry)
+            {
+                freeEntryIterator = m_freeList.begin();
+                foundFreeEntry = true;
             }
 
             // Get free handle entry from free list queue.
-            HandleEntry& handleEntry = m_handles[*freeEntry];
+            HandleEntry& handleEntry = m_handles[*freeEntryIterator];
 
             // Set requested handle version.
             // There is no harm in bumping handle version by an arbitrary value (unless it overflows).
@@ -299,7 +312,7 @@ namespace Common
             handleEntry.valid = true;
 
             // Erase used index from free list queue.
-            m_freeList.erase(freeEntry);
+            m_freeList.erase(freeEntryIterator);
 
             // Return handle entry reference.
             return HandleEntryRef<false>(handleEntry);
@@ -393,7 +406,14 @@ namespace Common
             }
         }
 
-        HandleList m_handles; // List of handles and type storage.
-        FreeList m_freeList;  // List of free handles that can be reused.
+        // List of handles and type storage.
+        HandleList m_handles;
+
+        // List of free handles that can be reused.
+        FreeList m_freeList;
+
+        // Size of cached free list handles.
+        // Safe guard over too quick version overflow.
+        std::size_t m_cacheSize = 64;
     };
 }

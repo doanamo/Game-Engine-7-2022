@@ -36,7 +36,7 @@ int TestMap()
         std::string name;
     };
 
-    Common::HandleMap<Entity> entities;
+    Common::HandleMap<Entity> entities(32);
     TEST_EQ(entities.GetValidHandleCount(), 0);
     TEST_EQ(entities.GetUnusedHandleCount(), 0);
 
@@ -63,7 +63,7 @@ int TestMap()
         TEST_EQ(entityEntry.handle.GetVersion(), 0);
 
         TEST_EQ(entities.GetValidHandleCount(), 1);
-        TEST_EQ(entities.GetUnusedHandleCount(), 0);
+        TEST_EQ(entities.GetUnusedHandleCount(), 32);
 
         auto fetchedEntry = entities.LookupHandle(entityEntry.handle);
         TEST_EQ(fetchedEntry.handle, entityEntry.handle);
@@ -74,7 +74,7 @@ int TestMap()
         TEST_TRUE(entities.DestroyHandle(entityEntry.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 0);
-        TEST_EQ(entities.GetUnusedHandleCount(), 1);
+        TEST_EQ(entities.GetUnusedHandleCount(), 33);
 
         auto invalidatedEntry = entities.LookupHandle(entityEntry.handle);
         TEST_EQ(invalidatedEntry.handle, Common::Handle<Entity>());
@@ -84,24 +84,27 @@ int TestMap()
         TEST_FALSE(entities.DestroyHandle(entityEntry.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 0);
-        TEST_EQ(entities.GetUnusedHandleCount(), 1);
+        TEST_EQ(entities.GetUnusedHandleCount(), 33);
+    }
 
-        auto recreatedEntry = entities.CreateHandle();
-        TEST_TRUE(recreatedEntry.object != nullptr);
-        TEST_TRUE(recreatedEntry.object->name.empty());
-        TEST_TRUE(recreatedEntry.valid);
+    // Checks subsequent handle.
+    {
+        auto entityEntry = entities.CreateHandle();
+        TEST_TRUE(entityEntry.object != nullptr);
+        TEST_TRUE(entityEntry.object->name.empty());
+        TEST_TRUE(entityEntry.valid);
 
-        TEST_TRUE(recreatedEntry.handle.IsValid());
-        TEST_EQ(recreatedEntry.handle.GetIdentifier(), 1);
-        TEST_EQ(recreatedEntry.handle.GetVersion(), 1);
+        TEST_TRUE(entityEntry.handle.IsValid());
+        TEST_EQ(entityEntry.handle.GetIdentifier(), 2);
+        TEST_EQ(entityEntry.handle.GetVersion(), 0);
 
         TEST_EQ(entities.GetValidHandleCount(), 1);
-        TEST_EQ(entities.GetUnusedHandleCount(), 0); // This may not be zero if some free list pooling is implemented.
+        TEST_EQ(entities.GetUnusedHandleCount(), 32);
 
-        TEST_TRUE(entities.DestroyHandle(recreatedEntry.handle));
+        TEST_TRUE(entities.DestroyHandle(entityEntry.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 0);
-        TEST_EQ(entities.GetUnusedHandleCount(), 1);
+        TEST_EQ(entities.GetUnusedHandleCount(), 33);
     }
 
     // Check multiple handles.
@@ -116,22 +119,22 @@ int TestMap()
         entityEntryC.object->name = "EntityC";
 
         TEST_EQ(entities.GetValidHandleCount(), 3);
-        TEST_EQ(entities.GetUnusedHandleCount(), 0);
+        TEST_EQ(entities.GetUnusedHandleCount(), 32);
 
         TEST_TRUE(entities.DestroyHandle(entityEntryB.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 2);
-        TEST_EQ(entities.GetUnusedHandleCount(), 1);
+        TEST_EQ(entities.GetUnusedHandleCount(), 33);
 
         TEST_TRUE(entities.DestroyHandle(entityEntryA.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 1);
-        TEST_EQ(entities.GetUnusedHandleCount(), 2);
+        TEST_EQ(entities.GetUnusedHandleCount(), 34);
 
         TEST_TRUE(entities.DestroyHandle(entityEntryC.handle));
 
         TEST_EQ(entities.GetValidHandleCount(), 0);
-        TEST_EQ(entities.GetUnusedHandleCount(), 3);
+        TEST_EQ(entities.GetUnusedHandleCount(), 35);
 
         auto recreatedEntityEntryA = entities.CreateHandle();
         TEST_TRUE(recreatedEntityEntryA.valid);
@@ -171,7 +174,7 @@ int TestMap()
             newEntityEntryB.object->name = "EntityB";
 
             TEST_EQ(mirroredEntities.GetValidHandleCount(), 1);
-            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 1);
+            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 3);
 
             auto newEntityEntryC = mirroredEntities.CreateHandle(entityEntryC.handle);
             TEST_TRUE(newEntityEntryC.valid);
@@ -180,7 +183,7 @@ int TestMap()
             newEntityEntryC.object->name = "EntityC";
 
             TEST_EQ(mirroredEntities.GetValidHandleCount(), 2);
-            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 1);
+            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 3);
 
             auto newEntityEntryA = mirroredEntities.CreateHandle(entityEntryA.handle);
             TEST_TRUE(newEntityEntryA.valid);
@@ -189,7 +192,7 @@ int TestMap()
             newEntityEntryA.object->name = "EntityA";
 
             TEST_EQ(mirroredEntities.GetValidHandleCount(), 3);
-            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 0);
+            TEST_EQ(mirroredEntities.GetUnusedHandleCount(), 2);
         }
     }
 
