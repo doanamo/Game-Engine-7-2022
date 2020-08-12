@@ -28,6 +28,7 @@ namespace Common
         using ValueType = uint32_t;
 
         static constexpr ValueType MaximumIdentifier = std::numeric_limits<ValueType>::max();
+        static constexpr ValueType MaximumVersion = std::numeric_limits<ValueType>::max();
         static constexpr ValueType InvalidIdentifier = 0;
         static constexpr ValueType StartingVersion = 0;
 
@@ -105,7 +106,7 @@ namespace Common
             bool valid = false;
         };
 
-        template<bool ConstReference>
+        template<bool ConstReference = false>
         struct HandleEntryRef
         {
             using HandleEntryType = typename std::conditional_t<ConstReference, const HandleEntry, HandleEntry>;
@@ -123,6 +124,8 @@ namespace Common
             const HandleType handle;
             const bool valid = false;
         };
+
+        using ConstHandleEntryRef = typename HandleEntryRef<true>;
 
         using HandleList = std::vector<HandleEntry>;
         using FreeList = std::deque<HandleValueType>;
@@ -244,12 +247,31 @@ namespace Common
                     {
                         // We are unable to create requested handle because it's already in use.
                         ASSERT(false, "Requested handle already in use!");
-                        return HandleEntryRef<false>();
+                        return HandleEntryRef();
                     }
                 }
                 else
                 {
                     foundFreeEntry = true;
+                }
+            }
+
+            // Remove free handles that exhausted their version pool.
+            while(!m_freeList.empty())
+            {
+                HandleEntry* handleEntry = &m_handles[*m_freeList.begin()];
+
+                if(handleEntry->handle.GetVersion() == HandleType::MaximumVersion)
+                {
+                    // Do not use this handle anymore and attempt to find another candidate.
+                    // Discarding handle will waste tiny amount of memory, but this will happen very rarely.
+                    // Popping from front does not invalidate iterators for dequeue.
+                    m_freeList.pop_front();
+                }
+                else
+                {
+                    // We only need to check the first free handle.
+                    break;
                 }
             }
 
@@ -303,7 +325,7 @@ namespace Common
                 if(handleEntry.handle.m_version > handleRequest.m_version)
                 {
                     ASSERT(false, "Requesting handle that will result in handle reuse!");
-                    return HandleEntryRef<false>();
+                    return HandleEntryRef();
                 }
 
                 handleEntry.handle.m_version = handleRequest.m_version;
@@ -325,12 +347,12 @@ namespace Common
 
             if(handleEntry != nullptr)
             {
-                return HandleEntryRef<false>(*handleEntry);
+                return HandleEntryRef(*handleEntry);
 
             }
             else
             {
-                return HandleEntryRef<false>();
+                return HandleEntryRef();
             }
         }
 
@@ -359,12 +381,12 @@ namespace Common
 
         HandleValueType GetValidHandleCount() const
         {
-            return (HandleValueType)(m_handles.size() - m_freeList.size());
+            return Common::NumericalCast<HandleValueType>(m_handles.size() - m_freeList.size());
         }
 
         HandleValueType GetUnusedHandleCount() const
         {
-            return (HandleValueType)m_freeList.size();
+            return Common::NumericalCast<HandleValueType>(m_freeList.size());
         }
 
         HandleIterator<false> begin()
