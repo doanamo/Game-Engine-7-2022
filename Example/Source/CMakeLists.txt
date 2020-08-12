@@ -12,8 +12,8 @@ include_guard(GLOBAL)
 set(SOURCE_FILES
     "Main.cpp"
     "Precompiled.hpp"
-    "Scenes/SpriteDemo.hpp"
-    "Scenes/SpriteDemo.cpp"
+    "GameStates/SpriteDemo.hpp"
+    "GameStates/SpriteDemo.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
