@@ -101,7 +101,7 @@ namespace Common
             }
 
             StorageType storage = {};
-            HandleType handle;
+            HandleType handle = {};
             bool valid = false;
         };
 
@@ -116,7 +116,7 @@ namespace Common
             }
 
             StorageType* storage = nullptr;
-            const HandleType handle;
+            const HandleType handle = {};
             const bool valid = false;
         };
 
@@ -131,7 +131,7 @@ namespace Common
             }
 
             const StorageType* storage = nullptr;
-            const HandleType handle;
+            const HandleType handle = {};
             const bool valid = false;
         };
 
@@ -471,10 +471,10 @@ namespace Common
 namespace std
 {
     // Handle hash functor.
-    template<typename StorageType>
-    struct hash<Common::Handle<StorageType>>
+    template<typename Type>
+    struct hash<Common::Handle<Type>>
     {
-        std::size_t operator()(const Common::Handle<StorageType>& handle) const
+        std::size_t operator()(const Common::Handle<Type>& handle) const
         {
             // Use identifier as a hash.
             return handle.GetIdentifier();
@@ -482,15 +482,15 @@ namespace std
     };
 
     // Handle pair hash functor.
-    template<typename StorageType>
-    struct hash<std::pair<Common::Handle<StorageType>, Common::Handle<StorageType>>>
+    template<typename Type>
+    struct hash<std::pair<Common::Handle<Type>, Common::Handle<Type>>>
     {
-        std::size_t operator()(const std::pair<Common::Handle<StorageType>, Common::Handle<StorageType>>& pair) const
+        std::size_t operator()(const std::pair<Common::Handle<Type>, Common::Handle<Type>>& pair) const
         {
             // Use combined identifiers as a hash.
             // This turns two 32bit integers into one that's 64bit.
             // We assume std::size_t is 64bit, but it is fine if it is not.
-            return (std::size_t)pair.first.GetIdentifier() * std::numeric_limits<Common::Handle::ValueType>::max() + pair.second.GetIdentifier();
+            return (std::size_t)pair.first.GetIdentifier() * std::numeric_limits<typename Common::Handle<Type>::ValueType>::max() + pair.second.GetIdentifier();
         }
     };
 }
