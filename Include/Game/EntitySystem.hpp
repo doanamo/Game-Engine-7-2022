@@ -81,12 +81,12 @@ namespace Game
         ~EntitySystem();
 
         EntityHandle CreateEntity();
-        void DestroyEntity(EntityHandle entity);
+        void DestroyEntity(const EntityHandle entity);
         void DestroyAllEntities();
         void ProcessCommands();
 
-        bool IsEntityValid(EntityHandle entity) const;
-        const EntityEntry* GetEntityEntry(EntityHandle entity) const;
+        bool IsEntityValid(const EntityHandle entity) const;
+        const EntityEntry* GetEntityEntry(const EntityHandle entity) const;
         std::size_t GetEntityCount() const;
 
         struct Events

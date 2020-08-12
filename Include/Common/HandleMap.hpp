@@ -350,7 +350,7 @@ namespace Common
             return HandleEntryRef(handleEntry);
         }
 
-        HandleEntryRef LookupHandle(HandleType handle)
+        HandleEntryRef LookupHandle(const HandleType handle)
         {
             HandleEntry* handleEntry = FetchHandleEntry(handle);
 
@@ -365,7 +365,7 @@ namespace Common
             }
         }
 
-        ConstHandleEntryRef LookupHandle(HandleType handle) const
+        ConstHandleEntryRef LookupHandle(const HandleType handle) const
         {
             const HandleEntry* handleEntry = FetchHandleEntry(handle);
 
@@ -379,7 +379,7 @@ namespace Common
             }
         }
 
-        bool DestroyHandle(HandleType handle)
+        bool DestroyHandle(const HandleType handle)
         {
             // Fetch handle entry.
             HandleEntry* handleEntry = FetchHandleEntry(handle);
@@ -433,12 +433,12 @@ namespace Common
         }
 
     private:
-        HandleEntry* FetchHandleEntry(HandleType handle)
+        HandleEntry* FetchHandleEntry(const HandleType handle)
         {
             return const_cast<HandleEntry*>(static_cast<const HandleMap<Type>&>(*this).FetchHandleEntry(handle));
         }
 
-        const HandleEntry* FetchHandleEntry(HandleType handle) const
+        const HandleEntry* FetchHandleEntry(const HandleType handle) const
         {
             // Make sure identifier is within handle array's range and return null otherwise.
             if(handle.GetIdentifier() <= 0 || handle.GetIdentifier() > (HandleValueType)m_handles.size())

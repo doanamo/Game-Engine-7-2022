@@ -50,7 +50,7 @@ EntitySystem::EntityHandle EntitySystem::CreateEntity()
     return handleEntry.handle;
 }
 
-void EntitySystem::DestroyEntity(EntityHandle entity)
+void EntitySystem::DestroyEntity(const EntityHandle entity)
 {
     // Retrieve entity entry.
     EntityList::HandleEntryRef handleEntry = m_entities.LookupHandle(entity);
@@ -172,7 +172,7 @@ void EntitySystem::ProcessCommands()
     }
 }
 
-bool EntitySystem::IsEntityValid(EntityHandle entity) const
+bool EntitySystem::IsEntityValid(const EntityHandle entity) const
 {
     // Retrieve entity entry.
     EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
@@ -196,7 +196,7 @@ bool EntitySystem::IsEntityValid(EntityHandle entity) const
     return true;
 }
 
-const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(EntityHandle entity) const
+const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
 {
     // Retrieve handle entry.
     EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
