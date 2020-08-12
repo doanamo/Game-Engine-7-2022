@@ -106,26 +106,35 @@ namespace Common
             bool valid = false;
         };
 
-        template<bool ConstReference = false>
         struct HandleEntryRef
         {
-            using HandleEntryType = typename std::conditional_t<ConstReference, const HandleEntry, HandleEntry>;
-            using ObjectType = typename std::conditional_t<ConstReference, const Type, Type>;
-
             HandleEntryRef() = default;
-            HandleEntryRef(HandleEntryType& reference) :
+            HandleEntryRef(HandleEntry& reference) :
                 handle(reference.handle),
                 valid(reference.valid),
                 object(&reference.object)
             {
             }
 
-            ObjectType* object = nullptr;
+            Type* object = nullptr;
             const HandleType handle;
             const bool valid = false;
         };
 
-        using ConstHandleEntryRef = typename HandleEntryRef<true>;
+        struct ConstHandleEntryRef
+        {
+            ConstHandleEntryRef() = default;
+            ConstHandleEntryRef(const HandleEntry& reference) :
+                handle(reference.handle),
+                valid(reference.valid),
+                object(&reference.object)
+            {
+            }
+
+            const Type* object = nullptr;
+            const HandleType handle;
+            const bool valid = false;
+        };
 
         using HandleList = std::vector<HandleEntry>;
         using FreeList = std::deque<HandleValueType>;
@@ -135,7 +144,7 @@ namespace Common
         {
         public:
             using IteratorType = typename std::conditional_t<ConstReference, typename HandleList::const_iterator, typename HandleList::iterator>;
-            using DereferenceReturnType = typename HandleEntryRef<ConstReference>;
+            using DereferenceReturnType = typename std::conditional_t<ConstReference, ConstHandleEntryRef, HandleEntryRef>;
 
         public:
             HandleIterator(IteratorType it, IteratorType end) :
@@ -217,7 +226,7 @@ namespace Common
         {
         }
 
-        HandleEntryRef<false> CreateHandle(const HandleType handleRequest = HandleType())
+        HandleEntryRef CreateHandle(const HandleType handleRequest = HandleType())
         {
             // Next free list entry index that we want to use.
             // Initially pointing at invalid end element and needs to be found or created.
@@ -338,10 +347,10 @@ namespace Common
             m_freeList.erase(freeEntryIterator);
 
             // Return handle entry reference.
-            return HandleEntryRef<false>(handleEntry);
+            return HandleEntryRef(handleEntry);
         }
 
-        HandleEntryRef<false> LookupHandle(HandleType handle)
+        HandleEntryRef LookupHandle(HandleType handle)
         {
             HandleEntry* handleEntry = FetchHandleEntry(handle);
 
@@ -353,6 +362,20 @@ namespace Common
             else
             {
                 return HandleEntryRef();
+            }
+        }
+
+        ConstHandleEntryRef LookupHandle(HandleType handle) const
+        {
+            const HandleEntry* handleEntry = FetchHandleEntry(handle);
+
+            if(handleEntry != nullptr)
+            {
+                return ConstHandleEntryRef(*handleEntry);
+            }
+            else
+            {
+                return ConstHandleEntryRef();
             }
         }
 
@@ -412,12 +435,17 @@ namespace Common
     private:
         HandleEntry* FetchHandleEntry(HandleType handle)
         {
+            return const_cast<HandleEntry*>(static_cast<const HandleMap<Type>&>(*this).FetchHandleEntry(handle));
+        }
+
+        const HandleEntry* FetchHandleEntry(HandleType handle) const
+        {
             // Make sure identifier is within handle array's range and return null otherwise.
             if(handle.GetIdentifier() <= 0 || handle.GetIdentifier() > (HandleValueType)m_handles.size())
                 return nullptr;
 
             // Make sure handle versions are matching.
-            HandleEntry& handleEntry = m_handles[handle.GetIdentifier() - 1];
+            const HandleEntry& handleEntry = m_handles[handle.GetIdentifier() - 1];
 
             if(handle.GetVersion() == handleEntry.handle.GetVersion())
             {
