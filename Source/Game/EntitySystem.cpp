@@ -9,8 +9,8 @@ using namespace Game;
 EntitySystem::EntitySystem() = default;
 EntitySystem::~EntitySystem()
 {
-    this->DestroyAllEntities();
-    this->ProcessCommands();
+    DestroyAllEntities();
+    ProcessCommands();
 }
 
 EntitySystem::CreateResult EntitySystem::Create()
@@ -33,7 +33,7 @@ EntitySystem::EntityHandle EntitySystem::CreateEntity()
         return EntityHandle();
     }
 
-    EntityEntry* entityEntry = handleEntry.object;
+    EntityEntry* entityEntry = handleEntry.storage;
     ASSERT(entityEntry != nullptr);
 
     // Mark entity as existing.
@@ -57,7 +57,7 @@ void EntitySystem::DestroyEntity(const EntityHandle entity)
     if(!handleEntry.valid)
         return;
 
-    EntityEntry* entityEntry = handleEntry.object;
+    EntityEntry* entityEntry = handleEntry.storage;
     ASSERT(entityEntry != nullptr);
 
     // Set handle destroy flag.
@@ -82,7 +82,7 @@ void EntitySystem::DestroyAllEntities()
     // Schedule every entity for destroy.
     for(EntityList::HandleEntryRef handleEntry : m_entities)
     {
-        if(handleEntry.object->flags & EntityFlags::Exists)
+        if(handleEntry.storage->flags & EntityFlags::Exists)
         {
             DestroyEntity(handleEntry.handle);
         }
@@ -125,7 +125,7 @@ void EntitySystem::ProcessCommands()
             if(!handleEntry.valid)
                 continue;
 
-            EntityEntry* entityEntry = handleEntry.object;
+            EntityEntry* entityEntry = handleEntry.storage;
             ASSERT(entityEntry != nullptr);
 
             // Process entity command.
@@ -179,7 +179,7 @@ bool EntitySystem::IsEntityValid(const EntityHandle entity) const
     if(!handleEntry.valid)
         return false;
 
-    const EntityEntry* entityEntry = handleEntry.object;
+    const EntityEntry* entityEntry = handleEntry.storage;
     ASSERT(entityEntry != nullptr);
 
     // Make sure queried handle exists.
@@ -204,7 +204,7 @@ const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle
         return nullptr;
 
     // Return entity entry.
-    const EntityEntry* entityEntry = handleEntry.object;
+    const EntityEntry* entityEntry = handleEntry.storage;
     ASSERT(entityEntry != nullptr);
     
     return entityEntry;

@@ -16,14 +16,14 @@
 
 namespace Common
 {
-    template<typename Type>
+    template<typename StorageType>
     class HandleMap;
 
-    template<typename Type>
+    template<typename StorageType>
     class Handle
     {
     public:
-        friend HandleMap<Type>;
+        friend HandleMap<StorageType>;
 
         using ValueType = uint32_t;
 
@@ -50,17 +50,17 @@ namespace Common
             return m_identifier != InvalidIdentifier;
         }
 
-        bool operator==(const Handle<Type>& other) const
+        bool operator==(const Handle<StorageType>& other) const
         {
             return m_identifier == other.m_identifier && m_version == other.m_version;
         }
 
-        bool operator!=(const Handle<Type>& other) const
+        bool operator!=(const Handle<StorageType>& other) const
         {
             return m_identifier != other.m_identifier || m_version != other.m_version;
         }
 
-        bool operator<(const Handle<Type>& other) const
+        bool operator<(const Handle<StorageType>& other) const
         {
             return m_identifier < other.m_identifier;
         }
@@ -86,12 +86,11 @@ namespace Common
         ValueType m_version = StartingVersion;
     };
 
-    template<typename Type>
+    template<typename StorageType>
     class HandleMap
     {
     public:
-        using ObjectType = Type;
-        using HandleType = Handle<Type>;
+        using HandleType = Handle<StorageType>;
         using HandleValueType = typename HandleType::ValueType;
 
         struct HandleEntry
@@ -101,7 +100,7 @@ namespace Common
             {
             }
 
-            ObjectType object = {};
+            StorageType storage = {};
             HandleType handle;
             bool valid = false;
         };
@@ -112,11 +111,11 @@ namespace Common
             HandleEntryRef(HandleEntry& reference) :
                 handle(reference.handle),
                 valid(reference.valid),
-                object(&reference.object)
+                storage(&reference.storage)
             {
             }
 
-            Type* object = nullptr;
+            StorageType* storage = nullptr;
             const HandleType handle;
             const bool valid = false;
         };
@@ -127,11 +126,11 @@ namespace Common
             ConstHandleEntryRef(const HandleEntry& reference) :
                 handle(reference.handle),
                 valid(reference.valid),
-                object(&reference.object)
+                storage(&reference.storage)
             {
             }
 
-            const Type* object = nullptr;
+            const StorageType* storage = nullptr;
             const HandleType handle;
             const bool valid = false;
         };
@@ -391,8 +390,8 @@ namespace Common
             handleEntry->valid = false;
 
             // Reset handle object.
-            (&handleEntry->object)->~Type();
-            new (&handleEntry->object) Type();
+            (&handleEntry->storage)->~StorageType();
+            new (&handleEntry->storage) StorageType();
 
             // Add entry index to free list.
             ASSERT(handleEntry->handle.GetIdentifier() != 0);
@@ -435,7 +434,7 @@ namespace Common
     private:
         HandleEntry* FetchHandleEntry(const HandleType handle)
         {
-            return const_cast<HandleEntry*>(static_cast<const HandleMap<Type>&>(*this).FetchHandleEntry(handle));
+            return const_cast<HandleEntry*>(static_cast<const HandleMap<StorageType>&>(*this).FetchHandleEntry(handle));
         }
 
         const HandleEntry* FetchHandleEntry(const HandleType handle) const
@@ -472,10 +471,10 @@ namespace Common
 namespace std
 {
     // Handle hash functor.
-    template<typename Type>
-    struct hash<Common::Handle<Type>>
+    template<typename StorageType>
+    struct hash<Common::Handle<StorageType>>
     {
-        std::size_t operator()(const Common::Handle<Type>& handle) const
+        std::size_t operator()(const Common::Handle<StorageType>& handle) const
         {
             // Use identifier as a hash.
             return handle.GetIdentifier();
@@ -483,10 +482,10 @@ namespace std
     };
 
     // Handle pair hash functor.
-    template<typename Type>
-    struct hash<std::pair<Common::Handle<Type>, Common::Handle<Type>>>
+    template<typename StorageType>
+    struct hash<std::pair<Common::Handle<StorageType>, Common::Handle<StorageType>>>
     {
-        std::size_t operator()(const std::pair<Common::Handle<Type>, Common::Handle<Type>>& pair) const
+        std::size_t operator()(const std::pair<Common::Handle<StorageType>, Common::Handle<StorageType>>& pair) const
         {
             // Use combined identifiers as a hash.
             // This turns two 32bit integers into one that's 64bit.
