@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Game/EntityHandle.hpp"
+#include "Game/EntitySystem.hpp"
 
 /*
     Component
@@ -14,7 +14,6 @@
 
 namespace Game
 {
-    struct EntityHandle;
     class ComponentSystem;
 
     class Component

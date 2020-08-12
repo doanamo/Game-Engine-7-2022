@@ -8,7 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include <Event/Receiver.hpp>
-#include "Game/EntityHandle.hpp"
+#include "Game/EntitySystem.hpp"
 
 /*
     Identity System
@@ -18,8 +18,6 @@
 
 namespace Game
 {
-    class EntitySystem;
-
     class IdentitySystem final : private Common::NonCopyable
     {
     public:

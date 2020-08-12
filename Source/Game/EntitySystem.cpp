@@ -6,35 +6,10 @@
 #include "Game/EntitySystem.hpp"
 using namespace Game;
 
-namespace
-{
-    // Constant variables.
-    const EntityHandle::ValueType MaximumIdentifier = std::numeric_limits<EntityHandle::ValueType>::max();
-    const EntityHandle::ValueType MaximumVersion = std::numeric_limits<EntityHandle::ValueType>::max();
-    const EntityHandle::ValueType InvalidIdentifier = 0;
-    const EntityHandle::ValueType StartingIdentifier = 1;
-
-    const std::size_t CachedFreeHandles = 32;
-}
-
-EntitySystem::HandleEntry::HandleEntry(EntityHandle::ValueType identifier) :
-    handle(identifier), flags(HandleFlags::Unused)
-{
-}
-
-EntitySystem::EntityCommand::EntityCommand(EntityCommands::Type type, EntityHandle handle) :
-    type(type), handle(handle)
-{
-}
-
 EntitySystem::EntitySystem() = default;
-
 EntitySystem::~EntitySystem()
 {
-    // Destroy all remaining entities.
     this->DestroyAllEntities();
-
-    // Empty the processing queue.
     this->ProcessCommands();
 }
 
@@ -48,90 +23,55 @@ EntitySystem::CreateResult EntitySystem::Create()
     return Common::Success(std::move(instance));
 }
 
-EntityHandle EntitySystem::CreateEntity()
+EntitySystem::EntityHandle EntitySystem::CreateEntity()
 {
-    // Check if we have reached the numerical limits.
-    VERIFY(m_handleEntries.size() != MaximumIdentifier, "Entity identifier limit has been reached!");
-
-    // Check if the next entity entry on the free list is valid.
-    while(!m_freeIdentifiers.empty())
+    // Create new entity entry.
+    EntityList::HandleEntryRef handleEntry = m_entities.CreateHandle();
+    if(!handleEntry.valid)
     {
-        // Retrieve first free handle from the free list.
-        std::size_t handleIndex = m_freeIdentifiers.front() - StartingIdentifier;
-        HandleEntry& handleEntry = m_handleEntries[handleIndex];
-
-        // Ensure that the handle entry is free.
-        ASSERT(handleEntry.flags == HandleFlags::Unused, "Handle on the free list is being used!");
-
-        // Check if entity entry has exhausted its possible versions.
-        if(handleEntry.handle.version == MaximumVersion)
-        {
-            // Do not use this handle anymore.
-            // Discarding a handle will waste a tiny amount of memory.
-            m_freeIdentifiers.pop();
-
-            // Attempt to find another candidate for a new entity handle.
-            continue;
-        }
-
-        // Found good candidate or did not find any at all.
-        break;
+        ASSERT(false, "Failed to create valid entity entry!");
+        return EntityHandle();
     }
 
-    // Create new handle if the free list queue is not filled.
-    // We maintain a cached amount of handles to avoid situations
-    // where a single handle would be reused very quickly, resulting
-    // in it exhausting all of its possible versions.
-    while(m_freeIdentifiers.size() < CachedFreeHandles)
-    {
-        // Calculate next unused identifier.
-        std::size_t calculatedIdentifier = StartingIdentifier + m_handleEntries.size();
-        auto identifier = Common::NumericalCast<EntityHandle::ValueType>(calculatedIdentifier);
+    EntityEntry* entityEntry = handleEntry.object;
+    ASSERT(entityEntry != nullptr);
 
-        // Create new handle entry.
-        m_handleEntries.emplace_back(identifier);
-
-        // Add new handle entry to the free list queue.
-        ASSERT(identifier - StartingIdentifier == Common::NumericalCast<EntityHandle::ValueType>(m_handleEntries.size()) - 1,
-            "Handle index does not match the added entity identifier!");
-
-        m_freeIdentifiers.emplace(identifier);
-    }
-
-    // Retrieve unused handle from the identifier free list.
-    std::size_t handleIndex = m_freeIdentifiers.front() - StartingIdentifier;
-    HandleEntry& handleEntry = m_handleEntries[handleIndex];
-    m_freeIdentifiers.pop();
-
-    // Mark handle as existing.
-    ASSERT(handleEntry.flags == HandleFlags::Unused);
-    handleEntry.flags |= HandleFlags::Exists;
+    // Mark entity as existing.
+    ASSERT(entityEntry->flags == EntityFlags::Unused);
+    entityEntry->flags |= EntityFlags::Exists;
 
     // Queue command for entity creation.
-    m_commands.emplace(EntityCommands::Create, handleEntry.handle);
+    EntityCommand command;
+    command.type = EntityCommands::Create;
+    command.handle = handleEntry.handle;
+    m_commands.emplace(command);
 
     // Return entity handle.
     return handleEntry.handle;
 }
 
-void EntitySystem::DestroyEntity(const EntityHandle& entity)
+void EntitySystem::DestroyEntity(EntityHandle entity)
 {
-    // Check if handle is valid.
-    if(!IsHandleValid(entity))
+    // Retrieve entity entry.
+    EntityList::HandleEntryRef handleEntry = m_entities.LookupHandle(entity);
+    if(!handleEntry.valid)
         return;
 
-    // Retrieve handle entry.
-    HandleEntry& handleEntry = this->GetHandleEntry(entity);
-
-    // Check if entity is already marked to be destroyed.
-    if(handleEntry.flags & HandleFlags::Destroy)
-        return;
+    EntityEntry* entityEntry = handleEntry.object;
+    ASSERT(entityEntry != nullptr);
 
     // Set handle destroy flag.
-    handleEntry.flags |= HandleFlags::Destroy;
+    // Also check if entity is already marked for destruction.
+    if(entityEntry->flags & EntityFlags::Destroy)
+        return;
 
-    // Add destroy entity command.
-    m_commands.emplace(EntityCommands::Destroy, handleEntry.handle);
+    entityEntry->flags |= EntityFlags::Destroy;
+
+    // Queue destroy entity command.
+    EntityCommand command;
+    command.type = EntityCommands::Destroy;
+    command.handle = handleEntry.handle;
+    m_commands.emplace(command);
 }
 
 void EntitySystem::DestroyAllEntities()
@@ -139,10 +79,10 @@ void EntitySystem::DestroyAllEntities()
     // Process outstanding entity commands.
     ProcessCommands();
 
-    // Invalidate all handle entries.
-    for(HandleEntry& handleEntry : m_handleEntries)
+    // Schedule every entity for destroy.
+    for(EntityList::HandleEntryRef handleEntry : m_entities)
     {
-        if(handleEntry.flags & HandleFlags::Exists)
+        if(handleEntry.object->flags & EntityFlags::Exists)
         {
             DestroyEntity(handleEntry.handle);
         }
@@ -150,136 +90,128 @@ void EntitySystem::DestroyAllEntities()
 
     // Process all queued destroy commands.
     ProcessCommands();
+
+    // Check remaining handle count.
+    ASSERT(m_entities.GetValidHandleCount() == 0, "Failed to destroy all entity handles!");
 }
 
 void EntitySystem::ProcessCommands()
 {
+    // Guard against infinite loops that can be caused when entity triggers
+    // additional commands that in turn could trigger more and so on.
+    int iterationCount = 0;
+
     // Process entity commands.
     while(!m_commands.empty())
     {
-        // Get command from the queue.
-        EntityCommand& command = m_commands.front();
+        // Check iteration count.
+        ASSERT(iterationCount <= 100, "Infinite loop detected! Maximum iteration in entity processing loop has been reached.");
 
-        // Process entity command.
-        switch(command.type)
+        // Extract and process command list.
+        // This is done to operate only on currently queued commands
+        // and not ones that could be subsequently queued in the process.
+        CommandList commands;
+        commands.swap(m_commands);
+
+        while(!commands.empty())
         {
-            case EntityCommands::Create:
+            // Pop command from queue.
+            EntityCommand command = commands.front();
+            commands.pop();
+
+            // Retrieve entity entry.
+            // Handle may no longer be valid and command could be out of date.
+            EntityList::HandleEntryRef handleEntry = m_entities.LookupHandle(command.handle);
+            if(!handleEntry.valid)
+                continue;
+
+            EntityEntry* entityEntry = handleEntry.object;
+            ASSERT(entityEntry != nullptr);
+
+            // Process entity command.
+            switch(command.type)
             {
-                // Retrieve the handle entry.
-                HandleEntry& handleEntry = this->GetHandleEntry(command.handle);
-                ASSERT(command.handle == handleEntry.handle);
-
-                // Inform that new entity was created
-                // since last time commands were processed.
-                // This will allow systems to acknowledge this
-                // entity and initialize its components.
-                if(!this->events.entityCreate(handleEntry.handle))
+            case EntityCommands::Create:
                 {
-                    // Some system failed to initialize this entity.
-                    // Destroy the entity immediately and also inform
-                    // systems that may have already processed it.
-                    this->events.entityDestroy(handleEntry.handle);
-                    this->FreeHandle(handleEntry);
-                    break;
+                    // Inform that new entity was created
+                    // since last time commands were processed.
+                    // This will allow systems to acknowledge this
+                    // entity and initialize its components.
+                    if(!events.entityCreate(handleEntry.handle))
+                    {
+                        // Some system failed to initialize this entity.
+                        // Destroy the entity immediately and also inform
+                        // systems that may have already processed it.
+                        events.entityDestroy(handleEntry.handle);
+                        m_entities.DestroyHandle(handleEntry.handle);
+                        break;
+                    }
+
+                    // Mark entity as officially created.
+                    ASSERT(entityEntry->flags & EntityFlags::Exists);
+                    entityEntry->flags |= EntityFlags::Created;
                 }
-
-                // Mark entity as officially created.
-                ASSERT(handleEntry.flags & HandleFlags::Exists);
-                handleEntry.flags |= HandleFlags::Created;
-
-                // Increment the counter of active entities.
-                m_entityCount += 1;
-            }
-            break;
+                break;
 
             case EntityCommands::Destroy:
-            {
-                // Retrieve handle entry.
-                HandleEntry& handleEntry = this->GetHandleEntry(command.handle);
-                ASSERT(command.handle == handleEntry.handle);
+                {
+                    // Inform about entity being destroyed
+                    // since last time commands were processed.
+                    events.entityDestroy(handleEntry.handle);
 
-                // Inform about entity being destroyed
-                // since last time commands were processed.
-                this->events.entityDestroy(handleEntry.handle);
-
-                // Decrement counter of active entities.
-                m_entityCount -= 1;
-
-                // Free the entity handle and return it to the pool.
-                ASSERT(handleEntry.flags & HandleFlags::Destroy);
-                this->FreeHandle(handleEntry);
+                    // Free the entity handle and return it to the pool.
+                    ASSERT(entityEntry->flags & EntityFlags::Destroy);
+                    m_entities.DestroyHandle(handleEntry.handle);
+                }
+                break;
             }
-            break;
         }
 
-        // Remove command from the queue.
-        m_commands.pop();
+        // Increment iteration count for infinite loop guard.
+        ++iterationCount;
     }
 }
 
-bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
+bool EntitySystem::IsEntityValid(EntityHandle entity) const
 {
-    // Retrieve handle entry.
-    const HandleEntry& handleEntry = this->GetHandleEntry(entity);
+    // Retrieve entity entry.
+    EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
+    if(!handleEntry.valid)
+        return false;
+
+    const EntityEntry* entityEntry = handleEntry.object;
+    ASSERT(entityEntry != nullptr);
 
     // Make sure queried handle exists.
-    ASSERT(handleEntry.flags & HandleFlags::Exists,
-        "Queried entity handle is not marked as existing!");
+    ASSERT(entityEntry->flags & EntityFlags::Exists, "Referenced entity handle is not marked as existing!");
 
     // Make sure entity pointed by queried handle has been created.
-    if(!(handleEntry.flags & HandleFlags::Created))
+    if(!(entityEntry->flags & EntityFlags::Created))
         return false;
 
     // Check if handle versions match.
-    if(handleEntry.handle.version != entity.version)
+    if(handleEntry.handle.GetVersion() != entity.GetVersion())
         return false;
 
     return true;
 }
 
-EntitySystem::HandleFlags::Type EntitySystem::GetEntityFlags(const EntityHandle& entity)
+const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(EntityHandle entity) const
 {
     // Retrieve handle entry.
-    const HandleEntry& handleEntry = this->GetHandleEntry(entity);
+    EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
+    if(!handleEntry.valid)
+        return nullptr;
 
-    // Check if handle versions match.
-    if(handleEntry.handle.version != entity.version)
-        return HandleFlags::Unused;
+    // Return entity entry.
+    const EntityEntry* entityEntry = handleEntry.object;
+    ASSERT(entityEntry != nullptr);
     
-    // Return handle flags.
-    return handleEntry.flags;
+    return entityEntry;
 }
 
-const EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity) const
+std::size_t EntitySystem::GetEntityCount() const
 {
-    // Calculate entity handle entry index.
-    int handleIndex = entity.identifier - StartingIdentifier;
-
-    // Make sure handle index is withing the expected range.
-    ASSERT(handleIndex >= 0, "Invalid entity handle identifier!");
-    ASSERT(handleIndex < (int)m_handleEntries.size(), "Invalid entity handle identifier!");
-
-    // Retrieve handle entry.
-    return m_handleEntries[handleIndex];
-}
-
-EntitySystem::HandleEntry& EntitySystem::GetHandleEntry(const EntityHandle& entity)
-{
-    return const_cast<HandleEntry&>(const_cast<const EntitySystem*>(this)->GetHandleEntry(entity));
-}
-
-void EntitySystem::FreeHandle(HandleEntry& handleEntry)
-{
-    // Make sure that flags are correct.
-    // Does not have to be created yet, as creation process may fail.
-    ASSERT(handleEntry.flags & HandleFlags::Exists);
-
-    // Increment the handle version to invalidate it.
-    handleEntry.handle.version += 1;
-
-    // Mark handle as free.
-    handleEntry.flags = HandleFlags::Unused;
-
-    // Add entity identifier to the free list queue.
-    m_freeIdentifiers.emplace(handleEntry.handle.identifier);
+    // Return number of valid handles.
+    return m_entities.GetValidHandleCount();
 }

@@ -468,3 +468,30 @@ namespace Common
         std::size_t m_cacheSize = 64;
     };
 }
+
+namespace std
+{
+    // Handle hash functor.
+    template<typename Type>
+    struct hash<Common::Handle<Type>>
+    {
+        std::size_t operator()(const Common::Handle<Type>& handle) const
+        {
+            // Use identifier as a hash.
+            return handle.GetIdentifier();
+        }
+    };
+
+    // Handle pair hash functor.
+    template<typename Type>
+    struct hash<std::pair<Common::Handle<Type>, Common::Handle<Type>>>
+    {
+        std::size_t operator()(const std::pair<Common::Handle<Type>, Common::Handle<Type>>& pair) const
+        {
+            // Use combined identifiers as a hash.
+            // This turns two 32bit integers into one that's 64bit.
+            // We assume std::size_t is 64bit, but it is fine if it is not.
+            return (std::size_t)pair.first.GetIdentifier() * std::numeric_limits<Common::Handle::ValueType>::max() + pair.second.GetIdentifier();
+        }
+    };
+}

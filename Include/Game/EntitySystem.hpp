@@ -5,10 +5,9 @@
 #pragma once
 
 #include <queue>
-#include <vector>
-#include "Event/Dispatcher.hpp"
-#include "Event/Collector.hpp"
-#include "Game/EntityHandle.hpp"
+#include <Common/HandleMap.hpp>
+#include <Event/Dispatcher.hpp>
+#include <Event/Collector.hpp>
 
 /*
     Entity System
@@ -22,10 +21,7 @@ namespace Game
     class EntitySystem final : private Common::NonCopyable
     {
     public:
-        using CreateResult = Common::Result<std::unique_ptr<EntitySystem>, void>;
-        static CreateResult Create();
-
-        struct HandleFlags
+        struct EntityFlags
         {
             enum
             {
@@ -47,79 +43,64 @@ namespace Game
                 Destroy = 1 << 2,
             };
 
-            using Type = unsigned int;
+            using Type = unsigned char;
         };
 
-        struct HandleEntry
+        struct EntityEntry
         {
-            HandleEntry(EntityHandle::ValueType identifier);
-
-            EntityHandle handle;
-            HandleFlags::Type flags;
+            EntityFlags::Type flags = EntityFlags::Unused;
         };
+
+        using EntityHandle = Common::Handle<EntityEntry>;
+        using EntityList = Common::HandleMap<EntityEntry>;
 
         struct EntityCommands
         {
             enum
             {
                 Invalid,
-
                 Create,
                 Destroy,
             };
 
-            using Type = int;
+            using Type = unsigned char;
         };
 
         struct EntityCommand
         {
-            EntityCommand(EntityCommands::Type type, EntityHandle handle);
-
-            EntityCommands::Type type;
-            EntityHandle handle;
+            EntityHandle handle = {};
+            EntityCommands::Type type = EntityCommands::Invalid;
         };
 
-        using EntryList = std::vector<HandleEntry>;
-        using FreeList = std::queue<std::size_t>;
         using CommandList = std::queue<EntityCommand>;
+
+        using CreateResult = Common::Result<std::unique_ptr<EntitySystem>, void>;
+        static CreateResult Create();
 
     public:
         ~EntitySystem();
 
         EntityHandle CreateEntity();
-        void DestroyEntity(const EntityHandle& entity);
+        void DestroyEntity(EntityHandle entity);
         void DestroyAllEntities();
         void ProcessCommands();
 
-        bool IsHandleValid(const EntityHandle& entity) const;
-        HandleFlags::Type GetEntityFlags(const EntityHandle& entity);
+        bool IsEntityValid(EntityHandle entity) const;
+        const EntityEntry* GetEntityEntry(EntityHandle entity) const;
+        std::size_t GetEntityCount() const;
 
-        unsigned int GetEntityCount() const
-        {
-            return m_entityCount;
-        }
-
-    public:
         struct Events
         {
-            using EntityCreateDispatcher = Event::Dispatcher<bool(EntityHandle), Event::CollectWhileTrue>;
-            using EntityDestroyDispatcher = Event::Dispatcher<void(EntityHandle)>;
-
-            EntityCreateDispatcher entityCreate;
-            EntityDestroyDispatcher entityDestroy;
+            Event::Dispatcher<bool(EntityHandle), Event::CollectWhileTrue> entityCreate;
+            Event::Dispatcher<void(EntityHandle)> entityDestroy;
         } events;
 
     private:
         EntitySystem();
 
-        const HandleEntry& GetHandleEntry(const EntityHandle& entity) const;
-        HandleEntry& GetHandleEntry(const EntityHandle& entity);
-        void FreeHandle(HandleEntry& handleEntry);
-
-    private:
         CommandList m_commands;
-        EntryList m_handleEntries;
-        FreeList m_freeIdentifiers;
-        unsigned int m_entityCount = 0;
+        EntityList m_entities;
     };
+
+    using EntityHandle = typename EntitySystem::EntityHandle;
 }

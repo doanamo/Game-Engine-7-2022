@@ -7,7 +7,7 @@
 #include <queue>
 #include <vector>
 #include <unordered_map>
-#include "Game/EntityHandle.hpp"
+#include "Game/EntitySystem.hpp"
 #include "Game/Component.hpp"
 
 /*

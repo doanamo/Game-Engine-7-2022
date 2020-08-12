@@ -83,6 +83,11 @@ namespace Game
         // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
+        // Retrieve entity entry to determine if handle is valid.
+        const EntitySystem::EntityEntry* entityEntry = m_entitySystem->GetEntityEntry(handle);
+        if(!entityEntry)
+            return nullptr;
+
         // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
 
@@ -93,16 +98,14 @@ namespace Game
         {
             // Check if entity has already been created and has its components initialized.
             // If entity has already been created, initialize the component right away.
-            EntitySystem::HandleFlags::Type entityFlags = m_entitySystem->GetEntityFlags(handle);
-
-            if(entityFlags & EntitySystem::HandleFlags::Created)
+            if(entityEntry->flags & EntitySystem::EntityFlags::Created)
             {
                 // Initialize component.
                 if(!pool.InitializeComponent(handle))
                 {
                     // Destroy component if initialization fails.
                     bool destroyResult = pool.DestroyComponent(handle);
-                    ASSERT(destroyResult, "Could not destroy a known component!");
+                    ASSERT(destroyResult, "Could not destroy component!");
                     return nullptr;
                 }
             }
