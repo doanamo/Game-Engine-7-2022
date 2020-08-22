@@ -49,9 +49,12 @@ namespace Logger
     class Message
     {
     public:
-        Message();
+        Message() = default;
         Message(Message&& other);
-        virtual ~Message();
+
+        // Destructor left intentionally without virtual dispatch
+        // to save on vtable lookup when ScopeMessage gets destroyed.
+        ~Message() = default;
 
         Message(const Message&) = delete;
         Message& operator=(const Message&) = delete;
@@ -63,16 +66,54 @@ namespace Logger
             return *this;
         }
 
-        Message& SetText(std::string text);
-        Message& SetSeverity(Severity::Type severity);
-        Message& SetSource(const char* source);
-        Message& SetLine(unsigned int line);
+        Message& SetText(std::string text)
+        {
+            m_text = text;
+            return *this;
+        }
 
-        const std::string& GetText() const;
-        Severity::Type GetSeverity() const;
-        const char* GetSource() const;
-        unsigned int GetLine() const;
-        bool IsEmpty() const;
+        Message& SetSeverity(Severity::Type severity)
+        {
+            m_severity = severity;
+            return *this;
+        }
+
+        Message& SetSource(const char* source)
+        {
+            m_source = source;
+            return *this;
+        }
+
+        Message& SetLine(unsigned int line)
+        {
+            m_line = line;
+            return *this;
+        }
+
+        const std::string& GetText() const
+        {
+            return m_text;
+        }
+
+        Severity::Type GetSeverity() const
+        {
+            return m_severity;
+        }
+
+        const char* GetSource() const
+        {
+            return m_source;
+        }
+
+        unsigned int GetLine() const
+        {
+            return m_line;
+        }
+
+        bool IsEmpty() const
+        {
+            return m_text.empty();
+        }
 
     private:
         std::string m_text;
@@ -93,11 +134,18 @@ namespace Logger
 {
     class Sink;
 
-    class ScopedMessage : public Message
+    class ScopedMessage final : public Message
     {
     public:
-        ScopedMessage(Sink& sink);
-        ~ScopedMessage();
+        ScopedMessage(Sink& sink) :
+            m_sink(sink)
+        {
+        }
+
+        ~ScopedMessage()
+        {
+            m_sink.Write(*this);
+        }
 
     private:
         Logger::Sink& m_sink;

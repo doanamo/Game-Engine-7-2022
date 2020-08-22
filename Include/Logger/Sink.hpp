@@ -96,8 +96,16 @@ namespace Logger
     class ScopedIndent
     {
     public:
-        ScopedIndent(Sink& sink);
-        ~ScopedIndent();
+        ScopedIndent(Sink& sink) :
+            m_sink(sink)
+        {
+            m_sink.IncreaseIndent();
+        }
+
+        ~ScopedIndent()
+        {
+            m_sink.DecreaseIndent();
+        }
 
         ScopedIndent(const ScopedIndent&) = delete;
         ScopedIndent& operator=(const ScopedIndent&) = delete;

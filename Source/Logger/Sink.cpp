@@ -93,14 +93,3 @@ const SinkContext& Sink::GetContext() const
 {
     return m_context;
 }
-
-ScopedIndent::ScopedIndent(Sink& sink) :
-    m_sink(sink)
-{
-    m_sink.IncreaseIndent();
-}
-
-ScopedIndent::~ScopedIndent()
-{
-    m_sink.DecreaseIndent();
-}
