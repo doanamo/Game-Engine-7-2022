@@ -101,7 +101,7 @@ void EditorShell::Update(float timeDelta)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
 
-    ImGui::SetNextWindowPos(ImVec2(0.0f, m_window->GetHeight() - 4.0f), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+    ImGui::SetNextWindowPos(ImVec2(4.0f, m_window->GetHeight() - 4.0f), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
     ImGui::SetNextWindowBgAlpha(0.0f);
 
     if(ImGui::Begin("Framerate Overlay Button", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
