@@ -7,14 +7,19 @@
 #include <Event/Receiver.hpp>
 #include <Core/ServiceStorage.hpp>
 #include <System/InputDefinitions.hpp>
-#include "Editor/EditorRenderer.hpp"
-#include "Editor/EditorShell.hpp"
 
 namespace System
 {
     class InputState;
     class Window;
 };
+
+namespace Editor
+{
+    class EditorRenderer;
+    class EditorConsole;
+    class EditorShell;
+}
 
 /*
     Editor System
@@ -70,6 +75,7 @@ namespace Editor
         ImGuiContext* m_interface = nullptr;
 
         std::unique_ptr<EditorRenderer> m_editorRenderer;
+        std::unique_ptr<EditorConsole> m_editorConsole;
         std::unique_ptr<EditorShell> m_editorShell;
     };
 }

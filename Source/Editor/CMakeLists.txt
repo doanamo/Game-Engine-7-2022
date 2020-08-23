@@ -12,6 +12,7 @@ include_guard(GLOBAL)
 set(INCLUDE_FILES
     "EditorSystem.hpp"
     "EditorShell.hpp"
+    "EditorConsole.hpp"
     "EditorRenderer.hpp"
     "Modules/InputManagerEditor.hpp"
     "Modules/GameInstanceEditor.hpp"
@@ -24,6 +25,7 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "EditorSystem.cpp"
     "EditorShell.cpp"
+    "EditorConsole.cpp"
     "EditorRenderer.cpp"
     "Modules/InputManagerEditor.cpp"
     "Modules/GameInstanceEditor.cpp"

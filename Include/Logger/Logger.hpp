@@ -47,12 +47,14 @@
 namespace Logger
 {
     class Sink;
+    class History;
 
     void Initialize();
     void Write(const Message& message);
     int AdvanceFrameReference();
 
     Sink& GetGlobalSink();
+    History& GetGlobalHistory();
     bool IsInitialized();
 }
 

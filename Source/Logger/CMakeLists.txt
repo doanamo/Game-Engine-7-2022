@@ -15,6 +15,7 @@ set(INCLUDE_FILES
     "Sink.hpp"
     "Format.hpp"
     "Output.hpp"
+    "History.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Logger/")
@@ -27,6 +28,7 @@ set(SOURCE_FILES
     "Sink.cpp"
     "Format.cpp"
     "Output.cpp"
+    "History.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")

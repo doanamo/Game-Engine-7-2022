@@ -4,6 +4,9 @@
 
 #include "Precompiled.hpp"
 #include "Editor/EditorSystem.hpp"
+#include "Editor/EditorRenderer.hpp"
+#include "Editor/EditorConsole.hpp"
+#include "Editor/EditorShell.hpp"
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
 using namespace Editor;
@@ -132,6 +135,17 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
         return Common::Failure(CreateErrors::FailedSubsystemCreation);
     }
 
+    // Create editor console.
+    EditorConsole::CreateFromParams editorConsoleParams;
+    editorConsoleParams.services = params.services;
+
+    instance->m_editorConsole = EditorConsole::Create(editorConsoleParams).UnwrapOr(nullptr);
+    if(instance->m_editorConsole == nullptr)
+    {
+        LOG_ERROR("Could not create editor console!");
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
+    }
+
     // Create editor shell.
     EditorShell::CreateFromParams editorShellParams;
     editorShellParams.services = params.services;
@@ -163,8 +177,9 @@ void EditorSystem::Update(float timeDelta)
     // Start new interface frame.
     ImGui::NewFrame();
 
-    // Update editor shell.
+    // Update editor shell and console.
     m_editorShell->Update(timeDelta);
+    m_editorConsole->Update(timeDelta);
 }
 
 void EditorSystem::Draw()
@@ -215,6 +230,14 @@ bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
 
 bool EditorSystem::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
+    // Check if we want to open console window.
+    if(event.key == System::KeyboardKeys::KeyTilde &&
+        event.state == System::InputStates::Pressed)
+    {
+        m_editorConsole->Toggle(!m_editorConsole->IsVisible());
+        return true;
+    }
+
     // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
