@@ -113,9 +113,7 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 
     // Subscribe to input events.
     // Call on input state changed method once after subscribing.
-    bool subscriptionResult = inputManager->events.inputStateChanged.Subscribe(instance->m_receiverInputStateChanged);
-
-    if(!subscriptionResult)
+    if(!inputManager->events.inputStateChanged.Subscribe(instance->m_receiverInputStateChanged))
     {
         LOG_ERROR("Failed to subscribe to event receivers!");
         return Common::Failure(CreateErrors::FailedEventSubscription);

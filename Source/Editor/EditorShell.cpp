@@ -19,7 +19,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire window service.
+    // Acquire engine services.
     Core::PerformanceMetrics* performanceMetrics = params.services->GetPerformanceMetrics();
     System::Window* window = params.services->GetWindow();
 
@@ -97,25 +97,34 @@ void EditorShell::Update(float timeDelta)
         ImGui::EndMainMenuBar();
     }
 
+    // Draw framerate counter button.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
 
     ImGui::SetNextWindowPos(ImVec2(4.0f, m_window->GetHeight() - 4.0f), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
     ImGui::SetNextWindowBgAlpha(0.0f);
 
-    if(ImGui::Begin("Framerate Overlay Button", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+    ImGuiWindowFlags flags = 0;
+    flags |= ImGuiWindowFlags_NoMove;
+    flags |= ImGuiWindowFlags_NoTitleBar;
+    flags |= ImGuiWindowFlags_NoResize;
+    flags |= ImGuiWindowFlags_AlwaysAutoResize;
+    flags |= ImGuiWindowFlags_NoSavedSettings;
+    flags |= ImGuiWindowFlags_NoFocusOnAppearing;
+    flags |= ImGuiWindowFlags_NoNav;
+
+    if(ImGui::Begin("Framerate Counter Button", 0, flags))
     {
         if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)", m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
         {
         }
 
-        ImGui::End();
     }
+    ImGui::End();
 
-    ImGui::PopStyleVar(3);
+    ImGui::PopStyleVar(4);
 
     // Update editor modules.
     m_inputManagerEditor->Update(timeDelta);

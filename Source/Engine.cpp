@@ -13,6 +13,7 @@
 #include <System/InputManager.hpp>
 #include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
+#include <Graphics/Texture.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Renderer/GameRenderer.hpp>
 #include <Game/GameFramework.hpp>
