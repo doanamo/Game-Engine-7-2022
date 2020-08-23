@@ -108,7 +108,7 @@ target_link_libraries(Core PUBLIC "glad")
 set_property(TARGET "glad" PROPERTY FOLDER "External")
 
 add_subdirectory("../../External/ImGui-1.62" "External/ImGui")
-target_include_directories("ImGui" PUBLIC "../../External/GLEW-2.1.0/include")
+target_include_directories("ImGui" PUBLIC "../../External/ImGui-1.62/include")
 target_link_libraries(Core PUBLIC "ImGui")
 set_property(TARGET "ImGui" PROPERTY PROJECT_LABEL "imgui")
 set_property(TARGET "ImGui" PROPERTY FOLDER "External")
