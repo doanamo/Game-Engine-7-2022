@@ -71,7 +71,7 @@ void GameInstanceEditor::Update(float timeDelta)
                         currentTickTime, currentTickRate);
 
                     ImGui::SliderFloat("##TickRateSlider", &m_tickRateSlider,
-                        1.0f, 100.0f, "%.1f ticks(s) per second", 2.0f);
+                        1.0f, 100.0f, "%.1f ticks(s) per second", ImGuiSliderFlags_Logarithmic);
 
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##TickTimeApply"))
@@ -130,7 +130,7 @@ void GameInstanceEditor::Update(float timeDelta)
                     // Update time delay slider.
                     ImGui::BulletText("Update time delay: %0.3fs", m_updateDelayValue);
                     ImGui::SliderFloat("##UpdateDelaySlider", &m_updateDelaySlider,
-                        0.0f, 1.0f, "%0.3fs delay", 6.0f);
+                        0.0f, 1.0f, "%0.3fs delay", ImGuiSliderFlags_Logarithmic);
 
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##UpdateDelayApply"))
@@ -147,7 +147,7 @@ void GameInstanceEditor::Update(float timeDelta)
                     // Update time noise slider.
                     ImGui::BulletText("Update time noise: %0.3fs", m_updateNoiseValue);
                     ImGui::SliderFloat("##UpdateNoiseSlider", &m_updateNoiseSlider,
-                        0.0f, 1.0f, "%0.3fs noise", 4.0f);
+                        0.0f, 1.0f, "%0.3fs noise", ImGuiSliderFlags_Logarithmic);
 
                     ImGui::SameLine();
                     if(ImGui::Button("Apply##UpdateNoiseApply"))
@@ -164,7 +164,7 @@ void GameInstanceEditor::Update(float timeDelta)
                     // Update time freeze slider.
                     ImGui::BulletText("Update time freeze:");
                     ImGui::SliderFloat("##UpdateFreezeSlider", &m_updateFreezeSlider,
-                        0.1f, 10.0f, "%.1fs freeze", 2.0f);
+                        0.1f, 10.0f, "%.1fs freeze", ImGuiSliderFlags_Logarithmic);
 
                     ImGui::SameLine();
                     if(ImGui::Button("Freeze"))
