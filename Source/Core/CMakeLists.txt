@@ -12,6 +12,7 @@ include_guard(GLOBAL)
 set(INCLUDE_FILES
     "Core.hpp"
     "ServiceStorage.hpp"
+    "PerformanceMetrics.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Core/")
@@ -21,6 +22,7 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "Core.cpp"
     "ServiceStorage.cpp"
+    "PerformanceMetrics.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")

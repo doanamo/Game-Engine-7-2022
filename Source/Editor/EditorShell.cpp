@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
+#include <Core/PerformanceMetrics.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -19,6 +20,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire window service.
+    Core::PerformanceMetrics* performanceMetrics = params.services->GetPerformanceMetrics();
     System::Window* window = params.services->GetWindow();
 
     // Create instance.
@@ -47,6 +49,7 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     }
 
     // Save window reference.
+    instance->m_performanceMetrics = performanceMetrics;
     instance->m_window = window;
 
     // Success!
@@ -93,6 +96,26 @@ void EditorShell::Update(float timeDelta)
 
         ImGui::EndMainMenuBar();
     }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
+
+    ImGui::SetNextWindowPos(ImVec2(0.0f, m_window->GetHeight() - 4.0f), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+    ImGui::SetNextWindowBgAlpha(0.0f);
+
+    if(ImGui::Begin("Framerate Overlay Button", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav))
+    {
+        if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)", m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
+        {
+        }
+
+        ImGui::End();
+    }
+
+    ImGui::PopStyleVar(3);
 
     // Update editor modules.
     m_inputManagerEditor->Update(timeDelta);

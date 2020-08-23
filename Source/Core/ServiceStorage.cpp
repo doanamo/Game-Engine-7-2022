@@ -4,6 +4,7 @@
 
 #include "Precompiled.hpp"
 #include "Core/ServiceStorage.hpp"
+#include "Core/PerformanceMetrics.hpp"
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
 #include <System/FileSystem.hpp>
@@ -19,6 +20,12 @@ using namespace Core;
 
 ServiceStorage::ServiceStorage() = default;
 ServiceStorage::~ServiceStorage() = default;
+
+void ServiceStorage::Provide(std::unique_ptr<Core::PerformanceMetrics>&& performanceMetrics)
+{
+    ASSERT(!m_performanceMetrics);
+    m_performanceMetrics = std::move(performanceMetrics);
+}
 
 void ServiceStorage::Provide(std::unique_ptr<System::Platform>&& platform)
 {
@@ -84,6 +91,12 @@ void ServiceStorage::Provide(std::unique_ptr<Editor::EditorSystem>&& editorSyste
 {
     ASSERT(!m_editorSystem);
     m_editorSystem = std::move(editorSystem);
+}
+
+Core::PerformanceMetrics* ServiceStorage::GetPerformanceMetrics() const
+{
+    ASSERT(m_performanceMetrics);
+    return m_performanceMetrics.get();
 }
 
 System::Platform* ServiceStorage::GetPlatform() const

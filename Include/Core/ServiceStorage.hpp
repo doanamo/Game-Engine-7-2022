@@ -6,6 +6,11 @@
 
 #include <memory>
 
+namespace Core
+{
+    class PerformanceMetrics;
+}
+
 namespace System
 {
     class Platform;
@@ -49,6 +54,7 @@ namespace Core
         ServiceStorage();
         ~ServiceStorage();
 
+        void Provide(std::unique_ptr<Core::PerformanceMetrics>&& performanceMetrics);
         void Provide(std::unique_ptr<System::Platform>&& platform);
         void Provide(std::unique_ptr<System::FileSystem>&& fileSystem);
         void Provide(std::unique_ptr<System::Window>&& window);
@@ -61,6 +67,7 @@ namespace Core
         void Provide(std::unique_ptr<Renderer::GameRenderer>&& gameRenderer);
         void Provide(std::unique_ptr<Editor::EditorSystem>&& editorSystem);
 
+        Core::PerformanceMetrics* GetPerformanceMetrics() const;
         System::Platform* GetPlatform() const;
         System::FileSystem* GetFileSystem() const;
         System::Window* GetWindow() const;
@@ -74,6 +81,7 @@ namespace Core
         Editor::EditorSystem* GetEditorSystem() const;
 
     private:
+        std::unique_ptr<Core::PerformanceMetrics> m_performanceMetrics;
         std::unique_ptr<System::Platform> m_platform;
         std::unique_ptr<System::FileSystem> m_fileSystem;
         std::unique_ptr<System::Window> m_window;

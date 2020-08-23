@@ -5,6 +5,7 @@
 #include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Build/Build.hpp>
+#include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
 #include <System/FileSystem.hpp>
@@ -29,6 +30,9 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.maxTickDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
 
+    // Measure creation time.
+    const auto creationStartTime = std::chrono::steady_clock::now();
+
     // Initialize static systems.
     Debug::Initialize();
     Logger::Initialize();
@@ -39,6 +43,19 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Save maximum tick delta parameter.
     instance->m_maxTickDelta = params.maxTickDelta;
+
+    // Create performance metrics.
+    // Collects information about engine's runtime performance.
+    // Must be initialized after platform to have access to the timer.
+    if(auto performanceMetrics = Core::PerformanceMetrics::Create().UnwrapOr(nullptr))
+    {
+        instance->m_services.Provide(std::move(performanceMetrics));
+    }
+    else
+    {
+        LOG_ERROR("Could not create performance metrics!");
+        return Common::Failure(CreateErrors::FailedServiceCreation);
+    }
 
     // Create system platform context.
     // Enables use of platform specific systems such as window or input.
@@ -221,6 +238,11 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
         return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
+    // Print engine creation time.
+    const auto creationEndTime = std::chrono::steady_clock::now();
+    std::chrono::duration<float> creationTime = creationEndTime - creationStartTime;
+    LOG_INFO("Engine creation took {:.2f} seconds.", creationTime.count());
+
     // Success!
     return Common::Success(std::move(instance));
 }
@@ -275,12 +297,16 @@ int Root::Run()
         // Acquire engine services.
         const Core::ServiceStorage& services = root.GetServices();
 
+        Core::PerformanceMetrics* performanceMetrics = services.GetPerformanceMetrics();
         System::Timer* timer = services.GetTimer();
         System::Window* window = services.GetWindow();
         System::InputManager* inputManager = services.GetInputManager();
         System::ResourceManager* resourceManager = services.GetResourceManager();
         Game::GameFramework* gameFramework = services.GetGameFramework();
         Editor::EditorSystem* editorSystem = services.GetEditorSystem();
+
+        // Mark frame start.
+        performanceMetrics->StartFrame();
 
         // Advance logger's frame of reference.
         Logger::AdvanceFrameReference();
@@ -310,6 +336,9 @@ int Root::Run()
 
         // Present window content.
         window->Present();
+
+        // Mark frame end.
+        performanceMetrics->EndFrame();
     };
 
     // Run main loop.
@@ -326,7 +355,7 @@ int Root::Run()
             if(!gameFramework->HasGameState())
             {
                 LOG_INFO("Breaking out of main loop because there is no active game state.");
-                    break;
+                break;
             }
 
             // Run main loop iteration.

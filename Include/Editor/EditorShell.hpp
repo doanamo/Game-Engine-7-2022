@@ -8,6 +8,11 @@
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 
+namespace Core
+{
+    class PerformanceMetrics;
+};
+
 namespace System
 {
     class Window;
@@ -50,6 +55,7 @@ namespace Editor
         EditorShell();
 
     private:
+        Core::PerformanceMetrics* m_performanceMetrics = nullptr;
         System::Window* m_window = nullptr;
 
         std::unique_ptr<InputManagerEditor> m_inputManagerEditor;

@@ -27,20 +27,32 @@ Timer::CreateResult Timer::Create()
 
 Timer::TimeUnit Timer::ReadClockUnits()
 {
+    TimeUnit units;
+
     #ifdef USE_PRECISE_TIME_COUNTERS
-        return glfwGetTimerValue();
+        units = glfwGetTimerValue();
     #else
-        return glfwGetTime();
+        units = glfwGetTime();
     #endif
+
+    ASSERT(units != 0, "Detected zero timer value! Most likely platform system has not been initialized yet.");
+
+    return units;
 }
 
 Timer::TimeUnit Timer::ReadClockFrequency()
 {
+    TimeUnit frequency;
+
     #ifdef USE_PRECISE_TIME_COUNTERS
-        return glfwGetTimerFrequency();
+        frequency = glfwGetTimerFrequency();
     #else
-        return 1.0;
+        frequency = 1.0;
     #endif
+
+    ASSERT(frequency != 0, "Detected zero timer frequency! Most likely platform system has not been initialized yet.");
+
+    return frequency;
 }
 
 Timer::TimeUnit System::Timer::ConvertToUnits(double seconds)

@@ -17,7 +17,6 @@ namespace
 int Platform::InstanceCounter = 0;
 
 Platform::Platform() = default;
-
 Platform::~Platform()
 {
     ASSERT(InstanceCounter > 0, "Invalid instance count!");
