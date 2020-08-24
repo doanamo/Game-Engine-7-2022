@@ -53,14 +53,14 @@ void EditorConsole::Update(float timeDelta)
 
     ImVec2 consoleMinSize;
     consoleMinSize.x = m_window->GetWidth();
-    consoleMinSize.y = 108.0f;
+    consoleMinSize.y = 52.0f;
 
     ImVec2 consoleMaxSize;
     consoleMaxSize.x = m_window->GetWidth();
     consoleMaxSize.y = std::max((float)m_window->GetHeight(), consoleMinSize.y);
 
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImVec2(0.0f, m_window->GetHeight() * 0.6f));
+    ImGui::SetNextWindowSize(ImVec2(m_window->GetWidth(), m_window->GetHeight() * 0.6f), ImGuiCond_Once);
     ImGui::SetNextWindowSizeConstraints(consoleMinSize, consoleMaxSize);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
