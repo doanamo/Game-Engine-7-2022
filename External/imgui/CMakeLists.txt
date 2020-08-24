@@ -20,5 +20,5 @@ set(IMGUI_FILES
 )
 
 # Create a static library.
-add_library("ImGui" STATIC ${IMGUI_FILES})
-target_include_directories("ImGui" PUBLIC "./" "./examples/" "./misc/cpp/")
+add_library("imgui" STATIC ${IMGUI_FILES})
+target_include_directories("imgui" PUBLIC "./" "./examples/" "./misc/cpp/")

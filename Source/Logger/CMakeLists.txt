@@ -49,8 +49,8 @@ set_property(TARGET Logger PROPERTY FOLDER "Engine")
 # External
 #
 
-add_subdirectory("../../External/fmt-6.1.2" "External/fmt")
-target_include_directories(Logger PUBLIC "../../External/fmt-6.1.2/include")
+add_subdirectory("../../External/fmt" "External/fmt")
+target_include_directories(Logger PUBLIC "../../External/fmt/include")
 target_link_libraries(Logger PUBLIC fmt::fmt)
 set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
 set_property(TARGET "fmt" PROPERTY FOLDER "External")
