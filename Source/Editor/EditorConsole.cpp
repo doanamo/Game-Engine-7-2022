@@ -45,10 +45,11 @@ void EditorConsole::Update(float timeDelta)
         return;
 
     // Display console window.
-    ImGuiWindowFlags flags = 0;
-    flags |= ImGuiWindowFlags_NoMove;
-    flags |= ImGuiWindowFlags_NoTitleBar;
-    flags |= ImGuiWindowFlags_NoScrollbar;
+    ImGuiWindowFlags windowFlags = 0;
+    windowFlags |= ImGuiWindowFlags_NoMove;
+    windowFlags |= ImGuiWindowFlags_NoTitleBar;
+    windowFlags |= ImGuiWindowFlags_NoScrollbar;
+    windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
 
     ImVec2 consoleMinSize;
     consoleMinSize.x = m_window->GetWidth();
@@ -65,22 +66,27 @@ void EditorConsole::Update(float timeDelta)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
-    if(ImGui::Begin("Console", nullptr, flags))
+    if(ImGui::Begin("Console", nullptr, windowFlags))
     {
         ImVec2 windowSize = ImGui::GetWindowSize();
 
-        // Console message history.
-        if(ImGui::BeginChild("Console Messages", ImVec2(0.0f, windowSize.y - 40.0f)))
-        {
-            // Make copy of message buffer to avoid race conditions.
-            // This will be very slow if there is a lot of messages.
-            const auto messages = Logger::GetGlobalHistory().GetMessages();
+        // Make copy of message buffer to avoid race conditions.
+        // This will be very slow if there is a lot of messages.
+        const auto messages = Logger::GetGlobalHistory().GetMessages();
 
+        // Console message history.
+        ImGuiWindowFlags messagesFlags = 0;
+
+        if(m_autoScroll)
+        {
+            messagesFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+        }
+
+        if(ImGui::BeginChild("Console Messages", ImVec2(0.0f, windowSize.y - 40.0f), false, messagesFlags))
+        {
             // Print all messages.
             for(const auto& message : messages)
             {
-                bool scrollDown = ImGui::GetScrollY() == ImGui::GetScrollMaxY();
-
                 switch(message.severity)
                 {
                 case Logger::Severity::Trace:
@@ -114,49 +120,62 @@ void EditorConsole::Update(float timeDelta)
 
                 ImGui::TextWrapped(message.text.c_str());
                 ImGui::PopStyleColor();
+            }
 
-                if(scrollDown)
-                {
-                    ImGui::SetScrollHere(1.0f);
-                }
+            if(m_autoScroll)
+            {
+                ImGui::SetScrollHereY(1.0f);
             }
         }
         ImGui::EndChild();
-        ImGui::Separator();
 
-        /*
-        // Prepare input buffer.
-        if(m_inputBuffer.empty())
+        if(ImGui::BeginPopupContextItem("Console Context Menu"))
         {
-            m_inputBuffer.resize(32, '\0');
+            if(ImGui::Selectable("Copy to clipboard"))
+            {
+                std::string clipboardText;
+
+                for(const auto& message : messages)
+                {
+                    clipboardText += message.text;
+                }
+
+                ImGui::SetClipboardText(clipboardText.c_str());
+            }
+
+            ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
+            ImGui::EndPopup();
         }
+
+        ImGui::Separator();
 
         // Console text input.
         ImGui::PushItemWidth(-1);
 
         if(ImGui::InputText("Console Input", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            // Prepare input string.
-            ASSERT(m_consoleInput.capacity() != 0);
-            std::string inputString(&m_consoleInput[0]);
-
             // Regain focus on the input field.
             ImGui::SetKeyboardFocusHere();
 
             // Print entered console command.
-            LOG_INFO("> %s", inputString.c_str());
+            LOG_INFO("> {}", m_inputBuffer.c_str());
 
             // Parse console input.
-            this->parseInput(inputString);
+            // ParseInput(inputString);
 
             // Clear console input.
-            m_consoleInput.clear();
-            m_consoleInput.resize(1, '\0');
+            m_inputBuffer.clear();
+
+            // Scroll message list.
+            m_autoScroll = true;
+        }
+
+        if(ImGui::IsWindowAppearing())
+        {
+            ImGui::SetKeyboardFocusHere(-1);
         }
 
         ImGui::PopItemWidth();
-
-        */
     }
     ImGui::End();
 

@@ -46,6 +46,7 @@ namespace Editor
         System::Window* m_window = nullptr;
 
         bool m_visible = false;
-        std::vector<char> m_inputBuffer;
+        bool m_autoScroll = true;
+        std::string m_inputBuffer;
     };
 }

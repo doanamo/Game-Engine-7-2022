@@ -32,6 +32,7 @@
 #endif
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <Logger/Logger.hpp>
 #include <Common/Debug.hpp>
