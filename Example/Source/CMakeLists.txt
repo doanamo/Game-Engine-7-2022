@@ -59,7 +59,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" ${ABSOLUTE_GAME_DIR})
 # Emscripten environment.
 if(EMSCRIPTEN)
     # Package game data files for preload.
-    target_link_options(Game PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
+    target_link_options(${TARGET_NAME} PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
 endif()
 
 #
