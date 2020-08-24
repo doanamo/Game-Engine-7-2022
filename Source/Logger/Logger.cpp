@@ -25,7 +25,7 @@ namespace
         if(GlobalLoggerInitialized)
             return;
 
-        // Add history as output.
+        // Add message history as output.
         GlobalSink.AddOutput(&GlobalHistory);
 
         // Add file output.
@@ -35,7 +35,10 @@ namespace
         }
 
         // Add console output.
-        GlobalSink.AddOutput(&GlobalConsoleOutput);
+        // Console window is disabled by default.
+        #if 0
+            GlobalSink.AddOutput(&GlobalConsoleOutput);
+        #endif
 
         // Add debugger output.
         GlobalSink.AddOutput(&GlobalDebuggerOutput);

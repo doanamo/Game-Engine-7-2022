@@ -23,9 +23,10 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 # Application
 #
 
+set(PROJECT_NAME Project)
 set(TARGET_NAME Example)
 
-project(${TARGET_NAME})
+project(${PROJECT_NAME})
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
 target_precompile_headers(${TARGET_NAME} PRIVATE "Precompiled.hpp")
@@ -55,6 +56,12 @@ set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_
 # Write file pointing at game directory.
 get_filename_component(ABSOLUTE_GAME_DIR "../Deploy" ABSOLUTE)
 file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" ${ABSOLUTE_GAME_DIR})
+
+# Visual Studio environment.
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    # Remove console window that appears along with application on Windows.
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+endif()
 
 # Emscripten environment.
 if(EMSCRIPTEN)
