@@ -47,7 +47,6 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     // Create performance metrics.
     // Collects information about engine's runtime performance.
-    // Must be initialized after platform to have access to the timer.
     if(auto performanceMetrics = Core::PerformanceMetrics::Create().UnwrapOr(nullptr))
     {
         instance->m_services.Provide(std::move(performanceMetrics));
