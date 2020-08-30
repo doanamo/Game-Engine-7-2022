@@ -11,8 +11,8 @@
 
 #define TEST_VOID(value) (value)
 
-#define TEST_RUN(function) \
-    if((function()) == false) \
+#define TEST_RUN(function, ...) \
+    if((function(__VA_ARGS__)) == false) \
         return 1;
 
 #define TEST_TRUE(value) \
