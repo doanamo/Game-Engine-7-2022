@@ -38,6 +38,7 @@ namespace Logger
             Trace,
             Debug,
             Info,
+            Success,
             Warning,
             Error,
             Fatal,

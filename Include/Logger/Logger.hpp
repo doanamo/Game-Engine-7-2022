@@ -30,6 +30,7 @@
         LOG_TRACE("Writing trace message.");
         LOG_DEBUG("Writing debug message.");
         LOG_INFO("Writing diagnostic message.");
+        LOG_SUCCESS("Writing success message.");
         LOG_WARNING("Writing warning message.");
         LOG_ERROR("Writing error message.");
         LOG_FATAL("Writing fatal message.");
@@ -76,6 +77,7 @@ namespace Logger
 #define LOG_TRACE(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Trace)
 #define LOG_DEBUG(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Debug)
 #define LOG_INFO(format, ...)    LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Info)
+#define LOG_SUCCESS(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Success)
 #define LOG_WARNING(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Warning)
 #define LOG_ERROR(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Error)
 #define LOG_FATAL(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Fatal)

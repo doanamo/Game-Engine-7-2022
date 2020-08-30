@@ -27,6 +27,7 @@ EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params
         LOG_TRACE("Test console trace message!");
         LOG_DEBUG("Test console debug message!");
         LOG_INFO("Test console info message!");
+        LOG_SUCCESS("Test console success message!");
         LOG_WARNING("Test console warning message!");
         LOG_ERROR("Test console error message!");
         LOG_FATAL("Test console fatal message!");
@@ -94,11 +95,15 @@ void EditorConsole::Update(float timeDelta)
                     break;
 
                 case Logger::Severity::Debug:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.0f, 0.6f, 1.0f));
                     break;
 
                 case Logger::Severity::Info:
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                    break;
+
+                case Logger::Severity::Success:
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
                     break;
 
                 case Logger::Severity::Warning:
