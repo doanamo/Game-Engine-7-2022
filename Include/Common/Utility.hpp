@@ -21,25 +21,25 @@ namespace Common
     template<typename Type>
     constexpr Type Clamp(const Type& value, const Type& lower, const Type& upper)
     {
-        // Return clamped value between lower and upper range.
         return std::max(lower, std::min(value, upper));
     }
 
     template<typename Type, std::size_t Size>
     constexpr std::size_t StaticArraySize(const Type(&)[Size])
     {
-        // Return size of static array known at compile time.
         return Size;
     }
 
-    // Casts numerical types with assertion guarantee for data loss.
-    // Checks in debug if conversion will lead to any loss of data.
-    // This is useful when dealing with libraries which do not fully
-    // convert from 32bit to 64bit types on their own (e.g. OpenGL).
     template<typename Target, typename Source>
     constexpr Target NumericalCast(const Source& value)
     {
-        // Convert to target type and then back to source type, then compare values.
+        // Casts numerical types with assertion guarantee for data loss.
+        // Checks in debug if conversion will lead to any loss of data.
+        // This is useful when dealing with libraries which do not fully
+        // convert from 32bit to 64bit types on their own (e.g. OpenGL).
+        // Loss check is performed by converting to target type and then
+        // back to source type, after which result is compared.
+
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
             "Numerical conversion failed due to data loss!");
 
@@ -49,7 +49,6 @@ namespace Common
     template<typename Type>
     void ClearContainer(Type& container)
     {
-        // Frees container's memory by swapping it with an empty container.
         Type temp;
         container.swap(temp);
     }
@@ -66,34 +65,30 @@ namespace Common
     uint32_t StringHash(const std::string string);
     uint32_t CalculateCRC32(uint32_t crc, const char* data, std::size_t size);
 
-    // Reorders vector using an array of indices.
-    // This is useful in case we have two collections that need to be sorted in
-    // same way based on information from both. Sort can be performed on array of
-    // indices that then can be used to quickly rearrange elements in two collections.
-    // Result will not make sense if order indices are duplicated!
     template<typename Type>
     bool ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
     {
-        // Check if array sizes match.
+        // Reorders vector using an array of indices.
+        // This is useful in case we have two collections that need to be sorted in
+        // same way based on information from both. Sort can be performed on array of
+        // indices that then can be used to quickly rearrange elements in two collections.
+        // Result will not make sense if order indices are duplicated!
+
         if(elements.size() != order.size())
             return false;
 
-        // Check if order indices are withing range.
         for(std::size_t i : order)
         {
             if(i >= elements.size())
                 return false;
         }
 
-        // Return if there are no elements to sort.
         if(elements.size() == 0)
             return true;
 
-        // Create array of current element indices.
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);
 
-        // Rearrange values in vector.
         for(std::size_t i = 0; i < elements.size(); ++i)
         {
             std::size_t desiredPlacement = order[i];

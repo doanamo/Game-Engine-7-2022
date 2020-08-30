@@ -10,7 +10,10 @@
 /*
     Result
 
-    Wrapper inspired by Rust language for return values that can indicate either success or failure.
+    Wrapper inspired by Rust language for return values
+    that can indicate either success or failure.
+
+    See unit tests for example usage.
 */
 
 namespace Common::Detail
@@ -124,12 +127,16 @@ namespace Common
         
         Result(Result&& other)
         {
-            this->operator=(std::move(other));
+            *this = std::move(other);
         }
 
         Result& operator=(Result&& other)
         {
-            m_storage = std::move(other.m_storage);
+            if(this != &other)
+            {
+                m_storage = std::move(other.m_storage);
+            }
+
             return *this;
         }
 

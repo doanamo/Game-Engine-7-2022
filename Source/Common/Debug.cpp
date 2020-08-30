@@ -27,7 +27,6 @@ bool Debug::IsDebuggerAttached()
 #ifdef WIN32
     return IsDebuggerPresent();
 #else
-    // Not implemented for other platforms.
     return false;
 #endif
 }

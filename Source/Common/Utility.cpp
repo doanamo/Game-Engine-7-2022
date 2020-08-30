@@ -102,6 +102,7 @@ uint32_t Common::StringHash(const std::string string)
     // May need to be replaced in case of collisions.
     // Use only if you can detect possible collisions.
     // It is obviously not cryptographically secure.
+
     const uint32_t prime = 257;
     uint32_t hash = 0;
 
@@ -115,7 +116,9 @@ uint32_t Common::StringHash(const std::string string)
 
 uint32_t Common::CalculateCRC32(uint32_t crc, const char* data, std::size_t size)
 {
-    // Implementation based on: https://stackoverflow.com/a/27950866
+    // Implementation based on:
+    // - https://stackoverflow.com/a/27950866
+
     crc = ~crc;
 
     while(size--)

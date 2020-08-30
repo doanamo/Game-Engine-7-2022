@@ -8,11 +8,6 @@
     Non-Copyable
 
     Prevents instance of derived class from being copied.
-
-    Example usage:
-        class Object : private Common::NonCopyable
-        {
-        }
 */
 
 namespace Common

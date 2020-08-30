@@ -20,6 +20,8 @@
     a rotating pool of free handles to avoid situations where single
     handle is reused repeatedly leading to too fast exhaustion of
     its available version values.
+
+    See unit tests for example usage.
 */
 
 namespace Common

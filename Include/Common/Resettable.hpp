@@ -21,7 +21,6 @@ namespace Common
             static_assert(std::is_base_of<Resettable<Type>, Type>::value, "Incorrect use of resettable base class!");
             static_assert(std::is_final<Type>::value, "Resettable base class is dangerous when used with non-final classes!");
 
-            // Reconstruct instance in place.
             static_cast<Type*>(this)->~Type();
             new (static_cast<Type*>(this)) Type();
         }
