@@ -26,52 +26,54 @@ EntitySystem::CreateResult EntitySystem::Create()
 EntitySystem::EntityHandle EntitySystem::CreateEntity()
 {
     // Create new entity entry.
-    EntityList::HandleEntryRef handleEntry = m_entities.CreateHandle();
-    if(!handleEntry.valid)
+    if(auto cratedHandleResult = m_entities.CreateHandle())
+    {
+        EntityList::HandleEntryRef handleEntry = cratedHandleResult.Unwrap();
+        EntityEntry* entityEntry = handleEntry.storage;
+        ASSERT(entityEntry != nullptr);
+
+        // Mark entity as existing.
+        ASSERT(entityEntry->flags == EntityFlags::Unused);
+        entityEntry->flags |= EntityFlags::Exists;
+
+        // Queue command for entity creation.
+        EntityCommand command;
+        command.type = EntityCommands::Create;
+        command.handle = handleEntry.handle;
+        m_commands.emplace(command);
+
+        // Return entity handle.
+        return handleEntry.handle;
+    }
+    else
     {
         ASSERT(false, "Failed to create valid entity entry!");
         return EntityHandle();
     }
-
-    EntityEntry* entityEntry = handleEntry.storage;
-    ASSERT(entityEntry != nullptr);
-
-    // Mark entity as existing.
-    ASSERT(entityEntry->flags == EntityFlags::Unused);
-    entityEntry->flags |= EntityFlags::Exists;
-
-    // Queue command for entity creation.
-    EntityCommand command;
-    command.type = EntityCommands::Create;
-    command.handle = handleEntry.handle;
-    m_commands.emplace(command);
-
-    // Return entity handle.
-    return handleEntry.handle;
 }
 
 void EntitySystem::DestroyEntity(const EntityHandle entity)
 {
     // Retrieve entity entry.
-    EntityList::HandleEntryRef handleEntry = m_entities.LookupHandle(entity);
-    if(!handleEntry.valid)
-        return;
+    if(auto lookupHandleResult = m_entities.LookupHandle(entity))
+    {
+        EntityList::HandleEntryRef handleEntry = lookupHandleResult.Unwrap();
+        EntityEntry* entityEntry = handleEntry.storage;
+        ASSERT(entityEntry != nullptr);
 
-    EntityEntry* entityEntry = handleEntry.storage;
-    ASSERT(entityEntry != nullptr);
+        // Set handle destroy flag.
+        // Also check if entity is already marked for destruction.
+        if(entityEntry->flags & EntityFlags::Destroy)
+            return;
 
-    // Set handle destroy flag.
-    // Also check if entity is already marked for destruction.
-    if(entityEntry->flags & EntityFlags::Destroy)
-        return;
+        entityEntry->flags |= EntityFlags::Destroy;
 
-    entityEntry->flags |= EntityFlags::Destroy;
-
-    // Queue destroy entity command.
-    EntityCommand command;
-    command.type = EntityCommands::Destroy;
-    command.handle = handleEntry.handle;
-    m_commands.emplace(command);
+        // Queue destroy entity command.
+        EntityCommand command;
+        command.type = EntityCommands::Destroy;
+        command.handle = handleEntry.handle;
+        m_commands.emplace(command);
+    }
 }
 
 void EntitySystem::DestroyAllEntities()
@@ -121,10 +123,11 @@ void EntitySystem::ProcessCommands()
 
             // Retrieve entity entry.
             // Handle may no longer be valid and command could be out of date.
-            EntityList::HandleEntryRef handleEntry = m_entities.LookupHandle(command.handle);
-            if(!handleEntry.valid)
+            auto lookupHandleResult = m_entities.LookupHandle(command.handle);
+            if(!lookupHandleResult)
                 continue;
 
+            EntityList::HandleEntryRef handleEntry = lookupHandleResult.Unwrap();
             EntityEntry* entityEntry = handleEntry.storage;
             ASSERT(entityEntry != nullptr);
 
@@ -175,39 +178,46 @@ void EntitySystem::ProcessCommands()
 bool EntitySystem::IsEntityValid(const EntityHandle entity) const
 {
     // Retrieve entity entry.
-    EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
-    if(!handleEntry.valid)
+    if(auto lookupHandleResult = m_entities.LookupHandle(entity))
+    {
+        EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
+        const EntityEntry * entityEntry = handleEntry.storage;
+        ASSERT(entityEntry != nullptr);
+
+        // Make sure queried handle exists.
+        ASSERT(entityEntry->flags & EntityFlags::Exists, "Referenced entity handle is not marked as existing!");
+
+        // Make sure entity pointed by queried handle has been created.
+        if(!(entityEntry->flags & EntityFlags::Created))
+            return false;
+
+        // Check if handle versions match.
+        if(handleEntry.handle.GetVersion() != entity.GetVersion())
+            return false;
+
+        return true;
+    }
+    else
+    {
         return false;
-
-    const EntityEntry* entityEntry = handleEntry.storage;
-    ASSERT(entityEntry != nullptr);
-
-    // Make sure queried handle exists.
-    ASSERT(entityEntry->flags & EntityFlags::Exists, "Referenced entity handle is not marked as existing!");
-
-    // Make sure entity pointed by queried handle has been created.
-    if(!(entityEntry->flags & EntityFlags::Created))
-        return false;
-
-    // Check if handle versions match.
-    if(handleEntry.handle.GetVersion() != entity.GetVersion())
-        return false;
-
-    return true;
+    }
 }
 
 const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
 {
     // Retrieve handle entry.
-    EntityList::ConstHandleEntryRef handleEntry = m_entities.LookupHandle(entity);
-    if(!handleEntry.valid)
-        return nullptr;
+    if(auto lookupHandleResult = m_entities.LookupHandle(entity))
+    {
+        EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
+        const EntityEntry* entityEntry = handleEntry.storage;
+        ASSERT(entityEntry != nullptr);
 
-    // Return entity entry.
-    const EntityEntry* entityEntry = handleEntry.storage;
-    ASSERT(entityEntry != nullptr);
-    
-    return entityEntry;
+        return entityEntry;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 std::size_t EntitySystem::GetEntityCount() const
