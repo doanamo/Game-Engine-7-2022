@@ -148,6 +148,14 @@ bool TestUnwrap()
         TEST_EQ(resultFailure, "goodbye world!");
     }
 
+    {
+        ResultWithString instance;
+
+        auto resultFailure = instance.Initialize(false).AsFailure();
+        TEST_TRUE(resultFailure.IsSuccess());
+        TEST_EQ(resultFailure.Unwrap(), "goodbye world!");
+    }
+
     return true;
 }
 

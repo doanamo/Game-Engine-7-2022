@@ -66,10 +66,16 @@ namespace Common::Detail
 
 namespace Common
 {
-    template<typename Type, typename DecayedType = typename std::decay<Type>::type>
+    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, std::decay<Type>::type>::type>
     constexpr Detail::Success<DecayedType> Success(Type&& value)
     {
         return Detail::Success<DecayedType>(std::forward<Type>(value));
+    }
+
+    template<>
+    constexpr Detail::Success<void> Success<Detail::Empty, void>(Detail::Empty&& value)
+    {
+        return Detail::Success<void>();
     }
 
     constexpr Detail::Success<void> Success()
@@ -77,10 +83,16 @@ namespace Common
         return Detail::Success<void>();
     }
 
-    template<typename Type, typename DecayedType = typename std::decay<Type>::type>
+    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, std::decay<Type>::type>::type>
     constexpr Detail::Failure<DecayedType> Failure(Type&& value)
     {
         return Detail::Failure<DecayedType>(std::forward<Type>(value));
+    } 
+
+    template<>
+    constexpr Detail::Failure<void> Failure<Detail::Empty, void>(Detail::Empty&& value)
+    {
+        return Detail::Failure<void>();
     }
 
     constexpr Detail::Failure<void> Failure()
@@ -105,6 +117,20 @@ namespace Common
         Result(Detail::Failure<FailureType>&& failure) :
             m_storage(false, DeductedSuccessType(), std::move(failure.value))
         {
+        }
+
+        Result(const Result&) = delete;
+        Result& operator=(const Result&) = delete;
+        
+        Result(Result&& other)
+        {
+            this->operator=(std::move(other));
+        }
+
+        Result& operator=(Result&& other)
+        {
+            m_storage = std::move(other.m_storage);
+            return *this;
         }
 
         DeductedSuccessType Unwrap()
@@ -141,8 +167,20 @@ namespace Common
 
         DeductedSharedType UnwrapEither()
         {
-            static_assert(std::is_same<SuccessType, FailureType>::value, "Types must be the same to use UnwrapEither()!");
+            static_assert(std::is_same<SuccessType, FailureType>::value, "Both success and failure types must be the same to use UnwrapEither()!");
             return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
+        }
+
+        Result<FailureType, SuccessType> AsFailure()
+        {
+            if(IsFailure())
+            {
+                return Common::Success(UnwrapFailure());
+            }
+            else
+            {
+                return Common::Failure(UnwrapSuccess());
+            }
         }
 
         bool IsSuccess() const
