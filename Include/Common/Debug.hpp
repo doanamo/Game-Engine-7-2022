@@ -16,7 +16,7 @@
     #include <stdlib.h>
     #include <crtdbg.h>
 
-    // Override new operator to store additional information about an allocation.
+    // Override new operator to store additional information about allocations.
     #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #else
     #define DEBUG_NEW new
@@ -64,7 +64,7 @@ namespace Debug
     Assert Macros
 
     Ensures that given expression is true in debug configuration.
-    Used as a sanity check to guard against programming errors.
+    Used as sanity check to guard against programming errors.
 
     Behavior in different build configurations:
     - Debug: Triggers abort
@@ -91,7 +91,7 @@ namespace Debug
         }
 #else
     #define ASSERT_SIMPLE(expression) ((void)0)
-    #define ASSERT_MESSAGE(expression, message) ((void)0) 
+    #define ASSERT_MESSAGE(expression, message, ...) ((void)0) 
 #endif
 
 #define ASSERT_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
@@ -134,33 +134,42 @@ namespace Debug
 /*
     Check Macro
 
+    Checks if given expression is true in debug configurations.
+    Used to print warnings and when we want to continue execution despite some possible error.
+
     Behavior in different build configurations:
-    - Debug: Logs error
-    - Release: Logs error
+    - Debug: Logs warning
+    - Release: Stripped out
 
     Example usage:
         CHECK(m_initialized);
         CHECK(instance != nullptr, "Invalid instance.");
 */
 
-#define CHECK_SIMPLE(expression) \
-    if(expression) { } else \
-    { \
-        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression)); \
-    }
+#ifndef NDEBUG
+    #define CHECK_SIMPLE(expression) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression)); \
+        }
 
-#define CHECK_MESSAGE(expression, message, ...) \
-    if(expression) { } else \
-    { \
-        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
-    }
+    #define CHECK_MESSAGE(expression, message, ...) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+        }
 
-#define CHECK_OR_RETURN(expression, value, message, ...) \
-    if(expression) { } else \
-    { \
-        LOG_ERROR("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
-        return value; \
-    }
+    #define CHECK_OR_RETURN(expression, value, message, ...) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+            return value; \
+        }
+#else
+    #define CHECK_SIMPLE(expression) ((void)0)
+    #define CHECK_MESSAGE(expression, message, ...) ((void)0) 
+    #define CHECK_OR_RETURN(expression, value, message, ...) ((void)0) 
+#endif
 
 #define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
 #define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
