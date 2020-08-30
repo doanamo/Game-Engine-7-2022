@@ -66,7 +66,7 @@ namespace Common::Detail
 
 namespace Common
 {
-    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, std::decay<Type>::type>::type>
+    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, typename std::decay<Type>::type>::type>
     constexpr Detail::Success<DecayedType> Success(Type&& value)
     {
         return Detail::Success<DecayedType>(std::forward<Type>(value));
@@ -83,7 +83,7 @@ namespace Common
         return Detail::Success<void>();
     }
 
-    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, std::decay<Type>::type>::type>
+    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, typename std::decay<Type>::type>::type>
     constexpr Detail::Failure<DecayedType> Failure(Type&& value)
     {
         return Detail::Failure<DecayedType>(std::forward<Type>(value));
