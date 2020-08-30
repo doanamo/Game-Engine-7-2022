@@ -54,7 +54,7 @@ std::string DefaultFormat::ComposeSessionStart()
     );
 
     // Format log message format text.
-    sessionText += fmt::format("Log message format: [Time][Frame][Type] Message {{source:line}}\n\n");
+    sessionText += fmt::format("Log message format: [Time][Frame][Type] Message {{Source:Line}}\n\n");
 
     // Return formated string.
     return sessionText;
