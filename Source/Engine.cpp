@@ -20,57 +20,77 @@
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
 
+using ProcessGameStateResults = Game::GameFramework::ProcessGameStateResults;
+
+namespace
+{
+    const char* CreateEngineError = "Failed to create engine! {}";
+    const char* CreateServicesError = "Failed to create engine services! {}";
+    const char* LoadDefaultResourcesError = "Failed to load default resources! {}";
+}
+
 Root::Root() = default;
 Root::~Root() = default;
 
 Root::CreateResult Root::Create(const CreateFromParams& params)
 {
-    LOG_INFO("Creating engine...");
-    LOG_SCOPED_INDENT();
+    // Create engine instance and return it if initialization succeeds.
+    // First global systems are initialized for various debug facilities.
+    // Then engine and its vital services are created so a game can be hosted.
+    // At the end we load default resources such as placeholder texture.
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Measure creation time.
-    const auto creationStartTime = std::chrono::steady_clock::now();
-
-    // Initialize static systems.
     Debug::Initialize();
     Logger::Initialize();
     Build::Initialize();
 
-    // Create instance.
-    auto instance = std::unique_ptr<Root>(new Root());
+    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Save maximum update delta parameter.
+    auto instance = std::unique_ptr<Root>(new Root());
     instance->m_maxUpdateDelta = params.maxUpdateDelta;
 
-    // Create performance metrics.
-    // Collects information about engine's runtime performance.
+    if(auto failureResult = instance->CreateServices().AsFailure())
+    {
+        LOG_ERROR(CreateEngineError, "Could not create services.");
+        return Common::Failure(failureResult.Unwrap());
+    }
+
+    if(auto failureResult = instance->LoadDefaultResources().AsFailure())
+    {
+        LOG_ERROR(CreateEngineError, "Could not load default resources.");
+        return Common::Failure(failureResult.Unwrap());
+    }
+
+    LOG_SUCCESS("Created engine instance.");
+    return Common::Success(std::move(instance));
+}
+
+Common::Result<void, Root::CreateErrors> Root::CreateServices()
+{
+    // Information collection about engine's runtime performance.
+    // Used to track and display simple measurements such as current frame rate.
     if(auto performanceMetrics = Core::PerformanceMetrics::Create().UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(performanceMetrics));
+        m_services.Provide(std::move(performanceMetrics));
     }
     else
     {
-        LOG_ERROR("Could not create performance metrics!");
+        LOG_ERROR(CreateServicesError, "Could not create performance metrics service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create system platform context.
-    // Enables use of platform specific systems such as window or input.
+    // Base system for enabling windowing, timing and input collection.
+    // Needs to be created first before the mentioned can be used.
     if(auto platform = System::Platform::Create().UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(platform));
+        m_services.Provide(std::move(platform));
     }
     else
     {
-        LOG_ERROR("Could not create platform!");
+        LOG_ERROR(CreateServicesError, "Could not create platform service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create file system.
-    // Enables path resolving with multiple mounted directories.
+    // Path resolving with multiple mounted directories.
     // Mount default directories (call order affects resolve order).
     if(auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr))
     {
@@ -86,17 +106,16 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
             fileSystem->MountDirectory(Build::GetGameDir());
         }
 
-        instance->m_services.Provide(std::move(fileSystem));
+        m_services.Provide(std::move(fileSystem));
     }
     else
     {
-        LOG_ERROR("Could not create file system!");
+        LOG_ERROR(CreateServicesError, "Could not create file system service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create main window.
-    // Collects input and presents swap chain content.
-    // Window instance will create unique OpenGL context.
+    // Window management and back buffer presentation.
+    // Collects and emits input events that can be listened to.
     System::Window::CreateFromParams windowParams;
     windowParams.title = "Game";
     windowParams.width = 1024;
@@ -106,267 +125,242 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     if(auto window = System::Window::Create(windowParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(window));
+        m_services.Provide(std::move(window));
     }
     else
     {
-        LOG_ERROR("Could not create window!");
+        LOG_ERROR(CreateServicesError, "Could not create window service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create timer.
-    // Main timer that drives the main loop.
-    auto timer = System::Timer::Create().UnwrapOr(nullptr);
-    if(timer == nullptr)
+    // Main loop time tracking.
+    // Used to calculate tick and update delta for each frame.
+    if(auto timer = System::Timer::Create().UnwrapOr(nullptr))
     {
-        LOG_ERROR("Could not create timer!");
+        m_services.Provide(std::move(timer));
+    }
+    else
+    {
+        LOG_ERROR(CreateServicesError, "Could not create timer service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    instance->m_services.Provide(std::move(timer));
-
-    // Create input manager.
-    // Collects and routes all events related to input.
+    // Input event tracking and routing.
+    // Tracks input states such as key presses collected from window.
     System::InputManager::CreateParams inputManagerParams;
-    inputManagerParams.services = &instance->m_services;
+    inputManagerParams.services = &m_services;
 
     if(auto inputManager = System::InputManager::Create(inputManagerParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(inputManager));
+        m_services.Provide(std::move(inputManager));
     }
     else
     {
-        LOG_ERROR("Could not create input manager!");
+        LOG_ERROR(CreateServicesError, "Could not create input manager service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create resource manager.
-    // Helps avoid duplication of loaded resources.
+    // Resource loading and reference counting.
+    // Avoids subsequent loading of already loaded resources.
     System::ResourceManager::CreateFromParams resourceManagerParams;
-    resourceManagerParams.services = &instance->m_services;
+    resourceManagerParams.services = &m_services;
 
     if(auto resourceManager = System::ResourceManager::Create(resourceManagerParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(resourceManager));
+        m_services.Provide(std::move(resourceManager));
     }
     else
     {
-        LOG_ERROR("Could not create resource manager!");
+        LOG_ERROR(CreateServicesError, "Could not create resource manager service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create render context.
-    // Manages rendering context created along with window.
+    // Rendering context management.
+    // State stack that minimizes changes submitted to graphics API.
     Graphics::RenderContext::CreateParams renderContextParams;
-    renderContextParams.services = &instance->m_services;
+    renderContextParams.services = &m_services;
 
     if(auto renderContext = Graphics::RenderContext::Create(renderContextParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(renderContext));
+        m_services.Provide(std::move(renderContext));
     }
     else
     {
-        LOG_ERROR("Could not create render context!");
+        LOG_ERROR(CreateServicesError, "Could not create render context service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create sprite renderer.
-    // Rendering subsystem for drawing sprites.
+    // Fast textured quad drawing.
+    // Sprites drawn using batching and instancing.
     Graphics::SpriteRenderer::CreateFromParams spriteRendererParams;
-    spriteRendererParams.services = &instance->m_services;
+    spriteRendererParams.services = &m_services;
     spriteRendererParams.spriteBatchSize = 128;
 
     if(auto spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(spriteRenderer));
+        m_services.Provide(std::move(spriteRenderer));
     }
     else
     {
-        LOG_ERROR("Could not create sprite renderer!");
+        LOG_ERROR(CreateServicesError, "Could not create sprite renderer service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create game renderer.
-    // Draws game instance represented by its render components.
+    // Game instance rendering.
+    // Draws render components present in entities.
     Renderer::GameRenderer::CreateFromParams stateRendererParams;
-    stateRendererParams.services = &instance->m_services;
+    stateRendererParams.services = &m_services;
 
     if(auto stateRenderer = Renderer::GameRenderer::Create(stateRendererParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(stateRenderer));
+        m_services.Provide(std::move(stateRenderer));
     }
     else
     {
-        LOG_ERROR("Could not create game renderer!");
+        LOG_ERROR(CreateServicesError, "Could not create game renderer service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create game framework.
-    // Wraps base functionality of shared game logic.
+    // Game state management.
+    // Decides how game state is updated, ticked and drawn.
     Game::GameFramework::CreateFromParams gameFrameworkParams;
-    gameFrameworkParams.services = &instance->m_services;
+    gameFrameworkParams.services = &m_services;
 
     if(auto gameFramework = Game::GameFramework::Create(gameFrameworkParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(gameFramework));
+        m_services.Provide(std::move(gameFramework));
     }
     else
     {
-        LOG_ERROR("Could not create game framework!");
+        LOG_ERROR(CreateServicesError, "Could not create game framework service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Create editor system.
-    // Built in editor for creating and modifying content within running game.
+    // Built-in editor interface.
+    // Inspecting and modifying state of running engine and game.
     Editor::EditorSystem::CreateFromParams editorSystemParams;
-    editorSystemParams.services = &instance->m_services;
+    editorSystemParams.services = &m_services;
 
     if(auto editorSystem = Editor::EditorSystem::Create(editorSystemParams).UnwrapOr(nullptr))
     {
-        instance->m_services.Provide(std::move(editorSystem));
+        m_services.Provide(std::move(editorSystem));
     }
     else
     {
-        LOG_ERROR("Could not create editor system!");
+        LOG_ERROR(CreateServicesError, "Could not create editor system service.");
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Load default engine resources.
-    if(!instance->LoadDefaultResources())
-    {
-        LOG_ERROR("Could not load default resources!");
-        return Common::Failure(CreateErrors::FailedResourceLoading);
-    }
-
-    // Print engine creation time.
-    const auto creationEndTime = std::chrono::steady_clock::now();
-    std::chrono::duration<float> creationTime = creationEndTime - creationStartTime;
-    LOG_INFO("Engine creation took {:.2f} seconds.", creationTime.count());
-
-    // Success!
-    return Common::Success(std::move(instance));
+    LOG_SUCCESS("Created engine services.");
+    return Common::Success();
 }
 
-bool Root::LoadDefaultResources()
+Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
-    LOG_INFO("Loading default resources...");
-    LOG_SCOPED_INDENT();
-
-    // Acquire resource manager.
     System::FileSystem* fileSystem = m_services.GetFileSystem();
     System::ResourceManager* resourceManager = m_services.GetResourceManager();
 
-    // Load default texture.
-    auto texturePathResult = fileSystem->ResolvePath("Data/Engine/Default/Texture.png");
-    if(!texturePathResult)
-        return false;
+    // Default texture placeholder for when requested texture is missing.
+    // Texture is made to be easily spotted to indicate potential issues.
+    if(auto defaultTexturePathResult = fileSystem->ResolvePath("Data/Engine/Default/Texture.png"))
+    {
+        Graphics::Texture::LoadFromFile defaultTextureParams;
+        defaultTextureParams.services = &m_services;
 
-    Graphics::Texture::LoadFromFile defaultTextureParams;
-    defaultTextureParams.services = &m_services;
-
-    auto defaultTextureResult = Graphics::Texture::Create(texturePathResult.Unwrap(), defaultTextureParams);
-    if(!defaultTextureResult)
-        return false;
-
-    resourceManager->SetDefault<Graphics::Texture>(std::move(defaultTextureResult.Unwrap()));
-
-    // Success!
-    return true;
+        if(auto defaultTextureResult = Graphics::Texture::Create(defaultTexturePathResult.Unwrap(), defaultTextureParams))
+        {
+            resourceManager->SetDefault<Graphics::Texture>(std::move(defaultTextureResult.Unwrap()));
+        }
+        else
+        {
+            LOG_ERROR(LoadDefaultResourcesError, "Could not load default texture resource.");
+            return Common::Failure(CreateErrors::FailedResourceLoading);
+        }
+    }
+    else
+    {
+        LOG_ERROR(LoadDefaultResourcesError, "Could not resolve default texture path.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
+    }
+    
+    LOG_SUCCESS("Loaded default engine resources.");
+    return Common::Success();
 }
 
-int Root::Run()
+void Root::ProcessFrame()
 {
-    // Acquire engine services.
+    // Single frame execution, running repeatedly in main loop.
+    // Engine services are updated here each frame if needed.
+
+    Logger::AdvanceFrameReference();
+
+    Core::PerformanceMetrics* performanceMetrics = m_services.GetPerformanceMetrics();
+    System::Timer* timer = m_services.GetTimer();
+    System::Window* window = m_services.GetWindow();
+    System::InputManager* inputManager = m_services.GetInputManager();
+    System::ResourceManager* resourceManager = m_services.GetResourceManager();
+    Game::GameFramework* gameFramework = m_services.GetGameFramework();
+    Editor::EditorSystem* editorSystem = m_services.GetEditorSystem();
+
+    float timeDelta = timer->Advance(m_maxUpdateDelta);
+
+    performanceMetrics->MarkFrameStart();
+    resourceManager->ReleaseUnused();
+    window->ProcessEvents();
+    editorSystem->Update(timeDelta);
+
+    if(gameFramework->ProcessGameState(timeDelta) == ProcessGameStateResults::TickedAndUpdated)
+    {
+        inputManager->UpdateInputState(timeDelta);
+    }
+
+    editorSystem->Draw();
+    window->Present();
+    performanceMetrics->MarkFrameEnd();
+}
+
+Root::ErrorCode Root::Run()
+{
+    // Initiates infinite main loop that exits only when application requests to be closed.
+    // Before main loop is run we have to set window context as current, then timer is reset
+    // before the first iteration to exclude time accumulated during initialization.
+
     System::Timer* timer = m_services.GetTimer();
     System::Window* window = m_services.GetWindow();
     Game::GameFramework* gameFramework = m_services.GetGameFramework();
 
-    // Ensure that window context is current.
     window->MakeContextCurrent();
-
-    // Reset time that has accumulated during initialization.
     timer->Reset();
 
-    // Define main loop iteration.
-    auto mainLoopIteration = [](void* engine)
-    {
-        // Retrieve engine root.
-        ASSERT(engine != nullptr);
-        Root& root = *static_cast<Root*>(engine);
-
-        // Acquire engine services.
-        const Core::ServiceStorage& services = root.GetServices();
-
-        Core::PerformanceMetrics* performanceMetrics = services.GetPerformanceMetrics();
-        System::Timer* timer = services.GetTimer();
-        System::Window* window = services.GetWindow();
-        System::InputManager* inputManager = services.GetInputManager();
-        System::ResourceManager* resourceManager = services.GetResourceManager();
-        Game::GameFramework* gameFramework = services.GetGameFramework();
-        Editor::EditorSystem* editorSystem = services.GetEditorSystem();
-
-        // Mark frame start.
-        performanceMetrics->StartFrame();
-
-        // Advance logger's frame of reference.
-        Logger::AdvanceFrameReference();
-
-        // Release unused resources.
-        resourceManager->ReleaseUnused();
-
-        // Advance timer to calculate delta.
-        float timeDelta = timer->Advance(root.m_maxUpdateDelta);
-
-        // Process window events.
-        window->ProcessEvents();
-
-        // Update editor system.
-        editorSystem->Update(timeDelta);
-
-        // Trigger game update, trick and draw logic.
-        // Update returns true if tick was processed.
-        if(gameFramework->ProcessGameState(timeDelta))
-        {
-            // Prepare input manager for incoming events.
-            inputManager->UpdateInputState(timeDelta);
-        }
-
-        // Draw editor system.
-        editorSystem->Draw();
-
-        // Present window content.
-        window->Present();
-
-        // Mark frame end.
-        performanceMetrics->EndFrame();
-    };
-
-    // Run main loop.
     #ifndef __EMSCRIPTEN__
         while(true)
         {
-            // Check exit conditions.
             if(!window->ShouldClose())
             {
-                LOG_INFO("Breaking out of main loop because window has been requested to close.");
+                LOG_INFO("Exiting main loop because window has been requested to close.");
                 break;
             }
 
             if(!gameFramework->HasGameState())
             {
-                LOG_INFO("Breaking out of main loop because there is no active game state.");
+                LOG_INFO("Exiting main loop because there is no active game state.");
                 break;
             }
 
-            // Run main loop iteration.
-            mainLoopIteration(this);
+            ProcessFrame();
         }
     #else
+        auto mainLoopIteration = [](void* engine)
+        {
+            ASSERT(engine != nullptr);
+            Root* root = static_cast<Root*>(engine);
+            root->ProcessFrame();
+        };
+
         emscripten_set_main_loop_arg(mainLoopIteration, this, 0, 1);
     #endif
 
-    // Return error code.
-    return 0;
+    return ErrorCode(0);
 }
 
 const Core::ServiceStorage& Root::GetServices() const

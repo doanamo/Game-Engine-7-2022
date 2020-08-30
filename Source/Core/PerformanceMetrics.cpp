@@ -21,12 +21,12 @@ PerformanceMetrics::CreateResult PerformanceMetrics::Create()
     return Common::Success(std::move(instance));
 }
 
-void PerformanceMetrics::StartFrame()
+void PerformanceMetrics::MarkFrameStart()
 {
     m_frameStart = std::chrono::steady_clock::now();
 }
 
-void PerformanceMetrics::EndFrame()
+void PerformanceMetrics::MarkFrameEnd()
 {
     m_frameEnd = std::chrono::steady_clock::now();
 

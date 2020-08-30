@@ -14,22 +14,28 @@ namespace
 
 void Build::Initialize()
 {
-    // Read directory overrides from files in current working directory.
-    GameDir = Common::GetTextFileContent("GameDir.txt");
+    // Retrieve engine and game directory overrides from working directory.
+    // When application is launched these files will not be present as both files
+    // would otherwise point at same current working directory, but when launching
+    // from generated project in development both will be created by CMake in temporary
+    // output directory to account for engine and game directories being separate,
+    // same as for their repositories. This allows engine data to be loaded easily
+    // when library is added to another project as dependency.
+
     EngineDir = Common::GetTextFileContent("EngineDir.txt");
+    GameDir = Common::GetTextFileContent("GameDir.txt");
 
     if(EngineDir.empty())
     {
         EngineDir = GameDir;
     }
 
-    // Print build info to log.
     Build::PrintInfo();
 }
 
 void Build::PrintInfo()
 {
-    LOG_INFO("Printing build info...");
+    LOG_INFO("Printing build information...");
     LOG_SCOPED_INDENT();
 
     LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "./" : EngineDir);

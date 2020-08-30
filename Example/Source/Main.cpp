@@ -8,21 +8,21 @@
 
 int main()
 {
-    // Create engine.
+    // Main entry point where engine instance is created
+    // and where game state is added to be run by engine.
+
     Engine::Root::CreateFromParams engineParams;
     engineParams.maxUpdateDelta = 1.0f;
 
-    auto engine = Engine::Root::Create(engineParams).UnwrapOr(nullptr);
-    if(engine == nullptr)
+    if(auto engine = Engine::Root::Create(engineParams).UnwrapOr(nullptr))
+    {
+        std::shared_ptr<Game::GameState> defaultGameState = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
+        engine->GetServices().GetGameFramework()->ChangeGameState(defaultGameState);
+        return engine->Run();
+    }
+    else
     {
         LOG_ERROR("Could not create engine!");
         return -1;
     }
-
-    // Create game state.
-    std::shared_ptr<Game::GameState> gameState = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
-    engine->GetServices().GetGameFramework()->ChangeGameState(gameState);
-
-    // Run example loop.
-    return engine->Run();
 };

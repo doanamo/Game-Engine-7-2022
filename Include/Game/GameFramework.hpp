@@ -44,11 +44,25 @@ namespace Game
         using CreateResult = Common::Result<std::unique_ptr<GameFramework>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
+        enum class ChangeGameStateErrors
+        {
+            AlreadyCurrent,
+            FailedTransition,
+        };
+
+        using ChangeGameStateResult = Common::Result<void, ChangeGameStateErrors>;
+
+        enum class ProcessGameStateResults
+        {
+            TickedAndUpdated,
+            UpdatedOnly,
+        };
+
     public:
         ~GameFramework();
 
-        bool ChangeGameState(std::shared_ptr<GameState> gameState);
-        bool ProcessGameState(float timeDelta);
+        ChangeGameStateResult ChangeGameState(std::shared_ptr<GameState> gameState);
+        ProcessGameStateResults ProcessGameState(float timeDelta);
         bool HasGameState() const;
 
         struct Events

@@ -19,8 +19,8 @@ namespace Core
     public:
         ~PerformanceMetrics();
 
-        void StartFrame();
-        void EndFrame();
+        void MarkFrameStart();
+        void MarkFrameEnd();
 
         float GetFrameTime() const;
         float GetFrameRate() const;

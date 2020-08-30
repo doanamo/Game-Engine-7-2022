@@ -32,7 +32,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     return Common::Success(std::move(instance));
 }
 
-bool GameFramework::ProcessGameState(float timeDelta)
+GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(float timeDelta)
 {
     // Acquire current state and its parts.
     std::shared_ptr<GameState> currentState = m_stateMachine.GetState();
@@ -111,27 +111,27 @@ bool GameFramework::ProcessGameState(float timeDelta)
     }
 
     // Return whether tick was processed.
-    return tickProcessed;
+    return tickProcessed ? ProcessGameStateResults::TickedAndUpdated : ProcessGameStateResults::UpdatedOnly;
 }
 
-bool GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)
+GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)
 {
     // Make sure we are not changing into current game state.
     if(gameState == m_stateMachine.GetState())
     {
         LOG_WARNING("Attempted to change into current game state!");
-        return false;
+        return Common::Failure(ChangeGameStateErrors::AlreadyCurrent);
     }
 
     // Change into new game state.
     if(!m_stateMachine.ChangeState(gameState))
-        return false;
+        return Common::Failure(ChangeGameStateErrors::FailedTransition);
 
     // Notify listeners about game state transition.
     events.gameStateChanged.Dispatch(gameState);
 
     // State transition succeeded.
-    return true;
+    return Common::Success();
 }
 
 bool GameFramework::HasGameState() const

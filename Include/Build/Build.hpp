@@ -10,22 +10,21 @@
     Build
 
     Stores information generated and retrieved from the build system.
-    Need to be initialized to be populated with build information.
+    Needs to be initialized before build information becomes available.
+
+    Set of information is split between engine and game directories.
+    Metadata such as version control information is retrieved from
+    respective engine library or game executable project directories.
 */
 
 namespace Build
 {
-    // Initializes info gathered during build process.
     void Initialize();
-
-    // Prints build info to log.
     void PrintInfo();
 
-    // Returns directories where engine and game data is located.
     std::string GetEngineDir();
     std::string GetGameDir();
 
-    // Returns information from engine and game repository.
     std::string GetEngineChangeNumber();
     std::string GetEngineChangeHash();
     std::string GetEngineChangeDate();

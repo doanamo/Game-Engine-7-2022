@@ -31,17 +31,20 @@ namespace Engine
         using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
+        using ErrorCode = int;
+
     public:
         ~Root();
 
-        int Run();
-
+        ErrorCode Run();
         const Core::ServiceStorage& GetServices() const;
 
     private:
         Root();
 
-        bool LoadDefaultResources();
+        Common::Result<void, CreateErrors> CreateServices();
+        Common::Result<void, CreateErrors> LoadDefaultResources();
+        void ProcessFrame();
 
     private:
         Core::ServiceStorage m_services;
