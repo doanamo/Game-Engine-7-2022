@@ -29,7 +29,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.maxTickDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
 
     // Measure creation time.
     const auto creationStartTime = std::chrono::steady_clock::now();
@@ -42,8 +42,8 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     // Create instance.
     auto instance = std::unique_ptr<Root>(new Root());
 
-    // Save maximum tick delta parameter.
-    instance->m_maxTickDelta = params.maxTickDelta;
+    // Save maximum update delta parameter.
+    instance->m_maxUpdateDelta = params.maxUpdateDelta;
 
     // Create performance metrics.
     // Collects information about engine's runtime performance.
@@ -315,7 +315,7 @@ int Root::Run()
         resourceManager->ReleaseUnused();
 
         // Advance timer to calculate delta.
-        float timeDelta = timer->Advance(root.m_maxTickDelta);
+        float timeDelta = timer->Advance(root.m_maxUpdateDelta);
 
         // Process window events.
         window->ProcessEvents();

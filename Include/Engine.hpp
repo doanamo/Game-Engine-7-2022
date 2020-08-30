@@ -18,7 +18,7 @@ namespace Engine
     public:
         struct CreateFromParams
         {
-            float maxTickDelta = 1.0f;
+            float maxUpdateDelta = 1.0f;
         };
 
         enum class CreateErrors
@@ -45,6 +45,6 @@ namespace Engine
 
     private:
         Core::ServiceStorage m_services;
-        float m_maxTickDelta = 1.0f;
+        float m_maxUpdateDelta = 1.0f;
     };
 }
