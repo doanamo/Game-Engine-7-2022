@@ -479,7 +479,7 @@ namespace Common
         HandleList m_handles;
         FreeList m_freeList;
 
-        std::size_t m_cacheSize = 0;
+        const std::size_t m_cacheSize = 0;
         std::size_t m_retiredHandles = 0;
     };
 }

@@ -11,13 +11,9 @@ PerformanceMetrics::~PerformanceMetrics() = default;
 
 PerformanceMetrics::CreateResult PerformanceMetrics::Create()
 {
-    LOG("Creating performance metrics...");
-    LOG_SCOPED_INDENT();
-
-    // Create instance.
     auto instance = std::unique_ptr<PerformanceMetrics>(new PerformanceMetrics());
 
-    // Success!
+    LOG_SUCCESS("Created performance metrics instance.");
     return Common::Success(std::move(instance));
 }
 
