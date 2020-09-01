@@ -307,14 +307,14 @@ void Root::ProcessFrame()
     performanceMetrics->MarkFrameStart();
     resourceManager->ReleaseUnused();
     window->ProcessEvents();
-    editorSystem->Update(timeDelta);
 
+    editorSystem->Update(timeDelta);
     if(gameFramework->ProcessGameState(timeDelta) == ProcessGameStateResults::TickedAndUpdated)
     {
         inputManager->UpdateInputState(timeDelta);
     }
-
     editorSystem->Draw();
+
     window->Present();
     performanceMetrics->MarkFrameEnd();
 }

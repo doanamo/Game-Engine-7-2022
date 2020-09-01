@@ -31,7 +31,6 @@ namespace
 EditorSystem::EditorSystem()
 {
     // Bind event receivers.
-    m_receiverInputStateChanged.Bind<EditorSystem, &EditorSystem::OnInputStateChanged>(this);
     m_receiverTextInput.Bind<EditorSystem, &EditorSystem::OnTextInput>(this);
     m_receiverKeyboardKey.Bind<EditorSystem, &EditorSystem::OnKeyboardKey>(this);
     m_receiverMouseButton.Bind<EditorSystem, &EditorSystem::OnMouseButton>(this);
@@ -115,14 +114,17 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     io.ClipboardUserData = window->GetPrivateHandle();
 
     // Subscribe to input events.
-    // Call on input state changed method once after subscribing.
-    if(!inputManager->events.inputStateChanged.Subscribe(instance->m_receiverInputStateChanged))
-    {
-        LOG_ERROR("Failed to subscribe to event receivers!");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
-    }
+    // We insert receivers in front of dispatcher queue as we want to have priority for input events.
+    System::InputState& inputState = inputManager->GetInputState();
+    
+    Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
+    Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
-    instance->OnInputStateChanged(inputManager->GetInputState().get());
+    inputState.events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
+    inputState.events.textInput.Subscribe(instance->m_receiverTextInput, subscriptionPolicy, priorityPolicy);
+    inputState.events.mouseButton.Subscribe(instance->m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
+    inputState.events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
+    inputState.events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
 
     // Create editor renderer.
     EditorRenderer::CreateFromParams editorRendererParams;
@@ -190,22 +192,6 @@ void EditorSystem::Draw()
     // Set context and draw the editor interface.
     ImGui::SetCurrentContext(m_interface);
     m_editorRenderer->Draw();
-}
-
-void EditorSystem::OnInputStateChanged(System::InputState* inputState)
-{
-    if(inputState == nullptr)
-        return;
-
-    // We insert receivers in front of dispatcher queue as we want to have priority for input events.
-    Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
-    Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
-
-    inputState->events.keyboardKey.Subscribe(m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
-    inputState->events.textInput.Subscribe(m_receiverTextInput, subscriptionPolicy, priorityPolicy);
-    inputState->events.mouseButton.Subscribe(m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
-    inputState->events.mouseScroll.Subscribe(m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
-    inputState->events.cursorPosition.Subscribe(m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
 }
 
 bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)

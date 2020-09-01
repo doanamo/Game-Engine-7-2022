@@ -143,26 +143,26 @@ void SpriteDemo::Tick(const float tickTime)
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
-    std::shared_ptr<System::InputState> inputState = m_engine->GetServices().GetInputManager()->GetInputState();
+    System::InputState& inputState = m_engine->GetServices().GetInputManager()->GetInputState();
 
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 
-    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
+    if(inputState.IsKeyboardKeyPressed(System::KeyboardKeys::KeyLeft))
     {
         direction.x -= 1.0f;
     }
 
-    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
+    if(inputState.IsKeyboardKeyPressed(System::KeyboardKeys::KeyRight))
     {
         direction.x += 1.0f;
     }
 
-    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
+    if(inputState.IsKeyboardKeyPressed(System::KeyboardKeys::KeyUp))
     {
         direction.y += 1.0f;
     }
 
-    if(inputState->IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
+    if(inputState.IsKeyboardKeyPressed(System::KeyboardKeys::KeyDown))
     {
         direction.y -= 1.0f;
     }

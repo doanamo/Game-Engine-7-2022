@@ -98,8 +98,6 @@ namespace System
 
             struct TextInput
             {
-                // Character is stored in UTF32 format here and can be
-                // converted to any other code point as the user wishes.
                 unsigned int utf32Character;
             };
 
@@ -161,7 +159,6 @@ namespace System
         static void CursorPositionCallback(GLFWwindow* window, double x, double y);
         static void CursorEnterCallback(GLFWwindow* window, int entered);
 
-    private:
         std::string m_title;
         GLFWwindow* m_handle = nullptr;
         bool m_sizeChanged = false;

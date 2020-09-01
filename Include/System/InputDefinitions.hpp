@@ -18,11 +18,11 @@ namespace System
         {
             Invalid,
 
-            Pressed,         // Input was pressed just before processed frame.
-            PressedRepeat,   // Input was pressed for more than once frame.
-            PressedReleased, // Input was pressed and released in one frame.
-            Released,        // Input was released just before processed frame.
-            ReleasedRepeat,  // Input was released for more than one frame.
+            Pressed,         // Input was pressed just before processed update.
+            PressedRepeat,   // Input was pressed for more than one update.
+            PressedReleased, // Input was pressed and released in one update.
+            Released,        // Input was released just before processed update.
+            ReleasedRepeat,  // Input was released for more than one update.
 
             Count,
         };
@@ -215,8 +215,6 @@ namespace System
     {
         struct TextInput
         {
-            // Character is stored in UTF32 format here and can be
-            // converted to any other code point as the user wishes.
             unsigned int utf32Character = 0;
         };
 

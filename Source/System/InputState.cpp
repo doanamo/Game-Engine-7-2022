@@ -13,18 +13,6 @@ InputState::InputState()
 
 InputState::~InputState() = default;
 
-InputState::CreateResult System::InputState::Create()
-{
-    LOG("Creating input state...");
-    LOG_SCOPED_INDENT();
-
-    // Create instance.
-    auto instance = std::unique_ptr<InputState>(new InputState());
-
-    // Success!
-    return Common::Success(std::move(instance));
-}
-
 void System::InputState::UpdateStates(float timeDelta)
 {
     // Update input state times.
@@ -82,7 +70,7 @@ void InputState::ResetStates()
     }
 }
 
-bool InputState::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
+bool InputState::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat) const
 {
     // Validate specified keyboard key.
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
@@ -92,7 +80,7 @@ bool InputState::IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat)
     return IsInputStatePressed(m_keyboardKeyStates[key].state, repeat);
 }
 
-bool InputState::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
+bool InputState::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat) const
 {
     // Validate specified keyboard key.
     if(key <= KeyboardKeys::KeyUnknown || key >= KeyboardKeys::Count)
@@ -102,7 +90,7 @@ bool InputState::IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat)
     return IsInputStateReleased(m_keyboardKeyStates[key].state, repeat);
 }
 
-bool InputState::IsMouseButtonPressed(MouseButtons::Type button, bool repeat)
+bool InputState::IsMouseButtonPressed(MouseButtons::Type button, bool repeat) const
 {
     // Validate specified mouse button.
     if(button <= MouseButtons::Invalid || button >= MouseButtons::Count)
@@ -112,7 +100,7 @@ bool InputState::IsMouseButtonPressed(MouseButtons::Type button, bool repeat)
     return IsInputStatePressed(m_mouseButtonStates[button].state, repeat);
 }
 
-bool InputState::IsMouseButtonReleased(MouseButtons::Type button, bool repeat)
+bool InputState::IsMouseButtonReleased(MouseButtons::Type button, bool repeat) const
 {
     // Validate specified mouse button.
     if(button <= MouseButtons::Invalid || button >= MouseButtons::Count)

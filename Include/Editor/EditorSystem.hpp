@@ -57,14 +57,12 @@ namespace Editor
     private:
         EditorSystem();
 
-        void OnInputStateChanged(System::InputState* inputState);
         bool OnTextInput(const System::InputEvents::TextInput& event);
         bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
         bool OnMouseButton(const System::InputEvents::MouseButton& event);
         bool OnMouseScroll(const System::InputEvents::MouseScroll& event);
         void OnCursorPosition(const System::InputEvents::CursorPosition& event);
 
-        Event::Receiver<void(System::InputState*)> m_receiverInputStateChanged;
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
         Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
         Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;

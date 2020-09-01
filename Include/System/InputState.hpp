@@ -20,19 +20,12 @@ namespace System
     public:
         friend InputManager;
 
-        using CreateResult = Common::Result<std::unique_ptr<InputState>, void>;
-        static CreateResult Create();
-
-    public:
         ~InputState();
 
-        void UpdateStates(float timeDelta);
-        void ResetStates();
-
-        bool IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat = true);
-        bool IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat = true);
-        bool IsMouseButtonPressed(KeyboardKeys::Type key, bool repeat = true);
-        bool IsMouseButtonReleased(KeyboardKeys::Type key, bool repeat = true);
+        bool IsKeyboardKeyPressed(KeyboardKeys::Type key, bool repeat = true) const;
+        bool IsKeyboardKeyReleased(KeyboardKeys::Type key, bool repeat = true) const;
+        bool IsMouseButtonPressed(KeyboardKeys::Type key, bool repeat = true) const;
+        bool IsMouseButtonReleased(KeyboardKeys::Type key, bool repeat = true) const;
 
         struct Events
         {
@@ -46,6 +39,9 @@ namespace System
 
     private:
         InputState();
+
+        void UpdateStates(float timeDelta);
+        void ResetStates();
 
         bool OnTextInput(const InputEvents::TextInput& event);
         bool OnKeyboardKey(const InputEvents::KeyboardKey& event);

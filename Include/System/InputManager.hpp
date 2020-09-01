@@ -29,26 +29,18 @@ namespace System
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedInputStateCreation,
             FailedEventSubscription,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
         static CreateResult Create(const CreateParams& params);
 
-    public:
         ~InputManager();
-
-        void SetInputState(std::shared_ptr<InputState> inputState);
-        std::shared_ptr<InputState> GetInputState() const;
 
         void UpdateInputState(float timeDelta);
         void ResetInputState();
 
-        struct Events
-        {
-            Event::Dispatcher<void(InputState*)> inputStateChanged;
-        } events;
+        InputState& GetInputState();
 
     private:
         InputManager();
@@ -70,6 +62,6 @@ namespace System
             Event::Receiver<void(const Window::Events::CursorEnter&)> cursorEnter;
         } m_receivers;
 
-        std::shared_ptr<InputState> m_inputState = nullptr;
+        InputState m_inputState;
     };
 }
