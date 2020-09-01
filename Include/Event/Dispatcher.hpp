@@ -57,7 +57,7 @@ namespace Event
         void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr);
-            collector.ConsumeResult(Dispatch(receiver, std::forward<Arguments>(arguments)...));
+            collector.ConsumeResult(this->Dispatch(receiver, std::forward<Arguments>(arguments)...));
         }
     };
 
@@ -68,7 +68,7 @@ namespace Event
         void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr);
-            Dispatch(receiver, std::forward<Arguments>(arguments)...);
+            this->Dispatch(receiver, std::forward<Arguments>(arguments)...);
         }
     };
 
@@ -211,7 +211,7 @@ namespace Event
     class Dispatcher<ReturnType(Arguments...), Collector> : public DispatcherBase<ReturnType(Arguments...)>
     {
     public:
-        using Super = typename DispatcherBase<ReturnType(Arguments...)>;
+        using Super = DispatcherBase<ReturnType(Arguments...)>;
 
         Dispatcher() :
             m_defaultCollector()
@@ -239,7 +239,7 @@ namespace Event
         ReturnType Dispatch(Arguments... arguments)
         {
             Collector collector(m_defaultCollector);
-            Super::Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+            Super::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
             return collector.GetResult();
         }
 
@@ -256,7 +256,7 @@ namespace Event
     class Dispatcher<void(Arguments...), Collector> : public DispatcherBase<void(Arguments...)>
     {
     public:
-        using Super = typename DispatcherBase<void(Arguments...)>;
+        using Super = DispatcherBase<void(Arguments...)>;
 
         Dispatcher() = default;
 
@@ -266,7 +266,7 @@ namespace Event
         void Dispatch(Arguments... arguments)
         {
             CollectDefault<void> collector;
-            Super::Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
+            Super::template Dispatch<Collector>(collector, std::forward<Arguments>(arguments)...);
         }
 
         void operator()(Arguments... arguments)
