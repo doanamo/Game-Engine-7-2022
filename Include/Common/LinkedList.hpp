@@ -15,6 +15,9 @@
     itself. Having a list with single node means first node has its previous/next
     nodes pointing at itself (circular property). List being circular does not mean
     that it cannot be used as a finite sequence.
+
+    Since linked nodes are meant to be stored in an intrusive way along with objects,
+    reference can be set to point back at object that given node refers to.
 */
 
 namespace Common
@@ -23,8 +26,8 @@ namespace Common
     class ListNode : private Common::NonCopyable
     {
     public:
-        ListNode() :
-            m_reference(nullptr),
+        ListNode(Type* owner = nullptr) :
+            m_reference(owner),
             m_previous(this),
             m_next(this)
         {
@@ -38,10 +41,11 @@ namespace Common
 
         ListNode<Type>& operator=(ListNode<Type>&& other)
         {
-            // Do not swap reference to object.
-            // Fix up swapped pointers along the way.
-            // Order of instructions is very important here
-            // due to deep dereferencing after pointer swap.
+            // Do not swap references to objects as we will be pointing at
+            // same addresses in memory, as only data of both objects is moved.
+            // Fix up swapped pointers along the way. Order of instructions
+            // is very important here due to deep dereferencing after pointer
+            // swap.
 
             std::swap(m_previous, other.m_previous);
             m_previous->m_next = this;

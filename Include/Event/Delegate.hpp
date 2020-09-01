@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common/Debug.hpp"
+#include <Common/Debug.hpp>
 
 /*
     Delegate
@@ -14,7 +14,7 @@
     instance that no longer exists. Check Receiver and Dispatcher class
     templates for subscription based solution that wraps delegates.
     
-    Implementation based on:
+    Implementation partially based on:
     - http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
 */
 
@@ -30,7 +30,6 @@ namespace Event
         using InstancePtr = void*;
         using FunctionPtr = ReturnType(*)(InstancePtr, Arguments&&...);
 
-        // Compile time invocation stubs.
         template<ReturnType(*Function)(Arguments...)>
         static ReturnType FunctionStub(InstancePtr instance, Arguments&&... arguments)
         {
@@ -65,34 +64,30 @@ namespace Event
         {
         }
 
-        // Performing move of a delegate is very dangerous
-        // as they hold references to instances they are invoking.
-        // Most often it is preferred to omit moving a delegate.
         Delegate(Delegate&& other) :
             Delegate()
         {
-            // Call move assignment.
             *this = std::move(other);
         }
 
         Delegate(const Delegate& other)
         {
-            // Call copy assignment.
-            this->operator=(other);
+            *this = other;
         }
 
         Delegate& operator=(Delegate&& other)
         {
-            // Swap class members.
+            // Performing move of a delegate is very dangerous
+            // as they hold references to instances they are invoking.
+            // Most often it is preferred to omit moving a delegate.
+
             std::swap(m_instance, other.m_instance);
             std::swap(m_function, other.m_function);
-
             return *this;
         }
 
         Delegate& operator=(const Delegate& other)
         {
-            // Copy class members.
             m_instance = other.m_instance;
             m_function = other.m_function;
             return *this;
@@ -100,19 +95,16 @@ namespace Event
 
         Delegate& operator=(std::nullptr_t)
         {
-            this->Bind(nullptr);
+            Bind(nullptr);
             return *this;
         }
 
-        // Unbind delegate.
         void Bind(std::nullptr_t)
         {
-            
             m_instance = nullptr;
             m_function = nullptr;
         }
 
-        // Binds plain function.
         template<ReturnType(*Function)(Arguments...)>
         void Bind()
         {
@@ -120,7 +112,6 @@ namespace Event
             m_function = &FunctionStub<Function>;
         }
 
-        // Binds functor object with reference.
         template<class InstanceType>
         void Bind(InstanceType* instance)
         {
@@ -130,7 +121,6 @@ namespace Event
             m_function = &FunctorStub<InstanceType>;
         }
 
-        // Binds instance method with reference.
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
         void Bind(InstanceType* instance)
         {
@@ -140,30 +130,26 @@ namespace Event
             m_function = &MethodStub<InstanceType, Function>;
         }
 
-        // Binds lambda with or without capture.
         template<typename Lambda>
         Delegate(const Lambda& lambda)
         {
-            this->Bind(lambda);
+            Bind(lambda);
         }
 
         template<typename Lambda>
         Delegate& operator=(const Lambda& lambda)
         {
-            this->Bind(lambda);
+            Bind(lambda);
             return *this;
         }
 
         template<typename Lambda>
         void Bind(const Lambda& lambda)
         {
-            // Every lambda has different type. We can abuse
-            // this to create static instance for every permutation of this
-            // methods called with different lambda type. Feels bit like a hack.
-            static Lambda staticLambda = lambda;
+            // Every lambda has different type. We can abuse this to create static instance
+            // for every permutation of this methods called with different lambda type.
 
-            // Any functor can be bound this way, as long as object provides a call operator.
-            // This may be unintended when static copy is created.
+            static Lambda staticLambda = lambda;
             m_instance = static_cast<void*>(&staticLambda);
             m_function = &FunctorStub<Lambda>;
         }
@@ -176,7 +162,7 @@ namespace Event
 
         ReturnType operator()(Arguments... arguments)
         {
-            return this->Invoke(std::forward<Arguments>(arguments)...);
+            return Invoke(std::forward<Arguments>(arguments)...);
         }
 
         bool IsBound()
@@ -185,12 +171,7 @@ namespace Event
         }
 
     private:
-        // Pointer to instance of delegate.
-        // Will be nullptr for standalone functions.
         InstancePtr m_instance;
-
-        // Pointer to function generated from one of the three specialized
-        // templates (either for raw functions, methods and functors).
         FunctionPtr m_function;
     };
 }

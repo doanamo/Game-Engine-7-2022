@@ -12,6 +12,8 @@
 
 /*
     Event Broker
+
+    Shared point where multiple receiver and dispatcher can be stored and signaled for different event types.
 */
 
 namespace Event
@@ -28,7 +30,6 @@ namespace Event
         using DispatcherEntry = std::pair<DispatcherHandle, DispatcherInvoker>;
         using DispatcherMap = std::unordered_map<std::type_index, DispatcherEntry>;
 
-    public:
         Broker() = default;
         ~Broker() = default;
 
@@ -46,10 +47,8 @@ namespace Event
         template<typename Type>
         bool Subscribe(Receiver<bool(const Type&)>& receiver, bool unsubscribeReceiver = false, bool insertFront = false)
         {
-            // Declare the shared pointer type.
             using DispatcherPtr = std::shared_ptr<Dispatcher<bool(const Type&), CollectWhileTrue>>;
 
-            // Find or create dispatcher if needed.
             std::type_index type = typeid(Type);
             auto it = m_dispatcherMap.find(type);
 
@@ -69,7 +68,6 @@ namespace Event
                 it = result.first;
             }
 
-            // Subscribe receiver to the dispatcher.
             DispatcherHandle& handle = it->second.first;
             auto& dispatcher = std::any_cast<DispatcherPtr&>(handle);
             return dispatcher->Subscribe(receiver, unsubscribeReceiver, insertFront);
@@ -77,18 +75,15 @@ namespace Event
 
         bool Dispatch(const EventHandle& eventHandle)
         {
-            // Check if event is empty.
             if(!eventHandle.has_value())
                 return false;
 
-            // Find registered dispatcher by type.
             std::type_index type = eventHandle.type();
             auto it = m_dispatcherMap.find(type);
 
             if(it == m_dispatcherMap.end())
                 return false;
 
-            // Dispatch event through the dispatcher.
             DispatcherEntry& dispatcherEntry = it->second;
             DispatcherHandle& dispatcherHandle = dispatcherEntry.first;
             DispatcherInvoker& dispatcherInvoker = dispatcherEntry.second;
@@ -96,7 +91,6 @@ namespace Event
         }
 
     private:
-        // List of subscribed dispatchers.
         DispatcherMap m_dispatcherMap;
     };
 }

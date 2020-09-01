@@ -9,12 +9,11 @@
     
     Utility template classes for storing return values of multiple receiver invocations.
     Returns boolean on call that indicates the final result of multiple invocations.
-    Some collector rules may terminate further receiver invocations on specific returns.
+    Some collectors may terminate further receiver invocations on specific return values.
 */
 
 namespace Event
 {
-    // Default collector.
     template<typename ReturnType>
     class CollectLast;
 
@@ -28,7 +27,6 @@ namespace Event
         }
     };
 
-    // Default collector specialized for dealing with void return type.
     template<>
     class CollectDefault<void>
     {
@@ -51,7 +49,6 @@ namespace Event
         }
     };
 
-    // Collector that returns the result of the last receiver invocation.
     template<typename ReturnType>
     class CollectLast
     {
@@ -80,7 +77,6 @@ namespace Event
         ReturnType m_result;
     };
 
-    // Collector that continues dispatcher propagation while receiver invocations return true.
     class CollectWhileTrue
     {
     public:
@@ -108,7 +104,6 @@ namespace Event
         bool m_result;
     };
 
-    // Collector that continues dispatcher propagation while receiver invocations return false.
     class CollectWhileFalse
     {
     public:

@@ -38,36 +38,34 @@ namespace Event
     public:
         friend DispatcherBase<ReturnType(Arguments...)>;
         friend ReceiverInvoker<ReturnType(Arguments...)>;
-        using ReceiverListNode = typename DispatcherBase<ReturnType(Arguments...)>::ReceiverListNode;
 
-    public:
-        Receiver()
+        using DispatcherType = DispatcherBase<ReturnType(Arguments...)>;
+        using ReceiverListNode = typename DispatcherType::ReceiverListNode;
+
+        Receiver() :
+            m_listNode(this)
         {
-            // Set strong reference to this node.
-            m_listNode.SetReference(this);
         }
 
         virtual ~Receiver()
         {
-            // Unsubscribe from dispatcher.
-            this->Unsubscribe();
+            Unsubscribe();
         }
 
         Receiver(Receiver&& other) :
             Receiver()
         {
-            // Call assignment operator.
             *this = std::move(other);
         }
 
         Receiver& operator=(Receiver&& other)
         {
-            // Swap class members.
-            // We do not move base delegate class on purpose,
-            // as we want bound function to persists after move.
+            // Swap only subscription and leave bound function as is.
+            // Swapping list nodes does not require references to be reset.
+
             std::swap(m_listNode, other.m_listNode);
             std::swap(m_dispatcher, other.m_dispatcher);
- 
+
             return *this;
         }
 
@@ -89,23 +87,24 @@ namespace Event
             ASSERT(m_listNode.IsFree(), "Dispatcher did not unsubscribe this receiver properly!");
         }
 
-    private:
-        // Receives event and invokes bound function.
-        ReturnType Receive(Arguments&&... arguments)
+        bool IsSubscribed() const
         {
-            ASSERT(m_dispatcher, "Invoked a receiver without it being subscribed!");
-            return this->Invoke(std::forward<Arguments>(arguments)...);
+            return !m_listNode.IsFree();
         }
 
-        // Make derived invoke method private.
-        // We do not want other classes calling this.
+    private:
+        ReturnType Receive(Arguments&&... arguments)
+        {
+            ASSERT(m_dispatcher, "Invoked receiver without it being subscribed!");
+            return Invoke(std::forward<Arguments>(arguments)...);
+        }
+
         ReturnType Invoke(Arguments&&... arguments)
         {
             return Delegate<ReturnType(Arguments...)>::Invoke(std::forward<Arguments>(arguments)...);
         }
 
-    private:
         ReceiverListNode m_listNode;
-        DispatcherBase<ReturnType(Arguments...)>* m_dispatcher = nullptr;
+        DispatcherType* m_dispatcher = nullptr;
     };
 }

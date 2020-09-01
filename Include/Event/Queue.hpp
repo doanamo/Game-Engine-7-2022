@@ -18,7 +18,6 @@ namespace Event
     public:
         using EventList = std::queue<std::any>;
 
-    public:
         Queue() = default;
         ~Queue() = default;
 
@@ -36,17 +35,14 @@ namespace Event
         template<typename Type>
         void Push(const Type& event)
         {
-            // Add event to the list (will be stored in std::any).
             m_eventList.push(event);
         }
 
         std::any Pop()
         {
-            // Return an invalid object if list is empty.
             if(m_eventList.empty())
                 return std::any();
 
-            // Pop an event from the list and return it.
             std::any event = m_eventList.front();
             m_eventList.pop();
             return event;
