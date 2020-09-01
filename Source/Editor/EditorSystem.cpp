@@ -13,14 +13,15 @@ using namespace Editor;
 
 namespace
 {
-    // Callback function for setting clipboard text.
+    const char* CreateError = "Failed to create editor system instance! {}";
+    const char* CreateSubsystemsError = "Failed to create editor subsystems! {}";
+
     void SetClipboardTextCallback(void* userData, const char* text)
     {
         ASSERT(userData != nullptr, "User data argument is nullptr!");
         glfwSetClipboardString((GLFWwindow*)userData, text);
     }
 
-    // Callback function for getting clipboard text.
     const char* GetClipboardTextCallback(void* userData)
     {
         ASSERT(userData != nullptr, "User data argument is nullptr!");
@@ -30,7 +31,6 @@ namespace
 
 EditorSystem::EditorSystem()
 {
-    // Bind event receivers.
     m_receiverTextInput.Bind<EditorSystem, &EditorSystem::OnTextInput>(this);
     m_receiverKeyboardKey.Bind<EditorSystem, &EditorSystem::OnKeyboardKey>(this);
     m_receiverMouseButton.Bind<EditorSystem, &EditorSystem::OnMouseButton>(this);
@@ -49,44 +49,49 @@ EditorSystem::~EditorSystem()
 
 EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 {
-    LOG("Creating editor system...");
-    LOG_SCOPED_INDENT();
-
-    // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire engine services.
     System::Window* window = params.services->GetWindow();
     System::InputManager* inputManager = params.services->GetInputManager();
 
-    // Create instance.
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
-
-    // Save window reference.
     instance->m_window = window;
 
-    // Create ImGui context.
-    instance->m_interface = ImGui::CreateContext();
-
-    if(instance->m_interface == nullptr)
+    if(!instance->CreateContext())
     {
-        LOG_ERROR("Failed to initialize user interface context!");
+        LOG_ERROR(CreateError, "Could not create context.");
         return Common::Failure(CreateErrors::FailedContextCreation);
     }
 
-    // Setup user interface.
+    if(!instance->CreateSubsystems(params.services))
+    {
+        LOG_ERROR(CreateError, "Could not create subsystems.");
+        return Common::Failure(CreateErrors::FailedSubsystemCreation);
+    }
+
+    if(!instance->SubscribeEvents(params.services))
+    {
+        LOG_ERROR(CreateError, "Could not subscribe events.");
+        return Common::Failure(CreateErrors::FailedEventSubscription);
+    }
+
+    LOG_SUCCESS("Created editor system instance.");
+    return Common::Success(std::move(instance));
+}
+
+bool EditorSystem::CreateContext()
+{
+    ASSERT(m_window != nullptr);
+
+    m_interface = ImGui::CreateContext();
+    if(m_interface == nullptr)
+        return false;
+
     ImGuiIO& io = ImGui::GetIO();
-
-    // Disable writing of INI config in the working directory.
-    // This file would hold the layout of windows, but we plan
-    // on doing it differently and reading it elsewhere.
     io.IniFilename = nullptr;
-
-    // Setup interface input.
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
     io.KeyMap[ImGuiKey_Tab] = System::KeyboardKeys::KeyTab;
     io.KeyMap[ImGuiKey_LeftArrow] = System::KeyboardKeys::KeyLeft;
     io.KeyMap[ImGuiKey_RightArrow] = System::KeyboardKeys::KeyRight;
@@ -108,194 +113,169 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     io.KeyMap[ImGuiKey_X] = System::KeyboardKeys::KeyX;
     io.KeyMap[ImGuiKey_Y] = System::KeyboardKeys::KeyY;
     io.KeyMap[ImGuiKey_Z] = System::KeyboardKeys::KeyZ;
-
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = window->GetPrivateHandle();
+    io.ClipboardUserData = m_window->GetPrivateHandle();
 
-    // Subscribe to input events.
-    // We insert receivers in front of dispatcher queue as we want to have priority for input events.
-    System::InputState& inputState = inputManager->GetInputState();
-    
+    return true;
+}
+
+bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
+{
+    // Editor shell.
+    EditorShell::CreateFromParams editorShellParams;
+    editorShellParams.services = services;
+
+    m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
+    if(m_editorShell == nullptr)
+    {
+        LOG_ERROR(CreateSubsystemsError, "Could not create editor shell instance.");
+        return false;
+    }
+
+    // Editor console.
+    EditorConsole::CreateFromParams editorConsoleParams;
+    editorConsoleParams.services = services;
+
+    m_editorConsole = EditorConsole::Create(editorConsoleParams).UnwrapOr(nullptr);
+    if(m_editorConsole == nullptr)
+    {
+        LOG_ERROR(CreateSubsystemsError, "Could not create editor console instance.");
+        return false;
+    }
+
+    // Editor renderer
+    EditorRenderer::CreateFromParams editorRendererParams;
+    editorRendererParams.services = services;
+
+    m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
+    if(m_editorRenderer == nullptr)
+    {
+        LOG_ERROR(CreateSubsystemsError, "Could not create editor renderer instance.");
+        return false;
+    }
+
+    return true;
+}
+
+bool EditorSystem::SubscribeEvents(const Core::ServiceStorage* services)
+{
+    System::InputState& inputState = services->GetInputManager()->GetInputState();
+
     Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
-    inputState.events.keyboardKey.Subscribe(instance->m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
-    inputState.events.textInput.Subscribe(instance->m_receiverTextInput, subscriptionPolicy, priorityPolicy);
-    inputState.events.mouseButton.Subscribe(instance->m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
-    inputState.events.mouseScroll.Subscribe(instance->m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
-    inputState.events.cursorPosition.Subscribe(instance->m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
-
-    // Create editor renderer.
-    EditorRenderer::CreateFromParams editorRendererParams;
-    editorRendererParams.services = params.services;
-
-    instance->m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
-    if(instance->m_editorRenderer == nullptr)
-    {
-        LOG_ERROR("Could not create editor renderer!");
-        return Common::Failure(CreateErrors::FailedSubsystemCreation);
-    }
-
-    // Create editor console.
-    EditorConsole::CreateFromParams editorConsoleParams;
-    editorConsoleParams.services = params.services;
-
-    instance->m_editorConsole = EditorConsole::Create(editorConsoleParams).UnwrapOr(nullptr);
-    if(instance->m_editorConsole == nullptr)
-    {
-        LOG_ERROR("Could not create editor console!");
-        return Common::Failure(CreateErrors::FailedSubsystemCreation);
-    }
-
-    // Create editor shell.
-    EditorShell::CreateFromParams editorShellParams;
-    editorShellParams.services = params.services;
-
-    instance->m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
-    if(instance->m_editorShell == nullptr)
-    {
-        LOG_ERROR("Could not create editor shell!");
-        return Common::Failure(CreateErrors::FailedSubsystemCreation);
-    }
-
-    // Success!
-    return Common::Success(std::move(instance));
+    bool subscriptionResults = true;
+    subscriptionResults &= inputState.events.keyboardKey.Subscribe(m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.textInput.Subscribe(m_receiverTextInput, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.mouseButton.Subscribe(m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.mouseScroll.Subscribe(m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.cursorPosition.Subscribe(m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
+    
+    return subscriptionResults;
 }
 
-void EditorSystem::Update(float timeDelta)
+void EditorSystem::BeginInterface(float timeDelta)
 {
-    // Set context as current.
     ImGui::SetCurrentContext(m_interface);
+
     ImGuiIO& io = ImGui::GetIO();
-
-    // Set current delta time.
     io.DeltaTime = timeDelta;
-
-    // Set current display size.
     io.DisplaySize.x = (float)m_window->GetWidth();
     io.DisplaySize.y = (float)m_window->GetHeight();
 
-    // Start new interface frame.
     ImGui::NewFrame();
 
-    // Update editor shell and console.
-    m_editorShell->Update(timeDelta);
-    m_editorConsole->Update(timeDelta);
+    m_editorShell->Display(timeDelta);
+    m_editorConsole->Display(timeDelta);
 }
 
-void EditorSystem::Draw()
+void EditorSystem::EndInterface()
 {
-    // Ends current interface frame.
+    ImGui::SetCurrentContext(m_interface);
+
     ImGui::EndFrame();
 
-    // Set context and draw the editor interface.
-    ImGui::SetCurrentContext(m_interface);
     m_editorRenderer->Draw();
 }
 
 bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
 {
-    // Set context as current.
+    // Convert character from UTF-32 to UTF-8 encoding.
+    // Needs temporary array for four UTF-8 code points (octets), plus a null terminator.
+
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Convert character from UTF-32 to UTF-8 encoding.
-    // We will need an array for four UTF-8 characters and a null terminator.
     char utf8Character[5] = { 0 };
-
     ASSERT(utf8::internal::is_code_point_valid(event.utf32Character), "Invalid UTF-32 encoding!");
     utf8::unchecked::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
 
-    // Add text input character.
     io.AddInputCharactersUTF8(&utf8Character[0]);
 
-    // Prevent input from passing through.
     return io.WantCaptureKeyboard;
 }
 
 bool EditorSystem::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
-    // Check if we want to open console window.
-    if(event.key == System::KeyboardKeys::KeyTilde &&
-        event.state == System::InputStates::Pressed)
-    {
-        m_editorConsole->Toggle(!m_editorConsole->IsVisible());
-        return true;
-    }
-
-    // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Make sure that the array is of an expected size.
+    if(m_editorConsole->OnKeyboardKey(event))
+    {
+        io.WantCaptureKeyboard = true;
+    }
+
     const size_t MaxKeyboardKeyCount = Common::StaticArraySize(io.KeysDown);
     ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Insufficient ImGUI keyboard state array size!");
 
-    // We can only handle a specific number of keys.
     if(event.key < 0 || event.key >= MaxKeyboardKeyCount)
         return false;
 
-    // Change key state.
-    io.KeysDown[event.key] = (event.state == System::InputStates::Pressed);
-
-    // Change states of key modifiers.
+    io.KeysDown[event.key] = event.state == System::InputStates::Pressed;
     io.KeyAlt = event.modifiers & System::KeyboardModifiers::Alt;
     io.KeyCtrl = event.modifiers & System::KeyboardModifiers::Ctrl;
     io.KeyShift = event.modifiers & System::KeyboardModifiers::Shift;
     io.KeySuper = event.modifiers & System::KeyboardModifiers::Super;
 
-    // Prevent input from passing through.
     return io.WantCaptureKeyboard;
 }
 
 bool EditorSystem::OnMouseButton(const System::InputEvents::MouseButton& event)
 {
-    // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Determine number of supported mouse buttons.
     const std::size_t SupportedMouseButtonCount = std::min(
-        Common::StaticArraySize(io.MouseDown),
-        (std::size_t)System::MouseButtons::Count
-    );
+        Common::StaticArraySize(io.MouseDown), (std::size_t)System::MouseButtons::Count);
 
-    // We can only handle specific number of mouse buttons.
     if(event.button < System::MouseButtons::Button1)
         return false;
 
     if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
         return false;
 
-    // Set mouse button state.
     const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
-    io.MouseDown[MouseButtonIndex] = (event.state == System::InputStates::Pressed);
+    io.MouseDown[MouseButtonIndex] = event.state == System::InputStates::Pressed;
 
-    // Prevent input from passing through.
     return io.WantCaptureMouse;
 }
 
 bool EditorSystem::OnMouseScroll(const System::InputEvents::MouseScroll& event)
 {
-    // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Set mouse wheel offset.
     io.MouseWheel = (float)event.offset;
 
-    // Prevent input from passing through.
     return io.WantCaptureMouse;
 }
 
 void EditorSystem::OnCursorPosition(const System::InputEvents::CursorPosition& event)
 {
-    // Set context as current.
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    // Set cursor position.
     io.MousePos.x = (float)event.x;
     io.MousePos.y = (float)event.y;
 }

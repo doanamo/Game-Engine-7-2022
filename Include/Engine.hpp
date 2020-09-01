@@ -33,7 +33,6 @@ namespace Engine
 
         using ErrorCode = int;
 
-    public:
         ~Root();
 
         ErrorCode Run();
@@ -46,7 +45,6 @@ namespace Engine
         Common::Result<void, CreateErrors> LoadDefaultResources();
         void ProcessFrame();
 
-    private:
         Core::ServiceStorage m_services;
         float m_maxUpdateDelta = 1.0f;
     };

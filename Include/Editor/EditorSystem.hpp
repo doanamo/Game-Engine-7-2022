@@ -41,21 +41,24 @@ namespace Editor
         {
             InvalidArgument,
             FailedContextCreation,
-            FailedEventSubscription,
             FailedSubsystemCreation,
+            FailedEventSubscription,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<EditorSystem>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-    public:
         ~EditorSystem();
 
-        void Update(float timeDelta);
-        void Draw();
+        void BeginInterface(float timeDelta);
+        void EndInterface();
 
     private:
         EditorSystem();
+
+        bool CreateContext();
+        bool CreateSubsystems(const Core::ServiceStorage* services);
+        bool SubscribeEvents(const Core::ServiceStorage* services);
 
         bool OnTextInput(const System::InputEvents::TextInput& event);
         bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);

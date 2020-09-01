@@ -25,6 +25,8 @@ namespace Game
 
 /*
     Editor Shell
+
+    Main front end class for editor interface.
 */
 
 namespace Editor
@@ -46,15 +48,17 @@ namespace Editor
         using CreateResult = Common::Result<std::unique_ptr<EditorShell>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-    public:
         ~EditorShell();
 
-        void Update(float timeDelta);
+        void Display(float timeDelta);
 
     private:
         EditorShell();
 
-    private:
+        bool CreateModules(const Core::ServiceStorage* services);
+        void DisplayMenuBar();
+        void DisplayFramerate();
+
         Core::PerformanceMetrics* m_performanceMetrics = nullptr;
         System::Window* m_window = nullptr;
 

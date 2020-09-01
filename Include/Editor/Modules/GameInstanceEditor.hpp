@@ -17,6 +17,8 @@ namespace Game
 
 /*
     Game Instance Editor
+
+    Editor interface for manipulating game instance while it is running.
 */
 
 namespace Editor
@@ -32,15 +34,15 @@ namespace Editor
         enum class CreateErrors
         {
             InvalidArgument,
+            FailedEventSubscription,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameInstanceEditor>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-    public:
         ~GameInstanceEditor();
 
-        void Update(float timeDelta);
+        void Display(float timeDelta);
 
         bool mainWindowOpen = false;
 

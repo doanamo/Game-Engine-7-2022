@@ -16,7 +16,6 @@ namespace Core
         using CreateResult = Common::Result<std::unique_ptr<PerformanceMetrics>, void>;
         static CreateResult Create();
 
-    public:
         ~PerformanceMetrics();
 
         void MarkFrameStart();

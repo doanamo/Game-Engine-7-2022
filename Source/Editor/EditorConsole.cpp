@@ -8,44 +8,46 @@
 #include <System/Window.hpp>
 using namespace Editor;
 
+namespace
+{
+    ImVec4 GetLogMessageColor(Logger::Severity::Type severity)
+    {
+        switch(severity)
+        {
+        case Logger::Severity::Trace:   return ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+        case Logger::Severity::Debug:   return ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
+        case Logger::Severity::Info:    return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        case Logger::Severity::Success: return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+        case Logger::Severity::Warning: return ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+        case Logger::Severity::Error:   return ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+        case Logger::Severity::Fatal:   return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+        default:
+            ASSERT(false, "Invalid message severity!");
+            return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+}
+
 EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params)
 {
-    LOG("Creating editor console...");
-    LOG_SCOPED_INDENT();
-
-    // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Create instance.
     auto instance = std::unique_ptr<EditorConsole>(new EditorConsole());
-
-    // Save window service reference.
     instance->m_window = params.services->GetWindow();
 
-    // Test message colors.
-    #if 0
-        LOG_TRACE("Test console trace message!");
-        LOG_DEBUG("Test console debug message!");
-        LOG_INFO("Test console info message!");
-        LOG_SUCCESS("Test console success message!");
-        LOG_WARNING("Test console warning message!");
-        LOG_ERROR("Test console error message!");
-        LOG_FATAL("Test console fatal message!");
-    #endif
-
-    // Success!
+    LOG_SUCCESS("Created editor console instance.");
     return Common::Success(std::move(instance));
 }
 
 EditorConsole::EditorConsole() = default;
 EditorConsole::~EditorConsole() = default;
 
-void EditorConsole::Update(float timeDelta)
+void EditorConsole::Display(float timeDelta)
 {
     if(!m_visible)
         return;
 
-    // Display console window.
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;
     windowFlags |= ImGuiWindowFlags_NoTitleBar;
@@ -69,13 +71,9 @@ void EditorConsole::Update(float timeDelta)
 
     if(ImGui::Begin("Console", nullptr, windowFlags))
     {
+        const auto copiedMessages = Logger::GetGlobalHistory().GetMessages();
+
         ImVec2 windowSize = ImGui::GetWindowSize();
-
-        // Make copy of message buffer to avoid race conditions.
-        // This will be very slow if there is a lot of messages.
-        const auto messages = Logger::GetGlobalHistory().GetMessages();
-
-        // Console message history.
         ImGuiWindowFlags messagesFlags = 0;
 
         if(m_autoScroll)
@@ -85,44 +83,9 @@ void EditorConsole::Update(float timeDelta)
 
         if(ImGui::BeginChild("Console Messages", ImVec2(0.0f, windowSize.y - 40.0f), false, messagesFlags))
         {
-            // Print all messages.
-            for(const auto& message : messages)
+            for(const auto& message : copiedMessages)
             {
-                switch(message.severity)
-                {
-                case Logger::Severity::Trace:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
-                    break;
-
-                case Logger::Severity::Debug:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.0f, 0.6f, 1.0f));
-                    break;
-
-                case Logger::Severity::Info:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-                    break;
-
-                case Logger::Severity::Success:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    break;
-
-                case Logger::Severity::Warning:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-                    break;
-
-                case Logger::Severity::Error:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.0f, 1.0f));
-                    break;
-
-                case Logger::Severity::Fatal:
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    break;
-
-                default:
-                    ASSERT(false, "Invalid message severity!");
-                    continue;
-                }
-
+                ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
                 ImGui::TextWrapped(message.text.c_str());
                 ImGui::PopStyleColor();
             }
@@ -140,7 +103,7 @@ void EditorConsole::Update(float timeDelta)
             {
                 std::string clipboardText;
 
-                for(const auto& message : messages)
+                for(const auto& message : copiedMessages)
                 {
                     clipboardText += message.text;
                 }
@@ -153,25 +116,15 @@ void EditorConsole::Update(float timeDelta)
         }
 
         ImGui::Separator();
-
-        // Console text input.
         ImGui::PushItemWidth(-1);
 
         if(ImGui::InputText("Console Input", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            // Regain focus on the input field.
             ImGui::SetKeyboardFocusHere();
 
-            // Print entered console command.
             LOG_INFO("> {}", m_inputBuffer.c_str());
 
-            // Parse console input.
-            // ParseInput(inputString);
-
-            // Clear console input.
             m_inputBuffer.clear();
-
-            // Scroll message list.
             m_autoScroll = true;
         }
 
@@ -195,4 +148,15 @@ void EditorConsole::Toggle(bool visibility)
 bool EditorConsole::IsVisible() const
 {
     return m_visible;
+}
+
+bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
+{
+    if(event.key == System::KeyboardKeys::KeyTilde && event.state == System::InputStates::Pressed)
+    {
+        Toggle(!IsVisible());
+        return true;
+    }
+
+    return false;
 }

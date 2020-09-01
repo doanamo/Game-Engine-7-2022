@@ -8,63 +8,79 @@
 #include <System/Window.hpp>
 using namespace Editor;
 
+namespace
+{
+    const char* CreateError = "Failed to create editor shell instance! {}";
+    const char* CreateModulesError = "Failed to create editor shell modules! {}";
+}
+
 EditorShell::EditorShell() = default;
 EditorShell::~EditorShell() = default;
 
 EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
 {
-    LOG("Creating editor shell...");
-    LOG_SCOPED_INDENT();
-
-    // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire engine services.
     Core::PerformanceMetrics* performanceMetrics = params.services->GetPerformanceMetrics();
     System::Window* window = params.services->GetWindow();
 
-    // Create instance.
     auto instance = std::unique_ptr<EditorShell>(new EditorShell());
-
-    // Create input manager editor.
-    InputManagerEditor::CreateFromParams inputManagerEditorParams;
-    inputManagerEditorParams.services = params.services;
-
-    instance->m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
-    if(instance->m_inputManagerEditor == nullptr)
-    {
-        LOG_ERROR("Could not create input manager editor!");
-        return Common::Failure(CreateErrors::FailedModuleCreation);
-    }
-
-    // Create game instance editor.
-    GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
-    gameInstanceEditorParams.services = params.services;
-
-    instance->m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
-    if(instance->m_gameInstanceEditor == nullptr)
-    {
-        LOG_ERROR("Could not create game instance editor!");
-        return Common::Failure(CreateErrors::FailedModuleCreation);
-    }
-
-    // Save window reference.
     instance->m_performanceMetrics = performanceMetrics;
     instance->m_window = window;
 
-    // Success!
+    if(!instance->CreateModules(params.services))
+    {
+        LOG_ERROR(CreateError, "Could not create editor modules.");
+        return Common::Failure(CreateErrors::FailedModuleCreation);
+    }
+
+    LOG_SUCCESS("Created editor shell instance.");
     return Common::Success(std::move(instance));
 }
 
-void EditorShell::Update(float timeDelta)
+bool Editor::EditorShell::CreateModules(const Core::ServiceStorage* services)
 {
-    // Show demo window.
+    // Input manager editor.
+    InputManagerEditor::CreateFromParams inputManagerEditorParams;
+    inputManagerEditorParams.services = services;
+
+    m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
+    if(m_inputManagerEditor == nullptr)
+    {
+        LOG_ERROR(CreateModulesError, "Could not create input manager editor module.");
+        return false;
+    }
+
+    // Game instance editor.
+    GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
+    gameInstanceEditorParams.services = services;
+
+    m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
+    if(m_gameInstanceEditor == nullptr)
+    {
+        LOG_ERROR(CreateModulesError, "Could not create game instance editor module.");
+        return false;
+    }
+
+    return true;
+}
+
+void EditorShell::Display(float timeDelta)
+{
     if(m_showDemoWindow)
     {
         ImGui::ShowDemoWindow(&m_showDemoWindow);
     }
 
-    // Show main menu bar.
+    DisplayMenuBar();
+    DisplayFramerate();
+
+    m_inputManagerEditor->Display(timeDelta);
+    m_gameInstanceEditor->Display(timeDelta);
+}
+
+void EditorShell::DisplayMenuBar()
+{
     if(ImGui::BeginMainMenuBar())
     {
         if(ImGui::BeginMenu("Editor"))
@@ -96,8 +112,10 @@ void EditorShell::Update(float timeDelta)
 
         ImGui::EndMainMenuBar();
     }
+}
 
-    // Draw framerate counter button.
+void EditorShell::DisplayFramerate()
+{
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -120,13 +138,9 @@ void EditorShell::Update(float timeDelta)
         if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)", m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
         {
         }
-
     }
     ImGui::End();
 
     ImGui::PopStyleVar(4);
-
-    // Update editor modules.
-    m_inputManagerEditor->Update(timeDelta);
-    m_gameInstanceEditor->Update(timeDelta);
 }
+

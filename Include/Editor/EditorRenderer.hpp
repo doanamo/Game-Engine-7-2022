@@ -26,6 +26,8 @@ namespace Graphics
 
 /*
     Editor Renderer
+
+    Draws editor interface.
 */
 
 namespace Editor
@@ -47,7 +49,6 @@ namespace Editor
         using CreateResult = Common::Result<std::unique_ptr<EditorRenderer>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-    public:
         ~EditorRenderer();
 
         void Draw();
@@ -55,7 +56,8 @@ namespace Editor
     private:
         EditorRenderer();
 
-    private:
+        bool CreateResources(const Core::ServiceStorage* services);
+
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 

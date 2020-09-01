@@ -42,7 +42,6 @@ namespace Common
         static constexpr ValueType InvalidIdentifier = 0;
         static constexpr ValueType StartingVersion = 0;
 
-    public:
         Handle() = default;
 
         ValueType GetIdentifier() const
@@ -254,7 +253,6 @@ namespace Common
             IteratorType m_end;
         };
 
-    public:
         HandleMap(std::size_t cacheSize = 32) :
             m_cacheSize(cacheSize)
         {

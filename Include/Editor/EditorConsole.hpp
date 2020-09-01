@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Core/ServiceStorage.hpp>
+#include <System/InputDefinitions.hpp>
 
 namespace System
 {
@@ -13,6 +14,8 @@ namespace System
 
 /*
     Editor Console
+
+    Interface for console window with log output.
 */
 
 namespace Editor
@@ -33,12 +36,13 @@ namespace Editor
         using CreateResult = Common::Result<std::unique_ptr<EditorConsole>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-    public:
         ~EditorConsole();
 
-        void Update(float timeDelta);
+        void Display(float timeDelta);
         void Toggle(bool visibility);
         bool IsVisible() const;
+
+        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
 
     private:
         EditorConsole();

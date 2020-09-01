@@ -82,7 +82,6 @@ namespace Common
         static_assert(std::is_base_of<State<Type>, Type>::value, "Type is not derived from State<Type>!");
         using StateSharedPtr = std::shared_ptr<Type>;
 
-    public:
         StateMachine() = default;
         ~StateMachine()
         {
