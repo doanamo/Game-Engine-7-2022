@@ -13,7 +13,10 @@
 /*
     Event Broker
 
-    Shared point where multiple receiver and dispatcher can be stored and signaled for different event types.
+    Shared point where multiple receiver and dispatcher can be stored and
+    signaled for different event types.
+
+    Note that dispatchers are stored in std::any which can trigger allocations.
 */
 
 namespace Event
