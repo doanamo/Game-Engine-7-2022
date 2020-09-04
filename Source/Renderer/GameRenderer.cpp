@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
+#include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>

@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
+#include "Logger/Precompiled.hpp"
 #include "Logger/History.hpp"
 #include "Logger/Format.hpp"
 using namespace Logger;

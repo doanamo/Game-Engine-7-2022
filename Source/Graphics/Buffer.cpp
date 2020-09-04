@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "Precompiled.hpp"
+#include "Graphics/Precompiled.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/RenderContext.hpp"
 using namespace Graphics;

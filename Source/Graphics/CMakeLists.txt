@@ -64,7 +64,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/" PREFIX
 project(Graphics)
 add_library(Graphics ${INCLUDE_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
 target_compile_features(Graphics PUBLIC cxx_std_17)
-target_include_directories(Graphics PUBLIC "../../Include")
+target_include_directories(Graphics PUBLIC "../../Include" "../../Source")
 target_precompile_headers(Graphics PRIVATE "Precompiled.hpp")
 set_property(TARGET Graphics PROPERTY FOLDER "Engine")
 

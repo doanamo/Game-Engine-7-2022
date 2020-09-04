@@ -36,5 +36,5 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 project(Event)
 add_library(Event ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Event PUBLIC cxx_std_17)
-target_include_directories(Event PUBLIC "../../Include")
+target_include_directories(Event PUBLIC "../../Include" "../../Source")
 set_property(TARGET Event PROPERTY FOLDER "Engine")

@@ -46,7 +46,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 project(System)
 add_library(System ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(System PUBLIC cxx_std_17)
-target_include_directories(System PUBLIC "../../Include")
+target_include_directories(System PUBLIC "../../Include" "../../Source")
 target_precompile_headers(System PRIVATE "Precompiled.hpp")
 set_property(TARGET System PROPERTY FOLDER "Engine")
 

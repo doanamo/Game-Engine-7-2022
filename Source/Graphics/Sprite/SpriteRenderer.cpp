@@ -2,7 +2,7 @@
     Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
 */
 
-#include "../Precompiled.hpp"
+#include "Graphics/Precompiled.hpp"
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"

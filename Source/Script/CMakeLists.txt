@@ -31,7 +31,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 project(Script)
 add_library(Script ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Script PUBLIC cxx_std_17)
-target_include_directories(Script PUBLIC "../../Include")
+target_include_directories(Script PUBLIC "../../Include" "../../Source")
 target_precompile_headers(Script PRIVATE "Precompiled.hpp")
 set_property(TARGET Script PROPERTY FOLDER "Engine")
 

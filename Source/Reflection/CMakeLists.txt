@@ -30,5 +30,5 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 project(Reflection)
 add_library(Reflection ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Reflection PUBLIC cxx_std_17)
-target_include_directories(Reflection PUBLIC "../../Include")
+target_include_directories(Reflection PUBLIC "../../Include" "../../Source")
 set_property(TARGET Reflection PROPERTY FOLDER "Engine")

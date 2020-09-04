@@ -32,7 +32,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${S
 project(Build)
 add_library(Build ${INCLUDE_FILES} ${SOURCE_FILES})
 target_compile_features(Build PUBLIC cxx_std_17)
-target_include_directories(Build PUBLIC "../../Include")
+target_include_directories(Build PUBLIC "../../Include" "../../Source")
 set_property(TARGET Build PROPERTY FOLDER "Engine")
 
 #
