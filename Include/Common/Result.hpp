@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tuple>
+#include <variant>
 #include "Debug.hpp"
 
 /*
@@ -110,16 +110,16 @@ namespace Common
         using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
         using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
         using DeductedSharedType = typename std::conditional<std::is_same<SuccessType, FailureType>::value, SuccessType, Detail::Empty>::type;
-        using StorageType = typename std::tuple<bool, DeductedSuccessType, DeductedFailureType>;
+        using VariantType = std::variant<DeductedSuccessType, DeductedFailureType>;
 
-        Result(Detail::Success<SuccessType>&& success) :
-            m_storage(true, std::move(success.value), DeductedFailureType())
+        Result(Detail::Success<SuccessType>&& success)
         {
+            m_variant.template emplace<0>(std::move(success.value));
         }
 
-        Result(Detail::Failure<FailureType>&& failure) :
-            m_storage(false, DeductedSuccessType(), std::move(failure.value))
+        Result(Detail::Failure<FailureType>&& failure)
         {
+            m_variant.template emplace<1>(std::move(failure.value));
         }
 
         Result(const Result&) = delete;
@@ -148,13 +148,13 @@ namespace Common
         DeductedSuccessType UnwrapSuccess()
         {
             ASSERT(IsSuccess(), "Invalid result unwrap!");
-            return std::move(std::get<1>(m_storage));
+            return std::move(std::get<0>(m_variant));
         }
 
         DeductedFailureType UnwrapFailure()
         {
             ASSERT(IsFailure(), "Invalid result unwrap!");
-            return std::move(std::get<2>(m_storage));
+            return std::move(std::get<1>(m_variant));
         }
 
         DeductedSuccessType UnwrapOr(DeductedSuccessType&& defaultReturn)
@@ -192,12 +192,12 @@ namespace Common
 
         bool IsSuccess() const
         {
-            return std::get<0>(m_storage);
+            return std::get_if<0>(&m_variant) != nullptr;
         }
 
         bool IsFailure() const
         {
-            return !std::get<0>(m_storage);
+            return std::get_if<1>(&m_variant) != nullptr;
         }
 
         bool operator==(const bool boolean) const
@@ -216,7 +216,7 @@ namespace Common
         }
 
     private:
-        StorageType m_storage;
+        VariantType m_variant;
     };
 
     using GenericResult = Result<void, void>;
