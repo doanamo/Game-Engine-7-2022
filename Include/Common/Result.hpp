@@ -115,12 +115,14 @@ namespace Common
         static constexpr size_t StorageSuccessIndex = 0;
         static constexpr size_t StorageFailureIndex = 1;
 
-        Result(Detail::Success<SuccessType>&& success) :
+        template<typename Type>
+        Result(Detail::Success<Type>&& success) :
             m_storage(std::in_place_index<StorageSuccessIndex>, std::move(success.value))
         {
         }
 
-        Result(Detail::Failure<FailureType>&& failure) :
+        template<typename Type>
+        Result(Detail::Failure<Type>&& failure) :
             m_storage(std::in_place_index<StorageFailureIndex>, std::move(failure.value))
         {
         }
