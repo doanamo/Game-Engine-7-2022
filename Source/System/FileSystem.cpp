@@ -4,146 +4,154 @@
 
 #include "System/Precompiled.hpp"
 #include "System/FileSystem.hpp"
+#include "System/FileSystem/NativeFileDepot.hpp"
+#include <Build/Build.hpp>
 using namespace System;
+
+namespace
+{
+    const char* CreateError = "Failed to create file system instance! {}";
+}
 
 FileSystem::FileSystem() = default;
 FileSystem::~FileSystem() = default;
 
 FileSystem::CreateResult FileSystem::Create()
 {
-    LOG("Creating file system...");
-    LOG_SCOPED_INDENT();
-
-    // Print contents of the working directory.
-    {
-        LOG_DEBUG("Printing working directory contents...");
-        LOG_SCOPED_INDENT();
-
-        for(const auto& entry : std::filesystem::directory_iterator("."))
-        {
-            LOG_DEBUG("{}", entry.path().string());
-        }
-
-        #ifndef NDEBUG
-            if(std::filesystem::exists("Data"))
-            {
-                for(const auto& entry : std::filesystem::recursive_directory_iterator("Data"))
-                {
-                    LOG_DEBUG("{}", entry.path().string());
-                }
-            }
-        #endif
-    }
-
-    // Create instance.
     auto instance = std::unique_ptr<FileSystem>(new FileSystem());
 
-    // Success!
+    if(auto workingDirectoryDepot = NativeFileDepot::Create("./"))
+    {
+        if(!instance->MountDepot("./", workingDirectoryDepot.Unwrap()))
+        {
+            LOG_ERROR(CreateError, "Could not mount default working directory.");
+            return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+        }
+    }
+    else
+    {
+        LOG_ERROR(CreateError, "Could not create default working directory.");
+        return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+    }
+
+    if(!Build::GetEngineDir().empty())
+    {
+        if(auto engineDirectoryDepot = NativeFileDepot::Create(Build::GetEngineDir()))
+        {
+            if(!instance->MountDepot("./", engineDirectoryDepot.Unwrap()))
+            {
+                LOG_ERROR(CreateError, "Could not mount default engine directory.");
+                return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+            }
+        }
+        else
+        {
+            LOG_ERROR(CreateError, "Could not create default engine directory depot.");
+            return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+        }
+    }
+
+    if(!Build::GetGameDir().empty())
+    {
+        if(auto gameDirectoryDepot = NativeFileDepot::Create(Build::GetGameDir()))
+        {
+            if(!instance->MountDepot("./", gameDirectoryDepot.Unwrap()))
+            {
+                LOG_ERROR(CreateError, "Could not mount default game directory.");
+                return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+            }
+        }
+        else
+        {
+            LOG_ERROR(CreateError, "Could not create default game directory depot.");
+            return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+        }
+    }
+
+    LOG_SUCCESS("Created file system instance.");
     return Common::Success(std::move(instance));
 }
 
-FileSystem::MountDirectoryResult FileSystem::MountDirectory(std::filesystem::path directory)
+FileSystem::MountDepotResult FileSystem::MountDepot(
+    fs::path mountPath, std::unique_ptr<FileDepot>&& fileDepot)
 {
-    // Expand to absolute path.
-    std::filesystem::path directoryAbsolute = std::filesystem::canonical(directory);
+    CHECK_ARGUMENT_OR_RETURN(!mountPath.empty(),
+        Common::Failure(MountDepotErrors::EmptyMountPathArgument));
+    CHECK_ARGUMENT_OR_RETURN(fileDepot != nullptr,
+        Common::Failure(MountDepotErrors::InvalidFileDepotArgument));
 
-    // Validate argument.
-    if(directory.empty())
+    if(mountPath.has_filename())
     {
-        LOG_WARNING("Attempted to mount an empty directory path!");
-        return Common::Failure(MountDirectoryErrors::EmptyPathArgument);
+        LOG_ERROR("Cannot mount path \"{}\" that contains filename!", mountPath.generic_string());
+        return Common::Failure(MountDepotErrors::InvalidMountPathArgument);
     }
 
-    if(!std::filesystem::is_directory(directoryAbsolute))
-    {
-        LOG_ERROR("Cannot mount \"{}\" path that is not a directory!", directoryAbsolute.generic_string());
-        return Common::Failure(MountDirectoryErrors::NonDirectoryPathArgument);
-    }
+    m_mountedDepots.push_back({ mountPath.lexically_normal(), std::move(fileDepot) });
 
-    // Add mount directory, but store it as a relative path (more optimal).
-    LOG_INFO("Mounted \"{}\" directory.", directoryAbsolute.generic_string());
-    m_mountedDirs.push_back(std::filesystem::relative(directoryAbsolute));
-
-    // Success!
     return Common::Success();
 }
 
-FileSystem::ResolvePathResult FileSystem::ResolvePath(std::filesystem::path path, std::filesystem::path relative) const
+FileDepot::OpenFileResult FileSystem::OpenFile(
+    fs::path filePath, FileHandle::OpenFlags::Type openFlags)
 {
-    // Validate path argument.
-    if(path.empty())
+    CHECK_ARGUMENT_OR_RETURN(!filePath.empty(),
+        Common::Failure(FileDepot::OpenFileErrors::EmptyFilePathArgument));
+    CHECK_ARGUMENT_OR_RETURN(openFlags != FileHandle::OpenFlags::None,
+        Common::Failure(FileDepot::OpenFileErrors::InvalidOpenFlagsArgument));
+
+    filePath = filePath.lexically_normal();
+
+    if(!filePath.has_filename())
     {
-        LOG_WARNING("Attempting to resolve empty file path!");
-        return Common::Failure(ResolvePathErrors::EmptyPathArgument);
+        LOG_ERROR("Cannot open file from path \"{}\" that does not contain filename!",
+            filePath.generic_string());
+        return Common::Failure(FileDepot::OpenFileErrors::InvalidFilePathArgument);
     }
 
-    // Array of unresolved paths for debugging.
-    #ifndef NDEBUG
-        std::vector<std::filesystem::path> unresolvedPaths;
-    #endif
-
-    // Extract directory path from relative path which may contain a filename.
-    std::filesystem::path relativeResolvedDir;
-
-    if(!relative.empty())
+    for(auto entry = m_mountedDepots.crbegin(); entry != m_mountedDepots.crend(); ++entry)
     {
-        relativeResolvedDir = relative;
+        const fs::path& mountPath = entry->mountPath;
 
-        if(!std::filesystem::is_directory(relativeResolvedDir))
+        auto mountPathIt = mountPath.begin();
+        auto filePathIt = filePath.begin();
+
+        if(*mountPathIt == ".")
         {
-            relativeResolvedDir.remove_filename();
+            mountPathIt++;
         }
 
-        // Relative path should be already resolved and valid.
-        // Saves time of resolving and there should be no reason to not have it as such already.
-        #ifndef NDEBUG
-            if(!std::filesystem::exists(relative))
+        while(mountPathIt != mountPath.end())
+        {
+            if(filePathIt == filePath.end())
+                break;
+
+            if(*mountPathIt != *filePathIt)
+                break;
+
+            ++mountPathIt;
+        }
+
+        if(mountPathIt == mountPath.end())
+        {
+            fs::path depotFilePath = std::accumulate(
+                filePathIt, filePath.end(), fs::path(), std::divides());
+
+            if(auto openFileResult = entry->fileDepot->OpenFile(depotFilePath, filePath, openFlags))
             {
-                LOG_WARNING("Trying to resolve \"{}\" path with relative \"{}\" path that does not exist!");
+                LOG_SUCCESS("Opened \"{}\" file.", filePath.generic_string());
+                return openFileResult;
             }
-        #endif
+            else
+            {
+                FileDepot::OpenFileErrors openFileError = openFileResult.UnwrapFailure();
+                if(openFileError != FileDepot::OpenFileErrors::FileNotFound)
+                {
+                    return Common::Failure(openFileError);
+                }
+            }
+        }
     }
 
-    // Try to resolve path using specified relative directory.
-    if(!relativeResolvedDir.empty())
-    {
-        std::filesystem::path resolvePath = relativeResolvedDir / path;
-        if(std::filesystem::exists(resolvePath))
-        {
-            return Common::Success(resolvePath);
-        }
-
-        #ifndef NDEBUG
-            unresolvedPaths.push_back(resolvePath);
-        #endif
-    }
-
-    // Check file path for each mounted directory (iterated in reverse).
-    for(auto mountedDir = m_mountedDirs.crbegin(); mountedDir != m_mountedDirs.crend(); ++mountedDir)
-    {
-        std::filesystem::path resolvePath = *mountedDir / path;
-        if(std::filesystem::exists(resolvePath))
-        {
-            return Common::Success(resolvePath);
-        }
-
-        #ifndef NDEBUG
-            unresolvedPaths.push_back(resolvePath);
-        #endif
-    }
-
-    // Failed to resolve path.
-    LOG_WARNING("Failed to resolve \"{}\" path!", path.generic_string());
-
-    #ifndef NDEBUG
-        LOG_DEBUG("Following paths did not resolve to any existing file:");
-        LOG_SCOPED_INDENT();
-
-        for(auto& unresolvedPath : unresolvedPaths)
-        {
-            LOG_DEBUG("{}", unresolvedPath.generic_string());
-        }
-    #endif
-
-    return Common::Failure(ResolvePathErrors::UnresolvablePath);
+    LOG_ERROR("Could not open \"{}\" file!", filePath.generic_string());
+    return Common::Failure(FileDepot::OpenFileErrors::FileNotFound);
 }

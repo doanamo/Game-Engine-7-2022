@@ -46,13 +46,12 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
     return Common::Success(std::move(instance));
 }
 
-SpriteAnimationList::CreateResult SpriteAnimationList::Create(std::filesystem::path path, const LoadFromFile& params)
+SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading sprite animation list from \"{}\" file...", path.generic_string());
+    LOG("Loading sprite animation list from \"{}\" file...", file.GetPath());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
@@ -72,7 +71,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(std::filesystem::p
     Script::ScriptState::LoadFromFile resourceParams;
     resourceParams.services = params.services;
 
-    auto resourceScript = Script::ScriptState::Create(path, resourceParams).UnwrapOr(nullptr);
+    auto resourceScript = Script::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list resource file!");
@@ -108,7 +107,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(std::filesystem::p
         textureAtlasParams.services = params.services;
 
         textureAtlas = resourceManager->AcquireRelative<TextureAtlas>(
-            textureAtlasPath, path, textureAtlasParams).UnwrapOr(nullptr);
+            textureAtlasPath, file.GetPath(), textureAtlasParams).UnwrapOr(nullptr);
 
         if(textureAtlas == nullptr)
         {

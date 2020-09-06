@@ -5,6 +5,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
+#include <System/FileSystem/FileHandle.hpp>
 using namespace Graphics;
 
 namespace
@@ -236,17 +237,16 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     return Common::Success(std::move(instance));
 }
 
-Shader::CreateResult Shader::Create(std::filesystem::path path, const LoadFromFile& params)
+Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading shader from \"{}\" file...", path.generic_string());
+    LOG("Loading shader from \"{}\" file...", file.GetPath());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Load shader code from a file.
-    std::string shaderCode = Common::GetTextFileContent(path);
+    std::string shaderCode = file.ReadAsTextString();
     if(shaderCode.empty())
     {
         LOG_ERROR("File could not be read!");

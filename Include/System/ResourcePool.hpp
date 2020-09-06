@@ -4,30 +4,24 @@
 
 #pragma once
 
-#include <memory>
-#include <filesystem>
-
 /*
     Resource Pool
 
-    Manages an instance pool for a single type of a resource.
+    Manages an instance pool for a single type of resource.
     See ResourceManager class for more context.
 */
 
 namespace System
 {
+    class FileSystem;
+
     class ResourcePoolInterface
     {
     protected:
-        ResourcePoolInterface()
-        {
-        }
+        ResourcePoolInterface() = default;
 
     public:
-        virtual ~ResourcePoolInterface()
-        {
-        }
-
+        virtual ~ResourcePoolInterface() = default;
         virtual void ReleaseUnused() = 0;
     };
 
@@ -41,22 +35,30 @@ namespace System
         using AcquireResult = Common::Result<ResourcePtr, ResourcePtr>;
 
     public:
-        ResourcePool() = default;
+        ResourcePool(FileSystem* fileSystem);
         ~ResourcePool();
 
         void SetDefault(std::shared_ptr<Type> resource);
         std::shared_ptr<Type> GetDefault() const;
 
         template<typename... Arguments>
-        AcquireResult Acquire(std::filesystem::path path, Arguments... arguments);
+        AcquireResult Acquire(fs::path path, Arguments... arguments);
 
         void ReleaseUnused() override;
         void ReleaseAll();
 
     private:
+        FileSystem* m_fileSystem;
         std::shared_ptr<Type> m_defaultResource;
         ResourceList m_resources;
     };
+
+    template<typename Type>
+    ResourcePool<Type>::ResourcePool(FileSystem* fileSystem) :
+        m_fileSystem(fileSystem)
+    {
+        ASSERT(m_fileSystem, "Resource pool needs valid file system reference!");
+    }
 
     template<typename Type>
     ResourcePool<Type>::~ResourcePool()
@@ -78,9 +80,10 @@ namespace System
 
     template<typename Type>
     template<typename... Arguments>
-    typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(std::filesystem::path path, Arguments... arguments)
+    typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(
+        fs::path path, Arguments... arguments)
     {
-        // Acquire resource key string.
+        path = path.lexically_normal();
         std::string key = path.generic_string();
 
         // Return existing resource if loaded.
@@ -91,22 +94,30 @@ namespace System
             return Common::Success(it->second);
         }
 
-        // Create resource instance.
-        auto createResult = Type::Create(path, std::forward<Arguments>(arguments)...);
-        if(!createResult)
+        std::unique_ptr<FileHandle> fileHandle = m_fileSystem->OpenFile(
+            path, FileHandle::OpenFlags::Read).UnwrapOr(nullptr);
+
+        if(fileHandle == nullptr)
         {
             return Common::Failure(m_defaultResource);
         }
 
-        std::shared_ptr<Type> resource = createResult.Unwrap();
-        ASSERT(resource != nullptr, "Successfully created resource is null!");
+        // Create resource instance.
+        if(auto resourceCreateResult = Type::Create(*fileHandle,
+            std::forward<Arguments>(arguments)...))
+        {
+            std::shared_ptr<Type> resource = resourceCreateResult.Unwrap();
+            ASSERT(resource != nullptr, "Successfully created resource is null!");
 
-        // Add resource to the list.
-        auto result = m_resources.emplace(key, std::move(resource));
-        ASSERT(result.second, "Failed to emplace new resource in resource pool!");
+            auto result = m_resources.emplace(key, std::move(resource));
+            ASSERT(result.second, "Failed to emplace new resource in resource pool!");
 
-        // Return resource pointer.
-        return Common::Success(result.first->second);
+            return Common::Success(result.first->second);
+        }
+        else
+        {
+            return Common::Failure(m_defaultResource);
+        }
     }
 
     template<typename Type>

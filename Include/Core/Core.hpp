@@ -8,6 +8,14 @@
     Common Includes
 */
 
+#include <cstdint>
+#include <memory>
+#include <algorithm>
+#include <functional>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 #include <utf8/core.h>
 #include <utf8/unchecked.h>
 #include <fmt/core.h>

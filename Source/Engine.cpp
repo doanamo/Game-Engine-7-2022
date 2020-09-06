@@ -50,13 +50,13 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
     if(auto failureResult = instance->CreateServices().AsFailure())
     {
-        LOG_ERROR(CreateEngineError, "Could not create services.");
+        LOG_FATAL(CreateEngineError, "Could not create services.");
         return Common::Failure(failureResult.Unwrap());
     }
 
     if(auto failureResult = instance->LoadDefaultResources().AsFailure())
     {
-        LOG_ERROR(CreateEngineError, "Could not load default resources.");
+        LOG_FATAL(CreateEngineError, "Could not load default resources.");
         return Common::Failure(failureResult.Unwrap());
     }
 
@@ -91,21 +91,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     }
 
     // Path resolving with multiple mounted directories.
-    // Mount default directories (call order affects resolve order).
     if(auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr))
     {
-        fileSystem->MountDirectory("./");
-
-        if(!Build::GetEngineDir().empty())
-        {
-            fileSystem->MountDirectory(Build::GetEngineDir());
-        }
-
-        if(!Build::GetGameDir().empty())
-        {
-            fileSystem->MountDirectory(Build::GetGameDir());
-        }
-
         m_services.Provide(std::move(fileSystem));
     }
     else
@@ -262,12 +249,15 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
-    if(auto defaultTexturePathResult = fileSystem->ResolvePath("Data/Engine/Default/Texture.png"))
+    std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem->OpenFile(
+        "Data/Engine/Default/Texture.png", System::FileHandle::OpenFlags::Read).UnwrapOr(nullptr);
+
+    if(defaultTextureFileResult != nullptr)
     {
         Graphics::Texture::LoadFromFile defaultTextureParams;
         defaultTextureParams.services = &m_services;
 
-        if(auto defaultTextureResult = Graphics::Texture::Create(defaultTexturePathResult.Unwrap(), defaultTextureParams))
+        if(auto defaultTextureResult = Graphics::Texture::Create(*defaultTextureFileResult, defaultTextureParams))
         {
             resourceManager->SetDefault<Graphics::Texture>(std::move(defaultTextureResult.Unwrap()));
         }
@@ -321,9 +311,11 @@ void Root::ProcessFrame()
 
 Root::ErrorCode Root::Run()
 {
-    // Initiates infinite main loop that exits only when application requests to be closed.
-    // Before main loop is run we have to set window context as current, then timer is reset
-    // before the first iteration to exclude time accumulated during initialization.
+    /*
+        Initiates infinite main loop that exits only when application requests to be closed.
+        Before main loop is run we have to set window context as current, then timer is reset
+        before the first iteration to exclude time accumulated during initialization.
+    */
 
     System::Timer* timer = m_services.GetTimer();
     System::Window* window = m_services.GetWindow();

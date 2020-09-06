@@ -5,6 +5,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
+#include <System/FileSystem/FileHandle.hpp>
 using namespace Graphics;
 
 Texture::Texture() = default;
@@ -82,31 +83,27 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     return Common::Success(std::move(instance));
 }
 
-Texture::CreateResult Texture::Create(std::filesystem::path path, const LoadFromFile& params)
+Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading texture from \"{}\" file...", path.generic_string());
+    LOG("Loading texture from \"{}\" file...", file.GetPath());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
     Graphics::RenderContext* renderContext = params.services->GetRenderContext();
 
-    // Open file stream.
-    std::ifstream file(path, std::ios::binary);
-    if(!file.is_open())
-    {
-        LOG_ERROR("File could not be opened!");
-        return Common::Failure(CreateErrors::FailedFileOpening);
-    }
-
     // Validate file header.
     const size_t png_sig_size = 8;
     png_byte png_sig[png_sig_size];
 
-    file.read((char*)png_sig, png_sig_size);
+    if(file.Read((uint8_t*)png_sig, png_sig_size) != png_sig_size)
+    {
+        LOG_ERROR("Could not read file header!");
+        return Common::Failure(CreateErrors::FailedFileReading);
+    }
+
     if(png_sig_cmp(png_sig, 0, png_sig_size) != 0)
     {
         LOG_ERROR("File path does not contain valid PNG file!");
@@ -137,8 +134,11 @@ Texture::CreateResult Texture::Create(std::filesystem::path path, const LoadFrom
     // Declare file read function.
     auto png_read_function = [](png_structp png_ptr, png_bytep data, png_size_t length) -> void
     {
-        std::ifstream* stream = (std::ifstream*)png_get_io_ptr(png_ptr);
-        stream->read((char*)data, length);
+        System::FileHandle* file = (System::FileHandle*)png_get_io_ptr(png_ptr);
+        if(file->Read((uint8_t*)data, length) != length)
+        {
+            png_error(png_ptr, "Unexpected end of file!");
+        }
     };
 
     // Declare image buffers.

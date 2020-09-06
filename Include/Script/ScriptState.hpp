@@ -10,7 +10,7 @@
 
 namespace System
 {
-    class FileSystem;
+    class FileHandle;
 }
 
 /*
@@ -47,7 +47,7 @@ namespace Script
 
         static CreateResult Create();
         static CreateResult Create(const LoadFromText& params);
-        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
+        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~ScriptState();

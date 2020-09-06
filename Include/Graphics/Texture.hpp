@@ -9,7 +9,7 @@
 
 namespace System
 {
-    class FileSystem;
+    class FileHandle;
 }
 
 /*
@@ -46,13 +46,13 @@ namespace Graphics
             InvalidArgument,
             FailedTextureCreation,
             FailedFilePathResolve,
-            FailedFileOpening,
+            FailedFileReading,
             FailedPngLoading,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Texture>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
-        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
+        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~Texture();

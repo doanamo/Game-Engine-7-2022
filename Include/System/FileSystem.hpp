@@ -4,11 +4,19 @@
 
 #pragma once
 
-#include <string>
-#include <filesystem>
+#include "System/FileSystem/FileDepot.hpp"
 
 /*
     File System
+
+    Manages file depots that are mounted to specified directions, used to
+    locate and then open files. File depots acts as virtual file systems
+    when mounted, allowing directories to be mapped under specified paths.
+    This is not limited to mounting directories, as zipped archives and
+    memory regions can be used as mounted virtual file systems as well.
+
+    Implementation of separate native/memory/archive depots was roughly
+    inspired by: https://github.com/yevgeniy-logachev/vfspp
 */
 
 namespace System
@@ -16,39 +24,47 @@ namespace System
     class FileSystem final : private Common::NonCopyable
     {
     public:
-        enum class MountDirectoryErrors
+        using FileDepotPtr = std::unique_ptr<FileDepot>;
+        using OpenFlags = FileHandle::OpenFlags;
+
+        enum class CreateErrors
         {
-            EmptyPathArgument,
-            NonDirectoryPathArgument,
+            FailedDefaultDepotCreation,
+            FailedDefaultDepotMounting,
         };
 
-        enum class ResolvePathErrors
+        using CreateResult = Common::Result<
+            std::unique_ptr<FileSystem>, CreateErrors>;
+
+        enum class MountDepotErrors
         {
-            EmptyPathArgument,
-            UnresolvablePath,
+            EmptyMountPathArgument,
+            InvalidMountPathArgument,
+            InvalidFileDepotArgument,
         };
 
-        using CreateResult = Common::Result<std::unique_ptr<FileSystem>, void>;
-        static CreateResult Create();
+        using MountDepotResult = Common::Result<
+            void, MountDepotErrors>;
 
-        using MountDirectoryResult = Common::Result<void, MountDirectoryErrors>;
-        using ResolvePathResult = Common::Result<std::filesystem::path, ResolvePathErrors>;
-        using MountedDirList = std::vector<std::filesystem::path>;
-
-    public:
         ~FileSystem();
 
-        // Mounts directories used for resolving paths.
-        MountDirectoryResult MountDirectory(std::filesystem::path directory);
+        static CreateResult Create();
 
-        // Resolves path by searching for it in mounted directories.
-        // Relative path can be specified where search will begin first, but it must be already resolved.
-        ResolvePathResult ResolvePath(std::filesystem::path path, std::filesystem::path relative = "") const;
+        MountDepotResult MountDepot(fs::path mountPath, FileDepotPtr&& fileDepot);
+        FileDepot::OpenFileResult OpenFile(fs::path filePath,
+            OpenFlags::Type openFlags = OpenFlags::Read);
 
     private:
         FileSystem();
 
-    private:
-        MountedDirList m_mountedDirs;
+        struct MountedDepotEntry
+        {
+            fs::path mountPath;
+            FileDepotPtr fileDepot;
+        };
+
+        using MountedDepotList = std::vector<MountedDepotEntry>;
+
+        MountedDepotList m_mountedDepots;
     };
 }

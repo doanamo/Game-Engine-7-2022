@@ -15,8 +15,8 @@
     Resource Manager
 
     Tracks resource references and releases them when no longer needed.
-    Wraps multiple ResourcePool instances that can hold resources
-    of different types in a single ResourceManager instance.
+    Wraps multiple ResourcePool instances that can hold resources of different
+    types in a single ResourceManager instance.
 */
 
 namespace System
@@ -57,11 +57,11 @@ namespace System
 
         template<typename Type, typename... Arguments>
         typename ResourcePool<Type>::AcquireResult Acquire(
-            std::filesystem::path path, Arguments... arguments);
+            fs::path filePath, Arguments... arguments);
 
         template<typename Type, typename... Arguments>
         typename ResourcePool<Type>::AcquireResult AcquireRelative(
-            std::filesystem::path path, std::filesystem::path relative, Arguments... arguments);
+            fs::path filePath, fs::path relativeFilePath, Arguments... arguments);
 
         void ReleaseUnused();
 
@@ -110,39 +110,28 @@ namespace System
 
     template<typename Type, typename... Arguments>
     typename ResourcePool<Type>::AcquireResult ResourceManager::Acquire(
-        std::filesystem::path path, Arguments... arguments)
+        fs::path path, Arguments... arguments)
     {
         // Call relative acquisition method with empty relative path.
-        return this->AcquireRelative<Type>(path, "", std::forward<Arguments>(arguments)...);
+        return this->AcquireRelative<Type>(path, "",
+            std::forward<Arguments>(arguments)...);
     }
 
     template<typename Type, typename... Arguments>
     typename ResourcePool<Type>::AcquireResult ResourceManager::AcquireRelative(
-        std::filesystem::path path, std::filesystem::path relative, Arguments... arguments)
+        fs::path path, fs::path relativePath, Arguments... arguments)
     {
-        // Get resource pool.
         ResourcePool<Type>* pool = this->GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve resource pool!");
-
-        // Resolve file path using relative path.
-        auto resolvedPath = m_fileSystem->ResolvePath(path, relative);
-        if(!resolvedPath)
-        {
-            return Common::Failure(pool->GetDefault());
-        }
-
-        // Convert to relative path (more optimal).
-        std::filesystem::path relativePath = std::filesystem::relative(resolvedPath.Unwrap());
-
-        // Delegate call to resource pool, which will then delegate it further to a new resource instance.
-        return pool->Acquire(relativePath, std::forward<Arguments>(arguments)...);
+        return pool->Acquire(relativePath.remove_filename() / path,
+            std::forward<Arguments>(arguments)...);
     }
 
     template<typename Type>
     ResourcePool<Type>* ResourceManager::CreatePool()
     {
         // Create and add new resource pool.
-        auto pool = std::make_unique<ResourcePool<Type>>();
+        auto pool = std::make_unique<ResourcePool<Type>>(m_fileSystem);
         auto pair = ResourcePoolPair(typeid(Type), std::move(pool));
         auto result = m_pools.emplace(std::move(pair));
         ASSERT(result.second, "Could not emplace new resource pool!");

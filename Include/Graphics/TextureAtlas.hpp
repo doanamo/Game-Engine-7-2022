@@ -8,8 +8,7 @@
 
 namespace System
 {
-    class FileSystem;
-    class ResourceManager;
+    class FileHandle;
 }
 
 /*
@@ -43,7 +42,7 @@ namespace Graphics
         using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
+        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
 
         using ConstTexturePtr = std::shared_ptr<const Texture>;
         using RegionMap = std::unordered_map<std::string, glm::ivec4>;

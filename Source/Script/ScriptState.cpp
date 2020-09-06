@@ -4,6 +4,7 @@
 
 #include "Script/Precompiled.hpp"
 #include "Script/ScriptState.hpp"
+#include <System/FileSystem/FileHandle.hpp>
 using namespace Script;
 
 namespace
@@ -104,13 +105,12 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
     return Common::Success(std::move(instance));
 }
 
-ScriptState::CreateResult ScriptState::Create(std::filesystem::path path, const LoadFromFile& params)
+ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading script state from \"{}\" file...", path.generic_string());
+    LOG("Loading script state from \"{}\" file...", file.GetPath());
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(!path.empty(), Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
@@ -123,9 +123,11 @@ ScriptState::CreateResult ScriptState::Create(std::filesystem::path path, const 
     auto instance = createResult.Unwrap();
 
     // Execute script file.
-    if(luaL_dofile(instance->m_state, path.generic_string().c_str()) != 0)
+    std::string scriptCode = file.ReadAsTextString();
+
+    if(luaL_dostring(instance->m_state, scriptCode.c_str()) != 0)
     {
-        LOG_ERROR("Could not load script file!");
+        LOG_ERROR("Could not execute script file!");
         instance->PrintError();
         return Common::Failure(CreateErrors::FailedLuaScriptExecution);
     }

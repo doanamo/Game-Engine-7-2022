@@ -12,8 +12,7 @@
 
 namespace System
 {
-    class FileSystem;
-    class ResourceManager;
+    class FileHandle;
 }
 
 /*
@@ -43,7 +42,7 @@ namespace Graphics
         using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(std::filesystem::path path, const LoadFromFile& params);
+        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
 
         struct Frame
         {
