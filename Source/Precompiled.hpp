@@ -8,11 +8,4 @@
     Precompiled Header
 */
 
-#include <cctype>
-#include <ctime>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <typeindex>
 #include <Core/Core.hpp>

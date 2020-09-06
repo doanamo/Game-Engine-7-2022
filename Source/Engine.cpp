@@ -34,16 +34,19 @@ Root::~Root() = default;
 
 Root::CreateResult Root::Create(const CreateFromParams& params)
 {
-    // Create engine instance and return it if initialization succeeds.
-    // First global systems are initialized for various debug facilities.
-    // Then engine and its vital services are created so a game can be hosted.
-    // At the end we load default resources such as placeholder texture.
+    /*
+        Create engine instance and return it if initialization succeeds.
+        First global systems are initialized for various debug facilities.
+        Then engine and its services are created so game state can be hosted.
+        At the end we load default resources such as placeholder texture.
+    */
 
     Debug::Initialize();
     Logger::Initialize();
     Build::Initialize();
 
-    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<Root>(new Root());
     instance->m_maxUpdateDelta = params.maxUpdateDelta;
@@ -110,7 +113,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     windowParams.vsync = true;
     windowParams.visible = true;
 
-    if(auto window = System::Window::Create(windowParams).UnwrapOr(nullptr))
+    if(auto window = System::Window::Create(
+        windowParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(window));
     }
@@ -137,7 +141,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     System::InputManager::CreateParams inputManagerParams;
     inputManagerParams.services = &m_services;
 
-    if(auto inputManager = System::InputManager::Create(inputManagerParams).UnwrapOr(nullptr))
+    if(auto inputManager = System::InputManager::Create(
+        inputManagerParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(inputManager));
     }
@@ -152,7 +157,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     System::ResourceManager::CreateFromParams resourceManagerParams;
     resourceManagerParams.services = &m_services;
 
-    if(auto resourceManager = System::ResourceManager::Create(resourceManagerParams).UnwrapOr(nullptr))
+    if(auto resourceManager = System::ResourceManager::Create(
+        resourceManagerParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(resourceManager));
     }
@@ -167,7 +173,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Graphics::RenderContext::CreateParams renderContextParams;
     renderContextParams.services = &m_services;
 
-    if(auto renderContext = Graphics::RenderContext::Create(renderContextParams).UnwrapOr(nullptr))
+    if(auto renderContext = Graphics::RenderContext::Create(
+        renderContextParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(renderContext));
     }
@@ -183,7 +190,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     spriteRendererParams.services = &m_services;
     spriteRendererParams.spriteBatchSize = 128;
 
-    if(auto spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams).UnwrapOr(nullptr))
+    if(auto spriteRenderer = Graphics::SpriteRenderer::Create(
+        spriteRendererParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(spriteRenderer));
     }
@@ -198,7 +206,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Renderer::GameRenderer::CreateFromParams stateRendererParams;
     stateRendererParams.services = &m_services;
 
-    if(auto stateRenderer = Renderer::GameRenderer::Create(stateRendererParams).UnwrapOr(nullptr))
+    if(auto stateRenderer = Renderer::GameRenderer::Create(
+        stateRendererParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(stateRenderer));
     }
@@ -213,7 +222,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Game::GameFramework::CreateFromParams gameFrameworkParams;
     gameFrameworkParams.services = &m_services;
 
-    if(auto gameFramework = Game::GameFramework::Create(gameFrameworkParams).UnwrapOr(nullptr))
+    if(auto gameFramework = Game::GameFramework::Create(
+        gameFrameworkParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(gameFramework));
     }
@@ -228,7 +238,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Editor::EditorSystem::CreateFromParams editorSystemParams;
     editorSystemParams.services = &m_services;
 
-    if(auto editorSystem = Editor::EditorSystem::Create(editorSystemParams).UnwrapOr(nullptr))
+    if(auto editorSystem = Editor::EditorSystem::Create(
+        editorSystemParams).UnwrapOr(nullptr))
     {
         m_services.Provide(std::move(editorSystem));
     }
@@ -257,9 +268,11 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
         Graphics::Texture::LoadFromFile defaultTextureParams;
         defaultTextureParams.services = &m_services;
 
-        if(auto defaultTextureResult = Graphics::Texture::Create(*defaultTextureFileResult, defaultTextureParams))
+        if(auto defaultTextureResult = Graphics::Texture::Create(
+            *defaultTextureFileResult, defaultTextureParams))
         {
-            resourceManager->SetDefault<Graphics::Texture>(std::move(defaultTextureResult.Unwrap()));
+            resourceManager->SetDefault<Graphics::Texture>(
+                std::move(defaultTextureResult.Unwrap()));
         }
         else
         {
@@ -279,8 +292,10 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 
 void Root::ProcessFrame()
 {
-    // Single frame execution, running repeatedly in main loop.
-    // Engine services are updated here each frame if needed.
+    /*
+        Single frame execution, running repeatedly in main loop.
+        Engine services are updated here each frame if needed.
+    */
 
     Logger::AdvanceFrameReference();
 
@@ -312,9 +327,10 @@ void Root::ProcessFrame()
 Root::ErrorCode Root::Run()
 {
     /*
-        Initiates infinite main loop that exits only when application requests to be closed.
-        Before main loop is run we have to set window context as current, then timer is reset
-        before the first iteration to exclude time accumulated during initialization.
+        Initiates infinite main loop that exits only when application requests
+        to be closed. Before main loop is run we have to set window context as
+        current, then timer is reset on the first iteration to exclude time
+        accumulated during initialization.
     */
 
     System::Timer* timer = m_services.GetTimer();
@@ -324,33 +340,33 @@ Root::ErrorCode Root::Run()
     window->MakeContextCurrent();
     timer->Reset();
 
-    #ifndef __EMSCRIPTEN__
-        while(true)
+#ifndef __EMSCRIPTEN__
+    while(true)
+    {
+        if(!window->ShouldClose())
         {
-            if(!window->ShouldClose())
-            {
-                LOG_INFO("Exiting main loop because window has been requested to close.");
-                break;
-            }
-
-            if(!gameFramework->HasGameState())
-            {
-                LOG_INFO("Exiting main loop because there is no active game state.");
-                break;
-            }
-
-            ProcessFrame();
+            LOG_INFO("Exiting main loop because window has been requested to close.");
+            break;
         }
-    #else
-        auto mainLoopIteration = [](void* engine)
-        {
-            ASSERT(engine != nullptr);
-            Root* root = static_cast<Root*>(engine);
-            root->ProcessFrame();
-        };
 
-        emscripten_set_main_loop_arg(mainLoopIteration, this, 0, 1);
-    #endif
+        if(!gameFramework->HasGameState())
+        {
+            LOG_INFO("Exiting main loop because there is no active game state.");
+            break;
+        }
+
+        ProcessFrame();
+    }
+#else
+    auto mainLoopIteration = [](void* engine)
+    {
+        ASSERT(engine != nullptr);
+        Root* root = static_cast<Root*>(engine);
+        root->ProcessFrame();
+    };
+
+    emscripten_set_main_loop_arg(mainLoopIteration, this, 0, 1);
+#endif
 
     return ErrorCode(0);
 }

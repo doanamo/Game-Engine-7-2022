@@ -9,6 +9,8 @@
 
 /*
     Engine Root
+
+    Main class that encapsulated all engine subsystems.
 */
 
 namespace Engine
@@ -36,6 +38,7 @@ namespace Engine
         ~Root();
 
         ErrorCode Run();
+
         const Core::ServiceStorage& GetServices() const;
 
     private:
@@ -43,6 +46,7 @@ namespace Engine
 
         Common::Result<void, CreateErrors> CreateServices();
         Common::Result<void, CreateErrors> LoadDefaultResources();
+
         void ProcessFrame();
 
         Core::ServiceStorage m_services;

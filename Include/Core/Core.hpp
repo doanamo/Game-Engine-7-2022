@@ -8,12 +8,19 @@
     Common Includes
 */
 
+#include <cctype>
+#include <ctime>
 #include <cstdint>
+
 #include <memory>
 #include <algorithm>
 #include <functional>
 #include <filesystem>
 #include <typeindex>
+
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 #include <queue>
 #include <vector>

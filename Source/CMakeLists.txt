@@ -14,7 +14,8 @@ set(INCLUDE_FILES
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../Include/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../Include/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../Include/"
+    PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
@@ -86,7 +87,8 @@ if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html" PARENT_SCOPE)
 
     # Package engine data files for preload.
-    target_link_options(Engine PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
+    target_link_options(Engine PUBLIC
+        "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
 
     # Enable debugging flags on debug configurations.
     target_compile_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:SHELL: -s SAFE_HEAP=1>")
