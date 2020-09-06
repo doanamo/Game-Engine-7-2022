@@ -17,9 +17,9 @@
     #include <crtdbg.h>
 
     // Override new operator to store additional information about allocations.
-    #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+    #define CHECKED_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #else
-    #define DEBUG_NEW new
+    #define CHECKED_NEW new
 #endif
 
 /*
@@ -86,7 +86,8 @@ namespace Debug
     #define ASSERT_MESSAGE(expression, message, ...) \
         if(expression) { } else \
         { \
-            LOG_FATAL("Assertion failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+            LOG_FATAL("Assertion failed: " DEBUG_STRINGIFY(expression) \
+                " - " message, ## __VA_ARGS__); \
             DEBUG_ABORT(); \
         }
 #else
@@ -95,7 +96,8 @@ namespace Debug
 #endif
 
 #define ASSERT_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define ASSERT_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_DEDUCE(__VA_ARGS__, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_SIMPLE))
+#define ASSERT_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_DEDUCE(__VA_ARGS__, ASSERT_MESSAGE, \
+    ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_SIMPLE))
 #define ASSERT(...) DEBUG_EXPAND_MACRO(ASSERT_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
@@ -123,19 +125,22 @@ namespace Debug
 #define VERIFY_MESSAGE(expression, message, ...) \
     if(expression) { } else \
     { \
-        LOG_FATAL("Verification failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+        LOG_FATAL("Verification failed: " DEBUG_STRINGIFY(expression) \
+            " - " message, ## __VA_ARGS__); \
         DEBUG_ABORT(); \
     }
 
 #define VERIFY_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define VERIFY_CHOOSER(...) DEBUG_EXPAND_MACRO(VERIFY_DEDUCE(__VA_ARGS__, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_SIMPLE))
+#define VERIFY_CHOOSER(...) DEBUG_EXPAND_MACRO(VERIFY_DEDUCE(__VA_ARGS__, VERIFY_MESSAGE, \
+    VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_MESSAGE, VERIFY_SIMPLE))
 #define VERIFY(...) DEBUG_EXPAND_MACRO(VERIFY_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
     Check Macro
 
     Checks if given expression is true in debug configurations.
-    Used to print warnings and when we want to continue execution despite some possible error.
+    Used to print warnings and when we want to continue execution
+    despite some possible error.
 
     Behavior in different build configurations:
     - Debug: Logs warning
@@ -156,13 +161,15 @@ namespace Debug
     #define CHECK_MESSAGE(expression, message, ...) \
         if(expression) { } else \
         { \
-            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
+                " - " message, ## __VA_ARGS__); \
         }
 
     #define CHECK_OR_RETURN(expression, value, message, ...) \
         if(expression) { } else \
         { \
-            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) " - " message, ## __VA_ARGS__); \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
+                " - " message, ## __VA_ARGS__); \
             return value; \
         }
 #else
@@ -172,7 +179,8 @@ namespace Debug
 #endif
 
 #define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
+#define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, CHECK_MESSAGE, \
+    CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
 #define CHECK(...) DEBUG_EXPAND_MACRO(CHECK_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
@@ -183,4 +191,5 @@ namespace Debug
 #define VERIFY_ARGUMENT(expression) VERIFY_MESSAGE(expression, "Invalid argument!")
 #define CHECK_ARGUMENT(expression) CHECK_MESSAGE(expression, "Invalid argument!");
 
-#define CHECK_ARGUMENT_OR_RETURN(expression, value) CHECK_OR_RETURN(expression, value, "Invalid argument!");
+#define CHECK_ARGUMENT_OR_RETURN(expression, value) \
+    CHECK_OR_RETURN(expression, value, "Invalid argument!");

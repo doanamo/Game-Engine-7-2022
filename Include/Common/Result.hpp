@@ -10,10 +10,8 @@
 /*
     Result
 
-    Wrapper inspired by Rust language for return values
-    that can indicate either success or failure.
-
-    See unit tests for example usage.
+    Wrapper inspired by Rust language for return values that can indicate
+    either success or failure. See unit tests for example usage.
 */
 
 namespace Common::Detail
@@ -21,6 +19,10 @@ namespace Common::Detail
     struct Empty
     {
     };
+
+    template<typename Type>
+    using DecayedResultType = typename std::conditional<std::is_same<Type, Detail::Empty>::value,
+        void, typename std::decay<Type>::type>::type;
 
     template<typename Type>
     struct Success
@@ -69,14 +71,14 @@ namespace Common::Detail
 
 namespace Common
 {
-    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, typename std::decay<Type>::type>::type>
-    constexpr Detail::Success<DecayedType> Success(Type&& value)
+    template<typename Type>
+    constexpr Detail::Success<Detail::DecayedResultType<Type>> Success(Type&& value)
     {
-        return Detail::Success<DecayedType>(std::forward<Type>(value));
+        return Detail::Success<Detail::DecayedResultType<Type>>(std::forward<Type>(value));
     }
 
     template<>
-    constexpr Detail::Success<void> Success<Detail::Empty, void>(Detail::Empty&& value)
+    constexpr Detail::Success<void> Success<Detail::Empty>(Detail::Empty&& value)
     {
         return Detail::Success<void>();
     }
@@ -86,14 +88,14 @@ namespace Common
         return Detail::Success<void>();
     }
 
-    template<typename Type, typename DecayedType = typename std::conditional<std::is_same<Type, Detail::Empty>::value, void, typename std::decay<Type>::type>::type>
-    constexpr Detail::Failure<DecayedType> Failure(Type&& value)
+    template<typename Type>
+    constexpr Detail::Failure<Detail::DecayedResultType<Type>> Failure(Type&& value)
     {
-        return Detail::Failure<DecayedType>(std::forward<Type>(value));
+        return Detail::Failure<Detail::DecayedResultType<Type>>(std::forward<Type>(value));
     } 
 
     template<>
-    constexpr Detail::Failure<void> Failure<Detail::Empty, void>(Detail::Empty&& value)
+    constexpr Detail::Failure<void> Failure<Detail::Empty>(Detail::Empty&& value)
     {
         return Detail::Failure<void>();
     }
@@ -107,11 +109,20 @@ namespace Common
     class Result
     {
     public:
-        using DeductedSuccessType = typename std::conditional<std::is_same<SuccessType, void>::value, Detail::Empty, SuccessType>::type;
-        using DeductedFailureType = typename std::conditional<std::is_same<FailureType, void>::value, Detail::Empty, FailureType>::type;
-        using DeductedSharedType = typename std::conditional<std::is_same<SuccessType, FailureType>::value, SuccessType, Detail::Empty>::type;
+        using DeductedSuccessType =
+            typename std::conditional<std::is_same<SuccessType, void>::value, 
+            Detail::Empty, SuccessType>::type;
+
+        using DeductedFailureType =
+            typename std::conditional<std::is_same<FailureType, void>::value,
+            Detail::Empty, FailureType>::type;
+
+        using DeductedSharedType = typename
+            typename std::conditional<std::is_same<SuccessType, FailureType>::value,
+            SuccessType, Detail::Empty>::type;
 
         using StorageType = std::variant<DeductedSuccessType, DeductedFailureType>;
+
         static constexpr size_t StorageSuccessIndex = 0;
         static constexpr size_t StorageFailureIndex = 1;
 
@@ -179,7 +190,8 @@ namespace Common
 
         DeductedSharedType UnwrapEither()
         {
-            static_assert(std::is_same<SuccessType, FailureType>::value, "Both success and failure types must be the same to use UnwrapEither()!");
+            static_assert(std::is_same<SuccessType, FailureType>::value,
+                "Both success and failure types must be the same to use UnwrapEither()!");
             return IsSuccess() ? UnwrapSuccess() : UnwrapFailure();
         }
 
@@ -227,7 +239,10 @@ namespace Common
     using GenericResult = Result<void, void>;
 }
 
-// Macro helpers.
+/*
+    Macro Helpers
+*/
+
 #define SUCCESS_OR_RETURN_RESULT(expression) \
     { \
         auto result = (expression); \

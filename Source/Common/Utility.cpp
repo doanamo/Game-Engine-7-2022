@@ -98,10 +98,12 @@ std::string Common::StringTrim(std::string text, const char* characters)
 
 uint32_t Common::StringHash(const std::string string)
 {
-    // Small and simple hashing function for strings.
-    // May need to be replaced in case of collisions.
-    // Use only if you can detect possible collisions.
-    // It is obviously not cryptographically secure.
+    /*
+        Small and simple hashing function for strings.
+        May need to be replaced in case of collisions.
+        Use only if you can detect possible collisions.
+        It is obviously not cryptographically secure.
+    */
 
     const uint32_t prime = 257;
     uint32_t hash = 0;
@@ -114,16 +116,18 @@ uint32_t Common::StringHash(const std::string string)
     return hash;
 }
 
-uint32_t Common::CalculateCRC32(uint32_t crc, const char* data, std::size_t size)
+uint32_t Common::CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size)
 {
-    // Implementation based on:
-    // - https://stackoverflow.com/a/27950866
+    /*
+        Implementation based on: https://stackoverflow.com/a/27950866
+        It's certain to not be very efficient and could use something faster if needed.
+    */
 
     crc = ~crc;
 
     while(size--)
     {
-        crc ^= (unsigned char)*data++;
+        crc ^= *data++;
 
         for(int i = 0; i < 8; ++i)
         {

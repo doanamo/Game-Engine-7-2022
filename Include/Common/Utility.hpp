@@ -10,7 +10,7 @@
 #include <numeric>
 #include <limits>
 #include <filesystem>
-#include "Debug.hpp"
+#include "Common/Debug.hpp"
 
 /*
     Utility
@@ -33,12 +33,14 @@ namespace Common
     template<typename Target, typename Source>
     constexpr Target NumericalCast(const Source& value)
     {
-        // Casts numerical types with assertion guarantee for data loss.
-        // Checks in debug if conversion will lead to any loss of data.
-        // This is useful when dealing with libraries which do not fully
-        // convert from 32bit to 64bit types on their own (e.g. OpenGL).
-        // Loss check is performed by converting to target type and then
-        // back to source type, after which result is compared.
+        /*
+            Casts numerical types with assertion guarantee for data loss.
+            Checks in debug if conversion will lead to any loss of data.
+            This is useful when dealing with libraries which do not fully
+            convert from 32bit to 64bit types on their own (e.g. OpenGL).
+            Loss check is performed by converting to target type and then
+            back to source type, after which results are compared.
+        */
 
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
             "Numerical conversion failed due to data loss!");
@@ -63,16 +65,18 @@ namespace Common
     std::string StringTrim(const std::string text, const char* characters = " ");
 
     uint32_t StringHash(const std::string string);
-    uint32_t CalculateCRC32(uint32_t crc, const char* data, std::size_t size);
+    uint32_t CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size);
 
     template<typename Type>
     bool ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
     {
-        // Reorders vector using an array of indices.
-        // This is useful in case we have two collections that need to be sorted in
-        // same way based on information from both. Sort can be performed on array of
-        // indices that then can be used to quickly rearrange elements in two collections.
-        // Result will not make sense if order indices are duplicated!
+        /*
+            Reorders vector using an array of indices.
+            This is useful in case we have two collections that need to be sorted in
+            same way based on information from both. Sort can be performed on array of
+            indices that then can be used to quickly rearrange elements in two collections.
+            Result will not make sense if order indices are duplicated!
+        */
 
         if(elements.size() != order.size())
             return false;
@@ -106,7 +110,8 @@ namespace Common
                 }
             }
 
-            ASSERT(indices[i] == order[i], "Detected duplication of indices! Elements will not be ordered correctly.");
+            ASSERT(indices[i] == order[i],
+                "Elements will not be ordered correctly due to detected duplication of indices");
         }
 
         return true;

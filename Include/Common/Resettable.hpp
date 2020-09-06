@@ -7,7 +7,7 @@
 /*
     Resettable
 
-    Gives ability for class instance to completely reset itself to its original state. 
+    Gives class instance an ability to reset itself to its original state. 
 */
 
 namespace Common
@@ -18,8 +18,12 @@ namespace Common
     public:
         void Reset()
         {
-            static_assert(std::is_base_of<Resettable<Type>, Type>::value, "Incorrect use of resettable base class!");
-            static_assert(std::is_final<Type>::value, "Resettable base class is dangerous when used with non-final classes!");
+            static_assert(std::is_default_constructible<Type>::value,
+                "Cannot reconstruct class instance that is not default constructible!");
+            static_assert(std::is_base_of<Resettable<Type>, Type>::value,
+                "Incorrect use of resettable base class!");
+            static_assert(std::is_final<Type>::value,
+                "Resettable base class is dangerous when used with non-final classes!");
 
             static_cast<Type*>(this)->~Type();
             new (static_cast<Type*>(this)) Type();

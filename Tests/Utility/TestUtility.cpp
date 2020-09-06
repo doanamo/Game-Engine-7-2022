@@ -111,8 +111,8 @@ bool TestStringHash()
 
 bool TestCalculateCRC()
 {
-    char dataFirst[4] = { '2', '0', '3', '5' };
-    char dataSecond[4] = { '1', '9', '4', '5' };
+    uint8_t dataFirst[4] = { '2', '0', '3', '5' };
+    uint8_t dataSecond[4] = { '1', '9', '4', '5' };
 
     TEST_NEQ(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)), 0);
     TEST_NEQ(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)),
