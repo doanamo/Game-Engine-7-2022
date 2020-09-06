@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "System/FileSystem/FileSystem.hpp"
 #include "System/FileSystem/FileHandle.hpp"
 
 /*
@@ -15,8 +16,6 @@
 
 namespace System
 {
-    class FileSystem;
-
     class ResourcePoolInterface
     {
     protected:
