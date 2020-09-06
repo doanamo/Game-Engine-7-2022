@@ -14,13 +14,17 @@ namespace
 
 void Build::Initialize()
 {
-    // Retrieve engine and game directory overrides from working directory.
-    // When application is launched these files will not be present as both files
-    // would otherwise point at same current working directory, but when launching
-    // from generated project in development both will be created by CMake in temporary
-    // output directory to account for engine and game directories being separate,
-    // same as for their repositories. This allows engine data to be loaded easily
-    // when library is added to another project as dependency.
+    /*
+        Retrieve engine and game directory overrides from working directory.
+        When application is launched from packaged release build these files
+        will not be present as both files would otherwise point at same current
+        working directory, but when launching from generated project in
+        development both will be created by CMake in temporary output directory
+        to account for engine and game directories being in separate locations,
+        same as for their repositories. This allows engine data to be loaded
+        from correct directory when library is added to another project as
+        dependency.
+    */
 
     EngineDir = Common::GetTextFileContent("EngineDir.txt");
     GameDir = Common::GetTextFileContent("GameDir.txt");

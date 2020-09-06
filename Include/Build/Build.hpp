@@ -13,7 +13,7 @@
     Needs to be initialized before build information becomes available.
 
     Set of information is split between engine and game directories.
-    Metadata such as version control information is retrieved from
+    Information such as version control commit details are retrieved from
     respective engine library or game executable project directories.
 */
 

@@ -5,7 +5,10 @@
 #pragma once
 
 /*
-    Generated Build Information
+    Build Information
+
+    File generated from template using build system.
+    Any edits made here will be lost unless done in template file!
 */
 
 namespace BuildInfo
