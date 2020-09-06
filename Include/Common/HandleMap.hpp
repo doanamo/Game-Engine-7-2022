@@ -94,7 +94,8 @@ namespace Common
     class HandleMap
     {
     public:
-        static_assert(std::is_default_constructible<StorageType>::value);
+        static_assert(std::is_default_constructible<StorageType>::value,
+            "Storage type for handle map must be default constructible!");
 
         using HandleType = Handle<StorageType>;
         using HandleValueType = typename HandleType::ValueType;
