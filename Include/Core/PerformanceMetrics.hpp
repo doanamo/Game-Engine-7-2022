@@ -6,6 +6,9 @@
 
 /*
     Performance Metrics
+
+    Utility subsystem for tracking important performance events and their
+    timings, such as frame start/end times used to calculate framerate.
 */
 
 namespace Core
