@@ -7,7 +7,7 @@
 #include "Core/PerformanceMetrics.hpp"
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
-#include <System/FileSystem.hpp>
+#include <System/FileSystem/FileSystem.hpp>
 #include <System/ResourceManager.hpp>
 #include <System/InputManager.hpp>
 #include <System/Window.hpp>

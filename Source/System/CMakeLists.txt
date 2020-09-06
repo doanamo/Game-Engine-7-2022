@@ -11,7 +11,6 @@ include_guard(GLOBAL)
 
 set(INCLUDE_FILES
     "Platform.hpp"
-    "FileSystem.hpp"
     "Window.hpp"
     "Timer.hpp"
     "InputDefinitions.hpp"
@@ -19,6 +18,7 @@ set(INCLUDE_FILES
     "InputManager.hpp"
     "ResourcePool.hpp"
     "ResourceManager.hpp"
+    "FileSystem/FileSystem.hpp"
     "FileSystem/FileHandle.hpp"
     "FileSystem/FileDepot.hpp"
     "FileSystem/NativeFileHandle.hpp"
@@ -35,13 +35,13 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/System/" PREFIX "He
 set(SOURCE_FILES
     "Precompiled.hpp"
     "Platform.cpp"
-    "FileSystem.cpp"
     "Window.cpp"
     "Timer.cpp"
     "InputDefinitions.cpp"
     "InputState.cpp"
     "InputManager.cpp"
     "ResourceManager.cpp"
+    "FileSystem/FileSystem.cpp"
     "FileSystem/FileHandle.cpp"
     "FileSystem/NativeFileHandle.cpp"
     "FileSystem/NativeFileDepot.cpp"

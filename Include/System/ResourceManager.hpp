@@ -4,12 +4,9 @@
 
 #pragma once
 
-#include <memory>
-#include <typeindex>
-#include <unordered_map>
 #include <Core/ServiceStorage.hpp>
 #include "System/ResourcePool.hpp"
-#include "System/FileSystem.hpp"
+#include "System/FileSystem/FileSystem.hpp"
 
 /*
     Resource Manager
