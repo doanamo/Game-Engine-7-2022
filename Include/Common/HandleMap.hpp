@@ -94,9 +94,6 @@ namespace Common
     class HandleMap
     {
     public:
-        static_assert(std::is_default_constructible<StorageType>::value,
-            "Storage type for handle map must be default constructible!");
-
         using HandleType = Handle<StorageType>;
         using HandleValueType = typename HandleType::ValueType;
 
@@ -105,6 +102,8 @@ namespace Common
             HandleEntry(const HandleType& handle) :
                 handle(handle)
             {
+                static_assert(std::is_default_constructible<StorageType>::value,
+                    "Storage type for handle map must be default constructible!");
             }
 
             void Invalidate()
