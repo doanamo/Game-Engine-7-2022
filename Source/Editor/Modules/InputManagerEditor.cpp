@@ -4,6 +4,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <System/InputDefinitions.hpp>
 using namespace Editor;
 
@@ -27,21 +28,13 @@ InputManagerEditor::~InputManagerEditor() = default;
 
 InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
     instance->m_window = params.services->GetWindow();
 
-    bool subscriptionResults = true;
-    subscriptionResults &= instance->m_keyboardKeyReceiver.Subscribe(instance->m_window->events.keyboardKey);
-    subscriptionResults &= instance->m_textInputReceiver.Subscribe(instance->m_window->events.textInput);
-    subscriptionResults &= instance->m_windowFocusReceiver.Subscribe(instance->m_window->events.focus);
-    subscriptionResults &= instance->m_mouseButtonReceiver.Subscribe(instance->m_window->events.mouseButton);
-    subscriptionResults &= instance->m_mouseScrollReceiver.Subscribe(instance->m_window->events.mouseScroll);
-    subscriptionResults &= instance->m_cursorPositionReceiver.Subscribe(instance->m_window->events.cursorPosition);
-    subscriptionResults &= instance->m_cursorEnterReceiver.Subscribe(instance->m_window->events.cursorEnter);
-
-    if(!subscriptionResults)
+    if(!instance->SubscribeEvents())
     {
         LOG_ERROR(CreateError, "Could not subscribe to window events.");
         return Common::Failure(CreateErrors::FailedEventSubscription);
@@ -51,68 +44,82 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
     return Common::Success(std::move(instance));
 }
 
+
+bool InputManagerEditor::SubscribeEvents()
+{
+    bool subscriptionResults = true;
+    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_window->events.keyboardKey);
+    subscriptionResults &= m_textInputReceiver.Subscribe(m_window->events.textInput);
+    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_window->events.focus);
+    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_window->events.mouseButton);
+    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_window->events.mouseScroll);
+    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_window->events.cursorPosition);
+    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_window->events.cursorEnter);
+    return subscriptionResults;
+}
+
 void InputManagerEditor::Display(float timeDelta)
 {
-    if(mainWindowOpen)
+    if(!mainWindowOpen)
+        return;
+
+    ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
+    if(ImGui::Begin("Input Manager", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
-        if(ImGui::Begin("Input Manager", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
+        if(ImGui::CollapsingHeader("Events"))
         {
-            if(ImGui::CollapsingHeader("Events"))
+            if(ImGui::TreeNode("Incoming"))
             {
-                if(ImGui::TreeNode("Incoming"))
+                ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
                 {
-                    ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
+                    for(const std::string& eventText : m_incomingEventLog)
                     {
-                        for(const std::string& eventText : m_incomingEventLog)
-                        {
-                            ImGui::TextWrapped("%s", eventText.c_str());
-                        }
-                        ImGui::SetScrollHere(1.0f);
+                        ImGui::TextWrapped("%s", eventText.c_str());
                     }
-                    ImGui::EndChild();
+                    ImGui::SetScrollHere(1.0f);
+                }
+                ImGui::EndChild();
+
+                ImGui::SameLine();
+                ImGui::BeginChild("Event Type Toggle", ImVec2(150, 0), false);
+                {
+                    if(ImGui::Button("Clear"))
+                    {
+                        m_incomingEventLog.clear();
+                    }
 
                     ImGui::SameLine();
-                    ImGui::BeginChild("Event Type Toggle", ImVec2(150, 0), false);
+                    if(ImGui::Button(m_incomingEventFreeze ? "Unfreeze" : "Freeze"))
                     {
-                        if(ImGui::Button("Clear"))
-                        {
-                            m_incomingEventLog.clear();
-                        }
-
-                        ImGui::SameLine();
-                        if(ImGui::Button(m_incomingEventFreeze ? "Unfreeze" : "Freeze"))
-                        {
-                            m_incomingEventFreeze = !m_incomingEventFreeze;
-                        }
-
-                        ImGui::Checkbox("Window Focus", &m_incomingWindowFocus);
-                        ImGui::Checkbox("Keyboard Key", &m_incomingKeyboardKey);
-                        ImGui::Indent();
-                        ImGui::Checkbox("Press##KeyboardKeyPress", &m_incomingKeyboardKeyPress);
-                        ImGui::Checkbox("Release##KeyboardKeyRelease", &m_incomingKeyboardKeyRelease);
-                        ImGui::Checkbox("Repeat##KeyboardKeyRepeat", &m_incomingKeyboardKeyRepeat);
-                        ImGui::Unindent();
-                        ImGui::Checkbox("Text Input", &m_incomingTextInput);
-                        ImGui::Checkbox("Mouse Button", &m_incomingMouseButton);
-                        ImGui::Indent();
-                        ImGui::Checkbox("Press##MouseButtonPress", &m_incomingMouseButtonPress);
-                        ImGui::Checkbox("Release##MouseButtonRelease", &m_incomingMouseButtonRelease);
-                        ImGui::Checkbox("Repeat##MouseButtonRepeat", &m_incomingMouseButtonRepeat);
-                        ImGui::Unindent();
-                        ImGui::Checkbox("Mouse Scroll", &m_incomingMouseScroll);
-                        ImGui::Checkbox("Cursor Position", &m_incomingCursorPosition);
-                        ImGui::Checkbox("Cursor Enter", &m_incomingCursorEnter);
+                        m_incomingEventFreeze = !m_incomingEventFreeze;
                     }
-                    ImGui::EndChild();
 
-                    ImGui::TreePop();
+                    ImGui::Checkbox("Window Focus", &m_incomingWindowFocus);
+                    ImGui::Checkbox("Keyboard Key", &m_incomingKeyboardKey);
+                    ImGui::Indent();
+                    ImGui::Checkbox("Press##KeyboardKeyPress", &m_incomingKeyboardKeyPress);
+                    ImGui::Checkbox("Release##KeyboardKeyRelease", &m_incomingKeyboardKeyRelease);
+                    ImGui::Checkbox("Repeat##KeyboardKeyRepeat", &m_incomingKeyboardKeyRepeat);
+                    ImGui::Unindent();
+                    ImGui::Checkbox("Text Input", &m_incomingTextInput);
+                    ImGui::Checkbox("Mouse Button", &m_incomingMouseButton);
+                    ImGui::Indent();
+                    ImGui::Checkbox("Press##MouseButtonPress", &m_incomingMouseButtonPress);
+                    ImGui::Checkbox("Release##MouseButtonRelease", &m_incomingMouseButtonRelease);
+                    ImGui::Checkbox("Repeat##MouseButtonRepeat", &m_incomingMouseButtonRepeat);
+                    ImGui::Unindent();
+                    ImGui::Checkbox("Mouse Scroll", &m_incomingMouseScroll);
+                    ImGui::Checkbox("Cursor Position", &m_incomingCursorPosition);
+                    ImGui::Checkbox("Cursor Enter", &m_incomingCursorEnter);
                 }
+                ImGui::EndChild();
+
+                ImGui::TreePop();
             }
         }
-
-        ImGui::End();
     }
+
+    ImGui::End();
 }
 
 void InputManagerEditor::AddIncomingEventLog(std::string text)

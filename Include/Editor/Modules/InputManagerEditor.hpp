@@ -4,9 +4,12 @@
 
 #pragma once
 
-#include <queue>
-#include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 /*
     Input Manager Editor
@@ -44,15 +47,8 @@ namespace Editor
     private:
         InputManagerEditor();
 
+        bool SubscribeEvents();
         void AddIncomingEventLog(std::string text);
-
-        Event::Receiver<void(const WindowEvents::Focus&)> m_windowFocusReceiver;
-        Event::Receiver<bool(const WindowEvents::TextInput&)> m_textInputReceiver;
-        Event::Receiver<bool(const WindowEvents::KeyboardKey&)> m_keyboardKeyReceiver;
-        Event::Receiver<bool(const WindowEvents::MouseButton&)> m_mouseButtonReceiver;
-        Event::Receiver<bool(const WindowEvents::MouseScroll&)> m_mouseScrollReceiver;
-        Event::Receiver<void(const WindowEvents::CursorPosition&)> m_cursorPositionReceiver;
-        Event::Receiver<void(const WindowEvents::CursorEnter&)> m_cursorEnterReceiver;
 
         void OnWindowFocus(const WindowEvents::Focus& event);
         bool OnTextInput(const WindowEvents::TextInput& event);
@@ -61,6 +57,14 @@ namespace Editor
         bool OnMouseScroll(const WindowEvents::MouseScroll& event);
         void OnCursorPosition(const WindowEvents::CursorPosition& event);
         void OnCursorEnter(const WindowEvents::CursorEnter& event);
+
+        Event::Receiver<void(const WindowEvents::Focus&)> m_windowFocusReceiver;
+        Event::Receiver<bool(const WindowEvents::TextInput&)> m_textInputReceiver;
+        Event::Receiver<bool(const WindowEvents::KeyboardKey&)> m_keyboardKeyReceiver;
+        Event::Receiver<bool(const WindowEvents::MouseButton&)> m_mouseButtonReceiver;
+        Event::Receiver<bool(const WindowEvents::MouseScroll&)> m_mouseScrollReceiver;
+        Event::Receiver<void(const WindowEvents::CursorPosition&)> m_cursorPositionReceiver;
+        Event::Receiver<void(const WindowEvents::CursorEnter&)> m_cursorEnterReceiver;
 
         System::Window* m_window = nullptr;
 

@@ -19,7 +19,8 @@ EditorRenderer::~EditorRenderer() = default;
 
 EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     System::Window* window = params.services->GetWindow();
     Graphics::RenderContext* renderContext = params.services->GetRenderContext();
@@ -58,16 +59,37 @@ bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* service
     // Vertex array.
     const Graphics::VertexArray::Attribute inputAttributes[] =
     {
-        { m_vertexBuffer.get(), Graphics::VertexArray::AttributeType::Vector2, GL_FLOAT,         false }, // Position
-        { m_vertexBuffer.get(), Graphics::VertexArray::AttributeType::Vector2, GL_FLOAT,         false }, // Texture
-        { m_vertexBuffer.get(), Graphics::VertexArray::AttributeType::Vector4, GL_UNSIGNED_BYTE, true },  // Color
+        // Position
+        {
+            m_vertexBuffer.get(),
+            Graphics::VertexArray::AttributeType::Vector2, 
+            GL_FLOAT,
+            false
+        },
+
+        // Texture
+        {
+            m_vertexBuffer.get(),
+            Graphics::VertexArray::AttributeType::Vector2,
+            GL_FLOAT,
+            false
+        },
+
+        // Color
+        {
+            m_vertexBuffer.get(),
+            Graphics::VertexArray::AttributeType::Vector4,
+            GL_UNSIGNED_BYTE,
+            true
+        },
     };
 
     Graphics::VertexArray::FromArrayParams inputLayoutParams;
     inputLayoutParams.attributeCount = Common::StaticArraySize(inputAttributes);
     inputLayoutParams.attributes = &inputAttributes[0];
 
-    m_vertexArray = Graphics::VertexArray::Create(m_renderContext, inputLayoutParams).UnwrapOr(nullptr);
+    m_vertexArray = Graphics::VertexArray::Create(
+        m_renderContext, inputLayoutParams).UnwrapOr(nullptr);
     if(m_vertexArray == nullptr)
     {
         LOG_ERROR(CreateResourcesError, "Could not create vertex array.");
@@ -130,7 +152,7 @@ bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* service
         return false;
     }
 
-    // Vertex and pixel shader.
+    // Shader.
     Graphics::Shader::LoadFromFile shaderParams;
     shaderParams.services = services;
 
@@ -164,11 +186,14 @@ void EditorRenderer::Draw()
     renderState.Viewport(0, 0, windowWidth, windowHeight);
 
     renderState.Enable(GL_BLEND);
-    renderState.BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    renderState.BlendFuncSeparate(
+        GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+        GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderState.BlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     renderState.Enable(GL_SCISSOR_TEST);
 
-    m_shader->SetUniform("vertexTransform", glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f));
+    m_shader->SetUniform("vertexTransform",
+        glm::ortho(0.0f, (float)windowWidth, (float)windowHeight, 0.0f));
     m_shader->SetUniform("textureDiffuse", 0);
     renderState.UseProgram(m_shader->GetHandle());
 
@@ -210,7 +235,8 @@ void EditorRenderer::Draw()
                 renderState.BindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)drawCommand->TextureId);
                 renderState.BindVertexArray(m_vertexArray->GetHandle());
                 renderState.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer->GetHandle());
-                renderState.DrawElements(GL_TRIANGLES, (GLsizei)drawCommand->ElemCount, GL_UNSIGNED_SHORT, indexBufferOffset);
+                renderState.DrawElements(GL_TRIANGLES,
+                    (GLsizei)drawCommand->ElemCount, GL_UNSIGNED_SHORT, indexBufferOffset);
             }
 
             indexBufferOffset += drawCommand->ElemCount;

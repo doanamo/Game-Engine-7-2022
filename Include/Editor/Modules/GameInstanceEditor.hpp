@@ -5,7 +5,11 @@
 #pragma once
 
 #include <Event/Receiver.hpp>
-#include <Core/ServiceStorage.hpp>
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace Game
 {
@@ -49,16 +53,17 @@ namespace Editor
     private:
         GameInstanceEditor();
 
+        bool SubscribeEvents(const Core::ServiceStorage* services);
+        void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
+        void OnTickRequested();
+        void OnTickProcessed(float tickTime);
+
         struct Receivers
         {
             Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
             Event::Receiver<void()> tickRequested;
             Event::Receiver<void(float)> tickProcessed;
         } m_receivers;
-
-        void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
-        void OnTickRequested();
-        void OnTickProcessed(float tickTime);
 
         Game::TickTimer* m_tickTimer = nullptr;
         Game::GameInstance* m_gameInstance = nullptr;

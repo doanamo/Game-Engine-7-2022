@@ -5,6 +5,7 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorConsole.hpp"
 #include <Logger/History.hpp>
+#include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -31,7 +32,8 @@ namespace
 
 EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<EditorConsole>(new EditorConsole());
     instance->m_window = params.services->GetWindow();
@@ -62,8 +64,12 @@ void EditorConsole::Display(float timeDelta)
     consoleMaxSize.x = m_window->GetWidth();
     consoleMaxSize.y = std::max((float)m_window->GetHeight(), consoleMinSize.y);
 
+    ImVec2 consoleWindowSize;
+    consoleWindowSize.x = m_window->GetWidth();
+    consoleWindowSize.y = m_window->GetHeight() * 0.6f;
+
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowSize(ImVec2(m_window->GetWidth(), m_window->GetHeight() * 0.6f), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(consoleWindowSize, ImGuiCond_Once);
     ImGui::SetNextWindowSizeConstraints(consoleMinSize, consoleMaxSize);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
@@ -81,7 +87,8 @@ void EditorConsole::Display(float timeDelta)
             messagesFlags |= ImGuiWindowFlags_NoScrollWithMouse;
         }
 
-        if(ImGui::BeginChild("Console Messages", ImVec2(0.0f, windowSize.y - 40.0f), false, messagesFlags))
+        if(ImGui::BeginChild("Console Messages",
+            ImVec2(0.0f, windowSize.y - 40.0f), false, messagesFlags))
         {
             for(const auto& message : copiedMessages)
             {
@@ -152,7 +159,8 @@ bool EditorConsole::IsVisible() const
 
 bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
-    if(event.key == System::KeyboardKeys::KeyTilde && event.state == System::InputStates::Pressed)
+    if(event.key == System::KeyboardKeys::KeyTilde
+        && event.state == System::InputStates::Pressed)
     {
         Toggle(!IsVisible());
         return true;

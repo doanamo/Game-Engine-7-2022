@@ -7,6 +7,7 @@
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
 using namespace Editor;
@@ -49,7 +50,8 @@ EditorSystem::~EditorSystem()
 
 EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     System::Window* window = params.services->GetWindow();
     System::InputManager* inputManager = params.services->GetInputManager();
@@ -166,12 +168,17 @@ bool EditorSystem::SubscribeEvents(const Core::ServiceStorage* services)
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
     bool subscriptionResults = true;
-    subscriptionResults &= inputState.events.keyboardKey.Subscribe(m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.textInput.Subscribe(m_receiverTextInput, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.mouseButton.Subscribe(m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.mouseScroll.Subscribe(m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.cursorPosition.Subscribe(m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
-    
+    subscriptionResults &= inputState.events.keyboardKey.Subscribe(
+        m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.textInput.Subscribe(
+        m_receiverTextInput, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.mouseButton.Subscribe(
+        m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.mouseScroll.Subscribe(
+        m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
+    subscriptionResults &= inputState.events.cursorPosition.Subscribe(
+        m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
+
     return subscriptionResults;
 }
 
@@ -201,8 +208,11 @@ void EditorSystem::EndInterface()
 
 bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
 {
-    // Convert character from UTF-32 to UTF-8 encoding.
-    // Needs temporary array for four UTF-8 code points (octets), plus a null terminator.
+    /*
+        Convert character from UTF-32 to UTF-8 encoding.
+        Needs temporary array for four UTF-8 code points (octets).
+        Extra character for null terminator is included.
+    */
 
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();

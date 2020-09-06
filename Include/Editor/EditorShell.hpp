@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 
 namespace Core
 {
+    class ServiceStorage;
     class PerformanceMetrics;
 };
 

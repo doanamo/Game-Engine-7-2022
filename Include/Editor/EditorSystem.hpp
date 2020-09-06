@@ -5,8 +5,12 @@
 #pragma once
 
 #include <Event/Receiver.hpp>
-#include <Core/ServiceStorage.hpp>
 #include <System/InputDefinitions.hpp>
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace System
 {

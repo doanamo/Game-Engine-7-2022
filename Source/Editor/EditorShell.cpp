@@ -4,6 +4,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
@@ -19,7 +20,8 @@ EditorShell::~EditorShell() = default;
 
 EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     Core::PerformanceMetrics* performanceMetrics = params.services->GetPerformanceMetrics();
     System::Window* window = params.services->GetWindow();
@@ -121,7 +123,8 @@ void EditorShell::DisplayFramerate()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
 
-    ImGui::SetNextWindowPos(ImVec2(4.0f, m_window->GetHeight() - 4.0f), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+    ImGui::SetNextWindowPos(ImVec2(4.0f, m_window->GetHeight() - 4.0f),
+        ImGuiCond_Always, ImVec2(0.0f, 1.0f));
     ImGui::SetNextWindowBgAlpha(0.0f);
 
     ImGuiWindowFlags flags = 0;
@@ -135,7 +138,8 @@ void EditorShell::DisplayFramerate()
 
     if(ImGui::Begin("Framerate Counter Button", 0, flags))
     {
-        if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)", m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
+        if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)",
+            m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
         {
         }
     }

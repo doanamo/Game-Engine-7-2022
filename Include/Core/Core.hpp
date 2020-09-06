@@ -14,6 +14,9 @@
 #include <functional>
 #include <filesystem>
 #include <typeindex>
+
+#include <queue>
+#include <vector>
 #include <unordered_map>
 
 namespace fs = std::filesystem;
