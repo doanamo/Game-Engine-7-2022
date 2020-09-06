@@ -117,7 +117,7 @@ namespace Common
             typename std::conditional<std::is_same<FailureType, void>::value,
             Detail::Empty, FailureType>::type;
 
-        using DeductedSharedType = typename
+        using DeductedSharedType =
             typename std::conditional<std::is_same<SuccessType, FailureType>::value,
             SuccessType, Detail::Empty>::type;
 
