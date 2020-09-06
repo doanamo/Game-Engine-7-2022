@@ -14,9 +14,8 @@
     Event Broker
 
     Shared point where multiple receiver and dispatcher can be stored and
-    signaled for different event types.
-
-    Note that dispatchers are stored in std::any which can trigger allocations.
+    signaled for different event types. Note that dispatchers are stored
+    in std::any which can trigger allocations.
 */
 
 namespace Event
@@ -48,7 +47,8 @@ namespace Event
         }
 
         template<typename Type>
-        bool Subscribe(Receiver<bool(const Type&)>& receiver, bool unsubscribeReceiver = false, bool insertFront = false)
+        bool Subscribe(Receiver<bool(const Type&)>& receiver,
+            bool unsubscribeReceiver = false, bool insertFront = false)
         {
             using DispatcherPtr = std::shared_ptr<Dispatcher<bool(const Type&), CollectWhileTrue>>;
 
@@ -57,9 +57,11 @@ namespace Event
 
             if(it == m_dispatcherMap.end())
             {
-                DispatcherPtr dispatcher = std::make_shared<Dispatcher<bool(const Type&), CollectWhileTrue>>(true);
+                DispatcherPtr dispatcher =
+                    std::make_shared<Dispatcher<bool(const Type&), CollectWhileTrue>>(true);
                 DispatcherHandle handle = std::make_any<DispatcherPtr>(dispatcher);
-                DispatcherInvoker invoker = [](DispatcherHandle& dispatcherHandle, const EventHandle& eventHandle) -> bool
+                DispatcherInvoker invoker = [](DispatcherHandle& dispatcherHandle,
+                    const EventHandle& eventHandle) -> bool
                 {
                     auto& dispatcher = std::any_cast<DispatcherPtr&>(dispatcherHandle);
                     auto& event = std::any_cast<const Type&>(eventHandle);

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "Common/Debug.hpp"
 #include "Event/Dispatcher.hpp"
 #include "Event/Delegate.hpp"
 #include "Event/Policies.hpp"
+#include <Common/Debug.hpp>
 
 namespace Event
 {
@@ -23,7 +23,6 @@ namespace Event
 
     Invokes delegate after receiving signal from dispatcher.
     Single receiver instance can be subscribed to only one dispatcher.
-
     See Dispatcher template class for more information.
 */
 
@@ -33,7 +32,8 @@ namespace Event
     class Receiver;
 
     template<typename ReturnType, typename... Arguments>
-    class Receiver<ReturnType(Arguments...)> : public Delegate<ReturnType(Arguments...)>, private Common::NonCopyable
+    class Receiver<ReturnType(Arguments...)>
+        : public Delegate<ReturnType(Arguments...)>, private Common::NonCopyable
     {
     public:
         friend DispatcherBase<ReturnType(Arguments...)>;
@@ -60,12 +60,13 @@ namespace Event
 
         Receiver& operator=(Receiver&& other)
         {
-            // Swap only subscription and leave bound function as is.
-            // Swapping list nodes does not require references to be reset.
+            /*
+                Swap only subscription and leave bound function as is.
+                Swapping list nodes does not require references to be reset.
+            */
 
             std::swap(m_listNode, other.m_listNode);
             std::swap(m_dispatcher, other.m_dispatcher);
-
             return *this;
         }
 
@@ -83,8 +84,10 @@ namespace Event
                 m_dispatcher->Unsubscribe(*this);
             }
 
-            ASSERT(m_dispatcher == nullptr, "Dispatcher did not unsubscribe this receiver properly!");
-            ASSERT(m_listNode.IsFree(), "Dispatcher did not unsubscribe this receiver properly!");
+            ASSERT(m_dispatcher == nullptr,
+                "Dispatcher did not unsubscribe this receiver properly!");
+            ASSERT(m_listNode.IsFree(),
+                "Dispatcher did not unsubscribe this receiver properly!");
         }
 
         bool IsSubscribed() const
@@ -101,7 +104,8 @@ namespace Event
 
         ReturnType Invoke(Arguments&&... arguments)
         {
-            return Delegate<ReturnType(Arguments...)>::Invoke(std::forward<Arguments>(arguments)...);
+            return Delegate<ReturnType(Arguments...)>
+                ::Invoke(std::forward<Arguments>(arguments)...);
         }
 
         ReceiverListNode m_listNode;

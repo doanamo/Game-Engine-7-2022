@@ -51,21 +51,26 @@ namespace Event
     class CollectorDispatcher;
 
     template<class Collector, typename ReturnType, typename... Arguments>
-    class CollectorDispatcher<Collector, ReturnType(Arguments...)> : public ReceiverInvoker<ReturnType(Arguments...)>
+    class CollectorDispatcher<Collector, ReturnType(Arguments...)>
+        : public ReceiverInvoker<ReturnType(Arguments...)>
     {
     public:
-        void operator()(Collector& collector, Receiver<ReturnType(Arguments...)>* receiver, Arguments&&... arguments)
+        void operator()(Collector& collector,
+            Receiver<ReturnType(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr);
-            collector.ConsumeResult(this->Dispatch(receiver, std::forward<Arguments>(arguments)...));
+            collector.ConsumeResult(this->Dispatch(
+                receiver, std::forward<Arguments>(arguments)...));
         }
     };
 
     template<class Collector, typename... Arguments>
-    class CollectorDispatcher<Collector, void(Arguments...)> : public ReceiverInvoker<void(Arguments...)>
+    class CollectorDispatcher<Collector, void(Arguments...)>
+        : public ReceiverInvoker<void(Arguments...)>
     {
     public:
-        void operator()(Collector& collector, Receiver<void(Arguments...)>* receiver, Arguments&&... arguments)
+        void operator()(Collector& collector,
+            Receiver<void(Arguments...)>* receiver, Arguments&&... arguments)
         {
             ASSERT(receiver != nullptr);
             this->Dispatch(receiver, std::forward<Arguments>(arguments)...);
@@ -113,7 +118,8 @@ namespace Event
 
         void Unsubscribe(ReceiverType& receiver)
         {
-            VERIFY(receiver.m_dispatcher == this, "Attempting to unsubscribe a receiver that is not subscribed to this dispatcher!");
+            VERIFY(receiver.m_dispatcher == this,
+                "Attempting to unsubscribe a receiver that is not subscribed to this dispatcher!");
 
             receiver.m_listNode.Remove();
             receiver.m_dispatcher = nullptr;
@@ -259,7 +265,6 @@ namespace Event
         using Super = DispatcherBase<void(Arguments...)>;
 
         Dispatcher() = default;
-
         Dispatcher(Dispatcher&& other) = default;
         Dispatcher& operator=(Dispatcher&& other) = default;
 

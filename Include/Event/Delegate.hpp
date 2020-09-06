@@ -39,29 +39,31 @@ namespace Event
         template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
         static ReturnType MethodStub(InstancePtr instance, Arguments&&... arguments)
         {
-            return (static_cast<InstanceType*>(instance)->*Function)(std::forward<Arguments>(arguments)...);
+            return (static_cast<InstanceType*>(instance)->*Function)
+                (std::forward<Arguments>(arguments)...);
         }
 
         template<class InstanceType>
         static ReturnType FunctorStub(InstancePtr instance, Arguments&&... arguments)
         {
-            return (*static_cast<InstanceType*>(instance))(std::forward<Arguments>(arguments)...);
+            return (*static_cast<InstanceType*>(instance))
+                (std::forward<Arguments>(arguments)...);
         }
 
     public:
-        Delegate() :
-            m_instance(nullptr),
-            m_function(nullptr)
+        Delegate() = default;
+        virtual ~Delegate() = default;
+
+        Delegate(const Delegate& other)
         {
+            *this = other;
         }
 
-        Delegate(std::nullptr_t) :
-            Delegate()
+        Delegate& operator=(const Delegate& other)
         {
-        }
-
-        virtual ~Delegate()
-        {
+            m_instance = other.m_instance;
+            m_function = other.m_function;
+            return *this;
         }
 
         Delegate(Delegate&& other) :
@@ -70,26 +72,16 @@ namespace Event
             *this = std::move(other);
         }
 
-        Delegate(const Delegate& other)
-        {
-            *this = other;
-        }
-
         Delegate& operator=(Delegate&& other)
         {
-            // Performing move of a delegate is very dangerous
-            // as they hold references to instances they are invoking.
-            // Most often it is preferred to omit moving a delegate.
+            /*
+                Performing move of a delegate is very dangerous
+                as they hold references to instances they are invoking.
+                Most often it is preferred to omit moving a delegate.
+            */
 
             std::swap(m_instance, other.m_instance);
             std::swap(m_function, other.m_function);
-            return *this;
-        }
-
-        Delegate& operator=(const Delegate& other)
-        {
-            m_instance = other.m_instance;
-            m_function = other.m_function;
             return *this;
         }
 
@@ -146,8 +138,11 @@ namespace Event
         template<typename Lambda>
         void Bind(const Lambda& lambda)
         {
-            // Every lambda has different type. We can abuse this to create static instance
-            // for every permutation of this methods called with different lambda type.
+            /*
+                Every lambda has different type. We can abuse this to create
+                static instance for every permutation of methods called with
+                different lambda type.
+            */
 
             static Lambda staticLambda = lambda;
             m_instance = static_cast<void*>(&staticLambda);
@@ -156,7 +151,8 @@ namespace Event
 
         ReturnType Invoke(Arguments... arguments)
         {
-            VERIFY(m_function != nullptr, "Attempting to invoke a delegate without a bound function!");
+            VERIFY(m_function != nullptr,
+                "Attempting to invoke a delegate without a bound function!");
             return m_function(m_instance, std::forward<Arguments>(arguments)...);
         }
 
@@ -171,7 +167,7 @@ namespace Event
         }
 
     private:
-        InstancePtr m_instance;
-        FunctionPtr m_function;
+        InstancePtr m_instance = nullptr;
+        FunctionPtr m_function = nullptr;
     };
 }

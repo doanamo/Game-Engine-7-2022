@@ -12,13 +12,19 @@ namespace Event
 {
     enum class SubscriptionPolicy
     {
-        RetainSubscription,  // Keep existing subscription and fail subsequent subscription attempts.
-        ReplaceSubscription, // Remove existing subscription to guarantee subsequent subscription attempts. 
+        // Keep existing subscription and fail subsequent subscription attempts.
+        RetainSubscription,
+
+        // Remove existing subscription to guarantee subsequent subscription attempts.
+        ReplaceSubscription,
     };
 
     enum class PriorityPolicy
     {
-        InsertBack,  // Give normal priority by subscribing at the end of receiver list.
-        InsertFront, // Give highest priority by subscribing at the beginning of receiver list.
+        // Give normal priority by subscribing at the end of receiver list.
+        InsertBack,
+
+        // Give highest priority by subscribing at the beginning of receiver list.
+        InsertFront,
     };
 }

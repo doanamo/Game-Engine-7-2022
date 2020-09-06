@@ -7,9 +7,10 @@
 /*
     Collector
     
-    Utility template classes for storing return values of multiple receiver invocations.
-    Returns boolean on call that indicates the final result of multiple invocations.
-    Some collectors may terminate further receiver invocations on specific return values.
+    Utility template classes for storing return values of multiple receiver
+    invocations. Returns boolean on call that indicates the final result of
+    multiple invocations. Some collectors may terminate further receiver
+    invocations on specific return values.
 */
 
 namespace Event
