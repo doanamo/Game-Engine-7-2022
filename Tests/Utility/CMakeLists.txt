@@ -29,4 +29,5 @@ target_link_libraries(TestUtility PRIVATE Common)
 #
 
 set_target_properties(TestUtility PROPERTIES FOLDER "Tests")
-set_target_properties(TestUtility PROPERTIES COMPILE_DEFINITIONS TESTS_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
+set_target_properties(TestUtility PROPERTIES COMPILE_DEFINITIONS
+    TESTS_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
