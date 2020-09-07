@@ -28,7 +28,8 @@ set(INCLUDE_FILES
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/"
+    PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"

@@ -72,6 +72,6 @@ bool SpriteComponent::IsFiltered() const
 
 TransformComponent* SpriteComponent::GetTransformComponent() const
 {
-    ASSERT(m_transformComponent != nullptr, "Returning not yet acquired transform!");
+    ASSERT(m_transformComponent);
     return m_transformComponent;
 }

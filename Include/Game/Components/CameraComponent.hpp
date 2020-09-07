@@ -8,6 +8,8 @@
 
 /*
     Camera Component
+
+    Projection transform component that represents camera view.
 */
 
 namespace Game
@@ -28,7 +30,6 @@ namespace Game
             using Type = unsigned int;
         };
 
-    public:
         CameraComponent();
         ~CameraComponent();
 
@@ -39,9 +40,9 @@ namespace Game
         TransformComponent* GetTransformComponent();
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
+        bool OnInitialize(ComponentSystem* componentSystem,
+            const EntityHandle& entitySelf) override;
 
-    private:
         TransformComponent* m_transform = nullptr;
         ProjectionTypes::Type m_projection = ProjectionTypes::Perspective;
         glm::vec2 m_viewSize = glm::vec2(2.0f, 2.0f);

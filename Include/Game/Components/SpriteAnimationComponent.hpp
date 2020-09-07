@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include <memory>
-#include <Graphics/Sprite/SpriteAnimationList.hpp>
 #include "Game/Component.hpp"
+#include <Graphics/Sprite/SpriteAnimationList.hpp>
 
 /*
     Sprite Animation Component
+
+    Playback control for animated sequence of sprites.
 */
 
 namespace Game
@@ -39,26 +40,27 @@ namespace Game
 
         void SetSpriteAnimationList(SpriteAnimationListPtr spriteAnimationList);
         void ResetInterpolation();
+        void Tick(float timeDelta);
 
         void Play(std::string animationName, bool loop);
         bool IsPlaying() const;
+        bool IsLooped() const;
         void Pause();
         void Resume();
         void Stop();
 
-        void Tick(float timeDelta);
         float CalculateAnimationTime(float timeAlpha) const;
-
         SpriteComponent* GetSpriteComponent() const;
         const SpriteAnimationListPtr& GetSpriteAnimationList() const;
         const SpriteAnimation* GetSpriteAnimation() const;
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
+        bool OnInitialize(ComponentSystem* componentSystem,
+            const EntityHandle& entitySelf) override;
 
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;
-        const SpriteAnimation* m_spriteAnimation = nullptr;
+        const SpriteAnimation* m_playingSpriteAnimation = nullptr;
         PlaybackFlags::Type m_playbackInfo = PlaybackFlags::None;
         float m_currentAnimationTime = 0.0f;
         float m_previousAnimationTime = 0.0f;

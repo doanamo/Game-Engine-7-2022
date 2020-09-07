@@ -13,7 +13,6 @@ CameraComponent::~CameraComponent() = default;
 
 bool CameraComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
-    // Retrieve transform component.
     m_transform = componentSystem->Lookup<TransformComponent>(entitySelf);
     if(m_transform == nullptr)
         return false;
@@ -41,7 +40,6 @@ glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
 {
     glm::mat4 output(1.0f);
 
-    // Calculate camera projection component.
     if(m_projection == ProjectionTypes::Orthogonal)
     {
         float viewportAspectRatio = (float)viewportSize.x / viewportSize.y;
@@ -81,10 +79,7 @@ glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
         ASSERT(false, "Unknown camera projection type!");
     }
 
-    // Calculate camera transform component.
-    // #improvement: Calculate camera rotation transform for 3D movement.
     output = glm::translate(output, -m_transform->GetPosition());
-
     return output;
 }
 

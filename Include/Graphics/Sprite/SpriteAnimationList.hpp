@@ -62,18 +62,18 @@ namespace Graphics
         };
 
         using AnimationList = std::vector<Animation>;
-        using AnimationMap = std::unordered_map<std::string, std::size_t>;
+        using AnimationMap = std::unordered_map<std::string, std::uint32_t>;
 
-    public:
+        using AnimationIndexResult = Common::Result<uint32_t, void>;
+
         ~SpriteAnimationList();
 
-        std::optional<std::size_t> GetAnimationIndex(std::string animationName) const;
+        AnimationIndexResult GetAnimationIndex(std::string animationName) const;
         const Animation* GetAnimationByIndex(std::size_t animationIndex) const;
 
     private:
         SpriteAnimationList();
 
-    private:
         AnimationList m_animationList;
         AnimationMap m_animationMap;
     };

@@ -194,26 +194,23 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
         // Add animation to list.
         instance->m_animationList.emplace_back(std::move(animation));
-        instance->m_animationMap.emplace(animationName, instance->m_animationList.size() - 1);
+        instance->m_animationMap.emplace(animationName,
+            Common::NumericalCast<uint32_t>(instance->m_animationList.size() - 1));
     }
 
     // Success!
     return Common::Success(std::move(instance));
 }
 
-std::optional<std::size_t> SpriteAnimationList::GetAnimationIndex(std::string animationName) const
+SpriteAnimationList::AnimationIndexResult SpriteAnimationList::GetAnimationIndex(std::string animationName) const
 {
-    // Find animation index by name.
     auto it = m_animationMap.find(animationName);
+    if(it == m_animationMap.end())
+    {
+        return Common::Failure();
+    }
 
-    if(it != m_animationMap.end())
-    {
-        return it->second;
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    return Common::Success(it->second);
 }
 
 const SpriteAnimationList::Animation* SpriteAnimationList::GetAnimationByIndex(std::size_t animationIndex) const

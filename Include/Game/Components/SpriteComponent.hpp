@@ -4,12 +4,14 @@
 
 #pragma once
 
+#include "Game/Component.hpp"
 #include <Graphics/Sprite/Sprite.hpp>
 #include <Graphics/TextureView.hpp>
-#include "Game/Component.hpp"
 
 /*
     Sprite Component
+
+    Graphical component representing textures quad shape.
 */
 
 namespace Game
@@ -36,9 +38,9 @@ namespace Game
         bool IsFiltered() const;
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf) override;
+        bool OnInitialize(ComponentSystem* componentSystem,
+            const EntityHandle& entitySelf) override;
 
-    private:
         TransformComponent* m_transformComponent = nullptr;
         Graphics::TextureView m_textureView;
         glm::vec4 m_rectangle = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);

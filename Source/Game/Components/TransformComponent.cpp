@@ -11,7 +11,10 @@ TransformComponent::~TransformComponent() = default;
 
 void TransformComponent::ResetInterpolation()
 {
-    // Update previous transform to match current one.
+    /*
+        Update transform for interpolation in next frame range.
+    */
+
     m_previousPosition = m_currentPosition;
     m_previousRotation = m_currentRotation;
     m_previousScale = m_currentScale;
@@ -47,11 +50,16 @@ const glm::vec3& TransformComponent::GetScale() const
     return m_currentScale;
 }
 
-glm::mat4 TransformComponent::CalculateMatrix(float alpha) const
+glm::mat4 TransformComponent::CalculateMatrix(float timeAlpha) const
 {
+    /*
+        Calculate interpolated transform based on
+        previous/current transforms and time alpha.
+    */
+
     glm::mat4 output(1.0f);
-    output = glm::translate(output, glm::lerp(m_previousPosition, m_currentPosition, alpha));
-    output = output * glm::mat4_cast(glm::slerp(m_previousRotation, m_currentRotation, alpha));
-    output = glm::scale(output, glm::lerp(m_previousScale, m_currentScale, alpha));
+    output = glm::translate(output, glm::lerp(m_previousPosition, m_currentPosition, timeAlpha));
+    output = output * glm::mat4_cast(glm::slerp(m_previousRotation, m_currentRotation, timeAlpha));
+    output = glm::scale(output, glm::lerp(m_previousScale, m_currentScale, timeAlpha));
     return output;
 }
