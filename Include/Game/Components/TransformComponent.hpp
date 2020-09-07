@@ -40,6 +40,4 @@ namespace Game
         glm::vec3 m_currentScale = glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec3 m_previousScale = glm::vec3(1.0f, 1.0f, 1.0f);
     };
-
-    static_assert(sizeof(TransformComponent) == 88, "Unexpected transform component size!");
 }
