@@ -5,7 +5,7 @@
 #include <TestHelpers.hpp>
 #include <Common/HandleMap.hpp>
 
-int TestHandle()
+bool TestHandle()
 {
     // Check invalid handles.
     struct Empty
@@ -28,7 +28,7 @@ int TestHandle()
     return true;
 }
 
-int TestMap(const int cacheSize)
+bool TestMap(const int cacheSize)
 {
     // Create empty handle map.
     struct Entity
@@ -180,7 +180,7 @@ int TestMap(const int cacheSize)
     return true;
 }
 
-int TestIterator()
+bool TestIterator()
 {
     // Create populated handle map.
     struct Entity

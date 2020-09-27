@@ -4,7 +4,7 @@
 
 #include <TestHelpers.hpp>
 
-int TestEmpty()
+bool TestEmpty()
 {
     return true;
 }
