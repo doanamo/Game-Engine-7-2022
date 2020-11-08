@@ -67,8 +67,8 @@ namespace Debug
     Used as sanity check to guard against programming errors.
 
     Behavior in different build configurations:
-    - Debug: Triggers abort
-    - Release: Stripped out
+    - Debug: Evaluates expression and triggers abort
+    - Release: Stripped out completely (does not evaluate expression)
 
     Example usage:
         ASSERT(m_initialized);
@@ -107,8 +107,8 @@ namespace Debug
     Used to safeguard against errors we choose not to handle.
 
     Behavior in different build configurations:
-    - Debug: Triggers abort
-    - Release: Triggers abort
+    - Debug: Evaluates expression and triggers abort
+    - Release: Evaluates expression and triggers abort
 
     Example usage:
         VERIFY(m_initialized);
@@ -143,8 +143,8 @@ namespace Debug
     despite some possible error.
 
     Behavior in different build configurations:
-    - Debug: Logs warning
-    - Release: Stripped out
+    - Debug: Evaluates expression and logs warning
+    - Release: Evaluates expression only
 
     Example usage:
         CHECK(m_initialized);
@@ -173,9 +173,10 @@ namespace Debug
             return value; \
         }
 #else
-    #define CHECK_SIMPLE(expression) ((void)0)
-    #define CHECK_MESSAGE(expression, message, ...) ((void)0) 
-    #define CHECK_OR_RETURN(expression, value, message, ...) ((void)0) 
+    #define CHECK_SIMPLE(expression) if(expression) { } else { ((void)0); }
+    #define CHECK_MESSAGE(expression, message, ...) if(expression) { } else { ((void)0); } 
+    #define CHECK_OR_RETURN(expression, value, message, ...) \
+        if(expression) { } else { return value; }
 #endif
 
 #define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
