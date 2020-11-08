@@ -177,24 +177,20 @@ void EntitySystem::ProcessCommands()
 
 bool EntitySystem::IsEntityValid(const EntityHandle entity) const
 {
-    // Retrieve entity entry.
+    return m_entities.LookupHandle(entity).IsSuccess();
+}
+
+bool Game::EntitySystem::IsEntityCreated(const EntityHandle entity) const
+{
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
         EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-        const EntityEntry * entityEntry = handleEntry.storage;
-        ASSERT(entityEntry != nullptr);
+        const EntityEntry* entityEntry = handleEntry.storage;
+        ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
 
-        // Make sure queried handle exists.
-        ASSERT(entityEntry->flags & EntityFlags::Exists, "Referenced entity handle is not marked as existing!");
-
-        // Make sure entity pointed by queried handle has been created.
         if(!(entityEntry->flags & EntityFlags::Created))
             return false;
-
-        // Check if handle versions match.
-        if(handleEntry.handle.GetVersion() != entity.GetVersion())
-            return false;
-
+        
         return true;
     }
     else
@@ -205,13 +201,11 @@ bool EntitySystem::IsEntityValid(const EntityHandle entity) const
 
 const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
 {
-    // Retrieve handle entry.
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
         EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
         const EntityEntry* entityEntry = handleEntry.storage;
-        ASSERT(entityEntry != nullptr);
-
+        ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
         return entityEntry;
     }
     else
@@ -222,6 +216,5 @@ const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle
 
 std::size_t EntitySystem::GetEntityCount() const
 {
-    // Return number of valid handles.
     return m_entities.GetValidHandleCount();
 }

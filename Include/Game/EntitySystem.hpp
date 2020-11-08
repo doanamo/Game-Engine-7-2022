@@ -86,6 +86,7 @@ namespace Game
         void ProcessCommands();
 
         bool IsEntityValid(const EntityHandle entity) const;
+        bool IsEntityCreated(const EntityHandle entity) const;
         const EntityEntry* GetEntityEntry(const EntityHandle entity) const;
         std::size_t GetEntityCount() const;
 
