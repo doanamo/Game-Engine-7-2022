@@ -217,17 +217,7 @@ namespace Common
             return std::get_if<StorageFailureIndex>(&m_storage) != nullptr;
         }
 
-        bool operator==(const bool boolean) const
-        {
-            return IsSuccess() == boolean;
-        }
-
-        bool operator!=(const bool boolean) const
-        {
-            return IsSuccess() != boolean;
-        }
-
-        explicit operator bool() const
+        operator bool() const
         {
             return IsSuccess();
         }
