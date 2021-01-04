@@ -37,7 +37,10 @@ GameInstance::CreateResult GameInstance::Create()
 
     // Create identity system.
     // Allows readable names to be assigned to entities.
-    instance->identitySystem = IdentitySystem::Create(instance->entitySystem.get()).UnwrapOr(nullptr);
+    Game::IdentitySystem::CreateFromParams identitySystemParams;
+    identitySystemParams.entitySystem = instance->entitySystem.get();
+
+    instance->identitySystem = IdentitySystem::Create(identitySystemParams).UnwrapOr(nullptr);
     if(instance->identitySystem == nullptr)
     {
         LOG_ERROR("Could not create identity system!");
