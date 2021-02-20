@@ -124,20 +124,20 @@ namespace Event
         }
 
         template<typename Lambda>
-        Delegate(const Lambda& lambda)
+        Delegate(Lambda&& lambda)
         {
-            Bind(lambda);
+            Bind(std::forward<Lambda>(lambda));
         }
 
         template<typename Lambda>
-        Delegate& operator=(const Lambda& lambda)
+        Delegate& operator=(Lambda&& lambda)
         {
-            Bind(lambda);
+            Bind(std::forward<Lambda>(lambda));
             return *this;
         }
 
         template<typename Lambda>
-        void Bind(const Lambda& lambda)
+        void Bind(Lambda&& lambda)
         {
             /*
                 Every lambda has different type. We can abuse this to create
@@ -145,7 +145,7 @@ namespace Event
                 different lambda type.
             */
 
-            static Lambda staticLambda = lambda;
+            static Lambda staticLambda = std::move(lambda);
             m_instance = static_cast<void*>(&staticLambda);
             m_function = &FunctorStub<Lambda>;
         }
