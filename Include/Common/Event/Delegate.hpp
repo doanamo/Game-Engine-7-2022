@@ -150,14 +150,12 @@ namespace Event
             m_function = &FunctorStub<Lambda>;
         }
 
-        ReturnType Invoke(Arguments... arguments)
+        auto Invoke(Arguments... arguments)
         {
-            ASSERT_ALWAYS(m_function != nullptr,
-                "Attempting to invoke a delegate without a bound function!");
-            return m_function(m_instance, std::forward<Arguments>(arguments)...);
+            return Invoke(std::is_void<ReturnType>{}, std::forward<Arguments>(arguments)...);
         }
 
-        ReturnType operator()(Arguments... arguments)
+        auto operator()(Arguments... arguments)
         {
             return Invoke(std::forward<Arguments>(arguments)...);
         }
@@ -168,6 +166,26 @@ namespace Event
         }
 
     private:
+        ReturnType Invoke(std::false_type, Arguments&&... arguments)
+        {
+            if(m_function)
+            {
+                return m_function(m_instance, std::forward<Arguments>(arguments)...);
+            }
+            else
+            {
+                return {};
+            }
+        }
+
+        void Invoke(std::true_type, Arguments&&... arguments)
+        {
+            if(m_function)
+            {
+                m_function(m_instance, std::forward<Arguments>(arguments)...);
+            }
+        }
+
         InstancePtr m_instance = nullptr;
         FunctionPtr m_function = nullptr;
     };
