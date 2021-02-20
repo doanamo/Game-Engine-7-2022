@@ -29,31 +29,37 @@ namespace Event
     {
     private:
         using InstancePtr = void*;
-        using FunctionPtr = ReturnType(*)(InstancePtr, Arguments&&...);
+        using InvokerPtr = ReturnType(*)(InstancePtr, Arguments&&...);
+        using CopierPtr = void*(*)(void*);
+        using DeleterPtr = void(*)(void*);
 
         template<ReturnType(*Function)(Arguments...)>
-        static ReturnType FunctionStub(InstancePtr instance, Arguments&&... arguments)
+        static ReturnType FunctionStub(InstancePtr function, Arguments&&... arguments)
         {
             return (Function)(std::forward<Arguments>(arguments)...);
         }
 
-        template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
-        static ReturnType MethodStub(InstancePtr instance, Arguments&&... arguments)
+        template<class FunctionType, ReturnType(FunctionType::*Function)(Arguments...)>
+        static ReturnType MethodStub(InstancePtr function, Arguments&&... arguments)
         {
-            return (static_cast<InstanceType*>(instance)->*Function)
+            return (static_cast<FunctionType*>(function)->*Function)
                 (std::forward<Arguments>(arguments)...);
         }
 
-        template<class InstanceType>
-        static ReturnType FunctorStub(InstancePtr instance, Arguments&&... arguments)
+        template<class FunctionType>
+        static ReturnType FunctorStub(InstancePtr function, Arguments&&... arguments)
         {
-            return (*static_cast<InstanceType*>(instance))
+            return (*static_cast<FunctionType*>(function))
                 (std::forward<Arguments>(arguments)...);
         }
 
     public:
         Delegate() = default;
-        virtual ~Delegate() = default;
+
+        virtual ~Delegate()
+        {
+            ClearBinding();
+        }
 
         Delegate(const Delegate& other)
         {
@@ -62,8 +68,18 @@ namespace Event
 
         Delegate& operator=(const Delegate& other)
         {
-            m_instance = other.m_instance;
-            m_function = other.m_function;
+            if(other.m_copier)
+            {
+                m_instance = other.m_copier(other.m_instance);
+            }
+            else
+            {
+                m_instance = other.m_instance;
+            }
+
+            m_invoker = other.m_invoker;
+            m_copier = other.m_copier;
+            m_deleter = other.m_deleter;
             return *this;
         }
 
@@ -75,14 +91,10 @@ namespace Event
 
         Delegate& operator=(Delegate&& other)
         {
-            /*
-                Performing move of a delegate is very dangerous
-                as they hold references to instances they are invoking.
-                Most often it is preferred to omit moving a delegate.
-            */
-
             std::swap(m_instance, other.m_instance);
-            std::swap(m_function, other.m_function);
+            std::swap(m_invoker, other.m_invoker);
+            std::swap(m_copier, other.m_copier);
+            std::swap(m_deleter, other.m_deleter);
             return *this;
         }
 
@@ -94,60 +106,81 @@ namespace Event
 
         void Bind(std::nullptr_t)
         {
-            m_instance = nullptr;
-            m_function = nullptr;
+            ClearBinding();
         }
 
         template<ReturnType(*Function)(Arguments...)>
         void Bind()
         {
+            ClearBinding();
+
             m_instance = nullptr;
-            m_function = &FunctionStub<Function>;
+            m_invoker = &FunctionStub<Function>;
         }
 
-        template<class InstanceType>
-        void Bind(InstanceType* instance)
+        template<class FunctionType>
+        void Bind(FunctionType* instance)
         {
-            ASSERT(instance != nullptr, "Received nullptr as functor instance!");
+            ClearBinding();
 
-            m_instance = instance;
-            m_function = &FunctorStub<InstanceType>;
+            if(instance)
+            {
+                m_instance = instance;
+                m_invoker = &FunctorStub<FunctionType>;
+            }
         }
 
-        template<class InstanceType, ReturnType(InstanceType::*Function)(Arguments...)>
-        void Bind(InstanceType* instance)
+        template<class FunctionType, ReturnType(FunctionType::*Function)(Arguments...)>
+        void Bind(FunctionType* instance)
         {
-            ASSERT(instance != nullptr, "Received nullptr as method instance!");
+            ClearBinding();
 
-            m_instance = instance;
-            m_function = &MethodStub<InstanceType, Function>;
+            if(instance)
+            {
+                m_instance = instance;
+                m_invoker = &MethodStub<FunctionType, Function>;
+            }
         }
 
         template<typename Lambda>
-        Delegate(Lambda&& lambda)
+        Delegate(Lambda lambda)
         {
             Bind(std::forward<Lambda>(lambda));
         }
 
         template<typename Lambda>
-        Delegate& operator=(Lambda&& lambda)
+        Delegate& operator=(Lambda lambda)
         {
             Bind(std::forward<Lambda>(lambda));
             return *this;
         }
 
         template<typename Lambda>
-        void Bind(Lambda&& lambda)
+        void Bind(Lambda lambda)
         {
-            /*
-                Every lambda has different type. We can abuse this to create
-                static instance for every permutation of methods called with
-                different lambda type.
-            */
+            ClearBinding();
 
-            static Lambda staticLambda = std::move(lambda);
-            m_instance = static_cast<void*>(&staticLambda);
-            m_function = &FunctorStub<Lambda>;
+            if constexpr(std::is_convertible<Lambda, ReturnType(*)(Arguments...)>::value)
+            {
+                m_instance = static_cast<void*>(&lambda);
+                m_invoker = &FunctorStub<Lambda>;
+            }
+            else
+            {
+                m_instance = new Lambda(std::forward<Lambda>(lambda));
+                m_invoker = &FunctorStub<Lambda>;
+
+                m_copier = [](void* lambda) -> void*
+                {
+                    ASSERT(lambda, "Lambda instance should be present if there is copier!");
+                    return new Lambda(*static_cast<Lambda*>(lambda));
+                };
+
+                m_deleter = [](void* lambda)
+                {
+                    delete static_cast<Lambda*>(lambda);
+                };
+            }
         }
 
         auto Invoke(Arguments... arguments)
@@ -162,15 +195,28 @@ namespace Event
 
         bool IsBound()
         {
-            return m_function != nullptr;
+            return m_invoker != nullptr;
         }
 
     private:
+        void ClearBinding()
+        {
+            if(m_deleter)
+            {
+                m_deleter(m_instance);
+                m_copier = nullptr;
+                m_deleter = nullptr;
+            }
+
+            m_instance = nullptr;
+            m_invoker = nullptr;
+        }
+
         ReturnType Invoke(std::false_type, Arguments&&... arguments)
         {
-            if(m_function)
+            if(m_invoker)
             {
-                return m_function(m_instance, std::forward<Arguments>(arguments)...);
+                return m_invoker(m_instance, std::forward<Arguments>(arguments)...);
             }
             else
             {
@@ -180,13 +226,15 @@ namespace Event
 
         void Invoke(std::true_type, Arguments&&... arguments)
         {
-            if(m_function)
+            if(m_invoker)
             {
-                m_function(m_instance, std::forward<Arguments>(arguments)...);
+                m_invoker(m_instance, std::forward<Arguments>(arguments)...);
             }
         }
 
         InstancePtr m_instance = nullptr;
-        FunctionPtr m_function = nullptr;
+        InvokerPtr m_invoker = nullptr;
+        CopierPtr m_copier = nullptr;
+        DeleterPtr m_deleter = nullptr;
     };
 }

@@ -11,59 +11,87 @@
 
 static const char* Text = "Hello world!";
 
-class CopyCounter
+class Counter
 {
 public:
-    CopyCounter(int* counter) :
-        counter(counter)
+    Counter(int* copyCounter = nullptr, int* instanceCounter = nullptr) :
+        copyCounter(copyCounter),
+        instanceCounter(instanceCounter)
     {
-    }
-
-    CopyCounter(const CopyCounter& other) :
-        counter(other.counter)
-    {
-        if(counter)
+        if(instanceCounter)
         {
-            *counter += 1;
+            *instanceCounter += 1;
         }
     }
 
-    CopyCounter(CopyCounter&& other) :
-        counter(other.counter)
+    Counter(const Counter& other) :
+        copyCounter(other.copyCounter),
+        instanceCounter(other.instanceCounter)
     {
+        if(copyCounter)
+        {
+            *copyCounter += 1;
+        }
+
+        if(instanceCounter)
+        {
+            *instanceCounter += 1;
+        }
     }
 
-    CopyCounter& operator=(const CopyCounter& other)
+    Counter(Counter&& other) :
+        copyCounter(other.copyCounter),
+        instanceCounter(other.instanceCounter)
+    {
+        if(instanceCounter)
+        {
+            *instanceCounter += 1;
+        }
+    }
+
+    ~Counter()
+    {
+        if(instanceCounter)
+        {
+            *instanceCounter -= 1;
+        }
+    }
+
+    Counter& operator=(const Counter& other)
     {
         if(&other != this)
         {
-            counter = other.counter;
+            copyCounter = other.copyCounter;
 
-            if(counter)
+            if(copyCounter)
             {
-                *counter += 1;
+                *copyCounter += 1;
             }
         }
 
         return *this;
     }
 
-    CopyCounter& operator=(CopyCounter&& other)
+    Counter& operator=(Counter&& other)
     {
         if(&other != this)
         {
-            counter = other.counter;
-            other.counter = nullptr;
+            copyCounter = other.copyCounter;
+            other.copyCounter = nullptr;
+
+            instanceCounter = other.instanceCounter;
+            other.instanceCounter = nullptr;
         }
 
         return *this;
     }
 
 private:
-    int* counter = nullptr;
+    int* copyCounter = nullptr;
+    int* instanceCounter = nullptr;
 };
 
-char Function(CopyCounter instance, int index)
+char Function(Counter instance, int index)
 {
     return Text[index];
 }
@@ -71,7 +99,7 @@ char Function(CopyCounter instance, int index)
 class BaseClass
 {
 public:
-    virtual char Method(CopyCounter instance, int index)
+    virtual char Method(Counter instance, int index)
     {
         return Text[index];
     }
@@ -80,7 +108,7 @@ public:
 class DerivedClass : public BaseClass
 {
 public:
-    char Method(CopyCounter instance, int index) override
+    char Method(Counter instance, int index) override
     {
         return Text[index];
     }
@@ -88,63 +116,128 @@ public:
 
 TEST_CASE("Event Delegate")
 {
-    int argumentCopyCount = 0;
-    CopyCounter instance(&argumentCopyCount);
-
-    Event::Delegate<char(CopyCounter instance, int i)> delegate;
-    REQUIRE(!delegate.IsBound());
-
-    SUBCASE("Static function binding")
+    SUBCASE("Binding")
     {
-        delegate.Bind<&Function>();
-        CHECK(delegate.IsBound());
-        CHECK(delegate.Invoke(instance, 4) == 'o');
-    }
+        int argumentCopyCount = 0;
+        Counter instance(&argumentCopyCount);
 
-    SUBCASE("Class method binding")
-    {
-        BaseClass baseClass;
-        delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-        CHECK(delegate.IsBound());
-        CHECK(delegate.Invoke(instance, 6) == 'w');
-    }
+        Event::Delegate<char(Counter instance, int i)> delegate;
+        REQUIRE(!delegate.IsBound());
 
-    SUBCASE("Virtual method binding")
-    {
-        DerivedClass derivedClass;
-        delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
-        CHECK(delegate.IsBound());
-        CHECK(delegate.Invoke(instance, 1) == 'e');
-    }
-
-    SUBCASE("Lambda function binding")
-    {
-        auto functor = [](CopyCounter instance, int index) -> char
+        SUBCASE("Static function binding")
         {
-            return Text[index];
-        };
+            delegate.Bind<&Function>();
+            CHECK(delegate.IsBound());
+            CHECK(delegate.Invoke(instance, 4) == 'o');
+        }
 
-        delegate.Bind(&functor);
-        CHECK(delegate.IsBound());
-        CHECK(delegate.Invoke(instance, 10) == 'd');
-    }
+        SUBCASE("Class method binding")
+        {
+            BaseClass baseClass;
+            delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
+            CHECK(delegate.IsBound());
+            CHECK(delegate.Invoke(instance, 6) == 'w');
+        }
 
-    SUBCASE("Lambda capture binding via constructor")
-    {
-        int modifier = 8;
-        delegate = Event::Delegate<char(CopyCounter, int)>(
-            [&modifier](CopyCounter instance, int index) -> char
+        SUBCASE("Virtual method binding")
+        {
+            DerivedClass derivedClass;
+            delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
+            CHECK(delegate.IsBound());
+            CHECK(delegate.Invoke(instance, 1) == 'e');
+        }
+
+        SUBCASE("Lambda function binding")
+        {
+            auto functor = [](Counter instance, int index) -> char
             {
-                return Text[index + modifier];
-            });
+                return Text[index];
+            };
 
-        CHECK(delegate.IsBound());
-        CHECK(delegate.Invoke(instance, 3) == '!');
+            delegate.Bind(&functor);
+            CHECK(delegate.IsBound());
+            CHECK(delegate.Invoke(instance, 10) == 'd');
+        }
+
+        SUBCASE("Lambda capture binding via constructor")
+        {
+            int modifier = 8;
+            delegate = Event::Delegate<char(Counter, int)>(
+                [&modifier](Counter instance, int index) -> char
+                {
+                    return Text[index + modifier];
+                });
+
+            CHECK(delegate.IsBound());
+            CHECK(delegate.Invoke(instance, 3) == '!');
+        }
+
+        delegate.Bind(nullptr);
+        CHECK(!delegate.IsBound());
+        CHECK(argumentCopyCount == 1);
     }
 
-    delegate.Bind(nullptr);
-    CHECK(!delegate.IsBound());
-    CHECK(argumentCopyCount == 1);
+    SUBCASE("Similar lambda signatures")
+    {
+        int i = 0, y = 0;
+
+        Event::Delegate<void()> delegateOne([&i]() { i = 3; });
+        Event::Delegate<void()> delegateTwo([&y]() { y = 7; });
+
+        delegateOne.Invoke();
+        delegateTwo.Invoke();
+
+        CHECK(i == 3);
+        CHECK(y == 7);
+    }
+
+    SUBCASE("Lambda capture lifetime")
+    {
+        int value = 0;
+        int copyCounter = 0;
+        int instanceCounter = 0;
+
+        Counter instance(&copyCounter, &instanceCounter);
+
+        {
+            Event::Delegate<void()> delegateOne;
+            Event::Delegate<void()> delegateTwo;
+
+            {
+                auto lambda = [&value, instance, &copyCounter, &instanceCounter]()
+                {
+                    value += 1;
+                };
+
+                delegateOne = lambda;
+            }
+
+            CHECK(copyCounter == 2);
+            CHECK(instanceCounter == 2);
+            
+            {
+                delegateTwo.Bind([&value, instance, &copyCounter, &instanceCounter]()
+                    {
+                        value += 10;
+                    });
+            }
+
+            CHECK(copyCounter == 3);
+            CHECK(instanceCounter == 3);
+
+            delegateOne.Invoke();
+            CHECK(value == 1);
+
+            delegateTwo.Invoke();
+            CHECK(value == 11);
+
+            CHECK(copyCounter == 3);
+            CHECK(instanceCounter == 3);
+        }
+
+        CHECK(copyCounter == 3);
+        CHECK(instanceCounter == 1);
+    }
 }
 
 TEST_CASE("Event Collector")
@@ -543,10 +636,10 @@ TEST_CASE("Event Dispatcher")
     SUBCASE("Dispatch copy count")
     {
         int argumentCopyCount = 0;
-        CopyCounter instance(&argumentCopyCount);
+        Counter instance(&argumentCopyCount);
 
-        Event::Dispatcher<char(CopyCounter, int)> dispatcher('\0');
-        Event::Receiver<char(CopyCounter, int)> receiver;
+        Event::Dispatcher<char(Counter, int)> dispatcher('\0');
+        Event::Receiver<char(Counter, int)> receiver;
         CHECK(receiver.Subscribe(dispatcher));
 
         SUBCASE("Function dispatch")
@@ -566,7 +659,7 @@ TEST_CASE("Event Dispatcher")
 
         SUBCASE("Lambda dispatch")
         {
-            receiver.Bind([](CopyCounter, int index) { return Text[index]; });
+            receiver.Bind([](Counter, int index) { return Text[index]; });
             CHECK(dispatcher.Dispatch(instance, 5) == ' ');
             CHECK(argumentCopyCount == 1);
         }
