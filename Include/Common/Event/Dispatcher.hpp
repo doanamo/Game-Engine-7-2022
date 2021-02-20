@@ -117,13 +117,15 @@ namespace Event
             return true;
         }
 
-        void Unsubscribe(ReceiverType& receiver)
+        bool Unsubscribe(ReceiverType& receiver)
         {
-            ASSERT_ALWAYS(receiver.m_dispatcher == this,
-                "Attempting to unsubscribe a receiver that is not subscribed to this dispatcher!");
+            if(receiver.m_dispatcher != this)
+                return false;
 
             receiver.m_listNode.Remove();
             receiver.m_dispatcher = nullptr;
+
+            return true;
         }
 
         void UnsubscribeAll()

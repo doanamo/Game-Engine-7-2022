@@ -78,17 +78,19 @@ namespace Event
             return dispatcher.Subscribe(*this, subscriptionPolicy, priorityPolicy);
         }
 
-        void Unsubscribe()
+        bool Unsubscribe()
         {
-            if(m_dispatcher != nullptr)
+            bool unsubcribed = false;
+
+            if(m_dispatcher)
             {
-                m_dispatcher->Unsubscribe(*this);
+                unsubcribed = m_dispatcher->Unsubscribe(*this);
             }
 
-            ASSERT(m_dispatcher == nullptr,
-                "Dispatcher did not unsubscribe this receiver properly!");
-            ASSERT(m_listNode.IsFree(),
-                "Dispatcher did not unsubscribe this receiver properly!");
+            ASSERT(m_dispatcher == nullptr, "Invalid state after unsubcribing!");
+            ASSERT(m_listNode.IsFree(), "Invalid state after unsubcribing!");
+
+            return unsubcribed;
         }
 
         bool IsSubscribed() const
