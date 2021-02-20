@@ -74,8 +74,8 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
 
 void Buffer::Update(const void* data, std::size_t elementCount)
 {
-    VERIFY_ARGUMENT(data != nullptr);
-    VERIFY_ARGUMENT(elementCount > 0);
+    ASSERT_ALWAYS_ARGUMENT(data != nullptr);
+    ASSERT_ALWAYS_ARGUMENT(elementCount > 0);
 
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);

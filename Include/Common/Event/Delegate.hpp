@@ -152,7 +152,7 @@ namespace Event
 
         ReturnType Invoke(Arguments... arguments)
         {
-            VERIFY(m_function != nullptr,
+            ASSERT_ALWAYS(m_function != nullptr,
                 "Attempting to invoke a delegate without a bound function!");
             return m_function(m_instance, std::forward<Arguments>(arguments)...);
         }

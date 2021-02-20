@@ -106,11 +106,11 @@ void IdentitySystem::RegisterNamedEntity(const EntityHandle& entity, const std::
     if(name.empty())
         return;
 
-    auto entityNameResult = m_entityNameLookup.emplace(entity, name);
-    ASSERT(entityNameResult.second, "Failed to emplace entry in entity name lookup!");
+    ASSERT_EVALUATE(m_entityNameLookup.emplace(entity, name).second,
+        "Failed to emplace entry in entity name lookup!");
 
-    auto nameEntityResult = m_nameEntityLookup.emplace(name, entity);
-    ASSERT(nameEntityResult.second, "Failed to emplace entry in name entity lookup!");
+    ASSERT_EVALUATE(m_nameEntityLookup.emplace(name, entity).second,
+        "Failed to emplace entry in name entity lookup!");
 }
 
 void IdentitySystem::UnregisterNamedEntity(const EntityNameLookup::iterator entityNameIt)
@@ -221,11 +221,11 @@ void IdentitySystem::RegisterGroupedEntity(const EntityHandle& entity, const std
     auto entityGroupsIt = m_entityGroupsLookup.try_emplace(entity).first;
     auto groupEntitiesIt = m_groupEntitiesLookup.try_emplace(group).first;
 
-    auto entityGroupsResult = entityGroupsIt->second.insert(group);
-    ASSERT(entityGroupsResult.second, "Failed to emplace entry in entity groups lookup!");
+    ASSERT_EVALUATE(entityGroupsIt->second.insert(group).second,
+        "Failed to emplace entry in entity groups lookup!");
 
-    auto groupEntitiesResult = groupEntitiesIt->second.insert(entity);
-    ASSERT(groupEntitiesResult.second, "Failed to emplace entry in group entities lookup!");
+    ASSERT_EVALUATE(groupEntitiesIt->second.insert(entity).second,
+        "Failed to emplace entry in group entities lookup!");
 }
 
 void IdentitySystem::UnregisterGroupedEntity(const EntityHandle& entity, const std::string& group)
@@ -262,8 +262,8 @@ void IdentitySystem::UnregisterGroupedEntity(const EntityHandle& entity)
             ASSERT(groupEntitiesIt != m_groupEntitiesLookup.end(),
                 "Lookup mismatch between entities and groups!");
 
-            int removedCount = groupEntitiesIt->second.erase(entity);
-            ASSERT(removedCount == 1, "Unexpected number of removed entries!");
+            ASSERT_EVALUATE(groupEntitiesIt->second.erase(entity) == 1,
+                "Unexpected number of removed entries!");
 
             if(groupEntitiesIt->second.empty())
             {

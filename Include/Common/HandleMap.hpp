@@ -458,7 +458,7 @@ namespace Common
 
             while(m_freeList.size() <= m_cacheSize || requestedHandle)
             {
-                VERIFY(m_handles.size() != HandleType::MaximumIdentifier,
+                ASSERT_ALWAYS(m_handles.size() != HandleType::MaximumIdentifier,
                     "Maximum handle identifier limit has been reached!");
 
                 HandleValueType newHandleIdentifier =

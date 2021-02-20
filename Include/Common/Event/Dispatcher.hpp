@@ -119,7 +119,7 @@ namespace Event
 
         void Unsubscribe(ReceiverType& receiver)
         {
-            VERIFY(receiver.m_dispatcher == this,
+            ASSERT_ALWAYS(receiver.m_dispatcher == this,
                 "Attempting to unsubscribe a receiver that is not subscribed to this dispatcher!");
 
             receiver.m_listNode.Remove();

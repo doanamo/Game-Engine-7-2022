@@ -473,7 +473,7 @@ void RenderState::BindSampler(GLuint unit, GLuint sampler)
 GLuint RenderState::GetSamplerBinding(GLuint unit) const
 {
     ASSERT(!m_samplerBindings.empty(), "Sampler bindings array is empty!");
-    VERIFY(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
+    ASSERT_ALWAYS(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
 
     return m_samplerBindings[unit];
 }
