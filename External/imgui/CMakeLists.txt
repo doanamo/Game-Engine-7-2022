@@ -1,6 +1,4 @@
-#
-# Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
-#
+cmake_minimum_required(VERSION 3.10)
 
 # Define source files.
 set(IMGUI_FILES

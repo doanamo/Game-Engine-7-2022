@@ -1,6 +1,7 @@
 @echo off
 
-rem Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
+rem Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
+rem Software distributed under the permissive MIT License.
 echo -- Cleaning CMake directories...
 
 rem Remove temporary directories.

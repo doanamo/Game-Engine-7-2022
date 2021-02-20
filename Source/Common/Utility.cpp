@@ -1,5 +1,6 @@
 /*
-    Copyright (c) 2018-2020 Piotr Doan. All rights reserved.
+    Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
+    Software distributed under the permissive MIT License.
 */
 
 #include "Common/Precompiled.hpp"
