@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Event/Dispatcher.hpp"
+#include "Common/Event/Dispatcher.hpp"
 #include "System/InputDefinitions.hpp"
 
 /*

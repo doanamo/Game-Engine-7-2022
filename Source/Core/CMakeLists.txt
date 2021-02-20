@@ -48,9 +48,6 @@ set_property(TARGET Core PROPERTY FOLDER "Engine")
 add_subdirectory("../Common" "Common")
 target_link_libraries(Core PUBLIC Common)
 
-add_subdirectory("../Event" "Event")
-target_link_libraries(Core PUBLIC Event)
-
 add_subdirectory("../Reflection" "Reflection")
 target_link_libraries(Core PUBLIC Reflection)
 

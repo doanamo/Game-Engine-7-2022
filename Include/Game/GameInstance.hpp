@@ -6,7 +6,7 @@
 #pragma once
 
 #include <any>
-#include <Event/Queue.hpp>
+#include <Common/Event/Queue.hpp>
 #include "Game/TickTimer.hpp"
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentSystem.hpp"

@@ -7,8 +7,8 @@
 
 #include <queue>
 #include <Common/HandleMap.hpp>
-#include <Event/Dispatcher.hpp>
-#include <Event/Collector.hpp>
+#include <Common/Event/Dispatcher.hpp>
+#include <Common/Event/Collector.hpp>
 
 /*
     Entity System

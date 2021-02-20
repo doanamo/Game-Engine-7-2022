@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Event/Receiver.hpp>
+#include <Common/Event/Receiver.hpp>
 
 namespace Core
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include <Common/Event/Dispatcher.hpp>
 #include <Core/ServiceStorage.hpp>
-#include <Event/Dispatcher.hpp>
 #include "Game/GameState.hpp"
 
 namespace System

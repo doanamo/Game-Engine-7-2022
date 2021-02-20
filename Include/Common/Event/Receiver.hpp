@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "Event/Dispatcher.hpp"
-#include "Event/Delegate.hpp"
-#include "Event/Policies.hpp"
-#include <Common/Debug.hpp>
+#include "Common/Debug.hpp"
+#include "Common/Event/Dispatcher.hpp"
+#include "Common/Event/Delegate.hpp"
+#include "Common/Event/Policies.hpp"
 
 namespace Event
 {

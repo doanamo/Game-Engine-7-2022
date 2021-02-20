@@ -26,6 +26,13 @@ set(INCLUDE_FILES
     "Logger/Format.hpp"
     "Logger/Output.hpp"
     "Logger/History.hpp"
+    "Event/Delegate.hpp"
+    "Event/Collector.hpp"
+    "Event/Dispatcher.hpp"
+    "Event/Receiver.hpp"
+    "Event/Policies.hpp"
+    "Event/Queue.hpp"
+    "Event/Broker.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
@@ -67,4 +74,3 @@ target_include_directories(Common PUBLIC "../../External/fmt/include")
 target_link_libraries(Common PUBLIC fmt::fmt)
 set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
 set_property(TARGET "fmt" PROPERTY FOLDER "External")
-

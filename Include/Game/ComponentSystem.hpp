@@ -5,10 +5,7 @@
 
 #pragma once
 
-#include <memory>
-#include <typeindex>
-#include <unordered_map>
-#include <Event/Receiver.hpp>
+#include <Common/Event/Receiver.hpp>
 #include "Game/EntitySystem.hpp"
 #include "Game/ComponentPool.hpp"
 

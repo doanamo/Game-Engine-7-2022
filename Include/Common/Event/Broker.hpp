@@ -9,7 +9,7 @@
 #include <utility>
 #include <typeindex>
 #include <unordered_map>
-#include "Event/Dispatcher.hpp"
+#include "Common/Event/Dispatcher.hpp"
 
 /*
     Event Broker

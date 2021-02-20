@@ -6,7 +6,7 @@
 #pragma once
 
 #include <fmt/core.h>
-#include "Message.hpp"
+#include "Common/Logger/Message.hpp"
 
 /*
     Logger

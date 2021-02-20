@@ -6,10 +6,10 @@
 #pragma once
 
 #include <functional>
-#include <Common/LinkedList.hpp>
-#include "Event/Collector.hpp"
-#include "Event/Receiver.hpp"
-#include "Event/Policies.hpp"
+#include "Common/LinkedList.hpp"
+#include "Common/Event/Collector.hpp"
+#include "Common/Event/Receiver.hpp"
+#include "Common/Event/Policies.hpp"
 
 namespace Event
 {

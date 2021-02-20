@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include <string>
-#include <Event/Dispatcher.hpp>
-#include "InputDefinitions.hpp"
+#include <Common/Event/Dispatcher.hpp>
+#include "System/InputDefinitions.hpp"
 
 /*
     Window
