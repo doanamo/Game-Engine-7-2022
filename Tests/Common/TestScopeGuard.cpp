@@ -4,9 +4,9 @@
 */
 
 #include <doctest/doctest.h>
-#include "Common/ScopeGuard.hpp"
+#include <Common/ScopeGuard.hpp>
 
-TEST_CASE("ScopeGuard")
+TEST_CASE("Scope Guard")
 {
     int* ptr = nullptr;
 
