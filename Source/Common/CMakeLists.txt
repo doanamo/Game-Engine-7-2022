@@ -20,6 +20,12 @@ set(INCLUDE_FILES
     "LinkedList.hpp"
     "StateMachine.hpp"
     "HandleMap.hpp"
+    "Logger/Logger.hpp"
+    "Logger/Message.hpp"
+    "Logger/Sink.hpp"
+    "Logger/Format.hpp"
+    "Logger/Output.hpp"
+    "Logger/History.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
@@ -30,6 +36,12 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "Utility.cpp"
     "Debug.cpp"
+    "Logger/Logger.cpp"
+    "Logger/Message.cpp"
+    "Logger/Sink.cpp"
+    "Logger/Format.cpp"
+    "Logger/Output.cpp"
+    "Logger/History.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
@@ -47,8 +59,12 @@ target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 set_property(TARGET Common PROPERTY FOLDER "Engine")
 
 #
-# Dependencies
+# External
 #
 
-add_subdirectory("../Logger" "Logger")
-target_link_libraries(Common PUBLIC Logger)
+add_subdirectory("../../External/fmt" "External/fmt")
+target_include_directories(Common PUBLIC "../../External/fmt/include")
+target_link_libraries(Common PUBLIC fmt::fmt)
+set_property(TARGET "fmt" PROPERTY PROJECT_LABEL "fmt")
+set_property(TARGET "fmt" PROPERTY FOLDER "External")
+

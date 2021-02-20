@@ -3,10 +3,10 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Logger/Precompiled.hpp"
-#include "Logger/Sink.hpp"
-#include "Logger/Output.hpp"
-#include "Logger/Message.hpp"
+#include "Common/Precompiled.hpp"
+#include "Common/Logger/Sink.hpp"
+#include "Common/Logger/Output.hpp"
+#include "Common/Logger/Message.hpp"
 using namespace Logger;
 
 Sink::Sink() = default;

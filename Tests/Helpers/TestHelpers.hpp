@@ -4,7 +4,7 @@
 */
 
 #include <Common/Debug.hpp>
-#include <Logger/Logger.hpp>
+#include <Common/Logger/Logger.hpp>
 
 /*
     Helper Macros

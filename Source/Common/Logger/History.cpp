@@ -3,9 +3,9 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Logger/Precompiled.hpp"
-#include "Logger/History.hpp"
-#include "Logger/Format.hpp"
+#include "Common/Precompiled.hpp"
+#include "Common/Logger/History.hpp"
+#include "Common/Logger/Format.hpp"
 using namespace Logger;
 
 namespace

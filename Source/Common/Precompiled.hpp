@@ -9,5 +9,16 @@
     Precompiled Header
 */
 
+#include <cassert>
 #include <fstream>
+#include <iostream>
 #include <mutex>
+
+#ifdef WIN32
+    #define WIN32_LEAD_AND_MEAN
+    #define NOMINMAX
+    #include <windows.h>
+#endif
+
+#include <fmt/core.h>
+#include <fmt/chrono.h>

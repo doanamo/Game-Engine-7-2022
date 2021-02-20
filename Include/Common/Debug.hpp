@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Logger/Logger.hpp>
+#include <Common/Logger/Logger.hpp>
 
 /*
     Platform Defines

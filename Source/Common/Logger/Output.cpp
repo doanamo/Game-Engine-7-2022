@@ -3,12 +3,12 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Logger/Precompiled.hpp"
-#include "Logger/Logger.hpp"
-#include "Logger/Output.hpp"
-#include "Logger/Message.hpp"
-#include "Logger/Format.hpp"
-#include "Logger/Sink.hpp"
+#include "Common/Precompiled.hpp"
+#include "Common/Logger/Logger.hpp"
+#include "Common/Logger/Output.hpp"
+#include "Common/Logger/Message.hpp"
+#include "Common/Logger/Format.hpp"
+#include "Common/Logger/Sink.hpp"
 using namespace Logger;
 
 FileOutput::FileOutput() = default;

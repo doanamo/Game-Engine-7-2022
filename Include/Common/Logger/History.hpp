@@ -6,8 +6,8 @@
 #pragma once
 
 #include <deque>
-#include "Logger/Output.hpp"
-#include "Logger/Message.hpp"
+#include "Output.hpp"
+#include "Message.hpp"
 
 /*
     Logger History

@@ -57,11 +57,11 @@ namespace fs = std::filesystem;
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <Logger/Logger.hpp>
 #include <Common/Debug.hpp>
 #include <Common/Utility.hpp>
 #include <Common/NonCopyable.hpp>
 #include <Common/Resettable.hpp>
 #include <Common/ScopeGuard.hpp>
 #include <Common/Result.hpp>
+#include <Common/Logger/Logger.hpp>
 #include <Reflection/Reflection.hpp>
