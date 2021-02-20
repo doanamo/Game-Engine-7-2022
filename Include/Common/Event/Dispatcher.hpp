@@ -198,9 +198,12 @@ namespace Event
                         ReceiverType* receiver = node.GetReference();
                         ASSERT(receiver != nullptr);
 
-                        CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
-                        invocation(collector, receiver, std::forward<Arguments>(arguments)...);
-                        
+                        if(receiver->IsBound())
+                        {
+                            CollectorDispatcher<Collector, ReturnType(Arguments...)> invocation;
+                            invocation(collector, receiver, std::forward<Arguments>(arguments)...);
+                        }
+
                         return true;
                     }
 
