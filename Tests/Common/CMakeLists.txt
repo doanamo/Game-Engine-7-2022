@@ -29,8 +29,6 @@ add_test("Common" TestCommon)
 # Dependencies
 #
 
-target_include_directories(TestCommon PUBLIC "../../External/doctest")
-
 add_subdirectory("../../Source/Common" "Common")
 target_link_libraries(TestCommon PRIVATE Common)
 
@@ -39,3 +37,9 @@ target_link_libraries(TestCommon PRIVATE Common)
 #
 
 set_target_properties(TestCommon PROPERTIES FOLDER "Tests")
+
+#
+# External
+#
+
+target_include_directories(TestCommon PUBLIC "../../External/doctest")
