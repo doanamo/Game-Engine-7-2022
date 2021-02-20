@@ -11,7 +11,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Tests)
 enable_testing()
-add_subdirectory(Empty)
 add_subdirectory(Common)
 add_subdirectory(Utility)
 add_subdirectory(Result)
