@@ -19,9 +19,6 @@ add_test("Reflection" TestReflection)
 # Dependencies
 #
 
-add_subdirectory("../Helpers" "TestHelpers")
-target_link_libraries(TestReflection PRIVATE TestHelpers)
-
 add_subdirectory("../../Source/Reflection" "Reflection")
 target_link_libraries(TestReflection PRIVATE Reflection)
 
@@ -30,3 +27,9 @@ target_link_libraries(TestReflection PRIVATE Reflection)
 #
 
 set_target_properties(TestReflection PROPERTIES FOLDER "Tests")
+
+#
+# External
+#
+
+target_include_directories(TestReflection PUBLIC "../../External/doctest")
