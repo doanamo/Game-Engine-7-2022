@@ -59,14 +59,13 @@ public:
 
     Counter& operator=(const Counter& other)
     {
-        if(&other != this)
-        {
-            copyCounter = other.copyCounter;
+        REQUIRE(&other != this);
 
-            if(copyCounter)
-            {
-                *copyCounter += 1;
-            }
+        copyCounter = other.copyCounter;
+
+        if(copyCounter)
+        {
+            *copyCounter += 1;
         }
 
         return *this;
@@ -74,14 +73,13 @@ public:
 
     Counter& operator=(Counter&& other)
     {
-        if(&other != this)
-        {
-            copyCounter = other.copyCounter;
-            other.copyCounter = nullptr;
+        REQUIRE(&other != this);
 
-            instanceCounter = other.instanceCounter;
-            other.instanceCounter = nullptr;
-        }
+        copyCounter = other.copyCounter;
+        other.copyCounter = nullptr;
+
+        instanceCounter = other.instanceCounter;
+        other.instanceCounter = nullptr;
 
         return *this;
     }
