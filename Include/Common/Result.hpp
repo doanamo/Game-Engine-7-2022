@@ -174,19 +174,22 @@ namespace Common
             return std::move(std::get<StorageFailureIndex>(m_storage));
         }
 
-        DeductedSuccessType UnwrapOr(DeductedSuccessType&& defaultReturn)
+        template<typename DefaultReturn>
+        DeductedSuccessType UnwrapOr(DefaultReturn defaultReturn)
         {
-            return UnwrapSuccessOr(std::move(defaultReturn));
+            return UnwrapSuccessOr(std::forward<DefaultReturn>(defaultReturn));
         }
 
-        DeductedSuccessType UnwrapSuccessOr(DeductedSuccessType&& defaultReturn)
+        template<typename DefaultReturn>
+        DeductedSuccessType UnwrapSuccessOr(DefaultReturn defaultReturn)
         {
-            return IsSuccess() ? UnwrapSuccess() : std::move(defaultReturn);
+            return IsSuccess() ? UnwrapSuccess() : std::forward<DefaultReturn>(defaultReturn);
         }
 
-        DeductedFailureType UnwrapFailureOr(DeductedFailureType&& defaultReturn)
+        template<typename DefaultReturn>
+        DeductedFailureType UnwrapFailureOr(DefaultReturn defaultReturn)
         {
-            return IsFailure() ? UnwrapFailure() : std::move(defaultReturn);
+            return IsFailure() ? UnwrapFailure() : std::forward<DefaultReturn>(defaultReturn);
         }
 
         DeductedSharedType UnwrapEither()
