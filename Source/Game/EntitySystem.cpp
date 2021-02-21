@@ -30,7 +30,7 @@ EntitySystem::EntityHandle EntitySystem::CreateEntity()
     if(auto cratedHandleResult = m_entities.CreateHandle())
     {
         EntityList::HandleEntryRef handleEntry = cratedHandleResult.Unwrap();
-        EntityEntry* entityEntry = handleEntry.storage;
+        EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr);
 
         // Mark entity as existing.
@@ -40,11 +40,11 @@ EntitySystem::EntityHandle EntitySystem::CreateEntity()
         // Queue command for entity creation.
         EntityCommand command;
         command.type = EntityCommands::Create;
-        command.handle = handleEntry.handle;
+        command.handle = handleEntry.GetHandle();
         m_commands.emplace(command);
 
         // Return entity handle.
-        return handleEntry.handle;
+        return handleEntry.GetHandle();
     }
     else
     {
@@ -59,7 +59,7 @@ void EntitySystem::DestroyEntity(const EntityHandle entity)
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
         EntityList::HandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-        EntityEntry* entityEntry = handleEntry.storage;
+        EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr);
 
         // Set handle destroy flag.
@@ -72,7 +72,7 @@ void EntitySystem::DestroyEntity(const EntityHandle entity)
         // Queue destroy entity command.
         EntityCommand command;
         command.type = EntityCommands::Destroy;
-        command.handle = handleEntry.handle;
+        command.handle = handleEntry.GetHandle();
         m_commands.emplace(command);
     }
 }
@@ -83,11 +83,12 @@ void EntitySystem::DestroyAllEntities()
     ProcessCommands();
 
     // Schedule every entity for destroy.
-    for(EntityList::HandleEntryRef handleEntry : m_entities)
+    for(const EntityList::HandleEntryRef& handleEntry : m_entities)
     {
-        if(handleEntry.storage->flags & EntityFlags::Exists)
+        ASSERT(handleEntry.GetStorage(), "Entity handle is missing storage!");
+        if(handleEntry.GetStorage()->flags & EntityFlags::Exists)
         {
-            DestroyEntity(handleEntry.handle);
+            DestroyEntity(handleEntry.GetHandle());
         }
     }
 
@@ -129,7 +130,7 @@ void EntitySystem::ProcessCommands()
                 continue;
 
             EntityList::HandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-            EntityEntry* entityEntry = handleEntry.storage;
+            EntityEntry* entityEntry = handleEntry.GetStorage();
             ASSERT(entityEntry != nullptr);
 
             // Process entity command.
@@ -141,13 +142,13 @@ void EntitySystem::ProcessCommands()
                     // since last time commands were processed.
                     // This will allow systems to acknowledge this
                     // entity and initialize its components.
-                    if(!events.entityCreate(handleEntry.handle))
+                    if(!events.entityCreate(handleEntry.GetHandle()))
                     {
                         // Some system failed to initialize this entity.
                         // Destroy the entity immediately and also inform
                         // systems that may have already processed it.
-                        events.entityDestroy(handleEntry.handle);
-                        m_entities.DestroyHandle(handleEntry.handle);
+                        events.entityDestroy(handleEntry.GetHandle());
+                        m_entities.DestroyHandle(handleEntry.GetHandle());
                         break;
                     }
 
@@ -161,11 +162,11 @@ void EntitySystem::ProcessCommands()
                 {
                     // Inform about entity being destroyed
                     // since last time commands were processed.
-                    events.entityDestroy(handleEntry.handle);
+                    events.entityDestroy(handleEntry.GetHandle());
 
                     // Free the entity handle and return it to the pool.
                     ASSERT(entityEntry->flags & EntityFlags::Destroy);
-                    m_entities.DestroyHandle(handleEntry.handle);
+                    m_entities.DestroyHandle(handleEntry.GetHandle());
                 }
                 break;
             }
@@ -186,7 +187,7 @@ bool Game::EntitySystem::IsEntityCreated(const EntityHandle entity) const
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
         EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-        const EntityEntry* entityEntry = handleEntry.storage;
+        const EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
 
         if(!(entityEntry->flags & EntityFlags::Created))
@@ -205,7 +206,7 @@ const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
         EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-        const EntityEntry* entityEntry = handleEntry.storage;
+        const EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
         return entityEntry;
     }

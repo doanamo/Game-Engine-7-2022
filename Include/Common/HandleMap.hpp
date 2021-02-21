@@ -44,6 +44,21 @@ namespace Common
 
         Handle() = default;
 
+        Handle(const Handle& other)
+        {
+            *this = other;
+        }
+
+        Handle& operator=(const Handle& other)
+        {
+            ASSERT(&other != this);
+
+            m_identifier = other.m_identifier;
+            m_version = other.m_version;
+
+            return *this;
+        }
+
         ValueType GetIdentifier() const
         {
             return m_identifier;
@@ -59,17 +74,17 @@ namespace Common
             return m_identifier != InvalidIdentifier;
         }
 
-        bool operator==(const Handle<StorageType>& other) const
+        bool operator==(const Handle& other) const
         {
             return m_identifier == other.m_identifier && m_version == other.m_version;
         }
 
-        bool operator!=(const Handle<StorageType>& other) const
+        bool operator!=(const Handle& other) const
         {
             return m_identifier != other.m_identifier || m_version != other.m_version;
         }
 
-        bool operator<(const Handle<StorageType>& other) const
+        bool operator<(const Handle& other) const
         {
             return m_identifier < other.m_identifier;
         }
@@ -123,8 +138,8 @@ namespace Common
                 valid = false;
             }
 
-            StorageType storage = {};
             HandleType handle = {};
+            StorageType storage = {};
             bool valid = false;
         };
 
@@ -132,26 +147,48 @@ namespace Common
         {
             HandleEntryRef() = default;
             HandleEntryRef(HandleEntry& reference) :
-                handle(reference.handle),
-                storage(&reference.storage)
+                m_handle(reference.handle),
+                m_storage(&reference.storage)
             {
             }
 
-            StorageType* storage = nullptr;
-            const HandleType handle = {};
+            const HandleType& GetHandle() const
+            {
+                return m_handle;
+            }
+
+            StorageType* GetStorage() const
+            {
+                return m_storage;
+            }
+
+        private:
+            HandleType m_handle = {};
+            StorageType* m_storage = nullptr;
         };
 
         struct ConstHandleEntryRef
         {
             ConstHandleEntryRef() = default;
             ConstHandleEntryRef(const HandleEntry& reference) :
-                handle(reference.handle),
-                storage(&reference.storage)
+                m_handle(reference.handle),
+                m_storage(&reference.storage)
             {
             }
 
-            const StorageType* storage = nullptr;
-            const HandleType handle = {};
+            const HandleType& GetHandle() const
+            {
+                return m_handle;
+            }
+
+            const StorageType* GetStorage() const
+            {
+                return m_storage;
+            }
+
+        private:
+            HandleType m_handle = {};
+            const StorageType* m_storage = nullptr;
         };
 
         using HandleList = std::deque<HandleEntry>;

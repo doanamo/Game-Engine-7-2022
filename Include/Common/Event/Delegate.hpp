@@ -68,6 +68,8 @@ namespace Event
 
         Delegate& operator=(const Delegate& other)
         {
+            ASSERT(&other != this);
+
             if(other.m_copier)
             {
                 m_instance = other.m_copier(other.m_instance);
