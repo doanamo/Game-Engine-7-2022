@@ -59,13 +59,12 @@ TEST_CASE("Handle Map")
             const int recreateCount = (cacheSize + 1) * 2;
 
             for(int createIndex = 0; createIndex < createCount; ++createIndex)
-            SUBCASE(fmt::format("Create {} handle(s) and recreate {} time(s) with mirror",
-                createIndex + 1, recreateCount).c_str())
+            SUBCASE(fmt::format("Create {} handle(s) and mirror them", createIndex + 1).c_str())
             {
                 for(int recreateIndex = 0; recreateIndex <= recreateCount; ++recreateIndex)
+                SUBCASE(recreateIndex ? fmt::format("Recreate handle(s) (iteration #{})",
+                    recreateIndex).c_str() : "")
                 {
-                    CAPTURE(recreateIndex);
-
                     Common::HandleMap<Entity>::HandleEntryRef entityEntries[createCount];
                     Common::HandleMap<Entity>::HandleEntryRef entityMirrors[createCount];
 
@@ -124,7 +123,7 @@ TEST_CASE("Handle Map")
                             else
                             {
                                 CHECK_EQ(entityMap.GetUnusedHandleCount(),
-                                    cacheSize + createIndex - entityIndex);
+                                    std::min(cacheSize, cacheSize + createIndex - entityIndex));
                             }
                         }
 
