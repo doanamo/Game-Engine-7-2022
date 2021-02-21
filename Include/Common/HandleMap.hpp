@@ -154,7 +154,7 @@ namespace Common
             const HandleType handle = {};
         };
 
-        using HandleList = std::vector<HandleEntry>;
+        using HandleList = std::deque<HandleEntry>;
         using FreeList = std::deque<HandleValueType>;
         using FreeListIterator = typename FreeList::iterator;
 
