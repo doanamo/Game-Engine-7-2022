@@ -193,50 +193,114 @@ TEST_CASE("Event Delegate")
 
     SUBCASE("Lambda capture lifetime")
     {
-        int value = 0;
-        int copyCounter = 0;
-        int instanceCounter = 0;
+        int currentValue = 0, expectedValue = 0;
+        int copyCounter = 0, expectedCopies = 0;
+        int instanceCounter = 0, expectedInstances = 0;
 
         Counter instance(&copyCounter, &instanceCounter);
+        CHECK(instanceCounter == (expectedInstances += 1));
+
+        Event::Delegate<void()> delegate;
 
         {
-            Event::Delegate<void()> delegateOne;
-            Event::Delegate<void()> delegateTwo;
-
+            SUBCASE("Bind lvalue lambda")
             {
-                auto lambda = [&value, instance, &copyCounter, &instanceCounter]()
                 {
-                    value += 1;
-                };
-
-                delegateOne = lambda;
-            }
-
-            CHECK(copyCounter == 2);
-            CHECK(instanceCounter == 2);
-            
-            {
-                delegateTwo.Bind([&value, instance, &copyCounter, &instanceCounter]()
+                    auto lambda = [&currentValue, instance]()
                     {
-                        value += 10;
+                        currentValue += 1;
+                    };
+
+                    CHECK(copyCounter == (expectedCopies += 1));
+                    CHECK(instanceCounter == (expectedInstances += 1));
+
+                    delegate = lambda;
+                    expectedValue += 1;
+
+                    CHECK(copyCounter == (expectedCopies += 1));
+                    CHECK(instanceCounter == (expectedInstances += 1));
+                }
+                
+                CHECK(copyCounter == expectedCopies);
+                CHECK(instanceCounter == (expectedInstances -= 1));
+            }
+            
+            SUBCASE("Bind rvalue lambda")
+            {
+                delegate.Bind([&currentValue, instance]()
+                    {
+                        currentValue += 10;
                     });
+
+                expectedValue += 10;
+
+                CHECK(copyCounter == (expectedCopies += 1));
+                CHECK(instanceCounter == (expectedInstances += 1));
             }
 
-            CHECK(copyCounter == 3);
-            CHECK(instanceCounter == 3);
+            SUBCASE("Copy delegate")
+            {
+                Event::Delegate<void()> delegateCopy([&currentValue, instance]()
+                    {
+                        currentValue += 100;
+                    });
 
-            delegateOne.Invoke();
-            CHECK(value == 1);
+                expectedValue += 100;
 
-            delegateTwo.Invoke();
-            CHECK(value == 11);
+                CHECK(copyCounter == (expectedCopies += 1));
+                CHECK(instanceCounter == (expectedInstances += 1));
 
-            CHECK(copyCounter == 3);
-            CHECK(instanceCounter == 3);
+                delegate = delegateCopy;
+
+                CHECK(copyCounter == (expectedCopies += 1));
+                CHECK(instanceCounter == (expectedInstances += 1));
+
+                delegateCopy = nullptr;
+
+                CHECK(copyCounter == (expectedCopies));
+                CHECK(instanceCounter == (expectedInstances -= 1));
+            }
+
+            SUBCASE("Move delegate")
+            {
+                Event::Delegate<void()> delegateMove([&currentValue, instance]()
+                    {
+                        currentValue += 1000;
+                    });
+
+                expectedValue += 1000;
+
+                CHECK(copyCounter == (expectedCopies += 1));
+                CHECK(instanceCounter == (expectedInstances += 1));
+
+                delegate = std::move(delegateMove);
+
+                CHECK(copyCounter == expectedCopies);
+                CHECK(instanceCounter == expectedInstances);
+
+                delegateMove = nullptr;
+
+                CHECK(copyCounter == expectedCopies);
+                CHECK(instanceCounter == expectedInstances);
+            }
+
+            CHECK(copyCounter == expectedCopies);
+            CHECK(instanceCounter == expectedInstances);
+
+            delegate.Invoke();
+            CHECK(currentValue == expectedValue);
+
+            CHECK(copyCounter == expectedCopies);
+            CHECK(instanceCounter == expectedInstances);
+
+            delegate = nullptr;
+
+            CHECK(copyCounter == expectedCopies);
+            CHECK(instanceCounter == (expectedInstances -= 1));
         }
 
-        CHECK(copyCounter == 3);
-        CHECK(instanceCounter == 1);
+        CHECK(copyCounter == expectedCopies);
+        CHECK(instanceCounter == expectedInstances);
     }
 }
 
