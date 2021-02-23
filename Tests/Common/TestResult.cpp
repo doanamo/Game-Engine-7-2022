@@ -3,6 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
+#include <memory>
 #include <doctest/doctest.h>
 #include <Common/Result.hpp>
 
