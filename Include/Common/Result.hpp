@@ -22,19 +22,10 @@ namespace Common::Detail
     };
 
     template<typename Type>
-    using DecayedResultType = typename std::conditional<std::is_same<Type, Detail::Empty>::value,
-        void, typename std::decay<Type>::type>::type;
-
-    template<typename Type>
     struct Success
     {
-        Success(const Type& value) :
-            value(value)
-        {
-        }
-
-        Success(Type&& value) :
-            value(std::move(value))
+        Success(Type value) :
+            value(std::forward<Type>(value))
         {
         }
 
@@ -50,13 +41,8 @@ namespace Common::Detail
     template<typename Type>
     struct Failure
     {
-        Failure(const Type& value) :
-            value(value)
-        {
-        }
-
-        Failure(Type&& value) :
-            value(std::move(value))
+        Failure(Type value) :
+            value(std::forward<Type>(value))
         {
         }
 
@@ -73,15 +59,15 @@ namespace Common::Detail
 namespace Common
 {
     template<typename Type>
-    constexpr Detail::Success<Detail::DecayedResultType<Type>> Success(Type&& value)
+    constexpr Detail::Success<const Type&> Success(const Type& value)
     {
-        return Detail::Success<Detail::DecayedResultType<Type>>(std::forward<Type>(value));
+        return Detail::Success<const Type&>(value);
     }
 
-    template<>
-    constexpr Detail::Success<void> Success<Detail::Empty>(Detail::Empty&& value)
+    template<typename Type>
+    constexpr Detail::Success<Type&&> Success(Type&& value)
     {
-        return Detail::Success<void>();
+        return Detail::Success<Type&&>(std::forward<Type>(value));
     }
 
     constexpr Detail::Success<void> Success()
@@ -90,15 +76,15 @@ namespace Common
     }
 
     template<typename Type>
-    constexpr Detail::Failure<Detail::DecayedResultType<Type>> Failure(Type&& value)
+    constexpr Detail::Failure<const Type&> Failure(const Type& value)
     {
-        return Detail::Failure<Detail::DecayedResultType<Type>>(std::forward<Type>(value));
-    } 
+        return Detail::Failure<const Type&>(value);
+    }
 
-    template<>
-    constexpr Detail::Failure<void> Failure<Detail::Empty>(Detail::Empty&& value)
+    template<typename Type>
+    constexpr Detail::Failure<Type&&> Failure(Type&& value)
     {
-        return Detail::Failure<void>();
+        return Detail::Failure<Type&&>(std::forward<Type>(value));
     }
 
     constexpr Detail::Failure<void> Failure()
@@ -165,13 +151,13 @@ namespace Common
         DeductedSuccessType UnwrapSuccess()
         {
             ASSERT(IsSuccess(), "Invalid result unwrap!");
-            return std::move(std::get<StorageSuccessIndex>(m_storage));
+            return std::get<StorageSuccessIndex>(std::move(m_storage));
         }
 
         DeductedFailureType UnwrapFailure()
         {
             ASSERT(IsFailure(), "Invalid result unwrap!");
-            return std::move(std::get<StorageFailureIndex>(m_storage));
+            return std::get<StorageFailureIndex>(std::move(m_storage));
         }
 
         template<typename DefaultReturn>

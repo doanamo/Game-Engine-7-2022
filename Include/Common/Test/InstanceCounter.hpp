@@ -61,9 +61,9 @@ namespace Test
         InstanceCounter& operator=(const InstanceCounter& other)
         {
             REQUIRE(&other != this);
-            REQUIRE(m_stats.get() == other.m_stats->get());
 
             m_instance = other.m_instance;
+            m_stats = other.m_stats;
             m_stats->copies += 1;
 
             return *this;
@@ -72,9 +72,9 @@ namespace Test
         InstanceCounter& operator=(InstanceCounter&& other)
         {
             REQUIRE(&other != this);
-            REQUIRE(m_stats.get() == other.m_stats->get());
 
-            m_instance = std::move(other.m_instance);
+            std::swap(m_instance, other.m_instance);
+            std::swap(m_stats, other.m_stats);
             m_stats->moves += 1;
 
             return *this;
