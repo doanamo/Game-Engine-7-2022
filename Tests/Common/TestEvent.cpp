@@ -4,6 +4,7 @@
 */
 
 #include <doctest/doctest.h>
+#include <Common/Test/InstanceCounter.hpp>
 #include <Common/Event/Delegate.hpp>
 #include <Common/Event/Collector.hpp>
 #include <Common/Event/Dispatcher.hpp>
@@ -11,85 +12,7 @@
 
 static const char* Text = "Hello world!";
 
-class Counter
-{
-public:
-    Counter(int* copyCounter = nullptr, int* instanceCounter = nullptr) :
-        copyCounter(copyCounter),
-        instanceCounter(instanceCounter)
-    {
-        if(instanceCounter)
-        {
-            *instanceCounter += 1;
-        }
-    }
-
-    Counter(const Counter& other) :
-        copyCounter(other.copyCounter),
-        instanceCounter(other.instanceCounter)
-    {
-        if(copyCounter)
-        {
-            *copyCounter += 1;
-        }
-
-        if(instanceCounter)
-        {
-            *instanceCounter += 1;
-        }
-    }
-
-    Counter(Counter&& other) :
-        copyCounter(other.copyCounter),
-        instanceCounter(other.instanceCounter)
-    {
-        if(instanceCounter)
-        {
-            *instanceCounter += 1;
-        }
-    }
-
-    ~Counter()
-    {
-        if(instanceCounter)
-        {
-            *instanceCounter -= 1;
-        }
-    }
-
-    Counter& operator=(const Counter& other)
-    {
-        REQUIRE(&other != this);
-
-        copyCounter = other.copyCounter;
-
-        if(copyCounter)
-        {
-            *copyCounter += 1;
-        }
-
-        return *this;
-    }
-
-    Counter& operator=(Counter&& other)
-    {
-        REQUIRE(&other != this);
-
-        copyCounter = other.copyCounter;
-        other.copyCounter = nullptr;
-
-        instanceCounter = other.instanceCounter;
-        other.instanceCounter = nullptr;
-
-        return *this;
-    }
-
-private:
-    int* copyCounter = nullptr;
-    int* instanceCounter = nullptr;
-};
-
-char Function(Counter instance, int index)
+char Function(Test::InstanceCounter<> instance, int index)
 {
     return Text[index];
 }
@@ -97,7 +20,7 @@ char Function(Counter instance, int index)
 class BaseClass
 {
 public:
-    virtual char Method(Counter instance, int index)
+    virtual char Method(Test::InstanceCounter<> instance, int index)
     {
         return Text[index];
     }
@@ -106,7 +29,7 @@ public:
 class DerivedClass : public BaseClass
 {
 public:
-    char Method(Counter instance, int index) override
+    char Method(Test::InstanceCounter<> instance, int index) override
     {
         return Text[index];
     }
@@ -116,17 +39,15 @@ TEST_CASE("Event Delegate")
 {
     SUBCASE("Binding")
     {
-        int argumentCopyCount = 0;
-        Counter instance(&argumentCopyCount);
-
-        Event::Delegate<char(Counter instance, int i)> delegate;
+        Test::InstanceCounter<> counter;
+        Event::Delegate<char(Test::InstanceCounter<>, int)> delegate;
         REQUIRE(!delegate.IsBound());
 
         SUBCASE("Static function binding")
         {
             delegate.Bind<&Function>();
             CHECK(delegate.IsBound());
-            CHECK(delegate.Invoke(instance, 4) == 'o');
+            CHECK_EQ(delegate.Invoke(counter, 4), 'o');
         }
 
         SUBCASE("Class method binding")
@@ -134,7 +55,7 @@ TEST_CASE("Event Delegate")
             BaseClass baseClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
             CHECK(delegate.IsBound());
-            CHECK(delegate.Invoke(instance, 6) == 'w');
+            CHECK_EQ(delegate.Invoke(counter, 6), 'w');
         }
 
         SUBCASE("Virtual method binding")
@@ -142,37 +63,37 @@ TEST_CASE("Event Delegate")
             DerivedClass derivedClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
             CHECK(delegate.IsBound());
-            CHECK(delegate.Invoke(instance, 1) == 'e');
+            CHECK_EQ(delegate.Invoke(counter, 1), 'e');
         }
 
         SUBCASE("Lambda function binding")
         {
-            auto functor = [](Counter instance, int index) -> char
+            auto functor = [](Test::InstanceCounter<> counter, int index) -> char
             {
                 return Text[index];
             };
 
             delegate.Bind(&functor);
             CHECK(delegate.IsBound());
-            CHECK(delegate.Invoke(instance, 10) == 'd');
+            CHECK_EQ(delegate.Invoke(counter, 10), 'd');
         }
 
         SUBCASE("Lambda capture binding via constructor")
         {
             int modifier = 8;
-            delegate = Event::Delegate<char(Counter, int)>(
-                [&modifier](Counter instance, int index) -> char
+            delegate = Event::Delegate<char(Test::InstanceCounter<>, int)>(
+                [&modifier](Test::InstanceCounter<> counter, int index) -> char
                 {
                     return Text[index + modifier];
                 });
 
             CHECK(delegate.IsBound());
-            CHECK(delegate.Invoke(instance, 3) == '!');
+            CHECK_EQ(delegate.Invoke(counter, 3), '!');
         }
 
         delegate.Bind(nullptr);
         CHECK(!delegate.IsBound());
-        CHECK(argumentCopyCount == 1);
+        CHECK_EQ(counter.GetStats().copies, 1);
     }
 
     SUBCASE("Similar lambda signatures")
@@ -185,18 +106,19 @@ TEST_CASE("Event Delegate")
         delegateOne.Invoke();
         delegateTwo.Invoke();
 
-        CHECK(i == 3);
-        CHECK(y == 7);
+        CHECK_EQ(i, 3);
+        CHECK_EQ(y, 7);
     }
 
     SUBCASE("Lambda capture lifetime")
     {
-        int currentValue = 0, expectedValue = 0;
-        int copyCounter = 0, expectedCopies = 0;
-        int instanceCounter = 0, expectedInstances = 0;
+        int currentValue = 0;
+        int expectedValue = 0;
+        int expectedCopies = 0;
+        int expectedInstances = 0;
 
-        Counter instance(&copyCounter, &instanceCounter);
-        CHECK(instanceCounter == (expectedInstances += 1));
+        Test::InstanceCounter<> counter;
+        CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
 
         Event::Delegate<void()> delegate;
 
@@ -204,101 +126,101 @@ TEST_CASE("Event Delegate")
             SUBCASE("Bind lvalue lambda")
             {
                 {
-                    auto lambda = [&currentValue, instance]()
+                    auto lambda = [&currentValue, counter]()
                     {
                         currentValue += 1;
                     };
 
-                    CHECK(copyCounter == (expectedCopies += 1));
-                    CHECK(instanceCounter == (expectedInstances += 1));
+                    CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                    CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                     delegate = lambda;
                     expectedValue += 1;
 
-                    CHECK(copyCounter == (expectedCopies += 1));
-                    CHECK(instanceCounter == (expectedInstances += 1));
+                    CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                    CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
                 }
                 
-                CHECK(copyCounter == expectedCopies);
-                CHECK(instanceCounter == (expectedInstances -= 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
             
             SUBCASE("Bind rvalue lambda")
             {
-                delegate.Bind([&currentValue, instance]()
+                delegate.Bind([&currentValue, counter]()
                     {
                         currentValue += 10;
                     });
 
                 expectedValue += 10;
 
-                CHECK(copyCounter == (expectedCopies += 1));
-                CHECK(instanceCounter == (expectedInstances += 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
             }
 
             SUBCASE("Copy delegate")
             {
-                Event::Delegate<void()> delegateCopy([&currentValue, instance]()
+                Event::Delegate<void()> delegateCopy([&currentValue, counter]()
                     {
                         currentValue += 100;
                     });
 
                 expectedValue += 100;
 
-                CHECK(copyCounter == (expectedCopies += 1));
-                CHECK(instanceCounter == (expectedInstances += 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegate = delegateCopy;
 
-                CHECK(copyCounter == (expectedCopies += 1));
-                CHECK(instanceCounter == (expectedInstances += 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegateCopy = nullptr;
 
-                CHECK(copyCounter == (expectedCopies));
-                CHECK(instanceCounter == (expectedInstances -= 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
 
             SUBCASE("Move delegate")
             {
-                Event::Delegate<void()> delegateMove([&currentValue, instance]()
+                Event::Delegate<void()> delegateMove([&currentValue, counter]()
                     {
                         currentValue += 1000;
                     });
 
                 expectedValue += 1000;
 
-                CHECK(copyCounter == (expectedCopies += 1));
-                CHECK(instanceCounter == (expectedInstances += 1));
+                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegate = std::move(delegateMove);
 
-                CHECK(copyCounter == expectedCopies);
-                CHECK(instanceCounter == expectedInstances);
+                CHECK_EQ(counter.GetStats().instances, expectedInstances);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
                 delegateMove = nullptr;
 
-                CHECK(copyCounter == expectedCopies);
-                CHECK(instanceCounter == expectedInstances);
+                CHECK_EQ(counter.GetStats().instances, expectedInstances);
+                CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
 
-            CHECK(copyCounter == expectedCopies);
-            CHECK(instanceCounter == expectedInstances);
+            CHECK_EQ(counter.GetStats().instances, expectedInstances);
+            CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
             delegate.Invoke();
-            CHECK(currentValue == expectedValue);
+            CHECK_EQ(currentValue, expectedValue);
 
-            CHECK(copyCounter == expectedCopies);
-            CHECK(instanceCounter == expectedInstances);
+            CHECK_EQ(counter.GetStats().instances, expectedInstances);
+            CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
             delegate = nullptr;
 
-            CHECK(copyCounter == expectedCopies);
-            CHECK(instanceCounter == (expectedInstances -= 1));
+            CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+            CHECK_EQ(counter.GetStats().copies, expectedCopies);
         }
 
-        CHECK(copyCounter == expectedCopies);
-        CHECK(instanceCounter == expectedInstances);
+        CHECK_EQ(counter.GetStats().instances, expectedInstances);
+        CHECK_EQ(counter.GetStats().copies, expectedCopies);
     }
 }
 
@@ -309,7 +231,7 @@ TEST_CASE("Event Collector")
         Event::CollectDefault<void> collectDefault;
 
         collectDefault.ConsumeResult();
-        CHECK(collectDefault.ShouldContinue() == true);
+        CHECK(collectDefault.ShouldContinue());
         collectDefault.GetResult();
     }
 
@@ -319,38 +241,38 @@ TEST_CASE("Event Collector")
 
         for(int i = 0; i < 10; ++i)
         {
-            CHECK(collectLast.GetResult() == i);
+            CHECK_EQ(collectLast.GetResult(), i);
             collectLast.ConsumeResult(i + 1);
             CHECK(collectLast.ShouldContinue());
-            CHECK(collectLast.GetResult() == i + 1);
+            CHECK_EQ(collectLast.GetResult(), i + 1);
         }
     }
 
     SUBCASE("Collect while true")
     {
         Event::CollectWhileTrue collectWhileTrue(true);
-        CHECK(collectWhileTrue.GetResult() == true);
+        CHECK(collectWhileTrue.GetResult());
 
         collectWhileTrue.ConsumeResult(true);
         CHECK(collectWhileTrue.ShouldContinue());
         CHECK(collectWhileTrue.GetResult());
 
         collectWhileTrue.ConsumeResult(false);
-        CHECK(!collectWhileTrue.ShouldContinue());
-        CHECK(!collectWhileTrue.GetResult());
+        CHECK_FALSE(collectWhileTrue.ShouldContinue());
+        CHECK_FALSE(collectWhileTrue.GetResult());
     }
 
     SUBCASE("Collect while false")
     {
         Event::CollectWhileFalse collectWhileFalse(false);
-        CHECK(collectWhileFalse.GetResult() == false);
+        CHECK_FALSE(collectWhileFalse.GetResult());
 
         collectWhileFalse.ConsumeResult(false);
         CHECK(collectWhileFalse.ShouldContinue());
-        CHECK(!collectWhileFalse.GetResult());
+        CHECK_FALSE(collectWhileFalse.GetResult());
 
         collectWhileFalse.ConsumeResult(true);
-        CHECK(!collectWhileFalse.ShouldContinue());
+        CHECK_FALSE(collectWhileFalse.ShouldContinue());
         CHECK(collectWhileFalse.GetResult());
     }
 }
@@ -368,23 +290,23 @@ TEST_CASE("Event Dispatcher")
         receiverAddTwo.Bind([](int& i) { i += 2; return i; });
 
         Event::Dispatcher<int(int&)> dispatcher(0);
-        CHECK(dispatcher.Dispatch(i) == 0);
+        CHECK_EQ(dispatcher.Dispatch(i), 0);
 
         CHECK(dispatcher.Subscribe(receiverAddOne));
         CHECK(dispatcher.Subscribe(receiverAddOne));
-        CHECK(dispatcher.Dispatch(i) == 1);
+        CHECK_EQ(dispatcher.Dispatch(i), 1);
 
         CHECK(dispatcher.Subscribe(receiverAddTwo));
         CHECK(dispatcher.Subscribe(receiverAddTwo));
-        CHECK(dispatcher.Dispatch(i) == 4);
+        CHECK_EQ(dispatcher.Dispatch(i), 4);
 
         CHECK(receiverAddOne.Unsubscribe());
-        CHECK(!receiverAddOne.Unsubscribe());
-        CHECK(dispatcher.Dispatch(i) == 6);
+        CHECK_FALSE(receiverAddOne.Unsubscribe());
+        CHECK_EQ(dispatcher.Dispatch(i), 6);
 
         CHECK(dispatcher.Unsubscribe(receiverAddTwo));
-        CHECK(!dispatcher.Unsubscribe(receiverAddTwo));
-        CHECK(dispatcher.Dispatch(i) == 0);
+        CHECK_FALSE(dispatcher.Unsubscribe(receiverAddTwo));
+        CHECK_EQ(dispatcher.Dispatch(i), 0);
     }
 
     SUBCASE("Collecting boolean result")
@@ -404,22 +326,22 @@ TEST_CASE("Event Dispatcher")
 
             Event::Dispatcher<bool(int&), Event::CollectWhileTrue> dispatcherWhileTrue(true);
             CHECK(dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_EQ(i, 0);
 
             CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
             CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
             CHECK(dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 1);
+            CHECK_EQ(i, 1);
 
             CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
             CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
-            CHECK(!dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 4);
+            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            CHECK_EQ(i, 4);
 
             CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
             CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
-            CHECK(!dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 7);
+            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            CHECK_EQ(i, 7);
         }
 
         SUBCASE("While returning false")
@@ -427,23 +349,23 @@ TEST_CASE("Event Dispatcher")
             int i = 0;
 
             Event::Dispatcher<bool(int&), Event::CollectWhileFalse> dispatcherWhileFalse(false);
-            CHECK(!dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
+            CHECK_EQ(i, 0);
 
             CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
             CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
-            CHECK(!dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 2);
+            CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
+            CHECK_EQ(i, 2);
 
             CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
             CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
             CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 5);
+            CHECK_EQ(i, 5);
 
             CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
             CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
             CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 8);
+            CHECK_EQ(i, 8);
         }
 
         SUBCASE("Stopped by initial false")
@@ -451,12 +373,12 @@ TEST_CASE("Event Dispatcher")
             int i = 0;
 
             Event::Dispatcher<bool(int&), Event::CollectWhileTrue> dispatcherWhileTrue(false);
-            CHECK(!dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            CHECK_EQ(i, 0);
 
             dispatcherWhileTrue.Subscribe(receiverTrue);
-            CHECK(!dispatcherWhileTrue.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            CHECK_EQ(i, 0);
         }
 
         SUBCASE("Stopped by initial true")
@@ -465,16 +387,16 @@ TEST_CASE("Event Dispatcher")
 
             Event::Dispatcher<bool(int&), Event::CollectWhileFalse> dispatcherWhileFalse(true);
             CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_EQ(i, 0);
 
             dispatcherWhileFalse.Subscribe(receiverFalse);
             CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK(i == 0);
+            CHECK_EQ(i, 0);
         }
 
-        CHECK(!receiverTrue.IsSubscribed());
-        CHECK(!receiverFalse.IsSubscribed());
-        CHECK(!receiverDummy.IsSubscribed());
+        CHECK_FALSE(receiverTrue.IsSubscribed());
+        CHECK_FALSE(receiverFalse.IsSubscribed());
+        CHECK_FALSE(receiverDummy.IsSubscribed());
     }
 
     SUBCASE("Receiver subscription")
@@ -500,10 +422,10 @@ TEST_CASE("Event Dispatcher")
         auto dispatchAndCheck = [&]()
         {
             dispatcherA.Dispatch(currentA);
-            CHECK(currentA == (expectedA += incrementA));
+            CHECK_EQ(currentA, expectedA += incrementA);
 
             dispatcherB.Dispatch(currentB);
-            CHECK(currentB == (expectedB += incrementB));
+            CHECK_EQ(currentB, expectedB += incrementB);
         };
 
         SUBCASE("Subcribe receivers")
@@ -528,10 +450,10 @@ TEST_CASE("Event Dispatcher")
 
             SUBCASE("Unsubcribe nonsubscribed")
             {
-                CHECK(!dispatcherB.Subscribe(receiverAddOne));
-                CHECK(!dispatcherB.Subscribe(receiverAddTwo));
-                CHECK(!dispatcherB.Subscribe(receiverAddThree));
-                CHECK(!dispatcherB.Subscribe(receiverAddFour));
+                CHECK_FALSE(dispatcherB.Subscribe(receiverAddOne));
+                CHECK_FALSE(dispatcherB.Subscribe(receiverAddTwo));
+                CHECK_FALSE(dispatcherB.Subscribe(receiverAddThree));
+                CHECK_FALSE(dispatcherB.Subscribe(receiverAddFour));
 
                 dispatchAndCheck();
             }
@@ -562,10 +484,10 @@ TEST_CASE("Event Dispatcher")
 
                 dispatchAndCheck();
 
-                CHECK(!dispatcherA.Subscribe(receiverAddOne, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK(!dispatcherA.Subscribe(receiverAddTwo, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK(!dispatcherA.Subscribe(receiverAddThree, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK(!dispatcherA.Subscribe(receiverAddFour, Event::SubscriptionPolicy::RetainSubscription));
+                CHECK_FALSE(dispatcherA.Subscribe(receiverAddOne, Event::SubscriptionPolicy::RetainSubscription));
+                CHECK_FALSE(dispatcherA.Subscribe(receiverAddTwo, Event::SubscriptionPolicy::RetainSubscription));
+                CHECK_FALSE(dispatcherA.Subscribe(receiverAddThree, Event::SubscriptionPolicy::RetainSubscription));
+                CHECK_FALSE(dispatcherA.Subscribe(receiverAddFour, Event::SubscriptionPolicy::RetainSubscription));
 
                 dispatchAndCheck();
             }
@@ -658,17 +580,17 @@ TEST_CASE("Event Dispatcher")
         }
 
         CHECK(dispatcher.Dispatch());
-        CHECK(value == firstDispatch);
+        CHECK_EQ(value, firstDispatch);
 
         value = 0;
         CHECK(dispatcher.Dispatch());
-        CHECK(value == secondDispatch);
+        CHECK_EQ(value, secondDispatch);
 
         dispatcher.UnsubscribeAll();
 
         value = 0;
         CHECK(dispatcher.Dispatch());
-        CHECK(value == 0);
+        CHECK_EQ(value, 0);
     }
 
     SUBCASE("Invoking unbound receivers")
@@ -691,39 +613,37 @@ TEST_CASE("Event Dispatcher")
         CHECK(dispatcher.Subscribe(receiverUnboundLast));
 
         int value = 0;
-        CHECK(dispatcher.Dispatch(value) == 2);
-        CHECK(value == 3);
+        CHECK_EQ(dispatcher.Dispatch(value), 2);
+        CHECK_EQ(value, 3);
     }
 
     SUBCASE("Dispatch copy count")
     {
-        int argumentCopyCount = 0;
-        Counter instance(&argumentCopyCount);
-
-        Event::Dispatcher<char(Counter, int)> dispatcher('\0');
-        Event::Receiver<char(Counter, int)> receiver;
+        Test::InstanceCounter<> counter;
+        Event::Dispatcher<char(Test::InstanceCounter<>, int)> dispatcher('\0');
+        Event::Receiver<char(Test::InstanceCounter<>, int)> receiver;
         CHECK(receiver.Subscribe(dispatcher));
 
         SUBCASE("Function dispatch")
         {
             receiver.Bind<&Function>();
-            CHECK(dispatcher.Dispatch(instance, 0) == 'H');
-            CHECK(argumentCopyCount == 1);
+            CHECK_EQ(dispatcher.Dispatch(counter, 0), 'H');
+            CHECK_EQ(counter.GetStats().copies, 1);
         }
 
         SUBCASE("Method dispatch")
         {
             BaseClass baseClass;
             receiver.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-            CHECK(dispatcher.Dispatch(instance, 3) == 'l');
-            CHECK(argumentCopyCount == 1);
+            CHECK_EQ(dispatcher.Dispatch(counter, 3), 'l');
+            CHECK_EQ(counter.GetStats().copies, 1);
         }
 
         SUBCASE("Lambda dispatch")
         {
-            receiver.Bind([](Counter, int index) { return Text[index]; });
-            CHECK(dispatcher.Dispatch(instance, 5) == ' ');
-            CHECK(argumentCopyCount == 1);
+            receiver.Bind([](Test::InstanceCounter<>, int index) { return Text[index]; });
+            CHECK_EQ(dispatcher.Dispatch(counter, 5), ' ');
+            CHECK_EQ(counter.GetStats().copies, 1);
         }
     }
 }

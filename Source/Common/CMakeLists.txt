@@ -33,6 +33,7 @@ set(INCLUDE_FILES
     "Event/Policies.hpp"
     "Event/Queue.hpp"
     "Event/Broker.hpp"
+    "Test/InstanceCounter.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
