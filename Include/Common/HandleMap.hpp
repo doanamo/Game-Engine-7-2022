@@ -218,7 +218,7 @@ namespace Common
         };
 
         using FindRequestedHandleResult =
-            Common::Result<FreeListIterator,FindRequestedHandleErrors>;
+            Common::Result<FreeListIterator, FindRequestedHandleErrors>;
 
         template<bool ConstReference>
         class HandleIterator

@@ -24,8 +24,13 @@ namespace Common::Detail
     template<typename Type>
     struct Success
     {
-        Success(Type value) :
-            value(std::forward<Type>(value))
+        Success(const Type& value) :
+            value(value)
+        {
+        }
+
+        Success(Type&& value) :
+            value(std::move(value))
         {
         }
 
@@ -41,8 +46,13 @@ namespace Common::Detail
     template<typename Type>
     struct Failure
     {
-        Failure(Type value) :
-            value(std::forward<Type>(value))
+        Failure(const Type& value) :
+            value(value)
+        {
+        }
+
+        Failure(Type&& value) :
+            value(std::move(value))
         {
         }
 
@@ -58,16 +68,10 @@ namespace Common::Detail
 
 namespace Common
 {
-    template<typename Type>
-    constexpr Detail::Success<const Type&> Success(const Type& value)
+    template<typename Type, typename Decayed = typename std::decay<Type>::type>
+    constexpr Detail::Success<Decayed> Success(Type&& value)
     {
-        return Detail::Success<const Type&>(value);
-    }
-
-    template<typename Type>
-    constexpr Detail::Success<Type&&> Success(Type&& value)
-    {
-        return Detail::Success<Type&&>(std::forward<Type>(value));
+        return Detail::Success<Decayed>(std::forward<Type>(value));
     }
 
     constexpr Detail::Success<void> Success()
@@ -75,16 +79,10 @@ namespace Common
         return Detail::Success<void>();
     }
 
-    template<typename Type>
-    constexpr Detail::Failure<const Type&> Failure(const Type& value)
+    template<typename Type, typename Decayed = typename std::decay<Type>::type>
+    constexpr Detail::Failure<Decayed> Failure(Type&& value)
     {
-        return Detail::Failure<const Type&>(value);
-    }
-
-    template<typename Type>
-    constexpr Detail::Failure<Type&&> Failure(Type&& value)
-    {
-        return Detail::Failure<Type&&>(std::forward<Type>(value));
+        return Detail::Failure<Decayed>(std::forward<Type>(value));
     }
 
     constexpr Detail::Failure<void> Failure()
@@ -115,13 +113,23 @@ namespace Common
 
         template<typename Type>
         Result(Detail::Success<Type>&& success) :
-            m_storage(std::in_place_index<StorageSuccessIndex>, std::move(success.value))
+            m_storage(std::in_place_index<StorageSuccessIndex>, std::forward<Type>(success.value))
+        {
+        }
+
+        Result(Detail::Success<void>&& success) :
+            m_storage(std::in_place_index<StorageSuccessIndex>)
         {
         }
 
         template<typename Type>
         Result(Detail::Failure<Type>&& failure) :
-            m_storage(std::in_place_index<StorageFailureIndex>, std::move(failure.value))
+            m_storage(std::in_place_index<StorageFailureIndex>, std::forward<Type>(failure.value))
+        {
+        }
+
+        Result(Detail::Failure<void>&& failure) :
+            m_storage(std::in_place_index<StorageFailureIndex>)
         {
         }
 

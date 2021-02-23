@@ -177,9 +177,12 @@ TEST_CASE("Result")
     SUBCASE("Unwrap")
     {
         auto result = ResultUnwrap::Create("Hello world!");
-        auto instance = result.Unwrap();
+        CHECK(result.IsSuccess());
+        CHECK_FALSE(result.IsFailure());
 
+        auto instance = result.Unwrap();
         CHECK_EQ(instance->text, "Hello world!");
+
         CHECK(result.IsSuccess());
         CHECK_FALSE(result.IsFailure());
     }
@@ -187,9 +190,12 @@ TEST_CASE("Result")
     SUBCASE("Unwrap or")
     {
         auto result = ResultUnwrap::Create("Goodbye world!");
-        auto instance = result.UnwrapOr(nullptr);
+        CHECK_FALSE(result.IsSuccess());
+        CHECK(result.IsFailure());
 
+        auto instance = result.UnwrapOr(nullptr);
         CHECK_EQ(instance, nullptr);
+
         CHECK_FALSE(result.IsSuccess());
         CHECK(result.IsFailure());
     }
@@ -214,6 +220,22 @@ TEST_CASE("Result")
         CHECK_EQ(resultFailure.Unwrap(), "goodbye world!");
     }
 
+    SUBCASE("Ownership")
+    {
+        std::shared_ptr<int> shared = std::make_shared<int>(42);
+        auto Create = [&shared]() -> Common::Result<std::shared_ptr<int>, std::shared_ptr<int>>
+        {
+            return Common::Success(shared);
+        };
+
+        auto result = Create();
+        auto pointer = result.Unwrap();
+
+        CHECK_NE(shared.get(), nullptr);
+        CHECK_NE(pointer.get(), nullptr);
+        CHECK_EQ(shared.use_count(), 2);
+    }
+
     SUBCASE("Lifetime")
     {
         SUBCASE("Unwrap lvalue")
@@ -221,10 +243,10 @@ TEST_CASE("Result")
             Test::InstanceCounter<> counter = ResultLifetime::Create(true).Unwrap();
 
             CHECK_EQ(counter.GetStats().instances, 1);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 2);
+            CHECK_EQ(counter.GetStats().constructions, 4);
+            CHECK_EQ(counter.GetStats().destructions, 3);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 2);
+            CHECK_EQ(counter.GetStats().moves, 3);
         }
 
         SUBCASE("Unwrap rvalue")
@@ -232,10 +254,10 @@ TEST_CASE("Result")
             Test::InstanceCounter<> counter = ResultLifetime::Create(false).UnwrapFailure();
 
             CHECK_EQ(counter.GetStats().instances, 1);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 2);
+            CHECK_EQ(counter.GetStats().constructions, 4);
+            CHECK_EQ(counter.GetStats().destructions, 3);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 2);
+            CHECK_EQ(counter.GetStats().moves, 3);
         }
 
         SUBCASE("Unwrap assign")
@@ -244,10 +266,10 @@ TEST_CASE("Result")
             counter = ResultLifetime::Create(true).Unwrap();
 
             CHECK_EQ(counter.GetStats().instances, 1);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 2);
+            CHECK_EQ(counter.GetStats().constructions, 4);
+            CHECK_EQ(counter.GetStats().destructions, 3);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 3);
+            CHECK_EQ(counter.GetStats().moves, 4);
         }
 
         SUBCASE("Unwrap stored")
@@ -256,10 +278,10 @@ TEST_CASE("Result")
             Test::InstanceCounter<> counter = result.Unwrap();
 
             CHECK_EQ(counter.GetStats().instances, 2);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 1);
+            CHECK_EQ(counter.GetStats().constructions, 4);
+            CHECK_EQ(counter.GetStats().destructions, 2);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 2);
+            CHECK_EQ(counter.GetStats().moves, 3);
         }
 
         SUBCASE("Unwrap success or")
