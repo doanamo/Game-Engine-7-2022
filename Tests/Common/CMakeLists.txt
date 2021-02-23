@@ -12,6 +12,7 @@ include_guard(GLOBAL)
 
 set(TEST_FILES
     "TestCommon.cpp"
+    "TestUtility.cpp"
     "TestScopeGuard.cpp"
     "TestResult.cpp"
     "TestHandleMap.cpp"
@@ -39,6 +40,8 @@ target_link_libraries(TestCommon PRIVATE Common)
 #
 
 set_target_properties(TestCommon PROPERTIES FOLDER "Tests")
+set_target_properties(TestCommon PROPERTIES COMPILE_DEFINITIONS
+    TESTS_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #
 # External
