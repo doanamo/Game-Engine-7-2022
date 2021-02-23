@@ -3,8 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <memory>
-#include <TestHelpers.hpp>
+#include <doctest/doctest.h>
 #include <Common/Result.hpp>
 
 class ResultWithVoid
@@ -22,16 +21,6 @@ public:
         return Common::Success();
     }
 };
-
-bool TestVoid()
-{
-    ResultWithVoid instance;
-
-    TEST_TRUE(instance.Initialize(true));
-    TEST_FALSE(instance.Initialize(false));
-
-    return true;
-}
 
 class ResultWithEnum
 {
@@ -56,21 +45,6 @@ public:
     }
 };
 
-bool TestEnum()
-{
-    ResultWithEnum instance;
-    
-    TEST_TRUE(instance.Initialize(true));
-    TEST_FALSE(instance.Initialize(false));
-
-    TEST_EQ(instance.Initialize(true).UnwrapSuccessOr(ResultWithEnum::JustGood), ResultWithEnum::VeryGood);
-    TEST_EQ(instance.Initialize(false).UnwrapSuccessOr(ResultWithEnum::JustGood), ResultWithEnum::JustGood);
-    TEST_EQ(instance.Initialize(false).UnwrapFailureOr(69), 42);
-    TEST_EQ(instance.Initialize(true).UnwrapFailureOr(69), 69);
-
-    return true;
-}
-
 class ResultWithString
 {
 public:
@@ -87,18 +61,6 @@ public:
         return Common::Success(std::string("hello world!"));
     }
 };
-
-bool TestString()
-{
-    ResultWithString instance;
-
-    TEST_EQ(instance.Initialize(true).UnwrapSuccessOr("goodbye world!"), "hello world!");
-    TEST_EQ(instance.Initialize(false).UnwrapSuccessOr("goodbye world!"), "goodbye world!");
-    TEST_EQ(instance.Initialize(false).UnwrapFailureOr("hello world!"), "goodbye world!");
-    TEST_EQ(instance.Initialize(true).UnwrapSuccessOr("hello world!"), "hello world!");
-
-    return true;
-}
 
 class ResultUnwrap
 {
@@ -119,51 +81,76 @@ public:
     std::string text;
 };
 
-bool TestUnwrap()
+TEST_CASE("Result")
 {
+    SUBCASE("With void type")
+    {
+        ResultWithVoid instance;
+        CHECK(instance.Initialize(true));
+        CHECK_FALSE(instance.Initialize(false));
+    }
+
+    SUBCASE("With enum type")
+    {
+        ResultWithEnum instance;
+        CHECK(instance.Initialize(true));
+        CHECK_FALSE(instance.Initialize(false));
+
+        CHECK_EQ(instance.Initialize(true)
+            .UnwrapSuccessOr(ResultWithEnum::JustGood), ResultWithEnum::VeryGood);
+        CHECK_EQ(instance.Initialize(false)
+            .UnwrapSuccessOr(ResultWithEnum::JustGood), ResultWithEnum::JustGood);
+
+        CHECK_EQ(instance.Initialize(false).UnwrapFailureOr(69), 42);
+        CHECK_EQ(instance.Initialize(true).UnwrapFailureOr(69), 69);
+    }
+
+    SUBCASE("With string type")
+    {
+        ResultWithString instance;
+        CHECK_EQ(instance.Initialize(true).UnwrapSuccessOr("goodbye world!"), "hello world!");
+        CHECK_EQ(instance.Initialize(false).UnwrapSuccessOr("goodbye world!"), "goodbye world!");
+        CHECK_EQ(instance.Initialize(false).UnwrapFailureOr("hello world!"), "goodbye world!");
+        CHECK_EQ(instance.Initialize(true).UnwrapSuccessOr("hello world!"), "hello world!");
+    }
+
+    SUBCASE("Unwrap")
     {
         auto result = ResultUnwrap::Create("Hello world!");
         auto instance = result.Unwrap();
 
-        TEST_EQ(instance->text, "Hello world!");
-        TEST_TRUE(result.IsSuccess());
-        TEST_FALSE(result.IsFailure());
+        CHECK_EQ(instance->text, "Hello world!");
+        CHECK(result.IsSuccess());
+        CHECK_FALSE(result.IsFailure());
     }
 
+    SUBCASE("Unwrap or")
     {
         auto result = ResultUnwrap::Create("Goodbye world!");
         auto instance = result.UnwrapOr(nullptr);
 
-        TEST_EQ(instance, nullptr);
-        TEST_FALSE(result.IsSuccess());
-        TEST_TRUE(result.IsFailure());
+        CHECK_EQ(instance, nullptr);
+        CHECK_FALSE(result.IsSuccess());
+        CHECK(result.IsFailure());
     }
 
+    SUBCASE("Unwrap either")
     {
         ResultWithString instance;
 
         auto resultSuccess = instance.Initialize(true).UnwrapEither();
-        TEST_EQ(resultSuccess, "hello world!");
+        CHECK_EQ(resultSuccess, "hello world!");
 
         auto resultFailure = instance.Initialize(false).UnwrapEither();
-        TEST_EQ(resultFailure, "goodbye world!");
+        CHECK_EQ(resultFailure, "goodbye world!");
     }
 
+    SUBCASE("As failure")
     {
         ResultWithString instance;
 
         auto resultFailure = instance.Initialize(false).AsFailure();
-        TEST_TRUE(resultFailure.IsSuccess());
-        TEST_EQ(resultFailure.Unwrap(), "goodbye world!");
+        CHECK(resultFailure.IsSuccess());
+        CHECK_EQ(resultFailure.Unwrap(), "goodbye world!");
     }
-
-    return true;
-}
-
-int main()
-{
-    TEST_RUN(TestVoid);
-    TEST_RUN(TestEnum);
-    TEST_RUN(TestString);
-    TEST_RUN(TestUnwrap);
 }

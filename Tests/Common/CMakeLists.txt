@@ -13,6 +13,7 @@ include_guard(GLOBAL)
 set(TEST_FILES
     "TestCommon.cpp"
     "TestScopeGuard.cpp"
+    "TestResult.cpp"
     "TestHandleMap.cpp"
     "TestEvent.cpp"
 )
