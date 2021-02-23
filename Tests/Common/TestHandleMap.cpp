@@ -35,7 +35,7 @@ TEST_CASE("Handle Map")
         std::string name;
     };
 
-    for(int cacheSize : { 0, 1, 2, 3, 4, 8 })
+    for(int cacheSize : { 0, 1, 3, 8 })
     SUBCASE(fmt::format("With cache size {}", cacheSize).c_str())
     {
         Common::HandleMap<Entity> entities(cacheSize);
@@ -55,8 +55,8 @@ TEST_CASE("Handle Map")
 
         SUBCASE("Handle creation")
         {
-            const int createCount = 8;
-            const int recreateCount = (cacheSize + 1) * 2;
+            const int createCount = 4;
+            const int recreateCount = cacheSize + 1;
 
             for(int createIndex = 0; createIndex < createCount; ++createIndex)
             SUBCASE(fmt::format("Create {} handle(s) and mirror them", createIndex + 1).c_str())
