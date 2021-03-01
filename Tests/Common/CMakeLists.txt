@@ -15,6 +15,7 @@ set(TEST_FILES
     "TestUtility.cpp"
     "TestScopeGuard.cpp"
     "TestResult.cpp"
+    "TestStateMachine.cpp"
     "TestHandleMap.cpp"
     "TestEvent.cpp"
 )
