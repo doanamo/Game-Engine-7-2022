@@ -69,7 +69,7 @@ build_release_gcc_x64:
         paths:
             - cmake-gcc-x64/
             
-test_debug32:
+test_debug_gcc_x86:
     stage: test
     dependencies:
         - build_debug_gcc_x86
@@ -77,7 +77,7 @@ test_debug32:
         - cd cmake-gcc-x86
         - ctest -C Debug --output-on-failure
         
-test_release32:
+test_release_gcc_x86:
     stage: test
     dependencies:
         - build_release_gcc_x86
@@ -85,7 +85,7 @@ test_release32:
         - cd cmake-gcc-x86
         - ctest -C Release --output-on-failure
         
-test_debug64:
+test_debug_gcc_x64:
     stage: test
     dependencies:
         - build_debug_gcc_x64
@@ -93,7 +93,7 @@ test_debug64:
         - cd cmake-gcc-x64
         - ctest -C Debug --output-on-failure
         
-test_release64:
+test_release_gcc_x64:
     stage: test
     dependencies:
         - build_release_gcc_x64
@@ -165,7 +165,7 @@ build_release_clang_x64:
         paths:
             - cmake-clang-x64/
             
-test_debug32:
+test_debug_clang_x86:
     stage: test
     dependencies:
         - build_debug_clang_x86
@@ -173,7 +173,7 @@ test_debug32:
         - cd cmake-clang-x86
         - ctest -C Debug --output-on-failure
         
-test_release32:
+test_release_clang_x86:
     stage: test
     dependencies:
         - build_release_clang_x86
@@ -181,7 +181,7 @@ test_release32:
         - cd cmake-clang-x86
         - ctest -C Release --output-on-failure
         
-test_debug64:
+test_debug_clang_x64:
     stage: test
     dependencies:
         - build_debug_clang_x64
@@ -189,7 +189,7 @@ test_debug64:
         - cd cmake-clang-x64
         - ctest -C Debug --output-on-failure
         
-test_release64:
+test_release_clang_x64:
     stage: test
     dependencies:
         - build_release_clang_x64
