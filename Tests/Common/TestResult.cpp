@@ -290,10 +290,10 @@ TEST_CASE("Result")
             Test::InstanceCounter<> counter = result.UnwrapSuccessOr(Test::InstanceCounter<>());
 
             CHECK_EQ(counter.GetStats().instances, 1);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 2);
+            CHECK_LE(counter.GetStats().constructions, 3);
+            CHECK_LE(counter.GetStats().destructions, 2);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 2);
+            CHECK_LE(counter.GetStats().moves, 2);
         }
 
         SUBCASE("Unwrap failure or")
@@ -302,10 +302,10 @@ TEST_CASE("Result")
             Test::InstanceCounter<> counter = result.UnwrapFailureOr(Test::InstanceCounter<>());
 
             CHECK_EQ(counter.GetStats().instances, 1);
-            CHECK_EQ(counter.GetStats().constructions, 3);
-            CHECK_EQ(counter.GetStats().destructions, 2);
+            CHECK_LE(counter.GetStats().constructions, 3);
+            CHECK_LE(counter.GetStats().destructions, 2);
             CHECK_EQ(counter.GetStats().copies, 0);
-            CHECK_EQ(counter.GetStats().moves, 2);
+            CHECK_LE(counter.GetStats().moves, 2);
         }
     }
 }
