@@ -75,7 +75,7 @@ test_debug32:
         - build_debug_gcc_x86
     script:
         - cd cmake-gcc-x86
-        - ctest -C Debug
+        - ctest -C Debug --output-on-failure
         
 test_release32:
     stage: test
@@ -83,7 +83,7 @@ test_release32:
         - build_release_gcc_x86
     script:
         - cd cmake-gcc-x86
-        - ctest -C Release
+        - ctest -C Release --output-on-failure
         
 test_debug64:
     stage: test
@@ -91,7 +91,7 @@ test_debug64:
         - build_debug_gcc_x64
     script:
         - cd cmake-gcc-x64
-        - ctest -C Debug
+        - ctest -C Debug --output-on-failure
         
 test_release64:
     stage: test
@@ -99,7 +99,7 @@ test_release64:
         - build_release_gcc_x64
     script:
         - cd cmake-gcc-x64
-        - ctest -C Release
+        - ctest -C Release --output-on-failure
 
 generate_clang_x86:
     stage: generate
@@ -171,7 +171,7 @@ test_debug32:
         - build_debug_clang_x86
     script:
         - cd cmake-clang-x86
-        - ctest -C Debug
+        - ctest -C Debug --output-on-failure
         
 test_release32:
     stage: test
@@ -179,7 +179,7 @@ test_release32:
         - build_release_clang_x86
     script:
         - cd cmake-clang-x86
-        - ctest -C Release
+        - ctest -C Release --output-on-failure
         
 test_debug64:
     stage: test
@@ -187,7 +187,7 @@ test_debug64:
         - build_debug_clang_x64
     script:
         - cd cmake-clang-x64
-        - ctest -C Debug
+        - ctest -C Debug --output-on-failure
         
 test_release64:
     stage: test
@@ -195,4 +195,4 @@ test_release64:
         - build_release_clang_x64
     script:
         - cd cmake-clang-x64
-        - ctest -C Release
+        - ctest -C Release --output-on-failure
