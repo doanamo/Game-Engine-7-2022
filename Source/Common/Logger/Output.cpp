@@ -12,7 +12,6 @@
 using namespace Logger;
 
 FileOutput::FileOutput() = default;
-
 FileOutput::~FileOutput()
 {
     if(m_file.is_open())

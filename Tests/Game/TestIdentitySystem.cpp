@@ -153,7 +153,6 @@ TEST_CASE("Identity System")
         entitySystem->DestroyAllEntities();
         CHECK_EQ(identitySystem->GetEntitiesByGroup("GroupA").UnwrapFailure(),
             Game::IdentitySystem::LookupErrors::GroupNotFound);
-
     }
 
     CHECK_EQ(identitySystem->GetNamedEntityCount(), 0);

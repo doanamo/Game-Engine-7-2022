@@ -68,9 +68,3 @@ set_property(TARGET Game PROPERTY FOLDER "Engine")
 
 add_subdirectory("../Core" "Core")
 target_link_libraries(Game PRIVATE Core)
-
-add_subdirectory("../System" "System")
-target_link_libraries(Game PRIVATE System)
-
-add_subdirectory("../Renderer" "Renderer")
-target_link_libraries(Game PRIVATE Renderer)
