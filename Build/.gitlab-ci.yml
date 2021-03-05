@@ -25,7 +25,7 @@ generate_gcc_x64:
         paths:
             - cmake-gcc-x64/
     
-build_debug_gcc_x86:
+build_gcc_debug_x86:
     stage: build
     dependencies:
         - generate_gcc_x86
@@ -36,7 +36,7 @@ build_debug_gcc_x86:
         paths:
             - cmake-gcc-x86/
             
-build_release_gcc_x86:
+build_gcc_release_x86:
     stage: build
     dependencies:
         - generate_gcc_x86
@@ -47,7 +47,7 @@ build_release_gcc_x86:
         paths:
             - cmake-gcc-x86/
 
-build_debug_gcc_x64:
+build_gcc_debug_x64:
     stage: build
     dependencies:
         - generate_gcc_x64
@@ -58,7 +58,7 @@ build_debug_gcc_x64:
         paths:
             - cmake-gcc-x64/
             
-build_release_gcc_x64:
+build_gcc_release_x64:
     stage: build
     dependencies:
         - generate_gcc_x64
@@ -69,34 +69,34 @@ build_release_gcc_x64:
         paths:
             - cmake-gcc-x64/
             
-test_debug_gcc_x86:
+test_gcc_debug_x86:
     stage: test
     dependencies:
-        - build_debug_gcc_x86
+        - build_gcc_debug_x86
     script:
         - cd cmake-gcc-x86
         - ctest -C Debug --output-on-failure
         
-test_release_gcc_x86:
+test_gcc_release_x86:
     stage: test
     dependencies:
-        - build_release_gcc_x86
+        - build_gcc_release_x86
     script:
         - cd cmake-gcc-x86
         - ctest -C Release --output-on-failure
         
-test_debug_gcc_x64:
+test_gcc_debug_x64:
     stage: test
     dependencies:
-        - build_debug_gcc_x64
+        - build_gcc_debug_x64
     script:
         - cd cmake-gcc-x64
         - ctest -C Debug --output-on-failure
         
-test_release_gcc_x64:
+test_gcc_release_x64:
     stage: test
     dependencies:
-        - build_release_gcc_x64
+        - build_gcc_release_x64
     script:
         - cd cmake-gcc-x64
         - ctest -C Release --output-on-failure
@@ -121,7 +121,7 @@ generate_clang_x64:
         paths:
             - cmake-clang-x64/
     
-build_debug_clang_x86:
+build_clang_debug_x86:
     stage: build
     dependencies:
         - generate_clang_x86
@@ -132,7 +132,7 @@ build_debug_clang_x86:
         paths:
             - cmake-clang-x86/
             
-build_release_clang_x86:
+build_clang_release_x86:
     stage: build
     dependencies:
         - generate_clang_x86
@@ -143,7 +143,7 @@ build_release_clang_x86:
         paths:
             - cmake-clang-x86/
 
-build_debug_clang_x64:
+build_clang_debug_x64:
     stage: build
     dependencies:
         - generate_clang_x64
@@ -154,7 +154,7 @@ build_debug_clang_x64:
         paths:
             - cmake-clang-x64/
             
-build_release_clang_x64:
+build_clang_release_x64:
     stage: build
     dependencies:
         - generate_clang_x64
@@ -165,34 +165,34 @@ build_release_clang_x64:
         paths:
             - cmake-clang-x64/
             
-test_debug_clang_x86:
+test_clang_debug_x86:
     stage: test
     dependencies:
-        - build_debug_clang_x86
+        - build_clang_debug_x86
     script:
         - cd cmake-clang-x86
         - ctest -C Debug --output-on-failure
         
-test_release_clang_x86:
+test_clang_release_x86:
     stage: test
     dependencies:
-        - build_release_clang_x86
+        - build_clang_release_x86
     script:
         - cd cmake-clang-x86
         - ctest -C Release --output-on-failure
         
-test_debug_clang_x64:
+test_clang_debug_x64:
     stage: test
     dependencies:
-        - build_debug_clang_x64
+        - build_clang_debug_x64
     script:
         - cd cmake-clang-x64
         - ctest -C Debug --output-on-failure
         
-test_release_clang_x64:
+test_clang_release_x64:
     stage: test
     dependencies:
-        - build_release_clang_x64
+        - build_clang_release_x64
     script:
         - cd cmake-clang-x64
         - ctest -C Release --output-on-failure
