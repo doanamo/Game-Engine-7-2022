@@ -35,7 +35,6 @@ namespace Graphics
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedFilePathResolve,
             FailedResourceLoading,
             InvalidResourceContents,
         };

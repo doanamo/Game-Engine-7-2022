@@ -45,10 +45,9 @@ namespace Graphics
         enum class CreateErrors
         {
             InvalidArgument,
+            UnsupportedImageFormat,
             FailedTextureCreation,
-            FailedFilePathResolve,
-            FailedFileReading,
-            FailedPngLoading,
+            FailedImageLoad,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Texture>, CreateErrors>;

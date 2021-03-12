@@ -41,7 +41,6 @@ namespace Graphics
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedFilePathResolve,
             InvalidFileContents,
             FailedShaderCreation,
             FailedShaderCompilation,
