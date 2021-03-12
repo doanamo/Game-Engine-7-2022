@@ -108,7 +108,7 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
 
 ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading script state from \"{}\" file...", file.GetPath());
+    LOG("Loading script state from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
     // Check arguments.

@@ -33,7 +33,7 @@ namespace System
         uint64_t GetSize() const override;
 
     private:
-        NativeFileHandle(const std::string& path, OpenFlags::Type flags);
+        NativeFileHandle(const fs::path& path, OpenFlags::Type flags);
 
         std::fstream m_stream;
         uint64_t m_size;

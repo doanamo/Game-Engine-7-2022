@@ -240,7 +240,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
 Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading shader from \"{}\" file...", file.GetPath());
+    LOG("Loading shader from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.

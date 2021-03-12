@@ -86,7 +86,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
 
 Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading texture from \"{}\" file...", file.GetPath());
+    LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.

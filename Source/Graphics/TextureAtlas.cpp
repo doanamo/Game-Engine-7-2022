@@ -27,7 +27,7 @@ TextureAtlas::CreateResult TextureAtlas::Create()
 
 TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading texture atlas from \"{}\" file...", file.GetPath());
+    LOG("Loading texture atlas from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate parameters.

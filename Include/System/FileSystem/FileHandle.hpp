@@ -51,7 +51,7 @@ namespace System
         virtual bool IsGood() const = 0;
         virtual uint64_t GetSize() const = 0;
 
-        const std::string& GetPath() const;
+        const fs::path& GetPath() const;
         OpenFlags::Type GetFlags() const;
         bool IsReadOnly() const;
 
@@ -71,10 +71,10 @@ namespace System
         }
 
     protected:
-        FileHandle(const std::string& path, OpenFlags::Type flags);
+        FileHandle(const fs::path& path, OpenFlags::Type flags);
 
     private:
-        std::string m_path;
+        fs::path m_path;
         OpenFlags::Type m_flags;
     };
 }

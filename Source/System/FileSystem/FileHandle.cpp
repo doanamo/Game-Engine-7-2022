@@ -7,14 +7,14 @@
 #include "System/FileSystem/FileHandle.hpp"
 using namespace System;
 
-FileHandle::FileHandle(const std::string& path, OpenFlags::Type flags) :
+FileHandle::FileHandle(const fs::path& path, OpenFlags::Type flags) :
     m_path(path), m_flags(flags)
 {
 }
 
 FileHandle::~FileHandle() = default;
 
-const std::string& FileHandle::GetPath() const
+const fs::path& FileHandle::GetPath() const
 {
     return m_path;
 }

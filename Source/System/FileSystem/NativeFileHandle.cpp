@@ -7,7 +7,7 @@
 #include "System/FileSystem/NativeFileHandle.hpp"
 using namespace System;
 
-NativeFileHandle::NativeFileHandle(const std::string& path, OpenFlags::Type flags) :
+NativeFileHandle::NativeFileHandle(const fs::path& path, OpenFlags::Type flags) :
     FileHandle(path, flags)
 {
 }
@@ -18,7 +18,7 @@ FileDepot::OpenFileResult NativeFileHandle::Create(const fs::path& filePath,
     const fs::path& requestedPath, OpenFlags::Type openFlags)
 {
     auto instance = std::unique_ptr<NativeFileHandle>(
-        new NativeFileHandle(requestedPath.generic_string(), openFlags));
+        new NativeFileHandle(requestedPath, openFlags));
 
     std::ios_base::openmode openMode = std::fstream::binary;
 

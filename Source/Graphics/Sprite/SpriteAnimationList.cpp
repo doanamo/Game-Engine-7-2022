@@ -49,7 +49,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 
 SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading sprite animation list from \"{}\" file...", file.GetPath());
+    LOG("Loading sprite animation list from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
