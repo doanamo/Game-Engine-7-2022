@@ -23,44 +23,21 @@ TEST_CASE("Scope Guard")
     SUBCASE("Make regular using macro")
     {
         ptr = new int(4);
-        SCOPE_GUARD(delete ptr; ptr = nullptr);
+        SCOPE_GUARD([&ptr]
+        {
+            delete ptr;
+            ptr = nullptr;
+        });
     }
 
     SUBCASE("Make regular using braced macros")
     {
         ptr = new int(4);
-
-        SCOPE_GUARD_BEGIN();
+        SCOPE_GUARD([&ptr]
         {
             delete ptr;
             ptr = nullptr;
-        }
-        SCOPE_GUARD_END();
-    }
-
-    SUBCASE("Make conditional using macro")
-    {
-        ptr = new int(4);
-        SCOPE_GUARD_IF(false, ptr = new int(7));
-        SCOPE_GUARD_IF(true, delete ptr; ptr = nullptr);
-    }
-
-    SUBCASE("Make conditional using braced macros")
-    {
-        ptr = new int(4);
-
-        SCOPE_GUARD_BEGIN(false);
-        {
-            ptr = new int(7);
-        }
-        SCOPE_GUARD_END();
-
-        SCOPE_GUARD_BEGIN(true);
-        {
-            delete ptr;
-            ptr = nullptr;
-        }
-        SCOPE_GUARD_END();
+        });
     }
 
     CHECK(ptr == nullptr);

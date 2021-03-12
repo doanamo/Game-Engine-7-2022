@@ -34,7 +34,10 @@ namespace
         OpenGL::CheckErrors();
 
         ASSERT(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
-        SCOPE_GUARD(glDeleteSamplers(1, &defaultSampler));
+        SCOPE_GUARD([&defaultSampler]
+        {
+            glDeleteSamplers(1, &defaultSampler);
+        });
 
         // Read default parameters.
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);

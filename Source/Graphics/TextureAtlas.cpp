@@ -59,7 +59,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
 
     // Get global table.
     lua_getglobal(*resourceScript, "TextureAtlas");
-    SCOPE_GUARD(lua_pop(*resourceScript, 1));
+    SCOPE_GUARD([&resourceScript]
+    {
+        lua_pop(*resourceScript, 1);
+    });
 
     if(!lua_istable(*resourceScript, -1))
     {
@@ -70,7 +73,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
     // Load texture.
     {
         lua_getfield(*resourceScript, -1, "Texture");
-        SCOPE_GUARD(lua_pop(*resourceScript, 1));
+        SCOPE_GUARD([&resourceScript]
+        {
+            lua_pop(*resourceScript, 1);
+        });
 
         if(!lua_isstring(*resourceScript, -1))
         {
@@ -90,7 +96,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
 
     // Read texture regions.
     lua_getfield(*resourceScript, -1, "Regions");
-    SCOPE_GUARD(lua_pop(*resourceScript, 1));
+    SCOPE_GUARD([&resourceScript]
+    {
+        lua_pop(*resourceScript, 1);
+    });
 
     if(!lua_istable(*resourceScript, -1))
     {

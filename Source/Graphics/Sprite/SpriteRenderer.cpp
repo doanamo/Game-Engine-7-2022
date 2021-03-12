@@ -151,7 +151,10 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
 {
     // Push render state.
     auto& renderState = m_renderContext->PushState();
-    SCOPE_GUARD(m_renderContext->PopState());
+    SCOPE_GUARD([this]
+    {
+        m_renderContext->PopState();
+    });
 
     // Set initial render state.
     renderState.BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

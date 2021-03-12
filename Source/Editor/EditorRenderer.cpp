@@ -180,7 +180,10 @@ void EditorRenderer::Draw()
         return;
 
     auto& renderState = m_renderContext->PushState();
-    SCOPE_GUARD(m_renderContext->PopState());
+    SCOPE_GUARD([this]
+    {
+        m_renderContext->PopState();
+    });
 
     int windowWidth = m_window->GetWidth();
     int windowHeight = m_window->GetHeight();

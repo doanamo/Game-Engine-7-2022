@@ -74,7 +74,10 @@ void GameRenderer::Draw(const DrawParams& drawParams)
 
     // Push render state.
     auto& renderState = m_renderContext->PushState();
-    SCOPE_GUARD(m_renderContext->PopState());
+    SCOPE_GUARD([this]
+    {
+        m_renderContext->PopState();
+    });
 
     // Setup drawing viewport.
     renderState.Viewport(

@@ -55,16 +55,14 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     // Create array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
-
-    SCOPE_GUARD_BEGIN();
+    SCOPE_GUARD([&shaderObjects]
     {
-        for(int i = 0; i < ShaderTypeCount; ++i)
+        for(GLuint shaderObject : shaderObjects)
         {
             // Delete shaders after we link them into a program.
-            glDeleteShader(shaderObjects[i]);
+            glDeleteShader(shaderObject);
         }
-    }
-    SCOPE_GUARD_END();
+    });
 
     // Create mutable copy of the provided shader code.
     std::string shaderCode = params.shaderCode;

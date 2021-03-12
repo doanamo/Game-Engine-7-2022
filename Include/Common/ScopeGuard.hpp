@@ -5,14 +5,12 @@
 
 #pragma once
 
-#include <utility>
-#include <memory>
 #include "Common/NonCopyable.hpp"
 
 /*
     Scope Guard
 
-    Executes bound function at the end of a scope.
+    Executes bound lambda function at the end of current scope.
     See unit tests for example usage.
 */
 
@@ -51,33 +49,6 @@ namespace Common
         Type m_function;
     };
 
-    template<>
-    class ScopeGuard<void> : private NonCopyable
-    {
-    public:
-        class Condition
-        {
-        public:
-            Condition() :
-                m_value(true)
-            {
-            }
-
-            Condition(bool value) :
-                m_value(value)
-            {
-            }
-
-            operator bool()
-            {
-                return m_value;
-            }
-
-        private:
-            bool m_value;
-        };
-    };
-
     template<typename Type>
     ScopeGuard<Type> MakeScopeGuard(Type function)
     {
@@ -92,14 +63,5 @@ namespace Common
 #define SCOPE_GUARD_STRING(line) scopeGuardLine ## line
 #define SCOPE_GUARD_NAME(line) SCOPE_GUARD_STRING(line)
 
-#define SCOPE_GUARD_BEGIN(...) auto SCOPE_GUARD_NAME(__LINE__) = \
-    Common::MakeScopeGuard([&]() { if(Common::ScopeGuard<void>::Condition(__VA_ARGS__)) { 
-#define SCOPE_GUARD_END() } });
-
-#define SCOPE_GUARD_MAKE(code) Common::MakeScopeGuard([&]() { code; })
-#define SCOPE_GUARD(code) auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_MAKE(code)
-
-#define SCOPE_GUARD_IF_MAKE(condition, code) \
-    Common::MakeScopeGuard([&]() { if(condition) { code; } })
-#define SCOPE_GUARD_IF(condition, code) \
-    auto SCOPE_GUARD_NAME(__LINE__) = SCOPE_GUARD_IF_MAKE(condition, code)
+#define SCOPE_GUARD_VARIABLE auto SCOPE_GUARD_NAME(__LINE__)
+#define SCOPE_GUARD SCOPE_GUARD_VARIABLE = Common::MakeScopeGuard

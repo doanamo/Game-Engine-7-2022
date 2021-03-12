@@ -81,7 +81,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
     // Get global table.
     lua_getglobal(*resourceScript, "SpriteAnimationList");
-    SCOPE_GUARD(lua_pop(*resourceScript, 1));
+    SCOPE_GUARD([&resourceScript]
+    {
+        lua_pop(*resourceScript, 1);
+    });
 
     if(!lua_istable(*resourceScript, -1))
     {
@@ -94,7 +97,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
     {
         lua_getfield(*resourceScript, -1, "TextureAtlas");
-        SCOPE_GUARD(lua_pop(*resourceScript, 1));
+        SCOPE_GUARD([&resourceScript]
+        {
+            lua_pop(*resourceScript, 1);
+        });
 
         if(!lua_isstring(*resourceScript, -1))
         {
@@ -119,7 +125,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
     // Read animation entries.
     lua_getfield(*resourceScript, -1, "Animations");
-    SCOPE_GUARD(lua_pop(*resourceScript, 1));
+    SCOPE_GUARD([&resourceScript]
+    {
+        lua_pop(*resourceScript, 1);
+    });
 
     if(!lua_istable(*resourceScript, -1))
     {
@@ -158,7 +167,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
             {
                 lua_pushinteger(*resourceScript, 1);
                 lua_gettable(*resourceScript, -2);
-                SCOPE_GUARD(lua_pop(*resourceScript, 1));
+                SCOPE_GUARD([&resourceScript]
+                {
+                    lua_pop(*resourceScript, 1);
+                });
 
                 if(!lua_isstring(*resourceScript, -1))
                 {
@@ -176,7 +188,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
             {
                 lua_pushinteger(*resourceScript, 2);
                 lua_gettable(*resourceScript, -2);
-                SCOPE_GUARD(lua_pop(*resourceScript, 1));
+                SCOPE_GUARD([&resourceScript]
+                {
+                    lua_pop(*resourceScript, 1);
+                });
 
                 if(!lua_isnumber(*resourceScript, -1))
                 {

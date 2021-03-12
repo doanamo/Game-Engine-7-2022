@@ -48,8 +48,11 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     glBindTexture(GL_TEXTURE_2D, instance->m_handle);
     OpenGL::CheckErrors();
 
-    SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D,
-        params.renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D)));
+    SCOPE_GUARD([&params]
+    {
+        glBindTexture(GL_TEXTURE_2D,
+            params.renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D));
+    });
 
     // Set packing alignment for provided data.
     if(params.format == GL_RED)
@@ -58,8 +61,11 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
         OpenGL::CheckErrors();
     }
 
-    SCOPE_GUARD(glPixelStorei(GL_UNPACK_ALIGNMENT,
-        params.renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT)));
+    SCOPE_GUARD([&params]
+    {
+        glPixelStorei(GL_UNPACK_ALIGNMENT,
+            params.renderContext->GetState().GetPixelStore(GL_UNPACK_ALIGNMENT));
+    });
 
     // Allocate texture surface on the hardware.
     glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height,
@@ -126,11 +132,10 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
         return Common::Failure(CreateErrors::FailedPngLoading);
     }
 
-    SCOPE_GUARD_BEGIN();
+    SCOPE_GUARD([&png_read_ptr, &png_info_ptr]
     {
         png_destroy_read_struct(&png_read_ptr, &png_info_ptr, nullptr);
-    }
-    SCOPE_GUARD_END();
+    });
 
     // Declare file read function.
     auto png_read_function = [](png_structp png_ptr, png_bytep data, png_size_t length) -> void
@@ -146,12 +151,11 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
     png_bytep* png_row_ptrs = nullptr;
     png_byte* png_data_ptr = nullptr;
 
-    SCOPE_GUARD_BEGIN();
+    SCOPE_GUARD([&png_row_ptrs, &png_data_ptr]
     {
         delete[] png_row_ptrs;
         delete[] png_data_ptr;
-    }
-    SCOPE_GUARD_END();
+    });
 
     // Setup error handling routine.
     // Apparently a standard way of handling errors with libpng...

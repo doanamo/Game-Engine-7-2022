@@ -128,12 +128,11 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     // Bind vertex array handle.
     glBindVertexArray(instance->m_handle);
 
-    SCOPE_GUARD_BEGIN();
+    SCOPE_GUARD([&renderContext]
     {
         glBindVertexArray(renderContext->GetState().GetVertexArrayBinding());
         glBindBuffer(GL_ARRAY_BUFFER, renderContext->GetState().GetBufferBinding(GL_ARRAY_BUFFER));
-    }
-    SCOPE_GUARD_END();
+    });
 
     // Setup vertex attribute array.
     const Buffer* currentBuffer = nullptr;
