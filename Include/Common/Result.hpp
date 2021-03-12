@@ -225,6 +225,12 @@ namespace Common
     };
 
     using GenericResult = Result<void, void>;
+
+    template<typename Type>
+    using SuccessResult = Result<Type, void>;
+
+    template<typename Type>
+    using FailureResult = Result<void, Type>;
 }
 
 /*
