@@ -10,9 +10,9 @@
 /*
     Delegate
 
-    Binds function, class method or functor/lambda which can be invoked
+    Binds function, class method or functor/closure which can be invoked
     at later time. Be careful not to invoke a delegate to method of an 
-    instance that no longer exists. Check Receiver and Dispatcher class
+    object that no longer exists. Check Receiver and Dispatcher class
     templates for subscription based solution that wraps delegates.
     
     Implementation partially based on:
@@ -28,28 +28,28 @@ namespace Event
     class Delegate<ReturnType(Arguments...)>
     {
     private:
-        using InstancePtr = void*;
-        using InvokerPtr = ReturnType(*)(InstancePtr, Arguments&&...);
+        using ErasedPtr = void*;
+        using InvokerPtr = ReturnType(*)(ErasedPtr, Arguments&&...);
         using CopierPtr = void*(*)(void*);
         using DeleterPtr = void(*)(void*);
 
         template<ReturnType(*Function)(Arguments...)>
-        static ReturnType FunctionStub(InstancePtr function, Arguments&&... arguments)
+        static ReturnType FunctionStub(ErasedPtr erased, Arguments&&... arguments)
         {
-            return (Function)(std::forward<Arguments>(arguments)...);
+            return Function(std::forward<Arguments>(arguments)...);
         }
 
         template<class FunctionType, ReturnType(FunctionType::*Function)(Arguments...)>
-        static ReturnType MethodStub(InstancePtr function, Arguments&&... arguments)
+        static ReturnType MethodStub(ErasedPtr erased, Arguments&&... arguments)
         {
-            return (static_cast<FunctionType*>(function)->*Function)
+            return (static_cast<FunctionType*>(erased)->*Function)
                 (std::forward<Arguments>(arguments)...);
         }
 
         template<class FunctionType>
-        static ReturnType FunctorStub(InstancePtr function, Arguments&&... arguments)
+        static ReturnType FunctorStub(ErasedPtr erased, Arguments&&... arguments)
         {
-            return (*static_cast<FunctionType*>(function))
+            return (*static_cast<FunctionType*>(erased))
                 (std::forward<Arguments>(arguments)...);
         }
 
@@ -72,11 +72,11 @@ namespace Event
 
             if(other.m_copier)
             {
-                m_instance = other.m_copier(other.m_instance);
+                m_erased = other.m_copier(other.m_erased);
             }
             else
             {
-                m_instance = other.m_instance;
+                m_erased = other.m_erased;
             }
 
             m_invoker = other.m_invoker;
@@ -93,7 +93,9 @@ namespace Event
 
         Delegate& operator=(Delegate&& other)
         {
-            std::swap(m_instance, other.m_instance);
+            ASSERT(&other != this);
+
+            std::swap(m_erased, other.m_erased);
             std::swap(m_invoker, other.m_invoker);
             std::swap(m_copier, other.m_copier);
             std::swap(m_deleter, other.m_deleter);
@@ -116,18 +118,18 @@ namespace Event
         {
             ClearBinding();
 
-            m_instance = nullptr;
+            m_erased = nullptr;
             m_invoker = &FunctionStub<Function>;
         }
 
         template<class FunctionType>
-        void Bind(FunctionType* instance)
+        void Bind(FunctionType* function)
         {
             ClearBinding();
 
-            if(instance)
+            if(function)
             {
-                m_instance = instance;
+                m_erased = function;
                 m_invoker = &FunctorStub<FunctionType>;
             }
         }
@@ -139,48 +141,49 @@ namespace Event
 
             if(instance)
             {
-                m_instance = instance;
+                m_erased = instance;
                 m_invoker = &MethodStub<FunctionType, Function>;
             }
         }
 
-        template<typename Lambda>
-        Delegate(Lambda lambda)
+        template<typename FunctionType>
+        Delegate(FunctionType closure)
         {
-            Bind(std::forward<Lambda>(lambda));
+            Bind(std::forward<FunctionType>(closure));
         }
 
-        template<typename Lambda>
-        Delegate& operator=(Lambda lambda)
+        template<typename FunctionType>
+        Delegate& operator=(FunctionType closure)
         {
-            Bind(std::forward<Lambda>(lambda));
+            Bind(std::forward<FunctionType>(closure));
             return *this;
         }
 
-        template<typename Lambda>
-        void Bind(Lambda lambda)
+        template<typename FunctionType>
+        void Bind(FunctionType closure)
         {
             ClearBinding();
 
-            if constexpr(std::is_convertible<Lambda, ReturnType(*)(Arguments...)>::value)
+            if constexpr(std::is_convertible<FunctionType, ReturnType(*)(Arguments...)>::value)
             {
-                m_instance = static_cast<void*>(&lambda);
-                m_invoker = &FunctorStub<Lambda>;
+                m_erased = static_cast<void*>(&closure);
+                m_invoker = &FunctorStub<FunctionType>;
             }
             else
             {
-                m_instance = new Lambda(std::forward<Lambda>(lambda));
-                m_invoker = &FunctorStub<Lambda>;
+                m_erased = new FunctionType(std::forward<FunctionType>(closure));
+                m_invoker = &FunctorStub<FunctionType>;
 
-                m_copier = [](void* lambda) -> void*
+                m_copier = [](void* closure) -> void*
                 {
-                    ASSERT(lambda, "Lambda instance should be present if there is copier!");
-                    return new Lambda(*static_cast<Lambda*>(lambda));
+                    ASSERT(closure);
+                    return new FunctionType(*static_cast<FunctionType*>(closure));
                 };
 
-                m_deleter = [](void* lambda)
+                m_deleter = [](void* closure) -> void
                 {
-                    delete static_cast<Lambda*>(lambda);
+                    ASSERT(closure);
+                    delete static_cast<FunctionType*>(closure);
                 };
             }
         }
@@ -205,12 +208,12 @@ namespace Event
         {
             if(m_deleter)
             {
-                m_deleter(m_instance);
+                m_deleter(m_erased);
                 m_copier = nullptr;
                 m_deleter = nullptr;
             }
 
-            m_instance = nullptr;
+            m_erased = nullptr;
             m_invoker = nullptr;
         }
 
@@ -218,7 +221,7 @@ namespace Event
         {
             if(m_invoker)
             {
-                return m_invoker(m_instance, std::forward<Arguments>(arguments)...);
+                return m_invoker(m_erased, std::forward<Arguments>(arguments)...);
             }
             else
             {
@@ -230,11 +233,11 @@ namespace Event
         {
             if(m_invoker)
             {
-                m_invoker(m_instance, std::forward<Arguments>(arguments)...);
+                m_invoker(m_erased, std::forward<Arguments>(arguments)...);
             }
         }
 
-        InstancePtr m_instance = nullptr;
+        ErasedPtr m_erased = nullptr;
         InvokerPtr m_invoker = nullptr;
         CopierPtr m_copier = nullptr;
         DeleterPtr m_deleter = nullptr;
