@@ -63,7 +63,7 @@ std::vector<std::string> Common::StringTokenize(const std::string text, char del
     {
         if(*it == delimeter)
         {
-            result.push_back(std::string(begin, it));
+            result.emplace_back(begin, it);
             begin = ++it;
         }
         else
@@ -73,7 +73,7 @@ std::vector<std::string> Common::StringTokenize(const std::string text, char del
 
         if(it == text.end())
         {
-            result.push_back(std::string(begin, it));
+            result.emplace_back(begin, it);
         }
     }
 
