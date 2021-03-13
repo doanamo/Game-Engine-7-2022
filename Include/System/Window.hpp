@@ -8,6 +8,8 @@
 #include <Common/Event/Dispatcher.hpp>
 #include "System/InputDefinitions.hpp"
 
+struct GLFWwindow;
+
 /*
     Window
 
@@ -28,10 +30,11 @@ namespace System
             bool vsync = true;
             bool visible = true;
 
-            int minWidth = GLFW_DONT_CARE;
-            int minHeight = GLFW_DONT_CARE;
-            int maxWidth = GLFW_DONT_CARE;
-            int maxHeight = GLFW_DONT_CARE;
+            const int Unspecified = -1;
+            int minWidth = Unspecified;
+            int minHeight = Unspecified;
+            int maxWidth = Unspecified;
+            int maxHeight = Unspecified;
         };
 
         enum class CreateErrors
@@ -98,7 +101,7 @@ namespace System
 
             struct TextInput
             {
-                unsigned int utf32Character;
+                uint32_t utf32Character;
             };
 
             Event::Dispatcher<bool(const TextInput&), Event::CollectWhileFalse> textInput;
