@@ -10,7 +10,7 @@
 #include <Common/Event/Dispatcher.hpp>
 #include <Common/Event/Receiver.hpp>
 
-static const char* Text = "Hello world!";
+static const char* Text = "0123456789";
 
 char Function(Test::InstanceCounter<> instance, int index)
 {
@@ -47,7 +47,7 @@ TEST_CASE("Event Delegate")
         {
             delegate.Bind<&Function>();
             CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 4), 'o');
+            CHECK_EQ(delegate.Invoke(counter, 4), '4');
         }
 
         SUBCASE("Class method binding")
@@ -55,7 +55,7 @@ TEST_CASE("Event Delegate")
             BaseClass baseClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
             CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 6), 'w');
+            CHECK_EQ(delegate.Invoke(counter, 6), '6');
         }
 
         SUBCASE("Virtual method binding")
@@ -63,7 +63,7 @@ TEST_CASE("Event Delegate")
             DerivedClass derivedClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
             CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 1), 'e');
+            CHECK_EQ(delegate.Invoke(counter, 1), '1');
         }
 
         SUBCASE("Lambda function binding")
@@ -75,12 +75,12 @@ TEST_CASE("Event Delegate")
 
             delegate.Bind(&functor);
             CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 10), 'd');
+            CHECK_EQ(delegate.Invoke(counter, 9), '9');
         }
 
         SUBCASE("Lambda capture binding via constructor")
         {
-            int modifier = 8;
+            int modifier = 4;
             delegate = Event::Delegate<char(Test::InstanceCounter<>, int)>(
                 [&modifier](Test::InstanceCounter<> counter, int index) -> char
                 {
@@ -88,7 +88,20 @@ TEST_CASE("Event Delegate")
                 });
 
             CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 3), '!');
+            CHECK_EQ(delegate.Invoke(counter, 3), '7');
+        }
+
+        SUBCASE("Lambda with parameter binding")
+        {
+            auto functor = [](Test::InstanceCounter<> counter, int index, int modifier) -> char
+            {
+                return Text[index + modifier];
+            };
+
+            delegate = std::bind(functor, std::placeholders::_1, std::placeholders::_2, 4 );
+
+            CHECK(delegate.IsBound());
+            CHECK_EQ(delegate.Invoke(counter, 3), '7');
         }
 
         delegate.Bind(nullptr);
@@ -148,9 +161,9 @@ TEST_CASE("Event Delegate")
             SUBCASE("Bind rvalue lambda")
             {
                 delegate.Bind([&currentValue, counter]()
-                    {
-                        currentValue += 10;
-                    });
+                {
+                    currentValue += 10;
+                });
 
                 expectedValue += 10;
 
@@ -161,9 +174,9 @@ TEST_CASE("Event Delegate")
             SUBCASE("Copy delegate")
             {
                 Event::Delegate<void()> delegateCopy([&currentValue, counter]()
-                    {
-                        currentValue += 100;
-                    });
+                {
+                    currentValue += 100;
+                });
 
                 expectedValue += 100;
 
@@ -184,9 +197,9 @@ TEST_CASE("Event Delegate")
             SUBCASE("Move delegate")
             {
                 Event::Delegate<void()> delegateMove([&currentValue, counter]()
-                    {
-                        currentValue += 1000;
-                    });
+                {
+                    currentValue += 1000;
+                });
 
                 expectedValue += 1000;
 
@@ -512,51 +525,51 @@ TEST_CASE("Event Dispatcher")
 
         Event::Receiver<bool(void)> receiverFireOnce;
         receiverFireOnce.Bind([&self = receiverFireOnce, &value]()
-            {
-                self.Unsubscribe();
-                value += 1;
-                return true;
-            });
+        {
+            self.Unsubscribe();
+            value += 1;
+            return true;
+        });
 
         Event::Receiver<bool(void)> receiverFireAlways;
         receiverFireAlways.Bind([&value]()
-            {
-                value += 10;
-                return true;
-            });
+        {
+            value += 10;
+            return true;
+        });
 
         Event::Receiver<bool(void)> receiverChainA;
         receiverChainA.Bind([&value]()
-            {
-                value += 100;
-                return true;
-            });
+        {
+            value += 100;
+            return true;
+        });
 
         Event::Receiver<bool(void)> receiverChainB;
         receiverChainB.Bind([&dispatcher, &receiverChainA, &value]()
-            {
-                receiverChainA.Subscribe(dispatcher);
-                value += 1000;
-                return true;
-            });
+        {
+            receiverChainA.Subscribe(dispatcher);
+            value += 1000;
+            return true;
+        });
 
         Event::Receiver<bool(void)> receiverChainC;
         receiverChainC.Bind([&dispatcher, &receiverChainB, &receiverChainC, &value]()
-            {
-                dispatcher.Subscribe(receiverChainB);
-                dispatcher.Unsubscribe(receiverChainC);
-                value += 10000;
-                return true;
-            });
+        {
+            dispatcher.Subscribe(receiverChainB);
+            dispatcher.Unsubscribe(receiverChainC);
+            value += 10000;
+            return true;
+        });
 
         Event::Receiver<bool(void)> receiverChainD;
         receiverChainD.Bind([&dispatcher, &receiverChainC, &receiverChainD, &value]()
-            {
-                dispatcher.Unsubscribe(receiverChainD);
-                dispatcher.Subscribe(receiverChainC);
-                value += 100000;
-                return true;
-            });
+        {
+            dispatcher.Unsubscribe(receiverChainD);
+            dispatcher.Subscribe(receiverChainC);
+            value += 100000;
+            return true;
+        });
 
         SUBCASE("Subscribe fire once receiver")
         {
@@ -627,7 +640,7 @@ TEST_CASE("Event Dispatcher")
         SUBCASE("Function dispatch")
         {
             receiver.Bind<&Function>();
-            CHECK_EQ(dispatcher.Dispatch(counter, 0), 'H');
+            CHECK_EQ(dispatcher.Dispatch(counter, 0), '0');
             CHECK_EQ(counter.GetStats().copies, 1);
         }
 
@@ -635,14 +648,14 @@ TEST_CASE("Event Dispatcher")
         {
             BaseClass baseClass;
             receiver.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-            CHECK_EQ(dispatcher.Dispatch(counter, 3), 'l');
+            CHECK_EQ(dispatcher.Dispatch(counter, 3), '3');
             CHECK_EQ(counter.GetStats().copies, 1);
         }
 
         SUBCASE("Lambda dispatch")
         {
             receiver.Bind([](Test::InstanceCounter<>, int index) { return Text[index]; });
-            CHECK_EQ(dispatcher.Dispatch(counter, 5), ' ');
+            CHECK_EQ(dispatcher.Dispatch(counter, 5), '5');
             CHECK_EQ(counter.GetStats().copies, 1);
         }
     }

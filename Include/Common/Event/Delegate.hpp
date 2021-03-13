@@ -125,6 +125,9 @@ namespace Event
         template<class FunctionType>
         void Bind(FunctionType* function)
         {
+            static_assert(std::is_invocable<FunctionType, Arguments...>::value,
+                "Arguments of provided callable must match arguments of delegate!");
+
             ClearBinding();
 
             if(function)
@@ -134,15 +137,15 @@ namespace Event
             }
         }
 
-        template<class FunctionType, ReturnType(FunctionType::*Function)(Arguments...)>
-        void Bind(FunctionType* instance)
+        template<class InstanceType, ReturnType(InstanceType::*Method)(Arguments...)>
+        void Bind(InstanceType* instance)
         {
             ClearBinding();
 
             if(instance)
             {
                 m_erased = instance;
-                m_invoker = &MethodStub<FunctionType, Function>;
+                m_invoker = &MethodStub<InstanceType, Method>;
             }
         }
 
@@ -162,6 +165,9 @@ namespace Event
         template<typename FunctionType>
         void Bind(FunctionType closure)
         {
+            static_assert(std::is_invocable<FunctionType, Arguments...>::value,
+                "Arguments of provided callable must match arguments of delegate!");
+
             ClearBinding();
 
             if constexpr(std::is_convertible<FunctionType, ReturnType(*)(Arguments...)>::value)
