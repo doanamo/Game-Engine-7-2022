@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Game/EntitySystem.hpp"
+#include "Game/EntityHandle.hpp"
 
 /*
     Component

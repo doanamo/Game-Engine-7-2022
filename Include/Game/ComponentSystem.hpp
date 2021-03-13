@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
-#include "Game/EntitySystem.hpp"
+#include "Game/EntityHandle.hpp"
 #include "Game/ComponentPool.hpp"
 
 /*
@@ -82,7 +82,7 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Retrieve entity entry to determine if handle is valid.
-        const EntitySystem::EntityEntry* entityEntry = m_entitySystem->GetEntityEntry(handle);
+        const EntityEntry* entityEntry = m_entitySystem->GetEntityEntry(handle);
         if(!entityEntry)
             return nullptr;
 
@@ -96,7 +96,7 @@ namespace Game
         {
             // Check if entity has already been created and has its components initialized.
             // If entity has already been created, initialize the component right away.
-            if(entityEntry->flags & EntitySystem::EntityFlags::Created)
+            if(entityEntry->flags & EntityFlags::Created)
             {
                 // Initialize component.
                 if(!pool.InitializeComponent(handle))

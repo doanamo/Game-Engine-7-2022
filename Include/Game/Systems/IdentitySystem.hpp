@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <Common/Event/Receiver.hpp>
-#include "Game/EntitySystem.hpp"
+#include "Game/EntityHandle.hpp"
 
 /*
     Identity System

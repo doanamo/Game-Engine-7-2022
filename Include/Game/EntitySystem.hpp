@@ -9,6 +9,7 @@
 #include <Common/HandleMap.hpp>
 #include <Common/Event/Dispatcher.hpp>
 #include <Common/Event/Collector.hpp>
+#include "Game/EntityHandle.hpp"
 
 /*
     Entity System
@@ -22,37 +23,6 @@ namespace Game
     class EntitySystem final : private Common::NonCopyable
     {
     public:
-        struct EntityFlags
-        {
-            enum
-            {
-                // Entity handle has been allocated but cannot be used.
-                Unused = 0,
-
-                // Entity handle exists and can be referenced.
-                // Systems may not acknowledge this entity yet and its
-                // components may be still in uninitialized state.
-                Exists = 1 << 0,
-
-                // Entity handle exists and has been officially created.
-                // Important difference is that other systems have been
-                // informed about an entity being created, resulting in
-                // its components being initialized as well.
-                Created = 1 << 1,
-
-                // Entity handle has been scheduled to be destroyed.
-                Destroy = 1 << 2,
-            };
-
-            using Type = unsigned char;
-        };
-
-        struct EntityEntry
-        {
-            EntityFlags::Type flags = EntityFlags::Unused;
-        };
-
-        using EntityHandle = Common::Handle<EntityEntry>;
         using EntityList = Common::HandleMap<EntityEntry>;
 
         struct EntityCommands
@@ -103,6 +73,4 @@ namespace Game
         CommandList m_commands;
         EntityList m_entities;
     };
-
-    using EntityHandle = typename EntitySystem::EntityHandle;
 }

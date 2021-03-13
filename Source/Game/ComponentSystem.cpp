@@ -5,6 +5,7 @@
 
 #include "Game/Precompiled.hpp"
 #include "Game/ComponentSystem.hpp"
+#include "Game/EntitySystem.hpp"
 using namespace Game;
 
 ComponentSystem::ComponentSystem()

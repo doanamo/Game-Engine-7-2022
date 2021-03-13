@@ -15,6 +15,7 @@ set(INCLUDE_FILES
     "GameFramework.hpp"
     "GameInstance.hpp"
     "GameState.hpp"
+    "EntityHandle.hpp"
     "EntitySystem.hpp"
     "Component.hpp"
     "ComponentPool.hpp"

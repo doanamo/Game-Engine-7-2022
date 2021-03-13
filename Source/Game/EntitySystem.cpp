@@ -24,7 +24,7 @@ EntitySystem::CreateResult EntitySystem::Create()
     return Common::Success(std::move(instance));
 }
 
-EntitySystem::EntityHandle EntitySystem::CreateEntity()
+EntityHandle EntitySystem::CreateEntity()
 {
     // Create new entity entry.
     if(auto cratedHandleResult = m_entities.CreateHandle())
@@ -201,7 +201,7 @@ bool Game::EntitySystem::IsEntityCreated(const EntityHandle entity) const
     }
 }
 
-const EntitySystem::EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
+const EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
 {
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {

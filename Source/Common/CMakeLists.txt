@@ -19,6 +19,7 @@ set(INCLUDE_FILES
     "Result.hpp"
     "LinkedList.hpp"
     "StateMachine.hpp"
+    "Handle.hpp"
     "HandleMap.hpp"
     "Logger/Logger.hpp"
     "Logger/Message.hpp"
