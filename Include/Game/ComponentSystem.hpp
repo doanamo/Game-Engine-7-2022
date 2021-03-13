@@ -58,6 +58,8 @@ namespace Game
     private:
         ComponentSystem();
 
+        const EntityEntry* GetEntityEntry(EntityHandle handle) const;
+
         template<typename ComponentType>
         bool Destroy(EntityHandle handle);
 
@@ -82,9 +84,12 @@ namespace Game
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Retrieve entity entry to determine if handle is valid.
-        const EntityEntry* entityEntry = m_entitySystem->GetEntityEntry(handle);
+        const EntityEntry* entityEntry = GetEntityEntry(handle);
         if(!entityEntry)
+        {
+            LOG_WARNING("Attempted to create component for an invalid entity handle.");
             return nullptr;
+        }
 
         // Get component pool.
         ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();

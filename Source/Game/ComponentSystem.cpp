@@ -75,3 +75,8 @@ EntitySystem* ComponentSystem::GetEntitySystem() const
 {
     return m_entitySystem;
 }
+
+const EntityEntry* ComponentSystem::GetEntityEntry(EntityHandle handle) const
+{
+    return m_entitySystem->GetEntityEntry(handle);
+}
