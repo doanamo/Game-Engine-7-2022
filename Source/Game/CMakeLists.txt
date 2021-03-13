@@ -21,12 +21,7 @@ set(INCLUDE_FILES
     "ComponentPool.hpp"
     "ComponentSystem.hpp"
     "Components/TransformComponent.hpp"
-    "Components/CameraComponent.hpp"
-    "Components/SpriteComponent.hpp"
-    "Components/SpriteAnimationComponent.hpp"
     "Systems/IdentitySystem.hpp"
-    "Systems/InterpolationSystem.hpp"
-    "Systems/SpriteSystem.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Game/")
@@ -41,12 +36,7 @@ set(SOURCE_FILES
     "EntitySystem.cpp"
     "ComponentSystem.cpp"
     "Components/TransformComponent.cpp"
-    "Components/CameraComponent.cpp"
-    "Components/SpriteComponent.cpp"
-    "Components/SpriteAnimationComponent.cpp"
     "Systems/IdentitySystem.cpp"
-    "Systems/InterpolationSystem.cpp"
-    "Systems/SpriteSystem.cpp"
 )
 
 list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")

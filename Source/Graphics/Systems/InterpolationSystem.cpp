@@ -3,17 +3,17 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
-#include "Game/Systems/InterpolationSystem.hpp"
-#include "Game/Components/TransformComponent.hpp"
-#include "Game/Components/SpriteAnimationComponent.hpp"
-#include "Game/ComponentSystem.hpp"
-using namespace Game;
+#include "Graphics/Precompiled.hpp"
+#include "Graphics/Systems/InterpolationSystem.hpp"
+#include "Graphics/Components/SpriteAnimationComponent.hpp"
+#include <Game/Components/TransformComponent.hpp>
+#include <Game/ComponentSystem.hpp>
+using namespace Graphics;
 
 InterpolationSystem::InterpolationSystem() = default;
 InterpolationSystem::~InterpolationSystem() = default;
 
-InterpolationSystem::CreateResult InterpolationSystem::Create(ComponentSystem* componentSystem)
+InterpolationSystem::CreateResult InterpolationSystem::Create(Game::ComponentSystem* componentSystem)
 {
     LOG("Creating interpolation system...");
     LOG_SCOPED_INDENT();
@@ -40,7 +40,7 @@ void InterpolationSystem::Tick(float timeDelta)
     }
 
     // Reset interpolation states of all sprite animation components.
-    for(auto& spriteAnimationComponent : m_componentSystem->GetPool<Game::SpriteAnimationComponent>())
+    for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {
         spriteAnimationComponent.ResetInterpolation();
     }

@@ -5,14 +5,17 @@
 
 #pragma once
 
+namespace Game
+{
+    class ComponentSystem;
+}
+
 /*
     Interpolation System
 */
 
-namespace Game
+namespace Graphics
 {
-    class ComponentSystem;
-
     class InterpolationSystem final : private Common::NonCopyable
     {
     public:
@@ -22,7 +25,7 @@ namespace Game
         };
 
         using CreateResult = Common::Result<std::unique_ptr<InterpolationSystem>, CreateErrors>;
-        static CreateResult Create(ComponentSystem* componentSystem);
+        static CreateResult Create(Game::ComponentSystem* componentSystem);
 
     public:
         ~InterpolationSystem();
@@ -32,6 +35,6 @@ namespace Game
     private:
         InterpolationSystem();
 
-        ComponentSystem* m_componentSystem = nullptr;
+        Game::ComponentSystem* m_componentSystem = nullptr;
     };
 }

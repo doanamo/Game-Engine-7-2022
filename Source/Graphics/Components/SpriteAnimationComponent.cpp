@@ -3,18 +3,18 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
-#include "Game/Components/SpriteAnimationComponent.hpp"
-#include "Game/Components/SpriteComponent.hpp"
-#include "Game/ComponentSystem.hpp"
-#include <Graphics/Sprite/SpriteAnimationList.hpp>
-using namespace Game;
+#include "Graphics/Precompiled.hpp"
+#include "Graphics/Components/SpriteAnimationComponent.hpp"
+#include "Graphics/Components/SpriteComponent.hpp"
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
+#include <Game/ComponentSystem.hpp>
+using namespace Graphics;
 
 SpriteAnimationComponent::SpriteAnimationComponent() = default;
 SpriteAnimationComponent::~SpriteAnimationComponent() = default;
 
-bool SpriteAnimationComponent::OnInitialize(ComponentSystem* componentSystem,
-    const EntityHandle& entitySelf)
+bool SpriteAnimationComponent::OnInitialize(Game::ComponentSystem* componentSystem,
+    const Game::EntityHandle& entitySelf)
 {
     m_spriteComponent = componentSystem->Lookup<SpriteComponent>(entitySelf);
     if(m_spriteComponent == nullptr)

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "Game/Component.hpp"
-#include <Graphics/Sprite/SpriteAnimationList.hpp>
+#include <Game/Component.hpp>
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
 
 /*
     Sprite Animation Component
@@ -14,11 +14,11 @@
     Playback control for animated sequence of sprites.
 */
 
-namespace Game
+namespace Graphics
 {
     class SpriteComponent;
 
-    class SpriteAnimationComponent final : public Component
+    class SpriteAnimationComponent final : public Game::Component
     {
     public:
         struct PlaybackFlags
@@ -56,8 +56,8 @@ namespace Game
         const SpriteAnimation* GetSpriteAnimation() const;
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem,
-            const EntityHandle& entitySelf) override;
+        bool OnInitialize(Game::ComponentSystem* componentSystem,
+            const Game::EntityHandle& entitySelf) override;
 
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;

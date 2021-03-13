@@ -5,7 +5,12 @@
 
 #pragma once
 
-#include "Game/Component.hpp"
+#include <Game/Component.hpp>
+
+namespace Game
+{
+    class TransformComponent;
+}
 
 /*
     Camera Component
@@ -13,11 +18,9 @@
     Projection transform component that represents camera view.
 */
 
-namespace Game
+namespace Graphics
 {
-    class TransformComponent;
-
-    class CameraComponent final : public Component
+    class CameraComponent final : public Game::Component
     {
     public:
         struct ProjectionTypes
@@ -38,13 +41,13 @@ namespace Game
         void SetupPerspective(float fov, float nearPlane, float farPlane);
         glm::mat4 CalculateTransform(const glm::ivec2& viewportSize);
 
-        TransformComponent* GetTransformComponent();
+        Game::TransformComponent* GetTransformComponent();
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem,
-            const EntityHandle& entitySelf) override;
+        bool OnInitialize(Game::ComponentSystem* componentSystem,
+            const Game::EntityHandle& entitySelf) override;
 
-        TransformComponent* m_transform = nullptr;
+        Game::TransformComponent* m_transform = nullptr;
         ProjectionTypes::Type m_projection = ProjectionTypes::Perspective;
         glm::vec2 m_viewSize = glm::vec2(2.0f, 2.0f);
         float m_nearPlane = 0.1f;

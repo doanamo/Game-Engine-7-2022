@@ -3,18 +3,19 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
-#include "Game/Components/SpriteComponent.hpp"
-#include "Game/Components/TransformComponent.hpp"
-#include "Game/ComponentSystem.hpp"
-using namespace Game;
+#include "Graphics/Precompiled.hpp"
+#include "Graphics/Components/SpriteComponent.hpp"
+#include <Game/Components/TransformComponent.hpp>
+#include <Game/ComponentSystem.hpp>
+using namespace Graphics;
 
 SpriteComponent::SpriteComponent() = default;
 SpriteComponent::~SpriteComponent() = default;
 
-bool SpriteComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
+bool SpriteComponent::OnInitialize(Game::ComponentSystem* componentSystem,
+    const Game::EntityHandle& entitySelf)
 {
-    m_transformComponent = componentSystem->Lookup<TransformComponent>(entitySelf);
+    m_transformComponent = componentSystem->Lookup<Game::TransformComponent>(entitySelf);
     if(m_transformComponent == nullptr)
         return false;
 
@@ -71,7 +72,7 @@ bool SpriteComponent::IsFiltered() const
     return m_filtered;
 }
 
-TransformComponent* SpriteComponent::GetTransformComponent() const
+Game::TransformComponent* SpriteComponent::GetTransformComponent() const
 {
     ASSERT(m_transformComponent);
     return m_transformComponent;

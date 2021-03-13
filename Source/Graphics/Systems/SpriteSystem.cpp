@@ -3,24 +3,25 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
-#include "Game/Systems/SpriteSystem.hpp"
-#include "Game/Components/SpriteAnimationComponent.hpp"
-#include "Game/Components/SpriteComponent.hpp"
-#include "Game/ComponentSystem.hpp"
-#include <Graphics/Sprite/SpriteAnimationList.hpp>
-using namespace Game;
+#include "Graphics/Precompiled.hpp"
+#include "Graphics/Systems/SpriteSystem.hpp"
+#include "Graphics/Components/SpriteAnimationComponent.hpp"
+#include "Graphics/Components/SpriteComponent.hpp"
+#include "Graphics/Sprite/SpriteAnimationList.hpp"
+#include <Game/ComponentSystem.hpp>
+using namespace Graphics;
 
 SpriteSystem::SpriteSystem() = default;
 SpriteSystem::~SpriteSystem() = default;
 
-SpriteSystem::CreateResult SpriteSystem::Create(ComponentSystem* componentSystem)
+SpriteSystem::CreateResult SpriteSystem::Create(Game::ComponentSystem* componentSystem)
 {
     LOG("Create sprite system...");
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteSystem>(new SpriteSystem());

@@ -14,7 +14,7 @@ namespace Game
     Sprite System
 */
 
-namespace Game
+namespace Graphics
 {
     class SpriteSystem final : private Common::NonCopyable
     {
@@ -25,7 +25,7 @@ namespace Game
         };
 
         using CreateResult = Common::Result<std::unique_ptr<SpriteSystem>, CreateErrors>;
-        static CreateResult Create(ComponentSystem* componentSystem);
+        static CreateResult Create(Game::ComponentSystem* componentSystem);
 
     public:
         ~SpriteSystem();
@@ -35,6 +35,6 @@ namespace Game
     private:
         SpriteSystem();
 
-        ComponentSystem* m_componentSystem = nullptr;
+        Game::ComponentSystem* m_componentSystem = nullptr;
     };
 }

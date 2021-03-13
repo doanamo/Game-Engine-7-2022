@@ -3,18 +3,19 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
-#include "Game/Components/CameraComponent.hpp"
-#include "Game/Components/TransformComponent.hpp"
-#include "Game/ComponentSystem.hpp"
-using namespace Game;
+#include "Graphics/Precompiled.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include <Game/Components/TransformComponent.hpp>
+#include <Game/ComponentSystem.hpp>
+using namespace Graphics;
 
 CameraComponent::CameraComponent() = default;
 CameraComponent::~CameraComponent() = default;
 
-bool CameraComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
+bool CameraComponent::OnInitialize(Game::ComponentSystem* componentSystem,
+    const Game::EntityHandle& entitySelf)
 {
-    m_transform = componentSystem->Lookup<TransformComponent>(entitySelf);
+    m_transform = componentSystem->Lookup<Game::TransformComponent>(entitySelf);
     if(m_transform == nullptr)
         return false;
 
@@ -84,7 +85,7 @@ glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
     return output;
 }
 
-TransformComponent* CameraComponent::GetTransformComponent()
+Game::TransformComponent* CameraComponent::GetTransformComponent()
 {
     return m_transform;
 }

@@ -5,9 +5,14 @@
 
 #pragma once
 
-#include "Game/Component.hpp"
-#include <Graphics/Sprite/Sprite.hpp>
-#include <Graphics/TextureView.hpp>
+#include <Game/Component.hpp>
+#include "Graphics/Sprite/Sprite.hpp"
+#include "Graphics/TextureView.hpp"
+
+namespace Game
+{
+    class TransformComponent;
+}
 
 /*
     Sprite Component
@@ -15,11 +20,9 @@
     Graphical component representing textures quad shape.
 */
 
-namespace Game
+namespace Graphics
 {
-    class TransformComponent;
-
-    class SpriteComponent final : public Component
+    class SpriteComponent final : public Game::Component
     {
     public:
         SpriteComponent();
@@ -31,7 +34,7 @@ namespace Game
         void SetTransparent(bool toggle);
         void SetFiltered(bool toggle);
 
-        TransformComponent* GetTransformComponent() const;
+        Game::TransformComponent* GetTransformComponent() const;
         const Graphics::TextureView& GetTextureView() const;
         glm::vec4 GetRectangle() const;
         glm::vec4 GetColor() const;
@@ -39,10 +42,10 @@ namespace Game
         bool IsFiltered() const;
 
     private:
-        bool OnInitialize(ComponentSystem* componentSystem,
-            const EntityHandle& entitySelf) override;
+        bool OnInitialize(Game::ComponentSystem* componentSystem,
+            const Game::EntityHandle& entitySelf) override;
 
-        TransformComponent* m_transformComponent = nullptr;
+        Game::TransformComponent* m_transformComponent = nullptr;
         Graphics::TextureView m_textureView;
         glm::vec4 m_rectangle = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
         glm::vec4 m_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);

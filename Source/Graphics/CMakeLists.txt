@@ -21,6 +21,11 @@ set(INCLUDE_FILES
     "TextureAtlas.hpp"
     "Sampler.hpp"
     "Shader.hpp"
+    "Components/CameraComponent.hpp"
+    "Components/SpriteComponent.hpp"
+    "Components/SpriteAnimationComponent.hpp"
+    "Systems/InterpolationSystem.hpp"
+    "Systems/SpriteSystem.hpp"
     "Sprite/Sprite.hpp"
     "Sprite/SpriteDrawList.hpp"
     "Sprite/SpriteRenderer.hpp"
@@ -42,6 +47,11 @@ set(SOURCE_FILES
     "TextureAtlas.cpp"
     "Sampler.cpp"
     "Shader.cpp"
+    "Components/CameraComponent.cpp"
+    "Components/SpriteComponent.cpp"
+    "Components/SpriteAnimationComponent.cpp"
+    "Systems/InterpolationSystem.cpp"
+    "Systems/SpriteSystem.cpp"
     "Sprite/Sprite.cpp"
     "Sprite/SpriteDrawList.cpp"
     "Sprite/SpriteRenderer.cpp"
@@ -78,6 +88,9 @@ target_link_libraries(Graphics PRIVATE Core)
 
 add_subdirectory("../System" "System")
 target_link_libraries(Graphics PRIVATE System)
+
+add_subdirectory("../Game" "Game")
+target_link_libraries(Graphics PRIVATE Game)
 
 add_subdirectory("../Script" "Script")
 target_link_libraries(Graphics PRIVATE Script)
