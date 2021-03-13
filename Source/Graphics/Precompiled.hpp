@@ -12,3 +12,6 @@
 #include <unordered_map>
 #include <fstream>
 #include <Core/Core.hpp>
+
+// todo: should be moved where OpenGL renderer is
+#include <glad/glad.h>

@@ -13,3 +13,9 @@
 #include <algorithm>
 #include <filesystem>
 #include <Core/Core.hpp>
+
+#include <zlib.h>
+#include <png.h>
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>

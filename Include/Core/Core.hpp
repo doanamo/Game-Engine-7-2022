@@ -35,9 +35,6 @@ namespace fs = std::filesystem;
 #include <utf8/unchecked.h>
 #include <fmt/core.h>
 
-#include <zlib.h>
-#include <png.h>
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -45,10 +42,6 @@ namespace fs = std::filesystem;
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
-
-#include <glad/glad.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 
 #ifdef __EMSCRIPTEN__
     #include <emscripten.h>

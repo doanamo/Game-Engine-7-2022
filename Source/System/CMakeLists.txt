@@ -74,3 +74,44 @@ set_property(TARGET System PROPERTY FOLDER "Engine")
 
 add_subdirectory("../Core" "Core")
 target_link_libraries(System PRIVATE Core)
+
+#
+# Externals
+#
+
+if(NOT EMSCRIPTEN)
+    add_subdirectory("../../External/zlib" "External/zlib" EXCLUDE_FROM_ALL)
+    target_include_directories(System PUBLIC "../../External/zlib")
+    target_include_directories(System PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
+    target_link_libraries(System PUBLIC "zlibstatic")
+    set_property(TARGET "zlibstatic" PROPERTY PROJECT_LABEL "zlib")
+    set_property(TARGET "zlibstatic" PROPERTY FOLDER "External")
+
+    set(PNG_BUILD_ZLIB ON)
+    add_subdirectory("../../External/libpng" "External/libpng")
+    target_include_directories("png_static" PRIVATE "../../External/zlib")
+    target_include_directories("png_static" PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/External/zlib")
+    target_link_libraries(System PRIVATE "png_static")
+    set_property(TARGET "png_static" PROPERTY PROJECT_LABEL "libpng")
+    set_property(TARGET "png_static" PROPERTY FOLDER "External")
+    set_property(TARGET "genfiles" PROPERTY PROJECT_LABEL "libpngconf")
+    set_property(TARGET "genfiles" PROPERTY FOLDER "External")
+
+    add_subdirectory("../../External/glfw" "External/glfw")
+    target_include_directories(System PRIVATE "../../External/glfw/include")
+    target_link_libraries(System PRIVATE "glfw")
+    set_property(TARGET "glfw" PROPERTY FOLDER "External")
+else()
+    target_compile_options(System PRIVATE "SHELL: -s USE_ZLIB=1")
+    target_link_options(System PRIVATE "SHELL: -s USE_ZLIB=1")
+
+    target_compile_options(System PRIVATE "SHELL: -s USE_LIBPNG=1")
+    target_link_options(System PRIVATE "SHELL: -s USE_LIBPNG=1")
+
+    target_compile_options(System PRIVATE "SHELL: -s USE_GLFW=3")
+    target_link_options(System PRIVATE "SHELL: -s USE_GLFW=3")
+endif()
+
+add_subdirectory("../../External/glad/" "External/glad")
+target_link_libraries(System PUBLIC "glad")
+set_property(TARGET "glad" PROPERTY FOLDER "External")

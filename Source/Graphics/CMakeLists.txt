@@ -81,3 +81,16 @@ target_link_libraries(Graphics PRIVATE System)
 
 add_subdirectory("../Script" "Script")
 target_link_libraries(Graphics PRIVATE Script)
+
+#
+# Externals
+#
+
+# todo: should be moved to where OpenGL renderer is
+if(NOT EMSCRIPTEN)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(Graphics ${OPENGL_GL_LIBRARY})
+else()
+    target_compile_options(Graphics PUBLIC "SHELL: -s FULL_ES3=1")
+    target_link_options(Graphics PUBLIC "SHELL: -s FULL_ES3=1")
+endif()

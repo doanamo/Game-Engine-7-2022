@@ -5,6 +5,7 @@
 
 #include "System/Precompiled.hpp"
 #include "System/Window.hpp"
+#include <glad/glad.h>
 using namespace System;
 
 Window::Window() = default;
