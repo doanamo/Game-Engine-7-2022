@@ -284,7 +284,7 @@ namespace Event
         void Dispatch(Arguments... arguments)
         {
             CollectNothing collector;
-            Super::template Dispatch(collector, std::forward<Arguments>(arguments)...);
+            Super::Dispatch(collector, std::forward<Arguments>(arguments)...);
         }
 
         void operator()(Arguments... arguments)
