@@ -216,11 +216,13 @@ namespace Event
         ReceiverListNode m_receiverList;
     };
 
-    template<typename Type, class Collector = CollectDefault<typename std::function<Type>::result_type>>
+    template<typename Type, class Collector = 
+        CollectDefault<typename std::function<Type>::result_type>>
     class Dispatcher;
 
     template<typename Collector, typename ReturnType, typename... Arguments>
-    class Dispatcher<ReturnType(Arguments...), Collector> : public DispatcherBase<ReturnType(Arguments...)>
+    class Dispatcher<ReturnType(Arguments...), Collector> final :
+        public DispatcherBase<ReturnType(Arguments...)>
     {
     public:
         using Super = DispatcherBase<ReturnType(Arguments...)>;
@@ -230,8 +232,8 @@ namespace Event
         {
         }
 
-        Dispatcher(Collector defaultCollector) :
-            m_defaultCollector(defaultCollector)
+        Dispatcher(ReturnType initialResult) :
+            m_defaultCollector(initialResult)
         {
         }
 
@@ -265,7 +267,7 @@ namespace Event
     };
 
     template<typename Collector, typename... Arguments>
-    class Dispatcher<void(Arguments...), Collector> : public DispatcherBase<void(Arguments...)>
+    class Dispatcher<void(Arguments...), Collector> final : public DispatcherBase<void(Arguments...)>
     {
     public:
         using Super = DispatcherBase<void(Arguments...)>;
