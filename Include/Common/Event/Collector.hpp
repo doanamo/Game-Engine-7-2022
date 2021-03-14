@@ -16,88 +16,94 @@
 
 namespace Event
 {
-    template<typename ReturnType>
-    class CollectLast;
-
-    template<typename Type>
-    class CollectDefault : public CollectLast<Type>
+    template<typename ResultType>
+    class Collector
     {
     public:
-        CollectDefault(Type defaultResult) :
-            CollectLast<Type>(defaultResult)
+        Collector(ResultType defaultResult) :
+            m_defaultResult(defaultResult)
         {
         }
+
+        virtual ~Collector() = default;
+
+        virtual void Reset()
+        {
+            ConsumeResult(m_defaultResult);
+        }
+
+        virtual void ConsumeResult(ResultType result) = 0;
+        virtual bool ShouldContinue() const = 0;
+        virtual ResultType GetResult() const = 0;
+
+    private:
+        ResultType m_defaultResult;
     };
 
     template<>
-    class CollectDefault<void>
+    class Collector<void>
     {
     public:
-        CollectDefault(void)
-        {
-        }
-
-        void ConsumeResult(void)
-        {
-        }
+        Collector() = default;
+        virtual ~Collector() = default;
 
         bool ShouldContinue() const
         {
             return true;
         }
-
-        void GetResult() const
-        {
-        }
     };
 
-    template<typename ReturnType>
-    class CollectLast
+    using CollectNothing = Collector<void>;
+
+    template<typename ResultType>
+    class CollectLast : public Collector<ResultType>
     {
     public:
-        CollectLast(ReturnType initialResult) :
-            m_result(initialResult)
+        CollectLast(ResultType defaultResult) :
+            Collector(defaultResult),
+            m_result(defaultResult)
         {
         }
 
-        void ConsumeResult(ReturnType result)
+        void ConsumeResult(ResultType result) override
         {
             m_result = result;
         }
 
-        bool ShouldContinue() const
+        bool ShouldContinue() const override
         {
             return true;
         }
 
-        ReturnType GetResult() const
+        ResultType GetResult() const override
         {
-            return m_result;
+            return std::move(m_result);
         }
 
     private:
-        ReturnType m_result;
+        ResultType m_result;
     };
 
-    class CollectWhileTrue
+    class CollectWhileTrue : public Collector<bool>
     {
     public:
-        CollectWhileTrue(bool initialResult = true) :
-            m_result(initialResult)
+        CollectWhileTrue(bool defaultResult = true) :
+            Collector(defaultResult),
+            m_result(defaultResult)
         {
         }
 
-        void ConsumeResult(bool result)
+        void ConsumeResult(bool result) override
         {
             m_result = result;
         }
 
-        bool ShouldContinue() const
+        bool ShouldContinue() const override
         {
             return m_result;
         }
 
-        bool GetResult() const
+        bool GetResult() const override
         {
             return m_result;
         }
@@ -106,25 +112,26 @@ namespace Event
         bool m_result;
     };
 
-    class CollectWhileFalse
+    class CollectWhileFalse : public Collector<bool>
     {
     public:
-        CollectWhileFalse(bool initialResult = false) :
-            m_result(initialResult)
+        CollectWhileFalse(bool defaultResult = false) :
+            Collector(defaultResult),
+            m_result(defaultResult)
         {
         }
 
-        void ConsumeResult(bool result)
+        void ConsumeResult(bool result) override
         {
             m_result = result;
         }
 
-        bool ShouldContinue() const
+        bool ShouldContinue() const override
         {
             return !m_result;
         }
 
-        bool GetResult() const
+        bool GetResult() const override
         {
             return m_result;
         }

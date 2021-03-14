@@ -7,6 +7,11 @@
 #include "Game/EntitySystem.hpp"
 using namespace Game;
 
+EntitySystem::Events::Events() :
+    entityCreate(std::make_unique<Event::CollectWhileTrue>(true))
+{
+}
+
 EntitySystem::EntitySystem() = default;
 EntitySystem::~EntitySystem()
 {

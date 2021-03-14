@@ -240,13 +240,10 @@ TEST_CASE("Event Delegate")
 
 TEST_CASE("Event Collector")
 {
-    SUBCASE("Collect default void result")
+    SUBCASE("Collect nothing")
     {
-        Event::CollectDefault<void> collectDefault;
-
-        collectDefault.ConsumeResult();
-        CHECK(collectDefault.ShouldContinue());
-        collectDefault.GetResult();
+        Event::CollectNothing collectNothing;
+        CHECK(collectNothing.ShouldContinue());
     }
 
     SUBCASE("Collect last result")
@@ -274,6 +271,19 @@ TEST_CASE("Event Collector")
         collectWhileTrue.ConsumeResult(false);
         CHECK_FALSE(collectWhileTrue.ShouldContinue());
         CHECK_FALSE(collectWhileTrue.GetResult());
+
+        SUBCASE("Collect after reset")
+        {
+            collectWhileTrue.Reset();
+
+            collectWhileTrue.ConsumeResult(true);
+            CHECK(collectWhileTrue.ShouldContinue());
+            CHECK(collectWhileTrue.GetResult());
+
+            collectWhileTrue.ConsumeResult(false);
+            CHECK_FALSE(collectWhileTrue.ShouldContinue());
+            CHECK_FALSE(collectWhileTrue.GetResult());
+        }
     }
 
     SUBCASE("Collect while false")
@@ -288,6 +298,19 @@ TEST_CASE("Event Collector")
         collectWhileFalse.ConsumeResult(true);
         CHECK_FALSE(collectWhileFalse.ShouldContinue());
         CHECK(collectWhileFalse.GetResult());
+
+        SUBCASE("Collect after reset")
+        {
+            collectWhileFalse.Reset();
+
+            collectWhileFalse.ConsumeResult(false);
+            CHECK(collectWhileFalse.ShouldContinue());
+            CHECK_FALSE(collectWhileFalse.GetResult());
+
+            collectWhileFalse.ConsumeResult(true);
+            CHECK_FALSE(collectWhileFalse.ShouldContinue());
+            CHECK(collectWhileFalse.GetResult());
+        }
     }
 }
 
@@ -338,7 +361,8 @@ TEST_CASE("Event Dispatcher")
         {
             int i = 0;
 
-            Event::Dispatcher<bool(int&), Event::CollectWhileTrue> dispatcherWhileTrue(true);
+            auto collector = std::make_unique<Event::CollectWhileTrue>(true);
+            Event::Dispatcher<bool(int&)> dispatcherWhileTrue(std::move(collector));
             CHECK(dispatcherWhileTrue.Dispatch(i));
             CHECK_EQ(i, 0);
 
@@ -362,7 +386,8 @@ TEST_CASE("Event Dispatcher")
         {
             int i = 0;
 
-            Event::Dispatcher<bool(int&), Event::CollectWhileFalse> dispatcherWhileFalse(false);
+            auto collector = std::make_unique<Event::CollectWhileFalse>(false);
+            Event::Dispatcher<bool(int&)> dispatcherWhileFalse(std::move(collector));
             CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
             CHECK_EQ(i, 0);
 
@@ -386,7 +411,8 @@ TEST_CASE("Event Dispatcher")
         {
             int i = 0;
 
-            Event::Dispatcher<bool(int&), Event::CollectWhileTrue> dispatcherWhileTrue(false);
+            auto collector = std::make_unique<Event::CollectWhileTrue>(false);
+            Event::Dispatcher<bool(int&)> dispatcherWhileTrue(std::move(collector));
             CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
             CHECK_EQ(i, 0);
 
@@ -399,7 +425,8 @@ TEST_CASE("Event Dispatcher")
         {
             int i = 0;
 
-            Event::Dispatcher<bool(int&), Event::CollectWhileFalse> dispatcherWhileFalse(true);
+            auto collector = std::make_unique<Event::CollectWhileFalse>(true);
+            Event::Dispatcher<bool(int&)> dispatcherWhileFalse(std::move(collector));
             CHECK(dispatcherWhileFalse.Dispatch(i));
             CHECK_EQ(i, 0);
 
@@ -522,7 +549,8 @@ TEST_CASE("Event Dispatcher")
     {
         int value = 0, firstDispatch = 0, secondDispatch = 0;
 
-        Event::Dispatcher<bool(void), Event::CollectWhileTrue> dispatcher;
+        auto collector = std::make_unique<Event::CollectWhileTrue>();
+        Event::Dispatcher<bool(void)> dispatcher(std::move(collector));
 
         Event::Receiver<bool(void)> receiverFireOnce;
         receiverFireOnce.Bind([&self = receiverFireOnce, &value]()

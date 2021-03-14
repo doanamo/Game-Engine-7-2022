@@ -7,6 +7,14 @@
 #include "System/InputState.hpp"
 using namespace System;
 
+InputState::Events::Events() :
+    textInput(std::make_unique<Event::CollectWhileFalse>(false)),
+    keyboardKey(std::make_unique<Event::CollectWhileFalse>(false)),
+    mouseButton(std::make_unique<Event::CollectWhileFalse>(false)),
+    mouseScroll(std::make_unique<Event::CollectWhileFalse>(false))
+{
+}
+
 InputState::InputState()
 {
     ResetStates();

@@ -63,7 +63,9 @@ namespace Game
 
         struct Events
         {
-            Event::Dispatcher<bool(EntityHandle), Event::CollectWhileTrue> entityCreate;
+            Events();
+
+            Event::Dispatcher<bool(EntityHandle)> entityCreate;
             Event::Dispatcher<void(EntityHandle)> entityDestroy;
         } events;
 

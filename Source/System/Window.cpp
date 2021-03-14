@@ -7,6 +7,14 @@
 #include "System/Window.hpp"
 using namespace System;
 
+Window::Events::Events() :
+    textInput(std::make_unique<Event::CollectWhileFalse>(false)),
+    keyboardKey(std::make_unique<Event::CollectWhileFalse>(false)),
+    mouseButton(std::make_unique<Event::CollectWhileFalse>(false)),
+    mouseScroll(std::make_unique<Event::CollectWhileFalse>(false))
+{
+}
+
 Window::Window() = default;
 
 Window::~Window()

@@ -30,10 +30,12 @@ namespace System
 
         struct Events
         {
-            Event::Dispatcher<bool(const InputEvents::TextInput&), Event::CollectWhileFalse> textInput;
-            Event::Dispatcher<bool(const InputEvents::KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
-            Event::Dispatcher<bool(const InputEvents::MouseButton&), Event::CollectWhileFalse> mouseButton;
-            Event::Dispatcher<bool(const InputEvents::MouseScroll&), Event::CollectWhileFalse> mouseScroll;
+            Events();
+
+            Event::Dispatcher<bool(const InputEvents::TextInput&)> textInput;
+            Event::Dispatcher<bool(const InputEvents::KeyboardKey&)> keyboardKey;
+            Event::Dispatcher<bool(const InputEvents::MouseButton&)> mouseButton;
+            Event::Dispatcher<bool(const InputEvents::MouseScroll&)> mouseScroll;
             Event::Dispatcher<void(const InputEvents::CursorPosition&)> cursorPosition;
             Event::Dispatcher<void(const InputEvents::CursorEnter&)> cursorEnter;
         } events;

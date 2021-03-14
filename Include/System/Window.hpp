@@ -70,6 +70,8 @@ namespace System
         // Publicly exposed window event dispatchers.
         struct Events
         {
+            Events();
+
             struct Move
             {
                 int x;
@@ -104,7 +106,7 @@ namespace System
                 uint32_t utf32Character;
             };
 
-            Event::Dispatcher<bool(const TextInput&), Event::CollectWhileFalse> textInput;
+            Event::Dispatcher<bool(const TextInput&)> textInput;
 
             struct KeyboardKey
             {
@@ -114,7 +116,7 @@ namespace System
                 int modifiers;
             };
 
-            Event::Dispatcher<bool(const KeyboardKey&), Event::CollectWhileFalse> keyboardKey;
+            Event::Dispatcher<bool(const KeyboardKey&)> keyboardKey;
 
             struct MouseButton
             {
@@ -123,14 +125,14 @@ namespace System
                 int modifiers;
             };
 
-            Event::Dispatcher<bool(const MouseButton&), Event::CollectWhileFalse> mouseButton;
+            Event::Dispatcher<bool(const MouseButton&)> mouseButton;
 
             struct MouseScroll
             {
                 double offset;
             };
 
-            Event::Dispatcher<bool(const MouseScroll&), Event::CollectWhileFalse> mouseScroll;
+            Event::Dispatcher<bool(const MouseScroll&)> mouseScroll;
 
             struct CursorPosition
             {

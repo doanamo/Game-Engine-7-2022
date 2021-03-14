@@ -28,15 +28,20 @@ namespace Event
     {
     public:
         template<typename EventType>
-        using DispatcherType = Dispatcher<bool(const EventType&), CollectWhileTrue>;
+        using DispatcherType = Dispatcher<bool(const EventType&)>;
         using DispatcherMap = std::unordered_map<std::type_index, std::any>;
 
         template<typename EventType>
         struct DispatcherStorage
         {
+            DispatcherStorage(std::unique_ptr<Collector<bool>>&& collector) :
+                dispatcher(std::make_shared<DispatcherType<EventType>>(
+                    std::forward<std::unique_ptr<Collector<bool>>>(collector)))
+            {
+            }
+
             // Must be copy constructible to satisfy std::any requirements.
-            std::shared_ptr<DispatcherType<EventType>> dispatcher =
-                std::make_shared<DispatcherType<EventType>>();
+            std::shared_ptr<DispatcherType<EventType>> dispatcher;
         };
 
         Broker() = default;
@@ -62,7 +67,8 @@ namespace Event
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
             {
-                std::any dispatcher = std::make_any<DispatcherStorage<EventType>>();
+                auto collector = std::make_unique<CollectWhileTrue>(true);
+                auto dispatcher = std::make_any<DispatcherStorage<EventType>>(std::move(collector));
                 auto result = m_dispatcherMap.emplace(eventType, std::move(dispatcher));
                 ASSERT(result.second, "Dispatcher storage failed to be emplaced!");
                 it = result.first;
