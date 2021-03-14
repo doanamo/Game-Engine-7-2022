@@ -59,7 +59,7 @@ namespace Event
     class CollectLast : public Collector<ResultType>
     {
     public:
-        CollectLast(ResultType defaultResult) :
+        CollectLast(ResultType defaultResult = ResultType()) :
             Collector<ResultType>(defaultResult),
             m_result(defaultResult)
         {
@@ -83,6 +83,10 @@ namespace Event
     private:
         ResultType m_result;
     };
+
+    template<typename ResultType>
+    using CollectDefault = typename std::conditional_t<
+        std::is_same<ResultType, void>::value, CollectNothing, CollectLast<ResultType>>;
 
     class CollectWhileTrue : public Collector<bool>
     {

@@ -222,14 +222,18 @@ namespace Event
     public:
         using Super = DispatcherBase<ReturnType(Arguments...)>;
 
-        Dispatcher(ReturnType defaultResult) :
-            m_collector(std::make_unique<CollectLast<ReturnType>>(defaultResult))
+        Dispatcher(ReturnType defaultResult = ReturnType()) :
+            m_collector(std::make_unique<CollectDefault<ReturnType>>(defaultResult))
         {
         }
 
-        Dispatcher(std::unique_ptr<Collector<ReturnType>>&& collector) :
-            m_collector(std::forward<std::unique_ptr<Collector<ReturnType>>>(collector))
+        Dispatcher(std::unique_ptr<Collector<ReturnType>>&& collector = nullptr) :
+            m_collector(std::move(collector))
         {
+            if(m_collector == nullptr)
+            {
+                m_collector = std::make_unique<CollectDefault<ReturnType>>();
+            }
         }
 
         Dispatcher(Dispatcher&& other) :
@@ -250,7 +254,7 @@ namespace Event
             ASSERT(m_collector != nullptr);
 
             m_collector->Reset();
-            Super::template Dispatch(*m_collector, std::forward<Arguments>(arguments)...);
+            Super::Dispatch(*m_collector, std::forward<Arguments>(arguments)...);
             return m_collector->GetResult();
         }
 
@@ -272,6 +276,10 @@ namespace Event
         Dispatcher() = default;
         Dispatcher(Dispatcher&& other) = default;
         Dispatcher& operator=(Dispatcher&& other) = default;
+
+        Dispatcher(std::unique_ptr<Collector<void>>&& collector)
+        {
+        }
 
         void Dispatch(Arguments... arguments)
         {

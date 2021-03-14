@@ -695,6 +695,11 @@ TEST_CASE("Event Broker")
     int currentValue = 0;
     int expectedValue = 0;
 
+    struct EventBoolean
+    {
+        bool boolean;
+    };
+
     struct EventInteger
     {
         int integer;
@@ -705,38 +710,101 @@ TEST_CASE("Event Broker")
         std::string string;
     };
 
-    Event::Receiver<bool(const EventInteger&)> receiverInteger;
-    receiverInteger.Bind([&currentValue](const EventInteger& event)
+    struct EventVector
+    {
+        std::vector<int> vector;
+    };
+
+    Event::Receiver<void(const EventBoolean&)> receiverBooleanVoid;
+    receiverBooleanVoid.Bind([&currentValue](const EventBoolean& event)
+    {
+        currentValue += event.boolean ? 10 : 100;
+    });
+
+    Event::Receiver<bool(const EventInteger&)> receiverIntegerTrue;
+    receiverIntegerTrue.Bind([&currentValue](const EventInteger& event)
     {
         currentValue += event.integer;
         return true;
     });
 
-    Event::Receiver<bool(const EventString&)> receiverString;
-    receiverString.Bind([&currentValue](const EventString& event)
+    Event::Receiver<bool(const EventInteger&)> receiverIntegerFalse;
+    receiverIntegerFalse.Bind([&currentValue](const EventInteger& event)
+    {
+        currentValue += event.integer;
+        return false;
+    });
+
+    Event::Receiver<bool(const EventString&)> receiverStringTrue;
+    receiverStringTrue.Bind([&currentValue](const EventString& event)
     {
         currentValue += event.string.size();
         return true;
+    });
+
+    Event::Receiver<bool(const EventString&)> receiverStringFalse;
+    receiverStringFalse.Bind([&currentValue](const EventString& event)
+    {
+        currentValue += event.string.size();
+        return false;
     });
 
     Event::Broker broker;
 
     SUBCASE("Dispatch empty")
     {
-        broker.Dispatch(EventInteger{ 4 });
-        broker.Dispatch(EventString{ "Null" });
+        broker.Dispatch<bool>(EventInteger{ 4 });
+        broker.Dispatch<bool>(EventString{ "Null" });
         CHECK_EQ(currentValue, expectedValue);
     }
 
-    SUBCASE("Dispatch to receivers")
+    SUBCASE("Dispatch unregistered")
     {
-        broker.Subscribe(receiverInteger);
-        broker.Subscribe(receiverString);
+        broker.Subscribe(receiverIntegerTrue);
+        broker.Subscribe(receiverStringFalse);
 
-        broker.Dispatch(EventInteger{ 2 });
+        broker.Dispatch<bool>(EventInteger{ 2 });
+        CHECK_EQ(currentValue, expectedValue);
+
+        broker.Dispatch<bool>(EventString{ "Jelly" });
+        CHECK_EQ(currentValue, expectedValue);
+    }
+
+    SUBCASE("Dispatch registered")
+    {
+        CHECK(broker.Register<void, EventBoolean>(std::make_unique<Event::CollectNothing>()));
+        CHECK(broker.Register<bool, EventInteger>(std::make_unique<Event::CollectWhileTrue>()));
+        CHECK(broker.Register<bool, EventString>(std::make_unique<Event::CollectWhileFalse>()));
+        broker.Finalize();
+
+        SUBCASE("Register when finalized")
+        {
+            CHECK_FALSE(broker.Register<bool, EventVector>());
+        }
+
+        broker.Subscribe(receiverBooleanVoid);
+        broker.Subscribe(receiverIntegerTrue);
+        broker.Subscribe(receiverStringFalse);
+
+        broker.Dispatch<void>(EventBoolean{ true });
+        CHECK_EQ(currentValue, expectedValue += 10);
+
+        CHECK_EQ(broker.Dispatch<bool>(EventInteger{ 2 }).Unwrap(), true);
         CHECK_EQ(currentValue, expectedValue += 2);
 
-        broker.Dispatch(EventString{ "Jelly" });
+        CHECK_EQ(broker.Dispatch<bool>(EventString{ "Jelly" }).Unwrap(), false);
         CHECK_EQ(currentValue, expectedValue += 5);
+
+        SUBCASE("Dispatch with mismatched result type")
+        {
+            CHECK(broker.Dispatch<bool>(EventBoolean{ true }).IsFailure());
+            CHECK_EQ(currentValue, expectedValue);
+
+            CHECK(broker.Dispatch<int>(EventInteger{ 2 }).IsFailure());
+            CHECK_EQ(currentValue, expectedValue);
+
+            CHECK(broker.Dispatch<float>(EventString{ "Jelly" }).IsFailure());
+            CHECK_EQ(currentValue, expectedValue);
+        }
     }
 }

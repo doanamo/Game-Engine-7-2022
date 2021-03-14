@@ -9,6 +9,7 @@
 #include <utility>
 #include <typeindex>
 #include <unordered_map>
+#include "Common/Result.hpp"
 #include "Common/Event/Dispatcher.hpp"
 
 /*
@@ -27,21 +28,30 @@ namespace Event
     class Broker : private Common::NonCopyable
     {
     public:
-        template<typename EventType>
-        using DispatcherType = Dispatcher<bool(const EventType&)>;
+        enum class DispatchErrors
+        {
+            UnregisteredEventType,
+            IncorrectResultType,
+        };
+
+        template<typename ResultType>
+        using DispatchResult = Common::Result<ResultType, DispatchErrors>;
+
+        template<typename ResultType, typename EventType>
+        using DispatcherType = Dispatcher<ResultType(const EventType&)>;
         using DispatcherMap = std::unordered_map<std::type_index, std::any>;
 
-        template<typename EventType>
+        template<typename ResultType, typename EventType>
         struct DispatcherStorage
         {
-            DispatcherStorage(std::unique_ptr<Collector<bool>>&& collector) :
-                dispatcher(std::make_shared<DispatcherType<EventType>>(
-                    std::forward<std::unique_ptr<Collector<bool>>>(collector)))
+            DispatcherStorage(std::unique_ptr<Collector<ResultType>>&& collector) :
+                dispatcher(std::make_shared<DispatcherType<
+                    ResultType, EventType>>(std::move(collector)))
             {
             }
 
             // Must be copy constructible to satisfy std::any requirements.
-            std::shared_ptr<DispatcherType<EventType>> dispatcher;
+            std::shared_ptr<DispatcherType<ResultType, EventType>> dispatcher;
         };
 
         Broker() = default;
@@ -58,41 +68,76 @@ namespace Event
             return *this;
         }
 
-        template<typename EventType>
-        bool Subscribe(Receiver<bool(const EventType&)>& receiver,
+        template<typename ResultType, typename EventType>
+        bool Register(std::unique_ptr<Collector<ResultType>>&& collector = nullptr)
+        {
+            if(m_finalized)
+            {
+                LOG_WARNING("Event broker is finalized and cannot register more event types!");
+                return false;
+            }
+
+            std::type_index eventType = typeid(EventType);
+            auto it = m_dispatcherMap.find(eventType);
+            if(it == m_dispatcherMap.end())
+            {
+                auto dispatcher = std::make_any<DispatcherStorage<
+                    ResultType, EventType>>(std::move(collector));
+                auto result = m_dispatcherMap.emplace(eventType, std::move(dispatcher));;
+            }
+
+            return true;
+        }
+
+        void Finalize()
+        {
+            m_finalized = true;
+        }
+
+        template<typename ResultType, typename EventType>
+        bool Subscribe(Receiver<ResultType(const EventType&)>& receiver,
             SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
             PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
             std::type_index eventType = typeid(EventType);
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
-            {
-                auto collector = std::make_unique<CollectWhileTrue>(true);
-                auto dispatcher = std::make_any<DispatcherStorage<EventType>>(std::move(collector));
-                auto result = m_dispatcherMap.emplace(eventType, std::move(dispatcher));
-                ASSERT(result.second, "Dispatcher storage failed to be emplaced!");
-                it = result.first;
-            }
+                return false;
 
-            DispatcherStorage<EventType>* storage = nullptr;
-            storage = std::any_cast<DispatcherStorage<EventType>>(&it->second);
+            DispatcherStorage<ResultType, EventType>* storage = nullptr;
+            storage = std::any_cast<DispatcherStorage<ResultType, EventType>>(&it->second);
+            if(storage == nullptr)
+                return false;
+
             return storage->dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy);
         }
 
-        template<typename EventType>
-        bool Dispatch(const EventType& event)
+        template<typename ResultType, typename EventType>
+        DispatchResult<ResultType> Dispatch(const EventType& event)
         {
             std::type_index eventType = typeid(EventType);
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
-                return false;
+                return Common::Failure(DispatchErrors::UnregisteredEventType);
 
-            DispatcherStorage<EventType>* storage = nullptr;
-            storage = std::any_cast<DispatcherStorage<EventType>>(&it->second);
-            return storage->dispatcher->Dispatch(event);
+            DispatcherStorage<ResultType, EventType>* storage = nullptr;
+            storage = std::any_cast<DispatcherStorage<ResultType, EventType>>(&it->second);
+            if(storage == nullptr)
+                return Common::Failure(DispatchErrors::IncorrectResultType);
+
+            if constexpr(std::is_same<ResultType, void>::value)
+            {
+                storage->dispatcher->Dispatch(event);
+                return Common::Success();
+            }
+            else
+            {
+                return Common::Success(storage->dispatcher->Dispatch(event));
+            }
         }
 
     private:
         DispatcherMap m_dispatcherMap;
+        bool m_finalized = false;
     };
 }
