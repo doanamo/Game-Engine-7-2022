@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Common/Event/Dispatcher.hpp"
+#include <Common/Event/Broker.hpp>
 #include "System/InputDefinitions.hpp"
 
 /*
@@ -28,17 +28,7 @@ namespace System
         bool IsMouseButtonPressed(KeyboardKeys::Type key, bool repeat = true) const;
         bool IsMouseButtonReleased(KeyboardKeys::Type key, bool repeat = true) const;
 
-        struct Events
-        {
-            Events();
-
-            Event::Dispatcher<bool(const InputEvents::TextInput&)> textInput;
-            Event::Dispatcher<bool(const InputEvents::KeyboardKey&)> keyboardKey;
-            Event::Dispatcher<bool(const InputEvents::MouseButton&)> mouseButton;
-            Event::Dispatcher<bool(const InputEvents::MouseScroll&)> mouseScroll;
-            Event::Dispatcher<void(const InputEvents::CursorPosition&)> cursorPosition;
-            Event::Dispatcher<void(const InputEvents::CursorEnter&)> cursorEnter;
-        } events;
+        Event::Broker events;
 
     private:
         InputState();

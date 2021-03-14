@@ -14,6 +14,7 @@ set(INCLUDE_FILES
     "Platform.hpp"
     "Timer.hpp"
     "Window.hpp"
+    "WindowEvents.hpp"
     "InputDefinitions.hpp"
     "InputState.hpp"
     "InputManager.hpp"

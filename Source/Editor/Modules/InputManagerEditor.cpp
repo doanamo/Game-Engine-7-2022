@@ -49,13 +49,13 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
 bool InputManagerEditor::SubscribeEvents()
 {
     bool subscriptionResults = true;
-    subscriptionResults &= m_keyboardKeyReceiver.Subscribe(m_window->events.keyboardKey);
-    subscriptionResults &= m_textInputReceiver.Subscribe(m_window->events.textInput);
-    subscriptionResults &= m_windowFocusReceiver.Subscribe(m_window->events.focus);
-    subscriptionResults &= m_mouseButtonReceiver.Subscribe(m_window->events.mouseButton);
-    subscriptionResults &= m_mouseScrollReceiver.Subscribe(m_window->events.mouseScroll);
-    subscriptionResults &= m_cursorPositionReceiver.Subscribe(m_window->events.cursorPosition);
-    subscriptionResults &= m_cursorEnterReceiver.Subscribe(m_window->events.cursorEnter);
+    subscriptionResults &= m_window->events.Subscribe(m_keyboardKeyReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_textInputReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_windowFocusReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_mouseButtonReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_mouseScrollReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_cursorPositionReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_cursorEnterReceiver);
     return subscriptionResults;
 }
 
@@ -142,7 +142,7 @@ void InputManagerEditor::AddIncomingEventLog(std::string text)
     m_incomingEventLog.push_back(textStream.str());
 }
 
-void InputManagerEditor::OnWindowFocus(const WindowEvents::Focus& event)
+void InputManagerEditor::OnWindowFocus(const System::WindowEvents::Focus& event)
 {
     if(m_incomingWindowFocus)
     {
@@ -154,7 +154,7 @@ void InputManagerEditor::OnWindowFocus(const WindowEvents::Focus& event)
     }
 }
 
-bool InputManagerEditor::OnTextInput(const WindowEvents::TextInput& event)
+bool InputManagerEditor::OnTextInput(const System::WindowEvents::TextInput& event)
 {
     if(m_incomingTextInput)
     {
@@ -168,7 +168,7 @@ bool InputManagerEditor::OnTextInput(const WindowEvents::TextInput& event)
     return false;
 }
 
-bool InputManagerEditor::OnKeyboardKey(const WindowEvents::KeyboardKey& event)
+bool InputManagerEditor::OnKeyboardKey(const System::WindowEvents::KeyboardKey& event)
 {
     if(m_incomingKeyboardKey)
     {
@@ -233,7 +233,7 @@ bool InputManagerEditor::OnKeyboardKey(const WindowEvents::KeyboardKey& event)
     return false;
 }
 
-bool InputManagerEditor::OnMouseButton(const WindowEvents::MouseButton& event)
+bool InputManagerEditor::OnMouseButton(const System::WindowEvents::MouseButton& event)
 {
     if(m_incomingMouseButton)
     {
@@ -297,7 +297,7 @@ bool InputManagerEditor::OnMouseButton(const WindowEvents::MouseButton& event)
     return false;
 }
 
-bool InputManagerEditor::OnMouseScroll(const WindowEvents::MouseScroll& event)
+bool InputManagerEditor::OnMouseScroll(const System::WindowEvents::MouseScroll& event)
 {
     if(m_incomingMouseScroll)
     {
@@ -311,7 +311,7 @@ bool InputManagerEditor::OnMouseScroll(const WindowEvents::MouseScroll& event)
     return false;
 }
 
-void InputManagerEditor::OnCursorPosition(const WindowEvents::CursorPosition& event)
+void InputManagerEditor::OnCursorPosition(const System::WindowEvents::CursorPosition& event)
 {
     if(m_incomingCursorPosition)
     {
@@ -323,7 +323,7 @@ void InputManagerEditor::OnCursorPosition(const WindowEvents::CursorPosition& ev
     }
 }
 
-void InputManagerEditor::OnCursorEnter(const WindowEvents::CursorEnter& event)
+void InputManagerEditor::OnCursorEnter(const System::WindowEvents::CursorEnter& event)
 {
     if(m_incomingCursorEnter)
     {

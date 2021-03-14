@@ -7,17 +7,17 @@
 #include "System/InputState.hpp"
 using namespace System;
 
-InputState::Events::Events() :
-    textInput(std::make_unique<Event::CollectWhileFalse>(false)),
-    keyboardKey(std::make_unique<Event::CollectWhileFalse>(false)),
-    mouseButton(std::make_unique<Event::CollectWhileFalse>(false)),
-    mouseScroll(std::make_unique<Event::CollectWhileFalse>(false))
-{
-}
-
 InputState::InputState()
 {
     ResetStates();
+
+    events.Register<bool, InputEvents::TextInput>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, InputEvents::KeyboardKey>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, InputEvents::MouseButton>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, InputEvents::MouseScroll>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<void, InputEvents::CursorPosition>();
+    events.Register<void, InputEvents::CursorEnter>();
+    events.Finalize();
 }
 
 InputState::~InputState() = default;
@@ -122,7 +122,7 @@ bool InputState::IsMouseButtonReleased(MouseButtons::Type button, bool repeat) c
 bool InputState::OnTextInput(const InputEvents::TextInput& event)
 {
     // Dispatch incoming input event.
-    bool inputCaptured = events.textInput.Dispatch(event);
+    bool inputCaptured = events.Dispatch<bool>(event).Unwrap();
     return inputCaptured;
 }
 
@@ -146,7 +146,7 @@ bool InputState::OnKeyboardKey(const InputEvents::KeyboardKey& event)
     keyboardKeyEvent.modifiers = event.modifiers;
 
     // Send outgoing keyboard key event.
-    bool inputCaptured = events.keyboardKey.Dispatch(keyboardKeyEvent);
+    bool inputCaptured = events.Dispatch<bool>(keyboardKeyEvent).Unwrap();
 
     // Save event if not captured or in released state.
     if(!inputCaptured || IsInputStateReleased(keyboardKeyEvent.state))
@@ -178,7 +178,7 @@ bool InputState::OnMouseButton(const InputEvents::MouseButton& event)
     mouseButtonEvent.modifiers = event.modifiers;
 
     // Send outgoing mouse button event.
-    bool inputCaptured = events.mouseButton.Dispatch(mouseButtonEvent);
+    bool inputCaptured = events.Dispatch<bool>(mouseButtonEvent).Unwrap();
 
     // Save event if not captured or in released state.
     if(!inputCaptured || IsInputStateReleased(mouseButtonEvent.state))
@@ -193,18 +193,18 @@ bool InputState::OnMouseButton(const InputEvents::MouseButton& event)
 bool InputState::OnMouseScroll(const InputEvents::MouseScroll& event)
 {
     // Dispatch incoming input event.
-    bool inputCaptured = events.mouseScroll.Dispatch(event);
+    bool inputCaptured = events.Dispatch<bool>(event).Unwrap();
     return inputCaptured;
 }
 
 void InputState::OnCursorPosition(const InputEvents::CursorPosition& event)
 {
     // Dispatch incoming input event.
-    events.cursorPosition.Dispatch(event);
+    events.Dispatch<void>(event);
 }
 
 void InputState::OnCursorEnter(const InputEvents::CursorEnter& event)
 {
     // Dispatch incoming input event.
-    events.cursorEnter.Dispatch(event);
+    events.Dispatch<void>(event);
 }

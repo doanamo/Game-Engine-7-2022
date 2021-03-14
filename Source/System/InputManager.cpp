@@ -36,12 +36,12 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
 
     // Subscribe to window input events.
     bool subscriptionResult = true;
-    subscriptionResult &= instance->m_receivers.keyboardKey.Subscribe(window->events.keyboardKey);
-    subscriptionResult &= instance->m_receivers.textInput.Subscribe(window->events.textInput);
-    subscriptionResult &= instance->m_receivers.mouseButton.Subscribe(window->events.mouseButton);
-    subscriptionResult &= instance->m_receivers.mouseScroll.Subscribe(window->events.mouseScroll);
-    subscriptionResult &= instance->m_receivers.cursorPosition.Subscribe(window->events.cursorPosition);
-    subscriptionResult &= instance->m_receivers.cursorEnter.Subscribe(window->events.cursorEnter);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.keyboardKey);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.textInput);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.mouseButton);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.mouseScroll);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.cursorPosition);
+    subscriptionResult &= window->events.Subscribe(instance->m_receivers.cursorEnter);
 
     if(!subscriptionResult)
     {
@@ -68,7 +68,7 @@ InputState& InputManager::GetInputState()
     return m_inputState;
 }
 
-bool InputManager::OnTextInput(const Window::Events::TextInput& event)
+bool InputManager::OnTextInput(const WindowEvents::TextInput& event)
 {
     // Translate incoming window event.
     InputEvents::TextInput outgoingEvent;
@@ -81,7 +81,7 @@ bool InputManager::OnTextInput(const Window::Events::TextInput& event)
     return false;
 }
 
-bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
+bool InputManager::OnKeyboardKey(const WindowEvents::KeyboardKey& event)
 {
     // Translate incoming window event.
     InputEvents::KeyboardKey outgoingEvent;
@@ -110,7 +110,7 @@ bool InputManager::OnKeyboardKey(const Window::Events::KeyboardKey& event)
     return false;
 }
 
-bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
+bool InputManager::OnMouseButton(const WindowEvents::MouseButton& event)
 {
     // Translate incoming window event.
     InputEvents::MouseButton outgoingEvent;
@@ -132,7 +132,7 @@ bool InputManager::OnMouseButton(const Window::Events::MouseButton& event)
     return false;
 }
 
-bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
+bool InputManager::OnMouseScroll(const WindowEvents::MouseScroll& event)
 {
     // Translate incoming window event.
     InputEvents::MouseScroll outgoingEvent;
@@ -145,7 +145,7 @@ bool InputManager::OnMouseScroll(const Window::Events::MouseScroll& event)
     return false;
 }
 
-void InputManager::OnCursorPosition(const Window::Events::CursorPosition& event)
+void InputManager::OnCursorPosition(const WindowEvents::CursorPosition& event)
 {
     // Translate incoming window event.
     InputEvents::CursorPosition outgoingEvent;
@@ -156,7 +156,7 @@ void InputManager::OnCursorPosition(const Window::Events::CursorPosition& event)
     m_inputState.OnCursorPosition(outgoingEvent);
 }
 
-void InputManager::OnCursorEnter(const Window::Events::CursorEnter& event)
+void InputManager::OnCursorEnter(const WindowEvents::CursorEnter& event)
 {
     // Translate incoming window event.
     InputEvents::CursorEnter outgoingEvent;

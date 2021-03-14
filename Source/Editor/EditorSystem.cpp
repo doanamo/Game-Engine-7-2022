@@ -169,15 +169,15 @@ bool EditorSystem::SubscribeEvents(const Core::ServiceStorage* services)
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
     bool subscriptionResults = true;
-    subscriptionResults &= inputState.events.keyboardKey.Subscribe(
+    subscriptionResults &= inputState.events.Subscribe(
         m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.textInput.Subscribe(
+    subscriptionResults &= inputState.events.Subscribe(
         m_receiverTextInput, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.mouseButton.Subscribe(
+    subscriptionResults &= inputState.events.Subscribe(
         m_receiverMouseButton, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.mouseScroll.Subscribe(
+    subscriptionResults &= inputState.events.Subscribe(
         m_receiverMouseScroll, subscriptionPolicy, priorityPolicy);
-    subscriptionResults &= inputState.events.cursorPosition.Subscribe(
+    subscriptionResults &= inputState.events.Subscribe(
         m_receiverCursorPosition, subscriptionPolicy, priorityPolicy);
 
     return subscriptionResults;

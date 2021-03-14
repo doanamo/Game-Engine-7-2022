@@ -7,7 +7,7 @@
 
 #include <Core/ServiceStorage.hpp>
 #include "System/InputState.hpp"
-#include "System/Window.hpp"
+#include "System/WindowEvents.hpp"
 
 /*
     Input Manager
@@ -46,21 +46,21 @@ namespace System
     private:
         InputManager();
 
-        bool OnTextInput(const Window::Events::TextInput& event);
-        bool OnKeyboardKey(const Window::Events::KeyboardKey& event);
-        bool OnMouseButton(const Window::Events::MouseButton& event);
-        bool OnMouseScroll(const Window::Events::MouseScroll& event);
-        void OnCursorPosition(const Window::Events::CursorPosition& event);
-        void OnCursorEnter(const Window::Events::CursorEnter& event);
+        bool OnTextInput(const WindowEvents::TextInput& event);
+        bool OnKeyboardKey(const WindowEvents::KeyboardKey& event);
+        bool OnMouseButton(const WindowEvents::MouseButton& event);
+        bool OnMouseScroll(const WindowEvents::MouseScroll& event);
+        void OnCursorPosition(const WindowEvents::CursorPosition& event);
+        void OnCursorEnter(const WindowEvents::CursorEnter& event);
 
         struct Receivers
         {
-            Event::Receiver<bool(const Window::Events::TextInput&)> textInput;
-            Event::Receiver<bool(const Window::Events::KeyboardKey&)> keyboardKey;
-            Event::Receiver<bool(const Window::Events::MouseButton&)> mouseButton;
-            Event::Receiver<bool(const Window::Events::MouseScroll&)> mouseScroll;
-            Event::Receiver<void(const Window::Events::CursorPosition&)> cursorPosition;
-            Event::Receiver<void(const Window::Events::CursorEnter&)> cursorEnter;
+            Event::Receiver<bool(const WindowEvents::TextInput&)> textInput;
+            Event::Receiver<bool(const WindowEvents::KeyboardKey&)> keyboardKey;
+            Event::Receiver<bool(const WindowEvents::MouseButton&)> mouseButton;
+            Event::Receiver<bool(const WindowEvents::MouseScroll&)> mouseScroll;
+            Event::Receiver<void(const WindowEvents::CursorPosition&)> cursorPosition;
+            Event::Receiver<void(const WindowEvents::CursorEnter&)> cursorEnter;
         } m_receivers;
 
         InputState m_inputState;

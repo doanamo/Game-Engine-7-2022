@@ -7,15 +7,21 @@
 #include "System/Window.hpp"
 using namespace System;
 
-Window::Events::Events() :
-    textInput(std::make_unique<Event::CollectWhileFalse>(false)),
-    keyboardKey(std::make_unique<Event::CollectWhileFalse>(false)),
-    mouseButton(std::make_unique<Event::CollectWhileFalse>(false)),
-    mouseScroll(std::make_unique<Event::CollectWhileFalse>(false))
+Window::Window()
 {
+    events.Register<void, WindowEvents::Move>();
+    events.Register<void, WindowEvents::Resize>();
+    events.Register<void, WindowEvents::Resize>();
+    events.Register<void, WindowEvents::Focus>();
+    events.Register<void, WindowEvents::Close>();
+    events.Register<bool, WindowEvents::TextInput>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, WindowEvents::KeyboardKey>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, WindowEvents::MouseButton>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<bool, WindowEvents::MouseScroll>(std::make_unique<Event::CollectWhileFalse>());
+    events.Register<void, WindowEvents::CursorPosition>();
+    events.Register<void, WindowEvents::CursorEnter>();
+    events.Finalize();
 }
-
-Window::Window() = default;
 
 Window::~Window()
 {
@@ -228,10 +234,10 @@ void Window::MoveCallback(GLFWwindow* window, int x, int y)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::Move eventData;
+    WindowEvents::Move eventData;
     eventData.x = x;
     eventData.y = y;
-    instance->events.move(eventData);
+    instance->events.Dispatch<void>(eventData);
 }
 
 void Window::ResizeCallback(GLFWwindow* window, int width, int height)
@@ -241,10 +247,10 @@ void Window::ResizeCallback(GLFWwindow* window, int width, int height)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::Resize eventData;
+    WindowEvents::Resize eventData;
     eventData.width = width;
     eventData.height = height;
-    instance->events.resize(eventData);
+    instance->events.Dispatch<void>(eventData).Unwrap();
 
     // Remember that window size has changed.
     instance->m_sizeChanged = true;
@@ -257,9 +263,9 @@ void Window::FocusCallback(GLFWwindow* window, int focused)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::Focus eventData;
+    WindowEvents::Focus eventData;
     eventData.focused = focused > 0;
-    instance->events.focus(eventData);
+    instance->events.Dispatch<void>(eventData).Unwrap();
 }
 
 void Window::CloseCallback(GLFWwindow* window)
@@ -269,8 +275,8 @@ void Window::CloseCallback(GLFWwindow* window)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::Close eventData;
-    instance->events.close(eventData);
+    WindowEvents::Close eventData;
+    instance->events.Dispatch<void>(eventData).Unwrap();
 }
 
 void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
@@ -280,9 +286,9 @@ void Window::TextInputCallback(GLFWwindow* window, unsigned int character)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::TextInput eventData;
+    WindowEvents::TextInput eventData;
     eventData.utf32Character = character;
-    instance->events.textInput(eventData);
+    instance->events.Dispatch<bool>(eventData).Unwrap();
 }
 
 void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -292,12 +298,12 @@ void Window::KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int 
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::KeyboardKey eventData;
+    WindowEvents::KeyboardKey eventData;
     eventData.key = key;
     eventData.scancode = scancode;
     eventData.action = action;
     eventData.modifiers = mods;
-    instance->events.keyboardKey(eventData);
+    instance->events.Dispatch<bool>(eventData).Unwrap();
 }
 
 void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -307,11 +313,11 @@ void Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::MouseButton eventData;
+    WindowEvents::MouseButton eventData;
     eventData.button = button;
     eventData.action = action;
     eventData.modifiers = mods;
-    instance->events.mouseButton(eventData);
+    instance->events.Dispatch<bool>(eventData).Unwrap();
 }
 
 void Window::MouseScrollCallback(GLFWwindow* window, double offsetx, double offsety)
@@ -321,9 +327,9 @@ void Window::MouseScrollCallback(GLFWwindow* window, double offsetx, double offs
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::MouseScroll eventData;
+    WindowEvents::MouseScroll eventData;
     eventData.offset = offsety;
-    instance->events.mouseScroll(eventData);
+    instance->events.Dispatch<bool>(eventData).Unwrap();
 }
 
 void Window::CursorPositionCallback(GLFWwindow* window, double x, double y)
@@ -333,10 +339,10 @@ void Window::CursorPositionCallback(GLFWwindow* window, double x, double y)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::CursorPosition eventData;
+    WindowEvents::CursorPosition eventData;
     eventData.x = x;
     eventData.y = y;
-    instance->events.cursorPosition(eventData);
+    instance->events.Dispatch<void>(eventData);
 }
 
 void Window::CursorEnterCallback(GLFWwindow* window, int entered)
@@ -346,7 +352,7 @@ void Window::CursorEnterCallback(GLFWwindow* window, int entered)
     auto instance = reinterpret_cast<System::Window*>(glfwGetWindowUserPointer(window));
     ASSERT(instance != nullptr, "Window instance is null!");
 
-    Window::Events::CursorEnter eventData;
+    WindowEvents::CursorEnter eventData;
     eventData.entered = entered != 0;
-    instance->events.cursorEnter(eventData);
+    instance->events.Dispatch<void>(eventData);
 }

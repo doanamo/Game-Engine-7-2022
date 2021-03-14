@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <Common/Event/Dispatcher.hpp>
-#include "System/InputDefinitions.hpp"
+#include <Common/Event/Broker.hpp>
+#include "System/WindowEvents.hpp"
 
 struct GLFWwindow;
 
@@ -66,89 +66,7 @@ namespace System
 
         GLFWwindow* GetPrivateHandle();
 
-    public:
-        // Publicly exposed window event dispatchers.
-        struct Events
-        {
-            Events();
-
-            struct Move
-            {
-                int x;
-                int y;
-            };
-
-            Event::Dispatcher<void(const Move&)> move;
-
-            struct Resize
-            {
-                int width;
-                int height;
-            };
-
-            Event::Dispatcher<void(const Resize&)> resize;
-
-            struct Focus
-            {
-                bool focused;
-            };
-
-            Event::Dispatcher<void(const Focus&)> focus;
-
-            struct Close
-            {
-            };
-
-            Event::Dispatcher<void(const Close&)> close;
-
-            struct TextInput
-            {
-                uint32_t utf32Character;
-            };
-
-            Event::Dispatcher<bool(const TextInput&)> textInput;
-
-            struct KeyboardKey
-            {
-                int key;
-                int scancode;
-                int action;
-                int modifiers;
-            };
-
-            Event::Dispatcher<bool(const KeyboardKey&)> keyboardKey;
-
-            struct MouseButton
-            {
-                int button;
-                int action;
-                int modifiers;
-            };
-
-            Event::Dispatcher<bool(const MouseButton&)> mouseButton;
-
-            struct MouseScroll
-            {
-                double offset;
-            };
-
-            Event::Dispatcher<bool(const MouseScroll&)> mouseScroll;
-
-            struct CursorPosition
-            {
-                double x;
-                double y;
-            };
-
-            Event::Dispatcher<void(const CursorPosition&)> cursorPosition;
-
-            struct CursorEnter
-            {
-                bool entered;
-            };
-
-            Event::Dispatcher<void(const CursorEnter&)> cursorEnter;
-        } events;
+        Event::Broker events;
 
     private:
         Window();
