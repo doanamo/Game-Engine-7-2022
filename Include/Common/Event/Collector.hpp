@@ -60,7 +60,7 @@ namespace Event
     {
     public:
         CollectLast(ResultType defaultResult) :
-            Collector(defaultResult),
+            Collector<ResultType>(defaultResult),
             m_result(defaultResult)
         {
         }
@@ -88,7 +88,7 @@ namespace Event
     {
     public:
         CollectWhileTrue(bool defaultResult = true) :
-            Collector(defaultResult),
+            Collector<bool>(defaultResult),
             m_result(defaultResult)
         {
         }
@@ -116,7 +116,7 @@ namespace Event
     {
     public:
         CollectWhileFalse(bool defaultResult = false) :
-            Collector(defaultResult),
+            Collector<bool>(defaultResult),
             m_result(defaultResult)
         {
         }
