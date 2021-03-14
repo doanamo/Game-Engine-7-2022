@@ -62,7 +62,7 @@ namespace Event
         Receiver& operator=(Receiver&& other)
         {
             /*
-                Swap only subscription and leave bound function as is.
+                Swap only subscription and not bound function in base Delegate.
                 Swapping list nodes does not require references to be reset.
             */
 

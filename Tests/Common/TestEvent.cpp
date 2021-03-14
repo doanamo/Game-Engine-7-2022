@@ -9,6 +9,7 @@
 #include <Common/Event/Collector.hpp>
 #include <Common/Event/Dispatcher.hpp>
 #include <Common/Event/Receiver.hpp>
+#include <Common/Event/Broker.hpp>
 
 static const char* Text = "0123456789";
 
@@ -658,5 +659,56 @@ TEST_CASE("Event Dispatcher")
             CHECK_EQ(dispatcher.Dispatch(counter, 5), '5');
             CHECK_EQ(counter.GetStats().copies, 1);
         }
+    }
+}
+
+TEST_CASE("Event Broker")
+{
+    int currentValue = 0;
+    int expectedValue = 0;
+
+    struct EventInteger
+    {
+        int integer;
+    };
+
+    struct EventString
+    {
+        std::string string;
+    };
+
+    Event::Receiver<bool(const EventInteger&)> receiverInteger;
+    receiverInteger.Bind([&currentValue](const EventInteger& event)
+    {
+        currentValue += event.integer;
+        return true;
+    });
+
+    Event::Receiver<bool(const EventString&)> receiverString;
+    receiverString.Bind([&currentValue](const EventString& event)
+    {
+        currentValue += event.string.size();
+        return true;
+    });
+
+    Event::Broker broker;
+
+    SUBCASE("Dispatch empty")
+    {
+        broker.Dispatch(EventInteger{ 4 });
+        broker.Dispatch(EventString{ "Null" });
+        CHECK_EQ(currentValue, expectedValue);
+    }
+
+    SUBCASE("Dispatch to receivers")
+    {
+        broker.Subscribe(receiverInteger);
+        broker.Subscribe(receiverString);
+
+        broker.Dispatch(EventInteger{ 2 });
+        CHECK_EQ(currentValue, expectedValue += 2);
+
+        broker.Dispatch(EventString{ "Jelly" });
+        CHECK_EQ(currentValue, expectedValue += 5);
     }
 }

@@ -16,7 +16,7 @@
 
     Shared point where multiple receiver and dispatcher can be stored and
     signaled for different event types. Note that dispatchers are stored
-    in std::any which can trigger allocations.
+    in std::any which can trigger allocations (to be replaced in future).
 */
 
 namespace Event
@@ -49,7 +49,8 @@ namespace Event
 
         template<typename Type>
         bool Subscribe(Receiver<bool(const Type&)>& receiver,
-            bool unsubscribeReceiver = false, bool insertFront = false)
+            SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
+            PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
             using DispatcherPtr = std::shared_ptr<Dispatcher<bool(const Type&), CollectWhileTrue>>;
 
@@ -58,17 +59,18 @@ namespace Event
 
             if(it == m_dispatcherMap.end())
             {
-                DispatcherPtr dispatcher =
-                    std::make_shared<Dispatcher<bool(const Type&), CollectWhileTrue>>(true);
-                DispatcherHandle handle = std::make_any<DispatcherPtr>(dispatcher);
-                DispatcherInvoker invoker = [](DispatcherHandle& dispatcherHandle,
-                    const EventHandle& eventHandle) -> bool
+                DispatcherInvoker invoker =
+                    [](DispatcherHandle& dispatcherHandle, const EventHandle& eventHandle) -> bool
                 {
                     auto& dispatcher = std::any_cast<DispatcherPtr&>(dispatcherHandle);
                     auto& event = std::any_cast<const Type&>(eventHandle);
                     return dispatcher->Dispatch(event);
                 };
 
+                DispatcherPtr dispatcher =
+                    std::make_shared<Dispatcher<bool(const Type&), CollectWhileTrue>>(true);
+
+                DispatcherHandle handle = std::make_any<DispatcherPtr>(dispatcher);
                 auto result = m_dispatcherMap.insert({ type, std::make_pair(handle, invoker) });
                 ASSERT(result.second, "Dispatcher entry was not inserted!");
                 it = result.first;
@@ -76,7 +78,7 @@ namespace Event
 
             DispatcherHandle& handle = it->second.first;
             auto& dispatcher = std::any_cast<DispatcherPtr&>(handle);
-            return dispatcher->Subscribe(receiver, unsubscribeReceiver, insertFront);
+            return dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy);
         }
 
         bool Dispatch(const EventHandle& eventHandle)
@@ -86,7 +88,6 @@ namespace Event
 
             std::type_index type = eventHandle.type();
             auto it = m_dispatcherMap.find(type);
-
             if(it == m_dispatcherMap.end())
                 return false;
 
