@@ -26,6 +26,9 @@ namespace Reflection
 
     template<typename ReflectedType, typename MemberType, std::size_t MemberIndex>
     struct MemberDescription;
+
+    template<typename ReflectedType>
+    constexpr bool IsReflected();
 }
 
 namespace Reflection::Detail
