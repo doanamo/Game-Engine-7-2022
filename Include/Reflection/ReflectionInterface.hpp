@@ -13,7 +13,7 @@
 
 namespace Reflection
 {
-    struct NullType
+    struct NullType final
     {
     };
 
