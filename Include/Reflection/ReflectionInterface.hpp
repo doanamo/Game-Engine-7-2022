@@ -149,6 +149,18 @@ namespace Reflection
             return {};
         }
 
+        template<typename OtherType>
+        static constexpr bool IsDerivedFrom()
+        {
+            return std::is_same<BaseType, OtherType>::value;
+        }
+
+        template<typename OtherType>
+        static constexpr bool IsBaseOf()
+        {
+            return std::is_same<Type, TypeDescription<OtherType>::BaseType>::value;
+        }
+
         static constexpr bool HasAttributes()
         {
             return Attributes.Count > 0;

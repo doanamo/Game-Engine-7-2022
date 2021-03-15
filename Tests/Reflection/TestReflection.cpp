@@ -76,6 +76,12 @@ TEST_CASE("Reflection Types")
         CHECK(Reflection::Reflect<Derived>().GetBaseType().IsType<Base>());
         CHECK(Reflection::Reflect<BranchedOne>().GetBaseType().IsType<Derived>());
         CHECK(Reflection::Reflect<BranchedTwo>().GetBaseType().IsType<Derived>());
+        CHECK(Reflection::Reflect<Derived>().IsDerivedFrom<Base>());
+        CHECK(Reflection::Reflect<BranchedOne>().IsDerivedFrom<Derived>());
+        CHECK(Reflection::Reflect<BranchedTwo>().IsDerivedFrom<Derived>());
+        CHECK(Reflection::Reflect<Base>().IsBaseOf<Derived>());
+        CHECK(Reflection::Reflect<Derived>().IsBaseOf<BranchedOne>());
+        CHECK(Reflection::Reflect<Derived>().IsBaseOf<BranchedOne>());
     }
 
     SUBCASE("Check reflection attributes for types")
