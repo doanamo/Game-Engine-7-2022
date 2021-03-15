@@ -21,7 +21,7 @@ set(TEST_FILES
 )
 
 #
-# Library
+# Test
 #
 
 project(TestCommon)

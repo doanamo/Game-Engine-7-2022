@@ -16,7 +16,7 @@ set(TEST_FILES
 )
 
 #
-# Library
+# Test
 #
 
 project(TestGame)

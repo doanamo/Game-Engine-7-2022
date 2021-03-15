@@ -7,11 +7,21 @@ cmake_minimum_required(VERSION 3.16)
 include_guard(GLOBAL)
 
 #
-# Library
+# Files
+#
+
+set(TEST_FILES
+    "TestReflection.cpp"
+    "TestReflectionHeader.hpp"
+    "TestReflectionCrossUnit.cpp"
+)
+
+#
+# Test
 #
 
 project(TestReflection)
-add_executable(TestReflection "TestReflection.cpp")
+add_executable(TestReflection ${TEST_FILES})
 target_compile_features(TestReflection PUBLIC cxx_std_17)
 add_test("Reflection" TestReflection)
 
