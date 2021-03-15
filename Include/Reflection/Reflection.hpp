@@ -18,3 +18,4 @@
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionInterface.hpp"
 #include "Reflection/ReflectionMacros.hpp"
+#include "Reflection/ReflectionTypes.hpp"

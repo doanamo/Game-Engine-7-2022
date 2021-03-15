@@ -16,6 +16,7 @@ set(INCLUDE_FILES
     "ReflectionDetail.hpp"
     "ReflectionInterface.hpp"
     "ReflectionMacros.hpp"
+    "ReflectionTypes.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/")
