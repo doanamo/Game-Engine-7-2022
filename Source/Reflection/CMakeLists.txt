@@ -11,11 +11,16 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
-    "../../Include/Reflection/Reflection.hpp"
+    "Reflection.hpp"
+    "ReflectionUtility.hpp"
+    "ReflectionDetail.hpp"
+    "ReflectionInterface.hpp"
+    "ReflectionMacros.hpp"
 )
 
 list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/"
+    PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Empty.cpp"
