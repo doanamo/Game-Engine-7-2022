@@ -158,7 +158,7 @@ namespace Reflection
         template<typename OtherType>
         static constexpr bool IsBaseOf()
         {
-            return std::is_same<Type, TypeDescription<OtherType>::BaseType>::value;
+            return std::is_same<Type, typename TypeDescription<OtherType>::BaseType>::value;
         }
 
         static constexpr bool HasAttributes()
