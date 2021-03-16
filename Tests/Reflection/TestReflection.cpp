@@ -23,6 +23,12 @@ TEST_CASE("Reflection Types")
         CHECK_FALSE(Reflection::Reflect<Derived>().IsNullType());
     }
 
+    SUBCASE("Check reflected name of type in namespace")
+    {
+        using namespace Reflection;
+        CHECK_EQ(Reflection::Reflect<NullType>().Name, "Reflection::NullType");
+    }
+
     SUBCASE("Check reflection presence for types")
     {
         CHECK_FALSE(Reflection::IsReflected<Undefined>());
