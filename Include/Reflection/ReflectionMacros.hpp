@@ -14,10 +14,16 @@
 #define REFLECTION_EXPAND(x) x
 #define REFLECTION_STRINGIFY(expression) #expression
 
+#define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
+    static_assert(std::is_same<ReflectedBaseType, NullType>::value || \
+        std::is_base_of<ReflectedBaseType, ReflectedType>::value, \
+        "Incorrect derived class specified for reflected type!");
+
 #define REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     template<> struct Reflection::Detail::TypeInfo<ReflectedType> : public TypeInfoBase \
     { \
     private: \
+        REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
         static constexpr std::size_t MemberIndexOffset = __COUNTER__ + 1; \
     public: \
         using Type = ReflectedType; \
