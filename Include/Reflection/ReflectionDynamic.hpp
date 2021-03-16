@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Reflection/ReflectionStatic.hpp"
+#include "Reflection/ReflectionDetail.hpp"
 
 /*
     Reflection Dynamic
@@ -15,12 +15,15 @@
 
 namespace Reflection
 {
+    template<typename ReflectedType>
+    struct StaticTypeInfo;
+
     struct DynamicTypeInfo
     {
         DynamicTypeInfo() = default;
 
-        template<typename Type>
-        DynamicTypeInfo(const TypeDescription<Type>& staticType) :
+        template<typename ReflectedType>
+        DynamicTypeInfo(const StaticTypeInfo<ReflectedType>& staticType) :
             Reflected(staticType.Reflected),
             Name(staticType.Name),
             Identifier(staticType.Identifier)
@@ -28,12 +31,45 @@ namespace Reflection
         }
 
         bool Reflected = false;
+        bool Registered = false;
         std::string_view Name = "<UnregisteredType>";
         IdentifierType Identifier = InvalidIdentifier;
+
+        bool IsNullType() const;
+
+        template<typename OtherType>
+        bool IsType() const
+        {
+            // #todo: This needs to support polymorphisms!
+            return Identifier == StaticType<OtherType>().Identifier;
+        }
     };
 
-    inline const DynamicTypeInfo& Reflect(IdentifierType identifier)
+    inline const DynamicTypeInfo& DynamicType(IdentifierType identifier)
     {
         return Detail::GetRegistry().LookupType(identifier);
+    }
+
+    template<typename RegisteredType>
+    const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
+    {
+        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
+    }
+
+    template<typename RegisteredType>
+    constexpr bool IsRegistered()
+    {
+        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
+    }
+
+    template<typename RegisteredType>
+    constexpr bool IsRegistered(const RegisteredType& instance)
+    {
+        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
+    }
+
+    inline bool IsRegistered(IdentifierType identifier)
+    {
+        return Detail::GetRegistry().LookupType(identifier).Registered;
     }
 }

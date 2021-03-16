@@ -4,5 +4,3 @@
 */
 
 #include "Reflection/Precompiled.hpp"
-#include "Reflection/ReflectionMacros.hpp"
-#include "Reflection/ReflectionTypes.hpp"

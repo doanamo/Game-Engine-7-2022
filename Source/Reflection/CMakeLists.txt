@@ -17,7 +17,7 @@ set(INCLUDE_FILES
     "ReflectionStatic.hpp"
     "ReflectionDynamic.hpp"
     "ReflectionRegistry.hpp"
-    "ReflectionMacros.hpp"
+    "ReflectionDeclare.hpp"
     "ReflectionTypes.hpp"
 )
 
@@ -27,6 +27,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/"
 
 set(SOURCE_FILES
     "Precompiled.hpp"
+    "ReflectionDynamic.cpp"
     "ReflectionRegistry.cpp"
     "ReflectionTypes.cpp"
 )

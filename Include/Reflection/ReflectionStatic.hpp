@@ -109,7 +109,7 @@ namespace Reflection
     };
 
     template<typename ReflectedType>
-    struct TypeDescription
+    struct StaticTypeInfo
     {
         using Type = ReflectedType;
         static constexpr auto TypeInfo = Detail::TypeInfo<Type>{};
@@ -146,7 +146,7 @@ namespace Reflection
             return !std::is_same<BaseType, NullType>::value;
         }
 
-        static constexpr TypeDescription<BaseType> GetBaseType()
+        static constexpr StaticTypeInfo<BaseType> GetBaseType()
         {
             return {};
         }
@@ -160,7 +160,7 @@ namespace Reflection
         template<typename OtherType>
         static constexpr bool IsBaseOf()
         {
-            return std::is_same<Type, typename TypeDescription<OtherType>::BaseType>::value;
+            return std::is_same<Type, typename StaticTypeInfo<OtherType>::BaseType>::value;
         }
 
         static constexpr bool HasAttributes()
@@ -210,13 +210,13 @@ namespace Reflection
     };
 
     template<typename ReflectedType>
-    constexpr TypeDescription<ReflectedType> Reflect()
+    constexpr StaticTypeInfo<ReflectedType> StaticType()
     {
         return {};
     }
 
     template<typename ReflectedType>
-    constexpr TypeDescription<ReflectedType> Reflect(const ReflectedType& type)
+    constexpr StaticTypeInfo<ReflectedType> StaticType(const ReflectedType& instance)
     {
         return {};
     }
@@ -233,3 +233,6 @@ namespace Reflection
         return Detail::TypeInfo<ReflectedType>::Reflected;
     }
 }
+
+#define REFLECTION_IDENTIFIER(Type) \
+    Reflection::StaticType<Type>().Identifier

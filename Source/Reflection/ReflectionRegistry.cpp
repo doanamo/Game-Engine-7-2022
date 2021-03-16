@@ -5,7 +5,6 @@
 
 #include "Reflection/Precompiled.hpp"
 #include "Reflection/ReflectionRegistry.hpp"
-#include "Reflection/ReflectionMacros.hpp"
 #include "Reflection/ReflectionTypes.hpp"
 using namespace Reflection;
 

@@ -6,7 +6,6 @@
 #pragma once
 
 #include "Reflection/ReflectionStatic.hpp"
-#include "Reflection/ReflectionRegistry.hpp"
 
 /*
     Reflection Macros
@@ -87,9 +86,3 @@
     REFLECTION_FIELD_BEGIN(Field) \
     REFLECTION_FIELD_ATTRIBUTES(__VA_ARGS__) \
     REFLECTION_FIELD_END
-
-#define REFLECTION_IDENTIFIER(Type) \
-    Reflection::Reflect<Type>().Identifier
-
-#define REFLECTION_REGISTER(Type) \
-    Reflection::GetRegistry().RegisterType<Type>()

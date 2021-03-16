@@ -6,7 +6,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "Reflection/ReflectionStatic.hpp"
+#include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionDynamic.hpp"
 
 /*
@@ -15,6 +15,9 @@
 
 namespace Reflection
 {
+    template<typename ReflectedType>
+    constexpr StaticTypeInfo<ReflectedType> StaticType();
+
     class ReflectionRegistry final : public Detail::ReflectionRegistry
     {
     public:
@@ -37,19 +40,19 @@ namespace Reflection
     template<typename Type>
     void ReflectionRegistry::RegisterType()
     {
-        DynamicTypeInfo dynamicType{ Reflect<Type>() };
-
-        if(!dynamicType.Reflected)
+        constexpr auto staticType = StaticType<Type>();
+        if(!staticType.Reflected)
         {
             LOG_WARNING("Attempted to register type \"{}\" that is not reflected!",
                 REFLECTION_STRINGIFY(Type));
             return;
         }
 
-        auto result = m_registry.emplace(dynamicType.Identifier, std::move(dynamicType));
+        DynamicTypeInfo dynamicType{ StaticType<Type>() };
+        auto result = m_registry.emplace(staticType.Identifier, std::move(dynamicType));
         DynamicTypeInfo& registeredType = result.first->second;
 
-        if(!result.second && registeredType.Name != dynamicType.Name)
+        if(!result.second && registeredType.Name != staticType.Name)
         {
             ASSERT(false, "Detected name hash collision between types \"{}\" ({}) and \"{}\" ({})!",
                 registeredType.Name, registeredType.Identifier,
@@ -57,10 +60,14 @@ namespace Reflection
         }
         else
         {
+            registeredType.Registered = true;
             LOG_INFO("Registered reflection type: \"{}\" ({})",
-                dynamicType.Name, dynamicType.Identifier);
+                registeredType.Name, registeredType.Identifier);
         }
     }
 
     ReflectionRegistry& GetRegistry();
 }
+
+#define REFLECTION_REGISTER(Type) \
+    Reflection::GetRegistry().RegisterType<Type>()
