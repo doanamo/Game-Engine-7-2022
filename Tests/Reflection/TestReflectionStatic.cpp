@@ -61,7 +61,7 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::StaticType(BranchedTwo()).IsType<BranchedTwo>());
     }
 
-    SUBCASE("Check reflection presence for base types")
+    SUBCASE("Check reflected type for base type")
     {
         CHECK_FALSE(Reflection::StaticType<Undefined>().HasBaseType());
         CHECK_FALSE(Reflection::StaticType<Empty>().HasBaseType());

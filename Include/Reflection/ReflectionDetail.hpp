@@ -46,6 +46,7 @@ namespace Reflection::Detail
         static constexpr bool Reflected = false;
         static constexpr std::string_view Name = "<UnknownType>";
         static constexpr IdentifierType Identifier = InvalidIdentifier;
+        static constexpr IdentifierType BaseTypeIdentifier = InvalidIdentifier;
         static constexpr auto Attributes = MakeEmptyObjectList();
         static constexpr auto Members = MakeEmptyObjectList();
     };

@@ -27,24 +27,41 @@ namespace Reflection
 
         template<typename ReflectedType>
         DynamicTypeInfo(const StaticTypeInfo<ReflectedType>& staticType) :
-            Reflected(staticType.Reflected),
             Name(staticType.Name),
-            Identifier(staticType.Identifier)
+            Identifier(staticType.Identifier),
+            BaseTypeIdentifier(staticType.BaseTypeIdentifier)
         {
         }
 
-        bool Reflected = false;
         bool Registered = false;
         std::string_view Name = "<UnregisteredType>";
         IdentifierType Identifier = InvalidIdentifier;
+        IdentifierType BaseTypeIdentifier = InvalidIdentifier;
 
         bool IsNullType() const;
+        bool HasBaseType() const;
+
+        const DynamicTypeInfo& GetBaseType() const;
 
         template<typename OtherType>
         bool IsType() const
         {
-            // #todo: This needs to support polymorphisms!
-            return Identifier == StaticType<OtherType>().Identifier;
+            // #todo: This needs to support polymorphism!
+            return Registered && Identifier == StaticType<OtherType>().Identifier;
+        }
+
+        template<typename OtherType>
+        bool IsDerivedFrom() const
+        {
+            // #todo: This needs to support polymorphism!
+            return Registered && BaseTypeIdentifier == StaticType<OtherType>().Identifier;
+        }
+
+        template<typename OtherType>
+        bool IsBaseOf() const
+        {
+            // #todo: This needs to support polymorphism!
+            return Registered && Identifier == StaticType<OtherType>().BaseTypeIdentifier;
         }
     };
 
@@ -54,7 +71,13 @@ namespace Reflection
     }
 
     template<typename RegisteredType>
-    const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
+    constexpr const DynamicTypeInfo& DynamicType()
+    {
+        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
+    }
+
+    template<typename RegisteredType>
+    constexpr const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
     {
         return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
     }

@@ -120,6 +120,7 @@ namespace Reflection
         static constexpr bool Reflected = TypeInfo.Reflected;
         static constexpr std::string_view Name = TypeInfo.Name;
         static constexpr IdentifierType Identifier = Common::StringHash(TypeInfo.Name);
+        static constexpr IdentifierType BaseTypeIdentifier = Common::StringHash(BaseTypeInfo.Name);
         static constexpr auto Attributes =
             Detail::MakeAttributeDescriptionWithInstanceList<Type>(
                 TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
