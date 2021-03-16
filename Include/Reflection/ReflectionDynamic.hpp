@@ -18,6 +18,9 @@ namespace Reflection
     template<typename ReflectedType>
     struct StaticTypeInfo;
 
+    template<typename ReflectedType>
+    constexpr StaticTypeInfo<ReflectedType> StaticType();
+
     struct DynamicTypeInfo
     {
         DynamicTypeInfo() = default;
