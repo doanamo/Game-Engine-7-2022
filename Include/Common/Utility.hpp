@@ -65,7 +65,26 @@ namespace Common
     std::string StringTrimRight(const std::string text, const char* characters = " ");
     std::string StringTrim(const std::string text, const char* characters = " ");
 
-    uint32_t StringHash(const std::string string);
+    constexpr uint32_t StringHash(const std::string_view string)
+    {
+        /*
+            Small and simple hashing function for strings.
+            May need to be replaced in case of collisions.
+            Use only if you can detect possible collisions.
+            It is obviously not cryptographically secure.
+        */
+
+        const uint32_t prime = 257;
+        uint32_t hash = 0;
+
+        for(char c : string)
+        {
+            hash = hash * prime + c;
+        }
+
+        return hash;
+    }
+
     uint32_t CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size);
 
     template<typename Type>
