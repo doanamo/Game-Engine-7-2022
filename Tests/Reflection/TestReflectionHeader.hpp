@@ -186,9 +186,9 @@ public:
 };
 
 REFLECTION_TYPE_BEGIN(BranchedTwo, Derived)
-REFLECTION_ATTRIBUTES(BranchedAttributeOne("Small"), BranchedAttributeTwo("Big"))
-REFLECTION_FIELD(letterOne, LetterAttribute("Pretty"))
-REFLECTION_FIELD(letterTwo, LetterAttribute("Ugly"))
+    REFLECTION_ATTRIBUTES(BranchedAttributeOne("Small"), BranchedAttributeTwo("Big"))
+    REFLECTION_FIELD(letterOne, LetterAttribute("Pretty"))
+    REFLECTION_FIELD(letterTwo, LetterAttribute("Ugly"))
 REFLECTION_TYPE_END
 
 class CrossUnit

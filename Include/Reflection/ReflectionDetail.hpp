@@ -13,6 +13,9 @@
 
 namespace Reflection
 {
+    using IdentifierType = uint32_t;
+    constexpr IdentifierType InvalidIdentifier = 0;
+
     struct NullType;
     struct TypeAttribute;
     struct FieldAttribute;
@@ -29,6 +32,8 @@ namespace Reflection
 
     template<typename ReflectedType>
     constexpr bool IsReflected();
+
+    struct DynamicTypeInfo;
 }
 
 namespace Reflection::Detail
@@ -39,7 +44,8 @@ namespace Reflection::Detail
         using BaseType = NullType;
 
         static constexpr bool Reflected = false;
-        static constexpr auto Name = "<UnknownType>";
+        static constexpr std::string_view Name = "<UnknownType>";
+        static constexpr IdentifierType Identifier = InvalidIdentifier;
         static constexpr auto Attributes = MakeEmptyObjectList();
         static constexpr auto Members = MakeEmptyObjectList();
     };
@@ -132,4 +138,14 @@ namespace Reflection::Detail
     {
         return { std::make_tuple(MemberEntry<ReflectedType, MemberIndices>{} ...) };
     }
+
+    class ReflectionRegistry
+    {
+    public:
+        virtual ~ReflectionRegistry() = default;
+
+        virtual const DynamicTypeInfo& LookupType(IdentifierType identifier) const = 0;
+    };
+
+    const ReflectionRegistry& GetRegistry();
 }

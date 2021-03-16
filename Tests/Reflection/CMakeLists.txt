@@ -14,6 +14,8 @@ set(TEST_FILES
     "TestReflection.cpp"
     "TestReflectionHeader.hpp"
     "TestReflectionCrossUnit.cpp"
+    "TestReflectionStatic.cpp"
+    "TestReflectionDynamic.cpp"
 )
 
 #

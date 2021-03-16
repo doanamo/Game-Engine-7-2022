@@ -16,6 +16,8 @@
 
 #include "Reflection/ReflectionUtility.hpp"
 #include "Reflection/ReflectionDetail.hpp"
-#include "Reflection/ReflectionInterface.hpp"
+#include "Reflection/ReflectionStatic.hpp"
+#include "Reflection/ReflectionDynamic.hpp"
+#include "Reflection/ReflectionRegistry.hpp"
 #include "Reflection/ReflectionMacros.hpp"
 #include "Reflection/ReflectionTypes.hpp"

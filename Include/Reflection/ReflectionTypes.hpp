@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "Reflection/ReflectionStatic.hpp"
 #include "Reflection/ReflectionMacros.hpp"
 
 /*

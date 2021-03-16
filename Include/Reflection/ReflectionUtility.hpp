@@ -7,10 +7,14 @@
 
 #include <tuple>
 #include <string_view>
+#include <Common/Utility.hpp>
 
 /*
     Reflection Utility
 */
+
+#define REFLECTION_EXPAND(x) x
+#define REFLECTION_STRINGIFY(expression) #expression
 
 namespace Reflection::Detail
 {

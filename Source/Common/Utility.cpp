@@ -97,26 +97,6 @@ std::string Common::StringTrim(std::string text, const char* characters)
     return StringTrimLeft(StringTrimRight(text, characters), characters);
 }
 
-uint32_t Common::StringHash(const std::string string)
-{
-    /*
-        Small and simple hashing function for strings.
-        May need to be replaced in case of collisions.
-        Use only if you can detect possible collisions.
-        It is obviously not cryptographically secure.
-    */
-
-    const uint32_t prime = 257;
-    uint32_t hash = 0;
-
-    for(char c : string)
-    {
-        hash = hash * prime + c;
-    }
-
-    return hash;
-}
-
 uint32_t Common::CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size)
 {
     /*

@@ -5,14 +5,12 @@
 
 #pragma once
 
-#include "Reflection/ReflectionInterface.hpp"
+#include "Reflection/ReflectionStatic.hpp"
+#include "Reflection/ReflectionRegistry.hpp"
 
 /*
     Reflection Macros
 */
-
-#define REFLECTION_EXPAND(x) x
-#define REFLECTION_STRINGIFY(expression) #expression
 
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
     static_assert(std::is_same<ReflectedBaseType, NullType>::value || \
@@ -89,3 +87,9 @@
     REFLECTION_FIELD_BEGIN(Field) \
     REFLECTION_FIELD_ATTRIBUTES(__VA_ARGS__) \
     REFLECTION_FIELD_END
+
+#define REFLECTION_IDENTIFIER(Type) \
+    Reflection::Reflect<Type>().Identifier
+
+#define REFLECTION_REGISTER(Type) \
+    Reflection::GetRegistry().RegisterType<Type>()

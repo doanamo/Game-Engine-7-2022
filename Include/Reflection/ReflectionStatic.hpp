@@ -8,7 +8,9 @@
 #include "Reflection/ReflectionDetail.hpp"
 
 /*
-    Reflection Interface
+    Reflection Static
+
+    Compile-time reflection interface.
 */
 
 namespace Reflection
@@ -100,8 +102,7 @@ namespace Reflection
             {
                 using AttributeType = decltype(Attribute);
                 return AttributeType::Name == AttributeName;
-            }
-            );
+            });
 
             return Attributes.template Get<Index>();
         }
@@ -116,8 +117,9 @@ namespace Reflection
         using BaseType = typename decltype(TypeInfo)::BaseType;
         static constexpr auto BaseTypeInfo = Detail::TypeInfo<BaseType>{};
 
-        static constexpr auto Reflected = TypeInfo.Reflected;
-        static constexpr auto Name = TypeInfo.Name;
+        static constexpr bool Reflected = TypeInfo.Reflected;
+        static constexpr std::string_view Name = TypeInfo.Name;
+        static constexpr IdentifierType Identifier = Common::StringHash(TypeInfo.Name);
         static constexpr auto Attributes =
             Detail::MakeAttributeDescriptionWithInstanceList<Type>(
                 TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
@@ -180,8 +182,7 @@ namespace Reflection
             {
                 using AttributeType = decltype(Attribute);
                 return AttributeType::Name == AttributeName;
-            }
-            );
+            });
 
             return Attributes.template Get<Index>();
         }
@@ -200,13 +201,11 @@ namespace Reflection
         template<auto& MemberName>
         static constexpr auto FindMember()
         {
-            return FindOne(Members,
-                [](auto Member) constexpr -> bool
+            return FindOne(Members, [](auto Member) constexpr -> bool
             {
                 using MemberType = decltype(Member);
                 return MemberType::Name == MemberName;
-            }
-            );
+            });
         }
     };
 
