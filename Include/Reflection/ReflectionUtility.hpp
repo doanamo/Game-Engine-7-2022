@@ -37,6 +37,7 @@ namespace Reflection::Detail
         template<std::size_t Index>
         constexpr std::tuple_element_t<Index, TupleType> Get() const
         {
+            static_assert(Count > Index, "Out of bounds object index!");
             return std::get<Index>(Objects);
         }
 

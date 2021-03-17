@@ -170,8 +170,9 @@ namespace Reflection
         }
 
         template<std::size_t AttributeIndex>
-        static constexpr auto Attribute() -> decltype(Attributes.template Get<AttributeIndex>())
+        static constexpr auto Attribute()
         {
+            static_assert(Attributes.Count > AttributeIndex, "Out of bounds attribute index!");
             return Attributes.template Get<AttributeIndex>();
         }
 
@@ -194,8 +195,9 @@ namespace Reflection
         }
 
         template<std::size_t MemberIndex>
-        static constexpr auto Member() -> decltype(Members.template Get<MemberIndex>())
+        static constexpr auto Member()
         {
+            static_assert(Members.Count > MemberIndex, "Out of bounds member index!");
             return Members.template Get<MemberIndex>();
         }
 
