@@ -256,8 +256,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }
@@ -271,8 +270,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }
@@ -287,8 +285,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }
@@ -302,8 +299,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Instance.modifier);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }
@@ -320,8 +316,7 @@ TEST_CASE("Static Reflection")
                 [&presentMembers](const auto& member)
             {
                 presentMembers.push_back(member.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentMembers, expectedMembers);
         }
@@ -336,8 +331,7 @@ TEST_CASE("Static Reflection")
                 [&presentMembers](const auto& member)
             {
                 presentMembers.push_back(member.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentMembers, expectedMembers);
         }
@@ -351,8 +345,7 @@ TEST_CASE("Static Reflection")
                 [&presentMembers](const auto& member)
             {
                 presentMembers.push_back(member.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentMembers, expectedMembers);
         }
@@ -369,8 +362,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }
@@ -385,8 +377,7 @@ TEST_CASE("Static Reflection")
                 [&presentAttributes](const auto& attribute)
             {
                 presentAttributes.push_back(attribute.Name);
-            }
-            );
+            });
 
             CHECK_EQ(presentAttributes, expectedAttributes);
         }

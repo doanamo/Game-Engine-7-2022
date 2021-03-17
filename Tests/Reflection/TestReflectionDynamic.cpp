@@ -129,7 +129,7 @@ TEST_CASE("Dynamic Reflection")
         CHECK(Reflection::DynamicType<Derived>().IsDerivedFrom<Base>());
         CHECK(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<Derived>());
         CHECK(Reflection::DynamicType<BranchedTwo>().IsDerivedFrom<Derived>());
-        
+
         CHECK(Reflection::DynamicType<Base>().IsBaseOf<Derived>());
         CHECK(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
         CHECK(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());

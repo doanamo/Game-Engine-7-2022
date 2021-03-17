@@ -24,6 +24,8 @@ const Detail::ReflectionRegistry& Detail::GetRegistry()
 ReflectionRegistry::ReflectionRegistry()
 {
     RegisterType<Reflection::NullType>();
+    RegisterType<Reflection::TypeAttribute>();
+    RegisterType<Reflection::FieldAttribute>();
 }
 
 ReflectionRegistry::~ReflectionRegistry() = default;
