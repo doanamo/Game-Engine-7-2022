@@ -225,13 +225,13 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr bool IsReflected()
     {
-        return Detail::TypeInfo<ReflectedType>::Reflected;
+        return StaticTypeInfo<ReflectedType>::Reflected;
     }
 
     template<typename ReflectedType>
     constexpr bool IsReflected(const ReflectedType& type)
     {
-        return Detail::TypeInfo<ReflectedType>::Reflected;
+        return StaticTypeInfo<ReflectedType>::Reflected;
     }
 }
 

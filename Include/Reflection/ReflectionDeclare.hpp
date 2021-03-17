@@ -16,7 +16,7 @@
         std::is_base_of<ReflectedBaseType, ReflectedType>::value, \
         "Incorrect derived class specified for reflected type!"); \
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
-        Reflection::IsReflected<ReflectedBaseType>(), \
+        Reflection::Detail::TypeInfo<ReflectedBaseType>::Reflected, \
         "Base type must be reflected to be used in reflection!");
 
 #define REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \

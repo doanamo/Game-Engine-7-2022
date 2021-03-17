@@ -16,3 +16,4 @@
 REFLECTION_TYPE(Reflection::NullType)
 REFLECTION_TYPE(Reflection::TypeAttribute)
 REFLECTION_TYPE(Reflection::FieldAttribute)
+REFLECTION_TYPE(Reflection::MethodAttribute)

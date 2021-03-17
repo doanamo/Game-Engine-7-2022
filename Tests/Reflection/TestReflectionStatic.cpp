@@ -15,6 +15,10 @@ TEST_CASE("Static Reflection")
     SUBCASE("Check reflected built-in types")
     {
         CHECK(Reflection::IsReflected<Reflection::NullType>());
+        CHECK(Reflection::IsReflected<Reflection::TypeAttribute>());
+        CHECK(Reflection::IsReflected<Reflection::FieldAttribute>());
+        CHECK(Reflection::IsReflected<Reflection::MethodAttribute>());
+
         CHECK(Reflection::StaticType<Reflection::NullType>().IsNullType());
         CHECK_EQ(Reflection::StaticType<Reflection::NullType>().Name, "Reflection::NullType");
         CHECK_FALSE(Reflection::StaticType<Undefined>().IsNullType());

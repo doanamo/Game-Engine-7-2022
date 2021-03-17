@@ -26,6 +26,7 @@ ReflectionRegistry::ReflectionRegistry()
     RegisterType<Reflection::NullType>();
     RegisterType<Reflection::TypeAttribute>();
     RegisterType<Reflection::FieldAttribute>();
+    RegisterType<Reflection::MethodAttribute>();
 }
 
 ReflectionRegistry::~ReflectionRegistry() = default;
