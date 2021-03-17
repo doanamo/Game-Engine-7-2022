@@ -82,6 +82,11 @@ namespace Reflection
         return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
     }
 
+    inline bool IsRegistered(IdentifierType identifier)
+    {
+        return Detail::GetRegistry().LookupType(identifier).Registered;
+    }
+
     template<typename RegisteredType>
     constexpr bool IsRegistered()
     {
@@ -92,10 +97,5 @@ namespace Reflection
     constexpr bool IsRegistered(const RegisteredType& instance)
     {
         return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
-    }
-
-    inline bool IsRegistered(IdentifierType identifier)
-    {
-        return Detail::GetRegistry().LookupType(identifier).Registered;
     }
 }

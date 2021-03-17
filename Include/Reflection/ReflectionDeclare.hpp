@@ -12,10 +12,10 @@
 */
 
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
-    static_assert(std::is_same<ReflectedBaseType, NullType>::value || \
+    static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
         std::is_base_of<ReflectedBaseType, ReflectedType>::value, \
         "Incorrect derived class specified for reflected type!"); \
-    static_assert(std::is_same<ReflectedBaseType, NullType>::value || \
+    static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
         Reflection::IsReflected<ReflectedBaseType>(), \
         "Base type must be reflected to be used in reflection!");
 
@@ -44,7 +44,7 @@
     };
 
 #define REFLECTION_TYPE_BASE_BEGIN(ReflectedType) \
-    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, NullType)
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, Reflection::NullType)
 
 #define REFLECTION_TYPE_DERIVED_BEGIN(ReflectedType, ReflectedBaseType) \
     REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType)
@@ -58,7 +58,7 @@
 #define REFLECTION_TYPE_END REFLECTION_TYPE_INFO_END
 
 #define REFLECTION_TYPE_BASE(ReflectedType) \
-    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, NullType) \
+    REFLECTION_TYPE_INFO_BEGIN(ReflectedType, Reflection::NullType) \
     REFLECTION_TYPE_INFO_END
 
 #define REFLECTION_TYPE_DERIVED(ReflectedType, ReflectedBaseType) \

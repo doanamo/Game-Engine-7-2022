@@ -88,7 +88,7 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
     }
 
-    SUBCASE("Check reflection attributes for types")
+    SUBCASE("Check reflected type attributes")
     {
         CHECK_FALSE(Reflection::StaticType<Empty>().HasAttributes());
         CHECK(Reflection::StaticType<Base>().HasAttributes());
@@ -98,7 +98,7 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::StaticType<BranchedTwo>().HasAttributes());
     }
 
-    SUBCASE("Check reflection attribute count")
+    SUBCASE("Check reflected type attribute count")
     {
         CHECK_EQ(Reflection::StaticType<Empty>().Attributes.Count, 0);
         CHECK_EQ(Reflection::StaticType<Base>().Attributes.Count, 1);
@@ -108,7 +108,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attributes.Count, 2);
     }
 
-    SUBCASE("Check reflection attribute names")
+    SUBCASE("Check reflected type attribute names")
     {
         CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Name, "BaseAttribute");
         CHECK_EQ(Reflection::StaticType<Derived>().Attribute<0>().Name, "DerivedAttribute");
@@ -116,7 +116,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Name, "BranchedAttributeTwo");
     }
 
-    SUBCASE("Check reflection attribute types")
+    SUBCASE("Check reflected type attribute types")
     {
         CHECK_FALSE(Reflection::StaticType<Base>().Attribute<0>().IsType<DerivedAttribute>());
         CHECK(Reflection::StaticType<Base>().Attribute<0>().IsType<BaseAttribute>());
@@ -125,7 +125,7 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::StaticType<BranchedTwo>().Attribute<1>().IsType<BranchedAttributeTwo>());
     }
 
-    SUBCASE("Check reflection attribute instances")
+    SUBCASE("Check reflected type attribute instances")
     {
         CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance, BaseAttribute());
         CHECK_EQ(Reflection::StaticType<Derived>().Attribute<0>().Instance.state, false);
@@ -133,7 +133,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Instance.modifier, "Big");
     }
 
-    SUBCASE("Check reflected member count")
+    SUBCASE("Check reflected type member count")
     {
         CHECK_EQ(Reflection::StaticType<Empty>().Members.Count, 0);
         CHECK_EQ(Reflection::StaticType<Base>().Members.Count, 2);
@@ -143,7 +143,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Members.Count, 2);
     }
 
-    SUBCASE("Check reflected member names")
+    SUBCASE("Check reflected type member names")
     {
         CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Name, "textWithoutAttribute");
         CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textPtrWithAttribute");
@@ -155,7 +155,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Name, "letterTwo");
     }
 
-    SUBCASE("Check reflected member types")
+    SUBCASE("Check reflected type member types")
     {
         CHECK_FALSE(Reflection::StaticType<Base>().Member<0>().IsType<void>());
         CHECK(Reflection::StaticType<Base>().Member<0>().IsType<std::string>());
@@ -167,7 +167,7 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::StaticType<BranchedTwo>().Member<1>().IsType<char>());
     }
 
-    SUBCASE("Check reflected member pointers")
+    SUBCASE("Check reflected type member pointers")
     {
         CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Pointer, &Base::textWithoutAttribute);
         CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textPtrWithAttribute);
@@ -179,7 +179,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::letterTwo);
     }
 
-    SUBCASE("Check reflected attribute count for members")
+    SUBCASE("Check reflected member attribute count")
     {
         CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
         CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
@@ -191,7 +191,7 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attributes.Count, 1);
     }
 
-    SUBCASE("Check reflected attribute names for members")
+    SUBCASE("Check reflected member attribute names")
     {
         CHECK_EQ(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().Name, "TextAttribute");
@@ -209,7 +209,7 @@ TEST_CASE("Static Reflection")
             .Member<1>().Attribute<0>().Name, "LetterAttribute");
     }
 
-    SUBCASE("Check reflected attribute types for members")
+    SUBCASE("Check reflected member attribute types")
     {
         CHECK(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().IsType<TextAttribute>());
@@ -227,7 +227,7 @@ TEST_CASE("Static Reflection")
             .Member<1>().Attribute<0>().IsType<LetterAttribute>());
     }
 
-    SUBCASE("Check reflected attribute instance for members")
+    SUBCASE("Check reflected members attribute instances")
     {
         CHECK_EQ(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().Instance, TextAttribute());
