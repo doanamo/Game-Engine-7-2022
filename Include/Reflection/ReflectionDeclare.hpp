@@ -11,6 +11,14 @@
     Reflection Macros
 */
 
+#define REFLECTION_ENABLE(Type) \
+    public: \
+        static Reflection::DynamicTypeStorage& GetTypeStorage() \
+        { \
+            static Reflection::DynamicTypeStorage TypeStorage; \
+            return TypeStorage; \
+        }
+
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
         std::is_base_of<ReflectedBaseType, ReflectedType>::value, \

@@ -135,6 +135,19 @@ TEST_CASE("Dynamic Reflection")
         CHECK(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
     }
 
+    /*
+    SUBCASE("Check registered polymorphic type")
+    {
+        CHECK(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<Base>());
+        CHECK(Reflection::DynamicType<BranchedTwo>().IsDerivedFrom<Base>());
+
+        CHECK(Reflection::DynamicType<Base>().IsBaseOf<BranchedOne>());
+        CHECK(Reflection::DynamicType<Base>().IsBaseOf<BranchedOne>());
+    }
+    */
+
+    // TODO: Polymorphic casts
+
     // TODO: Multi level inheritance tests for IsBaseOf/IsType/IsDerivedFrom
     // This applies only to dynamic, static cannot do it!
 

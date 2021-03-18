@@ -15,22 +15,6 @@
 
 namespace Reflection
 {
-    struct NullType final
-    {
-    };
-
-    struct TypeAttribute
-    {
-    };
-
-    struct FieldAttribute
-    {
-    };
-
-    struct MethodAttribute
-    {
-    };
-
     template<typename ReflectedType, typename AttributeType, std::size_t AttributeIndex>
     struct AttributeDescription
     {

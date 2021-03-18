@@ -8,11 +8,11 @@
 #include "Reflection/ReflectionTypes.hpp"
 using namespace Reflection;
 
-DynamicTypeInfo ReflectionRegistry::InvalidTypeInfo;
+DynamicTypeInfo Registry::InvalidTypeInfo;
 
-ReflectionRegistry& Reflection::GetRegistry()
+Registry& Reflection::GetRegistry()
 {
-    static ReflectionRegistry registry;
+    static Registry registry;
     return registry;
 }
 
@@ -21,7 +21,7 @@ const Detail::ReflectionRegistry& Detail::GetRegistry()
     return Reflection::GetRegistry();
 }
 
-ReflectionRegistry::ReflectionRegistry()
+Registry::Registry()
 {
     RegisterType<Reflection::NullType>();
     RegisterType<Reflection::TypeAttribute>();
@@ -29,12 +29,12 @@ ReflectionRegistry::ReflectionRegistry()
     RegisterType<Reflection::MethodAttribute>();
 }
 
-ReflectionRegistry::~ReflectionRegistry() = default;
+Registry::~Registry() = default;
 
-const DynamicTypeInfo& ReflectionRegistry::LookupType(IdentifierType identifier) const
+const DynamicTypeInfo& Registry::LookupType(IdentifierType identifier) const
 {
-    auto it = m_registry.find(identifier);
-    if(it == m_registry.end())
+    auto it = m_types.find(identifier);
+    if(it == m_types.end())
     {
         return InvalidTypeInfo;
     }

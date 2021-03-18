@@ -18,15 +18,15 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr StaticTypeInfo<ReflectedType> StaticType();
 
-    class ReflectionRegistry final : public Detail::ReflectionRegistry
+    class Registry final : public Detail::ReflectionRegistry
     {
     public:
-        using Registry = std::unordered_map<IdentifierType, DynamicTypeInfo>;
+        using TypeInfoMap = std::unordered_map<IdentifierType, DynamicTypeInfo&>;
         static DynamicTypeInfo InvalidTypeInfo;
 
     public:
-        ReflectionRegistry();
-        ~ReflectionRegistry();
+        Registry();
+        ~Registry();
 
         template<typename Type>
         void RegisterType();
@@ -34,11 +34,11 @@ namespace Reflection
         const DynamicTypeInfo& LookupType(IdentifierType identifier) const override;
 
     private:
-        Registry m_registry;
+        TypeInfoMap m_types;
     };
 
     template<typename Type>
-    void ReflectionRegistry::RegisterType()
+    void Registry::RegisterType()
     {
         constexpr auto staticType = StaticType<Type>();
         if(!staticType.Reflected)
@@ -48,25 +48,26 @@ namespace Reflection
             return;
         }
 
-        DynamicTypeInfo dynamicType{ StaticType<Type>() };
-        auto result = m_registry.emplace(staticType.Identifier, std::move(dynamicType));
-        DynamicTypeInfo& registeredType = result.first->second;
+        auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
+        DynamicTypeInfo& dynamicType = result.first->second;
 
-        if(!result.second && registeredType.Name != staticType.Name)
+        if(!result.second && dynamicType.Name != staticType.Name)
         {
             ASSERT(false, "Detected name hash collision between types \"{}\" ({}) and \"{}\" ({})!",
-                registeredType.Name, registeredType.Identifier,
-                dynamicType.Name, dynamicType.Identifier);
+                staticType.Name, staticType.Identifier, dynamicType.Name, dynamicType.Identifier);
+            return;
         }
-        else
-        {
-            registeredType.Registered = true;
-            LOG_INFO("Registered reflection type: \"{}\" ({})",
-                registeredType.Name, registeredType.Identifier);
-        }
+        
+        dynamicType.Registered = true;
+        dynamicType.Name = staticType.Name;
+        dynamicType.Identifier = staticType.Identifier;
+        dynamicType.BaseTypeIdentifier = staticType.BaseTypeIdentifier;
+
+        LOG_INFO("Registered reflection type: \"{}\" ({})",
+            dynamicType.Name, dynamicType.Identifier);
     }
 
-    ReflectionRegistry& GetRegistry();
+    Registry& GetRegistry();
 }
 
 #define REFLECTION_REGISTER(Type) \

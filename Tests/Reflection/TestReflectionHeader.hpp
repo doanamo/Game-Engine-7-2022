@@ -11,6 +11,7 @@ class Undefined
 
 class Empty
 {
+    REFLECTION_ENABLE(Empty)
 };
 
 REFLECTION_TYPE_BEGIN(Empty)
@@ -18,6 +19,8 @@ REFLECTION_TYPE_END
 
 class BaseAttribute : public Reflection::TypeAttribute
 {
+    REFLECTION_ENABLE(BaseAttribute)
+
 public:
     bool operator==(const BaseAttribute& other) const
     {
@@ -29,6 +32,8 @@ REFLECTION_TYPE(BaseAttribute, Reflection::TypeAttribute)
 
 class TextAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(TextAttribute)
+
 public:
     bool operator==(const TextAttribute& other) const
     {
@@ -40,6 +45,8 @@ REFLECTION_TYPE(TextAttribute, Reflection::FieldAttribute)
 
 class Base
 {
+    REFLECTION_ENABLE(Base)
+
 public:
     std::string textWithoutAttribute;
     const char* textPtrWithAttribute;
@@ -53,6 +60,8 @@ REFLECTION_TYPE_END
 
 class DerivedAttribute : public Reflection::TypeAttribute
 {
+    REFLECTION_ENABLE(DerivedAttribute)
+
 public:
     constexpr DerivedAttribute(bool state) :
         state(state)
@@ -66,6 +75,8 @@ REFLECTION_TYPE(DerivedAttribute, Reflection::TypeAttribute)
 
 class CounterAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(CounterAttribute)
+
 public:
     constexpr CounterAttribute(bool state) :
         state(state)
@@ -79,6 +90,8 @@ REFLECTION_TYPE(CounterAttribute, Reflection::FieldAttribute)
 
 class Derived : public Base
 {
+    REFLECTION_ENABLE(Derived)
+
 public:
     int counter;
 };
@@ -90,6 +103,8 @@ REFLECTION_TYPE_END
 
 class InnerAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(InnerAttribute)
+
 public:
     constexpr InnerAttribute(int counter) :
         counter(counter)
@@ -103,6 +118,8 @@ REFLECTION_TYPE(InnerAttribute, Reflection::FieldAttribute)
 
 class Inner
 {
+    REFLECTION_ENABLE(Inner)
+
 public:
     uint8_t value;
 };
@@ -113,6 +130,8 @@ REFLECTION_TYPE_END
 
 class ToggleOnAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(ToggleOnAttribute)
+
 public:
     const bool state = true;
 };
@@ -121,6 +140,8 @@ REFLECTION_TYPE(ToggleOnAttribute, Reflection::FieldAttribute)
 
 class ToggleOffAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(ToggleOffAttribute)
+
 public:
     const bool state = false;
 };
@@ -129,6 +150,8 @@ REFLECTION_TYPE(ToggleOffAttribute, Reflection::FieldAttribute)
 
 class BranchedOne : public Derived
 {
+    REFLECTION_ENABLE(BranchedOne)
+
 public:
     bool toggle;
     Inner inner;
@@ -141,6 +164,8 @@ REFLECTION_TYPE_END
 
 class BranchedAttributeOne : public Reflection::TypeAttribute
 {
+    REFLECTION_ENABLE(BranchedAttributeOne)
+
 public:
     constexpr BranchedAttributeOne(std::string_view modifier) :
         modifier(modifier)
@@ -154,6 +179,8 @@ REFLECTION_TYPE(BranchedAttributeOne, Reflection::TypeAttribute)
 
 class BranchedAttributeTwo : public Reflection::TypeAttribute
 {
+    REFLECTION_ENABLE(BranchedAttributeTwo)
+
 public:
     constexpr BranchedAttributeTwo(std::string_view modifier) :
         modifier(modifier)
@@ -167,6 +194,8 @@ REFLECTION_TYPE(BranchedAttributeTwo, Reflection::TypeAttribute)
 
 class LetterAttribute : public Reflection::FieldAttribute
 {
+    REFLECTION_ENABLE(LetterAttribute)
+
 public:
     constexpr LetterAttribute(std::string_view modifier) :
         modifier(modifier)
@@ -180,6 +209,8 @@ REFLECTION_TYPE(LetterAttribute, Reflection::FieldAttribute)
 
 class BranchedTwo : public Derived
 {
+    REFLECTION_ENABLE(BranchedTwo)
+
 public:
     char letterOne;
     char letterTwo;

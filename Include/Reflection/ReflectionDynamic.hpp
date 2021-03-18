@@ -23,16 +23,6 @@ namespace Reflection
 
     struct DynamicTypeInfo
     {
-        DynamicTypeInfo() = default;
-
-        template<typename ReflectedType>
-        DynamicTypeInfo(const StaticTypeInfo<ReflectedType>& staticType) :
-            Name(staticType.Name),
-            Identifier(staticType.Identifier),
-            BaseTypeIdentifier(staticType.BaseTypeIdentifier)
-        {
-        }
-
         bool Registered = false;
         std::string_view Name = "<UnregisteredType>";
         IdentifierType Identifier = InvalidIdentifier;
@@ -98,4 +88,17 @@ namespace Reflection
     {
         return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
     }
+
+    struct DynamicTypeStorage
+    {
+    public:
+        const DynamicTypeInfo& GetTypeInfo() const
+        {
+            return DynamicType;
+        }
+
+    private:
+        friend class Registry;
+        DynamicTypeInfo DynamicType;
+    };
 }
