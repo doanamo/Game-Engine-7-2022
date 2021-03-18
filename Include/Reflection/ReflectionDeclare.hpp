@@ -11,13 +11,25 @@
     Reflection Macros
 */
 
-#define REFLECTION_ENABLE(Type) \
-    public: \
+#define REFLECTION_SUPER(ReflectedBaseType) \
+    using Super = ReflectedBaseType;
+
+#define REFLECTION_STORAGE \
         static Reflection::DynamicTypeStorage& GetTypeStorage() \
         { \
             static Reflection::DynamicTypeStorage TypeStorage; \
             return TypeStorage; \
         }
+
+#define REFLECTION_ENABLE_BASE(ReflectedType) \
+    public: \
+        REFLECTION_SUPER(Reflection::NullType) \
+        REFLECTION_STORAGE
+    
+#define REFLECTION_ENABLE_DERIVED(ReflectedType, ReflectedBaseType) \
+    public: \
+        REFLECTION_SUPER(ReflectedBaseType) \
+        REFLECTION_STORAGE
 
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
@@ -26,6 +38,16 @@
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
         Reflection::Detail::TypeInfo<ReflectedBaseType>::Reflected, \
         "Base type must be reflected to be used in reflection!");
+
+#define REFLECTION_ENABLE_DEDUCE(_1, _2, _3, ...) _3
+#define REFLECTION_ENABLE_CHOOSER(...) REFLECTION_EXPAND( \
+    REFLECTION_ENABLE_DEDUCE(__VA_ARGS__, REFLECTION_ENABLE_DERIVED, REFLECTION_ENABLE_BASE))
+#define REFLECTION_ENABLE(...) REFLECTION_EXPAND(REFLECTION_ENABLE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+
+#define REFLECTION_TYPE_DEDUCE(arg1, arg2, arg3, ...) arg3
+#define REFLECTION_TYPE_CHOOSER(...) REFLECTION_EXPAND( \
+    REFLECTION_TYPE_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED, REFLECTION_TYPE_BASE))
+#define REFLECTION_TYPE(...) REFLECTION_EXPAND(REFLECTION_TYPE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 #define REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     template<> struct Reflection::Detail::TypeInfo<ReflectedType> : public TypeInfoBase \
@@ -57,7 +79,7 @@
 #define REFLECTION_TYPE_DERIVED_BEGIN(ReflectedType, ReflectedBaseType) \
     REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType)
 
-#define REFLECTION_TYPE_BEGIN_DEDUCE(arg1, arg2, arg3, ...) arg3
+#define REFLECTION_TYPE_BEGIN_DEDUCE(_1, _2, _3, ...) _3
 #define REFLECTION_TYPE_BEGIN_CHOOSER(...) \
     REFLECTION_EXPAND(REFLECTION_TYPE_BEGIN_DEDUCE(__VA_ARGS__, \
     REFLECTION_TYPE_DERIVED_BEGIN, REFLECTION_TYPE_BASE_BEGIN))
@@ -73,7 +95,7 @@
     REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     REFLECTION_TYPE_INFO_END
 
-#define REFLECTION_TYPE_DEDUCE(arg1, arg2, arg3, ...) arg3
+#define REFLECTION_TYPE_DEDUCE(_1, _2, _3, ...) _3
 #define REFLECTION_TYPE_CHOOSER(...) REFLECTION_EXPAND( \
     REFLECTION_TYPE_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED, REFLECTION_TYPE_BASE))
 #define REFLECTION_TYPE(...) REFLECTION_EXPAND(REFLECTION_TYPE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
