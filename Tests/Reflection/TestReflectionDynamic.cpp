@@ -135,6 +135,15 @@ TEST_CASE("Dynamic Reflection")
         CHECK(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
     }
 
+    SUBCASE("Check registered super declaration")
+    {
+        CHECK_EQ(Reflection::DynamicType<Derived>().BaseTypeIdentifier,
+            Reflection::DynamicType<Derived::Super>().Identifier);
+
+        CHECK(Reflection::DynamicType<BranchedOne>().GetBaseType().IsType<BranchedOne::Super>());
+        CHECK(Reflection::DynamicType<BranchedTwo>().GetBaseType().IsType<BranchedTwo::Super>());
+    }
+
     /*
     SUBCASE("Check registered polymorphic type")
     {
