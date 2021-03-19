@@ -50,7 +50,8 @@ namespace Reflection
             return false;
         }
 
-        static_assert(std::is_same<typename Type::Super, decltype(staticType)::BaseType>::value,
+        using BaseType = typename decltype(staticType)::BaseType;
+        static_assert(std::is_same<typename Type::Super, BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
 
         DynamicTypeInfo* baseType = LookupType(staticType.GetBaseType().Identifier);
@@ -65,7 +66,7 @@ namespace Reflection
         }
         else
         {
-            ASSERT(baseType->IsRegistered(), "Received unregistered non-null base type!");
+            ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type pointer!");
         }
 
         auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
