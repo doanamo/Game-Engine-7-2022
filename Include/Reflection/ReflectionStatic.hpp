@@ -218,13 +218,13 @@ namespace Reflection
     }
 
     template<typename ReflectedType>
-    constexpr IdentifierType GetIdentifier()
+    IdentifierType GetIdentifier()
     {
         return StaticTypeInfo<ReflectedType>::Identifier;
     }
 
     template<typename ReflectedType>
-    constexpr IdentifierType GetIdentifier(const ReflectedType& type)
+    IdentifierType GetIdentifier(const ReflectedType& type)
     {
         return StaticTypeInfo<ReflectedType>::Identifier;
     }

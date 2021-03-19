@@ -24,7 +24,7 @@ namespace Reflection
     constexpr StaticTypeInfo<ReflectedType> StaticType();
 
     template<typename ReflectedType>
-    constexpr IdentifierType GetIdentifier();
+    IdentifierType GetIdentifier();
 
     class DynamicTypeInfo final
     {
@@ -40,7 +40,7 @@ namespace Reflection
             return m_registered;
         }
 
-        bool IsNullType() const
+        bool IsNullType() const 
         {
             return m_registered && m_identifier == Reflection::GetIdentifier<NullType>();
         }
