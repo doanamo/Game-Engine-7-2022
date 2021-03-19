@@ -28,7 +28,7 @@ namespace Reflection
         ~Registry();
 
         template<typename Type>
-        void RegisterType();
+        bool RegisterType();
 
         const DynamicTypeInfo& LookupType(IdentifierType identifier) const override;
 
@@ -37,14 +37,14 @@ namespace Reflection
     };
 
     template<typename Type>
-    void Registry::RegisterType()
+    bool Registry::RegisterType()
     {
         constexpr auto staticType = StaticType<Type>();
         if(!staticType.Reflected)
         {
             LOG_WARNING("Attempted to register type \"{}\" that is not reflected!",
                 REFLECTION_STRINGIFY(Type));
-            return;
+            return false;
         }
 
         static_assert(std::is_same<typename Type::Super, decltype(staticType)::BaseType>::value,
@@ -55,7 +55,7 @@ namespace Reflection
         {
             LOG_WARNING("Attempter to register type \"{}\" with unregistered base type \"{}\"!",
                 staticType.Name, staticType.GetBaseType().Name);
-            return;
+            return false;
         }
 
         auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
@@ -65,7 +65,7 @@ namespace Reflection
         {
             ASSERT(false, "Detected name hash collision between types \"{}\" ({}) and \"{}\" ({})!",
                 staticType.Name, staticType.Identifier, dynamicType.Name, dynamicType.Identifier);
-            return;
+            return false;
         }
         
         dynamicType.Registered = true;
@@ -80,6 +80,8 @@ namespace Reflection
 
         LOG_INFO("Registered reflection type: \"{}\" ({})",
             dynamicType.Name, dynamicType.Identifier);
+
+        return true;
     }
 
     Registry& GetRegistry();

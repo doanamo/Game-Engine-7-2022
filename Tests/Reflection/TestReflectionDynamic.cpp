@@ -16,22 +16,22 @@ void RegisterTypesOnce()
     if(registered)
         return;
 
-    REFLECTION_REGISTER(Empty);
-    REFLECTION_REGISTER(BaseAttribute);
-    REFLECTION_REGISTER(TextAttribute);
-    REFLECTION_REGISTER(Base);
-    REFLECTION_REGISTER(DerivedAttribute);
-    REFLECTION_REGISTER(CounterAttribute);
-    REFLECTION_REGISTER(Derived);
-    REFLECTION_REGISTER(InnerAttribute);
-    REFLECTION_REGISTER(Inner);
-    REFLECTION_REGISTER(ToggleOnAttribute);
-    REFLECTION_REGISTER(ToggleOffAttribute);
-    REFLECTION_REGISTER(BranchedOne);
-    REFLECTION_REGISTER(BranchedAttributeOne);
-    REFLECTION_REGISTER(BranchedAttributeTwo);
-    REFLECTION_REGISTER(LetterAttribute);
-    REFLECTION_REGISTER(BranchedTwo);
+    CHECK(REFLECTION_REGISTER(Empty));
+    CHECK(REFLECTION_REGISTER(BaseAttribute));
+    CHECK(REFLECTION_REGISTER(TextAttribute));
+    CHECK(REFLECTION_REGISTER(Base));
+    CHECK(REFLECTION_REGISTER(DerivedAttribute));
+    CHECK(REFLECTION_REGISTER(CounterAttribute));
+    CHECK(REFLECTION_REGISTER(Derived));
+    CHECK(REFLECTION_REGISTER(InnerAttribute));
+    CHECK(REFLECTION_REGISTER(Inner));
+    CHECK(REFLECTION_REGISTER(ToggleOnAttribute));
+    CHECK(REFLECTION_REGISTER(ToggleOffAttribute));
+    CHECK(REFLECTION_REGISTER(BranchedOne));
+    CHECK(REFLECTION_REGISTER(BranchedAttributeOne));
+    CHECK(REFLECTION_REGISTER(BranchedAttributeTwo));
+    CHECK(REFLECTION_REGISTER(LetterAttribute));
+    CHECK(REFLECTION_REGISTER(BranchedTwo));
 
     registered = true;
 }
