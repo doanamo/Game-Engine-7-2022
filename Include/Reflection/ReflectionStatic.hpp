@@ -97,14 +97,11 @@ namespace Reflection
     {
         using Type = ReflectedType;
         static constexpr auto TypeInfo = Detail::TypeInfo<Type>{};
-
         using BaseType = typename decltype(TypeInfo)::BaseType;
-        static constexpr auto BaseTypeInfo = Detail::TypeInfo<BaseType>{};
 
         static constexpr bool Reflected = TypeInfo.Reflected;
         static constexpr std::string_view Name = TypeInfo.Name;
         static constexpr IdentifierType Identifier = Common::StringHash(TypeInfo.Name);
-        static constexpr IdentifierType BaseTypeIdentifier = Common::StringHash(BaseTypeInfo.Name);
         static constexpr auto Attributes =
             Detail::MakeAttributeDescriptionWithInstanceList<Type>(
                 TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());

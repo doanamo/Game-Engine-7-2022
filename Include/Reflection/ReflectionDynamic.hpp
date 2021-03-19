@@ -23,10 +23,12 @@ namespace Reflection
 
     struct DynamicTypeInfo
     {
+        static const DynamicTypeInfo Invalid;
+
         bool Registered = false;
         std::string_view Name = "<UnregisteredType>";
         IdentifierType Identifier = InvalidIdentifier;
-        IdentifierType BaseTypeIdentifier = InvalidIdentifier;
+        const DynamicTypeInfo* BaseType = &Invalid;
 
         bool IsNullType() const;
         bool HasBaseType() const;
@@ -44,14 +46,14 @@ namespace Reflection
         bool IsDerivedFrom() const
         {
             // #todo: This needs to support polymorphism!
-            return Registered && BaseTypeIdentifier == StaticType<OtherType>().Identifier;
+            return Registered && BaseType->Identifier == StaticType<OtherType>().Identifier;
         }
 
         template<typename OtherType>
         bool IsBaseOf() const
         {
             // #todo: This needs to support polymorphism!
-            return Registered && Identifier == StaticType<OtherType>().BaseTypeIdentifier;
+            return Registered && Identifier == StaticType<OtherType>().GetBaseType().Identifier;
         }
     };
 

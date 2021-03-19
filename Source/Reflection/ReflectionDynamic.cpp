@@ -8,6 +8,8 @@
 #include "Reflection/ReflectionTypes.hpp"
 using namespace Reflection;
 
+const DynamicTypeInfo DynamicTypeInfo::Invalid;
+
 bool DynamicTypeInfo::IsNullType() const
 {
     return Registered && Identifier == StaticType<NullType>().Identifier;
@@ -15,10 +17,10 @@ bool DynamicTypeInfo::IsNullType() const
 
 bool DynamicTypeInfo::HasBaseType() const
 {
-    return Registered && BaseTypeIdentifier != StaticType<NullType>().Identifier;
+    return Registered && BaseType->Identifier != StaticType<NullType>().Identifier;
 }
 
 const DynamicTypeInfo& DynamicTypeInfo::GetBaseType() const
 {
-    return Detail::GetRegistry().LookupType(BaseTypeIdentifier);
+    return Detail::GetRegistry().LookupType(BaseType->Identifier);
 }

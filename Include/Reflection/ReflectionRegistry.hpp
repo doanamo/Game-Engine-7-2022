@@ -22,7 +22,6 @@ namespace Reflection
     {
     public:
         using TypeInfoMap = std::unordered_map<IdentifierType, DynamicTypeInfo&>;
-        static DynamicTypeInfo InvalidTypeInfo;
 
     public:
         Registry();
@@ -48,8 +47,16 @@ namespace Reflection
             return;
         }
 
-        static_assert(std::is_same <Type::Super, decltype(staticType)::BaseType>::value,
+        static_assert(std::is_same<Type::Super, decltype(staticType)::BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
+
+        const DynamicTypeInfo& baseType = LookupType(staticType.GetBaseType().Identifier);
+        if(!baseType.Registered && !staticType.GetBaseType().IsNullType() )
+        {
+            LOG_WARNING("Attempter to register type \"{}\" with unregistered base type \"{}\"!",
+                staticType.Name, staticType.GetBaseType().Name);
+            return;
+        }
 
         auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
         DynamicTypeInfo& dynamicType = result.first->second;
@@ -64,7 +71,12 @@ namespace Reflection
         dynamicType.Registered = true;
         dynamicType.Name = staticType.Name;
         dynamicType.Identifier = staticType.Identifier;
-        dynamicType.BaseTypeIdentifier = staticType.BaseTypeIdentifier;
+        dynamicType.BaseType = &baseType;
+
+        if(staticType.IsNullType())
+        {
+            dynamicType.BaseType = &dynamicType;
+        }
 
         LOG_INFO("Registered reflection type: \"{}\" ({})",
             dynamicType.Name, dynamicType.Identifier);

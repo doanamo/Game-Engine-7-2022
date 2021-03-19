@@ -8,8 +8,6 @@
 #include "Reflection/ReflectionTypes.hpp"
 using namespace Reflection;
 
-DynamicTypeInfo Registry::InvalidTypeInfo;
-
 Registry& Reflection::GetRegistry()
 {
     static Registry registry;
@@ -36,7 +34,7 @@ const DynamicTypeInfo& Registry::LookupType(IdentifierType identifier) const
     auto it = m_types.find(identifier);
     if(it == m_types.end())
     {
-        return InvalidTypeInfo;
+        return DynamicTypeInfo::Invalid;
     }
 
     return it->second;

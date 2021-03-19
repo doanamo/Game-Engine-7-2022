@@ -137,7 +137,7 @@ TEST_CASE("Dynamic Reflection")
 
     SUBCASE("Check registered super declaration")
     {
-        CHECK_EQ(Reflection::DynamicType<Derived>().BaseTypeIdentifier,
+        CHECK_EQ(Reflection::DynamicType<Derived>().GetBaseType().Identifier,
             Reflection::DynamicType<Derived::Super>().Identifier);
 
         CHECK(Reflection::DynamicType<BranchedOne>().GetBaseType().IsType<BranchedOne::Super>());
