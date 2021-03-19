@@ -10,17 +10,28 @@ using namespace Reflection;
 
 const DynamicTypeInfo DynamicTypeInfo::Invalid;
 
-bool DynamicTypeInfo::IsNullType() const
+void DynamicTypeInfo::Register(std::string_view name,
+    IdentifierType identifier, DynamicTypeInfo* baseType)
 {
-    return Registered && Identifier == StaticType<NullType>().Identifier;
-}
+    m_registered = true;
+    m_name = name;
+    m_identifier = identifier;
 
-bool DynamicTypeInfo::HasBaseType() const
-{
-    return Registered && BaseType->Identifier != StaticType<NullType>().Identifier;
-}
+    if(!IsNullType())
+    {
+        m_baseType = baseType;
 
-const DynamicTypeInfo& DynamicTypeInfo::GetBaseType() const
-{
-    return Detail::GetRegistry().LookupType(BaseType->Identifier);
+        auto ContainsThisDerivedType = [&derivedTypes = baseType->m_derivedTypes, this]() -> bool
+        {
+            auto it = std::find(derivedTypes.begin(), derivedTypes.end(), this);
+            return it != derivedTypes.end();
+        };
+
+        ASSERT(!ContainsThisDerivedType(), "Found same existing entry in list of derived types!");
+        baseType->m_derivedTypes.push_back(this);
+    }
+    else
+    {
+        m_baseType = this;
+    }
 }

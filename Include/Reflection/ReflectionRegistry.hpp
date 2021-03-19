@@ -33,6 +33,9 @@ namespace Reflection
         const DynamicTypeInfo& LookupType(IdentifierType identifier) const override;
 
     private:
+        DynamicTypeInfo* LookupType(IdentifierType identifier);
+
+    private:
         TypeInfoMap m_types;
     };
 
@@ -50,36 +53,49 @@ namespace Reflection
         static_assert(std::is_same<typename Type::Super, decltype(staticType)::BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
 
-        const DynamicTypeInfo& baseType = LookupType(staticType.GetBaseType().Identifier);
-        if(!baseType.Registered && !staticType.GetBaseType().IsNullType() )
+        DynamicTypeInfo* baseType = LookupType(staticType.GetBaseType().Identifier);
+        if(baseType == nullptr)
         {
-            LOG_WARNING("Attempter to register type \"{}\" with unregistered base type \"{}\"!",
-                staticType.Name, staticType.GetBaseType().Name);
-            return false;
+            if(!staticType.GetBaseType().IsNullType())
+            {
+                LOG_WARNING("Attempted to register type \"{}\" with unregistered base type \"{}\"!",
+                    staticType.Name, staticType.GetBaseType().Name);
+                return false;
+            }
+        }
+        else
+        {
+            ASSERT(baseType->IsRegistered(), "Received unregistered non-null base type!");
         }
 
         auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
         DynamicTypeInfo& dynamicType = result.first->second;
 
-        if(!result.second && dynamicType.Name != staticType.Name)
+        if(!result.second)
         {
-            ASSERT(false, "Detected name hash collision between types \"{}\" ({}) and \"{}\" ({})!",
-                staticType.Name, staticType.Identifier, dynamicType.Name, dynamicType.Identifier);
+            if(dynamicType.GetName() != staticType.Name)
+            {
+                ASSERT(false, "Detected name hash collision between types \"{}\" ({})"
+                    " and \"{}\" ({})!", staticType.Name, staticType.Identifier,
+                    dynamicType.GetName(), dynamicType.GetIdentifier());
+            }
+            else if(dynamicType.IsRegistered())
+            {
+                LOG_WARNING("Attempted to register type \"{}\" ({}) twice!",
+                    dynamicType.GetName(), dynamicType.GetIdentifier());
+            }
+            else
+            {
+                ASSERT(false, "Unknown registration error for type \"{}\" ({})",
+                    dynamicType.GetName(), dynamicType.GetIdentifier());
+            }
+
             return false;
         }
-        
-        dynamicType.Registered = true;
-        dynamicType.Name = staticType.Name;
-        dynamicType.Identifier = staticType.Identifier;
-        dynamicType.BaseType = &baseType;
 
-        if(staticType.IsNullType())
-        {
-            dynamicType.BaseType = &dynamicType;
-        }
-
+        dynamicType.Register(staticType.Name, staticType.Identifier, baseType);
         LOG_INFO("Registered reflection type: \"{}\" ({})",
-            dynamicType.Name, dynamicType.Identifier);
+            dynamicType.GetName(), dynamicType.GetIdentifier());
 
         return true;
     }

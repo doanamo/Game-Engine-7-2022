@@ -29,6 +29,17 @@ Registry::Registry()
 
 Registry::~Registry() = default;
 
+DynamicTypeInfo* Registry::LookupType(IdentifierType identifier)
+{
+    auto it = m_types.find(identifier);
+    if(it == m_types.end())
+    {
+        return nullptr;
+    }
+
+    return &it->second;
+}
+
 const DynamicTypeInfo& Registry::LookupType(IdentifierType identifier) const
 {
     auto it = m_types.find(identifier);

@@ -15,46 +15,85 @@
 
 namespace Reflection
 {
+    struct NullType;
+
     template<typename ReflectedType>
     struct StaticTypeInfo;
 
     template<typename ReflectedType>
     constexpr StaticTypeInfo<ReflectedType> StaticType();
 
-    struct DynamicTypeInfo
+    template<typename ReflectedType>
+    constexpr IdentifierType GetIdentifier();
+
+    class DynamicTypeInfo final
     {
+    public:
+        friend class Registry;
         static const DynamicTypeInfo Invalid;
+        
+        DynamicTypeInfo() = default;
+        ~DynamicTypeInfo() = default;
 
-        bool Registered = false;
-        std::string_view Name = "<UnregisteredType>";
-        IdentifierType Identifier = InvalidIdentifier;
-        const DynamicTypeInfo* BaseType = &Invalid;
+        bool IsRegistered() const
+        {
+            return m_registered;
+        }
 
-        bool IsNullType() const;
-        bool HasBaseType() const;
+        bool IsNullType() const
+        {
+            return m_registered && m_identifier == Reflection::GetIdentifier<NullType>();
+        }
 
-        const DynamicTypeInfo& GetBaseType() const;
+        bool HasBaseType() const
+        {
+            return m_registered && !m_baseType->IsNullType();
+        }
+
+        const std::string_view& GetName() const
+        {
+            return m_name;
+        }
+
+        IdentifierType GetIdentifier() const
+        {
+            return m_identifier;
+        }
+
+        const DynamicTypeInfo& GetBaseType() const
+        {
+            return *m_baseType;
+        }
 
         template<typename OtherType>
         bool IsType() const
         {
             // #todo: This needs to support polymorphism!
-            return Registered && Identifier == StaticType<OtherType>().Identifier;
-        }
-
-        template<typename OtherType>
-        bool IsDerivedFrom() const
-        {
-            // #todo: This needs to support polymorphism!
-            return Registered && BaseType->Identifier == StaticType<OtherType>().Identifier;
+            return m_registered && m_identifier == StaticType<OtherType>().Identifier;
         }
 
         template<typename OtherType>
         bool IsBaseOf() const
         {
             // #todo: This needs to support polymorphism!
-            return Registered && Identifier == StaticType<OtherType>().GetBaseType().Identifier;
+            return m_registered && m_identifier == StaticType<OtherType>().GetBaseType().Identifier;
         }
+
+        template<typename OtherType>
+        bool IsDerivedFrom() const
+        {
+            // #todo: This needs to support polymorphism!
+            return m_registered && m_baseType->m_identifier == StaticType<OtherType>().Identifier;
+        }
+
+    private:
+        void Register(std::string_view name, IdentifierType identifier, DynamicTypeInfo* baseType);
+
+        bool m_registered = false;
+        std::string_view m_name = "<UnregisteredType>";
+        IdentifierType m_identifier = InvalidIdentifier;
+        const DynamicTypeInfo* m_baseType = &Invalid;
+        std::vector<const DynamicTypeInfo*> m_derivedTypes;
     };
 
     inline const DynamicTypeInfo& DynamicType(IdentifierType identifier)
@@ -76,19 +115,21 @@ namespace Reflection
 
     inline bool IsRegistered(IdentifierType identifier)
     {
-        return Detail::GetRegistry().LookupType(identifier).Registered;
+        return Detail::GetRegistry().LookupType(identifier).IsRegistered();
     }
 
     template<typename RegisteredType>
     constexpr bool IsRegistered()
     {
-        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
+        return Detail::GetRegistry().LookupType(
+            StaticType<RegisteredType>().Identifier).IsRegistered();
     }
 
     template<typename RegisteredType>
     constexpr bool IsRegistered(const RegisteredType& instance)
     {
-        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier).Registered;
+        return Detail::GetRegistry().LookupType(
+            StaticType<RegisteredType>().Identifier).IsRegistered();
     }
 
     struct DynamicTypeStorage
