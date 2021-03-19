@@ -47,7 +47,7 @@ namespace Reflection
             return;
         }
 
-        static_assert(std::is_same<Type::Super, decltype(staticType)::BaseType>::value,
+        static_assert(std::is_same<typename Type::Super, decltype(staticType)::BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
 
         const DynamicTypeInfo& baseType = LookupType(staticType.GetBaseType().Identifier);
