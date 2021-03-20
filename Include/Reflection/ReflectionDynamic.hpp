@@ -84,15 +84,33 @@ namespace Reflection
         }
 
         template<typename OtherType>
+        bool IsType(const OtherType& instance) const
+        {
+            return IsType(DynamicType(instance).GetIdentifier());
+        }
+
+        template<typename OtherType>
         bool IsBaseOf() const
         {
             return IsBaseOf(StaticType<OtherType>().Identifier);
         }
 
         template<typename OtherType>
+        bool IsBaseOf(const OtherType& instance) const
+        {
+            return IsBaseOf(DynamicType(instance).GetIdentifier());
+        }
+
+        template<typename OtherType>
         bool IsDerivedFrom() const
         {
             return IsDerivedFrom(StaticType<OtherType>().Identifier);
+        }
+
+        template<typename OtherType>
+        bool IsDerivedFrom(const OtherType& instance) const
+        {
+            return IsDerivedFrom(DynamicType(instance).GetIdentifier());
         }
 
     private:

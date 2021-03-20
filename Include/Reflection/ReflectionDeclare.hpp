@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Reflection/ReflectionStatic.hpp"
+#include "Reflection/ReflectionDynamic.hpp"
 
 /*
     Reflection Declaration Macros
@@ -14,22 +15,30 @@
 #define REFLECTION_SUPER(ReflectedBaseType) \
     using Super = ReflectedBaseType;
 
-#define REFLECTION_STORAGE \
+#define REFLECTION_TYPE_STORAGE \
         static Reflection::DynamicTypeStorage& GetTypeStorage() \
         { \
             static Reflection::DynamicTypeStorage TypeStorage; \
             return TypeStorage; \
         }
 
+#define REFLECTION_TYPE_INFO \
+        virtual const Reflection::DynamicTypeInfo& GetTypeInfo() const \
+        { \
+            return GetTypeStorage().GetTypeInfo(); \
+        }
+
 #define REFLECTION_ENABLE_BASE(ReflectedType) \
     public: \
         REFLECTION_SUPER(Reflection::NullType) \
-        REFLECTION_STORAGE
+        REFLECTION_TYPE_STORAGE \
+        REFLECTION_TYPE_INFO
     
 #define REFLECTION_ENABLE_DERIVED(ReflectedType, ReflectedBaseType) \
     public: \
         REFLECTION_SUPER(ReflectedBaseType) \
-        REFLECTION_STORAGE
+        REFLECTION_TYPE_STORAGE \
+        REFLECTION_TYPE_INFO
 
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \

@@ -178,7 +178,45 @@ TEST_CASE("Dynamic Reflection")
         CHECK_FALSE(Reflection::DynamicType<Derived>().IsBaseOf<Inner>());
     }
 
+    SUBCASE("Check registered polymoprhic instance")
+    {
+        BranchedOne branchedOne;
+        Derived& branchedOneDerived = branchedOne;
+        Base& branchedOneBase = branchedOne;
+
+        CHECK(branchedOne.GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOne.GetTypeInfo().IsType<Derived>());
+        CHECK(branchedOne.GetTypeInfo().IsType<Base>());
+        CHECK(branchedOneDerived.GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOneDerived.GetTypeInfo().IsType<Base>());
+        CHECK(branchedOneBase.GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOneBase.GetTypeInfo().IsType<Derived>());
+
+        CHECK(branchedOne.GetTypeInfo().IsType(branchedOne));
+        CHECK(branchedOne.GetTypeInfo().IsType(branchedOneDerived));
+        CHECK(branchedOne.GetTypeInfo().IsType(branchedOneBase));
+        CHECK(branchedOneDerived.GetTypeInfo().IsType(branchedOne));
+        CHECK(branchedOneDerived.GetTypeInfo().IsType(branchedOneBase));
+        CHECK(branchedOneBase.GetTypeInfo().IsType(branchedOne));
+        CHECK(branchedOneBase.GetTypeInfo().IsType(branchedOneDerived));
+
+        BranchedTwo branchedTwo;
+        Derived& branchedTwoDerived = branchedTwo;
+        Base& branchedTwoBase = branchedTwo;
+
+        CHECK_FALSE(branchedTwo.GetTypeInfo().IsType(branchedOne));
+        CHECK_FALSE(branchedTwo.GetTypeInfo().IsType(branchedOneDerived));
+        CHECK_FALSE(branchedTwo.GetTypeInfo().IsType(branchedOneBase));
+        CHECK_FALSE(branchedTwoDerived.GetTypeInfo().IsType(branchedOne));
+        CHECK_FALSE(branchedTwoDerived.GetTypeInfo().IsType(branchedOneDerived));
+        CHECK_FALSE(branchedTwoDerived.GetTypeInfo().IsType(branchedOneBase));
+        CHECK_FALSE(branchedTwoBase.GetTypeInfo().IsType(branchedOne));
+        CHECK_FALSE(branchedTwoBase.GetTypeInfo().IsType(branchedOneDerived));
+        CHECK_FALSE(branchedTwoBase.GetTypeInfo().IsType(branchedOneBase));
+    }
+
     // TODO: Polymorphic casts
+    // Create Utility header and move all free Reflection namespaced functions there
 
     // TODO: Multi level inheritance tests for IsBaseOf/IsType/IsDerivedFrom
     // This applies only to dynamic, static cannot do it!
