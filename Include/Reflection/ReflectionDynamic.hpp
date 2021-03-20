@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Reflection/ReflectionDetail.hpp"
+#include "Reflection/ReflectionStatic.hpp"
 
 /*
     Reflection Dynamic
@@ -15,13 +16,8 @@
 
 namespace Reflection
 {
-    struct NullType;
-
     template<typename ReflectedType>
-    struct StaticTypeInfo;
-
-    template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType();
+    constexpr DecayedStaticTypeInfo<ReflectedType> StaticType();
 
     template<typename ReflectedType>
     IdentifierType GetIdentifier();

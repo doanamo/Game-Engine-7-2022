@@ -12,13 +12,13 @@
 namespace Reflection
 {
     template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType()
+    constexpr DecayedStaticTypeInfo<ReflectedType> StaticType()
     {
         return {};
     }
 
     template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType(const ReflectedType& instance)
+    constexpr DecayedStaticTypeInfo<ReflectedType> StaticType(const ReflectedType& instance)
     {
         return {};
     }
@@ -43,13 +43,13 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr bool IsReflected()
     {
-        return StaticTypeInfo<ReflectedType>::Reflected;
+        return StaticType<ReflectedType>().Reflected;
     }
 
     template<typename ReflectedType>
     constexpr bool IsReflected(const ReflectedType& type)
     {
-        return StaticTypeInfo<ReflectedType>::Reflected;
+        return StaticType<ReflectedType>().Reflected;
     }
 
     inline bool IsRegistered(IdentifierType identifier)
@@ -72,13 +72,13 @@ namespace Reflection
     template<typename ReflectedType>
     IdentifierType GetIdentifier()
     {
-        return StaticTypeInfo<ReflectedType>::Identifier;
+        return StaticType<ReflectedType>().Identifier;
     }
 
     template<typename ReflectedType>
     IdentifierType GetIdentifier(const ReflectedType& type)
     {
-        return StaticTypeInfo<ReflectedType>::Identifier;
+        return StaticType<ReflectedType>().Identifier;
     }
 
     template<typename TargetType, typename SourceType>

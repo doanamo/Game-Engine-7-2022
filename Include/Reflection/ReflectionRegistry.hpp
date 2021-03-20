@@ -15,9 +15,6 @@
 
 namespace Reflection
 {
-    template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType();
-
     class Registry final : public Detail::ReflectionRegistry
     {
     public:
@@ -42,7 +39,7 @@ namespace Reflection
     template<typename Type>
     bool Registry::RegisterType()
     {
-        constexpr auto staticType = StaticTypeInfo<Type>();
+        constexpr auto staticType = DecayedStaticTypeInfo<Type>();
         static_assert(staticType.Reflected, "Cannot register not reflected type!");
 
         ASSERT(staticType.Identifier != InvalidIdentifier, "Attempted to register type "

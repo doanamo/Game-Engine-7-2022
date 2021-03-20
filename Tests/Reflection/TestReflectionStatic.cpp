@@ -43,6 +43,26 @@ TEST_CASE("Static Reflection")
         CHECK(Reflection::IsReflected<BranchedTwo>());
     }
 
+    SUBCASE("Check reflection for const types")
+    {
+        CHECK_FALSE(Reflection::IsReflected<const Undefined>());
+        CHECK_FALSE(Reflection::IsReflected<const CrossUnit>());
+        CHECK(Reflection::IsReflected<const Empty>());
+        CHECK(Reflection::IsReflected<const Base>());
+
+        volatile Derived derived;
+        CHECK(Reflection::IsReflected(derived));
+
+        const BranchedOne& branchedOne = BranchedOne();
+        CHECK(Reflection::IsReflected(branchedOne));
+
+        const BranchedTwo* branchedTwo = nullptr;
+        CHECK(Reflection::IsReflected(branchedTwo));
+
+        CHECK_EQ(Reflection::GetIdentifier<const Empty&>(), Reflection::GetIdentifier<Empty>());
+        CHECK_EQ(Reflection::GetIdentifier<volatile Empty*>(), Reflection::GetIdentifier<Empty>());
+    }
+
     SUBCASE("Check reflected type names")
     {
         CHECK_EQ(Reflection::StaticType<Empty>().Name, "Empty");

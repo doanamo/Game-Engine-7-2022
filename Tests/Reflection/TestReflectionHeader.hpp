@@ -93,6 +93,11 @@ class Derived : public Base
     REFLECTION_ENABLE(Derived, Base)
 
 public:
+    Derived()
+    {
+    }
+
+public:
     int counter;
 };
 

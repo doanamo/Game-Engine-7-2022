@@ -117,12 +117,6 @@ namespace Reflection
             return std::is_same<Type, NullType>::value;
         }
 
-        template<typename OtherType>
-        static constexpr bool IsType()
-        {
-            return std::is_same<Type, OtherType>::value;
-        }
-
         static constexpr bool HasBaseType()
         {
             return !std::is_same<BaseType, NullType>::value;
@@ -134,15 +128,21 @@ namespace Reflection
         }
 
         template<typename OtherType>
-        static constexpr bool IsDerivedFrom()
+        static constexpr bool IsType()
         {
-            return std::is_same<BaseType, OtherType>::value;
+            return std::is_same<Type, OtherType>::value;
         }
 
         template<typename OtherType>
         static constexpr bool IsBaseOf()
         {
             return std::is_same<Type, typename StaticTypeInfo<OtherType>::BaseType>::value;
+        }
+
+        template<typename OtherType>
+        static constexpr bool IsDerivedFrom()
+        {
+            return std::is_same<BaseType, OtherType>::value;
         }
 
         static constexpr bool HasAttributes()
@@ -192,5 +192,9 @@ namespace Reflection
             });
         }
     };
+
+    template<typename ReflectedType>
+    using DecayedStaticTypeInfo =
+        StaticTypeInfo<std::decay_t<std::remove_pointer_t<ReflectedType>>>;
 }
 
