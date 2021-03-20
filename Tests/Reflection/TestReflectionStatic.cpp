@@ -197,10 +197,10 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textPtrWithAttribute);
         CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer, &Derived::counter);
         CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer, &Inner::value);
-        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer, &BranchedOne::toggle);
-        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer, &BranchedOne::inner);
-        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer, &BranchedTwo::letterOne);
-        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::letterTwo);
+        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer, &BranchedOne::_toggle);
+        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer, &BranchedOne::_inner);
+        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer, &BranchedTwo::m_letterOne);
+        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::m_letterTwo);
     }
 
     SUBCASE("Check reflected member attribute count")

@@ -220,11 +220,11 @@ TEST_CASE("Dynamic Reflection")
     SUBCASE("Check registered type casting")
     {
         BranchedOne branchedOne;
-        branchedOne.inner.value = 42;
+        branchedOne._inner.value = 42;
 
         BranchedOne* branchedOnePtr = Reflection::Cast<BranchedOne>(&branchedOne);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK_EQ(branchedOnePtr->_inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
@@ -249,14 +249,14 @@ TEST_CASE("Dynamic Reflection")
 
         branchedOnePtr = Reflection::Cast<BranchedOne>(derivedPtr);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK_EQ(branchedOnePtr->_inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
 
         branchedOnePtr = Reflection::Cast<BranchedOne>(basePtr);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK_EQ(branchedOnePtr->_inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());

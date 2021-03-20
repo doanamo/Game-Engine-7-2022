@@ -161,13 +161,13 @@ class BranchedOne : public Derived
     REFLECTION_ENABLE(BranchedOne, Derived)
 
 public:
-    bool toggle;
-    Inner inner;
+    bool _toggle;
+    Inner _inner;
 };
 
 REFLECTION_TYPE_BEGIN(BranchedOne, Derived)
-    REFLECTION_FIELD(toggle, ToggleOnAttribute(), ToggleOffAttribute())
-    REFLECTION_FIELD(inner)
+    REFLECTION_FIELD(_toggle, ToggleOnAttribute(), ToggleOffAttribute())
+    REFLECTION_FIELD(_inner)
 REFLECTION_TYPE_END
 
 class BranchedAttributeOne : public Reflection::TypeAttribute
@@ -223,14 +223,14 @@ class BranchedTwo : public Derived
     REFLECTION_ENABLE(BranchedTwo, Derived)
 
 public:
-    char letterOne;
-    char letterTwo;
+    char m_letterOne;
+    char m_letterTwo;
 };
 
 REFLECTION_TYPE_BEGIN(BranchedTwo, Derived)
     REFLECTION_ATTRIBUTES(BranchedAttributeOne("Small"), BranchedAttributeTwo("Big"))
-    REFLECTION_FIELD(letterOne, LetterAttribute("Pretty"))
-    REFLECTION_FIELD(letterTwo, LetterAttribute("Ugly"))
+    REFLECTION_FIELD(m_letterOne, LetterAttribute("Pretty"))
+    REFLECTION_FIELD(m_letterTwo, LetterAttribute("Ugly"))
 REFLECTION_TYPE_END
 
 class CrossUnit

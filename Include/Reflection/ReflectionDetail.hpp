@@ -18,6 +18,19 @@
 
 namespace Reflection::Detail
 {
+    constexpr std::string_view ParseFieldName(std::string_view name)
+    {
+        for(std::size_t i = 0; i < std::min(name.size(), std::size_t(2)); ++i)
+        {
+            if(name[i] == '_')
+            {
+                return std::string_view(name.data() + i + 1);
+            }
+        }
+
+        return name;
+    }
+
     template<typename... Types>
     struct ObjectList
     {
