@@ -24,7 +24,7 @@ namespace Reflection::Detail
         {
             if(name[i] == '_')
             {
-                return std::string_view(name.data() + i + 1);
+                return name.substr(i + 1);
             }
         }
 
