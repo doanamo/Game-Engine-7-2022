@@ -80,6 +80,17 @@ namespace Reflection
     {
         return StaticTypeInfo<ReflectedType>::Identifier;
     }
+
+    template<typename TargetType, typename SourceType>
+    TargetType* Cast(SourceType* instance)
+    {
+        if(instance->GetTypeInfo().IsType(StaticType<TargetType>().Identifier))
+        {
+            return reinterpret_cast<TargetType*>(instance);
+        }
+
+        return nullptr;
+    }
 }
 
 #define REFLECTION_IDENTIFIER(Type) \

@@ -217,26 +217,64 @@ TEST_CASE("Dynamic Reflection")
         CHECK_FALSE(branchedTwoBase.GetTypeInfo().IsType(branchedOneBase));
     }
 
-    // TODO: Polymorphic casts
-    // Create Utility header and move all free Reflection namespaced functions there
+    SUBCASE("Check registered type casting")
+    {
+        BranchedOne branchedOne;
+        branchedOne.inner.value = 42;
 
-    // TODO: Multi level inheritance tests for IsBaseOf/IsType/IsDerivedFrom
-    // This applies only to dynamic, static cannot do it!
+        BranchedOne* branchedOnePtr = Reflection::Cast<BranchedOne>(&branchedOne);
+        REQUIRE_NE(branchedOnePtr, nullptr);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
+
+        Derived* derivedPtr = Reflection::Cast<Derived>(branchedOnePtr);
+        REQUIRE_NE(derivedPtr, nullptr);
+        CHECK(derivedPtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(derivedPtr->GetTypeInfo().IsType<Derived>());
+        CHECK(derivedPtr->GetTypeInfo().IsType<Base>());
+
+        Base* basePtr = Reflection::Cast<Base>(branchedOnePtr);
+        REQUIRE_NE(basePtr, nullptr);
+        CHECK(basePtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(basePtr->GetTypeInfo().IsType<Derived>());
+        CHECK(basePtr->GetTypeInfo().IsType<Base>());
+
+        derivedPtr = Reflection::Cast<Derived>(basePtr);
+        REQUIRE_NE(derivedPtr, nullptr);
+        CHECK(derivedPtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(derivedPtr->GetTypeInfo().IsType<Derived>());
+        CHECK(derivedPtr->GetTypeInfo().IsType<Base>());
+
+        branchedOnePtr = Reflection::Cast<BranchedOne>(derivedPtr);
+        REQUIRE_NE(branchedOnePtr, nullptr);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
+
+        branchedOnePtr = Reflection::Cast<BranchedOne>(basePtr);
+        REQUIRE_NE(branchedOnePtr, nullptr);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
+        CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
+
+        BranchedTwo* branchedTwoPtr = Reflection::Cast<BranchedTwo>(branchedOnePtr);
+        CHECK_EQ(branchedTwoPtr, nullptr);
+
+        branchedTwoPtr = Reflection::Cast<BranchedTwo>(derivedPtr);
+        CHECK_EQ(branchedTwoPtr, nullptr);
+
+        branchedTwoPtr = Reflection::Cast<BranchedTwo>(basePtr);
+        CHECK_EQ(branchedTwoPtr, nullptr);
+    }
 
     SUBCASE("Instantiate")
     {
         // TODO: Instantiate derived using its type identifier.
         // Base* instance = Base::create(Derived::Type);
         // CHECK_EQ(GetType(instance) == Derived::Type);
-    }
-
-    SUBCASE("Cast")
-    {
-        // TODO: Test casting from one type to another.
-    }
-
-    SUBCASE("Super")
-    {
-        // TODO: Test super typedef for classes.
     }
 }
