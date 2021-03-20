@@ -5,3 +5,9 @@
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
+#include <Common/ReflectionGenerated.hpp>
+
+TEST_CASE("Register reflection")
+{
+    Reflection::Generated::RegisterModuleCommon();
+}

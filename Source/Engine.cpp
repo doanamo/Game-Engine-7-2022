@@ -6,6 +6,7 @@
 #include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Build/Build.hpp>
+#include <Common/ReflectionGenerated.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -45,6 +46,8 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     Debug::Initialize();
     Logger::Initialize();
     Build::Initialize();
+
+    Reflection::Generated::RegisterModuleCommon();
 
     CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f,
         Common::Failure(CreateErrors::InvalidArgument));

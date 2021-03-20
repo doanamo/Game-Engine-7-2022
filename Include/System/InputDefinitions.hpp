@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <Common/Event/EventBase.hpp>
+
 /*
     Input Defines
 */
@@ -214,41 +216,73 @@ namespace System
 
     namespace InputEvents
     {
-        struct TextInput
+        struct TextInput : public Event::EventBase
         {
+            REFLECTION_ENABLE(TextInput, Event::EventBase)
+
             uint32_t utf32Character = 0;
         };
 
-        struct KeyboardKey
+        struct KeyboardKey : public Event::EventBase
         {
+            REFLECTION_ENABLE(KeyboardKey, Event::EventBase)
+
+            KeyboardKey() = default;
+            KeyboardKey(KeyboardKeys::Type key) :
+                key(key)
+            {
+            }
+
             KeyboardKeys::Type key = KeyboardKeys::Invalid;
             KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
             InputStates::Type state = InputStates::ReleasedRepeat;
             float stateTime = 0.0f;
         };
 
-        struct MouseButton
+        struct MouseButton : public Event::EventBase
         {
+            REFLECTION_ENABLE(MouseButton, Event::EventBase)
+
+            MouseButton() = default;
+            MouseButton(MouseButtons::Type button) :
+                button(button)
+            {
+            }
+
             MouseButtons::Type button = MouseButtons::Invalid;
             KeyboardKeys::Type modifiers = KeyboardModifiers::Invalid;
             InputStates::Type state = InputStates::ReleasedRepeat;
             float stateTime = 0.0f;
         };
 
-        struct MouseScroll
+        struct MouseScroll : public Event::EventBase
         {
+            REFLECTION_ENABLE(MouseScroll, Event::EventBase)
+
             double offset = 0.0;
         };
 
-        struct CursorPosition
+        struct CursorPosition : public Event::EventBase
         {
+            REFLECTION_ENABLE(CursorPosition, Event::EventBase)
+
             double x = 0.0;
             double y = 0.0;
         };
 
-        struct CursorEnter
+        struct CursorEnter : public Event::EventBase
         {
+            REFLECTION_ENABLE(CursorEnter, Event::EventBase)
+
             bool entered = false;
         };
     }
 }
+
+REFLECTION_TYPE(System::InputEvents::TextInput, Event::EventBase)
+REFLECTION_TYPE(System::InputEvents::KeyboardKey, Event::EventBase)
+REFLECTION_TYPE(System::InputEvents::MouseButton, Event::EventBase)
+REFLECTION_TYPE(System::InputEvents::MouseScroll, Event::EventBase)
+REFLECTION_TYPE(System::InputEvents::CursorPosition, Event::EventBase)
+REFLECTION_TYPE(System::InputEvents::CursorEnter, Event::EventBase)
+

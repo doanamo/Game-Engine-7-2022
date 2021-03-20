@@ -690,30 +690,67 @@ TEST_CASE("Event Dispatcher")
     }
 }
 
+struct EventBoolean : public Event::EventBase
+{
+    REFLECTION_ENABLE(EventBoolean, Event::EventBase)
+
+public:
+    EventBoolean(bool boolean) :
+        boolean(boolean)
+    {
+    }
+
+    bool boolean;
+};
+
+struct EventInteger : public Event::EventBase
+{
+    REFLECTION_ENABLE(EventInteger, Event::EventBase)
+
+public:
+    EventInteger(int integer) :
+        integer(integer)
+    {
+    }
+
+    int integer;
+};
+
+struct EventString : public Event::EventBase
+{
+    REFLECTION_ENABLE(EventString, Event::EventBase)
+
+public:
+    EventString(const std::string string) :
+        string(string)
+    {
+    }
+
+    std::string string;
+};
+
+struct EventVector : public Event::EventBase
+{
+    REFLECTION_ENABLE(EventVector, Event::EventBase)
+
+public:
+    EventVector(const std::vector<int> vector) :
+        vector(vector)
+    {
+    }
+
+    std::vector<int> vector;
+};
+
+REFLECTION_TYPE(EventBoolean, Event::EventBase)
+REFLECTION_TYPE(EventInteger, Event::EventBase)
+REFLECTION_TYPE(EventString, Event::EventBase)
+REFLECTION_TYPE(EventVector, Event::EventBase)
+
 TEST_CASE("Event Broker")
 {
     int currentValue = 0;
     int expectedValue = 0;
-
-    struct EventBoolean
-    {
-        bool boolean;
-    };
-
-    struct EventInteger
-    {
-        int integer;
-    };
-
-    struct EventString
-    {
-        std::string string;
-    };
-
-    struct EventVector
-    {
-        std::vector<int> vector;
-    };
 
     Event::Receiver<void(const EventBoolean&)> receiverBooleanVoid;
     receiverBooleanVoid.Bind([&currentValue](const EventBoolean& event)
@@ -753,20 +790,20 @@ TEST_CASE("Event Broker")
 
     SUBCASE("Dispatch empty")
     {
-        broker.Dispatch<bool>(EventInteger{ 4 });
-        broker.Dispatch<bool>(EventString{ "Null" });
+        CHECK(broker.Dispatch<bool>(EventInteger{ 4 }).IsFailure());
+        CHECK(broker.Dispatch<bool>(EventString{ "Null" }).IsFailure());
         CHECK_EQ(currentValue, expectedValue);
     }
 
     SUBCASE("Dispatch unregistered")
     {
-        broker.Subscribe(receiverIntegerTrue);
-        broker.Subscribe(receiverStringFalse);
+        CHECK(broker.Subscribe(receiverIntegerTrue).IsFailure());
+        CHECK(broker.Subscribe(receiverStringFalse).IsFailure());
 
-        broker.Dispatch<bool>(EventInteger{ 2 });
+        CHECK(broker.Dispatch<bool>(EventInteger{ 2 }).IsFailure());
         CHECK_EQ(currentValue, expectedValue);
 
-        broker.Dispatch<bool>(EventString{ "Jelly" });
+        CHECK(broker.Dispatch<bool>(EventString{ "Jelly" }).IsFailure());
         CHECK_EQ(currentValue, expectedValue);
     }
 
@@ -782,11 +819,11 @@ TEST_CASE("Event Broker")
             CHECK_FALSE(broker.Register<bool, EventVector>());
         }
 
-        broker.Subscribe(receiverBooleanVoid);
-        broker.Subscribe(receiverIntegerTrue);
-        broker.Subscribe(receiverStringFalse);
+        CHECK(broker.Subscribe(receiverBooleanVoid).IsSuccess());
+        CHECK(broker.Subscribe(receiverIntegerTrue).IsSuccess());
+        CHECK(broker.Subscribe(receiverStringFalse).IsSuccess());
 
-        broker.Dispatch<void>(EventBoolean{ true });
+        CHECK(broker.Dispatch<void>(EventBoolean{ true }).IsSuccess());
         CHECK_EQ(currentValue, expectedValue += 10);
 
         CHECK_EQ(broker.Dispatch<bool>(EventInteger{ 2 }).Unwrap(), true);

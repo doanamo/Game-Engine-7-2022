@@ -32,14 +32,15 @@ set(INCLUDE_FILES
     "Event/Dispatcher.hpp"
     "Event/Receiver.hpp"
     "Event/Policies.hpp"
+    "Event/EventBase.hpp"
     "Event/Queue.hpp"
     "Event/Broker.hpp"
     "Test/InstanceCounter.hpp"
 )
 
-list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/"
-    PREFIX "Header Files" FILES ${INCLUDE_FILES})
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
+list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
+source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
@@ -53,8 +54,9 @@ set(SOURCE_FILES
     "Logger/History.cpp"
 )
 
-list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
+source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 #
 # Library
@@ -66,6 +68,13 @@ target_compile_features(Common PUBLIC cxx_std_17)
 target_include_directories(Common PUBLIC "../../Include" "../../Source")
 target_precompile_headers(Common PRIVATE "Precompiled.hpp")
 set_property(TARGET Common PROPERTY FOLDER "Engine")
+
+#
+# Dependencies
+#
+
+add_subdirectory("../Reflection" "Reflection")
+enable_reflection(Common ${SOURCE_DIR} ${INCLUDE_DIR})
 
 #
 # External

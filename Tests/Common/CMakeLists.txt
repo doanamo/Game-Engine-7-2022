@@ -33,6 +33,10 @@ add_test("Common" TestCommon)
 # Dependencies
 #
 
+add_subdirectory("../../Source/Reflection" "Reflection")
+target_link_libraries(TestCommon PRIVATE Reflection)
+enable_reflection(TestCommon ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_subdirectory("../../Source/Common" "Common")
 target_link_libraries(TestCommon PRIVATE Common)
 

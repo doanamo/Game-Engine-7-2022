@@ -57,6 +57,7 @@ namespace fs = std::filesystem;
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <Reflection/Reflection.hpp>
 #include <Common/Debug.hpp>
 #include <Common/Utility.hpp>
 #include <Common/NonCopyable.hpp>
@@ -64,4 +65,3 @@ namespace fs = std::filesystem;
 #include <Common/ScopeGuard.hpp>
 #include <Common/Result.hpp>
 #include <Common/Logger/Logger.hpp>
-#include <Reflection/Reflection.hpp>

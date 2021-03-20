@@ -6,18 +6,17 @@
 #pragma once
 
 #include <any>
-#include <utility>
-#include <typeindex>
 #include <unordered_map>
+#include <Reflection/Reflection.hpp>
 #include "Common/Result.hpp"
+#include "Common/Event/EventBase.hpp"
 #include "Common/Event/Dispatcher.hpp"
 
 /*
     Event Broker
 
-    Shared point where multiple receiver and dispatcher can be stored and
-    signaled for different event types. Note that dispatchers are stored
-    in std::any which can trigger allocations (to be replaced in future).
+    Shared point where multiple receiver and dispatcher
+    can be stored and signaled for different event types.
 */
 
 namespace Event
@@ -28,6 +27,22 @@ namespace Event
     class Broker : private Common::NonCopyable
     {
     public:
+        enum class RegisterErrors
+        {
+            AlreadyFinalized,
+        };
+
+        using RegisterResult = Common::Result<void, RegisterErrors>;
+
+        enum class SubscriptionErrors
+        {
+            UnregisteredEventType,
+            IncorrectResultType,
+            SubscriptionFailed,
+        };
+
+        using SubscriptionResult = Common::Result<void, SubscriptionErrors>;
+
         enum class DispatchErrors
         {
             UnregisteredEventType,
@@ -39,7 +54,7 @@ namespace Event
 
         template<typename ResultType, typename EventType>
         using DispatcherType = Dispatcher<ResultType(const EventType&)>;
-        using DispatcherMap = std::unordered_map<std::type_index, std::any>;
+        using DispatcherMap = std::unordered_map<Reflection::TypeIdentifier, std::any>;
 
         template<typename ResultType, typename EventType>
         struct DispatcherStorage
@@ -65,28 +80,26 @@ namespace Event
         Broker& operator=(Broker&& other)
         {
             std::swap(m_dispatcherMap, other.m_dispatcherMap);
+            std::swap(m_finalized, other.m_finalized);
             return *this;
         }
 
         template<typename ResultType, typename EventType>
-        bool Register(std::unique_ptr<Collector<ResultType>>&& collector = nullptr)
+        RegisterResult Register(std::unique_ptr<Collector<ResultType>>&& collector = nullptr)
         {
             if(m_finalized)
-            {
-                LOG_WARNING("Event broker is finalized and cannot register more event types!");
-                return false;
-            }
+                return Common::Failure(RegisterErrors::AlreadyFinalized);
 
-            std::type_index eventType = typeid(EventType);
+            Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
             {
-                auto dispatcher = std::make_any<DispatcherStorage<
-                    ResultType, EventType>>(std::move(collector));
+                auto dispatcher = std::make_any<
+                    DispatcherStorage<ResultType, EventType>>(std::move(collector));
                 auto result = m_dispatcherMap.emplace(eventType, std::move(dispatcher));;
             }
 
-            return true;
+            return Common::Success();
         }
 
         void Finalize()
@@ -95,27 +108,30 @@ namespace Event
         }
 
         template<typename ResultType, typename EventType>
-        bool Subscribe(Receiver<ResultType(const EventType&)>& receiver,
+        SubscriptionResult Subscribe(Receiver<ResultType(const EventType&)>& receiver,
             SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
             PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
-            std::type_index eventType = typeid(EventType);
+            Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
-                return false;
+                return Common::Failure(SubscriptionErrors::UnregisteredEventType);
 
             DispatcherStorage<ResultType, EventType>* storage = nullptr;
             storage = std::any_cast<DispatcherStorage<ResultType, EventType>>(&it->second);
             if(storage == nullptr)
-                return false;
+                return Common::Failure(SubscriptionErrors::IncorrectResultType);
 
-            return storage->dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy);
+            if(!storage->dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy))
+                return Common::Failure(SubscriptionErrors::SubscriptionFailed);
+
+            return Common::Success();
         }
 
         template<typename ResultType, typename EventType>
         DispatchResult<ResultType> Dispatch(const EventType& event)
         {
-            std::type_index eventType = typeid(EventType);
+            Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
                 return Common::Failure(DispatchErrors::UnregisteredEventType);
