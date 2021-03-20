@@ -94,10 +94,6 @@ TEST_CASE("Dynamic Reflection")
     SUBCASE("Check registered type by value")
     {
         CHECK(Reflection::IsRegistered(Reflection::NullType()));
-        CHECK_FALSE(Reflection::IsRegistered(Undefined()));
-        CHECK_FALSE(Reflection::IsRegistered(CrossUnit()));
-        CHECK_FALSE(Reflection::DynamicType(Undefined()).IsType<Empty>());
-        CHECK_FALSE(Reflection::DynamicType(CrossUnit()).IsType<CrossUnit>());
         CHECK(Reflection::DynamicType(Empty()).IsType<Empty>());
         CHECK(Reflection::DynamicType(Base()).IsType<Base>());
         CHECK(Reflection::DynamicType(Derived()).IsType<Derived>());

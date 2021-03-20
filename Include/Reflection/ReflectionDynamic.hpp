@@ -114,13 +114,13 @@ namespace Reflection
     template<typename RegisteredType>
     constexpr const DynamicTypeInfo& DynamicType()
     {
-        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
+        return RegisteredType::GetTypeStorage().GetTypeInfo();
     }
 
     template<typename RegisteredType>
     constexpr const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
     {
-        return Detail::GetRegistry().LookupType(StaticType<RegisteredType>().Identifier);
+        return instance.GetTypeInfo();
     }
 
     inline bool IsRegistered(IdentifierType identifier)
@@ -131,15 +131,13 @@ namespace Reflection
     template<typename RegisteredType>
     constexpr bool IsRegistered()
     {
-        return Detail::GetRegistry().LookupType(
-            StaticType<RegisteredType>().Identifier).IsRegistered();
+        return DynamicType<RegisteredType>().IsRegistered();
     }
 
     template<typename RegisteredType>
     constexpr bool IsRegistered(const RegisteredType& instance)
     {
-        return Detail::GetRegistry().LookupType(
-            StaticType<RegisteredType>().Identifier).IsRegistered();
+        return DynamicType(instance).IsRegistered();
     }
 
     struct DynamicTypeStorage
