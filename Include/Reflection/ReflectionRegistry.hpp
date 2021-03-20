@@ -43,12 +43,7 @@ namespace Reflection
     bool Registry::RegisterType()
     {
         constexpr auto staticType = StaticTypeInfo<Type>();
-        if(!staticType.Reflected)
-        {
-            LOG_WARNING("Attempted to register type \"{}\" that is not reflected!",
-                REFLECTION_STRINGIFY(Type));
-            return false;
-        }
+        static_assert(staticType.Reflected, "Cannot register not reflected type!");
 
         ASSERT(staticType.Identifier != InvalidIdentifier, "Attempted to register type "
             "\"{}\" ({}) with static identifier equal to invalid identifier!",
