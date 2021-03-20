@@ -86,7 +86,7 @@ namespace Reflection
         template<typename OtherType>
         bool IsType(const OtherType& instance) const
         {
-            return IsType(DynamicType(instance).GetIdentifier());
+            return IsType(instance.GetTypeInfo().GetIdentifier());
         }
 
         template<typename OtherType>
@@ -98,7 +98,7 @@ namespace Reflection
         template<typename OtherType>
         bool IsBaseOf(const OtherType& instance) const
         {
-            return IsBaseOf(DynamicType(instance).GetIdentifier());
+            return IsBaseOf(instance.GetTypeInfo().GetIdentifier());
         }
 
         template<typename OtherType>
@@ -110,7 +110,7 @@ namespace Reflection
         template<typename OtherType>
         bool IsDerivedFrom(const OtherType& instance) const
         {
-            return IsDerivedFrom(DynamicType(instance).GetIdentifier());
+            return IsDerivedFrom(instance.GetTypeInfo().GetIdentifier());
         }
 
     private:
@@ -124,7 +124,7 @@ namespace Reflection
         DynamicTypeList m_derivedTypes;
     };
 
-    struct DynamicTypeStorage
+    class DynamicTypeStorage
     {
     public:
         const DynamicTypeInfo& GetTypeInfo() const
