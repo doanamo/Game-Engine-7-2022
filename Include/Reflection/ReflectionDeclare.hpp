@@ -40,6 +40,17 @@
         REFLECTION_TYPE_STORAGE \
         REFLECTION_TYPE_INFO
 
+#define REFLECTION_CHECK_TYPE(ReflectedType) \
+    static_assert(std::is_class<ReflectedType>::value || \
+        std::is_fundamental<ReflectedType>::value, \
+        "Reflected type must be of class or fundamental types!"); \
+    static_assert(!std::is_const<ReflectedType>::value && \
+        !std::is_volatile<ReflectedType>::value, \
+        "Reflected type cannot contain const or volatile qualifiers!"); \
+    static_assert(!std::is_reference<ReflectedType>::value && \
+        !std::is_pointer<ReflectedType>::value, \
+        "Reflected type cannot be of reference or pointer types!");
+
 #define REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
     static_assert(std::is_same<ReflectedBaseType, Reflection::NullType>::value || \
         std::is_base_of<ReflectedBaseType, ReflectedType>::value, \
@@ -57,6 +68,7 @@
     template<> struct Reflection::Detail::TypeInfo<ReflectedType> : public TypeInfoBase \
     { \
     private: \
+        REFLECTION_CHECK_TYPE(ReflectedType) \
         REFLECTION_CHECK_DERIVED(ReflectedType, ReflectedBaseType) \
         static constexpr std::size_t MemberIndexOffset = __COUNTER__ + 1; \
     public: \
