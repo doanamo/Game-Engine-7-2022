@@ -197,10 +197,14 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textPtrWithAttribute);
         CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer, &Derived::counter);
         CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer, &Inner::value);
-        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer, &BranchedOne::_toggle);
-        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer, &BranchedOne::_inner);
-        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer, &BranchedTwo::m_letterOne);
-        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::m_letterTwo);
+        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer,
+            &BranchedOne::_toggle);
+        CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer,
+            &BranchedOne::_inner);
+        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer,
+            &BranchedTwo::m_letterOne);
+        CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer,
+            &BranchedTwo::m_letterTwo);
     }
 
     SUBCASE("Check reflected member attribute count")
@@ -302,7 +306,7 @@ TEST_CASE("Static Reflection")
         SUBCASE("For branched type")
         {
             std::vector<std::string_view> expectedAttributes =
-            { "BranchedAttributeOne", "BranchedAttributeTwo" };
+                { "BranchedAttributeOne", "BranchedAttributeTwo" };
             std::vector<std::string_view> presentAttributes;
 
             Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
@@ -348,7 +352,7 @@ TEST_CASE("Static Reflection")
         SUBCASE("For base type")
         {
             std::vector<std::string_view> expectedMembers =
-            { "textWithoutAttribute", "textPtrWithAttribute" };
+                { "textWithoutAttribute", "textPtrWithAttribute" };
             std::vector<std::string_view> presentMembers;
 
             Reflection::ForEach(Reflection::StaticType<Base>().Members,
@@ -394,7 +398,7 @@ TEST_CASE("Static Reflection")
         SUBCASE("For derived type")
         {
             std::vector<std::string_view> expectedAttributes =
-            { "ToggleOnAttribute", "ToggleOffAttribute" };
+                { "ToggleOnAttribute", "ToggleOffAttribute" };
             std::vector<std::string_view> presentAttributes;
 
             Reflection::ForEach(Reflection::StaticType<BranchedOne>().Member<0>().Attributes,
@@ -407,12 +411,12 @@ TEST_CASE("Static Reflection")
         }
     }
 
-    SUBCASE("Experimental")
+    SUBCASE("Retrieving reflected type by name via constexpr")
     {
-        constexpr char BaseMemberName[] = "textWithoutAttribute";
-        constexpr char DerivedAttributeName[] = "DerivedAttribute";
-        constexpr char DerivedMemberName[] = "counter";
-        constexpr char DerivedMemberAttributeName[] = "CounterAttribute";
+        constexpr static char BaseMemberName[] = "textWithoutAttribute";
+        constexpr static char DerivedAttributeName[] = "DerivedAttribute";
+        constexpr static char DerivedMemberName[] = "counter";
+        constexpr static char DerivedMemberAttributeName[] = "CounterAttribute";
 
         // Find type members and attributes by name.
         // String literal needs to be a static variable passed via template argument to
@@ -420,18 +424,15 @@ TEST_CASE("Static Reflection")
         // Disabled for now because of issues with compilation on Clang (GCC/MSVC is fine).
         // Maybe use constexpr hashing or somehow allow to evaluate via argument.
         /*
-        CHECK_EQ(Reflection::Reflect<Base>()
+        CHECK_EQ(Reflection::StaticType<Base>()
             .FindMember<BaseMemberName>().Name, "textWithoutAttribute");
-        CHECK_EQ(Reflection::Reflect<Derived>()
+        CHECK_EQ(Reflection::StaticType<Derived>()
             .FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
-        CHECK_EQ(Reflection::Reflect<Derived>()
+        CHECK_EQ(Reflection::StaticType<Derived>()
             .FindAttribute<DerivedAttributeName>().Instance.state, false);
-        CHECK_EQ(Reflection::Reflect<Derived>()
+        CHECK_EQ(Reflection::StaticType<Derived>()
             .FindMember<DerivedMemberName>()
             .FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
         */
     }
-
-    // TODO: Enumerate derived types from type.
-    // TODO: Test reflection between compilation units.
 }
