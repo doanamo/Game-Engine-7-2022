@@ -63,12 +63,13 @@ class DerivedAttribute : public Reflection::TypeAttribute
     REFLECTION_ENABLE(DerivedAttribute, Reflection::TypeAttribute)
 
 public:
+    constexpr DerivedAttribute() = default;
     constexpr DerivedAttribute(bool state) :
         state(state)
     {
     }
 
-    const bool state;
+    const bool state = false;
 };
 
 REFLECTION_TYPE(DerivedAttribute, Reflection::TypeAttribute)
@@ -78,12 +79,13 @@ class CounterAttribute : public Reflection::FieldAttribute
     REFLECTION_ENABLE(CounterAttribute, Reflection::FieldAttribute)
 
 public:
+    constexpr CounterAttribute() = default;
     constexpr CounterAttribute(bool state) :
         state(state)
     {
     }
 
-    const bool state;
+    const bool state = false;
 };
 
 REFLECTION_TYPE(CounterAttribute, Reflection::FieldAttribute)
@@ -111,12 +113,13 @@ class InnerAttribute : public Reflection::FieldAttribute
     REFLECTION_ENABLE(InnerAttribute, Reflection::FieldAttribute)
 
 public:
+    constexpr InnerAttribute() = default;
     constexpr InnerAttribute(int counter) :
         counter(counter)
     {
     }
 
-    const int counter;
+    const int counter = 0;
 };
 
 REFLECTION_TYPE(InnerAttribute, Reflection::FieldAttribute)
@@ -172,6 +175,7 @@ class BranchedAttributeOne : public Reflection::TypeAttribute
     REFLECTION_ENABLE(BranchedAttributeOne, Reflection::TypeAttribute)
 
 public:
+    constexpr BranchedAttributeOne() = default;
     constexpr BranchedAttributeOne(std::string_view modifier) :
         modifier(modifier)
     {
@@ -187,6 +191,7 @@ class BranchedAttributeTwo : public Reflection::TypeAttribute
     REFLECTION_ENABLE(BranchedAttributeTwo, Reflection::TypeAttribute)
 
 public:
+    constexpr BranchedAttributeTwo() = default;
     constexpr BranchedAttributeTwo(std::string_view modifier) :
         modifier(modifier)
     {
@@ -202,6 +207,7 @@ class LetterAttribute : public Reflection::FieldAttribute
     REFLECTION_ENABLE(LetterAttribute, Reflection::FieldAttribute)
 
 public:
+    constexpr LetterAttribute() = default;
     constexpr LetterAttribute(std::string_view modifier) :
         modifier(modifier)
     {

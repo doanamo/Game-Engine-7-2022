@@ -29,10 +29,13 @@ namespace Reflection
         static const DynamicTypeInfo Invalid;
 
         using DynamicTypeList = std::vector<std::reference_wrapper<const DynamicTypeInfo>>;
+        using InstantiateFunction = void* (*)();
         
     public:
         DynamicTypeInfo() = default;
         ~DynamicTypeInfo() = default;
+
+        void* Instantiate() const;
 
         bool IsRegistered() const
         {
@@ -110,12 +113,14 @@ namespace Reflection
         }
 
     private:
-        void Register(std::string_view name, IdentifierType identifier, DynamicTypeInfo* baseType);
+        void Register(std::string_view name, IdentifierType identifier,
+            InstantiateFunction createFunction, DynamicTypeInfo* baseType);
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
         std::string_view m_name = "<UnregisteredType>";
         IdentifierType m_identifier = InvalidIdentifier;
+        InstantiateFunction m_instantiateFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;
     };

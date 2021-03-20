@@ -9,14 +9,15 @@
 #include "Reflection/ReflectionRegistry.hpp"
 using namespace Reflection;
 
-const DynamicTypeInfo DynamicTypeInfo::Invalid;
+const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
-void DynamicTypeInfo::Register(std::string_view name,
-    IdentifierType identifier, DynamicTypeInfo* baseType)
+void DynamicTypeInfo::Register(std::string_view name, IdentifierType identifier,
+    InstantiateFunction instantiateFunction, DynamicTypeInfo* baseType)
 {
     m_registered = true;
     m_name = name;
     m_identifier = identifier;
+    m_instantiateFunction = instantiateFunction;
 
     if(!IsNullType())
     {
@@ -39,6 +40,11 @@ void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo& typeInfo)
 
     ASSERT(exiting == m_derivedTypes.end(), "Found existing entry in list of derived types!");
     m_derivedTypes.emplace_back(typeInfo);
+}
+
+void* DynamicTypeInfo::Instantiate() const
+{
+    return m_instantiateFunction ? m_instantiateFunction() : nullptr;
 }
 
 bool DynamicTypeInfo::IsType(IdentifierType identifier) const

@@ -16,17 +16,17 @@
     using Super = ReflectedBaseType;
 
 #define REFLECTION_TYPE_STORAGE \
-        static Reflection::DynamicTypeStorage& GetTypeStorage() \
-        { \
-            static Reflection::DynamicTypeStorage TypeStorage; \
-            return TypeStorage; \
-        }
+    static Reflection::DynamicTypeStorage& GetTypeStorage() \
+    { \
+        static Reflection::DynamicTypeStorage TypeStorage; \
+        return TypeStorage; \
+    }
 
 #define REFLECTION_TYPE_INFO \
-        virtual const Reflection::DynamicTypeInfo& GetTypeInfo() const \
-        { \
-            return GetTypeStorage().GetTypeInfo(); \
-        }
+    virtual const Reflection::DynamicTypeInfo& GetTypeInfo() const \
+    { \
+        return GetTypeStorage().GetTypeInfo(); \
+    }
 
 #define REFLECTION_ENABLE_BASE(ReflectedType) \
     public: \

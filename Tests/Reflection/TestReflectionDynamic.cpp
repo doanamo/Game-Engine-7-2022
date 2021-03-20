@@ -271,10 +271,28 @@ TEST_CASE("Dynamic Reflection")
         CHECK_EQ(branchedTwoPtr, nullptr);
     }
 
-    SUBCASE("Instantiate")
+    SUBCASE("Create registered type from identifier")
     {
-        // TODO: Instantiate derived using its type identifier.
-        // Base* instance = Base::create(Derived::Type);
-        // CHECK_EQ(GetType(instance) == Derived::Type);
+        std::unique_ptr<Base> derived = Reflection::Create<Derived>();
+        CHECK(derived->GetTypeInfo().IsType<Derived>());
+
+        std::unique_ptr<Base> branchedOne = Reflection::Create<Base>(
+            Reflection::GetIdentifier<BranchedOne>());
+        CHECK(branchedOne->GetTypeInfo().IsType<BranchedOne>());
+
+        std::unique_ptr<Base> branchedTwo = Reflection::Create<Base>(
+            Reflection::GetIdentifier<BranchedTwo>());
+        CHECK(branchedTwo->GetTypeInfo().IsType<BranchedTwo>());
+
+        std::unique_ptr<Base> base;
+
+        base = Reflection::Cast<Derived>(derived);
+        CHECK(base->GetTypeInfo().IsType<Derived>());
+
+        base = Reflection::Cast<Base>(branchedOne);
+        CHECK(base->GetTypeInfo().IsType<BranchedOne>());
+
+        base = Reflection::Cast<Base>(branchedTwo);
+        CHECK(base->GetTypeInfo().IsType<BranchedTwo>());
     }
 }

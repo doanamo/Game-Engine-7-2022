@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionDynamic.hpp"
+#include "Reflection/ReflectionUtility.hpp"
 
 /*
     Reflection Registry
@@ -92,7 +93,15 @@ namespace Reflection
             return false;
         }
 
-        dynamicType.Register(staticType.Name, staticType.Identifier, baseType);
+        static_assert(std::is_constructible<Type>::value,
+            "Reflected type must be constructible without any parameters!");
+
+        auto instantiateFunction = []() -> void*
+        {
+            return new Type();
+        };
+
+        dynamicType.Register(staticType.Name, staticType.Identifier, instantiateFunction, baseType);
         LOG_INFO("Registered reflection type: \"{}\" ({})",
             dynamicType.GetName(), dynamicType.GetIdentifier());
 
