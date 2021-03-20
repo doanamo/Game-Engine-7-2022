@@ -216,7 +216,7 @@ namespace System
     {
         struct TextInput
         {
-            unsigned int utf32Character = 0;
+            uint32_t utf32Character = 0;
         };
 
         struct KeyboardKey

@@ -6,7 +6,8 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include <Core/ServiceStorage.hpp>
-#include <System/InputDefinitions.hpp>
+#include <System/Window.hpp>
+#include <System/InputManager.hpp>
 using namespace Editor;
 
 namespace
@@ -33,30 +34,29 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
         Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
-    instance->m_window = params.services->GetWindow();
+    
+    System::Window* window = params.services->GetWindow();
+    System::InputState& inputState = params.services->GetInputManager()->GetInputState();
 
-    if(!instance->SubscribeEvents())
+    bool subscriptionResults = true;
+    subscriptionResults &= window->events.Subscribe(instance->m_windowFocusReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_keyboardKeyReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_textInputReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_mouseButtonReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_mouseScrollReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_cursorPositionReceiver);
+    subscriptionResults &= inputState.events.Subscribe(instance->m_cursorEnterReceiver);
+
+    if(!subscriptionResults)
     {
         LOG_ERROR(CreateError, "Could not subscribe to window events.");
         return Common::Failure(CreateErrors::FailedEventSubscription);
     }
 
+    instance->m_window = window;
+
     LOG_SUCCESS("Created input manager editor module.");
     return Common::Success(std::move(instance));
-}
-
-
-bool InputManagerEditor::SubscribeEvents()
-{
-    bool subscriptionResults = true;
-    subscriptionResults &= m_window->events.Subscribe(m_keyboardKeyReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_textInputReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_windowFocusReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_mouseButtonReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_mouseScrollReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_cursorPositionReceiver);
-    subscriptionResults &= m_window->events.Subscribe(m_cursorEnterReceiver);
-    return subscriptionResults;
 }
 
 void InputManagerEditor::Display(float timeDelta)
@@ -154,7 +154,7 @@ void InputManagerEditor::OnWindowFocus(const System::WindowEvents::Focus& event)
     }
 }
 
-bool InputManagerEditor::OnTextInput(const System::WindowEvents::TextInput& event)
+bool InputManagerEditor::OnTextInput(const System::InputEvents::TextInput& event)
 {
     if(m_incomingTextInput)
     {
@@ -168,35 +168,46 @@ bool InputManagerEditor::OnTextInput(const System::WindowEvents::TextInput& even
     return false;
 }
 
-bool InputManagerEditor::OnKeyboardKey(const System::WindowEvents::KeyboardKey& event)
+bool InputManagerEditor::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
     if(m_incomingKeyboardKey)
     {
         bool processEvent = false;
-        processEvent |= event.action == GLFW_PRESS && m_incomingKeyboardKeyPress;
-        processEvent |= event.action == GLFW_RELEASE && m_incomingKeyboardKeyRelease;
-        processEvent |= event.action == GLFW_REPEAT && m_incomingKeyboardKeyRepeat;
+        processEvent |= System::IsInputStatePressed(event.state) && m_incomingKeyboardKeyPress;
+        processEvent |= System::IsInputStateReleased(event.state) && m_incomingKeyboardKeyRelease;
+
+        if(System::IsInputStateRepeating(event.state))
+        {
+            processEvent &= m_incomingKeyboardKeyRepeat;
+        }
 
         if(processEvent)
         {
             std::stringstream eventText;
             eventText << "Keyboard Key\n";
             eventText << "  Key: " << event.key << "\n";
-            eventText << "  Code: " << event.scancode << "\n";
-            eventText << "  Action: ";
+            eventText << "  State: ";
 
-            switch(event.action)
+            switch(event.state)
             {
-            case GLFW_PRESS:
-                eventText << "Press";
+            case System::InputStates::Pressed:
+                eventText << "Pressed";
                 break;
 
-            case GLFW_RELEASE:
-                eventText << "Release";
+            case System::InputStates::PressedReleased:
+                eventText << "Pressed (Released)";
                 break;
 
-            case GLFW_REPEAT:
-                eventText << "Repeat";
+            case System::InputStates::PressedRepeat:
+                eventText << "Pressed (Repeat)";
+                break;
+
+            case System::InputStates::Released:
+                eventText << "Released";
+                break;
+
+            case System::InputStates::ReleasedRepeat:
+                eventText << "Released (Repeat)";
                 break;
 
             default:
@@ -209,16 +220,16 @@ bool InputManagerEditor::OnKeyboardKey(const System::WindowEvents::KeyboardKey& 
 
             if(event.modifiers)
             {
-                if(event.modifiers & GLFW_MOD_SHIFT)
+                if(event.modifiers & System::KeyboardModifiers::Shift)
                     eventText << "Shift ";
 
-                if(event.modifiers & GLFW_MOD_CONTROL)
+                if(event.modifiers & System::KeyboardModifiers::Ctrl)
                     eventText << "Ctrl ";
 
-                if(event.modifiers & GLFW_MOD_ALT)
+                if(event.modifiers & System::KeyboardModifiers::Alt)
                     eventText << "Alt ";
 
-                if(event.modifiers & GLFW_MOD_SUPER)
+                if(event.modifiers & System::KeyboardModifiers::Super)
                     eventText << "Super ";
             }
             else
@@ -233,14 +244,18 @@ bool InputManagerEditor::OnKeyboardKey(const System::WindowEvents::KeyboardKey& 
     return false;
 }
 
-bool InputManagerEditor::OnMouseButton(const System::WindowEvents::MouseButton& event)
+bool InputManagerEditor::OnMouseButton(const System::InputEvents::MouseButton& event)
 {
     if(m_incomingMouseButton)
     {
         bool processEvent = false;
-        processEvent |= event.action == GLFW_PRESS && m_incomingMouseButtonPress;
-        processEvent |= event.action == GLFW_RELEASE && m_incomingMouseButtonRelease;
-        processEvent |= event.action == GLFW_REPEAT && m_incomingMouseButtonRepeat;
+        processEvent |= System::IsInputStatePressed(event.state) && m_incomingMouseButtonPress;
+        processEvent |= System::IsInputStateReleased(event.state) && m_incomingMouseButtonRelease;
+        
+        if(System::IsInputStateRepeating(event.state))
+        {
+            processEvent &= m_incomingKeyboardKeyRepeat;
+        }
 
         if(processEvent)
         {
@@ -249,18 +264,26 @@ bool InputManagerEditor::OnMouseButton(const System::WindowEvents::MouseButton& 
             eventText << "  Button: " << event.button << "\n";
             eventText << "  Action: ";
 
-            switch(event.action)
+            switch(event.state)
             {
-            case GLFW_PRESS:
-                eventText << "Press";
+            case System::InputStates::Pressed:
+                eventText << "Pressed";
                 break;
 
-            case GLFW_RELEASE:
-                eventText << "Release";
+            case System::InputStates::PressedReleased:
+                eventText << "Pressed (Released)";
                 break;
 
-            case GLFW_REPEAT:
-                eventText << "Repeat";
+            case System::InputStates::PressedRepeat:
+                eventText << "Pressed (Repeat)";
+                break;
+
+            case System::InputStates::Released:
+                eventText << "Released";
+                break;
+
+            case System::InputStates::ReleasedRepeat:
+                eventText << "Released (Repeat)";
                 break;
 
             default:
@@ -273,16 +296,16 @@ bool InputManagerEditor::OnMouseButton(const System::WindowEvents::MouseButton& 
 
             if(event.modifiers)
             {
-                if(event.modifiers & GLFW_MOD_SHIFT)
+                if(event.modifiers & System::KeyboardModifiers::Shift)
                     eventText << "Shift ";
 
-                if(event.modifiers & GLFW_MOD_CONTROL)
+                if(event.modifiers & System::KeyboardModifiers::Ctrl)
                     eventText << "Ctrl ";
 
-                if(event.modifiers & GLFW_MOD_ALT)
+                if(event.modifiers & System::KeyboardModifiers::Alt)
                     eventText << "Alt ";
 
-                if(event.modifiers & GLFW_MOD_SUPER)
+                if(event.modifiers & System::KeyboardModifiers::Super)
                     eventText << "Super ";
             }
             else
@@ -297,7 +320,7 @@ bool InputManagerEditor::OnMouseButton(const System::WindowEvents::MouseButton& 
     return false;
 }
 
-bool InputManagerEditor::OnMouseScroll(const System::WindowEvents::MouseScroll& event)
+bool InputManagerEditor::OnMouseScroll(const System::InputEvents::MouseScroll& event)
 {
     if(m_incomingMouseScroll)
     {
@@ -311,7 +334,7 @@ bool InputManagerEditor::OnMouseScroll(const System::WindowEvents::MouseScroll& 
     return false;
 }
 
-void InputManagerEditor::OnCursorPosition(const System::WindowEvents::CursorPosition& event)
+void InputManagerEditor::OnCursorPosition(const System::InputEvents::CursorPosition& event)
 {
     if(m_incomingCursorPosition)
     {
@@ -323,7 +346,7 @@ void InputManagerEditor::OnCursorPosition(const System::WindowEvents::CursorPosi
     }
 }
 
-void InputManagerEditor::OnCursorEnter(const System::WindowEvents::CursorEnter& event)
+void InputManagerEditor::OnCursorEnter(const System::InputEvents::CursorEnter& event)
 {
     if(m_incomingCursorEnter)
     {

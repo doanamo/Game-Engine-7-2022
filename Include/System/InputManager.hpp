@@ -17,7 +17,7 @@
 
 namespace System
 {
-    class Window;
+    class WindowContext;
 
     class InputManager final : private Common::NonCopyable
     {
@@ -30,7 +30,7 @@ namespace System
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedEventSubscription,
+            InvalidWindow,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
@@ -46,23 +46,15 @@ namespace System
     private:
         InputManager();
 
-        bool OnTextInput(const WindowEvents::TextInput& event);
-        bool OnKeyboardKey(const WindowEvents::KeyboardKey& event);
-        bool OnMouseButton(const WindowEvents::MouseButton& event);
-        bool OnMouseScroll(const WindowEvents::MouseScroll& event);
-        void OnCursorPosition(const WindowEvents::CursorPosition& event);
-        void OnCursorEnter(const WindowEvents::CursorEnter& event);
-
-        struct Receivers
-        {
-            Event::Receiver<bool(const WindowEvents::TextInput&)> textInput;
-            Event::Receiver<bool(const WindowEvents::KeyboardKey&)> keyboardKey;
-            Event::Receiver<bool(const WindowEvents::MouseButton&)> mouseButton;
-            Event::Receiver<bool(const WindowEvents::MouseScroll&)> mouseScroll;
-            Event::Receiver<void(const WindowEvents::CursorPosition&)> cursorPosition;
-            Event::Receiver<void(const WindowEvents::CursorEnter&)> cursorEnter;
-        } m_receivers;
+        static InputManager* GetInputManagerFromUserData(GLFWwindow* handle);
+        static void TextInputCallback(GLFWwindow* handle, unsigned int character);
+        static void KeyboardKeyCallback(GLFWwindow* handle, int key, int scancode, int action, int mods);
+        static void MouseButtonCallback(GLFWwindow* handle, int button, int action, int mods);
+        static void MouseScrollCallback(GLFWwindow* handle, double offsetx, double offsety);
+        static void CursorPositionCallback(GLFWwindow* handle, double x, double y);
+        static void CursorEnterCallback(GLFWwindow* handle, int entered);
 
         InputState m_inputState;
+        WindowContext* m_windowContext = nullptr;
     };
 }

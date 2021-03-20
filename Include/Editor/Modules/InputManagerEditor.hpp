@@ -5,11 +5,18 @@
 
 #pragma once
 
-#include <System/Window.hpp>
+#include <Common/Event/Receiver.hpp>
+#include <System/WindowEvents.hpp>
+#include <System/InputDefinitions.hpp>
 
 namespace Core
 {
     class ServiceStorage;
+}
+
+namespace System
+{
+    class Window;
 }
 
 /*
@@ -47,24 +54,23 @@ namespace Editor
     private:
         InputManagerEditor();
 
-        bool SubscribeEvents();
         void AddIncomingEventLog(std::string text);
 
         void OnWindowFocus(const System::WindowEvents::Focus& event);
-        bool OnTextInput(const System::WindowEvents::TextInput& event);
-        bool OnKeyboardKey(const System::WindowEvents::KeyboardKey& event);
-        bool OnMouseButton(const System::WindowEvents::MouseButton& event);
-        bool OnMouseScroll(const System::WindowEvents::MouseScroll& event);
-        void OnCursorPosition(const System::WindowEvents::CursorPosition& event);
-        void OnCursorEnter(const System::WindowEvents::CursorEnter& event);
+        bool OnTextInput(const System::InputEvents::TextInput& event);
+        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
+        bool OnMouseButton(const System::InputEvents::MouseButton& event);
+        bool OnMouseScroll(const System::InputEvents::MouseScroll& event);
+        void OnCursorPosition(const System::InputEvents::CursorPosition& event);
+        void OnCursorEnter(const System::InputEvents::CursorEnter& event);
 
         Event::Receiver<void(const System::WindowEvents::Focus&)> m_windowFocusReceiver;
-        Event::Receiver<bool(const System::WindowEvents::TextInput&)> m_textInputReceiver;
-        Event::Receiver<bool(const System::WindowEvents::KeyboardKey&)> m_keyboardKeyReceiver;
-        Event::Receiver<bool(const System::WindowEvents::MouseButton&)> m_mouseButtonReceiver;
-        Event::Receiver<bool(const System::WindowEvents::MouseScroll&)> m_mouseScrollReceiver;
-        Event::Receiver<void(const System::WindowEvents::CursorPosition&)> m_cursorPositionReceiver;
-        Event::Receiver<void(const System::WindowEvents::CursorEnter&)> m_cursorEnterReceiver;
+        Event::Receiver<bool(const System::InputEvents::TextInput&)> m_textInputReceiver;
+        Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_keyboardKeyReceiver;
+        Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_mouseButtonReceiver;
+        Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_mouseScrollReceiver;
+        Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_cursorPositionReceiver;
+        Event::Receiver<void(const System::InputEvents::CursorEnter&)> m_cursorEnterReceiver;
 
         System::Window* m_window = nullptr;
 

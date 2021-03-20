@@ -19,6 +19,31 @@ struct GLFWwindow;
 
 namespace System
 {
+    class Window;
+    class InputManager;
+
+    class WindowContext
+    {
+    public:
+        WindowContext(Window& window) :
+            window(window)
+        {
+        }
+
+        GLFWwindow* GetPrivateHandle()
+        {
+            return handle;
+        }
+
+    private:
+        friend Window;
+        friend InputManager;
+
+        Window& window;
+        GLFWwindow* handle = nullptr;
+        InputManager* inputManager = nullptr;
+    };
+
     class Window final : private Common::NonCopyable
     {
     public:
@@ -58,32 +83,27 @@ namespace System
         void SetTitle(std::string title);
         void SetVisibility(bool show);
 
+        WindowContext& GetContext();
         std::string GetTitle() const;
         int GetWidth() const;
         int GetHeight() const;
         bool ShouldClose() const;
         bool IsFocused() const;
 
-        GLFWwindow* GetPrivateHandle();
-
         Event::Broker events;
 
     private:
         Window();
 
-        static void MoveCallback(GLFWwindow* window, int x, int y);
-        static void ResizeCallback(GLFWwindow* window, int width, int height);
-        static void FocusCallback(GLFWwindow* window, int focused);
-        static void CloseCallback(GLFWwindow* window);
-        static void TextInputCallback(GLFWwindow* window, unsigned int character);
-        static void KeyboardKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-        static void MouseScrollCallback(GLFWwindow* window, double offsetx, double offsety);
-        static void CursorPositionCallback(GLFWwindow* window, double x, double y);
-        static void CursorEnterCallback(GLFWwindow* window, int entered);
+        static Window& GetWindowFromUserData(GLFWwindow* handle);
+        static void MoveCallback(GLFWwindow* handle, int x, int y);
+        static void ResizeCallback(GLFWwindow* handle, int width, int height);
+        static void FocusCallback(GLFWwindow* handle, int focused);
+        static void CloseCallback(GLFWwindow* handle);
+
+        WindowContext m_context;
 
         std::string m_title;
-        GLFWwindow* m_handle = nullptr;
         bool m_sizeChanged = false;
     };
 }

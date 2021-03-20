@@ -8,48 +8,39 @@
 #include "System/Window.hpp"
 using namespace System;
 
-InputManager::InputManager()
+InputManager::InputManager() = default;
+InputManager::~InputManager()
 {
-    m_receivers.keyboardKey.Bind<InputManager, &InputManager::OnKeyboardKey>(this);
-    m_receivers.textInput.Bind<InputManager, &InputManager::OnTextInput>(this);
-    m_receivers.mouseButton.Bind<InputManager, &InputManager::OnMouseButton>(this);
-    m_receivers.mouseScroll.Bind<InputManager, &InputManager::OnMouseScroll>(this);
-    m_receivers.cursorPosition.Bind<InputManager, &InputManager::OnCursorPosition>(this);
-    m_receivers.cursorEnter.Bind<InputManager, &InputManager::OnCursorEnter>(this);
+    ASSERT(m_windowContext->inputManager == this);
+    m_windowContext->inputManager = nullptr;
 }
-
-InputManager::~InputManager() = default;
 
 InputManager::CreateResult InputManager::Create(const CreateParams& params)
 {
     LOG("Creating input manager...");
     LOG_SCOPED_INDENT();
 
-    // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire window service.
-    Window* window = params.services->GetWindow();
-
-    // Create instance.
     auto instance = std::unique_ptr<InputManager>(new InputManager());
 
-    // Subscribe to window input events.
-    bool subscriptionResult = true;
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.keyboardKey);
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.textInput);
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.mouseButton);
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.mouseScroll);
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.cursorPosition);
-    subscriptionResult &= window->events.Subscribe(instance->m_receivers.cursorEnter);
-
-    if(!subscriptionResult)
+    instance->m_windowContext = &params.services->GetWindow()->GetContext();
+    if(instance->m_windowContext->inputManager != nullptr)
     {
-        LOG_ERROR("Could not subscribe to window input events!");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
+        LOG_ERROR("Other existing input manager already associated with this window context!");
+        return Common::Failure(CreateErrors::InvalidWindow);
     }
 
-    // Success!
+    instance->m_windowContext->inputManager = instance.get();
+
+    GLFWwindow* windowHandle = instance->m_windowContext->handle;
+    glfwSetKeyCallback(windowHandle, InputManager::KeyboardKeyCallback);
+    glfwSetCharCallback(windowHandle, InputManager::TextInputCallback);
+    glfwSetMouseButtonCallback(windowHandle, InputManager::MouseButtonCallback);
+    glfwSetScrollCallback(windowHandle, InputManager::MouseScrollCallback);
+    glfwSetCursorPosCallback(windowHandle, InputManager::CursorPositionCallback);
+    glfwSetCursorEnterCallback(windowHandle, InputManager::CursorEnterCallback);
+
     return Common::Success(std::move(instance));
 }
 
@@ -68,100 +59,100 @@ InputState& InputManager::GetInputState()
     return m_inputState;
 }
 
-bool InputManager::OnTextInput(const WindowEvents::TextInput& event)
+InputManager* InputManager::GetInputManagerFromUserData(GLFWwindow* handle)
 {
-    // Translate incoming window event.
-    InputEvents::TextInput outgoingEvent;
-    outgoingEvent.utf32Character = event.utf32Character;
+    ASSERT(handle != nullptr, "Window handle is invalid!");
 
-    // Propagate event to input state.
-    m_inputState.OnTextInput(outgoingEvent);
+    WindowContext* context = reinterpret_cast<WindowContext*>(glfwGetWindowUserPointer(handle));
+    ASSERT(context != nullptr, "Window context is null!");
 
-    // Do not consume window event.
-    return false;
+    InputManager* inputManager = context->inputManager;
+    ASSERT(inputManager != nullptr, "Input manager in window context is null!");
+
+    return inputManager;
 }
 
-bool InputManager::OnKeyboardKey(const WindowEvents::KeyboardKey& event)
+void InputManager::TextInputCallback(GLFWwindow* handle, unsigned int character)
 {
-    // Translate incoming window event.
-    InputEvents::KeyboardKey outgoingEvent;
-    outgoingEvent.key = TranslateKeyboardKey(event.key);
-    outgoingEvent.state = TranslateInputAction(event.action);
-    outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
 
-    // Validate keyboard key index.
+    InputEvents::TextInput outgoingEvent;
+    outgoingEvent.utf32Character = character;
+
+    inputManager->m_inputState.OnTextInput(outgoingEvent);
+}
+
+void InputManager::KeyboardKeyCallback(GLFWwindow* handle,
+    int key, int scancode, int action, int mods)
+{
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
+
+    InputEvents::KeyboardKey outgoingEvent;
+    outgoingEvent.key = TranslateKeyboardKey(key);
+    outgoingEvent.state = TranslateInputAction(action);
+    outgoingEvent.modifiers = TranslateKeyboardModifiers(mods);
+
     if(outgoingEvent.key <= KeyboardKeys::Invalid || outgoingEvent.key >= KeyboardKeys::Count)
     {
-        LOG_WARNING("Invalid keyboard key input received: {}", event.key);
-        return false;
+        LOG_WARNING("Invalid keyboard key input received: {}", key);
+        return;
     }
 
     if(outgoingEvent.key == KeyboardKeys::KeyUnknown)
     {
-        LOG_WARNING("Unknown keyboard key input received: {}", event.key);
-        return false;
+        LOG_WARNING("Unknown keyboard key input received: {}", key);
+        return;
     }
 
-    // Propagate event to input state.
-    // We do not take capturing into consideration in case of release key events.
-    m_inputState.OnKeyboardKey(outgoingEvent);
-
-    // Do not consume window event.
-    return false;
+    inputManager->m_inputState.OnKeyboardKey(outgoingEvent);
 }
 
-bool InputManager::OnMouseButton(const WindowEvents::MouseButton& event)
+void InputManager::MouseButtonCallback(GLFWwindow* handle, int button, int action, int mods)
 {
-    // Translate incoming window event.
-    InputEvents::MouseButton outgoingEvent;
-    outgoingEvent.button = TranslateMouseButton(event.button);
-    outgoingEvent.state = TranslateInputAction(event.action);
-    outgoingEvent.modifiers = TranslateKeyboardModifiers(event.modifiers);
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
 
-    // Validate mouse button index.
+    InputEvents::MouseButton outgoingEvent;
+    outgoingEvent.button = TranslateMouseButton(button);
+    outgoingEvent.state = TranslateInputAction(action);
+    outgoingEvent.modifiers = TranslateKeyboardModifiers(mods);
+
     if(outgoingEvent.button <= MouseButtons::Invalid || outgoingEvent.button >= MouseButtons::Count)
     {
-        LOG_WARNING("Invalid mouse button input received: {}", event.button);
-        return false;
+        LOG_WARNING("Invalid mouse button input received: {}", button);
+        return;
     }
 
-    // Propagate event to input state.
-    m_inputState.OnMouseButton(outgoingEvent);
-
-    // Do not consume window event.
-    return false;
+    inputManager->m_inputState.OnMouseButton(outgoingEvent);
 }
 
-bool InputManager::OnMouseScroll(const WindowEvents::MouseScroll& event)
+void InputManager::MouseScrollCallback(GLFWwindow* handle, double offsetx, double offsety)
 {
-    // Translate incoming window event.
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
+
     InputEvents::MouseScroll outgoingEvent;
-    outgoingEvent.offset = event.offset;
+    outgoingEvent.offset = offsety;
 
-    // Propagate event to input state.
-    m_inputState.OnMouseScroll(outgoingEvent);
-
-    // Do not consume window event.
-    return false;
+    inputManager->m_inputState.OnMouseScroll(outgoingEvent);
 }
 
-void InputManager::OnCursorPosition(const WindowEvents::CursorPosition& event)
+void InputManager::CursorPositionCallback(GLFWwindow* handle, double x, double y)
 {
-    // Translate incoming window event.
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
+
     InputEvents::CursorPosition outgoingEvent;
-    outgoingEvent.x = event.x;
-    outgoingEvent.y = event.y;
+    outgoingEvent.x = x;
+    outgoingEvent.y = y;
 
-    // Propagate event to input state.
-    m_inputState.OnCursorPosition(outgoingEvent);
+    inputManager->m_inputState.OnCursorPosition(outgoingEvent);
 }
 
-void InputManager::OnCursorEnter(const WindowEvents::CursorEnter& event)
+void InputManager::CursorEnterCallback(GLFWwindow* handle, int entered)
 {
-    // Translate incoming window event.
-    InputEvents::CursorEnter outgoingEvent;
-    outgoingEvent.entered = event.entered;
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
 
-    // Propagate event to input state.
-    m_inputState.OnCursorEnter(outgoingEvent);
+    InputEvents::CursorEnter outgoingEvent;
+    outgoingEvent.entered = entered;
+
+    inputManager->m_inputState.OnCursorEnter(outgoingEvent);
 }
+

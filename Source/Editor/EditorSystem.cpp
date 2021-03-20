@@ -9,6 +9,7 @@
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
 #include <Core/ServiceStorage.hpp>
+#include <System/Window.hpp>
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
 using namespace Editor;
@@ -118,7 +119,7 @@ bool EditorSystem::CreateContext()
     io.KeyMap[ImGuiKey_Z] = System::KeyboardKeys::KeyZ;
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = m_window->GetPrivateHandle();
+    io.ClipboardUserData = m_window->GetContext().GetPrivateHandle();
 
     return true;
 }
