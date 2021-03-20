@@ -33,7 +33,7 @@ namespace Reflection
         const DynamicTypeInfo& LookupType(IdentifierType identifier) const override;
 
     private:
-        DynamicTypeInfo* LookupType(IdentifierType identifier);
+        DynamicTypeInfo* FindTypeInfo(IdentifierType identifier);
 
     private:
         TypeInfoMap m_types;
@@ -50,23 +50,29 @@ namespace Reflection
             return false;
         }
 
+        ASSERT(staticType.Identifier != InvalidIdentifier, "Attempted to register type "
+            "\"{}\" ({}) with static identifier equal to invalid identifier!",
+            staticType.Name, staticType.Identifier);
+
         using BaseType = typename decltype(staticType)::BaseType;
         static_assert(std::is_same<typename Type::Super, BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
 
-        DynamicTypeInfo* baseType = LookupType(staticType.GetBaseType().Identifier);
+        DynamicTypeInfo* baseType = FindTypeInfo(staticType.GetBaseType().Identifier);
         if(baseType == nullptr)
         {
             if(!staticType.GetBaseType().IsNullType())
             {
-                LOG_WARNING("Attempted to register type \"{}\" with unregistered base type \"{}\"!",
-                    staticType.Name, staticType.GetBaseType().Name);
+                LOG_WARNING("Attempted to register type \"{}\" ({}) with unregistered "
+                    "base type \"{}\" ({})!", staticType.Name, staticType.Identifier, 
+                    staticType.GetBaseType().Name, staticType.GetBaseType().Identifier);
                 return false;
             }
         }
         else
         {
-            ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type pointer!");
+            ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type "
+                "info pointer for type \"{}\" ({})!", staticType.Name, staticType.Identifier );
         }
 
         auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);

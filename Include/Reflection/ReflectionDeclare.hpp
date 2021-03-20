@@ -8,7 +8,7 @@
 #include "Reflection/ReflectionStatic.hpp"
 
 /*
-    Reflection Macros
+    Reflection Declaration Macros
 */
 
 #define REFLECTION_SUPER(ReflectedBaseType) \

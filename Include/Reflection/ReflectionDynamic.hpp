@@ -31,7 +31,10 @@ namespace Reflection
     public:
         friend class Registry;
         static const DynamicTypeInfo Invalid;
+
+        using DynamicTypeList = std::vector<std::reference_wrapper<const DynamicTypeInfo>>;
         
+    public:
         DynamicTypeInfo() = default;
         ~DynamicTypeInfo() = default;
 
@@ -65,35 +68,46 @@ namespace Reflection
             return *m_baseType;
         }
 
+        const DynamicTypeList& GetDerivedTypes() const
+        {
+            return m_derivedTypes;
+        }
+
+        bool IsType(IdentifierType identifier) const
+        {
+            return m_registered && m_identifier == identifier;
+        }
+
         template<typename OtherType>
         bool IsType() const
         {
-            // #todo: This needs to support polymorphism!
-            return m_registered && m_identifier == StaticType<OtherType>().Identifier;
+            return IsType(StaticType<OtherType>().Identifier);
         }
+
+        bool IsBaseOf(IdentifierType identifier) const;
+        bool IsDerivedFrom(IdentifierType identifier) const;
 
         template<typename OtherType>
         bool IsBaseOf() const
         {
-            // #todo: This needs to support polymorphism!
-            return m_registered && m_identifier == StaticType<OtherType>().GetBaseType().Identifier;
+            return IsBaseOf(StaticType<OtherType>().Identifier);
         }
 
         template<typename OtherType>
         bool IsDerivedFrom() const
         {
-            // #todo: This needs to support polymorphism!
-            return m_registered && m_baseType->m_identifier == StaticType<OtherType>().Identifier;
+            return IsDerivedFrom(StaticType<OtherType>().Identifier);
         }
 
     private:
         void Register(std::string_view name, IdentifierType identifier, DynamicTypeInfo* baseType);
+        void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
         std::string_view m_name = "<UnregisteredType>";
         IdentifierType m_identifier = InvalidIdentifier;
         const DynamicTypeInfo* m_baseType = &Invalid;
-        std::vector<const DynamicTypeInfo*> m_derivedTypes;
+        DynamicTypeList m_derivedTypes;
     };
 
     inline const DynamicTypeInfo& DynamicType(IdentifierType identifier)

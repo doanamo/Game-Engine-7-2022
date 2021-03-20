@@ -29,7 +29,7 @@ Registry::Registry()
 
 Registry::~Registry() = default;
 
-DynamicTypeInfo* Registry::LookupType(IdentifierType identifier)
+DynamicTypeInfo* Registry::FindTypeInfo(IdentifierType identifier)
 {
     auto it = m_types.find(identifier);
     if(it == m_types.end())
