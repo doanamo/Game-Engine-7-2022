@@ -73,19 +73,15 @@ namespace Reflection
             return m_derivedTypes;
         }
 
-        bool IsType(IdentifierType identifier) const
-        {
-            return m_registered && m_identifier == identifier;
-        }
+        bool IsType(IdentifierType identifier) const;
+        bool IsBaseOf(IdentifierType identifier) const;
+        bool IsDerivedFrom(IdentifierType identifier) const;
 
         template<typename OtherType>
         bool IsType() const
         {
             return IsType(StaticType<OtherType>().Identifier);
         }
-
-        bool IsBaseOf(IdentifierType identifier) const;
-        bool IsDerivedFrom(IdentifierType identifier) const;
 
         template<typename OtherType>
         bool IsBaseOf() const

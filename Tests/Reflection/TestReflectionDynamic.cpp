@@ -146,11 +146,26 @@ TEST_CASE("Dynamic Reflection")
 
     SUBCASE("Check registered polymorphic type")
     {
+        CHECK(Reflection::DynamicType<BranchedOne>().IsType<BranchedOne>());
+        CHECK(Reflection::DynamicType<BranchedTwo>().IsType<BranchedTwo>());
+        CHECK(Reflection::DynamicType<BranchedOne>().IsType<Derived>());
+        CHECK(Reflection::DynamicType<BranchedTwo>().IsType<Derived>());
+        CHECK(Reflection::DynamicType<BranchedOne>().IsType<Base>());
+        CHECK(Reflection::DynamicType<BranchedTwo>().IsType<Base>());
+
+        CHECK_FALSE(Reflection::DynamicType<BranchedOne>().IsType<Reflection::NullType>());
+        CHECK_FALSE(Reflection::DynamicType<BranchedOne>().IsType<BranchedTwo>());
+        CHECK_FALSE(Reflection::DynamicType<BranchedTwo>().IsType<BranchedOne>());
+        CHECK_FALSE(Reflection::DynamicType<BranchedOne>().IsType<Inner>());
+        CHECK_FALSE(Reflection::DynamicType<BranchedTwo>().IsType<Inner>());
+
         CHECK(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<Derived>());
         CHECK(Reflection::DynamicType<BranchedTwo>().IsDerivedFrom<Derived>());
         CHECK(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<Base>());
         CHECK(Reflection::DynamicType<BranchedTwo>().IsDerivedFrom<Base>());
 
+        CHECK_FALSE(Reflection::DynamicType<Base>().IsDerivedFrom<Reflection::NullType>());
+        CHECK_FALSE(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<Reflection::NullType>());
         CHECK_FALSE(Reflection::DynamicType<BranchedOne>().IsDerivedFrom<BranchedOne>());
         CHECK_FALSE(Reflection::DynamicType<Derived>().IsDerivedFrom<BranchedOne>());
         CHECK_FALSE(Reflection::DynamicType<Base>().IsDerivedFrom<BranchedOne>());
@@ -161,6 +176,7 @@ TEST_CASE("Dynamic Reflection")
         CHECK(Reflection::DynamicType<Base>().IsBaseOf<BranchedOne>());
         CHECK(Reflection::DynamicType<Base>().IsBaseOf<BranchedTwo>());
 
+        CHECK_FALSE(Reflection::DynamicType<Derived>().IsBaseOf<Reflection::NullType>());
         CHECK_FALSE(Reflection::DynamicType<Derived>().IsBaseOf<Derived>());
         CHECK_FALSE(Reflection::DynamicType<Inner>().IsBaseOf<Derived>());
         CHECK_FALSE(Reflection::DynamicType<Derived>().IsBaseOf<Inner>());

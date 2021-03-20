@@ -41,6 +41,17 @@ void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo& typeInfo)
     m_derivedTypes.emplace_back(typeInfo);
 }
 
+bool DynamicTypeInfo::IsType(IdentifierType identifier) const
+{
+    if(!m_registered)
+        return false;
+
+    if(m_identifier == identifier)
+        return true;
+
+    return IsDerivedFrom(identifier);
+}
+
 bool DynamicTypeInfo::IsBaseOf(IdentifierType identifier) const
 {
     const DynamicTypeInfo& typeInfo = Reflection::GetRegistry().LookupType(identifier);
