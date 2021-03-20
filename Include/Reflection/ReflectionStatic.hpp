@@ -192,43 +192,5 @@ namespace Reflection
             });
         }
     };
-
-    template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType()
-    {
-        return {};
-    }
-
-    template<typename ReflectedType>
-    constexpr StaticTypeInfo<ReflectedType> StaticType(const ReflectedType& instance)
-    {
-        return {};
-    }
-
-    template<typename ReflectedType>
-    constexpr bool IsReflected()
-    {
-        return StaticTypeInfo<ReflectedType>::Reflected;
-    }
-
-    template<typename ReflectedType>
-    constexpr bool IsReflected(const ReflectedType& type)
-    {
-        return StaticTypeInfo<ReflectedType>::Reflected;
-    }
-
-    template<typename ReflectedType>
-    IdentifierType GetIdentifier()
-    {
-        return StaticTypeInfo<ReflectedType>::Identifier;
-    }
-
-    template<typename ReflectedType>
-    IdentifierType GetIdentifier(const ReflectedType& type)
-    {
-        return StaticTypeInfo<ReflectedType>::Identifier;
-    }
 }
 
-#define REFLECTION_IDENTIFIER(Type) \
-    Reflection::StaticType<Type>().Identifier

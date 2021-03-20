@@ -14,10 +14,10 @@
     - https://veselink1.github.io/blog/cpp/metaprogramming/2019/07/13/refl-cpp-deep-dive.html
 */
 
-#include "Reflection/ReflectionUtility.hpp"
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionStatic.hpp"
 #include "Reflection/ReflectionDynamic.hpp"
 #include "Reflection/ReflectionRegistry.hpp"
 #include "Reflection/ReflectionDeclare.hpp"
+#include "Reflection/ReflectionUtility.hpp"
 #include "Reflection/ReflectionTypes.hpp"

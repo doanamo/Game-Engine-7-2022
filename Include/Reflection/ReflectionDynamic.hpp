@@ -124,40 +124,6 @@ namespace Reflection
         DynamicTypeList m_derivedTypes;
     };
 
-    inline const DynamicTypeInfo& DynamicType(IdentifierType identifier)
-    {
-        return Detail::GetRegistry().LookupType(identifier);
-    }
-
-    template<typename RegisteredType>
-    constexpr const DynamicTypeInfo& DynamicType()
-    {
-        return RegisteredType::GetTypeStorage().GetTypeInfo();
-    }
-
-    template<typename RegisteredType>
-    constexpr const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
-    {
-        return instance.GetTypeInfo();
-    }
-
-    inline bool IsRegistered(IdentifierType identifier)
-    {
-        return Detail::GetRegistry().LookupType(identifier).IsRegistered();
-    }
-
-    template<typename RegisteredType>
-    constexpr bool IsRegistered()
-    {
-        return DynamicType<RegisteredType>().IsRegistered();
-    }
-
-    template<typename RegisteredType>
-    constexpr bool IsRegistered(const RegisteredType& instance)
-    {
-        return DynamicType(instance).IsRegistered();
-    }
-
     struct DynamicTypeStorage
     {
     public:

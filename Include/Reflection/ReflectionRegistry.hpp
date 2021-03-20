@@ -42,7 +42,7 @@ namespace Reflection
     template<typename Type>
     bool Registry::RegisterType()
     {
-        constexpr auto staticType = StaticType<Type>();
+        constexpr auto staticType = StaticTypeInfo<Type>();
         if(!staticType.Reflected)
         {
             LOG_WARNING("Attempted to register type \"{}\" that is not reflected!",
