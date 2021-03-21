@@ -34,6 +34,8 @@ namespace System
         InputState();
 
         void UpdateStates(float timeDelta);
+        void UpdateStateTimes(float timeDelta);
+        void UpdateStateTransitions();
         void ResetStates();
 
         bool OnTextInput(const InputEvents::TextInput& event);
