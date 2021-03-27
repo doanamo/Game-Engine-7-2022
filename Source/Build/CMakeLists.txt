@@ -48,10 +48,10 @@ target_link_libraries(Build PRIVATE Core)
 # Configuration
 #
 
-# Run Git commands to retrieve and save information about current build version.
 find_package("Git")
 
-add_custom_target("BuildInfo"
+add_custom_target(BuildInfo
+    COMMAND ${CMAKE_COMMAND} -E echo "Generating build info header..."
     COMMAND ${CMAKE_COMMAND}
         -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
         -D ENGINE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../"
