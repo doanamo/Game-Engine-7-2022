@@ -68,6 +68,7 @@ function(enable_reflection TARGET_NAME)
     )
 
     add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
 endfunction()
