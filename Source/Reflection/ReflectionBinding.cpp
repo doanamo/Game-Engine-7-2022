@@ -27,28 +27,28 @@ struct ReflectedHeader
 int main(int argc, const char* argv[])
 {
     // Check provided arguments.
-    if(argc != 4)
+    if(argc < 4)
     {
-        std::cerr << "ReflectionBinding: Unexpected number of arguments!";
+        std::cerr << "ReflectionBinding: Unexpected number of arguments!\n";
+
+        for(int arg = 0; arg < argc; ++arg)
+        {
+            std::cerr << "ReflectionBinding: argv[" << arg << "] = " << argv[arg] << "\n";
+        }
+
         return -1;
     }
 
     std::string_view targetName = argv[1];
     std::string_view outputDir = argv[2];
-    std::string_view sourceDirs = argv[3];
 
-    // Parse list of source directories.
-    std::size_t sourceDirBegin = 0U;
-    std::size_t sourceDirEnd = std::string::npos;
+    // Create list of source directories.
     std::vector<std::string_view> sourceDirList;
 
-    do 
+    for(int arg = 3; arg < argc; ++arg)
     {
-        sourceDirEnd = sourceDirs.find(';', sourceDirBegin);
-        sourceDirList.push_back(sourceDirs.substr(sourceDirBegin, sourceDirEnd - sourceDirBegin));
-        sourceDirBegin = sourceDirEnd + 1;
+        sourceDirList.emplace_back(argv[arg]);
     }
-    while (sourceDirEnd != std::string::npos);
 
     // Create list of header files.
     std::vector<fs::path> headerFileList;
@@ -116,7 +116,7 @@ int main(int argc, const char* argv[])
         {
             ++lineCount;
 
-            std::string_view reflectionTokenName = "REFLECTION_ENABLE(";
+            std::string_view reflectionTokenName = "REFLECTION_TYPE(";
             std::size_t reflectionTokenBegin = line.find(reflectionTokenName);
             std::size_t reflectionTokenEnd = line.find(')', reflectionTokenBegin);
             if(reflectionTokenBegin == std::string::npos)
