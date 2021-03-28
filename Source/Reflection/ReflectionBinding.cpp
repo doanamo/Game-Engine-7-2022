@@ -117,10 +117,16 @@ int main(int argc, const char* argv[])
 
             std::string_view reflectionTokenName = "REFLECTION_TYPE(";
             std::size_t reflectionTokenBegin = line.find(reflectionTokenName);
-            std::size_t reflectionTokenEnd = line.find(')', reflectionTokenBegin);
             if(reflectionTokenBegin == std::string::npos)
-                continue;
+            {
+                reflectionTokenName = "REFLECTION_TYPE_BEGIN(";
+                reflectionTokenBegin = line.find(reflectionTokenName);
 
+                if(reflectionTokenBegin == std::string::npos)
+                    continue;
+            }
+
+            std::size_t reflectionTokenEnd = line.find(')', reflectionTokenBegin);
             if(reflectionTokenEnd == std::string::npos)
             {
                 PrintMalformedDeclaration();
