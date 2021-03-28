@@ -111,5 +111,9 @@ namespace Reflection
     Registry& GetRegistry();
 }
 
-#define REFLECTION_REGISTER(Type) \
+#define REFLECTION_REGISTER_TYPE(Type) \
     Reflection::GetRegistry().RegisterType<Type>()
+
+#define REFLECTION_REGISTER_MODULE(Module) \
+    extern void RegisterReflectionTypes_ ## Module(); \
+    RegisterReflectionTypes_ ## Module()

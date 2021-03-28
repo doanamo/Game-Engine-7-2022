@@ -10,36 +10,10 @@
 #include <Reflection/Reflection.hpp>
 #include "TestReflectionHeader.hpp"
 
-void RegisterTypesOnce()
-{
-    static bool registered = false;
-    if(registered)
-        return;
-
-    CHECK(REFLECTION_REGISTER(Empty));
-    CHECK(REFLECTION_REGISTER(BaseAttribute));
-    CHECK(REFLECTION_REGISTER(TextAttribute));
-    CHECK(REFLECTION_REGISTER(Base));
-    CHECK(REFLECTION_REGISTER(DerivedAttribute));
-    CHECK(REFLECTION_REGISTER(CounterAttribute));
-    CHECK(REFLECTION_REGISTER(Derived));
-    CHECK(REFLECTION_REGISTER(InnerAttribute));
-    CHECK(REFLECTION_REGISTER(Inner));
-    CHECK(REFLECTION_REGISTER(ToggleOnAttribute));
-    CHECK(REFLECTION_REGISTER(ToggleOffAttribute));
-    CHECK(REFLECTION_REGISTER(BranchedOne));
-    CHECK(REFLECTION_REGISTER(BranchedAttributeOne));
-    CHECK(REFLECTION_REGISTER(BranchedAttributeTwo));
-    CHECK(REFLECTION_REGISTER(LetterAttribute));
-    CHECK(REFLECTION_REGISTER(BranchedTwo));
-
-    registered = true;
-}
-
 TEST_CASE("Dynamic Reflection")
 {
-    RegisterTypesOnce();
-
+    REFLECTION_REGISTER_MODULE(TestReflection);
+    
     SUBCASE("Check registered built-in types")
     {
         Reflection::IdentifierType NullTypeIdentifier =

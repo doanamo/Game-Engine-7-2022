@@ -52,3 +52,22 @@ set_property(TARGET Reflection PROPERTY FOLDER "Engine")
 
 add_subdirectory("../Common" "Common")
 target_link_libraries(Reflection PUBLIC Common)
+
+#
+# Binding
+#
+
+add_executable(ReflectionBinding "ReflectionBinding.cpp")
+target_compile_features(ReflectionBinding PUBLIC cxx_std_17)
+set_property(TARGET ReflectionBinding PROPERTY FOLDER "Generated")
+
+function(enable_reflection TARGET_NAME)
+    add_custom_command(
+        TARGET ${TARGET_NAME} PRE_BUILD DEPENDS ReflectionBinding
+        COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
+        COMMAND ReflectionBinding ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+        BYPRODUCTS "ReflectionGenerated.cpp"
+    )
+    target_sources(${TARGET_NAME} PRIVATE
+        "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
+endfunction()
