@@ -70,4 +70,5 @@ function(enable_reflection TARGET_NAME)
     )
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
 endfunction()
