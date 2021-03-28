@@ -62,13 +62,12 @@ target_compile_features(ReflectionBinding PUBLIC cxx_std_17)
 set_property(TARGET ReflectionBinding PROPERTY FOLDER "Generated")
 
 function(enable_reflection TARGET_NAME)
-    add_custom_command(
-        TARGET ${TARGET_NAME} PRE_BUILD DEPENDS ReflectionBinding
+    add_custom_target(Reflection${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
         COMMAND ReflectionBinding ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
-        BYPRODUCTS "ReflectionGenerated.cpp"
     )
-    target_sources(${TARGET_NAME} PRIVATE
-        "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
+
+    add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
+    target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
+    set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
 endfunction()
