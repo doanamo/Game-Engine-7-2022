@@ -12,7 +12,6 @@ generate_gcc_x86:
         - cd cmake-gcc-x86
         - cmake -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -m32" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32" ../.
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x86/
         
@@ -23,7 +22,6 @@ generate_gcc_x64:
         - cd cmake-gcc-x64
         - cmake ../.
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x64/
     
@@ -35,7 +33,6 @@ build_gcc_debug_x86:
         - cd cmake-gcc-x86
         - cmake --build . --config Debug
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x86/
             
@@ -47,7 +44,6 @@ build_gcc_release_x86:
         - cd cmake-gcc-x86
         - cmake --build . --config Release
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x86/
 
@@ -59,7 +55,6 @@ build_gcc_debug_x64:
         - cd cmake-gcc-x64
         - cmake --build . --config Debug
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x64/
             
@@ -71,7 +66,6 @@ build_gcc_release_x64:
         - cd cmake-gcc-x64
         - cmake --build . --config Release
     artifacts:
-        when: always
         paths:
             - cmake-gcc-x64/
             
@@ -114,7 +108,6 @@ generate_clang_x86:
         - cd cmake-clang-x86
         - CC=clang CXX=clang++ cmake -DCMAKE_C_FLAGS="${CMAKE_C_FLAGS} -m32" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32" ../.
     artifacts:
-        when: always
         paths:
             - cmake-clang-x86/
         
@@ -125,7 +118,6 @@ generate_clang_x64:
         - cd cmake-clang-x64
         - CC=clang CXX=clang++ cmake ../.
     artifacts:
-        when: always
         paths:
             - cmake-clang-x64/
     
@@ -137,7 +129,6 @@ build_clang_debug_x86:
         - cd cmake-clang-x86
         - cmake --build . --config Debug
     artifacts:
-        when: always
         paths:
             - cmake-clang-x86/
             
@@ -149,7 +140,6 @@ build_clang_release_x86:
         - cd cmake-clang-x86
         - cmake --build . --config Release
     artifacts:
-        when: always
         paths:
             - cmake-clang-x86/
 
@@ -161,7 +151,6 @@ build_clang_debug_x64:
         - cd cmake-clang-x64
         - cmake --build . --config Debug
     artifacts:
-        when: always
         paths:
             - cmake-clang-x64/
             
@@ -173,7 +162,6 @@ build_clang_release_x64:
         - cd cmake-clang-x64
         - cmake --build . --config Release
     artifacts:
-        when: always
         paths:
             - cmake-clang-x64/
             
