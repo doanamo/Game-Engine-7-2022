@@ -80,8 +80,7 @@ int main(int argc, const char* argv[])
 
     for(const auto& headerPath : headerFileList)
     {
-        ReflectedHeader& reflectedHeader = reflectedHeaders.emplace_back();
-        reflectedHeader.path = headerPath;
+        std::vector<ReflectedType> types;
 
         std::ifstream file(headerPath);
         if(!file.is_open())
@@ -134,7 +133,7 @@ int main(int argc, const char* argv[])
             std::size_t typeTokenEnd = delimeterToken != std::string::npos ?
                 delimeterToken : reflectionTokenEnd;
 
-            ReflectedType& reflectedType = reflectedHeader.types.emplace_back();
+            ReflectedType& reflectedType = types.emplace_back();
 
             TrimWhitespaceLeft(line, typeTokenBegin);
             TrimWhitespaceRight(line, typeTokenEnd);
@@ -159,6 +158,13 @@ int main(int argc, const char* argv[])
             {
                 reflectedType.base = "Reflection::NullType";
             }
+        }
+
+        if(!types.empty())
+        {
+            ReflectedHeader& reflectedHeader = reflectedHeaders.emplace_back();
+            reflectedHeader.path = headerPath;
+            reflectedHeader.types = std::move(types);
         }
     }
 
