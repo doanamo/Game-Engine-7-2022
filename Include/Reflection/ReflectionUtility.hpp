@@ -83,6 +83,12 @@ namespace Reflection
         return StaticType<ReflectedType>().Identifier;
     }
 
+    template<std::size_t Size>
+    TypeIdentifier GetIdentifier(const char (&typeName)[Size])
+    {
+        return Common::StringHash(typeName);
+    }
+
     template<typename RegisteredType>
     std::unique_ptr<RegisteredType> Create()
     {
