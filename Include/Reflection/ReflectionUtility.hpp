@@ -106,7 +106,7 @@ namespace Reflection
     template<typename TargetType, typename SourceType>
     TargetType* Cast(SourceType* instance)
     {
-        if(instance->GetTypeInfo().IsType(StaticType<TargetType>().Identifier))
+        if(instance && instance->GetTypeInfo().IsType(StaticType<TargetType>().Identifier))
         {
             return reinterpret_cast<TargetType*>(instance);
         }
@@ -117,7 +117,7 @@ namespace Reflection
     template<typename TargetType, typename SourceType>
     std::unique_ptr<TargetType> Cast(std::unique_ptr<SourceType>& instance)
     {
-        if(instance->GetTypeInfo().IsType(StaticType<TargetType>().Identifier))
+        if(instance && instance->GetTypeInfo().IsType(StaticType<TargetType>().Identifier))
         {
             return std::unique_ptr<TargetType>(reinterpret_cast<TargetType*>(instance.release()));
         }
