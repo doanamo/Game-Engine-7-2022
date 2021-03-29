@@ -80,6 +80,6 @@ function(enable_reflection TARGET_NAME)
     get_property(BINDING_TEMPLATE GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE)
     configure_file(${BINDING_TEMPLATE}
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
-    target_sources(${TARGET_NAME} PUBLIC
+    target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
 endfunction()
