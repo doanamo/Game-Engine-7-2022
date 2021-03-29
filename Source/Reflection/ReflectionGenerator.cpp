@@ -29,11 +29,11 @@ int main(int argc, const char* argv[])
     // Check provided arguments.
     if(argc < 4)
     {
-        std::cerr << "ReflectionBinding: Unexpected number of arguments!\n";
+        std::cerr << "ReflectionGenerator: Unexpected number of arguments!\n";
 
         for(int arg = 0; arg < argc; ++arg)
         {
-            std::cerr << "ReflectionBinding: argv[" << arg << "] = " << argv[arg] << "\n";
+            std::cerr << "ReflectionGenerator: argv[" << arg << "] = " << argv[arg] << "\n";
         }
 
         return -1;
@@ -58,7 +58,7 @@ int main(int argc, const char* argv[])
         fs::path sourceDirPath(sourceDir);
         if(!fs::exists(sourceDirPath))
         {
-            std::cerr << "ReflectionBinding: Source directory path does not exist - \""
+            std::cerr << "ReflectionGenerator: Source directory path does not exist - \""
                 << sourceDir << "\"";
             return -1;
         }
@@ -85,7 +85,7 @@ int main(int argc, const char* argv[])
         std::ifstream file(headerPath);
         if(!file.is_open())
         {
-            std::cerr << "ReflectionBinding: Failed to open header file - \""
+            std::cerr << "ReflectionGenerator: Failed to open header file - \""
                 << headerPath << "\"";
             return -1;
         }
@@ -95,7 +95,7 @@ int main(int argc, const char* argv[])
 
         auto PrintMalformedDeclaration = [&lineCount, &headerPath]()
         {
-            std::cerr << "ReflectionBinding: Detected malformed REFLECTION_ENABLE() declaration"
+            std::cerr << "ReflectionGenerator: Detected malformed REFLECTION_ENABLE() declaration"
                 " in line " << lineCount << " of header file - \"" << headerPath << "\"";
         };
 
@@ -184,7 +184,7 @@ int main(int argc, const char* argv[])
 
     if(!sourceBindingFile.is_open())
     {
-        std::cerr << "ReflectionBinding: Failed to open file for writing - \""
+        std::cerr << "ReflectionGenerator: Failed to open file for writing - \""
             << sourceBindingFilePath.generic_string() << "\"";
         return -1;
     }
@@ -236,7 +236,7 @@ int main(int argc, const char* argv[])
 
     if(!sourceBindingFile.good())
     {
-        std::cerr << "ReflectionBinding: Failed to write file - \""
+        std::cerr << "ReflectionGenerator: Failed to write file - \""
             << sourceBindingFilePath.generic_string() << "\"";
         return -1;
     }

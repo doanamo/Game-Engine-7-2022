@@ -57,9 +57,9 @@ target_link_libraries(Reflection PUBLIC Common)
 # Binding
 #
 
-add_executable(ReflectionBinding "ReflectionBinding.cpp")
-target_compile_features(ReflectionBinding PUBLIC cxx_std_17)
-set_property(TARGET ReflectionBinding PROPERTY FOLDER "Generated")
+add_executable(ReflectionGenerator "ReflectionGenerator.cpp")
+target_compile_features(ReflectionGenerator PUBLIC cxx_std_17)
+set_property(TARGET ReflectionGenerator PROPERTY FOLDER "Generated")
 
 set_property(GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE
     "${CMAKE_CURRENT_SOURCE_DIR}/ReflectionGenerated.hpp.in")
@@ -67,7 +67,7 @@ set_property(GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE
 function(enable_reflection TARGET_NAME)
     add_custom_target(Reflection${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
-        COMMAND ReflectionBinding ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+        COMMAND ReflectionGenerator ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
     )
 
     add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
