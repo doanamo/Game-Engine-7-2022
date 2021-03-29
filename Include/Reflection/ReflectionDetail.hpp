@@ -191,8 +191,8 @@ namespace Reflection
 
 namespace Reflection
 {
-    using IdentifierType = uint32_t;
-    constexpr IdentifierType InvalidIdentifier = 0;
+    using TypeIdentifier = uint32_t;
+    constexpr TypeIdentifier InvalidIdentifier = 0;
 
     struct NullType;
     struct TypeAttribute;
@@ -223,8 +223,8 @@ namespace Reflection::Detail
 
         static constexpr bool Reflected = false;
         static constexpr std::string_view Name = "<UnknownType>";
-        static constexpr IdentifierType Identifier = InvalidIdentifier;
-        static constexpr IdentifierType BaseTypeIdentifier = InvalidIdentifier;
+        static constexpr TypeIdentifier Identifier = InvalidIdentifier;
+        static constexpr TypeIdentifier BaseTypeIdentifier = InvalidIdentifier;
         static constexpr auto Attributes = MakeEmptyObjectList();
         static constexpr auto Members = MakeEmptyObjectList();
     };
@@ -323,7 +323,7 @@ namespace Reflection::Detail
     public:
         virtual ~ReflectionRegistry() = default;
 
-        virtual const DynamicTypeInfo& LookupType(IdentifierType identifier) const = 0;
+        virtual const DynamicTypeInfo& LookupType(TypeIdentifier identifier) const = 0;
     };
 
     const ReflectionRegistry& GetRegistry();

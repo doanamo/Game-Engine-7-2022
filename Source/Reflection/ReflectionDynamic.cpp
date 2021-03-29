@@ -11,7 +11,7 @@ using namespace Reflection;
 
 const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
-void DynamicTypeInfo::Register(std::string_view name, IdentifierType identifier,
+void DynamicTypeInfo::Register(std::string_view name, TypeIdentifier identifier,
     InstantiateFunction instantiateFunction, DynamicTypeInfo* baseType)
 {
     m_registered = true;
@@ -47,7 +47,7 @@ void* DynamicTypeInfo::Instantiate() const
     return m_instantiateFunction ? m_instantiateFunction() : nullptr;
 }
 
-bool DynamicTypeInfo::IsType(IdentifierType identifier) const
+bool DynamicTypeInfo::IsType(TypeIdentifier identifier) const
 {
     if(!m_registered)
         return false;
@@ -58,13 +58,13 @@ bool DynamicTypeInfo::IsType(IdentifierType identifier) const
     return IsDerivedFrom(identifier);
 }
 
-bool DynamicTypeInfo::IsBaseOf(IdentifierType identifier) const
+bool DynamicTypeInfo::IsBaseOf(TypeIdentifier identifier) const
 {
     const DynamicTypeInfo& typeInfo = Reflection::GetRegistry().LookupType(identifier);
     return typeInfo.IsDerivedFrom(m_identifier);
 }
 
-bool DynamicTypeInfo::IsDerivedFrom(IdentifierType identifier) const
+bool DynamicTypeInfo::IsDerivedFrom(TypeIdentifier identifier) const
 {
     if(!m_registered)
         return false;

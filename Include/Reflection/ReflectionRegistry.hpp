@@ -19,7 +19,7 @@ namespace Reflection
     class Registry final : public Detail::ReflectionRegistry
     {
     public:
-        using TypeInfoMap = std::unordered_map<IdentifierType, DynamicTypeInfo&>;
+        using TypeInfoMap = std::unordered_map<TypeIdentifier, DynamicTypeInfo&>;
 
     public:
         Registry();
@@ -28,10 +28,10 @@ namespace Reflection
         template<typename Type>
         bool RegisterType();
 
-        const DynamicTypeInfo& LookupType(IdentifierType identifier) const override;
+        const DynamicTypeInfo& LookupType(TypeIdentifier identifier) const override;
 
     private:
-        DynamicTypeInfo* FindTypeInfo(IdentifierType identifier);
+        DynamicTypeInfo* FindTypeInfo(TypeIdentifier identifier);
 
     private:
         TypeInfoMap m_types;

@@ -25,7 +25,7 @@ namespace Reflection
         return {};
     }
 
-    inline const DynamicTypeInfo& DynamicType(IdentifierType identifier)
+    inline const DynamicTypeInfo& DynamicType(TypeIdentifier identifier)
     {
         return Detail::GetRegistry().LookupType(identifier);
     }
@@ -54,7 +54,7 @@ namespace Reflection
         return StaticType<ReflectedType>().Reflected;
     }
 
-    inline bool IsRegistered(IdentifierType identifier)
+    inline bool IsRegistered(TypeIdentifier identifier)
     {
         return Detail::GetRegistry().LookupType(identifier).IsRegistered();
     }
@@ -72,13 +72,13 @@ namespace Reflection
     }
 
     template<typename ReflectedType>
-    IdentifierType GetIdentifier()
+    TypeIdentifier GetIdentifier()
     {
         return StaticType<ReflectedType>().Identifier;
     }
 
     template<typename ReflectedType>
-    IdentifierType GetIdentifier(const ReflectedType& type)
+    TypeIdentifier GetIdentifier(const ReflectedType& type)
     {
         return StaticType<ReflectedType>().Identifier;
     }
@@ -91,7 +91,7 @@ namespace Reflection
     }
 
     template<typename RegisteredType>
-    std::unique_ptr<RegisteredType> Create(IdentifierType identifier)
+    std::unique_ptr<RegisteredType> Create(TypeIdentifier identifier)
     {
         const DynamicTypeInfo& typeInfo = Detail::GetRegistry().LookupType(identifier);
         if(typeInfo.IsType<RegisteredType>())

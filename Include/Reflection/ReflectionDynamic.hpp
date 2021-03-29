@@ -20,7 +20,7 @@ namespace Reflection
     constexpr DecayedStaticTypeInfo<ReflectedType> StaticType();
 
     template<typename ReflectedType>
-    IdentifierType GetIdentifier();
+    TypeIdentifier GetIdentifier();
 
     class DynamicTypeInfo final
     {
@@ -57,7 +57,7 @@ namespace Reflection
             return m_name;
         }
 
-        IdentifierType GetIdentifier() const
+        TypeIdentifier GetIdentifier() const
         {
             return m_identifier;
         }
@@ -72,9 +72,9 @@ namespace Reflection
             return m_derivedTypes;
         }
 
-        bool IsType(IdentifierType identifier) const;
-        bool IsBaseOf(IdentifierType identifier) const;
-        bool IsDerivedFrom(IdentifierType identifier) const;
+        bool IsType(TypeIdentifier identifier) const;
+        bool IsBaseOf(TypeIdentifier identifier) const;
+        bool IsDerivedFrom(TypeIdentifier identifier) const;
 
         template<typename OtherType>
         bool IsType() const
@@ -113,13 +113,13 @@ namespace Reflection
         }
 
     private:
-        void Register(std::string_view name, IdentifierType identifier,
+        void Register(std::string_view name, TypeIdentifier identifier,
             InstantiateFunction createFunction, DynamicTypeInfo* baseType);
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
         std::string_view m_name = "<UnregisteredType>";
-        IdentifierType m_identifier = InvalidIdentifier;
+        TypeIdentifier m_identifier = InvalidIdentifier;
         InstantiateFunction m_instantiateFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;

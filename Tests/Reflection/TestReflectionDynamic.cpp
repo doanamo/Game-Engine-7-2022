@@ -17,7 +17,7 @@ TEST_CASE("Dynamic Reflection")
     
     SUBCASE("Check registered built-in types")
     {
-        Reflection::IdentifierType NullTypeIdentifier =
+        Reflection::TypeIdentifier NullTypeIdentifier =
             Reflection::GetIdentifier<Reflection::NullType>();
 
         CHECK(Reflection::IsRegistered(NullTypeIdentifier));
