@@ -179,13 +179,13 @@ int main(int argc, const char* argv[])
     sourceBindingFilename += "ReflectionGenerated";
     sourceBindingFilename += ".cpp";
 
-    fs::path sourceBindingPath = fs::path(outputDir) / sourceBindingFilename;
-    std::ofstream sourceBindingFile(sourceBindingPath);
+    fs::path sourceBindingFilePath = fs::path(outputDir) / sourceBindingFilename;
+    std::ofstream sourceBindingFile(sourceBindingFilePath);
 
     if(!sourceBindingFile.is_open())
     {
         std::cerr << "ReflectionBinding: Failed to open file for writing - \""
-            << sourceBindingPath << "\"";
+            << sourceBindingFilePath.generic_string() << "\"";
         return -1;
     }
 
@@ -199,6 +199,9 @@ int main(int argc, const char* argv[])
         "#include <Common/Debug.hpp>\n"
         "#include <Reflection/Reflection.hpp>\n";
 
+    sourceBindingFile <<
+        "#include \"" << targetName << "/ReflectionGenerated.hpp\"\n";
+
     for(const auto& header : reflectedHeaders)
     {
         fs::path relativeHeaderPath = fs::relative(header.path, fs::path(outputDir));
@@ -208,30 +211,33 @@ int main(int argc, const char* argv[])
 
     sourceBindingFile <<
         "\n"
-        "void RegisterReflectionTypes_" << targetName << "()\n"
+        "namespace Reflection::Generated\n"
         "{\n"
-        "    static bool registered = false;\n"
-        "    if(registered)\n"
-        "        return;\n\n";
+        "    void RegisterModule" << targetName << "()\n"
+        "    {\n"
+        "        static bool registered = false;\n"
+        "        if(registered)\n"
+        "            return;\n\n";
 
     for(const auto& header : reflectedHeaders)
     {
         for(const auto& type : header.types)
         {
             sourceBindingFile <<
-                "    ASSERT(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
+                "        ASSERT(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
         }
     }
 
     sourceBindingFile <<
-        "    \n"
-        "    registered = true;\n"
+        "        \n"
+        "        registered = true;\n"
+        "    }\n"
         "}\n";
 
     if(!sourceBindingFile.good())
     {
         std::cerr << "ReflectionBinding: Failed to write file - \""
-            << sourceBindingPath << "\"";
+            << sourceBindingFilePath.generic_string() << "\"";
         return -1;
     }
 

@@ -1,0 +1,18 @@
+/*
+    Copyright(c) 2018 - 2021 Piotr Doan.All rights reserved.
+    Software distributed under the permissive MIT License.
+*/
+
+#pragma once
+
+/*
+    Reflection Binding
+
+    File generated from template using build system.
+    Any edits made here will be lost unless done in template file!
+*/
+
+namespace Reflection::Generated
+{
+    void RegisterModule${TARGET_NAME}();
+}

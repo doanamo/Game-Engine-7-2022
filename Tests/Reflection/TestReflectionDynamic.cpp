@@ -9,10 +9,11 @@
 #include <doctest/doctest.h>
 #include <Reflection/Reflection.hpp>
 #include "TestReflectionHeader.hpp"
+#include "TestReflection/ReflectionGenerated.hpp"
 
 TEST_CASE("Dynamic Reflection")
 {
-    REFLECTION_REGISTER_MODULE(TestReflection);
+    Reflection::Generated::RegisterModuleTestReflection();
     
     SUBCASE("Check registered built-in types")
     {

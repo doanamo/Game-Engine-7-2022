@@ -61,6 +61,9 @@ add_executable(ReflectionBinding "ReflectionBinding.cpp")
 target_compile_features(ReflectionBinding PUBLIC cxx_std_17)
 set_property(TARGET ReflectionBinding PROPERTY FOLDER "Generated")
 
+set_property(GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/ReflectionGenerated.hpp.in")
+
 function(enable_reflection TARGET_NAME)
     add_custom_target(Reflection${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
@@ -68,7 +71,15 @@ function(enable_reflection TARGET_NAME)
     )
 
     add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
+    set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
+    target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/Include/")
+
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
-    set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
+
+    get_property(BINDING_TEMPLATE GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE)
+    configure_file(${BINDING_TEMPLATE}
+        "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
+    target_sources(${TARGET_NAME} PUBLIC
+        "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
 endfunction()
