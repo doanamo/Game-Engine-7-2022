@@ -72,8 +72,8 @@ function(enable_reflection TARGET_NAME)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
 
-    get_property(REFLECTION_GENERATED_TEMPLATE GLOBAL PROPERTY REFLECTION_GENERATED_TEMPLATE)
-    configure_file(${REFLECTION_GENERATED_TEMPLATE}
+    get_property(REFLECTION_BINDING_TEMPLATE GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE)
+    configure_file(${REFLECTION_BINDING_TEMPLATE}
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
