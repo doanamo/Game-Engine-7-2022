@@ -4,6 +4,8 @@
 */
 
 #include <string>
+#include <memory>
+#include <iostream>
 #include <doctest/doctest.h>
 #include <Common/StateMachine.hpp>
 

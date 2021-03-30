@@ -4,6 +4,8 @@
 */
 
 #include <memory>
+#include <string>
+#include <iostream>
 #include <doctest/doctest.h>
 #include <Common/Test/InstanceCounter.hpp>
 #include <Common/Result.hpp>

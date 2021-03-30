@@ -60,9 +60,11 @@ target_link_libraries(Reflection PUBLIC Common)
 add_subdirectory("../../Tools/ReflectionGenerator" "ReflectionGenerator")
 
 function(enable_reflection TARGET_NAME)
+    get_property(REFLECTION_GENERATOR GLOBAL PROPERTY REFLECTION_GENERATOR)
+
     add_custom_target(Reflection${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
-        COMMAND ReflectionGenerator ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+        COMMAND ${REFLECTION_GENERATOR} ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
     )
 
     add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
