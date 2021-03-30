@@ -47,7 +47,7 @@ generate_gcc_release_x64:
     
 build_gcc_debug_x86:
     stage: build
-    dependencies:
+    needs:
         - generate_gcc_debug_x86
     script:
         - cd cmake-gcc-debug-x86
@@ -58,7 +58,7 @@ build_gcc_debug_x86:
             
 build_gcc_release_x86:
     stage: build
-    dependencies:
+    needs:
         - generate_gcc_release_x86
     script:
         - cd cmake-gcc-release-x86
@@ -69,7 +69,7 @@ build_gcc_release_x86:
 
 build_gcc_debug_x64:
     stage: build
-    dependencies:
+    needs:
         - generate_gcc_debug_x64
     script:
         - cd cmake-gcc-debug-x64
@@ -80,7 +80,7 @@ build_gcc_debug_x64:
             
 build_gcc_release_x64:
     stage: build
-    dependencies:
+    needs:
         - generate_gcc_release_x64
     script:
         - cd cmake-gcc-release-x64
@@ -91,7 +91,7 @@ build_gcc_release_x64:
             
 test_gcc_debug_x86:
     stage: test
-    dependencies:
+    needs:
         - build_gcc_debug_x86
     script:
         - cd cmake-gcc-debug-x86
@@ -99,7 +99,7 @@ test_gcc_debug_x86:
         
 test_gcc_release_x86:
     stage: test
-    dependencies:
+    needs:
         - build_gcc_release_x86
     script:
         - cd cmake-gcc-release-x86
@@ -107,7 +107,7 @@ test_gcc_release_x86:
         
 test_gcc_debug_x64:
     stage: test
-    dependencies:
+    needs:
         - build_gcc_debug_x64
     script:
         - cd cmake-gcc-debug-x64
@@ -115,7 +115,7 @@ test_gcc_debug_x64:
         
 test_gcc_release_x64:
     stage: test
-    dependencies:
+    needs:
         - build_gcc_release_x64
     script:
         - cd cmake-gcc-release-x64
@@ -163,7 +163,7 @@ generate_clang_release_x64:
     
 build_clang_debug_x86:
     stage: build
-    dependencies:
+    needs:
         - generate_clang_debug_x86
     script:
         - cd cmake-clang-debug-x86
@@ -174,7 +174,7 @@ build_clang_debug_x86:
             
 build_clang_release_x86:
     stage: build
-    dependencies:
+    needs:
         - generate_clang_release_x86
     script:
         - cd cmake-clang-release-x86
@@ -185,7 +185,7 @@ build_clang_release_x86:
 
 build_clang_debug_x64:
     stage: build
-    dependencies:
+    needs:
         - generate_clang_debug_x64
     script:
         - cd cmake-clang-debug-x64
@@ -196,7 +196,7 @@ build_clang_debug_x64:
             
 build_clang_release_x64:
     stage: build
-    dependencies:
+    needs:
         - generate_clang_release_x64
     script:
         - cd cmake-clang-release-x64
@@ -207,7 +207,7 @@ build_clang_release_x64:
             
 test_clang_debug_x86:
     stage: test
-    dependencies:
+    needs:
         - build_clang_debug_x86
     script:
         - cd cmake-clang-debug-x86
@@ -215,7 +215,7 @@ test_clang_debug_x86:
         
 test_clang_release_x86:
     stage: test
-    dependencies:
+    needs:
         - build_clang_release_x86
     script:
         - cd cmake-clang-release-x86
@@ -223,7 +223,7 @@ test_clang_release_x86:
         
 test_clang_debug_x64:
     stage: test
-    dependencies:
+    needs:
         - build_clang_debug_x64
     script:
         - cd cmake-clang-debug-x64
@@ -231,7 +231,7 @@ test_clang_debug_x64:
         
 test_clang_release_x64:
     stage: test
-    dependencies:
+    needs:
         - build_clang_release_x64
     script:
         - cd cmake-clang-release-x64
