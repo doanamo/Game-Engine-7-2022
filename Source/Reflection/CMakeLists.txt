@@ -54,15 +54,10 @@ add_subdirectory("../Common" "Common")
 target_link_libraries(Reflection PUBLIC Common)
 
 #
-# Binding
+# Generator
 #
 
-add_executable(ReflectionGenerator "ReflectionGenerator.cpp")
-target_compile_features(ReflectionGenerator PUBLIC cxx_std_17)
-set_property(TARGET ReflectionGenerator PROPERTY FOLDER "Generated")
-
-set_property(GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/ReflectionGenerated.hpp.in")
+add_subdirectory("../../Tools/ReflectionGenerator" "ReflectionGenerator")
 
 function(enable_reflection TARGET_NAME)
     add_custom_target(Reflection${TARGET_NAME}
@@ -77,8 +72,8 @@ function(enable_reflection TARGET_NAME)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
 
-    get_property(BINDING_TEMPLATE GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE)
-    configure_file(${BINDING_TEMPLATE}
+    get_property(REFLECTION_GENERATED_TEMPLATE GLOBAL PROPERTY REFLECTION_GENERATED_TEMPLATE)
+    configure_file(${REFLECTION_GENERATED_TEMPLATE}
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
