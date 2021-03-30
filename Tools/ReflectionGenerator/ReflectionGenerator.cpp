@@ -213,7 +213,7 @@ int main(int argc, const char* argv[])
         for(const auto& type : header.types)
         {
             reflectionBinding <<
-                "        ASSERT(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
+                "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
         }
     }
 
