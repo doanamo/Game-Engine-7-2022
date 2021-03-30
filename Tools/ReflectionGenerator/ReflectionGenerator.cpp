@@ -3,10 +3,11 @@
     Software distributed under the permissive MIT License.
 */
 
+#include <string>
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <sstream>
 #include <vector>
 #include <map>
 
@@ -174,42 +175,30 @@ int main(int argc, const char* argv[])
         }
     }
 
-    // Create binding source file.
-    std::string sourceBindingFilename;
-    sourceBindingFilename += "ReflectionGenerated";
-    sourceBindingFilename += ".cpp";
+    // Generate reflection binding.
+    std::ostringstream reflectionBinding;
 
-    fs::path sourceBindingFilePath = fs::path(outputDir) / sourceBindingFilename;
-    std::ofstream sourceBindingFile(sourceBindingFilePath);
-
-    if(!sourceBindingFile.is_open())
-    {
-        std::cerr << "ReflectionGenerator: Failed to open file for writing - \""
-            << sourceBindingFilePath.generic_string() << "\"";
-        return -1;
-    }
-
-    sourceBindingFile <<
+    reflectionBinding <<
         "/*\n"
         "    Copyright(c) 2018 - 2021 Piotr Doan.All rights reserved.\n"
         "    Software distributed under the permissive MIT License.\n"
         "*/\n\n";
 
-    sourceBindingFile <<
+    reflectionBinding <<
         "#include <Common/Debug.hpp>\n"
         "#include <Reflection/Reflection.hpp>\n";
 
-    sourceBindingFile <<
+    reflectionBinding <<
         "#include \"" << targetName << "/ReflectionGenerated.hpp\"\n";
 
     for(const auto& header : reflectedHeaders)
     {
         fs::path relativeHeaderPath = fs::relative(header.path, fs::path(outputDir));
-        sourceBindingFile <<
+        reflectionBinding <<
             "#include \"" << relativeHeaderPath.generic_string() << "\"\n";
     }
 
-    sourceBindingFile <<
+    reflectionBinding <<
         "\n"
         "namespace Reflection::Generated\n"
         "{\n"
@@ -223,25 +212,61 @@ int main(int argc, const char* argv[])
     {
         for(const auto& type : header.types)
         {
-            sourceBindingFile <<
+            reflectionBinding <<
                 "        ASSERT(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
         }
     }
 
-    sourceBindingFile <<
+    reflectionBinding <<
         "        \n"
         "        registered = true;\n"
         "    }\n"
         "}\n";
 
-    if(!sourceBindingFile.good())
+    // Determine reflection binding file path.
+    std::string reflectionBindingFilename;
+    reflectionBindingFilename += "ReflectionGenerated";
+    reflectionBindingFilename += ".cpp";
+
+    fs::path reflectionBindingFilePath = fs::path(outputDir) / reflectionBindingFilename;
+
+    // Check existing reflection binding file.
+    std::ifstream existingBindingFile(reflectionBindingFilePath);
+    std::string existingReflectionBinding;
+
+    existingBindingFile.seekg(0, std::ios::end);
+    existingReflectionBinding.reserve(existingBindingFile.tellg());
+    existingBindingFile.seekg(0, std::ios::beg);
+
+    existingReflectionBinding.assign(
+        std::istreambuf_iterator<char>(existingBindingFile),
+        std::istreambuf_iterator<char>());
+
+    if(reflectionBinding.str() == existingReflectionBinding)
+        return 0;
+
+    existingBindingFile.close();
+
+    // Create new reflection binding file.
+    std::ofstream reflectionBindingFile(reflectionBindingFilePath);
+    
+    if(!reflectionBindingFile.is_open())
     {
-        std::cerr << "ReflectionGenerator: Failed to write file - \""
-            << sourceBindingFilePath.generic_string() << "\"";
+        std::cerr << "ReflectionGenerator: Failed to open file for writing - \""
+            << reflectionBindingFilePath.generic_string() << "\"";
         return -1;
     }
 
-    sourceBindingFile.close();
+    reflectionBindingFile << reflectionBinding.str();
+
+    if(!reflectionBindingFile.good())
+    {
+        std::cerr << "ReflectionGenerator: Failed to write file - \""
+            << reflectionBindingFilePath.generic_string() << "\"";
+        return -1;
+    }
+
+    reflectionBindingFile.close();
 
     return 0;
 }
