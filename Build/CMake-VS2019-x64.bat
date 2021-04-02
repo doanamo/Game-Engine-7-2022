@@ -6,7 +6,7 @@ set inputDir=%1
 set outputDir=%2
 set arch=%3
 
-if [%inputDir%] == [] set inputDir="."
+if [%inputDir%] == [] set inputDir="../."
 if [%outputDir%] == [] set outputDir="CMake-VS2019-x64"
 if [%arch%] == [] set arch=x64
 
