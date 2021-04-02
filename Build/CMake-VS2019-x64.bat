@@ -13,7 +13,7 @@ if [%arch%] == [] set arch=x64
 mkdir %outputDir% >nul 2>&1
 cd %outputDir%
 
-echo -- Generating CMake project...
+echo ---- Generating CMake project...
 set archArg=-A %arch%
 
 cmake -G "Visual Studio 16" %archArg% "../%inputDir%"
@@ -23,7 +23,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit
 )
 
-echo -- Opening project solution...
+echo ---- Opening project solution...
 for /f %%f in ('dir /b "*.sln"') do (
     set solution=%%f
     goto found
