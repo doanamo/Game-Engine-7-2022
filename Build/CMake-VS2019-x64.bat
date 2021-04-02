@@ -3,6 +3,7 @@ setlocal
 
 rem Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
 rem Software distributed under the permissive MIT License.
+
 set inputDir=%1
 set outputDir=%2
 set arch=%3
@@ -11,6 +12,7 @@ if [%inputDir%] == [] set inputDir="../."
 if [%outputDir%] == [] set outputDir="CMake-VS2019-x64"
 if [%arch%] == [] set arch=x64
 
+echo ---- Preparing build directory...
 mkdir %outputDir% >nul 2>&1
 cd %outputDir%
 

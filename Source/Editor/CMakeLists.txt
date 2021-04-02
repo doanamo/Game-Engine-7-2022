@@ -19,9 +19,9 @@ set(INCLUDE_FILES
     "Modules/GameInstanceEditor.hpp"
 )
 
-list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Editor/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Editor/"
-    PREFIX "Header Files" FILES ${INCLUDE_FILES})
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Editor/")
+list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
+source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
@@ -33,16 +33,17 @@ set(SOURCE_FILES
     "Modules/GameInstanceEditor.cpp"
 )
 
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
-list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
+source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 set(RESOURCE_FILES
     "Shaders/Interface.shader"
 )
 
-list(TRANSFORM RESOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/"
-    PREFIX "Resource Files" FILES ${RESOURCE_FILES})
+set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/")
+list(TRANSFORM RESOURCE_FILES PREPEND ${RESOURCE_DIR})
+source_group(TREE ${RESOURCE_DIR} PREFIX "Resource Files" FILES ${RESOURCE_FILES})
 
 #
 # Library

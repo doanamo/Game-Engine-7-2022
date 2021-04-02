@@ -32,8 +32,9 @@ set(INCLUDE_FILES
     "FileSystem/ArchiveFileDepot.hpp"
 )
 
-list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/System/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/System/" PREFIX "Header Files" FILES ${INCLUDE_FILES})
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/System/")
+list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
+source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
@@ -55,8 +56,9 @@ set(SOURCE_FILES
     "FileSystem/ArchiveFileDepot.cpp"
 )
 
-list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
+source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 #
 # Library

@@ -21,9 +21,9 @@ set(INCLUDE_FILES
     "ReflectionTypes.hpp"
 )
 
-list(TRANSFORM INCLUDE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/"
-    PREFIX "Header Files" FILES ${INCLUDE_FILES})
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/")
+list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
+source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
@@ -32,8 +32,9 @@ set(SOURCE_FILES
     "ReflectionTypes.cpp"
 )
 
-list(TRANSFORM SOURCE_FILES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/" PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
+source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
 
 #
 # Library
