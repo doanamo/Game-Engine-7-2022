@@ -23,14 +23,18 @@ Requirements
 
 Building
 ===
-For native desktop:
-* Run CMake to generate makefiles or IDE solution of your choice
+Using build scripts (see *Build* directory):
+* For Visual Studio on Windows, there are batch scripts that will generate/update solution via CMake and then automatically open IDE
+* For Emscripten on Windows, there is batch script that will download Emscripten SDK along with needed build tools, compile the entire engine and then run Example project in browser
+
+For native desktop (manual):
+* Run CMake and input main directory to generate makefiles or IDE solution of your choice
 * Compile and run Example project
 
-For web browser:
+For web browser (manual):
 * [Setup Emscripten SDK](https://webassembly.org/getting-started/developers-guide/)
 * Run CMake to generate makefiles or IDE solution for cross compilation with following toolchain file from Emscripten SDK: `emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake`
-* Compile Example project and proceed to the output directory
+* Compile Example project and then proceed to the output directory (with produced WASM and HTML files)
 * Run either `emrun --no_browser --port 8080 .` or `python -m SimpleHTTPServer 8080` and then open `http://localhost:8080`
 
 Contributions
