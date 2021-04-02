@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 rem Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
 rem Software distributed under the permissive MIT License.
