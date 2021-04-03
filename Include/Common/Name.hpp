@@ -41,7 +41,15 @@ namespace Common
 #endif
         }
 
-        Name(const HashType hash)
+        Name(const char* string)
+            : m_hash(Common::StringHash<HashType>(string))
+        {
+#ifdef NAME_REGISTRY_ENABLED
+            NameRegistry::GetInstance().Register(*this, string);
+#endif
+        }
+
+        explicit Name(const HashType hash)
             : m_hash(hash)
         {
 #ifdef NAME_REGISTRY_ENABLED
