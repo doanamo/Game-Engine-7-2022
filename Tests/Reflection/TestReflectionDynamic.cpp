@@ -23,7 +23,8 @@ TEST_CASE("Dynamic Reflection")
         CHECK(Reflection::IsRegistered(NullTypeIdentifier));
         CHECK(Reflection::DynamicType(NullTypeIdentifier).IsRegistered());
         CHECK(Reflection::DynamicType(NullTypeIdentifier).IsNullType());
-        CHECK_EQ(Reflection::DynamicType(NullTypeIdentifier).GetName(), "Reflection::NullType");
+        CHECK_EQ(Reflection::DynamicType(NullTypeIdentifier).GetName(),
+            Common::Name("Reflection::NullType"));
         CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<Undefined>()).IsNullType());
         CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<Derived>()).IsNullType());
     }
@@ -45,17 +46,17 @@ TEST_CASE("Dynamic Reflection")
     SUBCASE("Check registered type names")
     {
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Empty>())
-            .GetName(), "Empty");
+            .GetName(), Common::Name("Empty"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Base>())
-            .GetName(), "Base");
+            .GetName(), Common::Name("Base"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Derived>())
-            .GetName(), "Derived");
+            .GetName(), Common::Name("Derived"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Inner>())
-            .GetName(), "Inner");
+            .GetName(), Common::Name("Inner"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedOne>())
-            .GetName(), "BranchedOne");
+            .GetName(), Common::Name("BranchedOne"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedTwo>())
-            .GetName(), "BranchedTwo");
+            .GetName(), Common::Name("BranchedTwo"));
     }
 
     SUBCASE("Check registered type identifier")
@@ -98,9 +99,12 @@ TEST_CASE("Dynamic Reflection")
 
     SUBCASE("Check registered base type")
     {
-        CHECK_EQ(Reflection::DynamicType<Derived>().GetBaseType().GetName(), "Base");
-        CHECK_EQ(Reflection::DynamicType<BranchedOne>().GetBaseType().GetName(), "Derived");
-        CHECK_EQ(Reflection::DynamicType<BranchedTwo>().GetBaseType().GetName(), "Derived");
+        CHECK_EQ(Reflection::DynamicType<Derived>().GetBaseType().GetName(),
+            Common::Name("Base"));
+        CHECK_EQ(Reflection::DynamicType<BranchedOne>().GetBaseType().GetName(),
+            Common::Name("Derived"));
+        CHECK_EQ(Reflection::DynamicType<BranchedTwo>().GetBaseType().GetName(),
+            Common::Name("Derived"));
         CHECK(Reflection::DynamicType<Derived>().GetBaseType().IsType<Base>());
         CHECK(Reflection::DynamicType<BranchedOne>().GetBaseType().IsType<Derived>());
         CHECK(Reflection::DynamicType<BranchedTwo>().GetBaseType().IsType<Derived>());

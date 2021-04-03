@@ -28,6 +28,11 @@ namespace Common
         {
         }
 
+        Name(const Name& other)
+            : m_hash(other.m_hash)
+        {
+        }
+
         Name(const std::string_view string)
             : m_hash(Common::StringHash<HashType>(string))
         {
@@ -48,13 +53,19 @@ namespace Common
 #ifdef NAME_REGISTRY_ENABLED
         std::string_view GetString() const
         {
-            NameRegistry::GetInstance().Lookup(m_hash);
+            return NameRegistry::GetInstance().Lookup(m_hash);
         }
 #endif
 
         bool operator==(const Name& other) const
         {
             return m_hash == other.m_hash;
+        }
+
+        Name& operator=(const Name& other)
+        {
+            m_hash = other.m_hash;
+            return *this;
         }
 
         HashType GetHash() const
@@ -68,6 +79,6 @@ namespace Common
         }
 
     private:
-        const HashType m_hash;
+        HashType m_hash;
     };
 }

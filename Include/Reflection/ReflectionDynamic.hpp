@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Common/Name.hpp>
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionStatic.hpp"
 
@@ -25,6 +26,8 @@ namespace Reflection
     class DynamicTypeInfo final
     {
     public:
+        static_assert(std::is_same<TypeIdentifier, Common::Name::HashType>::value);
+
         friend class Registry;
         static const DynamicTypeInfo Invalid;
 
@@ -44,7 +47,7 @@ namespace Reflection
 
         bool IsNullType() const 
         {
-            return m_registered && m_identifier == Reflection::GetIdentifier<NullType>();
+            return m_registered && GetIdentifier() == Reflection::GetIdentifier<NullType>();
         }
 
         bool HasBaseType() const
@@ -52,14 +55,14 @@ namespace Reflection
             return m_registered && !m_baseType->IsNullType();
         }
 
-        const std::string_view& GetName() const
+        const Common::Name& GetName() const
         {
             return m_name;
         }
 
         TypeIdentifier GetIdentifier() const
         {
-            return m_identifier;
+            return m_name.GetHash();
         }
 
         const DynamicTypeInfo& GetBaseType() const
@@ -113,13 +116,12 @@ namespace Reflection
         }
 
     private:
-        void Register(std::string_view name, TypeIdentifier identifier,
+        void Register(std::string_view name,
             InstantiateFunction createFunction, DynamicTypeInfo* baseType);
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
-        std::string_view m_name = "<UnregisteredType>";
-        TypeIdentifier m_identifier = InvalidIdentifier;
+        Common::Name m_name = "<UnregisteredType>";
         InstantiateFunction m_instantiateFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;

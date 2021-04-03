@@ -22,6 +22,13 @@ TEST_CASE("Name")
     CHECK_EQ(nameOne, Common::Name("One"));
     CHECK_EQ(nameTwo, Common::Name("Two"));
 
+    Common::Name nameOneCopy;
+    nameOneCopy = nameOne;
+    CHECK_EQ(nameOneCopy, nameOne);
+
+    Common::Name nameTwoCopy(nameTwo);
+    CHECK_EQ(nameTwoCopy, nameTwo);
+
     CHECK_EQ(Common::Name("TestNameType").GetHash(),
         Reflection::StaticType<TestNameType>().Identifier);
 }

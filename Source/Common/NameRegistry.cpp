@@ -11,7 +11,7 @@ using namespace Common;
 NameRegistry::NameRegistry()
 {
 #ifdef NAME_REGISTRY_ENABLED
-    Register("");
+    m_registry.emplace(Common::StringHash<HashType>(""), "");
 #endif
 }
 
