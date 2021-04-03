@@ -78,19 +78,19 @@ namespace Reflection
             {
                 ASSERT(false, "Detected name hash collision between types \"{}\" ({})"
                     " and \"{}\" ({})!", staticType.Name, staticType.Identifier,
-                    dynamicType.GetName(), dynamicType.GetIdentifier());
+                    dynamicType.GetName().GetString(), dynamicType.GetIdentifier());
             }
 #endif
 
             if(dynamicType.IsRegistered())
             {
                 LOG_WARNING("Attempted to register type \"{}\" ({}) twice!",
-                    dynamicType.GetName(), dynamicType.GetIdentifier());
+                    staticType.Name, dynamicType.GetIdentifier());
             }
             else
             {
                 ASSERT(false, "Unknown registration error for type \"{}\" ({})",
-                    dynamicType.GetName(), dynamicType.GetIdentifier());
+                    staticType.Name, dynamicType.GetIdentifier());
             }
 
             return false;
@@ -106,7 +106,7 @@ namespace Reflection
 
         dynamicType.Register(staticType.Name, instantiateFunction, baseType);
         LOG_INFO("Registered reflection type: \"{}\" ({})",
-            dynamicType.GetName(), dynamicType.GetIdentifier());
+            staticType.Name, dynamicType.GetIdentifier());
 
         return true;
     }
