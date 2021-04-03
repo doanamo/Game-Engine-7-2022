@@ -11,8 +11,8 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
-    "Utility.hpp"
     "Debug.hpp"
+    "Utility.hpp"
     "NonCopyable.hpp"
     "Resettable.hpp"
     "ScopeGuard.hpp"
@@ -21,6 +21,8 @@ set(INCLUDE_FILES
     "StateMachine.hpp"
     "Handle.hpp"
     "HandleMap.hpp"
+    "Name.hpp"
+    "NameRegistry.hpp"
     "Logger/Logger.hpp"
     "Logger/Message.hpp"
     "Logger/Sink.hpp"
@@ -44,8 +46,9 @@ source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
-    "Utility.cpp"
     "Debug.cpp"
+    "Utility.cpp"
+    "NameRegistry.cpp"
     "Logger/Logger.cpp"
     "Logger/Message.cpp"
     "Logger/Sink.cpp"

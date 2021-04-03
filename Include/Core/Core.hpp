@@ -64,4 +64,5 @@ namespace fs = std::filesystem;
 #include <Common/Resettable.hpp>
 #include <Common/ScopeGuard.hpp>
 #include <Common/Result.hpp>
+#include <Common/Name.hpp>
 #include <Common/Logger/Logger.hpp>
