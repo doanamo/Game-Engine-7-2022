@@ -18,6 +18,7 @@ set(TEST_FILES
     "TestStateMachine.cpp"
     "TestHandleMap.cpp"
     "TestEvent.cpp"
+    "TestName.cpp"
 )
 
 #
