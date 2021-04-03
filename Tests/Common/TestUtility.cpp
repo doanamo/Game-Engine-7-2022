@@ -92,8 +92,9 @@ TEST_CASE("Utility")
 
     SUBCASE("String hash")
     {
-        CHECK_NE(Common::StringHash("Armored orange"), 0);
-        CHECK_NE(Common::StringHash("Naked banana"), Common::StringHash("Dressed apple"));
+        CHECK_NE(Common::StringHash<uint32_t>("Armored orange"), 0);
+        CHECK_NE(Common::StringHash<uint64_t>("Naked banana"),
+            Common::StringHash<uint64_t>("Dressed apple"));
     }
 
     SUBCASE("CRC")

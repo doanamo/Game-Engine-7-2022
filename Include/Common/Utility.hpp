@@ -65,21 +65,24 @@ namespace Common
     std::string StringTrimRight(const std::string text, const char* characters = " ");
     std::string StringTrim(const std::string text, const char* characters = " ");
 
-    constexpr uint32_t StringHash(const std::string_view string)
+    template<typename Type>
+    constexpr Type StringHash(const std::string_view string)
     {
+        static_assert(std::is_same<Type, uint32_t>::value || std::is_same<Type, uint64_t>::value);
+
         /*
             Small and simple hashing function for strings.
             May need to be replaced in case of collisions.
             Use only if you can detect possible collisions.
             It is obviously not cryptographically secure.
+
+            Current implementation: djb2
         */
 
-        const uint32_t prime = 257;
-        uint32_t hash = 0;
-
+        Type hash = 5381;
         for(char c : string)
         {
-            hash = hash * prime + c;
+            hash = ((hash << 5) + hash) + c;
         }
 
         return hash;

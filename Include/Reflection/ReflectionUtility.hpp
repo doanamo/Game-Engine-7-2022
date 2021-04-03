@@ -86,7 +86,7 @@ namespace Reflection
     template<std::size_t Size>
     TypeIdentifier GetIdentifier(const char (&typeName)[Size])
     {
-        return Common::StringHash(typeName);
+        return Common::StringHash<TypeIdentifier>(typeName);
     }
 
     template<typename RegisteredType>
