@@ -69,11 +69,17 @@ TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<Base>());
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Derived>()).GetIdentifier(),
             Reflection::GetIdentifier<Derived>());
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Inner>()).GetIdentifier(),
+
+        Inner inner;
+        CHECK_EQ(Reflection::DynamicType(inner).GetIdentifier(),
             Reflection::GetIdentifier<Inner>());
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedOne>()).GetIdentifier(),
+
+        BranchedOne branchedOne;
+        CHECK_EQ(Reflection::DynamicType(&branchedOne).GetIdentifier(),
             Reflection::GetIdentifier<BranchedOne>());
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedTwo>()).GetIdentifier(),
+
+        std::unique_ptr<BranchedTwo> branchedTwo = std::make_unique<BranchedTwo>();
+        CHECK_EQ(Reflection::DynamicType(branchedTwo).GetIdentifier(),
             Reflection::GetIdentifier<BranchedTwo>());
     }
 

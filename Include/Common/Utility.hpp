@@ -9,7 +9,6 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
-#include <limits>
 #include <filesystem>
 #include "Common/Debug.hpp"
 
@@ -19,6 +18,24 @@
 
 namespace Common
 {
+    template<typename Type>
+    Type* Pointer(Type& object)
+    {
+        return &object;
+    }
+
+    template<typename Type>
+    Type* Pointer(Type* object)
+    {
+        return object;
+    }
+
+    template<typename Type>
+    Type* Pointer(const std::unique_ptr<Type>& object)
+    {
+        return object.get();
+    }
+
     template<typename Type>
     constexpr Type Clamp(const Type& value, const Type& lower, const Type& upper)
     {

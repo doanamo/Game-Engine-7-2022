@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Common/Utility.hpp>
 #include "Reflection/ReflectionDynamic.hpp"
 
 /*
@@ -25,11 +26,6 @@ namespace Reflection
         return {};
     }
 
-    inline const DynamicTypeInfo& DynamicType(const TypeIdentifier identifier)
-    {
-        return Detail::GetRegistry().LookupType(identifier);
-    }
-
     template<typename RegisteredType>
     constexpr const DynamicTypeInfo& DynamicType()
     {
@@ -39,7 +35,14 @@ namespace Reflection
     template<typename RegisteredType>
     constexpr const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
     {
-        return instance.GetTypeInfo();
+        ASSERT(Common::Pointer(instance));
+        return Common::Pointer(instance)->GetTypeInfo();
+    }
+
+    template<>
+    inline const DynamicTypeInfo& DynamicType(const TypeIdentifier& identifier)
+    {
+        return Detail::GetRegistry().LookupType(identifier);
     }
 
     template<typename ReflectedType>
@@ -54,11 +57,6 @@ namespace Reflection
         return StaticType<ReflectedType>().Reflected;
     }
 
-    inline bool IsRegistered(const TypeIdentifier identifier)
-    {
-        return Detail::GetRegistry().LookupType(identifier).IsRegistered();
-    }
-
     template<typename RegisteredType>
     constexpr bool IsRegistered()
     {
@@ -71,16 +69,22 @@ namespace Reflection
         return DynamicType(instance).IsRegistered();
     }
 
+    template<>
+    inline bool IsRegistered(const TypeIdentifier& identifier)
+    {
+        return DynamicType(identifier).IsRegistered();
+    }
+
     template<typename ReflectedType>
     TypeIdentifier GetIdentifier()
     {
         return StaticType<ReflectedType>().Identifier;
     }
 
-    template<typename ReflectedType>
-    TypeIdentifier GetIdentifier(const ReflectedType& type)
+    template<typename RegisteredType>
+    TypeIdentifier GetIdentifier(const RegisteredType& instance)
     {
-        return StaticType<ReflectedType>().Identifier;
+        return DynamicType(instance).GetIdentifier();
     }
 
     template<std::size_t Size>
