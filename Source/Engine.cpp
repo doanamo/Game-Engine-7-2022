@@ -266,8 +266,9 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
-    std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem->OpenFile(
-        "Data/Engine/Default/Texture.png", System::FileHandle::OpenFlags::Read).UnwrapOr(nullptr);
+    const std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem->OpenFile(
+        "Data/Engine/Default/Texture.png", System::FileHandle::OpenFlags::Read)
+        .UnwrapOr(nullptr);
 
     if(defaultTextureFileResult != nullptr)
     {
@@ -277,8 +278,7 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
         if(auto defaultTextureResult = Graphics::Texture::Create(
             *defaultTextureFileResult, defaultTextureParams))
         {
-            resourceManager->SetDefault<Graphics::Texture>(
-                std::move(defaultTextureResult.Unwrap()));
+            resourceManager->SetDefault<Graphics::Texture>(defaultTextureResult.Unwrap());
         }
         else
         {
@@ -313,7 +313,7 @@ void Root::ProcessFrame()
     Game::GameFramework* gameFramework = m_services.GetGameFramework();
     Editor::EditorSystem* editorSystem = m_services.GetEditorSystem();
 
-    float timeDelta = timer->Advance(m_maxUpdateDelta);
+    const float timeDelta = timer->Advance(m_maxUpdateDelta);
 
     performanceMetrics->MarkFrameStart();
     resourceManager->ReleaseUnused();
