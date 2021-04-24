@@ -8,30 +8,27 @@
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/Components/SpriteAnimationComponent.hpp"
 #include "Game/ComponentSystem.hpp"
+#include "Game/GameInstance.hpp"
 using namespace Game;
 
 InterpolationSystem::InterpolationSystem() = default;
 InterpolationSystem::~InterpolationSystem() = default;
 
-InterpolationSystem::CreateResult InterpolationSystem::Create(ComponentSystem* componentSystem)
+bool InterpolationSystem::OnAttach(GameInstance* gameInstance)
 {
-    LOG("Creating interpolation system...");
-    LOG_SCOPED_INDENT();
+    ASSERT(m_componentSystem == nullptr);
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(componentSystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    m_componentSystem = gameInstance->GetSystem<ComponentSystem>();
+    if(m_componentSystem == nullptr)
+    {
+        LOG_ERROR("Could not retrieve component system!");
+        return false;
+    }
 
-    // Create instance.
-    auto instance = std::unique_ptr<InterpolationSystem>(new InterpolationSystem());
-
-    // Save component system reference.
-    instance->m_componentSystem = componentSystem;
-
-    // Success!
-    return Common::Success(std::move(instance));
+    return true;
 }
 
-void InterpolationSystem::Tick(float timeDelta)
+void InterpolationSystem::OnTick(float timeDelta)
 {
     // Reset interpolation state of all sprite transform components.
     for(auto& transformComponent : m_componentSystem->GetPool<Game::TransformComponent>())

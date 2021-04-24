@@ -22,7 +22,7 @@ namespace Game
     class GameState : public Common::State<GameState>, private Common::NonCopyable
     {
     public:
-        virtual ~GameState() = default;
+        virtual ~GameState() override = default;
 
         virtual void Update(const float timeDelta) = 0;
         virtual void Tick(const float tickTime) = 0;

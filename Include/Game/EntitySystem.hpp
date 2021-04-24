@@ -8,7 +8,7 @@
 #include <queue>
 #include <Common/HandleMap.hpp>
 #include <Common/Event/Dispatcher.hpp>
-#include <Common/Event/Collector.hpp>
+#include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -20,8 +20,10 @@
 
 namespace Game
 {
-    class EntitySystem final : private Common::NonCopyable
+    class EntitySystem final : public GameSystem
     {
+        REFLECTION_ENABLE(EntitySystem, GameSystem)
+
     public:
         using EntityList = Common::HandleMap<EntityEntry>;
 
@@ -45,16 +47,13 @@ namespace Game
 
         using CommandList = std::queue<EntityCommand>;
 
-        using CreateResult = Common::Result<std::unique_ptr<EntitySystem>, void>;
-        static CreateResult Create();
-
     public:
-        ~EntitySystem();
+        EntitySystem();
+        ~EntitySystem() override;
 
         EntityHandle CreateEntity();
         void DestroyEntity(const EntityHandle entity);
         void DestroyAllEntities();
-        void ProcessCommands();
 
         bool IsEntityValid(const EntityHandle entity) const;
         bool IsEntityCreated(const EntityHandle entity) const;
@@ -70,9 +69,12 @@ namespace Game
         } events;
 
     private:
-        EntitySystem();
+        void OnTick(float timeDelta) override;
+        void ProcessCommands();
 
         CommandList m_commands;
         EntityList m_entities;
     };
 }
+
+REFLECTION_TYPE(Game::EntitySystem, Game::GameSystem)

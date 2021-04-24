@@ -9,6 +9,7 @@
 #include <Game/GameFramework.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/GameState.hpp>
+#include <Game/TickTimer.hpp>
 using namespace Editor;
 
 namespace

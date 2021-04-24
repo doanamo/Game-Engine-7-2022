@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "Game/GameSystem.hpp"
+
 /*
     Interpolation System
 */
@@ -13,25 +15,20 @@ namespace Game
 {
     class ComponentSystem;
 
-    class InterpolationSystem final : private Common::NonCopyable
+    class InterpolationSystem final : public GameSystem
     {
-    public:
-        enum class CreateErrors
-        {
-            InvalidArgument,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<InterpolationSystem>, CreateErrors>;
-        static CreateResult Create(ComponentSystem* componentSystem);
+        REFLECTION_ENABLE(InterpolationSystem, GameSystem)
 
     public:
-        ~InterpolationSystem();
-
-        void Tick(float timeDelta);
+        InterpolationSystem();
+        ~InterpolationSystem() override;
 
     private:
-        InterpolationSystem();
+        bool OnAttach(GameInstance* gameInstance) override;
+        void OnTick(float timeDelta) override;
 
         ComponentSystem* m_componentSystem = nullptr;
     };
 }
+
+REFLECTION_TYPE(Game::InterpolationSystem, Game::GameSystem)

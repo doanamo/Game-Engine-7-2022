@@ -14,6 +14,7 @@ set(INCLUDE_FILES
     "GameFramework.hpp"
     "GameState.hpp"
     "GameInstance.hpp"
+    "GameSystem.hpp"
     "EntityHandle.hpp"
     "EntitySystem.hpp"
     "TickTimer.hpp"

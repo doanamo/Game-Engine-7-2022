@@ -12,6 +12,9 @@
 #include <Game/Components/SpriteComponent.hpp>
 #include <Game/Components/SpriteAnimationComponent.hpp>
 #include <Game/GameInstance.hpp>
+#include <Game/EntitySystem.hpp>
+#include <Game/ComponentSystem.hpp>
+#include <Game/Systems/IdentitySystem.hpp>
 using namespace Renderer;
 
 GameRenderer::GameRenderer() = default;
@@ -52,9 +55,9 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f, "Time alpha is not normalized!");
 
     // Get game instance systems.
-    auto& entitySystem = drawParams.gameInstance->entitySystem;
-    auto& componentSystem = drawParams.gameInstance->componentSystem;
-    auto& identitySystem = drawParams.gameInstance->identitySystem;
+    auto* componentSystem = drawParams.gameInstance->GetSystem<Game::ComponentSystem>();
+    auto* identitySystem = drawParams.gameInstance->GetSystem<Game::IdentitySystem>();
+    ASSERT(componentSystem && identitySystem);
 
     // Update sprite components for rendering.
     for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())

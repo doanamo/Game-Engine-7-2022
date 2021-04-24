@@ -13,20 +13,16 @@ EntitySystem::Events::Events() :
 }
 
 EntitySystem::EntitySystem() = default;
+
 EntitySystem::~EntitySystem()
 {
     DestroyAllEntities();
     ProcessCommands();
 }
 
-EntitySystem::CreateResult EntitySystem::Create()
+void EntitySystem::OnTick(float timeDelta)
 {
-    LOG("Creating entity system...");
-    LOG_SCOPED_INDENT();
-
-    // Create instance.
-    auto instance = std::unique_ptr<EntitySystem>(new EntitySystem());
-    return Common::Success(std::move(instance));
+    ProcessCommands();
 }
 
 EntityHandle EntitySystem::CreateEntity()

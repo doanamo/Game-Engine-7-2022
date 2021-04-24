@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
+#include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 #include "Game/ComponentPool.hpp"
 
@@ -18,25 +19,20 @@
 namespace Game
 {
     class EntitySystem;
+    class GameInstance;
 
-    class ComponentSystem final : private Common::NonCopyable
+    class ComponentSystem final : public GameSystem
     {
+        REFLECTION_ENABLE(ComponentSystem, GameSystem)
+
     public:
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedEventSubscription,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<ComponentSystem>, CreateErrors>;
-        static CreateResult Create(EntitySystem* entitySystem);
-
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
         using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
 
     public:
-        ~ComponentSystem();
+        ComponentSystem();
+        ~ComponentSystem() override;
 
         template<typename ComponentType>
         ComponentType* Create(EntityHandle handle);
@@ -56,7 +52,7 @@ namespace Game
         EntitySystem* GetEntitySystem() const;
 
     private:
-        ComponentSystem();
+        bool OnAttach(GameInstance* gameInstance) override;
 
         const EntityEntry* GetEntityEntry(EntityHandle handle) const;
 
@@ -212,3 +208,5 @@ namespace Game
         return pool.End();
     }
 }
+
+REFLECTION_TYPE(Game::ComponentSystem, Game::GameSystem)

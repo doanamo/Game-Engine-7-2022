@@ -27,16 +27,17 @@ public:
     enum class CreateErrors
     {
         InvalidArgument,
-        FailedTickTimerCreation,
-        FailedGameInstanceCreation,
-        FailedResourceLoading,
+        FailedTickTimerCreate,
+        FailedGameInstanceCreate,
+        FailedGameInstanceFinalize,
+        FailedResourceLoad,
     };
 
     using CreateResult = Common::Result<std::unique_ptr<SpriteDemo>, CreateErrors>;
     static CreateResult Create(Engine::Root* engine);
 
 public:
-    ~SpriteDemo();
+    ~SpriteDemo() override;
 
 private:
     SpriteDemo();

@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <Common/Event/Receiver.hpp>
+#include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 
 /*
@@ -20,9 +21,12 @@
 namespace Game
 {
     class EntitySystem;
+    class GameInstance;
 
-    class IdentitySystem final : private Common::NonCopyable
+    class IdentitySystem final : public GameSystem
     {
+        REFLECTION_ENABLE(IdentitySystem, GameSystem)
+
     public:
         using EntityNameLookup = std::unordered_map<EntityHandle, std::string>;
         using NameEntityLookup = std::unordered_map<std::string, EntityHandle>;
@@ -59,20 +63,9 @@ namespace Game
         template<typename Type>
         using LookupResult = Common::Result<Type, LookupErrors>;
 
-        struct CreateFromParams
-        {
-            EntitySystem* entitySystem = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<IdentitySystem>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
-        ~IdentitySystem();
+    public:
+        IdentitySystem();
+        ~IdentitySystem() override;
 
         NamingResult SetEntityName(EntityHandle entity, std::string name, bool force = false);
         LookupResult<EntityHandle> GetEntityByName(std::string name) const;
@@ -88,8 +81,7 @@ namespace Game
         unsigned int GetGroupCount() const;
 
     private:
-        IdentitySystem();
-
+        bool OnAttach(GameInstance* gameInstance) override;
         void OnEntityDestroyed(EntityHandle entity);
 
         void RegisterNamedEntity(const EntityHandle& entity, const std::string& name);
@@ -111,3 +103,5 @@ namespace Game
         Event::Receiver<void(EntityHandle)> m_entityDestroyReceiver;
     };
 }
+
+REFLECTION_TYPE(Game::IdentitySystem, Game::GameSystem)

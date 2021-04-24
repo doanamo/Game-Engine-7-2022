@@ -5,46 +5,70 @@
 
 #pragma once
 
-#include <any>
-#include <Common/Event/Queue.hpp>
-#include "Game/TickTimer.hpp"
-#include "Game/EntitySystem.hpp"
-#include "Game/ComponentSystem.hpp"
-#include "Game/Systems/IdentitySystem.hpp"
-#include "Game/Systems/InterpolationSystem.hpp"
-#include "Game/Systems/SpriteSystem.hpp"
-
 /*
     Game Instance
 */
 
 namespace Game
 {
+    class GameSystem;
+
     class GameInstance final : private Common::NonCopyable
     {
     public:
+        using GameSystemPtr = std::unique_ptr<GameSystem>;
+        using GameSystemList = std::vector<GameSystemPtr>;
+        using GameSystemMap = std::unordered_map<Reflection::TypeIdentifier, GameSystem*>;
+
+        enum class AttachSystemErrors
+        {
+            AlreadyExists,
+            FailedAttach,
+        };
+
+        using AttachSystemResult = Common::Result<void, AttachSystemErrors>;
+
         enum class CreateErrors
         {
-            FailedSubsystemCreation,
+            FailedGameSystemCreation,
+            FailedGameSystemAttach,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameInstance>, CreateErrors>;
         static CreateResult Create();
 
+        enum class FinalizationStates
+        {
+            Pending,
+            Failed,
+            Done,
+        };
+
     public:
         ~GameInstance();
 
-        void PreTick(const float tickTime);
-        void PostTick(const float tickTime);
+        AttachSystemResult AttachSystem(std::unique_ptr<GameSystem>& gameSystem);
+        GameSystem* GetSystem(Reflection::TypeIdentifier typeIdentifier) const;
 
-    public:
-        std::unique_ptr<EntitySystem> entitySystem;
-        std::unique_ptr<ComponentSystem> componentSystem;
-        std::unique_ptr<IdentitySystem> identitySystem;
-        std::unique_ptr<InterpolationSystem> interpolationSystem;
-        std::unique_ptr<SpriteSystem> spriteSystem;
+        template<typename GameSystemType>
+        GameSystemType* GetSystem();
+
+        bool Finalize();
+        void Tick(float timeDelta);
 
     private:
         GameInstance();
+
+        GameSystemList m_gameSystemList;
+        GameSystemMap m_gameSystemMap;
+
+        FinalizationStates m_finalization = FinalizationStates::Pending;
     };
+
+    template<typename GameSystemType>
+    GameSystemType* GameInstance::GetSystem()
+    {
+        return static_cast<GameSystemType*>(
+            GetSystem(Reflection::GetIdentifier<GameSystemType>()));
+    }
 }

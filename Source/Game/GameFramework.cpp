@@ -6,6 +6,7 @@
 #include "Game/Precompiled.hpp"
 #include "Game/GameFramework.hpp"
 #include "Game/GameInstance.hpp"
+#include "Game/TickTimer.hpp"
 #include <System/Window.hpp>
 #include <Renderer/GameRenderer.hpp>
 using namespace Game;
@@ -33,7 +34,7 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     return Common::Success(std::move(instance));
 }
 
-GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(float timeDelta)
+GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const float timeDelta)
 {
     // Acquire current state and its parts.
     std::shared_ptr<GameState> currentState = m_stateMachine.GetState();
@@ -62,20 +63,14 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(float tim
             // Determine tick time.
             float tickTime = tickTimer ? tickTimer->GetLastTickSeconds() : timeDelta;
 
-            // Pre tick game instance.
+            // Tick game instance.
             if(gameInstance)
             {
-                gameInstance->PreTick(tickTime);
+                gameInstance->Tick(tickTime);
             }
 
             // Call game state tick method.
             currentState->Tick(tickTime);
-
-            // Post tick game instance.
-            if(gameInstance)
-            {
-                gameInstance->PostTick(tickTime);
-            }
 
             // Inform that tick has been processed.
             events.tickProcessed.Dispatch(tickTime);

@@ -6,6 +6,7 @@
 #include "Game/Precompiled.hpp"
 #include "Game/ComponentSystem.hpp"
 #include "Game/EntitySystem.hpp"
+#include "Game/GameInstance.hpp"
 using namespace Game;
 
 ComponentSystem::ComponentSystem()
@@ -16,35 +17,30 @@ ComponentSystem::ComponentSystem()
 
 ComponentSystem::~ComponentSystem() = default;
 
-ComponentSystem::CreateResult ComponentSystem::Create(EntitySystem* entitySystem)
+bool ComponentSystem::OnAttach(GameInstance* gameInstance)
 {
-    LOG("Create component system...");
-    LOG_SCOPED_INDENT();
+    ASSERT(m_entitySystem == nullptr);
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(entitySystem != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Create instance.
-    auto instance = std::unique_ptr<ComponentSystem>(new ComponentSystem());
-
-    // Receive events from the entity system.
-    if(!instance->m_entityCreate.Subscribe(entitySystem->events.entityCreate))
+    m_entitySystem = gameInstance->GetSystem<EntitySystem>();
+    if(m_entitySystem == nullptr)
     {
-        LOG_ERROR("Failed to subscribe to entity system!");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
+        LOG_ERROR("Could not retrieve entity system!");
+        return false;
     }
 
-    if(!instance->m_entityDestroy.Subscribe(entitySystem->events.entityDestroy))
+    if(!m_entityCreate.Subscribe(m_entitySystem->events.entityCreate))
     {
         LOG_ERROR("Failed to subscribe to entity system!");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
+        return false;
     }
 
-    // Save entity system reference
-    instance->m_entitySystem = entitySystem;
+    if(!m_entityDestroy.Subscribe(m_entitySystem->events.entityDestroy))
+    {
+        LOG_ERROR("Failed to subscribe to entity system!");
+        return false;
+    }
 
-    // Success!
-    return Common::Success(std::move(instance));
+    return true;
 }
 
 bool ComponentSystem::OnEntityCreate(EntityHandle handle)

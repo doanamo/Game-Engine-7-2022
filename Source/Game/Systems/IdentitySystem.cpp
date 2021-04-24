@@ -6,6 +6,7 @@
 #include "Game/Precompiled.hpp"
 #include "Game/Systems/IdentitySystem.hpp"
 #include "Game/EntitySystem.hpp"
+#include "Game/GameInstance.hpp"
 using namespace Game;
 
 IdentitySystem::IdentitySystem()
@@ -15,17 +16,24 @@ IdentitySystem::IdentitySystem()
 
 IdentitySystem::~IdentitySystem() = default;
 
-IdentitySystem::CreateResult IdentitySystem::Create(const CreateFromParams& params)
+bool IdentitySystem::OnAttach(GameInstance* gameInstance)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.entitySystem != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    ASSERT(m_entitySystem == nullptr);
 
-    auto instance = std::unique_ptr<IdentitySystem>(new IdentitySystem());
-    instance->m_entityDestroyReceiver.Subscribe(params.entitySystem->events.entityDestroy);
-    instance->m_entitySystem = params.entitySystem;
+    m_entitySystem = gameInstance->GetSystem<EntitySystem>();
+    if(m_entitySystem == nullptr)
+    {
+        LOG_ERROR("Could not retrieve entity system!");
+        return false;
+    }
 
-    LOG_SUCCESS("Created identity system instance.");
-    return Common::Success(std::move(instance));
+    if(!m_entityDestroyReceiver.Subscribe(m_entitySystem->events.entityDestroy))
+    {
+        LOG_ERROR("Failed to subscribe to entity system!");
+        return false;
+    }
+
+    return true;
 }
 
 void IdentitySystem::OnEntityDestroyed(EntityHandle entity)
