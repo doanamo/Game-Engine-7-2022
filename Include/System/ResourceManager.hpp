@@ -26,7 +26,7 @@ namespace System
     public:
         struct CreateFromParams
         {
-            Core::ServiceStorage* services;
+            Core::ServiceStorage* services = nullptr;
         };
 
         enum class CreateErrors
