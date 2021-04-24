@@ -11,12 +11,12 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
-    "TickTimer.hpp"
     "GameFramework.hpp"
-    "GameInstance.hpp"
     "GameState.hpp"
+    "GameInstance.hpp"
     "EntityHandle.hpp"
     "EntitySystem.hpp"
+    "TickTimer.hpp"
     "Component.hpp"
     "ComponentPool.hpp"
     "ComponentSystem.hpp"
@@ -35,10 +35,10 @@ source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
-    "TickTimer.cpp"
     "GameFramework.cpp"
     "GameInstance.cpp"
     "EntitySystem.cpp"
+    "TickTimer.cpp"
     "ComponentSystem.cpp"
     "Components/TransformComponent.cpp"
     "Components/CameraComponent.cpp"

@@ -28,15 +28,15 @@ namespace Game
         virtual void Tick(const float tickTime) = 0;
         virtual void Draw(const float timeAlpha) = 0;
 
-        // Override if game state wants to control how tick is called.
-        // Without it tick method is always called along update.
+        // Override if game state wants to control how tick function is called.
+        // Without it tick function is always called along with update function.
         virtual TickTimer* GetTickTimer() const
         {
             return nullptr;
         }
 
         // Override if game state provides game instance.
-        // Game framework will then automatically process game instance.
+        // Game framework will then automatically process game instance for this state.
         virtual GameInstance* GetGameInstance() const
         {
             return nullptr;
