@@ -118,6 +118,11 @@ namespace Reflection
             return std::is_same<Type, NullType>::value;
         }
 
+        static constexpr bool IsConstructible()
+        {
+            return std::is_constructible<Type>::value;
+        }
+
         static constexpr bool HasBaseType()
         {
             return !std::is_same<BaseType, NullType>::value;

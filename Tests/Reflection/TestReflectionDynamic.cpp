@@ -256,28 +256,46 @@ TEST_CASE("Dynamic Reflection")
         CHECK_EQ(branchedTwoPtr, nullptr);
     }
 
-    SUBCASE("Create registered type from identifier")
+    SUBCASE("Construct types from identifier")
     {
-        std::unique_ptr<Base> derived = Reflection::Create<Derived>();
+        CHECK(Reflection::StaticType<Derived>().IsConstructible());
+        std::unique_ptr<Base> derived(Reflection::Construct<Derived>());
         CHECK(derived->GetTypeInfo().IsType<Derived>());
 
-        std::unique_ptr<Base> branchedOne = Reflection::Create<Base>(
-            Reflection::GetIdentifier<BranchedOne>());
+        CHECK(Reflection::DynamicType<BranchedOne>().IsConstructible());
+        std::unique_ptr<Base> branchedOne(Reflection::Construct<Base>(
+            Reflection::GetIdentifier<BranchedOne>()));
         CHECK(branchedOne->GetTypeInfo().IsType<BranchedOne>());
 
-        std::unique_ptr<Base> branchedTwo = Reflection::Create<Base>(
-            Reflection::GetIdentifier<BranchedTwo>());
+        CHECK(Reflection::DynamicType(Reflection::GetIdentifier<BranchedTwo>()).IsConstructible());
+        std::unique_ptr<Base> branchedTwo(Reflection::Construct<Base>(
+            Reflection::GetIdentifier<BranchedTwo>()));
         CHECK(branchedTwo->GetTypeInfo().IsType<BranchedTwo>());
 
-        std::unique_ptr<Base> base;
+        CHECK_FALSE(Reflection::StaticType<Reflection::TypeAttribute>().IsConstructible());
+        auto* typeAttribute = Reflection::Construct<Reflection::TypeAttribute>();
+        CHECK_EQ(typeAttribute, nullptr);
 
-        base = Reflection::Cast<Derived>(derived);
-        CHECK(base->GetTypeInfo().IsType<Derived>());
+        CHECK_FALSE(Reflection::StaticType<Reflection::MethodAttribute>().IsConstructible());
+        auto* methodAttribute = Reflection::Construct<Reflection::MethodAttribute>();
+        CHECK_EQ(methodAttribute, nullptr);
 
-        base = Reflection::Cast<Base>(branchedOne);
-        CHECK(base->GetTypeInfo().IsType<BranchedOne>());
+        CHECK_FALSE(Reflection::StaticType<Reflection::FieldAttribute>().IsConstructible());
+        auto* fieldAttribute = Reflection::Construct<Reflection::FieldAttribute>();
+        CHECK_EQ(fieldAttribute, nullptr);
 
-        base = Reflection::Cast<Base>(branchedTwo);
-        CHECK(base->GetTypeInfo().IsType<BranchedTwo>());
+        SUBCASE("Cast constructed types to base type")
+        {
+            std::unique_ptr<Base> base;
+
+            base = Reflection::Cast<Derived>(derived);
+            CHECK(base->GetTypeInfo().IsType<Derived>());
+
+            base = Reflection::Cast<Base>(branchedOne);
+            CHECK(base->GetTypeInfo().IsType<BranchedOne>());
+
+            base = Reflection::Cast<Base>(branchedTwo);
+            CHECK(base->GetTypeInfo().IsType<BranchedTwo>());
+        }
     }
 }

@@ -90,20 +90,19 @@ namespace Reflection
     }
 
     template<typename RegisteredType>
-    std::unique_ptr<RegisteredType> Create()
+    RegisteredType* Construct()
     {
-        return std::unique_ptr<RegisteredType>(reinterpret_cast<RegisteredType*>(
-            RegisteredType::GetTypeStorage().GetTypeInfo().Instantiate()));
+        return static_cast<RegisteredType*>(
+            RegisteredType::GetTypeStorage().GetTypeInfo().Construct());
     }
 
     template<typename RegisteredType>
-    std::unique_ptr<RegisteredType> Create(const TypeIdentifier identifier)
+    RegisteredType* Construct(const TypeIdentifier identifier)
     {
         const DynamicTypeInfo& typeInfo = Detail::GetRegistry().LookupType(identifier);
         if(typeInfo.IsType<RegisteredType>())
         {
-            return std::unique_ptr<RegisteredType>(
-                static_cast<RegisteredType*>(typeInfo.Instantiate()));
+            return static_cast<RegisteredType*>(typeInfo.Construct());
         }
 
         return nullptr;

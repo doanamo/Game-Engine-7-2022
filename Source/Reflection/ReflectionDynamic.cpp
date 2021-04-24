@@ -12,12 +12,12 @@ using namespace Reflection;
 const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
 void DynamicTypeInfo::Register(const std::string_view name,
-                               const InstantiateFunction instantiateFunction,
+                               const ConstructFunction constructFunction,
                                DynamicTypeInfo* baseType)
 {
     m_registered = true;
     m_name = Common::Name(name);
-    m_instantiateFunction = instantiateFunction;
+    m_constructFunction = constructFunction;
 
     if(!IsNullType())
     {
@@ -45,9 +45,9 @@ void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo& typeInfo)
     m_derivedTypes.emplace_back(typeInfo);
 }
 
-void* DynamicTypeInfo::Instantiate() const
+void* DynamicTypeInfo::Construct() const
 {
-    return m_instantiateFunction ? m_instantiateFunction() : nullptr;
+    return m_constructFunction ? m_constructFunction() : nullptr;
 }
 
 bool DynamicTypeInfo::IsType(const TypeIdentifier identifier) const
