@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Reflection/Precompiled.hpp"
 #include "Reflection/ReflectionRegistry.hpp"
 #include "Reflection/ReflectionTypes.hpp"
 using namespace Reflection;
@@ -29,7 +28,7 @@ Registry::Registry()
 
 Registry::~Registry() = default;
 
-DynamicTypeInfo* Registry::FindTypeInfo(TypeIdentifier identifier)
+DynamicTypeInfo* Registry::FindTypeInfo(const TypeIdentifier identifier)
 {
     auto it = m_types.find(identifier);
     if(it == m_types.end())
@@ -40,9 +39,9 @@ DynamicTypeInfo* Registry::FindTypeInfo(TypeIdentifier identifier)
     return &it->second;
 }
 
-const DynamicTypeInfo& Registry::LookupType(TypeIdentifier identifier) const
+const DynamicTypeInfo& Registry::LookupType(const TypeIdentifier identifier) const
 {
-    auto it = m_types.find(identifier);
+    const auto it = m_types.find(identifier);
     if(it == m_types.end())
     {
         return DynamicTypeInfo::Invalid;

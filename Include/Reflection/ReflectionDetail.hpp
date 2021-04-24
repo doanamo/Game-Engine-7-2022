@@ -6,7 +6,6 @@
 #pragma once
 
 #include <tuple>
-#include <string_view>
 #include <Common/Utility.hpp>
 
 /*
@@ -18,7 +17,7 @@
 
 namespace Reflection::Detail
 {
-    constexpr std::string_view ParseFieldName(std::string_view name)
+    constexpr std::string_view ParseFieldName(const std::string_view name)
     {
         for(std::size_t i = 0; i < std::min(name.size(), std::size_t(2)); ++i)
         {
@@ -37,13 +36,13 @@ namespace Reflection::Detail
         using TupleType = std::tuple<Types...>;
         const TupleType Objects;
 
-        constexpr ObjectList(const TupleType& Objects) :
-            Objects(Objects)
+        constexpr ObjectList(const TupleType& objects) :
+            Objects(objects)
         {
         }
 
-        constexpr ObjectList(TupleType&& Objects) :
-            Objects(Objects)
+        constexpr ObjectList(TupleType&& objects) :
+            Objects(objects)
         {
         }
 
@@ -84,13 +83,13 @@ namespace Reflection::Detail
     }
 
     template<typename Function, typename... Results>
-    constexpr auto Filter(Function function, ObjectList<> list, ObjectList<Results...> results)
+    constexpr auto Filter(Function function, const ObjectList<>& list, ObjectList<Results...> results)
     {
         return results;
     }
 
     template<typename Function, typename Type, typename... Types, typename... Results>
-    constexpr auto Filter(Function function, ObjectList<Type, Types...> list,
+    constexpr auto Filter(Function function, const ObjectList<Type, Types...>& list,
         ObjectList<Results...> results)
     {
         const auto element = list.template Get<0>();
@@ -115,13 +114,13 @@ namespace Reflection::Detail
     };
 
     template<std::size_t Index = 0, typename Function>
-    constexpr auto FindFirstIndex(Function function, ObjectList<> list)
+    constexpr auto FindFirstIndex(Function function, const ObjectList<>& list)
     {
         return FindIndexResult<false, Index>{};
     }
 
     template<std::size_t Index = 0, typename Function, typename Type, typename...Types>
-    constexpr auto FindFirstIndex(Function function, ObjectList<Type, Types...> list)
+    constexpr auto FindFirstIndex(Function function, const ObjectList<Type, Types...>& list)
     {
         if constexpr(function(Type{}))
         {
@@ -211,7 +210,7 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr bool IsReflected();
 
-    struct DynamicTypeInfo;
+    class DynamicTypeInfo;
 }
 
 namespace Reflection::Detail
@@ -320,9 +319,10 @@ namespace Reflection::Detail
 
     class ReflectionRegistry
     {
-    public:
-        virtual ~ReflectionRegistry() = default;
+    protected:
+        ~ReflectionRegistry() = default;
 
+    public:
         virtual const DynamicTypeInfo& LookupType(TypeIdentifier identifier) const = 0;
     };
 

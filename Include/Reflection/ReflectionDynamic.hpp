@@ -23,7 +23,7 @@ namespace Reflection
     template<typename ReflectedType>
     TypeIdentifier GetIdentifier();
 
-    class DynamicTypeInfo final
+    class DynamicTypeInfo final : private Common::NonCopyable
     {
     public:
         static_assert(std::is_same<TypeIdentifier, Common::Name::HashType>::value);
@@ -117,7 +117,9 @@ namespace Reflection
 
     private:
         void Register(std::string_view name,
-            InstantiateFunction createFunction, DynamicTypeInfo* baseType);
+                      InstantiateFunction instantiateFunction,
+                      DynamicTypeInfo* baseType);
+
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
@@ -132,11 +134,11 @@ namespace Reflection
     public:
         const DynamicTypeInfo& GetTypeInfo() const
         {
-            return DynamicType;
+            return m_dynamicType;
         }
 
     private:
         friend class Registry;
-        DynamicTypeInfo DynamicType;
+        DynamicTypeInfo m_dynamicType;
     };
 }

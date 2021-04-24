@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include "Reflection/ReflectionStatic.hpp"
-#include "Reflection/ReflectionDynamic.hpp"
-
 /*
     Reflection Declaration Macros
 */

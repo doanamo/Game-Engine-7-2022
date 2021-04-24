@@ -3,16 +3,17 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Reflection/Precompiled.hpp"
 #include "Reflection/ReflectionDynamic.hpp"
 #include "Reflection/ReflectionTypes.hpp"
 #include "Reflection/ReflectionRegistry.hpp"
+#include "Reflection/ReflectionUtility.hpp"
 using namespace Reflection;
 
 const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
-void DynamicTypeInfo::Register(std::string_view name,
-    InstantiateFunction instantiateFunction, DynamicTypeInfo* baseType)
+void DynamicTypeInfo::Register(const std::string_view name,
+                               const InstantiateFunction instantiateFunction,
+                               DynamicTypeInfo* baseType)
 {
     m_registered = true;
     m_name = Common::Name(name);
@@ -20,6 +21,8 @@ void DynamicTypeInfo::Register(std::string_view name,
 
     if(!IsNullType())
     {
+        ASSERT(baseType, "Null base type is only valid for NullType to avoid cyclic dependency!");
+
         m_baseType = baseType;
         baseType->AddDerivedType(*this);
     }
@@ -31,11 +34,12 @@ void DynamicTypeInfo::Register(std::string_view name,
 
 void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo& typeInfo)
 {
-    auto exiting = std::find_if(m_derivedTypes.begin(), m_derivedTypes.end(),
+    const auto exiting = std::find_if(
+        m_derivedTypes.begin(), m_derivedTypes.end(),
         [&typeInfo](const DynamicTypeList::value_type& derivedType)
-    {
-        return std::addressof(derivedType.get()) == std::addressof(typeInfo);
-    });
+        {
+            return std::addressof(derivedType.get()) == std::addressof(typeInfo);
+        });
 
     ASSERT(exiting == m_derivedTypes.end(), "Found existing entry in list of derived types!");
     m_derivedTypes.emplace_back(typeInfo);
@@ -46,7 +50,7 @@ void* DynamicTypeInfo::Instantiate() const
     return m_instantiateFunction ? m_instantiateFunction() : nullptr;
 }
 
-bool DynamicTypeInfo::IsType(TypeIdentifier identifier) const
+bool DynamicTypeInfo::IsType(const TypeIdentifier identifier) const
 {
     if(!m_registered)
         return false;
@@ -57,13 +61,13 @@ bool DynamicTypeInfo::IsType(TypeIdentifier identifier) const
     return IsDerivedFrom(identifier);
 }
 
-bool DynamicTypeInfo::IsBaseOf(TypeIdentifier identifier) const
+bool DynamicTypeInfo::IsBaseOf(const TypeIdentifier identifier) const
 {
     const DynamicTypeInfo& typeInfo = Reflection::GetRegistry().LookupType(identifier);
     return typeInfo.IsDerivedFrom(GetIdentifier());
 }
 
-bool DynamicTypeInfo::IsDerivedFrom(TypeIdentifier identifier) const
+bool DynamicTypeInfo::IsDerivedFrom(const TypeIdentifier identifier) const
 {
     if(!m_registered)
         return false;

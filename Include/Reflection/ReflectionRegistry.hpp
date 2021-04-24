@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionDynamic.hpp"
-#include "Reflection/ReflectionUtility.hpp"
 
 /*
     Reflection Registry
@@ -65,10 +64,10 @@ namespace Reflection
         else
         {
             ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type "
-                "info pointer for type \"{}\" ({})!", staticType.Name, staticType.Identifier );
+                "info pointer for type \"{}\" ({})!", staticType.Name, staticType.Identifier);
         }
 
-        auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().DynamicType);
+        auto result = m_types.emplace(staticType.Identifier, Type::GetTypeStorage().m_dynamicType);
         DynamicTypeInfo& dynamicType = result.first->second;
 
         if(!result.second)
@@ -97,7 +96,7 @@ namespace Reflection
         }
 
         static_assert(std::is_constructible<Type>::value,
-            "Reflected type must be constructible without any parameters!");
+            "Reflected type must be constructable without any parameters!");
 
         auto instantiateFunction = []() -> void*
         {

@@ -29,7 +29,6 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "ReflectionDynamic.cpp"
     "ReflectionRegistry.cpp"
-    "ReflectionTypes.cpp"
 )
 
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")

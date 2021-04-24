@@ -37,8 +37,8 @@ namespace Reflection
         using TypeWithoutInstance = AttributeDescription<
             ReflectedType, AttributeType, AttributeIndex>;
 
-        constexpr AttributeDescriptionWithInstance(AttributeType&& Instance) :
-            Instance(Instance)
+        constexpr AttributeDescriptionWithInstance(AttributeType&& instance) :
+            Instance(instance)
         {
         }
 
@@ -81,14 +81,14 @@ namespace Reflection
         template<auto& AttributeName>
         static constexpr auto FindAttribute()
         {
-            constexpr auto Index = FindFirstIndex(AttributeTypes,
-                [](auto Attribute) constexpr -> bool
-            {
-                using AttributeType = decltype(Attribute);
-                return AttributeType::Name == AttributeName;
-            });
+            constexpr auto AttributeIndex = FindFirstIndex(AttributeTypes,
+                [](auto attribute) constexpr -> bool
+                {
+                    using AttributeType = decltype(attribute);
+                    return AttributeType::Name == AttributeName;
+                });
 
-            return Attributes.template Get<Index>();
+            return Attributes.template Get<AttributeIndex>();
         }
     };
 
@@ -161,14 +161,14 @@ namespace Reflection
         template<auto& AttributeName>
         static constexpr auto FindAttribute()
         {
-            constexpr auto Index = FindFirstIndex(AttributeTypes,
-                [](auto Attribute) constexpr -> bool
-            {
-                using AttributeType = decltype(Attribute);
-                return AttributeType::Name == AttributeName;
-            });
+            constexpr auto AttributeIndex = FindFirstIndex(AttributeTypes,
+                [](auto attribute) constexpr -> bool
+                {
+                    using AttributeType = decltype(attribute);
+                    return AttributeType::Name == AttributeName;
+                });
 
-            return Attributes.template Get<Index>();
+            return Attributes.template Get<AttributeIndex>();
         }
 
         static constexpr bool HasMembers()
@@ -186,9 +186,9 @@ namespace Reflection
         template<auto& MemberName>
         static constexpr auto FindMember()
         {
-            return FindOne(Members, [](auto Member) constexpr -> bool
+            return FindOne(Members, [](auto member) constexpr -> bool
             {
-                using MemberType = decltype(Member);
+                using MemberType = decltype(member);
                 return MemberType::Name == MemberName;
             });
         }

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Reflection/ReflectionDynamic.hpp>
+#include "Reflection/ReflectionDynamic.hpp"
 
 /*
     Reflection Utility
@@ -25,7 +25,7 @@ namespace Reflection
         return {};
     }
 
-    inline const DynamicTypeInfo& DynamicType(TypeIdentifier identifier)
+    inline const DynamicTypeInfo& DynamicType(const TypeIdentifier identifier)
     {
         return Detail::GetRegistry().LookupType(identifier);
     }
@@ -54,7 +54,7 @@ namespace Reflection
         return StaticType<ReflectedType>().Reflected;
     }
 
-    inline bool IsRegistered(TypeIdentifier identifier)
+    inline bool IsRegistered(const TypeIdentifier identifier)
     {
         return Detail::GetRegistry().LookupType(identifier).IsRegistered();
     }
@@ -97,13 +97,13 @@ namespace Reflection
     }
 
     template<typename RegisteredType>
-    std::unique_ptr<RegisteredType> Create(TypeIdentifier identifier)
+    std::unique_ptr<RegisteredType> Create(const TypeIdentifier identifier)
     {
         const DynamicTypeInfo& typeInfo = Detail::GetRegistry().LookupType(identifier);
         if(typeInfo.IsType<RegisteredType>())
         {
             return std::unique_ptr<RegisteredType>(
-                reinterpret_cast<RegisteredType*>(typeInfo.Instantiate()));
+                static_cast<RegisteredType*>(typeInfo.Instantiate()));
         }
 
         return nullptr;
