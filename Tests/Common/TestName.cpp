@@ -15,20 +15,46 @@ REFLECTION_TYPE(TestNameType);
 
 TEST_CASE("Name")
 {
-    Common::Name nameOne = "One";
-    Common::Name nameTwo = "Two";
+    SUBCASE("Basic")
+    {
+        Common::Name nameOne = "One";
+        Common::Name nameTwo = "Two";
 
-    CHECK_NE(nameOne, nameTwo);
-    CHECK_EQ(nameOne, Common::Name("One"));
-    CHECK_EQ(nameTwo, Common::Name("Two"));
+        CHECK_NE(nameOne, nameTwo);
+        CHECK_EQ(nameOne, Common::Name("One"));
+        CHECK_EQ(nameTwo, Common::Name("Two"));
 
-    Common::Name nameOneCopy;
-    nameOneCopy = nameOne;
-    CHECK_EQ(nameOneCopy, nameOne);
+        SUBCASE("Copy")
+        {
+            Common::Name nameOneCopy;
+            nameOneCopy = nameOne;
+            CHECK_EQ(nameOneCopy, nameOne);
 
-    Common::Name nameTwoCopy(nameTwo);
-    CHECK_EQ(nameTwoCopy, nameTwo);
+            Common::Name nameTwoCopy(nameTwo);
+            CHECK_EQ(nameTwoCopy, nameTwo);
+        }
+    }
 
-    CHECK_EQ(Common::Name("TestNameType").GetHash(),
-        Reflection::StaticType<TestNameType>().Identifier);
+    SUBCASE("Hash")
+    {
+        CHECK_EQ(Common::Name("TestNameType").GetHash(),
+            Reflection::StaticType<TestNameType>().Identifier);
+    }
+
+    SUBCASE("String")
+    {
+        std::string string = Common::Name("TestNameType").GetString();
+
+#ifdef NAME_REGISTRY_ENABLED
+        std::string compare = "TestNameType";
+#else
+        std::stringstream stream;
+        stream << "{";
+        stream << Common::StringHash<Common::Name::HashType>("TestNameType");
+        stream << "}";
+        std::string compare = stream.str();
+#endif
+
+        CHECK_EQ(string, compare);
+    }
 }
