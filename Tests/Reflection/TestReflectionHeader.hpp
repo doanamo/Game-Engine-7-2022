@@ -49,7 +49,7 @@ class Base
 
 public:
     std::string textWithoutAttribute;
-    const char* textPtrWithAttribute;
+    const char* textPtrWithAttribute = nullptr;
 };
 
 REFLECTION_TYPE_BEGIN(Base)
@@ -64,7 +64,7 @@ class DerivedAttribute : public Reflection::TypeAttribute
 
 public:
     constexpr DerivedAttribute() = default;
-    constexpr DerivedAttribute(bool state) :
+    constexpr DerivedAttribute(const bool state) :
         state(state)
     {
     }
@@ -80,7 +80,7 @@ class CounterAttribute : public Reflection::FieldAttribute
 
 public:
     constexpr CounterAttribute() = default;
-    constexpr CounterAttribute(bool state) :
+    constexpr CounterAttribute(const bool state) :
         state(state)
     {
     }
@@ -95,12 +95,7 @@ class Derived : public Base
     REFLECTION_ENABLE(Derived, Base)
 
 public:
-    Derived()
-    {
-    }
-
-public:
-    int counter;
+    int counter = 0;
 };
 
 REFLECTION_TYPE_BEGIN(Derived, Base)
@@ -114,7 +109,7 @@ class InnerAttribute : public Reflection::FieldAttribute
 
 public:
     constexpr InnerAttribute() = default;
-    constexpr InnerAttribute(int counter) :
+    constexpr InnerAttribute(const int counter) :
         counter(counter)
     {
     }
@@ -129,7 +124,7 @@ class Inner
     REFLECTION_ENABLE(Inner)
 
 public:
-    uint8_t value;
+    uint8_t value = 0;
 };
 
 REFLECTION_TYPE_BEGIN(Inner)
@@ -161,13 +156,13 @@ class BranchedOne : public Derived
     REFLECTION_ENABLE(BranchedOne, Derived)
 
 public:
-    bool _toggle;
-    Inner _inner;
+    bool toggle = false;
+    Inner inner;
 };
 
 REFLECTION_TYPE_BEGIN(BranchedOne, Derived)
-    REFLECTION_FIELD(_toggle, ToggleOnAttribute(), ToggleOffAttribute())
-    REFLECTION_FIELD(_inner)
+    REFLECTION_FIELD(toggle, ToggleOnAttribute(), ToggleOffAttribute())
+    REFLECTION_FIELD(inner)
 REFLECTION_TYPE_END
 
 class BranchedAttributeOne : public Reflection::TypeAttribute
@@ -176,7 +171,7 @@ class BranchedAttributeOne : public Reflection::TypeAttribute
 
 public:
     constexpr BranchedAttributeOne() = default;
-    constexpr BranchedAttributeOne(std::string_view modifier) :
+    constexpr BranchedAttributeOne(const std::string_view modifier) :
         modifier(modifier)
     {
     }
@@ -192,7 +187,7 @@ class BranchedAttributeTwo : public Reflection::TypeAttribute
 
 public:
     constexpr BranchedAttributeTwo() = default;
-    constexpr BranchedAttributeTwo(std::string_view modifier) :
+    constexpr BranchedAttributeTwo(const std::string_view modifier) :
         modifier(modifier)
     {
     }
@@ -208,7 +203,7 @@ class LetterAttribute : public Reflection::FieldAttribute
 
 public:
     constexpr LetterAttribute() = default;
-    constexpr LetterAttribute(std::string_view modifier) :
+    constexpr LetterAttribute(const std::string_view modifier) :
         modifier(modifier)
     {
     }
@@ -223,14 +218,14 @@ class BranchedTwo : public Derived
     REFLECTION_ENABLE(BranchedTwo, Derived)
 
 public:
-    char m_letterOne;
-    char m_letterTwo;
+    char letterOne = 0;
+    char letterTwo = 0;
 };
 
 REFLECTION_TYPE_BEGIN(BranchedTwo, Derived)
     REFLECTION_ATTRIBUTES(BranchedAttributeOne("Small"), BranchedAttributeTwo("Big"))
-    REFLECTION_FIELD(m_letterOne, LetterAttribute("Pretty"))
-    REFLECTION_FIELD(m_letterTwo, LetterAttribute("Ugly"))
+    REFLECTION_FIELD(letterOne, LetterAttribute("Pretty"))
+    REFLECTION_FIELD(letterTwo, LetterAttribute("Ugly"))
 REFLECTION_TYPE_END
 
 class CrossUnit

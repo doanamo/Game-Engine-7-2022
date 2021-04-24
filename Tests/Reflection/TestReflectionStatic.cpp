@@ -217,13 +217,13 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer, &Derived::counter);
         CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer, &Inner::value);
         CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer,
-            &BranchedOne::_toggle);
+            &BranchedOne::toggle);
         CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer,
-            &BranchedOne::_inner);
+            &BranchedOne::inner);
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer,
-            &BranchedTwo::m_letterOne);
+            &BranchedTwo::letterOne);
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer,
-            &BranchedTwo::m_letterTwo);
+            &BranchedTwo::letterTwo);
     }
 
     SUBCASE("Check reflected member attribute count")
@@ -430,19 +430,20 @@ TEST_CASE("Static Reflection")
         }
     }
 
+    /*
     SUBCASE("Retrieving reflected type by name via constexpr")
     {
-        constexpr static char BaseMemberName[] = "textWithoutAttribute";
-        constexpr static char DerivedAttributeName[] = "DerivedAttribute";
-        constexpr static char DerivedMemberName[] = "counter";
-        constexpr static char DerivedMemberAttributeName[] = "CounterAttribute";
-
         // Find type members and attributes by name.
         // String literal needs to be a static variable passed via template argument to
         // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
         // Disabled for now because of issues with compilation on Clang (GCC/MSVC is fine).
         // Maybe use constexpr hashing or somehow allow to evaluate via argument.
-        /*
+        
+        constexpr static char BaseMemberName[] = "textWithoutAttribute";
+        constexpr static char DerivedAttributeName[] = "DerivedAttribute";
+        constexpr static char DerivedMemberName[] = "counter";
+        constexpr static char DerivedMemberAttributeName[] = "CounterAttribute";
+        
         CHECK_EQ(Reflection::StaticType<Base>()
             .FindMember<BaseMemberName>().Name, "textWithoutAttribute");
         CHECK_EQ(Reflection::StaticType<Derived>()
@@ -452,6 +453,6 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<Derived>()
             .FindMember<DerivedMemberName>()
             .FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
-        */
     }
+    */
 }

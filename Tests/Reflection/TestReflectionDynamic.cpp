@@ -17,13 +17,13 @@ TEST_CASE("Dynamic Reflection")
     
     SUBCASE("Check registered built-in types")
     {
-        Reflection::TypeIdentifier NullTypeIdentifier =
+        Reflection::TypeIdentifier nullTypeIdentifier =
             Reflection::GetIdentifier<Reflection::NullType>();
 
-        CHECK(Reflection::IsRegistered(NullTypeIdentifier));
-        CHECK(Reflection::DynamicType(NullTypeIdentifier).IsRegistered());
-        CHECK(Reflection::DynamicType(NullTypeIdentifier).IsNullType());
-        CHECK_EQ(Reflection::DynamicType(NullTypeIdentifier).GetName(),
+        CHECK(Reflection::IsRegistered(nullTypeIdentifier));
+        CHECK(Reflection::DynamicType(nullTypeIdentifier).IsRegistered());
+        CHECK(Reflection::DynamicType(nullTypeIdentifier).IsNullType());
+        CHECK_EQ(Reflection::DynamicType(nullTypeIdentifier).GetName(),
             Common::Name("Reflection::NullType"));
         CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<Undefined>()).IsNullType());
         CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<Derived>()).IsNullType());
@@ -33,8 +33,10 @@ TEST_CASE("Dynamic Reflection")
     {
         CHECK_FALSE(Reflection::IsRegistered(Reflection::GetIdentifier<Undefined>()));
         CHECK_FALSE(Reflection::IsRegistered(Reflection::GetIdentifier<CrossUnit>()));
-        CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<Undefined>()).IsRegistered());
-        CHECK_FALSE(Reflection::DynamicType(Reflection::GetIdentifier<CrossUnit>()).IsRegistered());
+        CHECK_FALSE(Reflection::DynamicType(
+            Reflection::GetIdentifier<Undefined>()).IsRegistered());
+        CHECK_FALSE(Reflection::DynamicType(
+            Reflection::GetIdentifier<CrossUnit>()).IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Empty>()).IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Base>()).IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Derived>()).IsRegistered());
@@ -205,11 +207,11 @@ TEST_CASE("Dynamic Reflection")
     SUBCASE("Check registered type casting")
     {
         BranchedOne branchedOne;
-        branchedOne._inner.value = 42;
+        branchedOne.inner.value = 42;
 
         BranchedOne* branchedOnePtr = Reflection::Cast<BranchedOne>(&branchedOne);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->_inner.value, 42);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
@@ -234,14 +236,14 @@ TEST_CASE("Dynamic Reflection")
 
         branchedOnePtr = Reflection::Cast<BranchedOne>(derivedPtr);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->_inner.value, 42);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());
 
         branchedOnePtr = Reflection::Cast<BranchedOne>(basePtr);
         REQUIRE_NE(branchedOnePtr, nullptr);
-        CHECK_EQ(branchedOnePtr->_inner.value, 42);
+        CHECK_EQ(branchedOnePtr->inner.value, 42);
         CHECK(branchedOnePtr->GetTypeInfo().IsType<BranchedOne>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Derived>());
         CHECK(branchedOnePtr->GetTypeInfo().IsType<Base>());

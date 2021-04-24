@@ -23,16 +23,25 @@ namespace Reflection
     struct TypeAttribute
     {
         REFLECTION_ENABLE(TypeAttribute)
+
+    protected:
+        TypeAttribute() = default;
     };
 
     struct FieldAttribute
     {
         REFLECTION_ENABLE(FieldAttribute)
+
+    protected:
+        FieldAttribute() = default;
     };
 
     struct MethodAttribute
     {
         REFLECTION_ENABLE(MethodAttribute)
+
+    protected:
+        MethodAttribute() = default;
     };
 }
 
