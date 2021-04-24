@@ -6,6 +6,7 @@
 #pragma once
 
 #include <string>
+#include <fmt/core.h>
 #include "Common/Utility.hpp"
 #include "Common/NameRegistry.hpp"
 
@@ -28,10 +29,10 @@ namespace Common
         {
         }
 
-        Name(const Name& other)
-            : m_hash(other.m_hash)
-        {
-        }
+        Name(const Name& other) = default;
+        Name(Name&& other) noexcept = default;
+        Name& operator=(const Name& other) = default;
+        Name& operator=(Name&& other) noexcept = default;
 
         Name(const std::string_view string)
             : m_hash(Common::StringHash<HashType>(string))
@@ -58,22 +59,18 @@ namespace Common
 #endif
         }
 
-#ifdef NAME_REGISTRY_ENABLED
-        std::string_view GetString() const
+        std::string GetString() const
         {
-            return NameRegistry::GetInstance().Lookup(m_hash);
-        }
+#ifdef NAME_REGISTRY_ENABLED
+            return std::string(NameRegistry::GetInstance().Lookup(m_hash));
+#else
+            return fmt::format("{{{}}}", m_hash);
 #endif
+        }
 
         bool operator==(const Name& other) const
         {
             return m_hash == other.m_hash;
-        }
-
-        Name& operator=(const Name& other)
-        {
-            m_hash = other.m_hash;
-            return *this;
         }
 
         HashType GetHash() const
