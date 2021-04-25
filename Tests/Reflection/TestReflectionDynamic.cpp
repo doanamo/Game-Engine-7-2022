@@ -37,8 +37,8 @@ TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<Undefined>()).IsRegistered());
         CHECK_FALSE(Reflection::DynamicType(
             Reflection::GetIdentifier<CrossUnit>()).IsRegistered());
-        CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Empty>()).IsRegistered());
-        CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Base>()).IsRegistered());
+        CHECK(Reflection::DynamicType<Empty>().IsRegistered());
+        CHECK(Reflection::DynamicType<Base>().IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Derived>()).IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<Inner>()).IsRegistered());
         CHECK(Reflection::DynamicType(Reflection::GetIdentifier<BranchedOne>()).IsRegistered());

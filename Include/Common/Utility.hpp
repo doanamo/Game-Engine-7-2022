@@ -19,19 +19,19 @@
 namespace Common
 {
     template<typename Type>
-    Type* Pointer(Type& object)
+    constexpr Type* Pointer(Type& object)
     {
         return &object;
     }
 
     template<typename Type>
-    Type* Pointer(Type* object)
+    constexpr Type* Pointer(Type* object)
     {
         return object;
     }
 
     template<typename Type>
-    Type* Pointer(const std::unique_ptr<Type>& object)
+    constexpr Type* Pointer(const std::unique_ptr<Type>& object)
     {
         return object.get();
     }

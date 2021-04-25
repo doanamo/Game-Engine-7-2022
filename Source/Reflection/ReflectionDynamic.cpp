@@ -50,6 +50,14 @@ void* DynamicTypeInfo::Construct() const
     return m_constructFunction ? m_constructFunction() : nullptr;
 }
 
+bool DynamicTypeInfo::IsNullType() const
+{
+    if(!m_registered)
+        return false;
+
+    return GetIdentifier() == Reflection::GetIdentifier<NullType>();
+}
+
 bool DynamicTypeInfo::IsType(const TypeIdentifier identifier) const
 {
     if(!m_registered)

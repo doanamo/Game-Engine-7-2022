@@ -20,9 +20,6 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr DecayedStaticTypeInfo<ReflectedType> StaticType();
 
-    template<typename ReflectedType>
-    constexpr TypeIdentifier GetIdentifier();
-
     class DynamicTypeInfo final : private Common::NonCopyable
     {
     public:
@@ -41,14 +38,14 @@ namespace Reflection
 
         void* Construct() const;
 
+        bool IsNullType() const;
+        bool IsType(TypeIdentifier identifier) const;
+        bool IsBaseOf(TypeIdentifier identifier) const;
+        bool IsDerivedFrom(TypeIdentifier identifier) const;
+
         bool IsRegistered() const
         {
             return m_registered;
-        }
-
-        bool IsNullType() const 
-        {
-            return m_registered && GetIdentifier() == Reflection::GetIdentifier<NullType>();
         }
 
         bool IsConstructible() const
@@ -80,10 +77,6 @@ namespace Reflection
         {
             return m_derivedTypes;
         }
-
-        bool IsType(TypeIdentifier identifier) const;
-        bool IsBaseOf(TypeIdentifier identifier) const;
-        bool IsDerivedFrom(TypeIdentifier identifier) const;
 
         template<typename OtherType>
         bool IsType() const
