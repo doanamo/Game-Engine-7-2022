@@ -25,7 +25,7 @@ TEST_CASE("Utility")
 
     SUBCASE("Numeric cast")
     {
-        uint64_t source = (uint64_t)std::numeric_limits<uint32_t>::max();
+        uint64_t source = static_cast<uint64_t>(std::numeric_limits<uint32_t>::max());
         uint32_t target = Common::NumericalCast<uint32_t>(source);
 
         CHECK_EQ(target, 4294967295);
@@ -102,9 +102,9 @@ TEST_CASE("Utility")
         uint8_t dataFirst[4] = { '2', '0', '3', '5' };
         uint8_t dataSecond[4] = { '1', '9', '4', '5' };
 
-        CHECK_NE(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)), 0);
-        CHECK_NE(Common::CalculateCRC32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)),
-            Common::CalculateCRC32(0, &dataSecond[0], Common::StaticArraySize(dataSecond)));
+        CHECK_NE(Common::CalculateCrc32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)), 0);
+        CHECK_NE(Common::CalculateCrc32(0, &dataFirst[0], Common::StaticArraySize(dataFirst)),
+            Common::CalculateCrc32(0, &dataSecond[0], Common::StaticArraySize(dataSecond)));
     }
 
     SUBCASE("Reorder with indices")

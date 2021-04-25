@@ -76,21 +76,33 @@ namespace Reflection
     }
 
     template<typename ReflectedType>
-    TypeIdentifier GetIdentifier()
+    constexpr TypeIdentifier GetIdentifier()
     {
         return StaticType<ReflectedType>().Identifier;
     }
 
     template<typename RegisteredType>
-    TypeIdentifier GetIdentifier(const RegisteredType& instance)
+    constexpr TypeIdentifier GetIdentifier(const RegisteredType& instance)
     {
         return DynamicType(instance).GetIdentifier();
     }
 
     template<std::size_t Size>
-    TypeIdentifier GetIdentifier(const char (&typeName)[Size])
+    constexpr TypeIdentifier GetIdentifier(const char (&typeName)[Size])
     {
         return Common::StringHash<TypeIdentifier>(typeName);
+    }
+
+    template<typename ReflectedType>
+    constexpr Common::Name GetName()
+    {
+        return NAME_CONSTEXPR(StaticType<ReflectedType>().Name);
+    }
+
+    template<typename RegisteredType>
+    constexpr Common::Name GetName(const RegisteredType& instance)
+    {
+        return DynamicType(instance).GetName();
     }
 
     template<typename RegisteredType>

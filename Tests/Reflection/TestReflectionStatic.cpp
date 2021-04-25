@@ -73,6 +73,16 @@ TEST_CASE("Static Reflection")
         CHECK_EQ(Reflection::StaticType<BranchedTwo>().Name, "BranchedTwo");
     }
 
+    SUBCASE("Check reflected type names against identifiers")
+    {
+        CHECK_EQ(Reflection::GetName<Empty>(), Reflection::GetIdentifier<Empty>());
+        CHECK_EQ(Reflection::GetName<Base>(), Reflection::GetIdentifier<Base>());
+        CHECK_EQ(Reflection::GetName<Derived>(), Reflection::GetIdentifier<Derived>());
+        CHECK_EQ(Reflection::GetName<Inner>(), Reflection::GetIdentifier<Inner>());
+        CHECK_EQ(Reflection::GetName<BranchedOne>(), Reflection::GetIdentifier<BranchedOne>());
+        CHECK_EQ(Reflection::GetName<BranchedTwo>(), Reflection::GetIdentifier<BranchedTwo>());
+    }
+
     SUBCASE("Check reflected type identifier")
     {
         CHECK_EQ(Reflection::StaticType<Empty>().Identifier,

@@ -15,7 +15,17 @@
 
     Constant string literal that is internally represented as hashed identifier for performance
     reasons. It is possible to retrieve the actual string via name registry if enabled.
+
+    Note: Until consteval is introduced with C++20, NAME_CONSTEXPR() macro must be used to
+    ensure that hash calculation for name is calculated at compile time. This applies only
+    when name registry is disabled, otherwise constexpr cannot be enabled.
 */
+
+#ifdef NAME_REGISTRY_ENABLED
+    #define NAME_REGISTRY_CONSTEXPR
+#else
+    #define NAME_REGISTRY_CONSTEXPR constexpr
+#endif
 
 namespace Common
 {
@@ -23,18 +33,19 @@ namespace Common
     {
     public:
         using HashType = NameRegistry::HashType;
+        static constexpr HashType EmptyHash = Common::StringHash<HashType>("");
 
-        Name()
-            : m_hash(Common::StringHash<HashType>(""))
+        constexpr Name() noexcept
+            : m_hash(EmptyHash)
         {
         }
 
-        Name(const Name& other) = default;
-        Name(Name&& other) noexcept = default;
-        Name& operator=(const Name& other) = default;
-        Name& operator=(Name&& other) noexcept = default;
+        constexpr Name(const Name& other) = default;
+        constexpr Name(Name&& other) noexcept = default;
+        constexpr Name& operator=(const Name& other) = default;
+        constexpr Name& operator=(Name&& other) noexcept = default;
 
-        Name(const std::string_view string)
+        NAME_REGISTRY_CONSTEXPR Name(const char* string)
             : m_hash(Common::StringHash<HashType>(string))
         {
 #ifdef NAME_REGISTRY_ENABLED
@@ -42,7 +53,7 @@ namespace Common
 #endif
         }
 
-        Name(const char* string)
+        NAME_REGISTRY_CONSTEXPR Name(const std::string_view string)
             : m_hash(Common::StringHash<HashType>(string))
         {
 #ifdef NAME_REGISTRY_ENABLED
@@ -50,7 +61,7 @@ namespace Common
 #endif
         }
 
-        explicit Name(const HashType hash)
+        NAME_REGISTRY_CONSTEXPR Name(const HashType hash)
             : m_hash(hash)
         {
 #ifdef NAME_REGISTRY_ENABLED
@@ -68,17 +79,22 @@ namespace Common
 #endif
         }
 
-        bool operator==(const Name& other) const
+        constexpr bool operator==(const Name& other) const
         {
             return m_hash == other.m_hash;
         }
 
-        HashType GetHash() const
+        constexpr bool operator==(const HashType hash) const
+        {
+            return m_hash == hash;
+        }
+
+        constexpr HashType GetHash() const
         {
             return m_hash;
         }
 
-        operator HashType() const
+        constexpr operator HashType() const
         {
             return m_hash;
         }
@@ -87,3 +103,14 @@ namespace Common
         HashType m_hash;
     };
 }
+
+#ifdef NAME_REGISTRY_ENABLED
+    #define NAME_CONSTEXPR(string) Common::Name(string)
+#else
+    #define NAME_CONSTEXPR(string) \
+        [&]() { \
+            NAME_REGISTRY_CONSTEXPR Common::Name name = \
+                Common::StringHash<Common::Name::HashType>(string); \
+            return name; \
+        }()
+#endif

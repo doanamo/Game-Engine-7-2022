@@ -92,12 +92,12 @@ std::string Common::StringTrimRight(const std::string text, const char* characte
     return result.erase(text.find_last_not_of(characters) + 1);
 }
 
-std::string Common::StringTrim(std::string text, const char* characters)
+std::string Common::StringTrim(const std::string text, const char* characters)
 {
     return StringTrimLeft(StringTrimRight(text, characters), characters);
 }
 
-uint32_t Common::CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size)
+uint32_t Common::CalculateCrc32(uint32_t crc, const uint8_t* data, std::size_t size)
 {
     /*
         Implementation based on: https://stackoverflow.com/a/27950866

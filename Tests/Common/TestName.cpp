@@ -15,10 +15,16 @@ REFLECTION_TYPE(TestNameType);
 
 TEST_CASE("Name")
 {
+    SUBCASE("Empty")
+    {
+        Common::Name nameEmpty;
+        CHECK_EQ(nameEmpty, Common::StringHash<Common::Name::HashType>(""));
+    }
+
     SUBCASE("Basic")
     {
-        Common::Name nameOne = "One";
-        Common::Name nameTwo = "Two";
+        Common::Name nameOne = NAME_CONSTEXPR("One");
+        Common::Name nameTwo = NAME_CONSTEXPR("Two");
 
         CHECK_NE(nameOne, nameTwo);
         CHECK_EQ(nameOne, Common::Name("One"));
@@ -33,12 +39,20 @@ TEST_CASE("Name")
             Common::Name nameTwoCopy(nameTwo);
             CHECK_EQ(nameTwoCopy, nameTwo);
         }
+
+        SUBCASE("From identifier")
+        {
+            Common::Name NameIdentifier(Common::StringHash<Common::Name::HashType>("One"));
+
+            CHECK_EQ(nameOne, NameIdentifier);
+            CHECK_NE(nameTwo, NameIdentifier);
+        }
     }
 
     SUBCASE("Hash")
     {
-        CHECK_EQ(Common::Name("TestNameType").GetHash(),
-            Reflection::StaticType<TestNameType>().Identifier);
+        Common::Name nameTest = NAME_CONSTEXPR("TestNameType");
+        CHECK_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
     }
 
     SUBCASE("String")

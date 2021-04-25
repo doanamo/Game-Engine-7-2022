@@ -83,7 +83,7 @@ namespace Common
     std::string StringTrim(const std::string text, const char* characters = " ");
 
     template<typename Type>
-    constexpr Type StringHash(const std::string_view string)
+    constexpr Type StringHash(const std::string_view string) noexcept
     {
         static_assert(std::is_same<Type, uint32_t>::value || std::is_same<Type, uint64_t>::value);
 
@@ -105,7 +105,7 @@ namespace Common
         return hash;
     }
 
-    uint32_t CalculateCRC32(uint32_t crc, const uint8_t* data, std::size_t size);
+    uint32_t CalculateCrc32(uint32_t crc, const uint8_t* data, std::size_t size);
 
     template<typename Type>
     bool ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)

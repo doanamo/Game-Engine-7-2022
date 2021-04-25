@@ -11,12 +11,12 @@ using namespace Reflection;
 
 const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
-void DynamicTypeInfo::Register(const std::string_view name,
+void DynamicTypeInfo::Register(const Common::Name& name,
                                const ConstructFunction constructFunction,
                                DynamicTypeInfo* baseType)
 {
     m_registered = true;
-    m_name = Common::Name(name);
+    m_name = name;
     m_constructFunction = constructFunction;
 
     if(!IsNullType())

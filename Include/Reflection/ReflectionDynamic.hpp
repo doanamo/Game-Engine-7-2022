@@ -21,12 +21,13 @@ namespace Reflection
     constexpr DecayedStaticTypeInfo<ReflectedType> StaticType();
 
     template<typename ReflectedType>
-    TypeIdentifier GetIdentifier();
+    constexpr TypeIdentifier GetIdentifier();
 
     class DynamicTypeInfo final : private Common::NonCopyable
     {
     public:
-        static_assert(std::is_same<TypeIdentifier, Common::Name::HashType>::value);
+        static_assert(std::is_same<TypeIdentifier, Common::Name::HashType>::value,
+            "Both are a result of same string hash and should be interchangeable!");
 
         friend class Registry;
         static const DynamicTypeInfo Invalid;
@@ -121,14 +122,14 @@ namespace Reflection
         }
 
     private:
-        void Register(std::string_view name,
+        void Register(const Common::Name& name,
                       ConstructFunction constructFunction,
                       DynamicTypeInfo* baseType);
 
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
         bool m_registered = false;
-        Common::Name m_name = "<UnregisteredType>";
+        Common::Name m_name = NAME_CONSTEXPR("<UnregisteredType>");
         ConstructFunction m_constructFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;
