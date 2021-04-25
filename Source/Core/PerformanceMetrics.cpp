@@ -7,6 +7,11 @@
 #include "Core/PerformanceMetrics.hpp"
 using namespace Core;
 
+namespace
+{
+    float FrameRateUpdateFrequency = 1.0f;
+}
+
 PerformanceMetrics::PerformanceMetrics() = default;
 PerformanceMetrics::~PerformanceMetrics() = default;
 
@@ -30,11 +35,12 @@ void PerformanceMetrics::MarkFrameEnd()
     m_frameTimeAccumulated += std::chrono::duration<float>(m_frameEnd - m_frameStart).count();
     m_frameTimeAccumulations += 1;
 
-    if(std::chrono::duration<float>(m_frameEnd - m_frameTimeUpdate).count() >= 0.1f)
+    float timeElapsed = std::chrono::duration<float>(m_frameEnd - m_frameTimeUpdate).count();
+    if(timeElapsed >= FrameRateUpdateFrequency)
     {
         m_frameTimeUpdate = m_frameEnd;
-        m_frameTimeAverage = m_frameTimeAccumulated / m_frameTimeAccumulations;
-        m_frameTimeAccumulated = 0.0f;
+        m_frameTimeAverage = m_frameTimeAccumulated / static_cast<float>(m_frameTimeAccumulations);
+        m_frameTimeAccumulated = 0;
         m_frameTimeAccumulations = 0;
     }
 }

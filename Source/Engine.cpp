@@ -116,7 +116,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     windowParams.title = "Game";
     windowParams.width = 1024;
     windowParams.height = 576;
-    windowParams.vsync = true;
+    windowParams.vsync = false;
     windowParams.visible = true;
 
     if(auto window = System::Window::Create(

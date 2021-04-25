@@ -139,7 +139,7 @@ void EditorShell::DisplayFramerate()
 
     if(ImGui::Begin("Framerate Counter Button", 0, flags))
     {
-        if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.2f} ms)",
+        if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.5f} ms)",
             m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
         {
         }
