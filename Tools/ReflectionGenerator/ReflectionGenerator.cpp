@@ -9,20 +9,84 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <map>
+#include <set>
+#include <unordered_map>
 
 namespace fs = std::filesystem;
+
+void PrintMalformedDeclaration(const fs::path& headerPath, const std::size_t headerLine)
+{
+    std::cerr << "ReflectionGenerator: Detected malformed REFLECTION_ENABLE() declaration"
+        " in \"" << headerPath << "(" << headerLine << ")\"\n";
+};
+
+void TrimWhitespaceLeft(const std::string_view& string, std::size_t& position)
+{
+    while(std::isspace(string.at(position)))
+        ++position;
+};
+
+void TrimWhitespaceRight(const std::string_view& string, std::size_t& position)
+{
+    while(std::isspace(string.at(position)))
+        --position;
+};
 
 struct ReflectedType
 {
     std::string name;
     std::string base;
+
+    fs::path headerPath;
+    std::size_t headerLine = 0;
 };
 
-struct ReflectedHeader
+using ParsedTypeList = std::vector<ReflectedType>;
+using ParsedTypeMap = std::unordered_map<std::string, std::size_t>;
+using SortedTypeList = std::vector<const ReflectedType*>;
+using VisitedTypeList = std::vector<bool>;
+using DependencyTypeStack = std::set<std::size_t>;
+
+bool VisitReflectedType(const ParsedTypeList& parsedTypes, const ParsedTypeMap& parsedTypeMap,
+    SortedTypeList& sortedTypes, VisitedTypeList& visitedTypes,
+    DependencyTypeStack& dependencyStack, const std::size_t typeIndex)
 {
-    fs::path path;
-    std::vector<ReflectedType> types;
+    const ReflectedType& reflectedType = parsedTypes[typeIndex];
+    if(!dependencyStack.emplace(typeIndex).second)
+    {
+        std::cerr << "ReflectionGenerator: Found cyclic dependency!\n\t\""
+            << reflectedType.name << "\" from \"" << reflectedType.headerPath.generic_string()
+            << "(" << reflectedType.headerLine << ")\"";
+        return false;
+    }
+
+    if(reflectedType.base != "Reflection::NullType")
+    {
+        auto it = parsedTypeMap.find(reflectedType.base);
+        if(it == parsedTypeMap.end())
+        {
+            std::cerr << "ReflectionGenerator: Could not find base type with \""
+                << reflectedType.base << "\" name!\n\t\""
+                << reflectedType.name << "\" from \""
+                << reflectedType.headerPath.generic_string()
+                << "(" << reflectedType.headerLine << ")\"";
+            return false; 
+        }
+
+        if(!VisitReflectedType(parsedTypes, parsedTypeMap, sortedTypes,
+            visitedTypes, dependencyStack, it->second))
+        {
+            return false;
+        }
+    }
+
+    if(!visitedTypes[typeIndex])
+    {
+        sortedTypes.push_back(&reflectedType);
+        visitedTypes[typeIndex] = true;
+    }
+
+    return true;
 };
 
 int main(int argc, const char* argv[])
@@ -60,7 +124,7 @@ int main(int argc, const char* argv[])
         if(!fs::exists(sourceDirPath))
         {
             std::cerr << "ReflectionGenerator: Source directory path does not exist - \""
-                << sourceDir << "\"";
+                << sourceDir << "\"\n";
             return -1;
         }
 
@@ -77,40 +141,22 @@ int main(int argc, const char* argv[])
     }
 
     // Parse header files and map types with reflection enabled.
-    std::vector<ReflectedHeader> reflectedHeaders;
-
+    ParsedTypeList parsedTypes;
     for(const auto& headerPath : headerFileList)
     {
-        std::vector<ReflectedType> types;
+        if(headerPath.filename() == "ReflectionDeclare.hpp")
+            continue;
 
         std::ifstream file(headerPath);
         if(!file.is_open())
         {
             std::cerr << "ReflectionGenerator: Failed to open header file - \""
-                << headerPath << "\"";
+                << headerPath << "\"\n";
             return -1;
         }
 
         std::string line;
         std::size_t lineCount = 0;
-
-        auto PrintMalformedDeclaration = [&lineCount, &headerPath]()
-        {
-            std::cerr << "ReflectionGenerator: Detected malformed REFLECTION_ENABLE() declaration"
-                " in line " << lineCount << " of header file - \"" << headerPath << "\"";
-        };
-
-        auto TrimWhitespaceLeft = [](const std::string_view& string, std::size_t& position)
-        {
-            while(std::isspace(string.at(position)))
-                ++position;
-        };
-
-        auto TrimWhitespaceRight = [](const std::string_view& string, std::size_t& position)
-        {
-            while(std::isspace(string.at(position)))
-                --position;
-        };
 
         while(std::getline(file, line))
         {
@@ -130,48 +176,89 @@ int main(int argc, const char* argv[])
             std::size_t reflectionTokenEnd = line.find(')', reflectionTokenBegin);
             if(reflectionTokenEnd == std::string::npos)
             {
-                PrintMalformedDeclaration();
+                PrintMalformedDeclaration(headerPath, lineCount);
                 return -1;
             }
 
-            std::size_t delimeterToken = line.find(',', reflectionTokenBegin);
+            std::size_t delimiterToken = line.find(',', reflectionTokenBegin);
 
             std::size_t typeTokenBegin = reflectionTokenBegin + reflectionTokenName.size();
-            std::size_t typeTokenEnd = delimeterToken != std::string::npos ?
-                delimeterToken : reflectionTokenEnd;
+            std::size_t typeTokenEnd = delimiterToken != std::string::npos ?
+                delimiterToken : reflectionTokenEnd;
 
-            ReflectedType& reflectedType = types.emplace_back();
+            ReflectedType& parsedType = parsedTypes.emplace_back();
+            parsedType.headerPath = headerPath;
+            parsedType.headerLine = lineCount;
 
             TrimWhitespaceLeft(line, typeTokenBegin);
             TrimWhitespaceRight(line, typeTokenEnd);
-            reflectedType.name = line.substr(typeTokenBegin, typeTokenEnd - typeTokenBegin);
+            parsedType.name = line.substr(typeTokenBegin, typeTokenEnd - typeTokenBegin);
 
-            if(delimeterToken != std::string::npos)
+            if(delimiterToken != std::string::npos)
             {
-                if(delimeterToken > reflectionTokenEnd)
+                if(delimiterToken > reflectionTokenEnd)
                 {
-                    PrintMalformedDeclaration();
+                    PrintMalformedDeclaration(headerPath, lineCount);
                     return -1;
                 }
 
-                std::size_t baseTokenBegin = delimeterToken + 1;
+                std::size_t baseTokenBegin = delimiterToken + 1;
                 std::size_t baseTokenEnd = reflectionTokenEnd;
 
                 TrimWhitespaceLeft(line, baseTokenBegin);
                 TrimWhitespaceRight(line, baseTokenEnd);
-                reflectedType.base = line.substr(baseTokenBegin, baseTokenEnd - baseTokenBegin);
+                parsedType.base = line.substr(baseTokenBegin, baseTokenEnd - baseTokenBegin);
             }
             else
             {
-                reflectedType.base = "Reflection::NullType";
+                parsedType.base = "Reflection::NullType";
             }
         }
+    }
 
-        if(!types.empty())
+    // Collect unique headers.
+    std::set<fs::path> reflectedHeaders;
+    for(const auto& type : parsedTypes)
+    {
+        reflectedHeaders.insert(type.headerPath);
+    }
+
+    // Create hash map of reflected type name strings for performance.
+    ParsedTypeMap parsedTypeMap;
+    for(std::size_t i = 0; i < parsedTypes.size(); ++i)
+    {
+        const ReflectedType& reflectedType = parsedTypes[i];
+        auto result = parsedTypeMap.emplace(reflectedType.name, i);
+
+        if(!result.second)
         {
-            ReflectedHeader& reflectedHeader = reflectedHeaders.emplace_back();
-            reflectedHeader.path = headerPath;
-            reflectedHeader.types = std::move(types);
+            const ReflectedType& duplicatedType = parsedTypes[result.first->second];
+
+            std::cerr << "ReflectionGenerator: Found two reflected types with same names!\n"
+                <<  "\t\"" << reflectedType.name << "\" from \""
+                << reflectedType.headerPath.generic_string()
+                << "(" << reflectedType.headerLine << ")\"\n"
+                <<  "\t\"" << duplicatedType.name << "\" from \""
+                << duplicatedType.headerPath.generic_string()
+                << "(" << duplicatedType.headerLine << ")\"";
+
+            return -1;
+        }
+    }
+
+    // Perform topological sort of types by their dependencies to ensure
+    //  that base types are always registered before their derived types.
+    SortedTypeList sortedTypes;
+    sortedTypes.reserve(parsedTypes.size());
+
+    VisitedTypeList visitedTypes(parsedTypes.size(), false);
+    for(std::size_t i = 0; i < parsedTypes.size(); ++i)
+    {
+        DependencyTypeStack dependencyStack;
+        if(!VisitReflectedType(parsedTypes, parsedTypeMap, sortedTypes,
+            visitedTypes, dependencyStack, i))
+        {
+            return - 1;
         }
     }
 
@@ -193,7 +280,7 @@ int main(int argc, const char* argv[])
 
     for(const auto& header : reflectedHeaders)
     {
-        fs::path relativeHeaderPath = fs::relative(header.path, fs::path(outputDir));
+        fs::path relativeHeaderPath = fs::relative(header, fs::path(outputDir));
         reflectionBinding <<
             "#include \"" << relativeHeaderPath.generic_string() << "\"\n";
     }
@@ -208,13 +295,18 @@ int main(int argc, const char* argv[])
         "        if(registered)\n"
         "            return;\n\n";
 
-    for(const auto& header : reflectedHeaders)
+    for(const auto& type : sortedTypes)
     {
-        for(const auto& type : header.types)
-        {
-            reflectionBinding <<
-                "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type.name << "));\n";
-        }
+        reflectionBinding <<
+            "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
+
+#if 0 // Disabled as this makes generated binding file too sensitive to changes.
+        reflectionBinding <<
+            " // " << type->headerPath.generic_string() << "(" << type->headerLine << ")";
+#endif
+
+        reflectionBinding <<
+            "\n";
     }
 
     reflectionBinding <<
@@ -234,13 +326,16 @@ int main(int argc, const char* argv[])
     std::ifstream existingBindingFile(reflectionBindingFilePath);
     std::string existingReflectionBinding;
 
-    existingBindingFile.seekg(0, std::ios::end);
-    existingReflectionBinding.reserve(existingBindingFile.tellg());
-    existingBindingFile.seekg(0, std::ios::beg);
+    if(existingBindingFile.good())
+    {
+        existingBindingFile.seekg(0, std::ios::end);
+        existingReflectionBinding.reserve(existingBindingFile.tellg());
+        existingBindingFile.seekg(0, std::ios::beg);
 
-    existingReflectionBinding.assign(
+        existingReflectionBinding.assign(
         std::istreambuf_iterator<char>(existingBindingFile),
         std::istreambuf_iterator<char>());
+    }
 
     if(reflectionBinding.str() == existingReflectionBinding)
         return 0;
@@ -253,7 +348,7 @@ int main(int argc, const char* argv[])
     if(!reflectionBindingFile.is_open())
     {
         std::cerr << "ReflectionGenerator: Failed to open file for writing - \""
-            << reflectionBindingFilePath.generic_string() << "\"";
+            << reflectionBindingFilePath.generic_string() << "\"\n";
         return -1;
     }
 
@@ -262,7 +357,7 @@ int main(int argc, const char* argv[])
     if(!reflectionBindingFile.good())
     {
         std::cerr << "ReflectionGenerator: Failed to write file - \""
-            << reflectionBindingFilePath.generic_string() << "\"";
+            << reflectionBindingFilePath.generic_string() << "\"\n";
         return -1;
     }
 
