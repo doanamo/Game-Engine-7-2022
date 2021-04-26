@@ -105,6 +105,12 @@ namespace Reflection
         return DynamicType(instance).GetName();
     }
 
+    template<>
+    inline Common::Name GetName(const TypeIdentifier& identifier)
+    {
+        return DynamicType(identifier).GetName();
+    }
+
     template<typename RegisteredType>
     RegisteredType* Construct()
     {

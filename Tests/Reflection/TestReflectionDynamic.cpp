@@ -51,26 +51,17 @@ TEST_CASE("Dynamic Reflection")
             .GetName(), Common::Name("Empty"));
         CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Base>())
             .GetName(), Common::Name("Base"));
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Derived>())
-            .GetName(), Common::Name("Derived"));
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Inner>())
-            .GetName(), Common::Name("Inner"));
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedOne>())
-            .GetName(), Common::Name("BranchedOne"));
-        CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<BranchedTwo>())
-            .GetName(), Common::Name("BranchedTwo"));
-    }
 
-    SUBCASE("Check registered type names via instances")
-    {
-        Empty empty;
-        CHECK_EQ(Reflection::GetName(empty), NAME_CONSTEXPR("Empty"));
+        CHECK_EQ(Reflection::GetName(Derived()), NAME_CONSTEXPR("Derived"));
 
         Inner inner;
         CHECK_EQ(Reflection::GetName(&inner), NAME_CONSTEXPR("Inner"));
 
-        std::unique_ptr<Derived> derived = std::make_unique<BranchedTwo>();
-        CHECK_EQ(Reflection::GetName(derived), NAME_CONSTEXPR("BranchedTwo"));
+        std::unique_ptr<Derived> branchedOne = std::make_unique<BranchedOne>();
+        CHECK_EQ(Reflection::GetName(branchedOne), NAME_CONSTEXPR("BranchedOne"));
+
+        Reflection::TypeIdentifier branchedTwo = Reflection::GetIdentifier<BranchedTwo>();
+        CHECK_EQ(Reflection::GetName(branchedTwo), NAME_CONSTEXPR("BranchedTwo"));
     }
 
     SUBCASE("Check registered type identifier")
