@@ -56,7 +56,7 @@ bool VisitReflectedType(const ParsedTypeList& parsedTypes, const ParsedTypeMap& 
     {
         std::cerr << "ReflectionGenerator: Detected cyclic dependency!\n\t\""
             << reflectedType.name << "\" from \"" << reflectedType.headerPath.generic_string()
-            << "(" << reflectedType.headerLine << ")\"";
+            << "(" << reflectedType.headerLine << ")\"\n";
         return false;
     }
 
@@ -241,7 +241,7 @@ int main(int argc, const char* argv[])
                 << "(" << reflectedType.headerLine << ")\"\n"
                 <<  "\t\"" << duplicatedType.name << "\" from \""
                 << duplicatedType.headerPath.generic_string()
-                << "(" << duplicatedType.headerLine << ")\"";
+                << "(" << duplicatedType.headerLine << ")\"\n";
 
             return -1;
         }
