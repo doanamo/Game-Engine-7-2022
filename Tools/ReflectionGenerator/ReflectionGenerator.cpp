@@ -294,12 +294,12 @@ int main(int argc, const char* argv[])
         "    {\n"
         "        static bool registered = false;\n"
         "        if(registered)\n"
-        "            return;\n";
+        "            return;\n\n";
 
     for(const auto& type : sortedTypes)
     {
         reflectionBinding <<
-            "\n        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
+            "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
 
 #if 0 // Disabled as this makes generated binding file too sensitive to changes.
         reflectionBinding <<
