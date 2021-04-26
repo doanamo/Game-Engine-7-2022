@@ -54,7 +54,7 @@ bool VisitReflectedType(const ParsedTypeList& parsedTypes, const ParsedTypeMap& 
     const ReflectedType& reflectedType = parsedTypes[typeIndex];
     if(!dependencyStack.emplace(typeIndex).second)
     {
-        std::cerr << "ReflectionGenerator: Found cyclic dependency!\n\t\""
+        std::cerr << "ReflectionGenerator: Detected cyclic dependency!\n\t\""
             << reflectedType.name << "\" from \"" << reflectedType.headerPath.generic_string()
             << "(" << reflectedType.headerLine << ")\"";
         return false;
@@ -63,20 +63,13 @@ bool VisitReflectedType(const ParsedTypeList& parsedTypes, const ParsedTypeMap& 
     if(reflectedType.base != "Reflection::NullType")
     {
         auto it = parsedTypeMap.find(reflectedType.base);
-        if(it == parsedTypeMap.end())
+        if(it != parsedTypeMap.end())
         {
-            std::cerr << "ReflectionGenerator: Could not find base type with \""
-                << reflectedType.base << "\" name!\n\t\""
-                << reflectedType.name << "\" from \""
-                << reflectedType.headerPath.generic_string()
-                << "(" << reflectedType.headerLine << ")\"";
-            return false; 
-        }
-
-        if(!VisitReflectedType(parsedTypes, parsedTypeMap, sortedTypes,
-            visitedTypes, dependencyStack, it->second))
-        {
-            return false;
+            if(!VisitReflectedType(parsedTypes, parsedTypeMap, sortedTypes,
+                visitedTypes, dependencyStack, it->second))
+            {
+                return false;
+            }
         }
     }
 
@@ -186,14 +179,16 @@ int main(int argc, const char* argv[])
             std::size_t typeTokenEnd = delimiterToken != std::string::npos ?
                 delimiterToken : reflectionTokenEnd;
 
-            ReflectedType& parsedType = parsedTypes.emplace_back();
-            parsedType.headerPath = headerPath;
-            parsedType.headerLine = lineCount;
-
             TrimWhitespaceLeft(line, typeTokenBegin);
             TrimWhitespaceRight(line, typeTokenEnd);
-            parsedType.name = line.substr(typeTokenBegin, typeTokenEnd - typeTokenBegin);
+            std::string typeName = line.substr(typeTokenBegin, typeTokenEnd - typeTokenBegin);
 
+            if(typeName == "Reflection::NullType")
+            {
+                continue; // Allow reflection registry to register this type manually.
+            }
+
+            std::string typeBase;
             if(delimiterToken != std::string::npos)
             {
                 if(delimiterToken > reflectionTokenEnd)
@@ -207,12 +202,18 @@ int main(int argc, const char* argv[])
 
                 TrimWhitespaceLeft(line, baseTokenBegin);
                 TrimWhitespaceRight(line, baseTokenEnd);
-                parsedType.base = line.substr(baseTokenBegin, baseTokenEnd - baseTokenBegin);
+                typeBase = line.substr(baseTokenBegin, baseTokenEnd - baseTokenBegin);
             }
             else
             {
-                parsedType.base = "Reflection::NullType";
+                typeBase = "Reflection::NullType";
             }
+
+            ReflectedType& parsedType = parsedTypes.emplace_back();
+            parsedType.name = std::move(typeName);
+            parsedType.base = std::move(typeBase);
+            parsedType.headerPath = headerPath;
+            parsedType.headerLine = lineCount;
         }
     }
 
@@ -293,12 +294,12 @@ int main(int argc, const char* argv[])
         "    {\n"
         "        static bool registered = false;\n"
         "        if(registered)\n"
-        "            return;\n\n";
+        "            return;\n";
 
     for(const auto& type : sortedTypes)
     {
         reflectionBinding <<
-            "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
+            "\n        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
 
 #if 0 // Disabled as this makes generated binding file too sensitive to changes.
         reflectionBinding <<
@@ -310,7 +311,7 @@ int main(int argc, const char* argv[])
     }
 
     reflectionBinding <<
-        "        \n"
+        "\n"
         "        registered = true;\n"
         "    }\n"
         "}\n";

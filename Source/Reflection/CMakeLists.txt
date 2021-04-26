@@ -80,3 +80,5 @@ function(enable_reflection TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
 endfunction()
+
+enable_reflection(Reflection ${SOURCE_DIR} ${INCLUDE_DIR})

@@ -7,7 +7,7 @@
 #include "Engine.hpp"
 #include <Build/Build.hpp>
 #include <Common/ReflectionGenerated.hpp>
-#include <Game/ReflectionGenerated.hpp>
+#include <Reflection/ReflectionGenerated.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -19,6 +19,7 @@
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Renderer/GameRenderer.hpp>
+#include <Game/ReflectionGenerated.hpp>
 #include <Game/GameFramework.hpp>
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
@@ -48,6 +49,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     Logger::Initialize();
     Build::Initialize();
 
+    Reflection::Generated::RegisterModuleReflection();
     Reflection::Generated::RegisterModuleCommon();
     Reflection::Generated::RegisterModuleGame();
 
