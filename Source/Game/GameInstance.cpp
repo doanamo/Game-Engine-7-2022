@@ -14,7 +14,13 @@
 using namespace Game;
 
 GameInstance::GameInstance() = default;
-GameInstance::~GameInstance() = default;
+GameInstance::~GameInstance()
+{
+    for(auto it = m_gameSystemList.rbegin(); it != m_gameSystemList.rend(); ++it)
+    {
+        it->reset();
+    }
+}
 
 GameInstance::CreateResult GameInstance::Create()
 {
@@ -61,7 +67,11 @@ GameInstance::CreateResult GameInstance::Create()
 
 GameInstance::AttachSystemResult GameInstance::AttachSystem(std::unique_ptr<GameSystem>& gameSystem)
 {
-    ASSERT_ARGUMENT(gameSystem);
+    if(gameSystem == nullptr)
+    {
+        LOG_WARNING("Attempted to attach null game system to game instance!");
+        return Common::Failure(AttachSystemErrors::NullInstance);
+    }
 
     const Reflection::TypeIdentifier gameSystemType = Reflection::GetIdentifier(gameSystem);
     if(m_gameSystemMap.find(gameSystemType) != m_gameSystemMap.end())
