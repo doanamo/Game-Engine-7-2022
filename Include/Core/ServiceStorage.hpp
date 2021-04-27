@@ -7,37 +7,6 @@
 
 #include <memory>
 
-namespace System
-{
-    class Platform;
-    class FileSystem;
-    class Window;
-    class Timer;
-    class InputManager;
-    class ResourceManager;
-}
-
-namespace Graphics
-{
-    class RenderContext;
-    class SpriteRenderer;
-}
-
-namespace Game
-{
-    class GameFramework;
-}
-
-namespace Renderer
-{
-    class GameRenderer;
-}
-
-namespace Editor
-{
-    class EditorSystem;
-}
-
 /*
     Service Storage
 
