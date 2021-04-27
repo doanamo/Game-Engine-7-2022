@@ -4,19 +4,28 @@
 */
 
 #include <doctest/doctest.h>
+#include <Core/Core.hpp>
+#include <Core/ReflectionGenerated.hpp>
+#include <Game/ReflectionGenerated.hpp>
+#include <Game/GameInstance.hpp>
 #include <Game/EntitySystem.hpp>
 #include <Game/Systems/IdentitySystem.hpp>
 
 TEST_CASE("Identity System")
 {
-    std::unique_ptr<Game::EntitySystem> entitySystem;
-    entitySystem = Game::EntitySystem::Create().Unwrap();
+    Reflection::Generated::RegisterModuleCore();
+    Reflection::Generated::RegisterModuleGame();
 
-    Game::IdentitySystem::CreateFromParams params;
-    params.entitySystem = entitySystem.get();
+    std::unique_ptr<Game::GameInstance> gameInstance;
+    gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
+    REQUIRE(gameInstance);
 
-    std::unique_ptr<Game::IdentitySystem> identitySystem;
-    identitySystem = Game::IdentitySystem::Create(params).Unwrap();
+    Game::EntitySystem* entitySystem = gameInstance->GetSystem<Game::EntitySystem>();
+    REQUIRE(entitySystem);
+
+    Game::IdentitySystem* identitySystem = gameInstance->GetSystem<Game::IdentitySystem>();
+    REQUIRE(identitySystem);
+
     CHECK_EQ(identitySystem->GetNamedEntityCount(), 0);
 
     SUBCASE("Names")

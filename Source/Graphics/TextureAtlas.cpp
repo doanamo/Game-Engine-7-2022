@@ -34,7 +34,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::ResourceManager* resourceManager = params.services->GetResourceManager();
+    auto* resourceManager = params.services->Locate<System::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();

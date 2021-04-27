@@ -6,8 +6,13 @@
 #pragma once
 
 #include <stack>
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
 #include "Graphics/RenderState.hpp"
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace System
 {
@@ -22,8 +27,10 @@ namespace System
 
 namespace Graphics
 {
-    class RenderContext final : private Common::NonCopyable
+    class RenderContext final : public Core::Service
     {
+        REFLECTION_ENABLE(RenderContext, Core::Service)
+
     public:
         struct CreateParams
         {
@@ -40,7 +47,7 @@ namespace Graphics
         static CreateResult Create(const CreateParams& params);
 
     public:
-        ~RenderContext();
+        ~RenderContext() override;
 
         void MakeCurrent();
         RenderState& PushState();
@@ -57,3 +64,5 @@ namespace Graphics
         std::stack<RenderState> m_pushedStates;
     };
 }
+
+REFLECTION_TYPE(Graphics::RenderContext, Core::Service)

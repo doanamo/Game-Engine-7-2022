@@ -49,7 +49,8 @@ GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromPara
 
 bool GameInstanceEditor::SubscribeEvents(const Core::ServiceStorage* services)
 {
-    Game::GameFramework::Events& events = services->GetGameFramework()->events;
+    auto* gameFramework = services->Locate<Game::GameFramework>();
+    Game::GameFramework::Events& events = gameFramework->events;
 
     bool subscriptionResults = true;
     subscriptionResults &= m_receivers.gameStateChanged.Subscribe(events.gameStateChanged);

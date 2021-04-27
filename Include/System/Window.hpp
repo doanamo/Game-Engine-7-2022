@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Common/Event/Broker.hpp>
+#include <Core/Service.hpp>
 #include "System/WindowEvents.hpp"
 
 struct GLFWwindow;
@@ -44,8 +45,10 @@ namespace System
         InputManager* inputManager = nullptr;
     };
 
-    class Window final : private Common::NonCopyable
+    class Window final : public Core::Service
     {
+        REFLECTION_ENABLE(Window, Core::Service)
+
     public:
         struct CreateFromParams
         {
@@ -73,7 +76,7 @@ namespace System
         static CreateResult Create(const CreateFromParams& params);
 
     public:
-        ~Window();
+        ~Window() override;
 
         void MakeContextCurrent();
         void ProcessEvents();
@@ -107,3 +110,5 @@ namespace System
         bool m_sizeChanged = false;
     };
 }
+
+REFLECTION_TYPE(System::Window, Core::Service)

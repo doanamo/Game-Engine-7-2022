@@ -70,8 +70,11 @@ set_property(TARGET Game PROPERTY FOLDER "Engine")
 #
 
 add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Game PUBLIC Reflection)
+target_link_libraries(Game PRIVATE Reflection)
 enable_reflection(Game ${SOURCE_DIR} ${INCLUDE_DIR})
 
 add_subdirectory("../Core" "Core")
 target_link_libraries(Game PRIVATE Core)
+
+add_subdirectory("../Graphics" "Graphics")
+target_link_libraries(Game PRIVATE Graphics)

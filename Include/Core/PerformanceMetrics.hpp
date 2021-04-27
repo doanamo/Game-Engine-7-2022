@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "Core/Service.hpp"
+
 /*
     Performance Metrics
 
@@ -14,13 +16,15 @@
 
 namespace Core
 {
-    class PerformanceMetrics final : Common::NonCopyable
+    class PerformanceMetrics final : public Service
     {
+        REFLECTION_ENABLE(PerformanceMetrics, Service)
+
     public:
         using CreateResult = Common::Result<std::unique_ptr<PerformanceMetrics>, void>;
         static CreateResult Create();
 
-        ~PerformanceMetrics();
+        ~PerformanceMetrics() override;
 
         void MarkFrameStart();
         void MarkFrameEnd();
@@ -40,3 +44,5 @@ namespace Core
         int m_frameTimeAccumulations = 0;
     };
 }
+
+REFLECTION_TYPE(Core::PerformanceMetrics, Core::Service)

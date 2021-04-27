@@ -5,6 +5,7 @@
 
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/RenderContext.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
 using namespace Graphics;
 
@@ -23,7 +24,7 @@ RenderContext::CreateResult RenderContext::Create(const CreateParams& params)
     auto instance = std::unique_ptr<RenderContext>(new RenderContext());
 
     // Acquire window service.
-    instance->m_window = params.services->GetWindow();
+    instance->m_window = params.services->Locate<System::Window>();
 
     // Save initial render state.
     // Window has to set its OpenGL context as current for this to succeed.

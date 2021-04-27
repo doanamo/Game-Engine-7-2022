@@ -24,8 +24,8 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    Core::PerformanceMetrics* performanceMetrics = params.services->GetPerformanceMetrics();
-    System::Window* window = params.services->GetWindow();
+    auto* performanceMetrics = params.services->Locate<Core::PerformanceMetrics>();
+    auto* window = params.services->Locate<System::Window>();
 
     auto instance = std::unique_ptr<EditorShell>(new EditorShell());
     instance->m_performanceMetrics = performanceMetrics;

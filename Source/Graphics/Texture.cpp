@@ -87,7 +87,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
 
     CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
 
-    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
+    auto* renderContext = params.services->Locate<Graphics::RenderContext>();
 
     auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);
     if(image == nullptr)

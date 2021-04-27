@@ -23,8 +23,8 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    System::Window* window = params.services->GetWindow();
-    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
+    auto* window = params.services->Locate<System::Window>();
+    auto* renderContext = params.services->Locate<Graphics::RenderContext>();
 
     auto instance = std::unique_ptr<EditorRenderer>(new EditorRenderer());
     instance->m_window = window;
@@ -157,7 +157,7 @@ bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* service
     Graphics::Shader::LoadFromFile shaderParams;
     shaderParams.services = services;
 
-    m_shader = services->GetResourceManager()->Acquire<Graphics::Shader>(
+    m_shader = services->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
         "Data/Engine/Shaders/Interface.shader", shaderParams).UnwrapOr(nullptr);
 
     if(m_shader == nullptr)

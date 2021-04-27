@@ -5,13 +5,18 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/Sprite/Sprite.hpp"
 #include "Graphics/Sprite/SpriteDrawList.hpp"
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace System
 {
@@ -27,8 +32,10 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteRenderer final : private Common::NonCopyable
+    class SpriteRenderer final : public Core::Service
     {
+        REFLECTION_ENABLE(SpriteRenderer, Core::Service)
+
     public:
         struct CreateFromParams
         {
@@ -46,7 +53,7 @@ namespace Graphics
         static CreateResult Create(const CreateFromParams& params);
 
     public:
-        ~SpriteRenderer();
+        ~SpriteRenderer() override;
 
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
@@ -65,3 +72,5 @@ namespace Graphics
         std::shared_ptr<Shader> m_shader;
     };
 }
+
+REFLECTION_TYPE(Graphics::SpriteRenderer, Core::Service)

@@ -5,6 +5,7 @@
 
 #include "System/Precompiled.hpp"
 #include "System/ResourceManager.hpp"
+#include <Core/ServiceStorage.hpp>
 using namespace System;
 
 ResourceManager::ResourceManager() = default;
@@ -22,7 +23,7 @@ ResourceManager::CreateResult ResourceManager::Create(const CreateFromParams& pa
     auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
 
     // Acquire file system service.
-    instance->m_fileSystem = params.services->GetFileSystem();
+    instance->m_fileSystem = params.services->Locate<System::FileSystem>();
 
     // Success!
     return Common::Success(std::move(instance));

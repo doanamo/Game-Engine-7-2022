@@ -35,8 +35,10 @@ InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromPara
 
     auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
     
-    System::Window* window = params.services->GetWindow();
-    System::InputState& inputState = params.services->GetInputManager()->GetInputState();
+    auto* window = params.services->Locate<System::Window>();
+    auto* inputManager = params.services->Locate<System::InputManager>();
+
+    System::InputState& inputState = inputManager->GetInputState();
 
     bool subscriptionResults = true;
     subscriptionResults &= window->events.Subscribe(instance->m_windowFocusReceiver);

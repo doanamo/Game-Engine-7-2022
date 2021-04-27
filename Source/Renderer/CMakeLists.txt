@@ -42,6 +42,10 @@ set_property(TARGET Renderer PROPERTY FOLDER "Engine")
 # Dependencies
 #
 
+add_subdirectory("../Reflection" "Reflection")
+target_link_libraries(Renderer PRIVATE Reflection)
+enable_reflection(Renderer ${SOURCE_DIR} ${INCLUDE_DIR})
+
 add_subdirectory("../Core" "Core")
 target_link_libraries(Renderer PRIVATE Core)
 

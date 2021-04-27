@@ -6,8 +6,13 @@
 #pragma once
 
 #include <Common/Event/Dispatcher.hpp>
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
 #include "Game/GameState.hpp"
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace System
 {
@@ -29,8 +34,10 @@ namespace Game
 {
     class GameState;
 
-    class GameFramework final : private Common::NonCopyable
+    class GameFramework final : public Core::Service
     {
+        REFLECTION_ENABLE(GameFramework, Core::Service)
+
     public:
         struct CreateFromParams
         {
@@ -92,3 +99,5 @@ namespace Game
         Common::StateMachine<GameState> m_stateMachine;
     };
 }
+
+REFLECTION_TYPE(Game::GameFramework, Core::Service)

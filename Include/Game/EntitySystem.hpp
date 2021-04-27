@@ -51,6 +51,8 @@ namespace Game
         EntitySystem();
         ~EntitySystem() override;
 
+        void ProcessCommands();
+
         EntityHandle CreateEntity();
         void DestroyEntity(const EntityHandle entity);
         void DestroyAllEntities();
@@ -70,7 +72,6 @@ namespace Game
 
     private:
         void OnTick(float timeDelta) override;
-        void ProcessCommands();
 
         CommandList m_commands;
         EntityList m_entities;

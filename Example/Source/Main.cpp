@@ -18,7 +18,7 @@ int main()
     if(auto engine = Engine::Root::Create(engineParams).UnwrapOr(nullptr))
     {
         std::shared_ptr<Game::GameState> defaultGameState = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
-        engine->GetServices().GetGameFramework()->ChangeGameState(defaultGameState);
+        engine->GetServices().Locate<Game::GameFramework>()->ChangeGameState(defaultGameState);
         return engine->Run();
     }
     else

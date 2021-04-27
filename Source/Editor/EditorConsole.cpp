@@ -37,7 +37,7 @@ EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params
         Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<EditorConsole>(new EditorConsole());
-    instance->m_window = params.services->GetWindow();
+    instance->m_window = params.services->Locate<System::Window>();
 
     LOG_SUCCESS("Created editor console instance.");
     return Common::Success(std::move(instance));

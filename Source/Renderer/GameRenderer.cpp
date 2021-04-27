@@ -5,6 +5,7 @@
 
 #include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Game/Components/TransformComponent.hpp>
@@ -32,8 +33,8 @@ GameRenderer::CreateResult GameRenderer::Create(const CreateFromParams& params)
     auto instance = std::unique_ptr<GameRenderer>(new GameRenderer());
 
     // Save system references.
-    instance->m_renderContext = params.services->GetRenderContext();
-    instance->m_spriteRenderer = params.services->GetSpriteRenderer();
+    instance->m_renderContext = params.services->Locate<Graphics::RenderContext>();
+    instance->m_spriteRenderer = params.services->Locate<Graphics::SpriteRenderer>();
 
     // Success!
     return Common::Success(std::move(instance));

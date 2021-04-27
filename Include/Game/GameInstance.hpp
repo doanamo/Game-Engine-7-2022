@@ -22,6 +22,7 @@ namespace Game
 
         enum class AttachSystemErrors
         {
+            NullInstance,
             AlreadyExists,
             FailedAttach,
         };

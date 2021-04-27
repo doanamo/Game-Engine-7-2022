@@ -35,9 +35,9 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::InputManager* inputManager = engine->GetServices().GetInputManager();
-    System::ResourceManager* resourceManager = engine->GetServices().GetResourceManager();
-    Game::GameFramework* gameFramework = engine->GetServices().GetGameFramework();
+    auto* inputManager = engine->GetServices().Locate<System::InputManager>();
+    auto* resourceManager = engine->GetServices().Locate<System::ResourceManager>();
+    auto* gameFramework = engine->GetServices().Locate<Game::GameFramework>();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
@@ -163,7 +163,8 @@ void SpriteDemo::Tick(const float tickTime)
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
-    System::InputState& inputState = m_engine->GetServices().GetInputManager()->GetInputState();
+    auto* inputManager = m_engine->GetServices().Locate<System::InputManager>();
+    System::InputState& inputState = inputManager->GetInputState();
 
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 

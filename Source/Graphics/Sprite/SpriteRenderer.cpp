@@ -7,6 +7,7 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <System/ResourceManager.hpp>
 using namespace Graphics;
 
@@ -32,8 +33,8 @@ SpriteRenderer::CreateResult SpriteRenderer::Create(const CreateFromParams& para
     CHECK_ARGUMENT_OR_RETURN(params.spriteBatchSize > 0, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine services.
-    System::ResourceManager* resourceManager = params.services->GetResourceManager();
-    Graphics::RenderContext* renderContext = params.services->GetRenderContext();
+    auto* resourceManager = params.services->Locate<System::ResourceManager>();
+    auto* renderContext = params.services->Locate<Graphics::RenderContext>();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteRenderer>(new SpriteRenderer());

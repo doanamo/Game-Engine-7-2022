@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <limits>
+#include <Core/Service.hpp>
 
 #ifndef __EMSCRIPTEN__
     // Use precise time counters on platforms that support it.
@@ -22,8 +22,10 @@
 
 namespace System
 {
-    class Timer final : private Common::NonCopyable
+    class Timer final : public Core::Service
     {
+        REFLECTION_ENABLE(Timer, Core::Service)
+
     public:
         #ifdef USE_PRECISE_TIME_COUNTERS
             // Time units in integers with constant frequency per second.
@@ -37,7 +39,7 @@ namespace System
         static CreateResult Create();
 
     public:
-        ~Timer();
+        ~Timer() override;
 
         float Advance(float maxDeltaSeconds = 0.0f);
         void Advance(const Timer& timer);
@@ -62,3 +64,5 @@ namespace System
         TimeUnit m_previousTimeUnits;
     };
 }
+
+REFLECTION_TYPE(System::Timer, Core::Service)

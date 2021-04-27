@@ -5,9 +5,14 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
 #include "System/InputState.hpp"
 #include "System/WindowEvents.hpp"
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 /*
     Input Manager
@@ -19,8 +24,10 @@ namespace System
 {
     class WindowContext;
 
-    class InputManager final : private Common::NonCopyable
+    class InputManager final : public Core::Service
     {
+        REFLECTION_ENABLE(InputManager, Core::Service)
+
     public:
         struct CreateParams
         {
@@ -36,7 +43,8 @@ namespace System
         using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
         static CreateResult Create(const CreateParams& params);
 
-        ~InputManager();
+    public:
+        ~InputManager() override;
 
         void UpdateInputState(float timeDelta);
         void ResetInputState();
@@ -58,3 +66,5 @@ namespace System
         WindowContext* m_windowContext = nullptr;
     };
 }
+
+REFLECTION_TYPE(System::InputManager, Core::Service)

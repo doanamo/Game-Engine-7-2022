@@ -12,6 +12,7 @@ include_guard(GLOBAL)
 
 set(INCLUDE_FILES
     "Core.hpp"
+    "Service.hpp"
     "ServiceStorage.hpp"
     "PerformanceMetrics.hpp"
 )
@@ -50,7 +51,8 @@ add_subdirectory("../Common" "Common")
 target_link_libraries(Core PUBLIC Common)
 
 add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Core PUBLIC Reflection)
+target_link_libraries(Core PRIVATE Reflection)
+enable_reflection(Core ${SOURCE_DIR} ${INCLUDE_DIR})
 
 #
 # Externals

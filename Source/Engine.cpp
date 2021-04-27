@@ -6,8 +6,6 @@
 #include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Build/Build.hpp>
-#include <Common/ReflectionGenerated.hpp>
-#include <Reflection/ReflectionGenerated.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -19,12 +17,17 @@
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Renderer/GameRenderer.hpp>
-#include <Game/ReflectionGenerated.hpp>
 #include <Game/GameFramework.hpp>
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
 
-using ProcessGameStateResults = Game::GameFramework::ProcessGameStateResults;
+#include <Common/ReflectionGenerated.hpp>
+#include <Core/ReflectionGenerated.hpp>
+#include <System/ReflectionGenerated.hpp>
+#include <Graphics/ReflectionGenerated.hpp>
+#include <Game/ReflectionGenerated.hpp>
+#include <Renderer/ReflectionGenerated.hpp>
+#include <Editor/ReflectionGenerated.hpp>
 
 namespace
 {
@@ -49,9 +52,13 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     Logger::Initialize();
     Build::Initialize();
 
-    Reflection::Generated::RegisterModuleReflection();
     Reflection::Generated::RegisterModuleCommon();
+    Reflection::Generated::RegisterModuleCore();
+    Reflection::Generated::RegisterModuleSystem();
+    Reflection::Generated::RegisterModuleGraphics();
     Reflection::Generated::RegisterModuleGame();
+    Reflection::Generated::RegisterModuleRenderer();
+    Reflection::Generated::RegisterModuleEditor();
 
     CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f,
         Common::Failure(CreateErrors::InvalidArgument));
@@ -77,11 +84,14 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
 
 Common::Result<void, Root::CreateErrors> Root::CreateServices()
 {
+    using ServicePtr = std::unique_ptr<Core::Service>;
+
     // Information collection about engine's runtime performance.
     // Used to track and display simple measurements such as current frame rate.
-    if(auto performanceMetrics = Core::PerformanceMetrics::Create().UnwrapOr(nullptr))
+    if(ServicePtr performanceMetrics = Core::PerformanceMetrics::Create()
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(performanceMetrics));
+        m_services.Provide(performanceMetrics);
     }
     else
     {
@@ -91,9 +101,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Base system for enabling windowing, timing and input collection.
     // Needs to be created first before the mentioned can be used.
-    if(auto platform = System::Platform::Create().UnwrapOr(nullptr))
+    if(ServicePtr platform = System::Platform::Create()
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(platform));
+        m_services.Provide(platform);
     }
     else
     {
@@ -102,9 +113,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     }
 
     // Path resolving with multiple mounted directories.
-    if(auto fileSystem = System::FileSystem::Create().UnwrapOr(nullptr))
+    if(ServicePtr fileSystem = System::FileSystem::Create()
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(fileSystem));
+        m_services.Provide(fileSystem);
     }
     else
     {
@@ -121,10 +133,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     windowParams.vsync = false;
     windowParams.visible = true;
 
-    if(auto window = System::Window::Create(
-        windowParams).UnwrapOr(nullptr))
+    if(ServicePtr window = System::Window::Create(windowParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(window));
+        m_services.Provide(window);
     }
     else
     {
@@ -134,9 +146,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Main loop time tracking.
     // Used to calculate tick and update delta for each frame.
-    if(auto timer = System::Timer::Create().UnwrapOr(nullptr))
+    if(ServicePtr timer = System::Timer::Create()
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(timer));
+        m_services.Provide(timer);
     }
     else
     {
@@ -149,10 +162,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     System::InputManager::CreateParams inputManagerParams;
     inputManagerParams.services = &m_services;
 
-    if(auto inputManager = System::InputManager::Create(
-        inputManagerParams).UnwrapOr(nullptr))
+    if(ServicePtr inputManager = System::InputManager::Create(inputManagerParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(inputManager));
+        m_services.Provide(inputManager);
     }
     else
     {
@@ -165,10 +178,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     System::ResourceManager::CreateFromParams resourceManagerParams;
     resourceManagerParams.services = &m_services;
 
-    if(auto resourceManager = System::ResourceManager::Create(
-        resourceManagerParams).UnwrapOr(nullptr))
+    if(ServicePtr resourceManager = System::ResourceManager::Create(resourceManagerParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(resourceManager));
+        m_services.Provide(resourceManager);
     }
     else
     {
@@ -181,10 +194,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Graphics::RenderContext::CreateParams renderContextParams;
     renderContextParams.services = &m_services;
 
-    if(auto renderContext = Graphics::RenderContext::Create(
-        renderContextParams).UnwrapOr(nullptr))
+    if(ServicePtr renderContext = Graphics::RenderContext::Create(renderContextParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(renderContext));
+        m_services.Provide(renderContext);
     }
     else
     {
@@ -198,10 +211,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     spriteRendererParams.services = &m_services;
     spriteRendererParams.spriteBatchSize = 128;
 
-    if(auto spriteRenderer = Graphics::SpriteRenderer::Create(
-        spriteRendererParams).UnwrapOr(nullptr))
+    if(ServicePtr spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(spriteRenderer));
+        m_services.Provide(spriteRenderer);
     }
     else
     {
@@ -214,10 +227,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Renderer::GameRenderer::CreateFromParams stateRendererParams;
     stateRendererParams.services = &m_services;
 
-    if(auto stateRenderer = Renderer::GameRenderer::Create(
-        stateRendererParams).UnwrapOr(nullptr))
+    if(ServicePtr stateRenderer = Renderer::GameRenderer::Create(stateRendererParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(stateRenderer));
+        m_services.Provide(stateRenderer);
     }
     else
     {
@@ -230,10 +243,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Game::GameFramework::CreateFromParams gameFrameworkParams;
     gameFrameworkParams.services = &m_services;
 
-    if(auto gameFramework = Game::GameFramework::Create(
-        gameFrameworkParams).UnwrapOr(nullptr))
+    if(ServicePtr gameFramework = Game::GameFramework::Create(gameFrameworkParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(gameFramework));
+        m_services.Provide(gameFramework);
     }
     else
     {
@@ -246,10 +259,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     Editor::EditorSystem::CreateFromParams editorSystemParams;
     editorSystemParams.services = &m_services;
 
-    if(auto editorSystem = Editor::EditorSystem::Create(
-        editorSystemParams).UnwrapOr(nullptr))
+    if(ServicePtr editorSystem = Editor::EditorSystem::Create(editorSystemParams)
+        .UnwrapOr(nullptr))
     {
-        m_services.Provide(std::move(editorSystem));
+        m_services.Provide(editorSystem);
     }
     else
     {
@@ -263,8 +276,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
 Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
-    System::FileSystem* fileSystem = m_services.GetFileSystem();
-    System::ResourceManager* resourceManager = m_services.GetResourceManager();
+    auto* fileSystem = m_services.Locate<System::FileSystem>();
+    auto* resourceManager = m_services.Locate<System::ResourceManager>();
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
@@ -305,15 +318,17 @@ void Root::ProcessFrame()
         Engine services are updated here each frame if needed.
     */
 
+    using ProcessGameStateResults = Game::GameFramework::ProcessGameStateResults;
+
     Logger::AdvanceFrameReference();
 
-    Core::PerformanceMetrics* performanceMetrics = m_services.GetPerformanceMetrics();
-    System::Timer* timer = m_services.GetTimer();
-    System::Window* window = m_services.GetWindow();
-    System::InputManager* inputManager = m_services.GetInputManager();
-    System::ResourceManager* resourceManager = m_services.GetResourceManager();
-    Game::GameFramework* gameFramework = m_services.GetGameFramework();
-    Editor::EditorSystem* editorSystem = m_services.GetEditorSystem();
+    auto* performanceMetrics = m_services.Locate<Core::PerformanceMetrics>();
+    auto* timer = m_services.Locate<System::Timer>();
+    auto* window = m_services.Locate<System::Window>();
+    auto* inputManager = m_services.Locate<System::InputManager>();
+    auto* resourceManager = m_services.Locate<System::ResourceManager>();
+    auto* gameFramework = m_services.Locate<Game::GameFramework>();
+    auto* editorSystem = m_services.Locate<Editor::EditorSystem>();
 
     const float timeDelta = timer->Advance(m_maxUpdateDelta);
 
@@ -341,9 +356,9 @@ Root::ErrorCode Root::Run()
         accumulated during initialization.
     */
 
-    System::Timer* timer = m_services.GetTimer();
-    System::Window* window = m_services.GetWindow();
-    Game::GameFramework* gameFramework = m_services.GetGameFramework();
+    auto* timer = m_services.Locate<System::Timer>();
+    auto* window = m_services.Locate<System::Window>();
+    auto* gameFramework = m_services.Locate<Game::GameFramework>();
 
     window->MakeContextCurrent();
     timer->Reset();

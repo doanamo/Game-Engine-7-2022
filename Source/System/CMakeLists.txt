@@ -75,5 +75,12 @@ set_property(TARGET System PROPERTY FOLDER "Engine")
 # Dependencies
 #
 
+add_subdirectory("../Reflection" "Reflection")
+target_link_libraries(System PRIVATE Reflection)
+enable_reflection(System ${SOURCE_DIR} ${INCLUDE_DIR})
+
+add_subdirectory("../Build" "Build")
+target_link_libraries(System PRIVATE Build)
+
 add_subdirectory("../Core" "Core")
 target_link_libraries(System PRIVATE Core)

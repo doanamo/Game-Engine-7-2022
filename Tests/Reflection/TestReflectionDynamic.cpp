@@ -8,13 +8,11 @@
 #include <cinttypes>
 #include <doctest/doctest.h>
 #include <Reflection/Reflection.hpp>
-#include <Reflection/ReflectionGenerated.hpp>
 #include "TestReflectionHeader.hpp"
 #include "TestReflection/ReflectionGenerated.hpp"
 
 TEST_CASE("Dynamic Reflection")
 {
-    Reflection::Generated::RegisterModuleReflection();
     Reflection::Generated::RegisterModuleTestReflection();
     
     SUBCASE("Check registered built-in types")

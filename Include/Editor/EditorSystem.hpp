@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Core/Service.hpp>
 #include <Common/Event/Receiver.hpp>
 #include <System/InputDefinitions.hpp>
 
@@ -34,8 +35,10 @@ namespace Editor
 
 namespace Editor
 {
-    class EditorSystem final : private Common::NonCopyable
+    class EditorSystem final : public Core::Service
     {
+        REFLECTION_ENABLE(EditorSystem, Core::Service)
+
     public:
         struct CreateFromParams
         {
@@ -53,7 +56,8 @@ namespace Editor
         using CreateResult = Common::Result<std::unique_ptr<EditorSystem>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
 
-        ~EditorSystem();
+    public:
+        ~EditorSystem() override;
 
         void BeginInterface(float timeDelta);
         void EndInterface();
@@ -85,3 +89,5 @@ namespace Editor
         std::unique_ptr<EditorShell> m_editorShell;
     };
 }
+
+REFLECTION_TYPE(Editor::EditorSystem, Core::Service)

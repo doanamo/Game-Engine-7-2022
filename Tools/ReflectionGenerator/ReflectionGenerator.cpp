@@ -183,11 +183,6 @@ int main(int argc, const char* argv[])
             TrimWhitespaceRight(line, typeTokenEnd);
             std::string typeName = line.substr(typeTokenBegin, typeTokenEnd - typeTokenBegin);
 
-            if(typeName == "Reflection::NullType")
-            {
-                continue; // Allow reflection registry to register this type manually.
-            }
-
             std::string typeBase;
             if(delimiterToken != std::string::npos)
             {
@@ -301,7 +296,7 @@ int main(int argc, const char* argv[])
         reflectionBinding <<
             "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
 
-#if 0 // Disabled as this makes generated binding file too sensitive to changes.
+#ifndef NDEBUG
         reflectionBinding <<
             " // " << type->headerPath.generic_string() << "(" << type->headerLine << ")";
 #endif

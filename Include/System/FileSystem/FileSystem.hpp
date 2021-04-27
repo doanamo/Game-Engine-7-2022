@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Core/Service.hpp>
 #include "System/FileSystem/FileDepot.hpp"
 
 /*
@@ -22,8 +23,10 @@
 
 namespace System
 {
-    class FileSystem final : private Common::NonCopyable
+    class FileSystem final : public Core::Service
     {
+        REFLECTION_ENABLE(FileSystem, Core::Service)
+
     public:
         using FileDepotPtr = std::unique_ptr<FileDepot>;
         using OpenFlags = FileHandle::OpenFlags;
@@ -34,8 +37,8 @@ namespace System
             FailedDefaultDepotMounting,
         };
 
-        using CreateResult = Common::Result<
-            std::unique_ptr<FileSystem>, CreateErrors>;
+        using CreateResult = Common::Result<std::unique_ptr<FileSystem>, CreateErrors>;
+        static CreateResult Create();
 
         enum class MountDepotErrors
         {
@@ -44,12 +47,10 @@ namespace System
             InvalidFileDepotArgument,
         };
 
-        using MountDepotResult = Common::Result<
-            void, MountDepotErrors>;
+        using MountDepotResult = Common::Result<void, MountDepotErrors>;
 
-        ~FileSystem();
-
-        static CreateResult Create();
+    public:
+        ~FileSystem() override;
 
         MountDepotResult MountDepot(fs::path mountPath, FileDepotPtr&& fileDepot);
         FileDepot::OpenFileResult OpenFile(fs::path filePath,
@@ -69,3 +70,5 @@ namespace System
         MountedDepotList m_mountedDepots;
     };
 }
+
+REFLECTION_TYPE(System::FileSystem, Core::Service)

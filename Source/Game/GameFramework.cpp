@@ -7,6 +7,7 @@
 #include "Game/GameFramework.hpp"
 #include "Game/GameInstance.hpp"
 #include "Game/TickTimer.hpp"
+#include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
 #include <Renderer/GameRenderer.hpp>
 using namespace Game;
@@ -26,9 +27,9 @@ GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
 
     // Save system references.
-    instance->m_timer = params.services->GetTimer();
-    instance->m_window = params.services->GetWindow();
-    instance->m_gameRenderer = params.services->GetGameRenderer();
+    instance->m_timer = params.services->Locate<System::Timer>();
+    instance->m_window = params.services->Locate<System::Window>();
+    instance->m_gameRenderer = params.services->Locate<Renderer::GameRenderer>();
 
     // Success!
     return Common::Success(std::move(instance));

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <Core/Service.hpp>
+
 /*
     Platform
 
@@ -18,8 +20,10 @@
 
 namespace System
 {
-    class Platform final : private Common::NonCopyable
+    class Platform final : public Core::Service
     {
+        REFLECTION_ENABLE(Platform, Core::Service)
+
     public:
         enum class CreateErrors
         {
@@ -30,7 +34,7 @@ namespace System
         static CreateResult Create();
 
     public:
-        ~Platform();
+        ~Platform() override;
 
     private:
         Platform();
@@ -39,3 +43,5 @@ namespace System
         static int InstanceCounter;
     };
 }
+
+REFLECTION_TYPE(System::Platform, Core::Service)

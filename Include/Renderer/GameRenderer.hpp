@@ -6,7 +6,12 @@
 #pragma once
 
 #include <string>
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 namespace Graphics
 {
@@ -25,8 +30,10 @@ namespace Game
 
 namespace Renderer
 {
-    class GameRenderer final : private Common::NonCopyable
+    class GameRenderer final : public Core::Service
     {
+        REFLECTION_ENABLE(GameRenderer, Core::Service)
+
     public:
         enum class CreateErrors
         {
@@ -50,7 +57,7 @@ namespace Renderer
         };
 
     public:
-        ~GameRenderer();
+        ~GameRenderer() override;
 
         void Draw(const DrawParams& drawParams);
 
@@ -61,3 +68,5 @@ namespace Renderer
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };
 }
+
+REFLECTION_TYPE(Renderer::GameRenderer, Core::Service)

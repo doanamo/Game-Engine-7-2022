@@ -5,163 +5,48 @@
 
 #include "Core/Precompiled.hpp"
 #include "Core/ServiceStorage.hpp"
-#include "Core/PerformanceMetrics.hpp"
-#include <System/Platform.hpp>
-#include <System/Timer.hpp>
-#include <System/FileSystem/FileSystem.hpp>
-#include <System/ResourceManager.hpp>
-#include <System/InputManager.hpp>
-#include <System/Window.hpp>
-#include <Graphics/RenderContext.hpp>
-#include <Graphics/Sprite/SpriteRenderer.hpp>
-#include <Game/GameFramework.hpp>
-#include <Renderer/GameRenderer.hpp>
-#include <Editor/EditorSystem.hpp>
+#include "Core/Service.hpp"
 using namespace Core;
 
 ServiceStorage::ServiceStorage() = default;
-ServiceStorage::~ServiceStorage() = default;
-
-void ServiceStorage::Provide(std::unique_ptr<Core::PerformanceMetrics>&& performanceMetrics)
+ServiceStorage::~ServiceStorage()
 {
-    ASSERT(!m_performanceMetrics);
-    m_performanceMetrics = std::move(performanceMetrics);
+    for(auto it = m_serviceList.rbegin(); it != m_serviceList.rend(); ++it)
+    {
+        it->reset();
+    }
 }
 
-void ServiceStorage::Provide(std::unique_ptr<System::Platform>&& platform)
+bool ServiceStorage::Provide(std::unique_ptr<Service>& service)
 {
-    ASSERT(!m_platform);
-    m_platform = std::move(platform);
+    if(service == nullptr)
+    {
+        LOG_WARNING("Attempted to provide null service to service storage!");
+        return false;
+    }
+
+    const Reflection::TypeIdentifier serviceType = Reflection::GetIdentifier(service);
+    if(const auto it = m_serviceMap.find(serviceType); it != m_serviceMap.end())
+    {
+        LOG_ERROR("Attempted to provide service \"{}\" that already exists in service storage!",
+            Reflection::GetName(serviceType).GetString());
+        return false;
+    }
+
+    Service* providedService = m_serviceList.emplace_back(std::move(service)).get();
+    auto [it, result] = m_serviceMap.emplace(serviceType, providedService);
+    ASSERT(result, "Failed to emplace service in storage!")
+
+    return true;
 }
 
-void ServiceStorage::Provide(std::unique_ptr<System::FileSystem>&& fileSystem)
+Service* ServiceStorage::Locate(const Reflection::TypeIdentifier serviceType) const
 {
-    ASSERT(!m_fileSystem);
-    m_fileSystem = std::move(fileSystem);
-}
+    if(const auto it = m_serviceMap.find(serviceType); it != m_serviceMap.end())
+    {
+        return it->second;
+    }
 
-void ServiceStorage::Provide(std::unique_ptr<System::Window>&& window)
-{
-    ASSERT(!m_window);
-    m_window = std::move(window);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<System::Timer>&& timer)
-{
-    ASSERT(!m_timer);
-    m_timer = std::move(timer);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<System::InputManager>&& inputManager)
-{
-    ASSERT(!m_inputManager);
-    m_inputManager = std::move(inputManager);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<System::ResourceManager>&& resourceManager)
-{
-    ASSERT(!m_resourceManager);
-    m_resourceManager = std::move(resourceManager);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<Graphics::RenderContext>&& renderContext)
-{
-    ASSERT(!m_renderContext);
-    m_renderContext = std::move(renderContext);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<Graphics::SpriteRenderer>&& spriteRenderer)
-{
-    ASSERT(!m_spriteRenderer);
-    m_spriteRenderer = std::move(spriteRenderer);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<Game::GameFramework>&& gameFramework)
-{
-    ASSERT(!m_gameFramework);
-    m_gameFramework = std::move(gameFramework);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<Renderer::GameRenderer>&& gameRenderer)
-{
-    ASSERT(!m_gameRenderer);
-    m_gameRenderer = std::move(gameRenderer);
-}
-
-void ServiceStorage::Provide(std::unique_ptr<Editor::EditorSystem>&& editorSystem)
-{
-    ASSERT(!m_editorSystem);
-    m_editorSystem = std::move(editorSystem);
-}
-
-Core::PerformanceMetrics* ServiceStorage::GetPerformanceMetrics() const
-{
-    ASSERT(m_performanceMetrics);
-    return m_performanceMetrics.get();
-}
-
-System::Platform* ServiceStorage::GetPlatform() const
-{
-    ASSERT(m_platform);
-    return m_platform.get();
-}
-
-System::FileSystem* ServiceStorage::GetFileSystem() const
-{
-    ASSERT(m_fileSystem);
-    return m_fileSystem.get();
-}
-
-System::Window* ServiceStorage::GetWindow() const
-{
-    ASSERT(m_window);
-    return m_window.get();
-}
-
-System::Timer* ServiceStorage::GetTimer() const
-{
-    ASSERT(m_timer);
-    return m_timer.get();
-}
-
-System::InputManager* ServiceStorage::GetInputManager() const
-{
-    ASSERT(m_inputManager);
-    return m_inputManager.get();
-}
-
-System::ResourceManager* ServiceStorage::GetResourceManager() const
-{
-    ASSERT(m_resourceManager);
-    return m_resourceManager.get();
-}
-
-Graphics::RenderContext* ServiceStorage::GetRenderContext() const
-{
-    ASSERT(m_renderContext);
-    return m_renderContext.get();
-}
-
-Graphics::SpriteRenderer* ServiceStorage::GetSpriteRenderer() const
-{
-    ASSERT(m_spriteRenderer);
-    return m_spriteRenderer.get();
-}
-
-Game::GameFramework* ServiceStorage::GetGameFramework() const
-{
-    ASSERT(m_gameFramework);
-    return m_gameFramework.get();
-}
-
-Renderer::GameRenderer* ServiceStorage::GetGameRenderer() const
-{
-    ASSERT(m_gameRenderer);
-    return m_gameRenderer.get();
-}
-
-Editor::EditorSystem* ServiceStorage::GetEditorSystem() const
-{
-    ASSERT(m_editorSystem);
-    return m_editorSystem.get();
+    ASSERT(false, "Could not find service of type \"{}\"", Reflection::GetName(serviceType))
+    return nullptr;
 }

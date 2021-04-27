@@ -51,7 +51,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     auto instance = std::unique_ptr<Shader>(new Shader());
 
     // Save render context reference.
-    instance->m_renderContext = params.services->GetRenderContext();
+    instance->m_renderContext = params.services->Locate<Graphics::RenderContext>();
 
     // Create array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };

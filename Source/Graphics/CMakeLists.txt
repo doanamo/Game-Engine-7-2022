@@ -76,6 +76,10 @@ set_property(TARGET Graphics PROPERTY FOLDER "Engine")
 # Dependencies
 #
 
+add_subdirectory("../Reflection" "Reflection")
+target_link_libraries(Graphics PRIVATE Reflection)
+enable_reflection(Graphics ${SOURCE_DIR} ${INCLUDE_DIR})
+
 add_subdirectory("../Core" "Core")
 target_link_libraries(Graphics PRIVATE Core)
 

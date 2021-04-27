@@ -6,6 +6,7 @@
 #include "System/Precompiled.hpp"
 #include "System/InputManager.hpp"
 #include "System/Window.hpp"
+#include <Core/ServiceStorage.hpp>
 using namespace System;
 
 InputManager::InputManager() = default;
@@ -24,7 +25,9 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
 
     auto instance = std::unique_ptr<InputManager>(new InputManager());
 
-    instance->m_windowContext = &params.services->GetWindow()->GetContext();
+    auto* window = params.services->Locate<System::Window>();
+
+    instance->m_windowContext = &window->GetContext();
     if(instance->m_windowContext->inputManager != nullptr)
     {
         LOG_ERROR("Other existing input manager already associated with this window context!");

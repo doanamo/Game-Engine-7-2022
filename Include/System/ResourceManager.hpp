@@ -5,9 +5,14 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
+#include <Core/Service.hpp>
 #include "System/ResourcePool.hpp"
 #include "System/FileSystem/FileSystem.hpp"
+
+namespace Core
+{
+    class ServiceStorage;
+}
 
 /*
     Resource Manager
@@ -21,8 +26,10 @@ namespace System
 {
     class FileSystem;
 
-    class ResourceManager final : private Common::NonCopyable
+    class ResourceManager final : public Core::Service
     {
+        REFLECTION_ENABLE(ResourceManager, Core::Service)
+
     public:
         struct CreateFromParams
         {
@@ -42,7 +49,7 @@ namespace System
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
-        ~ResourceManager();
+        ~ResourceManager() override;
 
         template<typename Type>
         void SetDefault(std::unique_ptr<Type>&& resource);
@@ -156,3 +163,5 @@ namespace System
         }
     }
 };
+
+REFLECTION_TYPE(System::ResourceManager, Core::Service)

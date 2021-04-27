@@ -55,8 +55,8 @@ EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
     CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    System::Window* window = params.services->GetWindow();
-    System::InputManager* inputManager = params.services->GetInputManager();
+    auto* window = params.services->Locate<System::Window>();
+    auto* inputManager = params.services->Locate<System::InputManager>();
 
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
     instance->m_window = window;
@@ -164,7 +164,8 @@ bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
 
 bool EditorSystem::SubscribeEvents(const Core::ServiceStorage* services)
 {
-    System::InputState& inputState = services->GetInputManager()->GetInputState();
+    auto* inputManager = services->Locate<System::InputManager>();
+    System::InputState& inputState = inputManager->GetInputState();
 
     Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
