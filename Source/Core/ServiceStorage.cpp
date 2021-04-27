@@ -35,7 +35,7 @@ bool ServiceStorage::Provide(std::unique_ptr<Service>& service)
 
     Service* providedService = m_serviceList.emplace_back(std::move(service)).get();
     auto [it, result] = m_serviceMap.emplace(serviceType, providedService);
-    ASSERT(result, "Failed to emplace service in storage!")
+    ASSERT(result, "Failed to emplace service in storage!");
 
     return true;
 }
@@ -47,6 +47,6 @@ Service* ServiceStorage::Locate(const Reflection::TypeIdentifier serviceType) co
         return it->second;
     }
 
-    ASSERT(false, "Could not find service of type \"{}\"", Reflection::GetName(serviceType))
+    ASSERT(false, "Could not find service of type \"{}\"", Reflection::GetName(serviceType));
     return nullptr;
 }
