@@ -52,7 +52,7 @@ target_link_libraries(Core PUBLIC Common)
 
 add_subdirectory("../Reflection" "Reflection")
 target_link_libraries(Core PRIVATE Reflection)
-enable_reflection(Core ${SOURCE_DIR} ${INCLUDE_DIR})
+enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #
 # Externals
