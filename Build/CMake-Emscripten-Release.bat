@@ -18,11 +18,11 @@ if [%projectPage%] == [] set projectPage="Example/Example/Example.html"
 echo ---- Preparing Emscripten SDK...
 if not exist "CMake-Emscripten-SDK" (
     git clone --depth=1 --branch=master https://github.com/emscripten-core/emsdk.git "CMake-Emscripten-SDK"
-	
-	cd "CMake-Emscripten-SDK"
-	call emsdk.bat install latest
-	call emsdk.bat activate latest >nul 2>&1
-	cd "../."
+    
+    cd "CMake-Emscripten-SDK"
+    call emsdk.bat install latest
+    call emsdk.bat activate latest >nul 2>&1
+    cd "../."
 )
 
 cd "CMake-Emscripten-SDK"
@@ -36,12 +36,12 @@ cd %outputDir%
 echo ---- Preparing Ninja build system...
 if not exist "ninja" (
     git clone --depth=1 --branch=release https://github.com/ninja-build/ninja.git
-	
-	mkdir "ninja/build" >nul 2>&1
-	cd "ninja/build"
-	cmake "../." -DBUILD_TESTING=0
-	cmake --build . --config Release >nul 2>&1
-	cd "../../."
+    
+    mkdir "ninja/build" >nul 2>&1
+    cd "ninja/build"
+    cmake "../." -DBUILD_TESTING=0
+    cmake --build . --config Release >nul 2>&1
+    cd "../../."
 )
 
 echo ---- Preparing reflection generator...
@@ -56,11 +56,16 @@ cmake -G "Ninja" "../%inputDir%" -DCMAKE_TOOLCHAIN_FILE="../CMake-Emscripten-SDK
 
 if %ERRORLEVEL% NEQ 0 (
     pause
-	exit /b
+    exit /b
 )
 
 echo ---- Building generated project...
 cmake --build .
+
+if %ERRORLEVEL% NEQ 0 (
+    pause
+    exit /b
+)
 
 echo ---- Opening project page...
 emrun %projectPage%
