@@ -3,6 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
+#include <sstream>
 #include <doctest/doctest.h>
 #include <Common/Name.hpp>
 #include <Reflection/Reflection.hpp>
