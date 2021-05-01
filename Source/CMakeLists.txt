@@ -66,6 +66,8 @@ target_link_libraries(Engine PUBLIC Renderer)
 add_subdirectory("Editor")
 target_link_libraries(Engine PUBLIC Editor)
 
+enable_reflection(Engine)
+
 #
 # Environment
 #

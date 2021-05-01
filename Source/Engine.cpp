@@ -6,6 +6,7 @@
 #include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Build/Build.hpp>
+#include <Reflection/Reflection.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -20,14 +21,6 @@
 #include <Game/GameFramework.hpp>
 #include <Editor/EditorSystem.hpp>
 using namespace Engine;
-
-#include <Common/ReflectionGenerated.hpp>
-#include <Core/ReflectionGenerated.hpp>
-#include <System/ReflectionGenerated.hpp>
-#include <Graphics/ReflectionGenerated.hpp>
-#include <Game/ReflectionGenerated.hpp>
-#include <Renderer/ReflectionGenerated.hpp>
-#include <Editor/ReflectionGenerated.hpp>
 
 namespace
 {
@@ -51,14 +44,7 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     Debug::Initialize();
     Logger::Initialize();
     Build::Initialize();
-
-    Reflection::Generated::RegisterModuleCommon();
-    Reflection::Generated::RegisterModuleCore();
-    Reflection::Generated::RegisterModuleSystem();
-    Reflection::Generated::RegisterModuleGraphics();
-    Reflection::Generated::RegisterModuleGame();
-    Reflection::Generated::RegisterModuleRenderer();
-    Reflection::Generated::RegisterModuleEditor();
+    Reflection::Initialize();
 
     CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f,
         Common::Failure(CreateErrors::InvalidArgument));

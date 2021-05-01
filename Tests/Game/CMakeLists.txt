@@ -34,6 +34,8 @@ target_link_libraries(TestGame PRIVATE Core)
 add_subdirectory("../../Source/Game" "Game")
 target_link_libraries(TestGame PRIVATE Game)
 
+enable_reflection(TestGame ${CMAKE_CURRENT_SOURCE_DIR})
+
 #
 # Environment
 #

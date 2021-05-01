@@ -3,11 +3,12 @@
     Software distributed under the permissive MIT License.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
-#include <Common/ReflectionGenerated.hpp>
+#include <Reflection/Reflection.hpp>
 
-TEST_CASE("Register reflection")
+int main(const int argc, char* argv[])
 {
-    Reflection::Generated::RegisterModuleCommon();
+    Reflection::Initialize();
+    return doctest::Context(argc, argv).run();
 }

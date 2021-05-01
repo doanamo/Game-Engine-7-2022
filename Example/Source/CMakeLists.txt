@@ -40,6 +40,7 @@ target_precompile_headers(${TARGET_NAME} PRIVATE "Precompiled.hpp")
 set(ENGINE_DIR "../../")
 add_subdirectory("${ENGINE_DIR}/Source" "Engine")
 target_link_libraries(${TARGET_NAME} PRIVATE "Engine")
+enable_reflection(${TARGET_NAME} ${SOURCE_DIR})
 
 #
 # Environment

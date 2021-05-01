@@ -60,10 +60,6 @@ set_property(TARGET Editor PROPERTY FOLDER "Engine")
 # Dependencies
 #
 
-add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Editor PRIVATE Reflection)
-enable_reflection(Editor ${INCLUDE_DIR} ${SOURCE_DIR})
-
 add_subdirectory("../Core" "Core")
 target_link_libraries(Editor PRIVATE Core)
 
@@ -72,3 +68,5 @@ target_link_libraries(Editor PRIVATE System)
 
 add_subdirectory("../Game" "Game")
 target_link_libraries(Editor PRIVATE Game)
+
+enable_reflection(Editor ${INCLUDE_DIR} ${SOURCE_DIR})

@@ -27,6 +27,7 @@ source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 
 set(SOURCE_FILES
     "Precompiled.hpp"
+    "Reflection.cpp"
     "ReflectionDynamic.cpp"
     "ReflectionRegistry.cpp"
 )
@@ -59,12 +60,36 @@ target_link_libraries(Reflection PUBLIC Common)
 
 add_subdirectory("../../Tools/ReflectionGenerator" "ReflectionGenerator")
 
+function(collect_reflected_dependencies TARGET_NAME OUTPUT_LIST)
+
+    get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
+
+    if(TARGET_LINK_LIBRARIES)
+        foreach(TARGET_LINK_LIBRARY IN LISTS TARGET_LINK_LIBRARIES)
+            get_target_property(REFLECTION_ENABLED ${TARGET_LINK_LIBRARY} REFLECTION_ENABLED)
+
+            if(REFLECTION_ENABLED)
+                collect_reflected_dependencies(${TARGET_LINK_LIBRARY} ${OUTPUT_LIST})
+                list(APPEND ${OUTPUT_LIST} ${TARGET_LINK_LIBRARY})
+                list(REMOVE_DUPLICATES ${OUTPUT_LIST})
+            endif()
+        endforeach()
+    endif()
+
+    set(${OUTPUT_LIST} ${${OUTPUT_LIST}} PARENT_SCOPE)
+endfunction()
+
 function(enable_reflection TARGET_NAME)
     get_property(REFLECTION_GENERATOR GLOBAL PROPERTY REFLECTION_GENERATOR)
+    get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+
+    collect_reflected_dependencies(${TARGET_NAME} TARGET_DEPENDENCIES)
 
     add_custom_target(Reflection${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
-        COMMAND ${REFLECTION_GENERATOR} ${TARGET_NAME} ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+        COMMAND ${REFLECTION_GENERATOR}
+            ${TARGET_TYPE} ${TARGET_NAME} "\"${TARGET_DEPENDENCIES}\""
+            ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
     )
 
     add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
@@ -79,4 +104,6 @@ function(enable_reflection TARGET_NAME)
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
+
+    set_target_properties(${TARGET_NAME} PROPERTIES REFLECTION_ENABLED TRUE)
 endfunction()

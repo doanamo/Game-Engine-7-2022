@@ -13,8 +13,6 @@
 
 TEST_CASE("Dynamic Reflection")
 {
-    Reflection::Generated::RegisterModuleTestReflection();
-    
     SUBCASE("Check registered built-in types")
     {
         Reflection::TypeIdentifier nullTypeIdentifier =

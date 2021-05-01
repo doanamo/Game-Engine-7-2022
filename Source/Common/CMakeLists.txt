@@ -77,7 +77,8 @@ set_property(TARGET Common PROPERTY FOLDER "Engine")
 #
 
 add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Common PRIVATE Reflection)
+target_link_libraries(Common PUBLIC Reflection)
+
 enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #

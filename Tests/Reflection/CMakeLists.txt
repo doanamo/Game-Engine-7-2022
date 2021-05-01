@@ -32,6 +32,7 @@ add_test("Reflection" TestReflection)
 
 add_subdirectory("../../Source/Reflection" "Reflection")
 target_link_libraries(TestReflection PRIVATE Reflection)
+
 enable_reflection(TestReflection ${CMAKE_CURRENT_SOURCE_DIR})
 
 #

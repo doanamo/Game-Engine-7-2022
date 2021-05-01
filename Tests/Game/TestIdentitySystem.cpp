@@ -13,9 +13,6 @@
 
 TEST_CASE("Identity System")
 {
-    Reflection::Generated::RegisterModuleCore();
-    Reflection::Generated::RegisterModuleGame();
-
     std::unique_ptr<Game::GameInstance> gameInstance;
     gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
     REQUIRE(gameInstance);

@@ -21,3 +21,8 @@
 #include "Reflection/ReflectionDeclare.hpp"
 #include "Reflection/ReflectionUtility.hpp"
 #include "Reflection/ReflectionTypes.hpp"
+
+namespace Reflection
+{
+    void Initialize();
+}

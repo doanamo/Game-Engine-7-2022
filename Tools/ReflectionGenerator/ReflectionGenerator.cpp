@@ -3,7 +3,9 @@
     Software distributed under the permissive MIT License.
 */
 
+#include <cassert>
 #include <string>
+#include <regex>
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -13,6 +15,81 @@
 #include <unordered_map>
 
 namespace fs = std::filesystem;
+
+struct GeneratorParameters
+{
+    std::string_view targetType;
+    std::string_view targetName;
+    std::vector<std::string_view> targetDependencies;
+
+    std::string_view outputDir;
+    std::vector<fs::path> sourceDirs;
+
+    bool isExecutable = false;
+    bool isValid = false;
+};
+
+GeneratorParameters ParseCommandLineArguments(const int argc, const char* argv[])
+{
+    if(argc < 5)
+    {
+        std::cerr << "ReflectionGenerator: Unexpected number of arguments!\n";
+
+        for(int arg = 0; arg < argc; ++arg)
+        {
+            std::cerr << "ReflectionGenerator: argv[" << arg << "] = " << argv[arg] << "\n";
+        }
+
+        return {};
+    }
+
+    GeneratorParameters output;
+    output.targetType = argv[1];
+    output.targetName = argv[2];
+
+    const std::string_view dependencyList = argv[3];
+    {
+        std::size_t start = 0U, end = 0U;
+
+        do
+        {
+            end = dependencyList.find(';', start);
+
+            if(end == std::string::npos)
+            {
+                end = dependencyList.length();
+            }
+
+            const std::string_view token = dependencyList.substr(start, end - start);
+            if(!token.empty())
+            {
+                if(!std::regex_match(std::string(token), std::regex("^[A-Za-z]+$")))
+                {
+                    std::cerr << "ReflectionGenerator: "
+                        "Target dependency token contains invalid characters!\n";
+                    std::cerr << "ReflectionGenerator: \"" << token << "\"\n";
+                    return {};
+                }
+
+                output.targetDependencies.push_back(token);
+            }
+
+            start = end + 1;
+        }
+        while(start < dependencyList.length());
+    }
+
+    output.outputDir = argv[4];
+
+    for(int arg = 5; arg < argc; ++arg)
+    {
+        output.sourceDirs.emplace_back(fs::path(argv[arg]));
+    }
+
+    output.isExecutable = (output.targetType == "EXECUTABLE");
+    output.isValid = true;
+    return output;
+}
 
 void PrintMalformedDeclaration(const fs::path& headerPath, const std::size_t headerLine)
 {
@@ -84,40 +161,27 @@ bool VisitReflectedType(const ParsedTypeList& parsedTypes, const ParsedTypeMap& 
 
 int main(int argc, const char* argv[])
 {
-    // Check provided arguments.
-    if(argc < 4)
-    {
-        std::cerr << "ReflectionGenerator: Unexpected number of arguments!\n";
-
-        for(int arg = 0; arg < argc; ++arg)
-        {
-            std::cerr << "ReflectionGenerator: argv[" << arg << "] = " << argv[arg] << "\n";
-        }
-
+    // Parse command line arguments.
+    const GeneratorParameters parameters = ParseCommandLineArguments(argc, argv);
+    if(!parameters.isValid)
         return -1;
-    }
-
-    std::string_view targetName = argv[1];
-    std::string_view outputDir = argv[2];
-
-    // Create list of source directories.
-    std::vector<std::string_view> sourceDirList;
-
-    for(int arg = 3; arg < argc; ++arg)
-    {
-        sourceDirList.emplace_back(argv[arg]);
-    }
 
     // Create list of header files.
     std::vector<fs::path> headerFileList;
     
-    for(const auto& sourceDir : sourceDirList)
+    for(const auto& sourceDirPath : parameters.sourceDirs)
     {
-        fs::path sourceDirPath(sourceDir);
         if(!fs::exists(sourceDirPath))
         {
             std::cerr << "ReflectionGenerator: Source directory path does not exist - \""
-                << sourceDir << "\"\n";
+                << sourceDirPath.generic_string() << "\"\n";
+            return -1;
+        }
+
+        if(!fs::is_directory(sourceDirPath))
+        {
+            std::cerr << "ReflectionGenerator: Provided source path is not a directory!\n";
+            std::cerr << "ReflectionGenerator: \"" << sourceDirPath.generic_string() << "\"\n";
             return -1;
         }
 
@@ -272,11 +336,11 @@ int main(int argc, const char* argv[])
         "#include <Reflection/Reflection.hpp>\n";
 
     reflectionBinding <<
-        "#include \"" << targetName << "/ReflectionGenerated.hpp\"\n";
+        "#include \"" << parameters.targetName << "/ReflectionGenerated.hpp\"\n";
 
     for(const auto& header : reflectedHeaders)
     {
-        fs::path relativeHeaderPath = fs::relative(header, fs::path(outputDir));
+        fs::path relativeHeaderPath = fs::relative(header, fs::path(parameters.outputDir));
         reflectionBinding <<
             "#include \"" << relativeHeaderPath.generic_string() << "\"\n";
     }
@@ -284,22 +348,41 @@ int main(int argc, const char* argv[])
     reflectionBinding <<
         "\n"
         "namespace Reflection::Generated\n"
-        "{\n"
-        "    void RegisterModule" << targetName << "()\n"
+        "{";
+
+    if(parameters.isExecutable)
+    {
+        if(!parameters.targetDependencies.empty())
+        {
+            reflectionBinding <<
+                "\n";
+        }
+
+        for(const auto& dependency : parameters.targetDependencies)
+        {
+            reflectionBinding <<
+                "    void RegisterModule" << dependency << "();\n";
+        }
+    }
+
+    reflectionBinding <<
+        "\n"
+        "    void RegisterModule" << parameters.targetName << "()\n"
         "    {\n"
         "        static bool registered = false;\n"
         "        if(registered)\n"
-        "            return;\n\n";
+        "            return;\n";
+
+    if(!sortedTypes.empty())
+    {
+        reflectionBinding <<
+        "\n";
+    }
 
     for(const auto& type : sortedTypes)
     {
         reflectionBinding <<
             "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
-
-#ifndef NDEBUG
-        reflectionBinding <<
-            " // " << type->headerPath.generic_string() << "(" << type->headerLine << ")";
-#endif
 
         reflectionBinding <<
             "\n";
@@ -308,7 +391,27 @@ int main(int argc, const char* argv[])
     reflectionBinding <<
         "\n"
         "        registered = true;\n"
-        "    }\n"
+        "    }\n";
+
+    if(parameters.isExecutable)
+    {
+        reflectionBinding <<
+            "\n"
+            "    void RegisterExecutable()\n"
+            "    {\n";
+
+        for(const auto& dependency : parameters.targetDependencies)
+        {
+            reflectionBinding <<
+                "        RegisterModule" << dependency << "();\n";
+        }
+
+        reflectionBinding <<
+            "        RegisterModule" << parameters.targetName << "();\n"
+            "    }\n";
+    }
+
+    reflectionBinding <<
         "}\n";
 
     // Determine reflection binding file path.
@@ -316,7 +419,8 @@ int main(int argc, const char* argv[])
     reflectionBindingFilename += "ReflectionGenerated";
     reflectionBindingFilename += ".cpp";
 
-    fs::path reflectionBindingFilePath = fs::path(outputDir) / reflectionBindingFilename;
+    fs::path reflectionBindingFilePath =
+        fs::path(parameters.outputDir) / reflectionBindingFilename;
 
     // Check existing reflection binding file.
     std::ifstream existingBindingFile(reflectionBindingFilePath);

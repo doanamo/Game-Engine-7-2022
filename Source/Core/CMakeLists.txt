@@ -50,8 +50,6 @@ set_property(TARGET Core PROPERTY FOLDER "Engine")
 add_subdirectory("../Common" "Common")
 target_link_libraries(Core PUBLIC Common)
 
-add_subdirectory("../Reflection" "Reflection")
-target_link_libraries(Core PRIVATE Reflection)
 enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #
