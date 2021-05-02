@@ -47,6 +47,7 @@ Service* ServiceStorage::Locate(const Reflection::TypeIdentifier serviceType) co
         return it->second;
     }
 
-    ASSERT(false, "Could not find service of type \"{}\"", Reflection::GetName(serviceType));
+    ASSERT(false, "Could not find service of type \"{}\"!",
+        Reflection::GetName(serviceType).GetString());
     return nullptr;
 }
