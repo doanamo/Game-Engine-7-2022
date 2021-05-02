@@ -45,19 +45,19 @@ GameInstance::CreateResult GameInstance::Create()
         if(gameSystem != nullptr)
         {
             LOG_INFO("Created \"{}\" game system.",
-                Reflection::GetName(gameSystemType));
+                Reflection::GetName(gameSystemType).GetString());
 
             if(!instance->AttachSystem(gameSystem))
             {
                 LOG_ERROR("Could not attach default game system \"{}\"!",
-                    Reflection::GetName(gameSystemType));
+                    Reflection::GetName(gameSystemType).GetString());
                 return Common::Failure(CreateErrors::FailedGameSystemAttach);
             }
         }
         else
         {
             LOG_ERROR("Could not create default game system \"{}\"!",
-                Reflection::GetName(gameSystemType));
+                Reflection::GetName(gameSystemType).GetString());
             return Common::Failure(CreateErrors::FailedGameSystemCreation);
         }
     }
