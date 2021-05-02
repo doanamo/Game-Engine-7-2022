@@ -29,19 +29,12 @@ namespace System
         REFLECTION_ENABLE(InputManager, Core::Service)
 
     public:
-        struct CreateParams
-        {
-            const Core::ServiceStorage* services = nullptr;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
-            InvalidWindow,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
-        static CreateResult Create(const CreateParams& params);
+        static CreateResult Create();
 
     public:
         ~InputManager() override;
@@ -53,6 +46,8 @@ namespace System
 
     private:
         InputManager();
+
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
 
         static InputManager* GetInputManagerFromUserData(GLFWwindow* handle);
         static void TextInputCallback(GLFWwindow* handle, unsigned int character);

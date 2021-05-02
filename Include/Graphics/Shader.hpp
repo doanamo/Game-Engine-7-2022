@@ -29,13 +29,13 @@ namespace Graphics
     public:
         struct LoadFromString
         {
-            const Core::ServiceStorage* services = nullptr;
+            RenderContext* renderContext = nullptr;
             std::string shaderCode;
         };
 
         struct LoadFromFile
         {
-            const Core::ServiceStorage* services = nullptr;
+            RenderContext* renderContext = nullptr;
         };
 
         enum class CreateErrors

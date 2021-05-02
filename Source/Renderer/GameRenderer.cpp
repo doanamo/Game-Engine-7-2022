@@ -21,23 +21,32 @@ using namespace Renderer;
 GameRenderer::GameRenderer() = default;
 GameRenderer::~GameRenderer() = default;
 
-GameRenderer::CreateResult GameRenderer::Create(const CreateFromParams& params)
+GameRenderer::CreateResult GameRenderer::Create()
 {
     LOG("Creating game renderer...");
     LOG_SCOPED_INDENT();
 
-    // Validate arguments
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Create instance.
     auto instance = std::unique_ptr<GameRenderer>(new GameRenderer());
-
-    // Save system references.
-    instance->m_renderContext = params.services->Locate<Graphics::RenderContext>();
-    instance->m_spriteRenderer = params.services->Locate<Graphics::SpriteRenderer>();
-
-    // Success!
     return Common::Success(std::move(instance));
+}
+
+bool GameRenderer::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    m_renderContext = serviceStorage->Locate<Graphics::RenderContext>();
+    if(!m_renderContext)
+    {
+        LOG_ERROR("Failed to locate render context service!");
+        return false;
+    }
+
+    m_spriteRenderer = serviceStorage->Locate<Graphics::SpriteRenderer>();
+    if(!m_spriteRenderer)
+    {
+        LOG_ERROR("Failed to locate sprite renderer service!");
+        return false;
+    }
+
+    return true;
 }
 
 void GameRenderer::Draw(const DrawParams& drawParams)

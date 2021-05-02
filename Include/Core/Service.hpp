@@ -13,6 +13,8 @@
 
 namespace Core
 {
+    class ServiceStorage;
+
     class Service : private Common::NonCopyable
     {
         REFLECTION_ENABLE(Service)
@@ -21,7 +23,14 @@ namespace Core
         virtual ~Service() = default;
 
     protected:
+        friend ServiceStorage;
+
         Service() = default;
+
+        virtual bool OnAttach(const ServiceStorage* serviceStorage)
+        {
+            return true;
+        }
     };
 }
 

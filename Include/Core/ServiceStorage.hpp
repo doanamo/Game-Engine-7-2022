@@ -28,7 +28,7 @@ namespace Core
         ServiceStorage();
         ~ServiceStorage();
 
-        bool Provide(std::unique_ptr<Service>& service);
+        bool Attach(std::unique_ptr<Service>&& service);
         Service* Locate(Reflection::TypeIdentifier serviceType) const;
 
         template<typename ServiceType>

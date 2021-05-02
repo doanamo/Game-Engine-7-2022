@@ -37,16 +37,10 @@ namespace Renderer
     public:
         enum class CreateErrors
         {
-            InvalidArgument,
-        };
-
-        struct CreateFromParams
-        {
-            const Core::ServiceStorage* services = nullptr;
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameRenderer>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create();
 
         struct DrawParams
         {
@@ -64,6 +58,9 @@ namespace Renderer
     private:
         GameRenderer();
 
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+
+    private:
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };

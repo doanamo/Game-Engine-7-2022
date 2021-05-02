@@ -44,14 +44,14 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext, Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Shader>(new Shader());
 
     // Save render context reference.
-    instance->m_renderContext = params.services->Locate<Graphics::RenderContext>();
+    instance->m_renderContext = params.renderContext;
 
     // Create array of shader objects for each type that can be linked.
     GLuint shaderObjects[ShaderTypeCount] = { 0 };
@@ -242,7 +242,7 @@ Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext, Common::Failure(CreateErrors::InvalidArgument));
 
     // Load shader code from a file.
     std::string shaderCode = file.ReadAsTextString();
@@ -254,7 +254,7 @@ Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile
 
     // Create instance.
     LoadFromString compileParams;
-    compileParams.services = params.services;
+    compileParams.renderContext = params.renderContext;
     compileParams.shaderCode = std::move(shaderCode);
     return Create(compileParams);
 }

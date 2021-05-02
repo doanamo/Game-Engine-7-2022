@@ -17,7 +17,7 @@ ServiceStorage::~ServiceStorage()
     }
 }
 
-bool ServiceStorage::Provide(std::unique_ptr<Service>& service)
+bool ServiceStorage::Attach(std::unique_ptr<Service>&& service)
 {
     if(service == nullptr)
     {
@@ -29,6 +29,13 @@ bool ServiceStorage::Provide(std::unique_ptr<Service>& service)
     if(const auto it = m_serviceMap.find(serviceType); it != m_serviceMap.end())
     {
         LOG_ERROR("Attempted to provide service \"{}\" that already exists in service storage!",
+            Reflection::GetName(serviceType).GetString());
+        return false;
+    }
+
+    if(!service->OnAttach(this))
+    {
+        LOG_ERROR("Failed to attach service \"{}\" to storage!",
             Reflection::GetName(serviceType).GetString());
         return false;
     }

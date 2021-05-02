@@ -37,20 +37,12 @@ namespace Graphics
         REFLECTION_ENABLE(SpriteRenderer, Core::Service)
 
     public:
-        struct CreateFromParams
-        {
-            const Core::ServiceStorage* services = nullptr;
-            int spriteBatchSize = 128;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
-            FailedResourceCreation,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create();
 
     public:
         ~SpriteRenderer() override;
@@ -59,6 +51,8 @@ namespace Graphics
 
     private:
         SpriteRenderer();
+
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
 
     private:
         RenderContext* m_renderContext = nullptr;

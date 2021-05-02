@@ -31,18 +31,12 @@ namespace System
         REFLECTION_ENABLE(ResourceManager, Core::Service)
 
     public:
-        struct CreateFromParams
-        {
-            Core::ServiceStorage* services = nullptr;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create();
 
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
         using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
@@ -72,6 +66,8 @@ namespace System
 
     private:
         ResourceManager();
+
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
 
         template<typename Type>
         ResourcePool<Type>* CreatePool();

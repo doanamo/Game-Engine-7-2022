@@ -32,19 +32,12 @@ namespace Graphics
         REFLECTION_ENABLE(RenderContext, Core::Service)
 
     public:
-        struct CreateParams
-        {
-            const Core::ServiceStorage* services = nullptr;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
-            FailedStateCreation,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<RenderContext>, CreateErrors>;
-        static CreateResult Create(const CreateParams& params);
+        static CreateResult Create();
 
     public:
         ~RenderContext() override;
@@ -56,6 +49,8 @@ namespace Graphics
 
     private:
         RenderContext();
+
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
 
     private:
         System::Window* m_window = nullptr;

@@ -40,21 +40,12 @@ namespace Editor
         REFLECTION_ENABLE(EditorSystem, Core::Service)
 
     public:
-        struct CreateFromParams
-        {
-            const Core::ServiceStorage* services = nullptr;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
-            FailedContextCreation,
-            FailedSubsystemCreation,
-            FailedEventSubscription,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<EditorSystem>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create();
 
     public:
         ~EditorSystem() override;
@@ -64,6 +55,8 @@ namespace Editor
 
     private:
         EditorSystem();
+
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
 
         bool CreateContext();
         bool CreateSubsystems(const Core::ServiceStorage* services);
@@ -81,6 +74,7 @@ namespace Editor
         Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
         Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
+    private:
         System::Window* m_window = nullptr;
         ImGuiContext* m_interface = nullptr;
 

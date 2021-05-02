@@ -50,37 +50,49 @@ EditorSystem::~EditorSystem()
     }
 }
 
-EditorSystem::CreateResult EditorSystem::Create(const CreateFromParams& params)
+EditorSystem::CreateResult EditorSystem::Create()
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
-
-    auto* window = params.services->Locate<System::Window>();
-    auto* inputManager = params.services->Locate<System::InputManager>();
-
     auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
-    instance->m_window = window;
-
-    if(!instance->CreateContext())
-    {
-        LOG_ERROR(CreateError, "Could not create context.");
-        return Common::Failure(CreateErrors::FailedContextCreation);
-    }
-
-    if(!instance->CreateSubsystems(params.services))
-    {
-        LOG_ERROR(CreateError, "Could not create subsystems.");
-        return Common::Failure(CreateErrors::FailedSubsystemCreation);
-    }
-
-    if(!instance->SubscribeEvents(params.services))
-    {
-        LOG_ERROR(CreateError, "Could not subscribe events.");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
-    }
 
     LOG_SUCCESS("Created editor system instance.");
     return Common::Success(std::move(instance));
+}
+
+bool EditorSystem::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    m_window = serviceStorage->Locate<System::Window>();
+    if(!m_window)
+    {
+        LOG_ERROR("Failed to locate window service!");
+        return false;
+    }
+
+    auto* inputManager = serviceStorage->Locate<System::InputManager>();
+    if(!inputManager)
+    {
+        LOG_ERROR("Failed to locate input manager service!");
+        return false;
+    }
+
+    if(!CreateContext())
+    {
+        LOG_ERROR(CreateError, "Could not create editor context.");
+        return false;
+    }
+
+    if(!CreateSubsystems(serviceStorage))
+    {
+        LOG_ERROR(CreateError, "Could not create editor subsystems.");
+        return false;
+    }
+
+    if(!SubscribeEvents(serviceStorage))
+    {
+        LOG_ERROR(CreateError, "Could not subscribe editor events.");
+        return false;
+    }
+
+    return true;
 }
 
 bool EditorSystem::CreateContext()

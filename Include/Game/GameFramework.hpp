@@ -39,18 +39,12 @@ namespace Game
         REFLECTION_ENABLE(GameFramework, Core::Service)
 
     public:
-        struct CreateFromParams
-        {
-            const Core::ServiceStorage* services = nullptr;
-        };
-
         enum class CreateErrors
         {
-            InvalidArgument,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameFramework>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create();
 
         enum class ChangeGameStateErrors
         {
@@ -67,7 +61,7 @@ namespace Game
         };
 
     public:
-        ~GameFramework();
+        ~GameFramework() override;
 
         ChangeGameStateResult ChangeGameState(std::shared_ptr<GameState> gameState);
         ProcessGameStateResults ProcessGameState(float timeDelta);
@@ -92,6 +86,9 @@ namespace Game
     private:
         GameFramework();
 
+        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+
+    private:
         System::Timer* m_timer = nullptr;
         System::Window* m_window = nullptr;
         Renderer::GameRenderer* m_gameRenderer = nullptr;

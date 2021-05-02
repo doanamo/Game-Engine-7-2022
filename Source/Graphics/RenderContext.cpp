@@ -12,29 +12,32 @@ using namespace Graphics;
 RenderContext::RenderContext() = default;
 RenderContext::~RenderContext() = default;
 
-RenderContext::CreateResult RenderContext::Create(const CreateParams& params)
+RenderContext::CreateResult RenderContext::Create()
 {
     LOG("Creating rendering context...");
     LOG_SCOPED_INDENT();
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Create instance.
     auto instance = std::unique_ptr<RenderContext>(new RenderContext());
+    return Common::Success(std::move(instance));
+}
 
-    // Acquire window service.
-    instance->m_window = params.services->Locate<System::Window>();
+bool RenderContext::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    m_window = serviceStorage->Locate<System::Window>();
+    if(!m_window)
+    {
+        LOG_ERROR("Failed to locate window service!");
+        return false;
+    }
 
     // Save initial render state.
     // Window has to set its OpenGL context as current for this to succeed.
     // Here we assume that at this point OpenGL context is in pristine state.
     // Maybe default render state should be collected immediately when context is created?
-    instance->m_window->MakeContextCurrent();
-    instance->m_currentState.Save();
+    m_window->MakeContextCurrent();
+    m_currentState.Save();
 
-    // Success!
-    return Common::Success(std::move(instance));
+    return true;
 }
 
 void RenderContext::MakeCurrent()

@@ -57,7 +57,7 @@ namespace Editor
     private:
         EditorRenderer();
 
-        bool CreateResources(const Core::ServiceStorage* services);
+        bool CreateResources(const Core::ServiceStorage* serviceStorage);
 
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;

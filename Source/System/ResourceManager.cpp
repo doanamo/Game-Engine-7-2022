@@ -11,22 +11,25 @@ using namespace System;
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
 
-ResourceManager::CreateResult ResourceManager::Create(const CreateFromParams& params)
+ResourceManager::CreateResult ResourceManager::Create()
 {
     LOG("Creating resource manager...");
     LOG_SCOPED_INDENT();
     
-    // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Create instance.
     auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
-
-    // Acquire file system service.
-    instance->m_fileSystem = params.services->Locate<System::FileSystem>();
-
-    // Success!
     return Common::Success(std::move(instance));
+}
+
+bool ResourceManager::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    m_fileSystem = serviceStorage->Locate<System::FileSystem>();
+    if(!m_fileSystem)
+    {
+        LOG_ERROR("Failed to locate file system service!");
+        return false;
+    }
+
+    return true;
 }
 
 void ResourceManager::ReleaseUnused()

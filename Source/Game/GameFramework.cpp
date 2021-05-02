@@ -15,24 +15,39 @@ using namespace Game;
 GameFramework::GameFramework() = default;
 GameFramework::~GameFramework() = default;
 
-GameFramework::CreateResult GameFramework::Create(const CreateFromParams& params)
+GameFramework::CreateResult GameFramework::Create()
 {
     LOG("Creating game framework...");
     LOG_SCOPED_INDENT();
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
-    // Create instance.
     auto instance = std::unique_ptr<GameFramework>(new GameFramework());
-
-    // Save system references.
-    instance->m_timer = params.services->Locate<System::Timer>();
-    instance->m_window = params.services->Locate<System::Window>();
-    instance->m_gameRenderer = params.services->Locate<Renderer::GameRenderer>();
-
-    // Success!
     return Common::Success(std::move(instance));
+}
+
+bool GameFramework::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    m_timer = serviceStorage->Locate<System::Timer>();
+    if(!m_timer)
+    {
+        LOG_ERROR("Failed to locate timer service!");
+        return false;
+    }
+
+    m_window = serviceStorage->Locate<System::Window>();
+    if(!m_window)
+    {
+        LOG_ERROR("Failed to locate window service!");
+        return false;
+    }
+
+    m_gameRenderer = serviceStorage->Locate<Renderer::GameRenderer>();
+    if(!m_gameRenderer)
+    {
+        LOG_ERROR("Failed to locate game renderer service!");
+        return false;
+    }
+
+    return true;
 }
 
 GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const float timeDelta)

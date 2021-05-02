@@ -16,27 +16,34 @@ InputManager::~InputManager()
     m_windowContext->inputManager = nullptr;
 }
 
-InputManager::CreateResult InputManager::Create(const CreateParams& params)
+InputManager::CreateResult InputManager::Create()
 {
     LOG("Creating input manager...");
     LOG_SCOPED_INDENT();
 
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-
     auto instance = std::unique_ptr<InputManager>(new InputManager());
+    return Common::Success(std::move(instance));
+}
 
-    auto* window = params.services->Locate<System::Window>();
-
-    instance->m_windowContext = &window->GetContext();
-    if(instance->m_windowContext->inputManager != nullptr)
+bool InputManager::OnAttach(const Core::ServiceStorage* serviceStorage)
+{
+    auto* window = serviceStorage->Locate<System::Window>();
+    if(window == nullptr)
     {
-        LOG_ERROR("Other existing input manager already associated with this window context!");
-        return Common::Failure(CreateErrors::InvalidWindow);
+        LOG_ERROR("Failed to locate window service!");
+        return false;
     }
 
-    instance->m_windowContext->inputManager = instance.get();
+    m_windowContext = &window->GetContext();
+    if(m_windowContext->inputManager != nullptr)
+    {
+        LOG_ERROR("Existing input manager already associated with this window context!");
+        return false;
+    }
 
-    GLFWwindow* windowHandle = instance->m_windowContext->handle;
+    m_windowContext->inputManager = this;
+
+    GLFWwindow* windowHandle = m_windowContext->handle;
     glfwSetKeyCallback(windowHandle, InputManager::KeyboardKeyCallback);
     glfwSetCharCallback(windowHandle, InputManager::TextInputCallback);
     glfwSetMouseButtonCallback(windowHandle, InputManager::MouseButtonCallback);
@@ -44,7 +51,7 @@ InputManager::CreateResult InputManager::Create(const CreateParams& params)
     glfwSetCursorPosCallback(windowHandle, InputManager::CursorPositionCallback);
     glfwSetCursorEnterCallback(windowHandle, InputManager::CursorEnterCallback);
 
-    return Common::Success(std::move(instance));
+    return true;
 }
 
 void InputManager::UpdateInputState(float timeDelta)

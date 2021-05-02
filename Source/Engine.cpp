@@ -77,7 +77,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     if(ServicePtr performanceMetrics = Core::PerformanceMetrics::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(performanceMetrics);
+        m_services.Attach(std::move(performanceMetrics));
     }
     else
     {
@@ -90,7 +90,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     if(ServicePtr platform = System::Platform::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(platform);
+        m_services.Attach(std::move(platform));
     }
     else
     {
@@ -102,7 +102,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     if(ServicePtr fileSystem = System::FileSystem::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(fileSystem);
+        m_services.Attach(std::move(fileSystem));
     }
     else
     {
@@ -122,7 +122,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     if(ServicePtr window = System::Window::Create(windowParams)
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(window);
+        m_services.Attach(std::move(window));
     }
     else
     {
@@ -135,7 +135,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
     if(ServicePtr timer = System::Timer::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(timer);
+        m_services.Attach(std::move(timer));
     }
     else
     {
@@ -145,13 +145,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Input event tracking and routing.
     // Tracks input states such as key presses collected from window.
-    System::InputManager::CreateParams inputManagerParams;
-    inputManagerParams.services = &m_services;
-
-    if(ServicePtr inputManager = System::InputManager::Create(inputManagerParams)
+    if(ServicePtr inputManager = System::InputManager::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(inputManager);
+        m_services.Attach(std::move(inputManager));
     }
     else
     {
@@ -161,13 +158,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Resource loading and reference counting.
     // Avoids subsequent loading of already loaded resources.
-    System::ResourceManager::CreateFromParams resourceManagerParams;
-    resourceManagerParams.services = &m_services;
-
-    if(ServicePtr resourceManager = System::ResourceManager::Create(resourceManagerParams)
+    if(ServicePtr resourceManager = System::ResourceManager::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(resourceManager);
+        m_services.Attach(std::move(resourceManager));
     }
     else
     {
@@ -177,13 +171,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Rendering context management.
     // State stack that minimizes changes submitted to graphics API.
-    Graphics::RenderContext::CreateParams renderContextParams;
-    renderContextParams.services = &m_services;
-
-    if(ServicePtr renderContext = Graphics::RenderContext::Create(renderContextParams)
+    if(ServicePtr renderContext = Graphics::RenderContext::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(renderContext);
+        m_services.Attach(std::move(renderContext));
     }
     else
     {
@@ -193,14 +184,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Fast textured quad drawing.
     // Sprites drawn using batching and instancing.
-    Graphics::SpriteRenderer::CreateFromParams spriteRendererParams;
-    spriteRendererParams.services = &m_services;
-    spriteRendererParams.spriteBatchSize = 128;
-
-    if(ServicePtr spriteRenderer = Graphics::SpriteRenderer::Create(spriteRendererParams)
+    if(ServicePtr spriteRenderer = Graphics::SpriteRenderer::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(spriteRenderer);
+        m_services.Attach(std::move(spriteRenderer));
     }
     else
     {
@@ -210,13 +197,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Game instance rendering.
     // Draws render components present in entities.
-    Renderer::GameRenderer::CreateFromParams stateRendererParams;
-    stateRendererParams.services = &m_services;
-
-    if(ServicePtr stateRenderer = Renderer::GameRenderer::Create(stateRendererParams)
+    if(ServicePtr stateRenderer = Renderer::GameRenderer::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(stateRenderer);
+        m_services.Attach(std::move(stateRenderer));
     }
     else
     {
@@ -226,13 +210,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Game state management.
     // Decides how game state is updated, ticked and drawn.
-    Game::GameFramework::CreateFromParams gameFrameworkParams;
-    gameFrameworkParams.services = &m_services;
-
-    if(ServicePtr gameFramework = Game::GameFramework::Create(gameFrameworkParams)
+    if(ServicePtr gameFramework = Game::GameFramework::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(gameFramework);
+        m_services.Attach(std::move(gameFramework));
     }
     else
     {
@@ -242,13 +223,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Built-in editor interface.
     // Inspecting and modifying state of running engine and game.
-    Editor::EditorSystem::CreateFromParams editorSystemParams;
-    editorSystemParams.services = &m_services;
-
-    if(ServicePtr editorSystem = Editor::EditorSystem::Create(editorSystemParams)
+    if(ServicePtr editorSystem = Editor::EditorSystem::Create()
         .UnwrapOr(nullptr))
     {
-        m_services.Provide(editorSystem);
+        m_services.Attach(std::move(editorSystem));
     }
     else
     {
