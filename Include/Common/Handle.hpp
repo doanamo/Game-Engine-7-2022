@@ -114,17 +114,20 @@ namespace std
             */
 
             using ValueType = typename Common::Handle<Type>::ValueType;
-
-#ifndef __EMSCRIPTEN__
-            static_assert(sizeof(std::size_t) == 8);
             static_assert(sizeof(ValueType) == 4);
 
-            return static_cast<std::size_t>(pair.first.GetIdentifier())
-                * std::numeric_limits<ValueType>::max()
-                + pair.second.GetIdentifier();
-#else
-            return Common::CombineHash(pair.first.GetIdentifier(), pair.second.GetIdentifier());
-#endif
+            if constexpr(sizeof(std::size_t) == 8)
+            {
+                return static_cast<std::size_t>(pair.first.GetIdentifier())
+                    * std::numeric_limits<ValueType>::max()
+                    + pair.second.GetIdentifier();
+            }
+            else
+            {
+                return Common::CombineHash(
+                    pair.first.GetIdentifier(),
+                    pair.second.GetIdentifier());
+            }
         }
     };
 }
