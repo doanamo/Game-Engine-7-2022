@@ -114,3 +114,15 @@ namespace Common
             return name; \
         }()
 #endif
+
+namespace std
+{
+    template<>
+    struct hash<Common::Name>
+    {
+        std::size_t operator()(const Common::Name& name) const noexcept
+        {
+            return name.GetHash();
+        }
+    };
+}
