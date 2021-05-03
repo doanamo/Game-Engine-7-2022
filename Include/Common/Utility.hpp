@@ -105,6 +105,19 @@ namespace Common
         return hash;
     }
 
+    template<typename Type>
+    constexpr Type CombineHash(const Type seed, const Type hash)
+    {
+        /*
+            Combines two hashes into new unique one of same size.
+            Requires good hashing function for this to work properly.
+
+            Current implementation: boost::hash_combine
+        */
+
+        return seed ^ (hash + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+    }
+
     uint32_t CalculateCrc32(uint32_t crc, const uint8_t* data, std::size_t size);
 
     template<typename Type>

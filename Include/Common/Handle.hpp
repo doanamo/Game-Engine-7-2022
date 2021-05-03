@@ -8,7 +8,7 @@
 /*
     Handle
 
-    For use with handle map. Separate header for breaking dependencies.
+    For use with HandleMap container. Separate header for breaking dependencies.
 */
 
 namespace Common
@@ -20,8 +20,6 @@ namespace Common
     class Handle
     {
     public:
-        friend HandleMap<StorageType>;
-
         using ValueType = uint32_t;
 
         static constexpr ValueType MaximumIdentifier = std::numeric_limits<ValueType>::max();
@@ -30,7 +28,6 @@ namespace Common
         static constexpr ValueType StartingVersion = 0;
 
         Handle() = default;
-
         Handle(const Handle& other)
         {
             *this = other;
@@ -75,9 +72,10 @@ namespace Common
         }
 
     private:
-        Handle(ValueType identifier) :
-            m_identifier(identifier),
-            m_version(StartingVersion)
+        friend HandleMap<StorageType>;
+
+        explicit Handle(const ValueType identifier) :
+            m_identifier(identifier)
         {
         }
 
@@ -97,12 +95,8 @@ namespace std
     template<typename Type>
     struct hash<Common::Handle<Type>>
     {
-        std::size_t operator()(const Common::Handle<Type>& handle) const
+        std::size_t operator()(const Common::Handle<Type>& handle) const noexcept
         {
-            /*
-                Simply use unique identifier as hash value.
-            */
-
             return handle.GetIdentifier();
         }
     };
@@ -111,18 +105,26 @@ namespace std
     struct hash<std::pair<Common::Handle<Type>, Common::Handle<Type>>>
     {
         std::size_t operator()(
-            const std::pair<Common::Handle<Type>, Common::Handle<Type>>& pair) const
+            const std::pair<Common::Handle<Type>, Common::Handle<Type>>& pair) const noexcept
         {
             /*
                 Use combined identifiers as hash for pair of handles.
-                This turns two 32bit integers into one that is 64bit.
-                We assume std::size_t is 64bit, but it should be fine if it is not.
+                On x64, this turns two 32bit hashes into one that is 64bit.
+                On x86, this tries to combine two 32bit hashes into one 32bit.
             */
 
             using ValueType = typename Common::Handle<Type>::ValueType;
-            return (std::size_t)pair.first.GetIdentifier()
+
+#ifndef __EMSCRIPTEN__
+            static_assert(sizeof(std::size_t) == 8);
+            static_assert(sizeof(ValueType) == 4);
+
+            return static_cast<std::size_t>(pair.first.GetIdentifier())
                 * std::numeric_limits<ValueType>::max()
                 + pair.second.GetIdentifier();
+#else
+            return Common::CombineHash(pair.first.GetIdentifier(), pair.second.GetIdentifier());
+#endif
         }
     };
 }
