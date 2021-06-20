@@ -9,8 +9,10 @@
 
 int main()
 {
-    // Main entry point where engine instance is created
-    // and where game state is added to be run by engine.
+    /*
+        Main entry point where engine instance is created
+        and where game state is added to be run by engine.
+    */
 
     Engine::Root::CreateFromParams engineParams;
     engineParams.maxUpdateDelta = 1.0f;

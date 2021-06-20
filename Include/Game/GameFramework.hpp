@@ -86,7 +86,7 @@ namespace Game
     private:
         GameFramework();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:
         System::Timer* m_timer = nullptr;

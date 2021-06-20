@@ -56,7 +56,7 @@ namespace Editor
     private:
         EditorSystem();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
         bool CreateContext();
         bool CreateSubsystems(const Core::ServiceStorage* services);

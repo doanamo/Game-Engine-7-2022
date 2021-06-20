@@ -40,7 +40,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     return Common::Success(std::move(instance));
 }
 
-bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* serviceStorage)
+bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* services)
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
@@ -155,9 +155,9 @@ bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* service
 
     // Shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.renderContext = serviceStorage->Locate<Graphics::RenderContext>();
+    shaderParams.renderContext = services->Locate<Graphics::RenderContext>();
 
-    m_shader = serviceStorage->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
+    m_shader = services->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
         "Data/Engine/Shaders/Interface.shader", shaderParams).UnwrapOr(nullptr);
 
     if(m_shader == nullptr)

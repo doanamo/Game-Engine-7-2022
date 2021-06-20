@@ -27,7 +27,7 @@ namespace Core
 
         Service() = default;
 
-        virtual bool OnAttach(const ServiceStorage* serviceStorage)
+        virtual bool OnAttach(const ServiceStorage* services)
         {
             return true;
         }

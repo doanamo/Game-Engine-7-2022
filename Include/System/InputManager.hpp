@@ -47,7 +47,7 @@ namespace System
     private:
         InputManager();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
         static InputManager* GetInputManagerFromUserData(GLFWwindow* handle);
         static void TextInputCallback(GLFWwindow* handle, unsigned int character);

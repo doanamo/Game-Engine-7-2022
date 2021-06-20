@@ -24,23 +24,23 @@ GameFramework::CreateResult GameFramework::Create()
     return Common::Success(std::move(instance));
 }
 
-bool GameFramework::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool GameFramework::OnAttach(const Core::ServiceStorage* services)
 {
-    m_timer = serviceStorage->Locate<System::Timer>();
+    m_timer = services->Locate<System::Timer>();
     if(!m_timer)
     {
         LOG_ERROR("Failed to locate timer service!");
         return false;
     }
 
-    m_window = serviceStorage->Locate<System::Window>();
+    m_window = services->Locate<System::Window>();
     if(!m_window)
     {
         LOG_ERROR("Failed to locate window service!");
         return false;
     }
 
-    m_gameRenderer = serviceStorage->Locate<Renderer::GameRenderer>();
+    m_gameRenderer = services->Locate<Renderer::GameRenderer>();
     if(!m_gameRenderer)
     {
         LOG_ERROR("Failed to locate game renderer service!");

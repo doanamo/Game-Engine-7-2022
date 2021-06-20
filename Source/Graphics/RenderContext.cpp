@@ -21,9 +21,9 @@ RenderContext::CreateResult RenderContext::Create()
     return Common::Success(std::move(instance));
 }
 
-bool RenderContext::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool RenderContext::OnAttach(const Core::ServiceStorage* services)
 {
-    m_window = serviceStorage->Locate<System::Window>();
+    m_window = services->Locate<System::Window>();
     if(!m_window)
     {
         LOG_ERROR("Failed to locate window service!");

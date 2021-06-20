@@ -20,9 +20,9 @@ ResourceManager::CreateResult ResourceManager::Create()
     return Common::Success(std::move(instance));
 }
 
-bool ResourceManager::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool ResourceManager::OnAttach(const Core::ServiceStorage* services)
 {
-    m_fileSystem = serviceStorage->Locate<System::FileSystem>();
+    m_fileSystem = services->Locate<System::FileSystem>();
     if(!m_fileSystem)
     {
         LOG_ERROR("Failed to locate file system service!");

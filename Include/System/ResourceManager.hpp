@@ -67,7 +67,7 @@ namespace System
     private:
         ResourceManager();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
         template<typename Type>
         ResourcePool<Type>* CreatePool();

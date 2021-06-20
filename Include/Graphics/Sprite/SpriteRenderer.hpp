@@ -52,7 +52,7 @@ namespace Graphics
     private:
         SpriteRenderer();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:
         RenderContext* m_renderContext = nullptr;

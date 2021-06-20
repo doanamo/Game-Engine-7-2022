@@ -58,7 +58,7 @@ namespace Renderer
     private:
         GameRenderer();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:
         Graphics::RenderContext* m_renderContext = nullptr;

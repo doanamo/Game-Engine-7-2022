@@ -30,16 +30,16 @@ GameRenderer::CreateResult GameRenderer::Create()
     return Common::Success(std::move(instance));
 }
 
-bool GameRenderer::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
 {
-    m_renderContext = serviceStorage->Locate<Graphics::RenderContext>();
+    m_renderContext = services->Locate<Graphics::RenderContext>();
     if(!m_renderContext)
     {
         LOG_ERROR("Failed to locate render context service!");
         return false;
     }
 
-    m_spriteRenderer = serviceStorage->Locate<Graphics::SpriteRenderer>();
+    m_spriteRenderer = services->Locate<Graphics::SpriteRenderer>();
     if(!m_spriteRenderer)
     {
         LOG_ERROR("Failed to locate sprite renderer service!");

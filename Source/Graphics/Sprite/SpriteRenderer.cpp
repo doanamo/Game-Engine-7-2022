@@ -32,17 +32,17 @@ SpriteRenderer::CreateResult SpriteRenderer::Create()
     return Common::Success(std::move(instance));
 }
 
-bool Graphics::SpriteRenderer::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool Graphics::SpriteRenderer::OnAttach(const Core::ServiceStorage* services)
 {
     // Locate required services.
-    auto* resourceManager = serviceStorage->Locate<System::ResourceManager>();
+    auto* resourceManager = services->Locate<System::ResourceManager>();
     if(resourceManager == nullptr)
     {
         LOG_ERROR("Failed to locate resource manager service!");
         return false;
     }
 
-    m_renderContext = serviceStorage->Locate<Graphics::RenderContext>();
+    m_renderContext = services->Locate<Graphics::RenderContext>();
     if(m_renderContext == nullptr)
     {
         LOG_ERROR("Failed to locate render context service!");

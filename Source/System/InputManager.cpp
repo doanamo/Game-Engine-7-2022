@@ -25,9 +25,9 @@ InputManager::CreateResult InputManager::Create()
     return Common::Success(std::move(instance));
 }
 
-bool InputManager::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool InputManager::OnAttach(const Core::ServiceStorage* services)
 {
-    auto* window = serviceStorage->Locate<System::Window>();
+    auto* window = services->Locate<System::Window>();
     if(window == nullptr)
     {
         LOG_ERROR("Failed to locate window service!");

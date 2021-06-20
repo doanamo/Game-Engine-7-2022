@@ -58,16 +58,16 @@ EditorSystem::CreateResult EditorSystem::Create()
     return Common::Success(std::move(instance));
 }
 
-bool EditorSystem::OnAttach(const Core::ServiceStorage* serviceStorage)
+bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
 {
-    m_window = serviceStorage->Locate<System::Window>();
+    m_window = services->Locate<System::Window>();
     if(!m_window)
     {
         LOG_ERROR("Failed to locate window service!");
         return false;
     }
 
-    auto* inputManager = serviceStorage->Locate<System::InputManager>();
+    auto* inputManager = services->Locate<System::InputManager>();
     if(!inputManager)
     {
         LOG_ERROR("Failed to locate input manager service!");
@@ -80,13 +80,13 @@ bool EditorSystem::OnAttach(const Core::ServiceStorage* serviceStorage)
         return false;
     }
 
-    if(!CreateSubsystems(serviceStorage))
+    if(!CreateSubsystems(services))
     {
         LOG_ERROR(CreateError, "Could not create editor subsystems.");
         return false;
     }
 
-    if(!SubscribeEvents(serviceStorage))
+    if(!SubscribeEvents(services))
     {
         LOG_ERROR(CreateError, "Could not subscribe editor events.");
         return false;

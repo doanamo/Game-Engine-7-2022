@@ -50,7 +50,7 @@ namespace Graphics
     private:
         RenderContext();
 
-        bool OnAttach(const Core::ServiceStorage* serviceStorage) override;
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:
         System::Window* m_window = nullptr;
