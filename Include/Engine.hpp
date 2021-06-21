@@ -32,6 +32,7 @@ namespace Engine
 
         using ErrorCode = int;
 
+    public:
         ~Root();
 
         ErrorCode Run();

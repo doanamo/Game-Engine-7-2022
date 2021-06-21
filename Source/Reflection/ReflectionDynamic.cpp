@@ -12,8 +12,7 @@ using namespace Reflection;
 const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 
 void DynamicTypeInfo::Register(const Common::Name& name,
-                               const ConstructFunction constructFunction,
-                               DynamicTypeInfo* baseType)
+    const ConstructFunction constructFunction, DynamicTypeInfo* baseType)
 {
     m_registered = true;
     m_name = name;

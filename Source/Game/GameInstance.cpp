@@ -47,7 +47,7 @@ GameInstance::CreateResult GameInstance::Create()
             LOG_INFO("Created \"{}\" game system.",
                 Reflection::GetName(gameSystemType).GetString());
 
-            if(!instance->AttachSystem(gameSystem))
+            if(!instance->AttachSystem(std::move(gameSystem)))
             {
                 LOG_ERROR("Could not attach default game system \"{}\"!",
                     Reflection::GetName(gameSystemType).GetString());
@@ -65,7 +65,8 @@ GameInstance::CreateResult GameInstance::Create()
     return Common::Success(std::move(instance));
 }
 
-GameInstance::AttachSystemResult GameInstance::AttachSystem(std::unique_ptr<GameSystem>& gameSystem)
+GameInstance::AttachSystemResult GameInstance::AttachSystem(
+    std::unique_ptr<GameSystem>&& gameSystem)
 {
     if(gameSystem == nullptr)
     {

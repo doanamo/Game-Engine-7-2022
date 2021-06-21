@@ -48,7 +48,7 @@ namespace Game
     public:
         ~GameInstance();
 
-        AttachSystemResult AttachSystem(std::unique_ptr<GameSystem>& gameSystem);
+        AttachSystemResult AttachSystem(std::unique_ptr<GameSystem>&& gameSystem);
         GameSystem* GetSystem(Reflection::TypeIdentifier typeIdentifier) const;
 
         template<typename GameSystemType>

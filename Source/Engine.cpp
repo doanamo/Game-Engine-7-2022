@@ -302,8 +302,6 @@ void Root::ProcessFrame()
         Engine services are updated here each frame if needed.
     */
 
-    using ProcessGameStateResults = Game::GameFramework::ProcessGameStateResults;
-
     Logger::AdvanceFrameReference();
 
     auto* performanceMetrics = m_services.Locate<Core::PerformanceMetrics>();
@@ -321,7 +319,8 @@ void Root::ProcessFrame()
     window->ProcessEvents();
 
     editorSystem->BeginInterface(timeDelta);
-    if(gameFramework->ProcessGameState(timeDelta) == ProcessGameStateResults::TickedAndUpdated)
+    if(gameFramework->ProcessGameState(timeDelta) ==
+        Game::GameFramework::ProcessGameStateResults::TickedAndUpdated)
     {
         inputManager->UpdateInputState(timeDelta);
     }
