@@ -63,10 +63,21 @@ Root::CreateResult Root::Create(const Core::Config::VariableArray& configVars)
 
     if(auto config = instance->GetServices().Locate<Core::Config>())
     {
-        instance->m_maxUpdateDelta = config->Get<float>("engine.maxUpdateDelta").UnwrapOr(1.0f);
+        float maxUpdateDelta = config->Get<float>(
+            NAME_CONSTEXPR("engine.maxUpdateDelta"))
+            .UnwrapOr(1.0f);
 
-        CHECK_ARGUMENT_OR_RETURN(instance->m_maxUpdateDelta > 0.0f,
-            Common::Failure(CreateErrors::InvalidArgument));
+        if(maxUpdateDelta > 0.0f)
+        {
+            instance->m_maxUpdateDelta = maxUpdateDelta;
+        }
+        else
+        {
+            LOG_WARNING("Ignoring invalid \"engine.maxUpdateDelta={}\" "
+                "config variable - value must be positive!", maxUpdateDelta);
+            config->Set<float>(NAME_CONSTEXPR("engine.maxUpdateDelta"),
+                instance->m_maxUpdateDelta, true);
+        }
     }
 
     LOG_SUCCESS("Created engine instance.");

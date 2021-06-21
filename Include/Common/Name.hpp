@@ -35,11 +35,7 @@ namespace Common
         using HashType = NameRegistry::HashType;
         static constexpr HashType EmptyHash = Common::StringHash<HashType>("");
 
-        constexpr Name() noexcept
-            : m_hash(EmptyHash)
-        {
-        }
-
+        constexpr Name() noexcept = default;
         constexpr Name(const Name& other) = default;
         constexpr Name(Name&& other) noexcept = default;
         constexpr Name& operator=(const Name& other) = default;
@@ -100,7 +96,7 @@ namespace Common
         }
 
     private:
-        HashType m_hash;
+        HashType m_hash = EmptyHash;
     };
 }
 

@@ -36,16 +36,16 @@ bool Window::OnAttach(const Core::ServiceStorage* services)
 
     Core::Config* config = services->Locate<Core::Config>();
 
-    m_title = config->Get<std::string>(Common::Name("window.title")).UnwrapOr("Game");
-    int width = config->Get<int>(Common::Name("window.width")).UnwrapOr(1024);
-    int height = config->Get<int>(Common::Name("window.height")).UnwrapOr(576);
-    bool vsync = config->Get<bool>(Common::Name("window.vsync")).UnwrapOr(true);
-    bool visible = config->Get<bool>(Common::Name("window.visible")).UnwrapOr(true);
+    m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
+    int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);
+    int height = config->Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(576);
+    bool vsync = config->Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(true);
+    bool visible = config->Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(true);
 
-    int minWidth = config->Get<int>(Common::Name("window.minWidth")).UnwrapOr(-1);
-    int minHeight = config->Get<int>(Common::Name("window.minHeight")).UnwrapOr(-1);
-    int maxWidth = config->Get<int>(Common::Name("window.maxWidth")).UnwrapOr(-1);
-    int maxHeight = config->Get<int>(Common::Name("window.maxHeight")).UnwrapOr(-1);
+    int minWidth = config->Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(-1);
+    int minHeight = config->Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(-1);
+    int maxWidth = config->Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(-1);
+    int maxHeight = config->Get<int>(NAME_CONSTEXPR("window.maxHeight")).UnwrapOr(-1);
 
     width = std::max(0, width);
     height = std::max(0, height);
