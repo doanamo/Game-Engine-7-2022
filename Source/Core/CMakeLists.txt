@@ -14,6 +14,8 @@ set(INCLUDE_FILES
     "Core.hpp"
     "Service.hpp"
     "ServiceStorage.hpp"
+    "Config.hpp"
+    "ConfigTypes.hpp"
     "PerformanceMetrics.hpp"
 )
 
@@ -25,6 +27,7 @@ set(SOURCE_FILES
     "Precompiled.hpp"
     "Core.cpp"
     "ServiceStorage.cpp"
+    "Config.cpp"
     "PerformanceMetrics.cpp"
 )
 

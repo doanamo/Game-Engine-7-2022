@@ -5,6 +5,8 @@
 
 #include "System/Precompiled.hpp"
 #include "System/Window.hpp"
+#include <Core/ServiceStorage.hpp>
+#include <Core/Config.hpp>
 using namespace System;
 
 Window::Window() :
@@ -27,16 +29,26 @@ Window::~Window()
     }
 }
 
-Window::CreateResult Window::Create(const CreateFromParams& params)
+bool Window::OnAttach(const Core::ServiceStorage* services)
 {
     LOG("Creating window...");
     LOG_SCOPED_INDENT();
 
-    CHECK_ARGUMENT_OR_RETURN(params.width >= 0, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.height >= 0, Common::Failure(CreateErrors::InvalidArgument));
+    Core::Config* config = services->Locate<Core::Config>();
 
-    auto instance = std::unique_ptr<Window>(new Window());
-    instance->m_title = params.title;
+    m_title = config->Get<std::string>(Common::Name("window.title")).UnwrapOr("Game");
+    int width = config->Get<int>(Common::Name("window.width")).UnwrapOr(1024);
+    int height = config->Get<int>(Common::Name("window.height")).UnwrapOr(576);
+    bool vsync = config->Get<bool>(Common::Name("window.vsync")).UnwrapOr(true);
+    bool visible = config->Get<bool>(Common::Name("window.visible")).UnwrapOr(true);
+
+    int minWidth = config->Get<int>(Common::Name("window.minWidth")).UnwrapOr(-1);
+    int minHeight = config->Get<int>(Common::Name("window.minHeight")).UnwrapOr(-1);
+    int maxWidth = config->Get<int>(Common::Name("window.maxWidth")).UnwrapOr(-1);
+    int maxHeight = config->Get<int>(Common::Name("window.maxHeight")).UnwrapOr(-1);
+
+    width = std::max(0, width);
+    height = std::max(0, height);
 
     glfwWindowHint(GLFW_RED_BITS, 8);
     glfwWindowHint(GLFW_GREEN_BITS, 8);
@@ -45,75 +57,75 @@ Window::CreateResult Window::Create(const CreateFromParams& params)
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 
-    #ifdef __EMSCRIPTEN__
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    #else
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #endif
+#ifdef __EMSCRIPTEN__
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#else
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
-    glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
+    glfwWindowHint(GLFW_VISIBLE, visible ? 1 : 0);
 
-    instance->m_context.handle = glfwCreateWindow(
-        params.width, params.height, params.title.c_str(), nullptr, nullptr);
-    if(instance->m_context.handle == nullptr)
+    m_context.handle = glfwCreateWindow(width, height, m_title.c_str(), nullptr, nullptr);
+    if(m_context.handle == nullptr)
     {
         LOG_ERROR("Could not create GLFW window!");
-        return Common::Failure(CreateErrors::FailedWindowCreation);
+        return false;
     }
 
-    glfwSetWindowUserPointer(instance->m_context.handle, &instance->m_context);
-    glfwSetWindowSizeLimits(instance->m_context.handle,
-        params.minWidth, params.minHeight, params.maxWidth, params.maxHeight);
+    glfwSetWindowUserPointer(m_context.handle, &m_context);
+    glfwSetWindowSizeLimits(m_context.handle, minWidth, minHeight, maxWidth, maxHeight);
 
-    glfwSetWindowPosCallback(instance->m_context.handle, Window::MoveCallback);
-    glfwSetFramebufferSizeCallback(instance->m_context.handle, Window::ResizeCallback);
-    glfwSetWindowFocusCallback(instance->m_context.handle, Window::FocusCallback);
-    glfwSetWindowCloseCallback(instance->m_context.handle, Window::CloseCallback);
+    glfwSetWindowPosCallback(m_context.handle, Window::MoveCallback);
+    glfwSetFramebufferSizeCallback(m_context.handle, Window::ResizeCallback);
+    glfwSetWindowFocusCallback(m_context.handle, Window::FocusCallback);
+    glfwSetWindowCloseCallback(m_context.handle, Window::CloseCallback);
 
-    glfwMakeContextCurrent(instance->m_context.handle);
-    glfwSwapInterval((int)params.vsync);
+    glfwMakeContextCurrent(m_context.handle);
+    glfwSwapInterval((int)vsync);
 
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
         LOG_ERROR("Could not load OpenGL ES extensions!");
-        return Common::Failure(CreateErrors::FailedExtensionLoad);
+        return false;
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
 
     int windowWidth, windowHeight;
-    glfwGetFramebufferSize(instance->m_context.handle, &windowWidth, &windowHeight);
+    glfwGetFramebufferSize(m_context.handle, &windowWidth, &windowHeight);
     LOG_INFO("Resolution is {}x{}.", windowWidth, windowHeight);
 
-    int glInterface = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CLIENT_API);
-    int glMajor = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CONTEXT_VERSION_MAJOR);
-    int glMinor = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CONTEXT_VERSION_MINOR);
+    int glInterface = glfwGetWindowAttrib(m_context.handle, GLFW_CLIENT_API);
+    int glMajor = glfwGetWindowAttrib(m_context.handle, GLFW_CONTEXT_VERSION_MAJOR);
+    int glMinor = glfwGetWindowAttrib(m_context.handle, GLFW_CONTEXT_VERSION_MINOR);
     LOG_INFO("Using OpenGL {}{}.{} context.",
         glInterface == GLFW_OPENGL_API ? "" : "ES ", glMajor, glMinor);
 
-    return Common::Success(std::move(instance));
+    return true;
 }
 
 void Window::MakeContextCurrent()
 {
+    ASSERT(m_context.handle);
     glfwMakeContextCurrent(m_context.handle);
 }
 
 void Window::ProcessEvents()
 {
+    ASSERT(m_context.handle);
     glfwPollEvents();
 
     if(m_sizeChanged)
     {
         int windowWidth, windowHeight;
         glfwGetFramebufferSize(m_context.handle, &windowWidth, &windowHeight);
-        LOG_INFO("Window has been resized to {}x{}.", windowWidth, windowHeight);
+        LOG_INFO("Resolution changed to {}x{}.", windowWidth, windowHeight);
 
         m_sizeChanged = false;
     }
@@ -121,6 +133,7 @@ void Window::ProcessEvents()
 
 void Window::Present()
 {
+    ASSERT(m_context.handle);
     glfwSwapBuffers(m_context.handle);
 
     GLenum error;
@@ -134,17 +147,21 @@ void Window::Present()
 
 void Window::Close()
 {
+    ASSERT(m_context.handle);
     glfwSetWindowShouldClose(m_context.handle, GL_TRUE);
 }
 
 void Window::SetTitle(std::string title)
 {
+    ASSERT(m_context.handle);
     glfwSetWindowTitle(m_context.handle, title.c_str());
     m_title = title;
 }
 
 void Window::SetVisibility(bool show)
 {
+    ASSERT(m_context.handle);
+
     if(show)
     {
         glfwShowWindow(m_context.handle);
@@ -163,6 +180,7 @@ std::string Window::GetTitle() const
 int Window::GetWidth() const
 {
     int width = 0;
+    ASSERT(m_context.handle);
     glfwGetFramebufferSize(m_context.handle, &width, nullptr);
     return width;
 }
@@ -170,17 +188,20 @@ int Window::GetWidth() const
 int Window::GetHeight() const
 {
     int height = 0;
+    ASSERT(m_context.handle);
     glfwGetFramebufferSize(m_context.handle, nullptr, &height);
     return height;
 }
 
 bool Window::ShouldClose() const
 {
+    ASSERT(m_context.handle);
     return glfwWindowShouldClose(m_context.handle) == 0;
 }
 
 bool Window::IsFocused() const
 {
+    ASSERT(m_context.handle);
     return glfwGetWindowAttrib(m_context.handle, GLFW_FOCUSED) > 0;
 }
 
@@ -192,7 +213,6 @@ WindowContext& Window::GetContext()
 Window& Window::GetWindowFromUserData(GLFWwindow* handle)
 {
     ASSERT(handle != nullptr, "Window handle is invalid!");
-
     WindowContext* context = reinterpret_cast<WindowContext*>(glfwGetWindowUserPointer(handle));
     ASSERT(context != nullptr, "Window context is null!");
 

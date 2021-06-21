@@ -7,6 +7,7 @@
 #include "Engine.hpp"
 #include <Build/Build.hpp>
 #include <Reflection/Reflection.hpp>
+#include <Core/Config.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -32,7 +33,7 @@ namespace
 Root::Root() = default;
 Root::~Root() = default;
 
-Root::CreateResult Root::Create(const CreateFromParams& params)
+Root::CreateResult Root::Create(const Core::Config::VariableArray& configVars)
 {
     /*
         Create engine instance and return it if initialization succeeds.
@@ -46,13 +47,9 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
     Build::Initialize();
     Reflection::Initialize();
 
-    CHECK_ARGUMENT_OR_RETURN(params.maxUpdateDelta > 0.0f,
-        Common::Failure(CreateErrors::InvalidArgument));
-
     auto instance = std::unique_ptr<Root>(new Root());
-    instance->m_maxUpdateDelta = params.maxUpdateDelta;
 
-    if(auto failureResult = instance->CreateServices().AsFailure())
+    if(auto failureResult = instance->CreateServices(configVars).AsFailure())
     {
         LOG_FATAL(CreateEngineError, "Could not create services.");
         return Common::Failure(failureResult.Unwrap());
@@ -64,13 +61,33 @@ Root::CreateResult Root::Create(const CreateFromParams& params)
         return Common::Failure(failureResult.Unwrap());
     }
 
+    if(auto config = instance->GetServices().Locate<Core::Config>())
+    {
+        instance->m_maxUpdateDelta = config->Get<float>("engine.maxUpdateDelta").UnwrapOr(1.0f);
+
+        CHECK_ARGUMENT_OR_RETURN(instance->m_maxUpdateDelta > 0.0f,
+            Common::Failure(CreateErrors::InvalidArgument));
+    }
+
     LOG_SUCCESS("Created engine instance.");
     return Common::Success(std::move(instance));
 }
 
-Common::Result<void, Root::CreateErrors> Root::CreateServices()
+Common::Result<void, Root::CreateErrors> Root::CreateServices(
+    const Core::Config::VariableArray& configVars)
 {
     using ServicePtr = std::unique_ptr<Core::Service>;
+
+    if(auto config = std::make_unique<Core::Config>())
+    {
+        config->Load(configVars);
+        m_services.Attach(std::move(config));
+    }
+    else
+    {
+        LOG_ERROR(CreateServicesError, "Could not create config service.");
+        return Common::Failure(CreateErrors::FailedServiceCreation);
+    }
 
     // Information collection about engine's runtime performance.
     // Used to track and display simple measurements such as current frame rate.
@@ -112,15 +129,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices()
 
     // Window management and back buffer presentation.
     // Collects and emits input events that can be listened to.
-    System::Window::CreateFromParams windowParams;
-    windowParams.title = "Game";
-    windowParams.width = 1024;
-    windowParams.height = 576;
-    windowParams.vsync = false;
-    windowParams.visible = true;
-
-    if(ServicePtr window = System::Window::Create(windowParams)
-        .UnwrapOr(nullptr))
+    if(ServicePtr window = std::make_unique<System::Window>())
     {
         m_services.Attach(std::move(window));
     }

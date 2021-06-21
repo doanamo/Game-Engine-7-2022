@@ -50,32 +50,7 @@ namespace System
         REFLECTION_ENABLE(Window, Core::Service)
 
     public:
-        struct CreateFromParams
-        {
-            std::string title = "Window";
-            int width = 1024;
-            int height = 576;
-            bool vsync = true;
-            bool visible = true;
-
-            const int Unspecified = -1;
-            int minWidth = Unspecified;
-            int minHeight = Unspecified;
-            int maxWidth = Unspecified;
-            int maxHeight = Unspecified;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedWindowCreation,
-            FailedExtensionLoad,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<Window>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
-    public:
+        Window();
         ~Window() override;
 
         void MakeContextCurrent();
@@ -96,7 +71,7 @@ namespace System
         Event::Broker events;
 
     private:
-        Window();
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
         static Window& GetWindowFromUserData(GLFWwindow* handle);
         static void MoveCallback(GLFWwindow* handle, int x, int y);

@@ -7,6 +7,7 @@
 
 #include <Core/Core.hpp>
 #include <Core/ServiceStorage.hpp>
+#include <Core/Config.hpp>
 
 /*
     Engine Root
@@ -19,11 +20,6 @@ namespace Engine
     class Root final : private Common::NonCopyable
     {
     public:
-        struct CreateFromParams
-        {
-            float maxUpdateDelta = 1.0f;
-        };
-
         enum class CreateErrors
         {
             InvalidArgument,
@@ -32,7 +28,7 @@ namespace Engine
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        static CreateResult Create(const Core::Config::VariableArray& configVars);
 
         using ErrorCode = int;
 
@@ -45,7 +41,8 @@ namespace Engine
     private:
         Root();
 
-        Common::Result<void, CreateErrors> CreateServices();
+        Common::Result<void, CreateErrors> CreateServices(
+            const Core::Config::VariableArray& configVars);
         Common::Result<void, CreateErrors> LoadDefaultResources();
 
         void ProcessFrame();
