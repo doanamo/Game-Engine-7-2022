@@ -5,11 +5,17 @@
 
 #pragma once
 
+#include <Common/Event/Receiver.hpp>
 #include <Core/Service.hpp>
 
 namespace Core
 {
     class ServiceStorage;
+}
+
+namespace System
+{
+    class Window;
 }
 
 namespace Graphics
@@ -50,8 +56,15 @@ namespace Renderer
 
     private:
         bool OnAttach(const Core::ServiceStorage* services) override;
+        void OnDrawGameInstance(Game::GameInstance* gameInstance, float timeAlpha);
+
+        struct Receivers
+        {
+            Event::Receiver<void(Game::GameInstance*, float)> drawGameInstance;
+        } m_receivers;
 
     private:
+        System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };

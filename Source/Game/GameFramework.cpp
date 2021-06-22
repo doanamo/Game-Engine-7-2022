@@ -9,7 +9,6 @@
 #include "Game/TickTimer.hpp"
 #include <Core/ServiceStorage.hpp>
 #include <System/Window.hpp>
-#include <Renderer/GameRenderer.hpp>
 using namespace Game;
 
 GameFramework::GameFramework() = default;
@@ -22,20 +21,6 @@ bool GameFramework::OnAttach(const Core::ServiceStorage* services)
     if(!m_timer)
     {
         LOG_ERROR("Failed to locate timer service!");
-        return false;
-    }
-
-    m_window = services->Locate<System::Window>();
-    if(!m_window)
-    {
-        LOG_ERROR("Failed to locate window service!");
-        return false;
-    }
-
-    m_gameRenderer = services->Locate<Renderer::GameRenderer>();
-    if(!m_gameRenderer)
-    {
-        LOG_ERROR("Failed to locate game renderer service!");
         return false;
     }
 
@@ -98,17 +83,10 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const flo
         // Determine time alpha.
         float timeAlpha = tickTimer ? tickTimer->GetAlphaSeconds() : 1.0f;
 
-        // Draw game instance.
+        // Request game instance to be drawn.
         if(gameInstance)
         {
-            glm::ivec4 viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
-
-            Renderer::GameRenderer::DrawParams drawParams;
-            drawParams.viewportRect = viewportRect;
-            drawParams.gameInstance = gameInstance;
-            drawParams.cameraName = "Camera";
-            drawParams.timeAlpha = timeAlpha;
-            m_gameRenderer->Draw(drawParams);
+            events.drawGameInstance.Dispatch(gameInstance, timeAlpha);
         }
 
         // Call game state draw method.
@@ -116,7 +94,9 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const flo
     }
 
     // Return whether tick was processed.
-    return tickProcessed ? ProcessGameStateResults::TickedAndUpdated : ProcessGameStateResults::UpdatedOnly;
+    return tickProcessed
+        ? ProcessGameStateResults::TickedAndUpdated
+        : ProcessGameStateResults::UpdatedOnly;
 }
 
 GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)

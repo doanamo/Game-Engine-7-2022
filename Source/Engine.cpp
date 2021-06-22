@@ -108,10 +108,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices(const ConfigVariab
         Reflection::GetIdentifier<System::InputManager>(),
         Reflection::GetIdentifier<System::ResourceManager>(),
         Reflection::GetIdentifier<System::Timer>(),
+        Reflection::GetIdentifier<Game::GameFramework>(),
         Reflection::GetIdentifier<Graphics::RenderContext>(),
         Reflection::GetIdentifier<Graphics::SpriteRenderer>(),
         Reflection::GetIdentifier<Renderer::GameRenderer>(),
-        Reflection::GetIdentifier<Game::GameFramework>(),
         Reflection::GetIdentifier<Editor::EditorSystem>(),
     };
 

@@ -6,24 +6,36 @@
 #include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
 #include <Core/ServiceStorage.hpp>
+#include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Game/Components/TransformComponent.hpp>
 #include <Game/Components/CameraComponent.hpp>
 #include <Game/Components/SpriteComponent.hpp>
 #include <Game/Components/SpriteAnimationComponent.hpp>
+#include <Game/GameFramework.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/EntitySystem.hpp>
 #include <Game/ComponentSystem.hpp>
 #include <Game/Systems/IdentitySystem.hpp>
 using namespace Renderer;
 
-GameRenderer::GameRenderer() = default;
+GameRenderer::GameRenderer()
+{
+    m_receivers.drawGameInstance.Bind<GameRenderer, &GameRenderer::OnDrawGameInstance>(this);
+}
 GameRenderer::~GameRenderer() = default;
 
 bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
 {
     // Retrieve needed services.
+    m_window = services->Locate<System::Window>();
+    if(!m_window)
+    {
+        LOG_ERROR("Failed to locate window service!");
+        return false;
+    }
+
     m_renderContext = services->Locate<Graphics::RenderContext>();
     if(!m_renderContext)
     {
@@ -38,8 +50,33 @@ bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    Game::GameFramework* gameFramework = services->Locate<Game::GameFramework>();
+    if(!gameFramework)
+    {
+        LOG_ERROR("Failed to locate game framework service!");
+        return false;
+    }
+
+    if(!m_receivers.drawGameInstance.Subscribe(gameFramework->events.drawGameInstance))
+    {
+        LOG_ERROR("Failed to subscribe to game framework events!");
+        return false;
+    }
+
     // Success!
     return true;
+}
+
+void GameRenderer::OnDrawGameInstance(Game::GameInstance* gameInstance, float timeAlpha)
+{
+    ASSERT(gameInstance != nullptr);
+
+    DrawParams drawParams;
+    drawParams.viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
+    drawParams.gameInstance = gameInstance;
+    drawParams.cameraName = "Camera";
+    drawParams.timeAlpha = timeAlpha;
+    Draw(drawParams);
 }
 
 void GameRenderer::Draw(const DrawParams& drawParams)

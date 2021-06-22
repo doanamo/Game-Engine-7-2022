@@ -51,4 +51,7 @@ target_link_libraries(Renderer PRIVATE System)
 add_subdirectory("../Graphics" "Graphics")
 target_link_libraries(Renderer PRIVATE Graphics)
 
+add_subdirectory("../Game" "Game")
+target_link_libraries(Renderer PRIVATE Game)
+
 enable_reflection(Renderer ${INCLUDE_DIR} ${SOURCE_DIR})

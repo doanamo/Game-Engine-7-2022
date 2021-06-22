@@ -75,6 +75,9 @@ namespace Game
             // Event can be dispatched multiple times during the same tick method call.
             // This is also good time to run custom tick logic in response.
             Event::Dispatcher<void(float)> tickProcessed;
+
+            // Called when game instance should be drawn, before game state's custom draw.
+            Event::Dispatcher<void(GameInstance*, float)> drawGameInstance;
         } events;
 
     private:
@@ -82,9 +85,6 @@ namespace Game
 
     private:
         System::Timer* m_timer = nullptr;
-        System::Window* m_window = nullptr;
-        Renderer::GameRenderer* m_gameRenderer = nullptr;
-
         Common::StateMachine<GameState> m_stateMachine;
     };
 }
