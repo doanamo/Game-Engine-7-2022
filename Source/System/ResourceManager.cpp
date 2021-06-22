@@ -11,17 +11,9 @@ using namespace System;
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
 
-ResourceManager::CreateResult ResourceManager::Create()
-{
-    LOG("Creating resource manager...");
-    LOG_SCOPED_INDENT();
-    
-    auto instance = std::unique_ptr<ResourceManager>(new ResourceManager());
-    return Common::Success(std::move(instance));
-}
-
 bool ResourceManager::OnAttach(const Core::ServiceStorage* services)
 {
+    // Locate required services.
     m_fileSystem = services->Locate<System::FileSystem>();
     if(!m_fileSystem)
     {
@@ -29,18 +21,28 @@ bool ResourceManager::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Success!
     return true;
 }
 
 void ResourceManager::ReleaseUnused()
 {
-    // Release all unused resources.
+    // Release all unused resources from all pools.
     for(auto& pair : m_pools)
     {
         ASSERT(pair.second != nullptr, "Resource pool is null!");
-
-        // Release unused resources from each pool.
         auto& pool = pair.second;
         pool->ReleaseUnused();
+    }
+}
+
+void ResourceManager::ReleaseAll()
+{
+    // Release all resources from all pools.
+    for(auto& pair : m_pools)
+    {
+        ASSERT(pair.second != nullptr, "Resource pool is null!");
+        auto& pool = pair.second;
+        pool->ReleaseAll();
     }
 }

@@ -33,7 +33,7 @@ namespace
 Root::Root() = default;
 Root::~Root() = default;
 
-Root::CreateResult Root::Create(const Core::Config::VariableArray& configVars)
+Root::CreateResult Root::Create(const ConfigVariables& configVars)
 {
     /*
         Create engine instance and return it if initialization succeeds.
@@ -84,11 +84,9 @@ Root::CreateResult Root::Create(const Core::Config::VariableArray& configVars)
     return Common::Success(std::move(instance));
 }
 
-Common::Result<void, Root::CreateErrors> Root::CreateServices(
-    const Core::Config::VariableArray& configVars)
+Common::Result<void, Root::CreateErrors> Root::CreateServices(const ConfigVariables& configVars)
 {
-    using ServicePtr = std::unique_ptr<Core::Service>;
-
+    // Create config system for service parametrization.
     if(auto config = std::make_unique<Core::Config>())
     {
         config->Load(configVars);
@@ -100,160 +98,49 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices(
         return Common::Failure(CreateErrors::FailedServiceCreation);
     }
 
-    // Information collection about engine's runtime performance.
-    // Used to track and display simple measurements such as current frame rate.
-    if(ServicePtr performanceMetrics = Core::PerformanceMetrics::Create()
-        .UnwrapOr(nullptr))
+    // Create remaining engine services.
+    Reflection::TypeIdentifier defaultEngineServiceTypes[] =
     {
-        m_services.Attach(std::move(performanceMetrics));
-    }
-    else
+        Reflection::GetIdentifier<Core::PerformanceMetrics>(),
+        Reflection::GetIdentifier<System::Platform>(),
+        Reflection::GetIdentifier<System::FileSystem>(),
+        Reflection::GetIdentifier<System::Window>(),
+        Reflection::GetIdentifier<System::InputManager>(),
+        Reflection::GetIdentifier<System::ResourceManager>(),
+        Reflection::GetIdentifier<System::Timer>(),
+        Reflection::GetIdentifier<Graphics::RenderContext>(),
+        Reflection::GetIdentifier<Graphics::SpriteRenderer>(),
+        Reflection::GetIdentifier<Renderer::GameRenderer>(),
+        Reflection::GetIdentifier<Game::GameFramework>(),
+        Reflection::GetIdentifier<Editor::EditorSystem>(),
+    };
+
+    for(auto& engineServiceType : defaultEngineServiceTypes)
     {
-        LOG_ERROR(CreateServicesError, "Could not create performance metrics service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
+        Core::ServiceStorage::ServicePtr engineService(
+            Reflection::Construct<Core::Service>(engineServiceType));
+
+        if(engineService != nullptr)
+        {
+            LOG_INFO("Created \"{}\" engine service.",
+                Reflection::GetName(engineServiceType).GetString());
+
+            if(!m_services.Attach(std::move(engineService)))
+            {
+                LOG_ERROR("Could not attach default engine service \"{}\"!",
+                    Reflection::GetName(engineServiceType).GetString());
+                return Common::Failure(CreateErrors::FailedServiceCreation);
+            }
+        }
+        else
+        {
+            LOG_ERROR("Could not create default engine service \"{}\"!",
+                Reflection::GetName(engineServiceType).GetString());
+            return Common::Failure(CreateErrors::FailedServiceCreation);
+        }
     }
 
-    // Base system for enabling windowing, timing and input collection.
-    // Needs to be created first before the mentioned can be used.
-    if(ServicePtr platform = System::Platform::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(platform));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create platform service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Path resolving with multiple mounted directories.
-    if(ServicePtr fileSystem = System::FileSystem::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(fileSystem));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create file system service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Window management and back buffer presentation.
-    // Collects and emits input events that can be listened to.
-    if(ServicePtr window = std::make_unique<System::Window>())
-    {
-        m_services.Attach(std::move(window));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create window service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Main loop time tracking.
-    // Used to calculate tick and update delta for each frame.
-    if(ServicePtr timer = System::Timer::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(timer));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create timer service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Input event tracking and routing.
-    // Tracks input states such as key presses collected from window.
-    if(ServicePtr inputManager = System::InputManager::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(inputManager));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create input manager service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Resource loading and reference counting.
-    // Avoids subsequent loading of already loaded resources.
-    if(ServicePtr resourceManager = System::ResourceManager::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(resourceManager));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create resource manager service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Rendering context management.
-    // State stack that minimizes changes submitted to graphics API.
-    if(ServicePtr renderContext = Graphics::RenderContext::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(renderContext));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create render context service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Fast textured quad drawing.
-    // Sprites drawn using batching and instancing.
-    if(ServicePtr spriteRenderer = Graphics::SpriteRenderer::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(spriteRenderer));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create sprite renderer service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Game instance rendering.
-    // Draws render components present in entities.
-    if(ServicePtr stateRenderer = Renderer::GameRenderer::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(stateRenderer));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create game renderer service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Game state management.
-    // Decides how game state is updated, ticked and drawn.
-    if(ServicePtr gameFramework = Game::GameFramework::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(gameFramework));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create game framework service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
-    // Built-in editor interface.
-    // Inspecting and modifying state of running engine and game.
-    if(ServicePtr editorSystem = Editor::EditorSystem::Create()
-        .UnwrapOr(nullptr))
-    {
-        m_services.Attach(std::move(editorSystem));
-    }
-    else
-    {
-        LOG_ERROR(CreateServicesError, "Could not create editor system service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
-    }
-
+    // Success!
     LOG_SUCCESS("Created engine services.");
     return Common::Success();
 }

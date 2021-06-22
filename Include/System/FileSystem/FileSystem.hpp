@@ -31,15 +31,6 @@ namespace System
         using FileDepotPtr = std::unique_ptr<FileDepot>;
         using OpenFlags = FileHandle::OpenFlags;
 
-        enum class CreateErrors
-        {
-            FailedDefaultDepotCreation,
-            FailedDefaultDepotMounting,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<FileSystem>, CreateErrors>;
-        static CreateResult Create();
-
         enum class MountDepotErrors
         {
             EmptyMountPathArgument,
@@ -50,6 +41,7 @@ namespace System
         using MountDepotResult = Common::Result<void, MountDepotErrors>;
 
     public:
+        FileSystem();
         ~FileSystem() override;
 
         MountDepotResult MountDepot(fs::path mountPath, FileDepotPtr&& fileDepot);
@@ -57,7 +49,7 @@ namespace System
             OpenFlags::Type openFlags = OpenFlags::Read);
 
     private:
-        FileSystem();
+        bool OnAttach(const Core::ServiceStorage* services) override;
 
         struct MountedDepotEntry
         {
@@ -67,6 +59,7 @@ namespace System
 
         using MountedDepotList = std::vector<MountedDepotEntry>;
 
+    private:
         MountedDepotList m_mountedDepots;
     };
 }

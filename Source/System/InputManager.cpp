@@ -16,17 +16,9 @@ InputManager::~InputManager()
     m_windowContext->inputManager = nullptr;
 }
 
-InputManager::CreateResult InputManager::Create()
-{
-    LOG("Creating input manager...");
-    LOG_SCOPED_INDENT();
-
-    auto instance = std::unique_ptr<InputManager>(new InputManager());
-    return Common::Success(std::move(instance));
-}
-
 bool InputManager::OnAttach(const Core::ServiceStorage* services)
 {
+    // Locate needed services.
     auto* window = services->Locate<System::Window>();
     if(window == nullptr)
     {
@@ -34,6 +26,7 @@ bool InputManager::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Register input manager with current window context.
     m_windowContext = &window->GetContext();
     if(m_windowContext->inputManager != nullptr)
     {
@@ -43,6 +36,7 @@ bool InputManager::OnAttach(const Core::ServiceStorage* services)
 
     m_windowContext->inputManager = this;
 
+    // Set window input callbacks.
     GLFWwindow* windowHandle = m_windowContext->handle;
     glfwSetKeyCallback(windowHandle, InputManager::KeyboardKeyCallback);
     glfwSetCharCallback(windowHandle, InputManager::TextInputCallback);
@@ -51,6 +45,7 @@ bool InputManager::OnAttach(const Core::ServiceStorage* services)
     glfwSetCursorPosCallback(windowHandle, InputManager::CursorPositionCallback);
     glfwSetCursorEnterCallback(windowHandle, InputManager::CursorEnterCallback);
 
+    // Success!
     return true;
 }
 
@@ -72,13 +67,11 @@ InputState& InputManager::GetInputState()
 InputManager* InputManager::GetInputManagerFromUserData(GLFWwindow* handle)
 {
     ASSERT(handle != nullptr, "Window handle is invalid!");
-
     WindowContext* context = reinterpret_cast<WindowContext*>(glfwGetWindowUserPointer(handle));
     ASSERT(context != nullptr, "Window context is null!");
 
     InputManager* inputManager = context->inputManager;
     ASSERT(inputManager != nullptr, "Input manager in window context is null!");
-
     return inputManager;
 }
 
@@ -88,7 +81,6 @@ void InputManager::TextInputCallback(GLFWwindow* handle, unsigned int character)
 
     InputEvents::TextInput outgoingEvent;
     outgoingEvent.utf32Character = character;
-
     inputManager->m_inputState.OnTextInput(outgoingEvent);
 }
 
@@ -141,7 +133,6 @@ void InputManager::MouseScrollCallback(GLFWwindow* handle, double offsetx, doubl
 
     InputEvents::MouseScroll outgoingEvent;
     outgoingEvent.offset = offsety;
-
     inputManager->m_inputState.OnMouseScroll(outgoingEvent);
 }
 
@@ -152,7 +143,6 @@ void InputManager::CursorPositionCallback(GLFWwindow* handle, double x, double y
     InputEvents::CursorPosition outgoingEvent;
     outgoingEvent.x = x;
     outgoingEvent.y = y;
-
     inputManager->m_inputState.OnCursorPosition(outgoingEvent);
 }
 
@@ -162,7 +152,5 @@ void InputManager::CursorEnterCallback(GLFWwindow* handle, int entered)
 
     InputEvents::CursorEnter outgoingEvent;
     outgoingEvent.entered = entered;
-
     inputManager->m_inputState.OnCursorEnter(outgoingEvent);
 }
-

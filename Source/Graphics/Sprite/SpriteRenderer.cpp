@@ -23,15 +23,6 @@ namespace
 SpriteRenderer::SpriteRenderer() = default;
 SpriteRenderer::~SpriteRenderer() = default;
 
-SpriteRenderer::CreateResult SpriteRenderer::Create()
-{
-    LOG("Creating sprite renderer...");
-    LOG_SCOPED_INDENT();
-
-    auto instance = std::unique_ptr<SpriteRenderer>(new SpriteRenderer());
-    return Common::Success(std::move(instance));
-}
-
 bool Graphics::SpriteRenderer::OnAttach(const Core::ServiceStorage* services)
 {
     // Locate required services.

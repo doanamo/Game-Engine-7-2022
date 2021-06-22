@@ -17,64 +17,64 @@ namespace
 FileSystem::FileSystem() = default;
 FileSystem::~FileSystem() = default;
 
-FileSystem::CreateResult FileSystem::Create()
+bool FileSystem::OnAttach(const Core::ServiceStorage* services)
 {
-    auto instance = std::unique_ptr<FileSystem>(new FileSystem());
-
+    // Mount native working directory.
     if(auto workingDirectoryDepot = NativeFileDepot::Create("./"))
     {
-        if(!instance->MountDepot("./", workingDirectoryDepot.Unwrap()))
+        if(!MountDepot("./", workingDirectoryDepot.Unwrap()))
         {
             LOG_ERROR(CreateError, "Could not mount default working directory.");
-            return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+            return false;
         }
     }
     else
     {
         LOG_ERROR(CreateError, "Could not create default working directory.");
-        return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+        return false;
     }
 
+    // Mount native engine directory.
     if(!Build::GetEngineDir().empty())
     {
         if(auto engineDirectoryDepot = NativeFileDepot::Create(Build::GetEngineDir()))
         {
-            if(!instance->MountDepot("./", engineDirectoryDepot.Unwrap()))
+            if(!MountDepot("./", engineDirectoryDepot.Unwrap()))
             {
                 LOG_ERROR(CreateError, "Could not mount default engine directory.");
-                return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+                return false;
             }
         }
         else
         {
             LOG_ERROR(CreateError, "Could not create default engine directory depot.");
-            return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+            return false;
         }
     }
 
+    // Mount native game directory.
     if(!Build::GetGameDir().empty())
     {
         if(auto gameDirectoryDepot = NativeFileDepot::Create(Build::GetGameDir()))
         {
-            if(!instance->MountDepot("./", gameDirectoryDepot.Unwrap()))
+            if(!MountDepot("./", gameDirectoryDepot.Unwrap()))
             {
                 LOG_ERROR(CreateError, "Could not mount default game directory.");
-                return Common::Failure(CreateErrors::FailedDefaultDepotMounting);
+                return false;
             }
         }
         else
         {
             LOG_ERROR(CreateError, "Could not create default game directory depot.");
-            return Common::Failure(CreateErrors::FailedDefaultDepotCreation);
+            return false;
         }
     }
 
-    LOG_SUCCESS("Created file system instance.");
-    return Common::Success(std::move(instance));
+    // Success!
+    return true;
 }
 
-FileSystem::MountDepotResult FileSystem::MountDepot(
-    fs::path mountPath, std::unique_ptr<FileDepot>&& fileDepot)
+FileSystem::MountDepotResult FileSystem::MountDepot(fs::path mountPath, FileDepotPtr&& fileDepot)
 {
     CHECK_ARGUMENT_OR_RETURN(!mountPath.empty(),
         Common::Failure(MountDepotErrors::EmptyMountPathArgument));

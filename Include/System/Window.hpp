@@ -79,6 +79,7 @@ namespace System
         static void FocusCallback(GLFWwindow* handle, int focused);
         static void CloseCallback(GLFWwindow* handle);
 
+    private:
         WindowContext m_context;
 
         std::string m_title;

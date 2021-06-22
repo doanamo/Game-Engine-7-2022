@@ -25,6 +25,7 @@ namespace System
     public:
         virtual ~ResourcePoolInterface() = default;
         virtual void ReleaseUnused() = 0;
+        virtual void ReleaseAll() = 0;
     };
 
     template<typename Type>
@@ -47,7 +48,7 @@ namespace System
         AcquireResult Acquire(fs::path path, Arguments... arguments);
 
         void ReleaseUnused() override;
-        void ReleaseAll();
+        void ReleaseAll() override;
 
     private:
         FileSystem* m_fileSystem;

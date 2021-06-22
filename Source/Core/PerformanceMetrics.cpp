@@ -15,14 +15,6 @@ namespace
 PerformanceMetrics::PerformanceMetrics() = default;
 PerformanceMetrics::~PerformanceMetrics() = default;
 
-PerformanceMetrics::CreateResult PerformanceMetrics::Create()
-{
-    auto instance = std::unique_ptr<PerformanceMetrics>(new PerformanceMetrics());
-
-    LOG_SUCCESS("Created performance metrics instance.");
-    return Common::Success(std::move(instance));
-}
-
 void PerformanceMetrics::MarkFrameStart()
 {
     m_frameStart = std::chrono::steady_clock::now();

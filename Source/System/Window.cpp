@@ -22,6 +22,8 @@ Window::Window() :
 
 Window::~Window()
 {
+    // We need to destroy handle at end of lifetime instead of service detach,
+    // as some resources may still depend on e.g. OpenGL context to be present.
     if(m_context.handle)
     {
         glfwDestroyWindow(m_context.handle);
@@ -31,9 +33,7 @@ Window::~Window()
 
 bool Window::OnAttach(const Core::ServiceStorage* services)
 {
-    LOG("Creating window...");
-    LOG_SCOPED_INDENT();
-
+    // Retrieve config variables.
     Core::Config* config = services->Locate<Core::Config>();
 
     m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
@@ -50,6 +50,7 @@ bool Window::OnAttach(const Core::ServiceStorage* services)
     width = std::max(0, width);
     height = std::max(0, height);
 
+    // Setup window hints.
     glfwWindowHint(GLFW_RED_BITS, 8);
     glfwWindowHint(GLFW_GREEN_BITS, 8);
     glfwWindowHint(GLFW_BLUE_BITS, 8);
@@ -71,6 +72,7 @@ bool Window::OnAttach(const Core::ServiceStorage* services)
 
     glfwWindowHint(GLFW_VISIBLE, visible ? 1 : 0);
 
+    // Create window.
     m_context.handle = glfwCreateWindow(width, height, m_title.c_str(), nullptr, nullptr);
     if(m_context.handle == nullptr)
     {
@@ -89,14 +91,16 @@ bool Window::OnAttach(const Core::ServiceStorage* services)
     glfwMakeContextCurrent(m_context.handle);
     glfwSwapInterval((int)vsync);
 
+    // Prepare OpenGL function and extension loaded
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Could not load OpenGL ES extensions!");
+        LOG_ERROR("Could not load OpenGL function and extension loader!");
         return false;
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
 
+    // Print window and context info.
     int windowWidth, windowHeight;
     glfwGetFramebufferSize(m_context.handle, &windowWidth, &windowHeight);
     LOG_INFO("Resolution is {}x{}.", windowWidth, windowHeight);
@@ -107,6 +111,7 @@ bool Window::OnAttach(const Core::ServiceStorage* services)
     LOG_INFO("Using OpenGL {}{}.{} context.",
         glInterface == GLFW_OPENGL_API ? "" : "ES ", glMajor, glMinor);
 
+    // Success!
     return true;
 }
 

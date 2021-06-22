@@ -29,14 +29,7 @@ namespace System
         REFLECTION_ENABLE(InputManager, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<InputManager>, CreateErrors>;
-        static CreateResult Create();
-
-    public:
+        InputManager();
         ~InputManager() override;
 
         void UpdateInputState(float timeDelta);
@@ -45,8 +38,6 @@ namespace System
         InputState& GetInputState();
 
     private:
-        InputManager();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
         static InputManager* GetInputManagerFromUserData(GLFWwindow* handle);
@@ -57,8 +48,9 @@ namespace System
         static void CursorPositionCallback(GLFWwindow* handle, double x, double y);
         static void CursorEnterCallback(GLFWwindow* handle, int entered);
 
-        InputState m_inputState;
+    private:
         WindowContext* m_windowContext = nullptr;
+        InputState m_inputState;
     };
 }
 

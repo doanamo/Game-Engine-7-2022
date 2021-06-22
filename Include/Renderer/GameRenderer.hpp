@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <string>
 #include <Core/Service.hpp>
 
 namespace Core
@@ -35,13 +34,6 @@ namespace Renderer
         REFLECTION_ENABLE(GameRenderer, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<GameRenderer>, CreateErrors>;
-        static CreateResult Create();
-
         struct DrawParams
         {
             Game::GameInstance* gameInstance = nullptr;
@@ -51,13 +43,12 @@ namespace Renderer
         };
 
     public:
+        GameRenderer();
         ~GameRenderer() override;
 
         void Draw(const DrawParams& drawParams);
 
     private:
-        GameRenderer();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:

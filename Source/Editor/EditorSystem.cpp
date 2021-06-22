@@ -50,16 +50,9 @@ EditorSystem::~EditorSystem()
     }
 }
 
-EditorSystem::CreateResult EditorSystem::Create()
-{
-    auto instance = std::unique_ptr<EditorSystem>(new EditorSystem());
-
-    LOG_SUCCESS("Created editor system instance.");
-    return Common::Success(std::move(instance));
-}
-
 bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
 {
+    // Retrieve required services.
     m_window = services->Locate<System::Window>();
     if(!m_window)
     {
@@ -74,6 +67,7 @@ bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Initialize editor system.
     if(!CreateContext())
     {
         LOG_ERROR(CreateError, "Could not create editor context.");
@@ -92,12 +86,14 @@ bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Success!
     return true;
 }
 
 bool EditorSystem::CreateContext()
 {
     ASSERT(m_window != nullptr);
+    ASSERT(m_interface == nullptr);
 
     m_interface = ImGui::CreateContext();
     if(m_interface == nullptr)

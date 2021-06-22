@@ -20,7 +20,7 @@ TickTimer::CreateResult TickTimer::Create()
     auto instance = std::unique_ptr<TickTimer>(new TickTimer());
 
     // Create timer.
-    instance->m_timer = Timer::Create().UnwrapOr(nullptr);
+    instance->m_timer = std::make_unique<System::Timer>();
     if(instance->m_timer == nullptr)
     {
         LOG_ERROR("Could not create timer!");

@@ -11,6 +11,7 @@ using namespace Core;
 ServiceStorage::ServiceStorage() = default;
 ServiceStorage::~ServiceStorage()
 {
+    // Destroy attached services in reverse order.
     for(auto it = m_serviceList.rbegin(); it != m_serviceList.rend(); ++it)
     {
         it->reset();

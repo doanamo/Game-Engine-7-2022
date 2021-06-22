@@ -31,18 +31,12 @@ namespace System
         REFLECTION_ENABLE(ResourceManager, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<ResourceManager>, CreateErrors>;
-        static CreateResult Create();
-
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
         using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
+        ResourceManager();
         ~ResourceManager() override;
 
         template<typename Type>
@@ -63,10 +57,9 @@ namespace System
             fs::path filePath, fs::path relativeFilePath, Arguments... arguments);
 
         void ReleaseUnused();
+        void ReleaseAll();
 
     private:
-        ResourceManager();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
         template<typename Type>

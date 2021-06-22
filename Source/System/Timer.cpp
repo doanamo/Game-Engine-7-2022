@@ -14,18 +14,6 @@ Timer::Timer()
 
 Timer::~Timer() = default;
 
-Timer::CreateResult Timer::Create()
-{
-    LOG("Creating timer...");
-    LOG_SCOPED_INDENT();
-
-    // Create instance.
-    auto instance = std::unique_ptr<Timer>(new Timer());
-
-    // Success!
-    return Common::Success(std::move(instance));
-}
-
 Timer::TimeUnit Timer::ReadClockUnits()
 {
     TimeUnit units;

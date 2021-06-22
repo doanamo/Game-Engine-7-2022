@@ -15,17 +15,9 @@ using namespace Game;
 GameFramework::GameFramework() = default;
 GameFramework::~GameFramework() = default;
 
-GameFramework::CreateResult GameFramework::Create()
-{
-    LOG("Creating game framework...");
-    LOG_SCOPED_INDENT();
-
-    auto instance = std::unique_ptr<GameFramework>(new GameFramework());
-    return Common::Success(std::move(instance));
-}
-
 bool GameFramework::OnAttach(const Core::ServiceStorage* services)
 {
+    // Retrieve required services.
     m_timer = services->Locate<System::Timer>();
     if(!m_timer)
     {
@@ -47,6 +39,7 @@ bool GameFramework::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Success!
     return true;
 }
 

@@ -27,18 +27,16 @@ namespace System
         REFLECTION_ENABLE(Timer, Core::Service)
 
     public:
-        #ifdef USE_PRECISE_TIME_COUNTERS
-            // Time units in integers with constant frequency per second.
-            using TimeUnit = uint64_t;
-        #else
-            // Time units in fractional seconds.
-            using TimeUnit = double;
-        #endif
-
-        using CreateResult = Common::Result<std::unique_ptr<Timer>, void>;
-        static CreateResult Create();
+#ifdef USE_PRECISE_TIME_COUNTERS
+        // Time units in integers with constant frequency per second.
+        using TimeUnit = uint64_t;
+#else
+        // Time units in fractional seconds.
+        using TimeUnit = double;
+#endif
 
     public:
+        Timer();
         ~Timer() override;
 
         float Advance(float maxDeltaSeconds = 0.0f);
@@ -54,8 +52,6 @@ namespace System
         static double ConvertToSeconds(TimeUnit units);
 
     private:
-        Timer();
-
         static TimeUnit ReadClockUnits();
         static TimeUnit ReadClockFrequency();
 

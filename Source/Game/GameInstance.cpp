@@ -16,6 +16,7 @@ using namespace Game;
 GameInstance::GameInstance() = default;
 GameInstance::~GameInstance()
 {
+    // Destroy attached systems in reverse order.
     for(auto it = m_gameSystemList.rbegin(); it != m_gameSystemList.rend(); ++it)
     {
         it->reset();

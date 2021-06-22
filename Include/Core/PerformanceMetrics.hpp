@@ -21,9 +21,7 @@ namespace Core
         REFLECTION_ENABLE(PerformanceMetrics, Service)
 
     public:
-        using CreateResult = Common::Result<std::unique_ptr<PerformanceMetrics>, void>;
-        static CreateResult Create();
-
+        PerformanceMetrics();
         ~PerformanceMetrics() override;
 
         void MarkFrameStart();
@@ -33,8 +31,6 @@ namespace Core
         float GetFrameRate() const;
 
     private:
-        PerformanceMetrics();
-
         std::chrono::steady_clock::time_point m_frameStart;
         std::chrono::steady_clock::time_point m_frameEnd;
         std::chrono::steady_clock::time_point m_frameTimeUpdate;

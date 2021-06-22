@@ -39,13 +39,6 @@ namespace Game
         REFLECTION_ENABLE(GameFramework, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<GameFramework>, CreateErrors>;
-        static CreateResult Create();
-
         enum class ChangeGameStateErrors
         {
             AlreadyCurrent,
@@ -61,6 +54,7 @@ namespace Game
         };
 
     public:
+        GameFramework();
         ~GameFramework() override;
 
         ChangeGameStateResult ChangeGameState(std::shared_ptr<GameState> gameState);
@@ -84,8 +78,6 @@ namespace Game
         } events;
 
     private:
-        GameFramework();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:

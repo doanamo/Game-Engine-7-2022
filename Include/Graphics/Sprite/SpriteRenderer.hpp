@@ -37,21 +37,12 @@ namespace Graphics
         REFLECTION_ENABLE(SpriteRenderer, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<SpriteRenderer>, CreateErrors>;
-        static CreateResult Create();
-
-    public:
+        SpriteRenderer();
         ~SpriteRenderer() override;
 
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
     private:
-        SpriteRenderer();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:

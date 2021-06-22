@@ -12,17 +12,9 @@ using namespace Graphics;
 RenderContext::RenderContext() = default;
 RenderContext::~RenderContext() = default;
 
-RenderContext::CreateResult RenderContext::Create()
-{
-    LOG("Creating rendering context...");
-    LOG_SCOPED_INDENT();
-
-    auto instance = std::unique_ptr<RenderContext>(new RenderContext());
-    return Common::Success(std::move(instance));
-}
-
 bool RenderContext::OnAttach(const Core::ServiceStorage* services)
 {
+    // Retrieve needed services.
     m_window = services->Locate<System::Window>();
     if(!m_window)
     {
@@ -37,6 +29,7 @@ bool RenderContext::OnAttach(const Core::ServiceStorage* services)
     m_window->MakeContextCurrent();
     m_currentState.Save();
 
+    // Success!
     return true;
 }
 

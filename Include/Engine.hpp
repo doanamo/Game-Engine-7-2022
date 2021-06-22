@@ -20,6 +20,8 @@ namespace Engine
     class Root final : private Common::NonCopyable
     {
     public:
+        using ConfigVariables = Core::Config::VariableArray;
+
         enum class CreateErrors
         {
             InvalidArgument,
@@ -28,7 +30,7 @@ namespace Engine
         };
 
         using CreateResult = Common::Result<std::unique_ptr<Root>, CreateErrors>;
-        static CreateResult Create(const Core::Config::VariableArray& configVars);
+        static CreateResult Create(const ConfigVariables& configVars);
 
         using ErrorCode = int;
 
@@ -42,12 +44,12 @@ namespace Engine
     private:
         Root();
 
-        Common::Result<void, CreateErrors> CreateServices(
-            const Core::Config::VariableArray& configVars);
+        Common::Result<void, CreateErrors> CreateServices(const ConfigVariables& configVars);
         Common::Result<void, CreateErrors> LoadDefaultResources();
 
         void ProcessFrame();
 
+    private:
         Core::ServiceStorage m_services;
         float m_maxUpdateDelta = 1.0f;
     };

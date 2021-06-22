@@ -21,17 +21,9 @@ using namespace Renderer;
 GameRenderer::GameRenderer() = default;
 GameRenderer::~GameRenderer() = default;
 
-GameRenderer::CreateResult GameRenderer::Create()
-{
-    LOG("Creating game renderer...");
-    LOG_SCOPED_INDENT();
-
-    auto instance = std::unique_ptr<GameRenderer>(new GameRenderer());
-    return Common::Success(std::move(instance));
-}
-
 bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
 {
+    // Retrieve needed services.
     m_renderContext = services->Locate<Graphics::RenderContext>();
     if(!m_renderContext)
     {
@@ -46,6 +38,7 @@ bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
+    // Success!
     return true;
 }
 

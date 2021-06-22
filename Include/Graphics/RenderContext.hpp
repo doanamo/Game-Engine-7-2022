@@ -32,14 +32,7 @@ namespace Graphics
         REFLECTION_ENABLE(RenderContext, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<RenderContext>, CreateErrors>;
-        static CreateResult Create();
-
-    public:
+        RenderContext();
         ~RenderContext() override;
 
         void MakeCurrent();
@@ -48,8 +41,6 @@ namespace Graphics
         void PopState();
 
     private:
-        RenderContext();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
     private:

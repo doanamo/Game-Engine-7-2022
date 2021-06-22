@@ -40,22 +40,13 @@ namespace Editor
         REFLECTION_ENABLE(EditorSystem, Core::Service)
 
     public:
-        enum class CreateErrors
-        {
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<EditorSystem>, CreateErrors>;
-        static CreateResult Create();
-
-    public:
+        EditorSystem();
         ~EditorSystem() override;
 
         void BeginInterface(float timeDelta);
         void EndInterface();
 
     private:
-        EditorSystem();
-
         bool OnAttach(const Core::ServiceStorage* services) override;
 
         bool CreateContext();
