@@ -99,7 +99,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
     }
 
     // Create remaining engine systems.
-    Reflection::TypeIdentifier defaultEngineSystemTypes[] =
+    const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
         Reflection::GetIdentifier<Core::PerformanceMetrics>(),
         Reflection::GetIdentifier<System::Platform>(),
@@ -115,29 +115,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         Reflection::GetIdentifier<Editor::EditorSystem>(),
     };
 
-    for(auto& engineSystemType : defaultEngineSystemTypes)
+    if(!m_engineSystems.CreateFromTypes(defaultEngineSystemTypes))
     {
-        Core::EngineSystemStorage::SystemPtr engineSystem(
-            Reflection::Construct<Core::EngineSystem>(engineSystemType));
-
-        if(engineSystem != nullptr)
-        {
-            LOG_INFO("Created \"{}\" engine system.",
-                Reflection::GetName(engineSystemType).GetString());
-
-            if(!m_engineSystems.Attach(std::move(engineSystem)))
-            {
-                LOG_ERROR("Could not attach engine system \"{}\"!",
-                    Reflection::GetName(engineSystemType).GetString());
-                return Common::Failure(CreateErrors::FailedSystemCreation);
-            }
-        }
-        else
-        {
-            LOG_ERROR("Could not create engine system \"{}\"!",
-                Reflection::GetName(engineSystemType).GetString());
-            return Common::Failure(CreateErrors::FailedSystemCreation);
-        }
+        LOG_ERROR(CreateSystemsError, "Could not populate system storage.");
+        return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
     // Success!

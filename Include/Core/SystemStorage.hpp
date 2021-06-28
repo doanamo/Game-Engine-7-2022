@@ -25,6 +25,7 @@ namespace Core
         static_assert(Reflection::IsReflected<SystemBase>(),
             "Base system class should be reflected!");
 
+        using SystemTypes = std::vector<Reflection::TypeIdentifier>;
         using SystemPtr = std::unique_ptr<SystemBase>;
         using SystemList = std::vector<SystemPtr>;
         using SystemMap = std::unordered_map<Reflection::TypeIdentifier, SystemBase*>;
@@ -33,7 +34,9 @@ namespace Core
         SystemStorage() = default;
         ~SystemStorage();
 
+        bool CreateFromTypes(const SystemTypes& systemTypes);
         bool Attach(std::unique_ptr<SystemBase>&& system);
+
         SystemBase* Locate(Reflection::TypeIdentifier systemType) const;
 
         template<typename SystemType>
@@ -55,8 +58,42 @@ namespace Core
     }
 
     template<typename SystemBase>
+    bool SystemStorage<SystemBase>::CreateFromTypes(const SystemTypes& systemTypes)
+    {
+        for(auto systemType : systemTypes)
+        {
+            SystemPtr createdSystem(Reflection::Construct<SystemBase>(systemType));
+
+            if(createdSystem != nullptr)
+            {
+                if(!Attach(std::move(createdSystem)))
+                {
+                    LOG_ERROR("Could not attach \"{}\" to \"{}\" system storage!",
+                        Reflection::GetName(systemType).GetString(),
+                        Reflection::GetName<SystemBase>().GetString());
+                    return false;
+                }
+            }
+            else
+            {
+                LOG_ERROR("Could not create \"{}\" in \"{}\" system storage!",
+                    Reflection::GetName(systemType).GetString(),
+                    Reflection::GetName<SystemBase>().GetString());
+                return false;
+            }
+        }
+
+        // Success!
+        return true;
+    }
+
+    template<typename SystemBase>
     bool SystemStorage<SystemBase>::Attach(std::unique_ptr<SystemBase>&& system)
     {
+        LOG_INFO("Attaching \"{}\" to \"{}\" system storage...",
+            Reflection::GetName(system).GetString(),
+            Reflection::GetName<SystemBase>().GetString());
+
         // Check if system is valid for attachment.
         if(system == nullptr)
         {
@@ -90,9 +127,6 @@ namespace Core
             Reflection::GetName<SystemBase>().GetString());
 
         // Success!
-        LOG_INFO("Attached \"{}\" to \"{}\" system storage.",
-            Reflection::GetName(attachedSystem).GetString(),
-            Reflection::GetName<SystemBase>().GetString());
         return true;
     }
 
