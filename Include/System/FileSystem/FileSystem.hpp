@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "System/FileSystem/FileDepot.hpp"
 
 /*
@@ -23,9 +23,9 @@
 
 namespace System
 {
-    class FileSystem final : public Core::Service
+    class FileSystem final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(FileSystem, Core::Service)
+        REFLECTION_ENABLE(FileSystem, Core::EngineSystem)
 
     public:
         using FileDepotPtr = std::unique_ptr<FileDepot>;
@@ -49,7 +49,7 @@ namespace System
             OpenFlags::Type openFlags = OpenFlags::Read);
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         struct MountedDepotEntry
         {
@@ -64,4 +64,4 @@ namespace System
     };
 }
 
-REFLECTION_TYPE(System::FileSystem, Core::Service)
+REFLECTION_TYPE(System::FileSystem, Core::EngineSystem)

@@ -7,6 +7,7 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
+#include <Core/SystemStorage.hpp>
 #include <System/FileSystem/FileHandle.hpp>
 #include <System/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
@@ -31,10 +32,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
     LOG_SCOPED_INDENT();
 
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire engine services.
-    auto* resourceManager = params.services->Locate<System::ResourceManager>();
+    // Acquire engine systems.
+    auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();
@@ -48,7 +49,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
 
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
-    resourceParams.services = params.services;
+    resourceParams.engineSystems = params.engineSystems;
 
     auto resourceScript = Script::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
@@ -87,7 +88,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
         std::filesystem::path texturePath = lua_tostring(*resourceScript, -1);
 
         Texture::LoadFromFile textureParams;
-        textureParams.services = params.services;
+        textureParams.engineSystems = params.engineSystems;
         textureParams.mipmaps = true;
 
         instance->m_texture = resourceManager->AcquireRelative<Graphics::Texture>(

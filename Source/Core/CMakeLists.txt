@@ -12,8 +12,9 @@ include_guard(GLOBAL)
 
 set(INCLUDE_FILES
     "Core.hpp"
-    "Service.hpp"
-    "ServiceStorage.hpp"
+    "SystemInterface.hpp"
+    "SystemStorage.hpp"
+    "EngineSystem.hpp"
     "Config.hpp"
     "ConfigTypes.hpp"
     "PerformanceMetrics.hpp"
@@ -26,7 +27,6 @@ source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
 set(SOURCE_FILES
     "Precompiled.hpp"
     "Core.cpp"
-    "ServiceStorage.cpp"
     "Config.cpp"
     "PerformanceMetrics.cpp"
 )

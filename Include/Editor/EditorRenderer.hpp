@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
+#include <Core/EngineSystem.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/VertexArray.hpp>
@@ -38,7 +38,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors
@@ -57,7 +57,7 @@ namespace Editor
     private:
         EditorRenderer();
 
-        bool CreateResources(const Core::ServiceStorage* services);
+        bool CreateResources(const Core::EngineSystemStorage* engineSystems);
 
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;

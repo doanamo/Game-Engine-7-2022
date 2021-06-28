@@ -5,7 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <Game/GameFramework.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/GameState.hpp>
@@ -31,13 +31,13 @@ GameInstanceEditor::~GameInstanceEditor() = default;
 
 GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<GameInstanceEditor>(new GameInstanceEditor());
     instance->m_tickTimeHistogram.resize(100, 0.0f);
 
-    if(!instance->SubscribeEvents(params.services))
+    if(!instance->SubscribeEvents(params.engineSystems))
     {
         LOG_ERROR(CreateError, "Could not subscribe to game framework events.");
         return Common::Failure(CreateErrors::FailedEventSubscription);
@@ -47,9 +47,9 @@ GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromPara
     return Common::Success(std::move(instance));
 }
 
-bool GameInstanceEditor::SubscribeEvents(const Core::ServiceStorage* services)
+bool GameInstanceEditor::SubscribeEvents(const Core::EngineSystemStorage* engineSystems)
 {
-    auto* gameFramework = services->Locate<Game::GameFramework>();
+    auto* gameFramework = engineSystems->Locate<Game::GameFramework>();
     Game::GameFramework::Events& events = gameFramework->events;
 
     bool subscriptionResults = true;

@@ -6,12 +6,7 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
-#include <Core/Service.hpp>
-
-namespace Core
-{
-    class ServiceStorage;
-}
+#include <Core/EngineSystem.hpp>
 
 namespace System
 {
@@ -35,9 +30,9 @@ namespace Game
 
 namespace Renderer
 {
-    class GameRenderer final : public Core::Service
+    class GameRenderer final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(GameRenderer, Core::Service)
+        REFLECTION_ENABLE(GameRenderer, Core::EngineSystem)
 
     public:
         struct DrawParams
@@ -55,7 +50,7 @@ namespace Renderer
         void Draw(const DrawParams& drawParams);
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
         void OnDrawGameInstance(Game::GameInstance* gameInstance, float timeAlpha);
 
         struct Receivers
@@ -70,4 +65,4 @@ namespace Renderer
     };
 }
 
-REFLECTION_TYPE(Renderer::GameRenderer, Core::Service)
+REFLECTION_TYPE(Renderer::GameRenderer, Core::EngineSystem)

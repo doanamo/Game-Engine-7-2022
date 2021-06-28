@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Event/Broker.hpp>
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "System/WindowEvents.hpp"
 
 struct GLFWwindow;
@@ -45,9 +45,9 @@ namespace System
         InputManager* inputManager = nullptr;
     };
 
-    class Window final : public Core::Service
+    class Window final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(Window, Core::Service)
+        REFLECTION_ENABLE(Window, Core::EngineSystem)
 
     public:
         Window();
@@ -71,7 +71,7 @@ namespace System
         Event::Broker events;
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         static Window& GetWindowFromUserData(GLFWwindow* handle);
         static void MoveCallback(GLFWwindow* handle, int x, int y);
@@ -87,4 +87,4 @@ namespace System
     };
 }
 
-REFLECTION_TYPE(System::Window, Core::Service)
+REFLECTION_TYPE(System::Window, Core::EngineSystem)

@@ -26,7 +26,7 @@ using namespace Engine;
 namespace
 {
     const char* CreateEngineError = "Failed to create engine! {}";
-    const char* CreateServicesError = "Failed to create engine services! {}";
+    const char* CreateSystemsError = "Failed to create engine systems! {}";
     const char* LoadDefaultResourcesError = "Failed to load default resources! {}";
 }
 
@@ -38,7 +38,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
     /*
         Create engine instance and return it if initialization succeeds.
         First global systems are initialized for various debug facilities.
-        Then engine and its services are created so game state can be hosted.
+        Then engine and its systems are created so game state can be hosted.
         At the end we load default resources such as placeholder texture.
     */
 
@@ -47,21 +47,21 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
     Build::Initialize();
     Reflection::Initialize();
 
-    auto instance = std::unique_ptr<Root>(new Root());
+    auto engine = std::unique_ptr<Root>(new Root());
 
-    if(auto failureResult = instance->CreateServices(configVars).AsFailure())
+    if(auto failureResult = engine->CreateEngineSystems(configVars).AsFailure())
     {
-        LOG_FATAL(CreateEngineError, "Could not create services.");
+        LOG_FATAL(CreateEngineError, "Could not create engine systems.");
         return Common::Failure(failureResult.Unwrap());
     }
 
-    if(auto failureResult = instance->LoadDefaultResources().AsFailure())
+    if(auto failureResult = engine->LoadDefaultResources().AsFailure())
     {
         LOG_FATAL(CreateEngineError, "Could not load default resources.");
         return Common::Failure(failureResult.Unwrap());
     }
 
-    if(auto config = instance->GetServices().Locate<Core::Config>())
+    if(auto config = engine->GetSystems().Locate<Core::Config>())
     {
         float maxUpdateDelta = config->Get<float>(
             NAME_CONSTEXPR("engine.maxUpdateDelta"))
@@ -69,37 +69,37 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
 
         if(maxUpdateDelta > 0.0f)
         {
-            instance->m_maxUpdateDelta = maxUpdateDelta;
+            engine->m_maxUpdateDelta = maxUpdateDelta;
         }
         else
         {
             LOG_WARNING("Ignoring invalid \"engine.maxUpdateDelta={}\" "
                 "config variable - value must be positive!", maxUpdateDelta);
             config->Set<float>(NAME_CONSTEXPR("engine.maxUpdateDelta"),
-                instance->m_maxUpdateDelta, true);
+                engine->m_maxUpdateDelta, true);
         }
     }
 
     LOG_SUCCESS("Created engine instance.");
-    return Common::Success(std::move(instance));
+    return Common::Success(std::move(engine));
 }
 
-Common::Result<void, Root::CreateErrors> Root::CreateServices(const ConfigVariables& configVars)
+Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigVariables& configVars)
 {
-    // Create config system for service parametrization.
+    // Create config system for engine parametrization.
     if(auto config = std::make_unique<Core::Config>())
     {
         config->Load(configVars);
-        m_services.Attach(std::move(config));
+        m_engineSystems.Attach(std::move(config));
     }
     else
     {
-        LOG_ERROR(CreateServicesError, "Could not create config service.");
-        return Common::Failure(CreateErrors::FailedServiceCreation);
+        LOG_ERROR(CreateSystemsError, "Could not create config system.");
+        return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
-    // Create remaining engine services.
-    Reflection::TypeIdentifier defaultEngineServiceTypes[] =
+    // Create remaining engine systems.
+    Reflection::TypeIdentifier defaultEngineSystemTypes[] =
     {
         Reflection::GetIdentifier<Core::PerformanceMetrics>(),
         Reflection::GetIdentifier<System::Platform>(),
@@ -115,40 +115,40 @@ Common::Result<void, Root::CreateErrors> Root::CreateServices(const ConfigVariab
         Reflection::GetIdentifier<Editor::EditorSystem>(),
     };
 
-    for(auto& engineServiceType : defaultEngineServiceTypes)
+    for(auto& engineSystemType : defaultEngineSystemTypes)
     {
-        Core::ServiceStorage::ServicePtr engineService(
-            Reflection::Construct<Core::Service>(engineServiceType));
+        Core::EngineSystemStorage::SystemPtr engineSystem(
+            Reflection::Construct<Core::EngineSystem>(engineSystemType));
 
-        if(engineService != nullptr)
+        if(engineSystem != nullptr)
         {
-            LOG_INFO("Created \"{}\" engine service.",
-                Reflection::GetName(engineServiceType).GetString());
+            LOG_INFO("Created \"{}\" engine system.",
+                Reflection::GetName(engineSystemType).GetString());
 
-            if(!m_services.Attach(std::move(engineService)))
+            if(!m_engineSystems.Attach(std::move(engineSystem)))
             {
-                LOG_ERROR("Could not attach default engine service \"{}\"!",
-                    Reflection::GetName(engineServiceType).GetString());
-                return Common::Failure(CreateErrors::FailedServiceCreation);
+                LOG_ERROR("Could not attach engine system \"{}\"!",
+                    Reflection::GetName(engineSystemType).GetString());
+                return Common::Failure(CreateErrors::FailedSystemCreation);
             }
         }
         else
         {
-            LOG_ERROR("Could not create default engine service \"{}\"!",
-                Reflection::GetName(engineServiceType).GetString());
-            return Common::Failure(CreateErrors::FailedServiceCreation);
+            LOG_ERROR("Could not create engine system \"{}\"!",
+                Reflection::GetName(engineSystemType).GetString());
+            return Common::Failure(CreateErrors::FailedSystemCreation);
         }
     }
 
     // Success!
-    LOG_SUCCESS("Created engine services.");
+    LOG_SUCCESS("Created engine systems.");
     return Common::Success();
 }
 
 Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
-    auto* fileSystem = m_services.Locate<System::FileSystem>();
-    auto* resourceManager = m_services.Locate<System::ResourceManager>();
+    auto* fileSystem = m_engineSystems.Locate<System::FileSystem>();
+    auto* resourceManager = m_engineSystems.Locate<System::ResourceManager>();
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
@@ -159,7 +159,7 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
     if(defaultTextureFileResult != nullptr)
     {
         Graphics::Texture::LoadFromFile defaultTextureParams;
-        defaultTextureParams.services = &m_services;
+        defaultTextureParams.engineSystems = &m_engineSystems;
 
         if(auto defaultTextureResult = Graphics::Texture::Create(
             *defaultTextureFileResult, defaultTextureParams))
@@ -186,18 +186,18 @@ void Root::ProcessFrame()
 {
     /*
         Single frame execution, running repeatedly in main loop.
-        Engine services are updated here each frame if needed.
+        Engine systems are updated here each frame if needed.
     */
 
     Logger::AdvanceFrameReference();
 
-    auto* performanceMetrics = m_services.Locate<Core::PerformanceMetrics>();
-    auto* timer = m_services.Locate<System::Timer>();
-    auto* window = m_services.Locate<System::Window>();
-    auto* inputManager = m_services.Locate<System::InputManager>();
-    auto* resourceManager = m_services.Locate<System::ResourceManager>();
-    auto* gameFramework = m_services.Locate<Game::GameFramework>();
-    auto* editorSystem = m_services.Locate<Editor::EditorSystem>();
+    auto* performanceMetrics = m_engineSystems.Locate<Core::PerformanceMetrics>();
+    auto* timer = m_engineSystems.Locate<System::Timer>();
+    auto* window = m_engineSystems.Locate<System::Window>();
+    auto* inputManager = m_engineSystems.Locate<System::InputManager>();
+    auto* resourceManager = m_engineSystems.Locate<System::ResourceManager>();
+    auto* gameFramework = m_engineSystems.Locate<Game::GameFramework>();
+    auto* editorSystem = m_engineSystems.Locate<Editor::EditorSystem>();
 
     const float timeDelta = timer->Advance(m_maxUpdateDelta);
 
@@ -226,9 +226,9 @@ Root::ErrorCode Root::Run()
         accumulated during initialization.
     */
 
-    auto* timer = m_services.Locate<System::Timer>();
-    auto* window = m_services.Locate<System::Window>();
-    auto* gameFramework = m_services.Locate<Game::GameFramework>();
+    auto* timer = m_engineSystems.Locate<System::Timer>();
+    auto* window = m_engineSystems.Locate<System::Window>();
+    auto* gameFramework = m_engineSystems.Locate<Game::GameFramework>();
 
     window->MakeContextCurrent();
     timer->Reset();
@@ -264,7 +264,7 @@ Root::ErrorCode Root::Run()
     return ErrorCode(0);
 }
 
-const Core::ServiceStorage& Root::GetServices() const
+const Core::EngineSystemStorage& Root::GetSystems() const
 {
-    return m_services;
+    return m_engineSystems;
 }

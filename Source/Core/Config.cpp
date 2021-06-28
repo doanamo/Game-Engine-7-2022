@@ -10,7 +10,7 @@ using namespace Core;
 Config::Config() = default;
 Config::~Config() = default;
 
-void Config::Load(const VariableArray& variables)
+void Config::Load(const ConfigVariableArray& variables)
 {
     for(const auto& variable : variables)
     {

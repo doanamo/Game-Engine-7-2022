@@ -11,6 +11,9 @@
 
 namespace Core
 {
+    using ConfigVariablePair = std::pair<Common::Name, std::string>;
+    using ConfigVariableArray = std::vector<ConfigVariablePair>;
+
     template<typename Type>
     class ConfigValueType
     {

@@ -6,6 +6,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
+#include <Core/SystemStorage.hpp>
 #include <System/FileSystem/FileHandle.hpp>
 #include <System/Image.hpp>
 using namespace Graphics;
@@ -85,9 +86,8 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
     LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
-    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
-
-    auto* renderContext = params.services->Locate<Graphics::RenderContext>();
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
     auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);
     if(image == nullptr)

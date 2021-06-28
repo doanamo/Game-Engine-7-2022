@@ -5,12 +5,8 @@
 
 #pragma once
 
+#include <Core/EngineSystem.hpp>
 #include <System/InputDefinitions.hpp>
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 namespace System
 {
@@ -30,7 +26,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors

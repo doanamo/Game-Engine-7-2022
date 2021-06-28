@@ -6,6 +6,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
+#include <Core/SystemStorage.hpp>
 #include <System/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
@@ -53,10 +54,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.services, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire engine services.
-    auto* resourceManager = params.services->Locate<System::ResourceManager>();
+    // Acquire engine systems.
+    auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();
@@ -70,7 +71,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
     // Load resource script.
     Script::ScriptState::LoadFromFile resourceParams;
-    resourceParams.services = params.services;
+    resourceParams.engineSystems = params.engineSystems;
 
     auto resourceScript = Script::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
@@ -111,7 +112,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
         std::filesystem::path textureAtlasPath = lua_tostring(*resourceScript, -1);
 
         TextureAtlas::LoadFromFile textureAtlasParams;
-        textureAtlasParams.services = params.services;
+        textureAtlasParams.engineSystems = params.engineSystems;
 
         textureAtlas = resourceManager->AcquireRelative<TextureAtlas>(
             textureAtlasPath, file.GetPath(), textureAtlasParams).UnwrapOr(nullptr);

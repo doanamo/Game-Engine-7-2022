@@ -34,10 +34,10 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Acquire engine services.
-    auto* inputManager = engine->GetServices().Locate<System::InputManager>();
-    auto* resourceManager = engine->GetServices().Locate<System::ResourceManager>();
-    auto* gameFramework = engine->GetServices().Locate<Game::GameFramework>();
+    // Acquire engine systems.
+    auto* inputManager = engine->GetSystems().Locate<System::InputManager>();
+    auto* resourceManager = engine->GetSystems().Locate<System::ResourceManager>();
+    auto* gameFramework = engine->GetSystems().Locate<Game::GameFramework>();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
@@ -66,7 +66,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
-    spriteAnimationListParams.services = &engine->GetServices();
+    spriteAnimationListParams.engineSystems = &engine->GetSystems();
 
     auto spriteAnimationList = resourceManager->Acquire<Graphics::SpriteAnimationList>(
         "Data/Textures/Checker.animation", spriteAnimationListParams).UnwrapOr(nullptr);
@@ -79,7 +79,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
     // Load texture atlas.
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
-    textureAtlasParams.services = &engine->GetServices();
+    textureAtlasParams.engineSystems = &engine->GetSystems();
 
     auto textureAtlas = resourceManager->Acquire<Graphics::TextureAtlas>(
         "Data/Textures/Checker.atlas", textureAtlasParams).UnwrapOr(nullptr);
@@ -163,7 +163,7 @@ void SpriteDemo::Tick(const float tickTime)
     transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
-    auto* inputManager = m_engine->GetServices().Locate<System::InputManager>();
+    auto* inputManager = m_engine->GetSystems().Locate<System::InputManager>();
     System::InputState& inputState = inputManager->GetInputState();
 
     glm::vec3 direction(0.0f, 0.0f, 0.0f);

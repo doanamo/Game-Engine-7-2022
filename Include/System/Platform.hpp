@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 
 /*
     Platform
@@ -15,19 +15,19 @@
 
 namespace System
 {
-    class Platform final : public Core::Service
+    class Platform final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(Platform, Core::Service)
+        REFLECTION_ENABLE(Platform, Core::EngineSystem)
 
     public:
         Platform();
         ~Platform() override;
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         bool m_attached = false;
     };
 }
 
-REFLECTION_TYPE(System::Platform, Core::Service)
+REFLECTION_TYPE(System::Platform, Core::EngineSystem)

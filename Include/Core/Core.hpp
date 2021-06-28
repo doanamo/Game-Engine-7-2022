@@ -23,9 +23,11 @@
 #include <fstream>
 #include <iostream>
 
+#include <optional>
 #include <string>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>

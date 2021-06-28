@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
 #include "Graphics/RenderContext.hpp"
 
 namespace System

@@ -8,7 +8,7 @@
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
@@ -50,20 +50,20 @@ EditorSystem::~EditorSystem()
     }
 }
 
-bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
+bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Retrieve required services.
-    m_window = services->Locate<System::Window>();
+    // Acquire engine systems.
+    m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR("Failed to locate window service!");
+        LOG_ERROR("Failed to locate window system!");
         return false;
     }
 
-    auto* inputManager = services->Locate<System::InputManager>();
+    auto* inputManager = engineSystems.Locate<System::InputManager>();
     if(!inputManager)
     {
-        LOG_ERROR("Failed to locate input manager service!");
+        LOG_ERROR("Failed to locate input manager system!");
         return false;
     }
 
@@ -74,13 +74,13 @@ bool EditorSystem::OnAttach(const Core::ServiceStorage* services)
         return false;
     }
 
-    if(!CreateSubsystems(services))
+    if(!CreateSubsystems(engineSystems))
     {
         LOG_ERROR(CreateError, "Could not create editor subsystems.");
         return false;
     }
 
-    if(!SubscribeEvents(services))
+    if(!SubscribeEvents(engineSystems))
     {
         LOG_ERROR(CreateError, "Could not subscribe editor events.");
         return false;
@@ -132,11 +132,11 @@ bool EditorSystem::CreateContext()
     return true;
 }
 
-bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
+bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSystems)
 {
     // Editor shell.
     EditorShell::CreateFromParams editorShellParams;
-    editorShellParams.services = services;
+    editorShellParams.engineSystems = &engineSystems;
 
     m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
     if(m_editorShell == nullptr)
@@ -147,7 +147,7 @@ bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
 
     // Editor console.
     EditorConsole::CreateFromParams editorConsoleParams;
-    editorConsoleParams.services = services;
+    editorConsoleParams.engineSystems = &engineSystems;
 
     m_editorConsole = EditorConsole::Create(editorConsoleParams).UnwrapOr(nullptr);
     if(m_editorConsole == nullptr)
@@ -158,7 +158,7 @@ bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
 
     // Editor renderer
     EditorRenderer::CreateFromParams editorRendererParams;
-    editorRendererParams.services = services;
+    editorRendererParams.engineSystems = &engineSystems;
 
     m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
     if(m_editorRenderer == nullptr)
@@ -170,9 +170,9 @@ bool EditorSystem::CreateSubsystems(const Core::ServiceStorage* services)
     return true;
 }
 
-bool EditorSystem::SubscribeEvents(const Core::ServiceStorage* services)
+bool EditorSystem::SubscribeEvents(const Core::EngineSystemStorage& engineSystems)
 {
-    auto* inputManager = services->Locate<System::InputManager>();
+    auto* inputManager = engineSystems.Locate<System::InputManager>();
     System::InputState& inputState = inputManager->GetInputState();
 
     Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;

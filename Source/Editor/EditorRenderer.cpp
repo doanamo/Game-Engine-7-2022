@@ -5,6 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 #include <System/ResourceManager.hpp>
 using namespace Editor;
@@ -20,17 +21,17 @@ EditorRenderer::~EditorRenderer() = default;
 
 EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    auto* window = params.services->Locate<System::Window>();
-    auto* renderContext = params.services->Locate<Graphics::RenderContext>();
+    auto* window = params.engineSystems->Locate<System::Window>();
+    auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
     auto instance = std::unique_ptr<EditorRenderer>(new EditorRenderer());
     instance->m_window = window;
     instance->m_renderContext = renderContext;
 
-    if(!instance->CreateResources(params.services))
+    if(!instance->CreateResources(params.engineSystems))
     {
         LOG_ERROR(CreateError, "Could not create resources.");
         return Common::Failure(CreateErrors::FailedResourceCreation);
@@ -40,7 +41,7 @@ EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& para
     return Common::Success(std::move(instance));
 }
 
-bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* services)
+bool Editor::EditorRenderer::CreateResources(const Core::EngineSystemStorage* engineSystems)
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
@@ -155,9 +156,9 @@ bool Editor::EditorRenderer::CreateResources(const Core::ServiceStorage* service
 
     // Shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.renderContext = services->Locate<Graphics::RenderContext>();
+    shaderParams.renderContext = engineSystems->Locate<Graphics::RenderContext>();
 
-    m_shader = services->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
+    m_shader = engineSystems->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
         "Data/Engine/Shaders/Interface.shader", shaderParams).UnwrapOr(nullptr);
 
     if(m_shader == nullptr)

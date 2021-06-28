@@ -6,8 +6,9 @@
 #pragma once
 
 #include <Core/Core.hpp>
-#include <Core/ServiceStorage.hpp>
-#include <Core/Config.hpp>
+#include <Core/SystemStorage.hpp>
+#include <Core/EngineSystem.hpp>
+#include <Core/ConfigTypes.hpp>
 
 /*
     Engine Root
@@ -20,12 +21,12 @@ namespace Engine
     class Root final : private Common::NonCopyable
     {
     public:
-        using ConfigVariables = Core::Config::VariableArray;
+        using ConfigVariables = Core::ConfigVariableArray;
 
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedServiceCreation,
+            FailedSystemCreation,
             FailedResourceLoading,
         };
 
@@ -39,18 +40,18 @@ namespace Engine
 
         ErrorCode Run();
 
-        const Core::ServiceStorage& GetServices() const;
+        const Core::EngineSystemStorage& GetSystems() const;
 
     private:
         Root();
 
-        Common::Result<void, CreateErrors> CreateServices(const ConfigVariables& configVars);
+        Common::Result<void, CreateErrors> CreateEngineSystems(const ConfigVariables& configVars);
         Common::Result<void, CreateErrors> LoadDefaultResources();
 
         void ProcessFrame();
 
     private:
-        Core::ServiceStorage m_services;
+        Core::EngineSystemStorage m_engineSystems;
         float m_maxUpdateDelta = 1.0f;
     };
 }

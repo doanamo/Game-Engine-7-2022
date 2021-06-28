@@ -5,8 +5,8 @@
 
 #include "Precompiled.hpp"
 #include "GameStates/SpriteDemo.hpp"
+#include <Core/ConfigTypes.hpp>
 #include <Game/GameFramework.hpp>
-#include <Core/Config.hpp>
 
 int main()
 {
@@ -15,15 +15,16 @@ int main()
         and where game state is added to be run by engine.
     */
 
-    const Core::Config::VariableArray configVars =
+    const Core::ConfigVariableArray configVars =
     {
         { "engine.maxUpdateDelta", "1.0f" },
     };
 
     if(auto engine = Engine::Root::Create(configVars).UnwrapOr(nullptr))
     {
-        std::shared_ptr<Game::GameState> defaultGameState = SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
-        engine->GetServices().Locate<Game::GameFramework>()->ChangeGameState(defaultGameState);
+        std::shared_ptr<Game::GameState> defaultGameState =
+            SpriteDemo::Create(engine.get()).UnwrapOr(nullptr);
+        engine->GetSystems().Locate<Game::GameFramework>()->ChangeGameState(defaultGameState);
         return engine->Run();
     }
     else

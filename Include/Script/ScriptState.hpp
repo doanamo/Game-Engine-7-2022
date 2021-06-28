@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include <string>
 #include <lua.hpp>
-#include <Core/ServiceStorage.hpp>
+#include <Core/EngineSystem.hpp>
 
 namespace System
 {
@@ -32,7 +31,7 @@ namespace Script
 
         struct LoadFromFile
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors

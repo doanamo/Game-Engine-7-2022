@@ -5,14 +5,9 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "System/ResourcePool.hpp"
 #include "System/FileSystem/FileSystem.hpp"
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 /*
     Resource Manager
@@ -26,9 +21,9 @@ namespace System
 {
     class FileSystem;
 
-    class ResourceManager final : public Core::Service
+    class ResourceManager final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(ResourceManager, Core::Service)
+        REFLECTION_ENABLE(ResourceManager, Core::EngineSystem)
 
     public:
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
@@ -60,7 +55,7 @@ namespace System
         void ReleaseAll();
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         template<typename Type>
         ResourcePool<Type>* CreatePool();
@@ -153,4 +148,4 @@ namespace System
     }
 };
 
-REFLECTION_TYPE(System::ResourceManager, Core::Service)
+REFLECTION_TYPE(System::ResourceManager, Core::EngineSystem)

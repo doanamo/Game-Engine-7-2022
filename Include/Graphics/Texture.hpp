@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/ServiceStorage.hpp>
+#include <Core/EngineSystem.hpp>
 #include "Graphics/RenderState.hpp"
 
 namespace System
@@ -38,7 +38,7 @@ namespace Graphics
 
         struct LoadFromFile
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
             bool mipmaps = true;
         };
 

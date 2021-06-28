@@ -5,12 +5,12 @@
 
 #pragma once
 
+#include <Core/EngineSystem.hpp>
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 
 namespace Core
 {
-    class ServiceStorage;
     class PerformanceMetrics;
 };
 
@@ -37,7 +37,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors
@@ -56,7 +56,7 @@ namespace Editor
     private:
         EditorShell();
 
-        bool CreateModules(const Core::ServiceStorage* services);
+        bool CreateModules(const Core::EngineSystemStorage* engineSystems);
         void DisplayMenuBar();
         void DisplayFramerate();
 

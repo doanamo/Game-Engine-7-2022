@@ -5,7 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
@@ -21,17 +21,17 @@ EditorShell::~EditorShell() = default;
 
 EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    auto* performanceMetrics = params.services->Locate<Core::PerformanceMetrics>();
-    auto* window = params.services->Locate<System::Window>();
+    auto* performanceMetrics = params.engineSystems->Locate<Core::PerformanceMetrics>();
+    auto* window = params.engineSystems->Locate<System::Window>();
 
     auto instance = std::unique_ptr<EditorShell>(new EditorShell());
     instance->m_performanceMetrics = performanceMetrics;
     instance->m_window = window;
 
-    if(!instance->CreateModules(params.services))
+    if(!instance->CreateModules(params.engineSystems))
     {
         LOG_ERROR(CreateError, "Could not create editor modules.");
         return Common::Failure(CreateErrors::FailedModuleCreation);
@@ -41,11 +41,11 @@ EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
     return Common::Success(std::move(instance));
 }
 
-bool Editor::EditorShell::CreateModules(const Core::ServiceStorage* services)
+bool Editor::EditorShell::CreateModules(const Core::EngineSystemStorage* engineSystems)
 {
     // Input manager editor.
     InputManagerEditor::CreateFromParams inputManagerEditorParams;
-    inputManagerEditorParams.services = services;
+    inputManagerEditorParams.engineSystems = engineSystems;
 
     m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
     if(m_inputManagerEditor == nullptr)
@@ -56,7 +56,7 @@ bool Editor::EditorShell::CreateModules(const Core::ServiceStorage* services)
 
     // Game instance editor.
     GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
-    gameInstanceEditorParams.services = services;
+    gameInstanceEditorParams.engineSystems = engineSystems;
 
     m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
     if(m_gameInstanceEditor == nullptr)

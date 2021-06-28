@@ -7,20 +7,20 @@
 #include "Game/GameFramework.hpp"
 #include "Game/GameInstance.hpp"
 #include "Game/TickTimer.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 using namespace Game;
 
 GameFramework::GameFramework() = default;
 GameFramework::~GameFramework() = default;
 
-bool GameFramework::OnAttach(const Core::ServiceStorage* services)
+bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Retrieve required services.
-    m_timer = services->Locate<System::Timer>();
+    // Retrieve required engine systems.
+    m_timer = engineSystems.Locate<System::Timer>();
     if(!m_timer)
     {
-        LOG_ERROR("Failed to locate timer service!");
+        LOG_ERROR("Failed to locate timer system!");
         return false;
     }
 

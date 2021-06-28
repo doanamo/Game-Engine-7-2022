@@ -5,10 +5,7 @@
 
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <unordered_map>
-#include <Core/ServiceStorage.hpp>
+#include <Core/EngineSystem.hpp>
 #include "Graphics/TextureView.hpp"
 
 namespace System
@@ -29,7 +26,7 @@ namespace Graphics
     public:
         struct LoadFromFile
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors

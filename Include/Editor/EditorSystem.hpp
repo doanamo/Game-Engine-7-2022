@@ -5,14 +5,9 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include <Common/Event/Receiver.hpp>
 #include <System/InputDefinitions.hpp>
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 namespace System
 {
@@ -35,9 +30,9 @@ namespace Editor
 
 namespace Editor
 {
-    class EditorSystem final : public Core::Service
+    class EditorSystem final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(EditorSystem, Core::Service)
+        REFLECTION_ENABLE(EditorSystem, Core::EngineSystem)
 
     public:
         EditorSystem();
@@ -47,11 +42,11 @@ namespace Editor
         void EndInterface();
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         bool CreateContext();
-        bool CreateSubsystems(const Core::ServiceStorage* services);
-        bool SubscribeEvents(const Core::ServiceStorage* services);
+        bool CreateSubsystems(const Core::EngineSystemStorage& engineSystems);
+        bool SubscribeEvents(const Core::EngineSystemStorage& engineSystems);
 
         bool OnTextInput(const System::InputEvents::TextInput& event);
         bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
@@ -75,4 +70,4 @@ namespace Editor
     };
 }
 
-REFLECTION_TYPE(Editor::EditorSystem, Core::Service)
+REFLECTION_TYPE(Editor::EditorSystem, Core::EngineSystem)

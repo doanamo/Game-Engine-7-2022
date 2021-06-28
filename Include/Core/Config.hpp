@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Core/Service.hpp"
+#include "Core/EngineSystem.hpp"
 #include "Core/ConfigTypes.hpp"
 
 /*
@@ -21,20 +21,18 @@
 
 namespace Core
 {
-    class Config final : public Service
+    class Config final : public EngineSystem
     {
-        REFLECTION_ENABLE(Config, Service)
+        REFLECTION_ENABLE(Config, EngineSystem)
 
     public:
-        using VariablePair = std::pair<Common::Name, std::string>;
         using VariableMap = std::map<Common::Name, std::string>;
-        using VariableArray = std::vector<VariablePair>;
 
     public:
         Config();
         ~Config() override;
 
-        void Load(const VariableArray& variables);
+        void Load(const ConfigVariableArray& variables);
 
         template<typename Type>
         Common::Result<Type, Type> Set(Common::Name variable, Type value, bool modify = false);
@@ -95,4 +93,4 @@ namespace Core
     }
 }
 
-REFLECTION_TYPE(Core::Config, Core::Service)
+REFLECTION_TYPE(Core::Config, Core::EngineSystem)

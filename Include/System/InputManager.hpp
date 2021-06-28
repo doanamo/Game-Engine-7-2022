@@ -5,14 +5,9 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "System/InputState.hpp"
 #include "System/WindowEvents.hpp"
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 /*
     Input Manager
@@ -24,9 +19,9 @@ namespace System
 {
     class WindowContext;
 
-    class InputManager final : public Core::Service
+    class InputManager final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(InputManager, Core::Service)
+        REFLECTION_ENABLE(InputManager, Core::EngineSystem)
 
     public:
         InputManager();
@@ -38,7 +33,7 @@ namespace System
         InputState& GetInputState();
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
         static InputManager* GetInputManagerFromUserData(GLFWwindow* handle);
         static void TextInputCallback(GLFWwindow* handle, unsigned int character);
@@ -54,4 +49,4 @@ namespace System
     };
 }
 
-REFLECTION_TYPE(System::InputManager, Core::Service)
+REFLECTION_TYPE(System::InputManager, Core::EngineSystem)

@@ -5,7 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 using namespace Editor;
@@ -30,13 +30,13 @@ InputManagerEditor::~InputManagerEditor() = default;
 
 InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
     
-    auto* window = params.services->Locate<System::Window>();
-    auto* inputManager = params.services->Locate<System::InputManager>();
+    auto* window = params.engineSystems->Locate<System::Window>();
+    auto* inputManager = params.engineSystems->Locate<System::InputManager>();
 
     System::InputState& inputState = inputManager->GetInputState();
 

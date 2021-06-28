@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Core/Service.hpp"
+#include "Core/EngineSystem.hpp"
 
 /*
     Performance Metrics
@@ -16,9 +16,9 @@
 
 namespace Core
 {
-    class PerformanceMetrics final : public Service
+    class PerformanceMetrics final : public EngineSystem
     {
-        REFLECTION_ENABLE(PerformanceMetrics, Service)
+        REFLECTION_ENABLE(PerformanceMetrics, EngineSystem)
 
     public:
         PerformanceMetrics();
@@ -41,4 +41,4 @@ namespace Core
     };
 }
 
-REFLECTION_TYPE(Core::PerformanceMetrics, Core::Service)
+REFLECTION_TYPE(Core::PerformanceMetrics, Core::EngineSystem)

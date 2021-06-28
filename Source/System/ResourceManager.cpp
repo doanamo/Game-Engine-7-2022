@@ -5,19 +5,19 @@
 
 #include "System/Precompiled.hpp"
 #include "System/ResourceManager.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 using namespace System;
 
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
 
-bool ResourceManager::OnAttach(const Core::ServiceStorage* services)
+bool ResourceManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Locate required services.
-    m_fileSystem = services->Locate<System::FileSystem>();
+    // Locate required engine systems.
+    m_fileSystem = engineSystems.Locate<System::FileSystem>();
     if(!m_fileSystem)
     {
-        LOG_ERROR("Failed to locate file system service!");
+        LOG_ERROR("Failed to locate file system!");
         return false;
     }
 

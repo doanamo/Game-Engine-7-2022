@@ -5,20 +5,20 @@
 
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/RenderContext.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 using namespace Graphics;
 
 RenderContext::RenderContext() = default;
 RenderContext::~RenderContext() = default;
 
-bool RenderContext::OnAttach(const Core::ServiceStorage* services)
+bool RenderContext::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Retrieve needed services.
-    m_window = services->Locate<System::Window>();
+    // Retrieve needed engine systems.
+    m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR("Failed to locate window service!");
+        LOG_ERROR("Failed to locate window system!");
         return false;
     }
 

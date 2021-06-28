@@ -6,13 +6,8 @@
 #pragma once
 
 #include <Common/Event/Dispatcher.hpp>
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "Game/GameState.hpp"
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 namespace System
 {
@@ -34,9 +29,9 @@ namespace Game
 {
     class GameState;
 
-    class GameFramework final : public Core::Service
+    class GameFramework final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(GameFramework, Core::Service)
+        REFLECTION_ENABLE(GameFramework, Core::EngineSystem)
 
     public:
         enum class ChangeGameStateErrors
@@ -81,7 +76,7 @@ namespace Game
         } events;
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
     private:
         System::Timer* m_timer = nullptr;
@@ -89,4 +84,4 @@ namespace Game
     };
 }
 
-REFLECTION_TYPE(Game::GameFramework, Core::Service)
+REFLECTION_TYPE(Game::GameFramework, Core::EngineSystem)

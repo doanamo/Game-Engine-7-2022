@@ -6,7 +6,7 @@
 #include "System/Precompiled.hpp"
 #include "System/InputManager.hpp"
 #include "System/Window.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 using namespace System;
 
 InputManager::InputManager() = default;
@@ -16,13 +16,13 @@ InputManager::~InputManager()
     m_windowContext->inputManager = nullptr;
 }
 
-bool InputManager::OnAttach(const Core::ServiceStorage* services)
+bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Locate needed services.
-    auto* window = services->Locate<System::Window>();
+    // Locate needed engine systems.
+    auto* window = engineSystems.Locate<System::Window>();
     if(window == nullptr)
     {
-        LOG_ERROR("Failed to locate window service!");
+        LOG_ERROR("Failed to locate window system!");
         return false;
     }
 

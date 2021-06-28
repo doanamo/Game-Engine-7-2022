@@ -7,7 +7,7 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/ResourceManager.hpp>
 using namespace Graphics;
 
@@ -23,20 +23,20 @@ namespace
 SpriteRenderer::SpriteRenderer() = default;
 SpriteRenderer::~SpriteRenderer() = default;
 
-bool Graphics::SpriteRenderer::OnAttach(const Core::ServiceStorage* services)
+bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Locate required services.
-    auto* resourceManager = services->Locate<System::ResourceManager>();
+    // Locate required engine systems.
+    auto* resourceManager = engineSystems.Locate<System::ResourceManager>();
     if(resourceManager == nullptr)
     {
-        LOG_ERROR("Failed to locate resource manager service!");
+        LOG_ERROR("Failed to locate resource manager system!");
         return false;
     }
 
-    m_renderContext = services->Locate<Graphics::RenderContext>();
+    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
     if(m_renderContext == nullptr)
     {
-        LOG_ERROR("Failed to locate render context service!");
+        LOG_ERROR("Failed to locate render context system!");
         return false;
     }
 

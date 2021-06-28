@@ -5,7 +5,7 @@
 
 #include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
@@ -26,34 +26,34 @@ GameRenderer::GameRenderer()
 }
 GameRenderer::~GameRenderer() = default;
 
-bool GameRenderer::OnAttach(const Core::ServiceStorage* services)
+bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Retrieve needed services.
-    m_window = services->Locate<System::Window>();
+    // Retrieve needed engine systems.
+    m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR("Failed to locate window service!");
+        LOG_ERROR("Failed to locate window system!");
         return false;
     }
 
-    m_renderContext = services->Locate<Graphics::RenderContext>();
+    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
     if(!m_renderContext)
     {
-        LOG_ERROR("Failed to locate render context service!");
+        LOG_ERROR("Failed to locate render context system!");
         return false;
     }
 
-    m_spriteRenderer = services->Locate<Graphics::SpriteRenderer>();
+    m_spriteRenderer = engineSystems.Locate<Graphics::SpriteRenderer>();
     if(!m_spriteRenderer)
     {
-        LOG_ERROR("Failed to locate sprite renderer service!");
+        LOG_ERROR("Failed to locate sprite renderer system!");
         return false;
     }
 
-    Game::GameFramework* gameFramework = services->Locate<Game::GameFramework>();
+    Game::GameFramework* gameFramework = engineSystems.Locate<Game::GameFramework>();
     if(!gameFramework)
     {
-        LOG_ERROR("Failed to locate game framework service!");
+        LOG_ERROR("Failed to locate game framework system!");
         return false;
     }
 

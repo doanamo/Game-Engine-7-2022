@@ -5,7 +5,7 @@
 
 #include "System/Precompiled.hpp"
 #include "System/Window.hpp"
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <Core/Config.hpp>
 using namespace System;
 
@@ -22,7 +22,7 @@ Window::Window() :
 
 Window::~Window()
 {
-    // We need to destroy handle at end of lifetime instead of service detach,
+    // We need to destroy handle at end of lifetime instead of system detach,
     // as some resources may still depend on e.g. OpenGL context to be present.
     if(m_context.handle)
     {
@@ -31,10 +31,10 @@ Window::~Window()
     }
 }
 
-bool Window::OnAttach(const Core::ServiceStorage* services)
+bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve config variables.
-    Core::Config* config = services->Locate<Core::Config>();
+    Core::Config* config = engineSystems.Locate<Core::Config>();
 
     m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
     int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);

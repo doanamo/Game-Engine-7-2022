@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 
 #ifndef __EMSCRIPTEN__
     // Use precise time counters on platforms that support it.
@@ -22,9 +22,9 @@
 
 namespace System
 {
-    class Timer final : public Core::Service
+    class Timer final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(Timer, Core::Service)
+        REFLECTION_ENABLE(Timer, Core::EngineSystem)
 
     public:
 #ifdef USE_PRECISE_TIME_COUNTERS
@@ -61,4 +61,4 @@ namespace System
     };
 }
 
-REFLECTION_TYPE(System::Timer, Core::Service)
+REFLECTION_TYPE(System::Timer, Core::EngineSystem)

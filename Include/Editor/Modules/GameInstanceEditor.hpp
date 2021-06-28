@@ -6,11 +6,7 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
-
-namespace Core
-{
-    class ServiceStorage;
-}
+#include <Core/EngineSystem.hpp>
 
 namespace Game
 {
@@ -33,7 +29,7 @@ namespace Editor
     public:
         struct CreateFromParams
         {
-            const Core::ServiceStorage* services = nullptr;
+            const Core::EngineSystemStorage* engineSystems = nullptr;
         };
 
         enum class CreateErrors
@@ -54,7 +50,7 @@ namespace Editor
     private:
         GameInstanceEditor();
 
-        bool SubscribeEvents(const Core::ServiceStorage* services);
+        bool SubscribeEvents(const Core::EngineSystemStorage* engineSystems);
         void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
         void OnTickRequested();
         void OnTickProcessed(float tickTime);

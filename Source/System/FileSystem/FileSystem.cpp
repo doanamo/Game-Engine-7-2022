@@ -17,7 +17,7 @@ namespace
 FileSystem::FileSystem() = default;
 FileSystem::~FileSystem() = default;
 
-bool FileSystem::OnAttach(const Core::ServiceStorage* services)
+bool FileSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Mount native working directory.
     if(auto workingDirectoryDepot = NativeFileDepot::Create("./"))

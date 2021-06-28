@@ -6,7 +6,7 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/History.hpp>
-#include <Core/ServiceStorage.hpp>
+#include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -33,11 +33,11 @@ namespace
 
 EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.services != nullptr,
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<EditorConsole>(new EditorConsole());
-    instance->m_window = params.services->Locate<System::Window>();
+    instance->m_window = params.engineSystems->Locate<System::Window>();
 
     LOG_SUCCESS("Created editor console instance.");
     return Common::Success(std::move(instance));

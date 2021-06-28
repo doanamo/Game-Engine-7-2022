@@ -5,14 +5,8 @@
 
 #pragma once
 
-#include <stack>
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "Graphics/RenderState.hpp"
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 namespace System
 {
@@ -27,9 +21,9 @@ namespace System
 
 namespace Graphics
 {
-    class RenderContext final : public Core::Service
+    class RenderContext final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(RenderContext, Core::Service)
+        REFLECTION_ENABLE(RenderContext, Core::EngineSystem)
 
     public:
         RenderContext();
@@ -41,7 +35,7 @@ namespace Graphics
         void PopState();
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
     private:
         System::Window* m_window = nullptr;
@@ -51,4 +45,4 @@ namespace Graphics
     };
 }
 
-REFLECTION_TYPE(Graphics::RenderContext, Core::Service)
+REFLECTION_TYPE(Graphics::RenderContext, Core::EngineSystem)

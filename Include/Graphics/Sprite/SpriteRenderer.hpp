@@ -5,18 +5,13 @@
 
 #pragma once
 
-#include <Core/Service.hpp>
+#include <Core/EngineSystem.hpp>
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/Sampler.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/Sprite/Sprite.hpp"
 #include "Graphics/Sprite/SpriteDrawList.hpp"
-
-namespace Core
-{
-    class ServiceStorage;
-}
 
 namespace System
 {
@@ -32,9 +27,9 @@ namespace Graphics
 {
     class RenderContext;
 
-    class SpriteRenderer final : public Core::Service
+    class SpriteRenderer final : public Core::EngineSystem
     {
-        REFLECTION_ENABLE(SpriteRenderer, Core::Service)
+        REFLECTION_ENABLE(SpriteRenderer, Core::EngineSystem)
 
     public:
         SpriteRenderer();
@@ -43,7 +38,7 @@ namespace Graphics
         void DrawSprites(const SpriteDrawList& sprites, const glm::mat4& transform);
 
     private:
-        bool OnAttach(const Core::ServiceStorage* services) override;
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
     private:
         RenderContext* m_renderContext = nullptr;
@@ -58,4 +53,4 @@ namespace Graphics
     };
 }
 
-REFLECTION_TYPE(Graphics::SpriteRenderer, Core::Service)
+REFLECTION_TYPE(Graphics::SpriteRenderer, Core::EngineSystem)

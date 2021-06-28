@@ -32,7 +32,7 @@ Platform::~Platform()
     }
 }
 
-bool Platform::OnAttach(const Core::ServiceStorage* services)
+bool Platform::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     if(InstanceCounter == 0)
     {
