@@ -31,22 +31,34 @@ namespace
     }
 }
 
-EditorConsole::CreateResult EditorConsole::Create(const CreateFromParams& params)
-{
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
-
-    auto instance = std::unique_ptr<EditorConsole>(new EditorConsole());
-    instance->m_window = params.engineSystems->Locate<System::Window>();
-
-    LOG_SUCCESS("Created editor console instance.");
-    return Common::Success(std::move(instance));
-}
-
 EditorConsole::EditorConsole() = default;
 EditorConsole::~EditorConsole() = default;
 
-void EditorConsole::Display(float timeDelta)
+bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
+{
+    // Locate needed engine systems.
+    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext->GetEngineSystems();
+
+    m_window = engineSystems.Locate<System::Window>();
+
+    // Success!
+    return true;
+}
+
+bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
+{
+    if(event.key == System::KeyboardKeys::KeyTilde
+        && event.state == System::InputStates::Pressed)
+    {
+        Toggle(!IsVisible());
+        return true;
+    }
+
+    return false;
+}
+
+void EditorConsole::OnBeginInterface(float timeDelta)
 {
     if(!m_visible)
         return;
@@ -156,16 +168,4 @@ void EditorConsole::Toggle(bool visibility)
 bool EditorConsole::IsVisible() const
 {
     return m_visible;
-}
-
-bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
-{
-    if(event.key == System::KeyboardKeys::KeyTilde
-        && event.state == System::InputStates::Pressed)
-    {
-        Toggle(!IsVisible());
-        return true;
-    }
-
-    return false;
 }

@@ -11,6 +11,7 @@ include_guard(GLOBAL)
 #
 
 set(INCLUDE_FILES
+    "EditorSubsystem.hpp"
     "EditorSystem.hpp"
     "EditorShell.hpp"
     "EditorConsole.hpp"

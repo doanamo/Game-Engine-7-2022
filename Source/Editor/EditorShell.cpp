@@ -12,40 +12,38 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create editor shell instance! {}";
+    const char* CreateError = "Failed to create editor shell subsystem! {}";
     const char* CreateModulesError = "Failed to create editor shell modules! {}";
 }
 
 EditorShell::EditorShell() = default;
 EditorShell::~EditorShell() = default;
 
-EditorShell::CreateResult EditorShell::Create(const CreateFromParams& params)
+bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    // Locate needed engine systems.
+    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext->GetEngineSystems();
 
-    auto* performanceMetrics = params.engineSystems->Locate<Core::PerformanceMetrics>();
-    auto* window = params.engineSystems->Locate<System::Window>();
+    m_performanceMetrics = engineSystems.Locate<Core::PerformanceMetrics>();
+    m_window = engineSystems.Locate<System::Window>();
 
-    auto instance = std::unique_ptr<EditorShell>(new EditorShell());
-    instance->m_performanceMetrics = performanceMetrics;
-    instance->m_window = window;
-
-    if(!instance->CreateModules(params.engineSystems))
+    // Create editor modules.
+    if(!CreateModules(engineSystems))
     {
         LOG_ERROR(CreateError, "Could not create editor modules.");
-        return Common::Failure(CreateErrors::FailedModuleCreation);
+        return false;
     }
 
-    LOG_SUCCESS("Created editor shell instance.");
-    return Common::Success(std::move(instance));
+    // Success!
+    return true;
 }
 
-bool Editor::EditorShell::CreateModules(const Core::EngineSystemStorage* engineSystems)
+bool EditorShell::CreateModules(const Core::EngineSystemStorage& engineSystems)
 {
-    // Input manager editor.
+    // Create input manager editor.
     InputManagerEditor::CreateFromParams inputManagerEditorParams;
-    inputManagerEditorParams.engineSystems = engineSystems;
+    inputManagerEditorParams.engineSystems = &engineSystems;
 
     m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
     if(m_inputManagerEditor == nullptr)
@@ -54,9 +52,9 @@ bool Editor::EditorShell::CreateModules(const Core::EngineSystemStorage* engineS
         return false;
     }
 
-    // Game instance editor.
+    // Create game instance editor.
     GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
-    gameInstanceEditorParams.engineSystems = engineSystems;
+    gameInstanceEditorParams.engineSystems = &engineSystems;
 
     m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
     if(m_gameInstanceEditor == nullptr)
@@ -65,10 +63,11 @@ bool Editor::EditorShell::CreateModules(const Core::EngineSystemStorage* engineS
         return false;
     }
 
+    // Success!
     return true;
 }
 
-void EditorShell::Display(float timeDelta)
+void EditorShell::OnBeginInterface(float timeDelta)
 {
     if(m_showDemoWindow)
     {
@@ -148,4 +147,3 @@ void EditorShell::DisplayFramerate()
 
     ImGui::PopStyleVar(4);
 }
-

@@ -12,6 +12,7 @@
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sampler.hpp>
 #include <Graphics/Shader.hpp>
+#include "Editor/EditorSubsystem.hpp"
 
 namespace System
 {
@@ -33,32 +34,20 @@ namespace Graphics
 
 namespace Editor
 {
-    class EditorRenderer final : private Common::NonCopyable
+    class EditorRenderer final : private EditorSubsystem
     {
+        REFLECTION_ENABLE(EditorRenderer, EditorSubsystem)
+
     public:
-        struct CreateFromParams
-        {
-            const Core::EngineSystemStorage* engineSystems = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedResourceCreation,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<EditorRenderer>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
+        EditorRenderer();
         ~EditorRenderer();
 
-        void Draw();
+    private:
+        bool OnAttach(const EditorSubsystemStorage& editorSubsystems) override;
+        bool CreateResources(const Core::EngineSystemStorage& engineSystems);
+        void OnEndInterface() override;
 
     private:
-        EditorRenderer();
-
-        bool CreateResources(const Core::EngineSystemStorage* engineSystems);
-
         System::Window* m_window = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 
@@ -70,3 +59,5 @@ namespace Editor
         std::shared_ptr<Graphics::Shader> m_shader;
     };
 }
+
+REFLECTION_TYPE(Editor::EditorRenderer, Editor::EditorSubsystem)

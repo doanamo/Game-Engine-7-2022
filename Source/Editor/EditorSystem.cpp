@@ -134,39 +134,32 @@ bool EditorSystem::CreateContext()
 
 bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSystems)
 {
-    // Editor shell.
-    EditorShell::CreateFromParams editorShellParams;
-    editorShellParams.engineSystems = &engineSystems;
-
-    m_editorShell = EditorShell::Create(editorShellParams).UnwrapOr(nullptr);
-    if(m_editorShell == nullptr)
+    // Create editor subsystem context.
+    if(auto provider = std::make_unique<EditorSubsystemContext>(engineSystems))
     {
-        LOG_ERROR(CreateSubsystemsError, "Could not create editor shell instance.");
+        m_subsystems.Attach(std::move(provider));
+    }
+    else
+    {
+        LOG_ERROR(CreateSubsystemsError, "Could not create engine system provider.");
         return false;
     }
 
-    // Editor console.
-    EditorConsole::CreateFromParams editorConsoleParams;
-    editorConsoleParams.engineSystems = &engineSystems;
-
-    m_editorConsole = EditorConsole::Create(editorConsoleParams).UnwrapOr(nullptr);
-    if(m_editorConsole == nullptr)
+    // Create editor subsystems.
+    const std::vector<Reflection::TypeIdentifier> defaultEditorSubsystemTypes =
     {
-        LOG_ERROR(CreateSubsystemsError, "Could not create editor console instance.");
+        Reflection::GetIdentifier<EditorShell>(),
+        Reflection::GetIdentifier<EditorConsole>(),
+        Reflection::GetIdentifier<EditorRenderer>(),
+    };
+
+    if(!m_subsystems.CreateFromTypes(defaultEditorSubsystemTypes))
+    {
+        LOG_ERROR(CreateSubsystemsError, "Could not populate system storage.");
         return false;
     }
 
-    // Editor renderer
-    EditorRenderer::CreateFromParams editorRendererParams;
-    editorRendererParams.engineSystems = &engineSystems;
-
-    m_editorRenderer = EditorRenderer::Create(editorRendererParams).UnwrapOr(nullptr);
-    if(m_editorRenderer == nullptr)
-    {
-        LOG_ERROR(CreateSubsystemsError, "Could not create editor renderer instance.");
-        return false;
-    }
-
+    // Success!
     return true;
 }
 
@@ -204,17 +197,23 @@ void EditorSystem::BeginInterface(float timeDelta)
 
     ImGui::NewFrame();
 
-    m_editorShell->Display(timeDelta);
-    m_editorConsole->Display(timeDelta);
+    m_subsystems.ForEach([timeDelta](EditorSubsystem& subsystem)
+    {
+        subsystem.OnBeginInterface(timeDelta);
+        return true;
+    });
 }
 
 void EditorSystem::EndInterface()
 {
     ImGui::SetCurrentContext(m_interface);
-
     ImGui::EndFrame();
 
-    m_editorRenderer->Draw();
+    m_subsystems.ForEach([](EditorSubsystem& subsystem)
+    {
+        subsystem.OnEndInterface();
+        return true;
+    });
 }
 
 bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
@@ -242,10 +241,16 @@ bool EditorSystem::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    if(m_editorConsole->OnKeyboardKey(event))
+    m_subsystems.ForEach([&io, &event](EditorSubsystem& subsystem)
     {
-        io.WantCaptureKeyboard = true;
-    }
+        if(subsystem.OnKeyboardKey(event))
+        {
+            io.WantCaptureKeyboard = true;
+            return false;
+        }
+
+        return true;
+    });
 
     const size_t MaxKeyboardKeyCount = Common::StaticArraySize(io.KeysDown);
     ASSERT(MaxKeyboardKeyCount >= System::KeyboardKeys::Count, "Insufficient ImGUI keyboard state array size!");

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <Common/Event/Delegate.hpp>
 #include "Core/SystemInterface.hpp"
 
 /*
@@ -29,6 +30,7 @@ namespace Core
         using SystemPtr = std::unique_ptr<SystemBase>;
         using SystemList = std::vector<SystemPtr>;
         using SystemMap = std::unordered_map<Reflection::TypeIdentifier, SystemBase*>;
+        using ForEachCallback = Event::Delegate<bool(SystemBase&)>;
 
     public:
         SystemStorage() = default;
@@ -37,10 +39,11 @@ namespace Core
         bool CreateFromTypes(const SystemTypes& systemTypes);
         bool Attach(std::unique_ptr<SystemBase>&& system);
 
-        SystemBase* Locate(Reflection::TypeIdentifier systemType) const;
-
         template<typename SystemType>
         SystemType* Locate() const;
+        SystemBase* Locate(Reflection::TypeIdentifier systemType) const;
+
+        void ForEach(ForEachCallback callback);
 
     private:
         SystemList m_systemList;
@@ -131,6 +134,14 @@ namespace Core
     }
 
     template<typename SystemBase>
+    template<typename SystemType>
+    SystemType* SystemStorage<SystemBase>::Locate() const
+    {
+        return static_cast<SystemType*>(
+            Locate(Reflection::GetIdentifier<SystemType>()));
+    }
+
+    template<typename SystemBase>
     SystemBase* SystemStorage<SystemBase>::Locate(
         const Reflection::TypeIdentifier systemType) const
     {
@@ -148,10 +159,13 @@ namespace Core
     }
 
     template<typename SystemBase>
-    template<typename SystemType>
-    SystemType* SystemStorage<SystemBase>::Locate() const
+    void SystemStorage<SystemBase>::ForEach(ForEachCallback callback)
     {
-        return static_cast<SystemType*>(
-            Locate(Reflection::GetIdentifier<SystemType>()));
+        for(auto& system : m_systemList)
+        {
+            ASSERT(system);
+            if(!callback(*system.get()))
+                break;
+        }
     }
 }

@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Core/EngineSystem.hpp>
+#include "Editor/EditorSubsystem.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 
@@ -32,34 +33,23 @@ namespace Game
 
 namespace Editor
 {
-    class EditorShell final : private Common::NonCopyable
+    class EditorShell final : private EditorSubsystem
     {
+        REFLECTION_ENABLE(EditorShell, EditorSubsystem)
+
     public:
-        struct CreateFromParams
-        {
-            const Core::EngineSystemStorage* engineSystems = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedModuleCreation,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<EditorShell>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
+        EditorShell();
         ~EditorShell();
 
-        void Display(float timeDelta);
-
     private:
-        EditorShell();
+        bool OnAttach(const EditorSubsystemStorage& editorSubsystems) override;
+        bool CreateModules(const Core::EngineSystemStorage& engineSystems);
 
-        bool CreateModules(const Core::EngineSystemStorage* engineSystems);
+        void OnBeginInterface(float timeDelta) override;
         void DisplayMenuBar();
         void DisplayFramerate();
 
+    private:
         Core::PerformanceMetrics* m_performanceMetrics = nullptr;
         System::Window* m_window = nullptr;
 
@@ -69,3 +59,5 @@ namespace Editor
         bool m_showDemoWindow = false;
     };
 }
+
+REFLECTION_TYPE(Editor::EditorShell, Editor::EditorSubsystem)

@@ -12,36 +12,34 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create editor renderer instance! {}";
+    const char* CreateError = "Failed to create editor renderer subsystem! {}";
     const char* CreateResourcesError = "Failed to create editor renderer resources! {}";
 }
 
 EditorRenderer::EditorRenderer() = default;
 EditorRenderer::~EditorRenderer() = default;
 
-EditorRenderer::CreateResult EditorRenderer::Create(const CreateFromParams& params)
+bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    // Locate needed engine systems.
+    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext->GetEngineSystems();
 
-    auto* window = params.engineSystems->Locate<System::Window>();
-    auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
+    m_window = engineSystems.Locate<System::Window>();
+    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
 
-    auto instance = std::unique_ptr<EditorRenderer>(new EditorRenderer());
-    instance->m_window = window;
-    instance->m_renderContext = renderContext;
-
-    if(!instance->CreateResources(params.engineSystems))
+    // Create graphics resources.
+    if(!CreateResources(engineSystems))
     {
         LOG_ERROR(CreateError, "Could not create resources.");
-        return Common::Failure(CreateErrors::FailedResourceCreation);
+        return false;
     }
 
-    LOG_SUCCESS("Created editor renderer instance.");
-    return Common::Success(std::move(instance));
+    // Success!
+    return true;
 }
 
-bool Editor::EditorRenderer::CreateResources(const Core::EngineSystemStorage* engineSystems)
+bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSystems)
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
@@ -156,9 +154,9 @@ bool Editor::EditorRenderer::CreateResources(const Core::EngineSystemStorage* en
 
     // Shader.
     Graphics::Shader::LoadFromFile shaderParams;
-    shaderParams.renderContext = engineSystems->Locate<Graphics::RenderContext>();
+    shaderParams.renderContext = m_renderContext;
 
-    m_shader = engineSystems->Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
+    m_shader = engineSystems.Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
         "Data/Engine/Shaders/Interface.shader", shaderParams).UnwrapOr(nullptr);
 
     if(m_shader == nullptr)
@@ -170,7 +168,7 @@ bool Editor::EditorRenderer::CreateResources(const Core::EngineSystemStorage* en
     return true;
 }
 
-void EditorRenderer::Draw()
+void EditorRenderer::OnEndInterface()
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 

@@ -6,8 +6,10 @@
 #pragma once
 
 #include <Core/EngineSystem.hpp>
+#include <Core/SystemStorage.hpp>
 #include <Common/Event/Receiver.hpp>
 #include <System/InputDefinitions.hpp>
+#include "Editor/EditorSubsystem.hpp"
 
 namespace System
 {
@@ -64,9 +66,7 @@ namespace Editor
         System::Window* m_window = nullptr;
         ImGuiContext* m_interface = nullptr;
 
-        std::unique_ptr<EditorRenderer> m_editorRenderer;
-        std::unique_ptr<EditorConsole> m_editorConsole;
-        std::unique_ptr<EditorShell> m_editorShell;
+        EditorSubsystemStorage m_subsystems;
     };
 }
 

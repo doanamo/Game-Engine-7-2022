@@ -7,6 +7,7 @@
 
 #include <Core/EngineSystem.hpp>
 #include <System/InputDefinitions.hpp>
+#include "Editor/EditorSubsystem.hpp"
 
 namespace System
 {
@@ -21,33 +22,24 @@ namespace System
 
 namespace Editor
 {
-    class EditorConsole final : private Common::NonCopyable
+    class EditorConsole final : private EditorSubsystem
     {
+        REFLECTION_ENABLE(EditorConsole, EditorSubsystem)
+
     public:
-        struct CreateFromParams
-        {
-            const Core::EngineSystemStorage* engineSystems = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<EditorConsole>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
+        EditorConsole();
         ~EditorConsole();
 
         void Display(float timeDelta);
         void Toggle(bool visibility);
         bool IsVisible() const;
 
+    private:
+        bool OnAttach(const EditorSubsystemStorage& editorSubsystems) override;
         bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
+        void OnBeginInterface(float timeDelta) override;
 
     private:
-        EditorConsole();
-
         System::Window* m_window = nullptr;
 
         bool m_visible = false;
@@ -55,3 +47,5 @@ namespace Editor
         std::string m_inputBuffer;
     };
 }
+
+REFLECTION_TYPE(Editor::EditorConsole, Editor::EditorSubsystem)
