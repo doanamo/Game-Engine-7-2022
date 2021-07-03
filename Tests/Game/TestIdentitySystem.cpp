@@ -17,10 +17,12 @@ TEST_CASE("Identity System")
     gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
     REQUIRE(gameInstance);
 
-    Game::EntitySystem* entitySystem = gameInstance->GetSystem<Game::EntitySystem>();
+    Game::EntitySystem* entitySystem =
+        gameInstance->GetSystems().Locate<Game::EntitySystem>();
     REQUIRE(entitySystem);
 
-    Game::IdentitySystem* identitySystem = gameInstance->GetSystem<Game::IdentitySystem>();
+    Game::IdentitySystem* identitySystem =
+        gameInstance->GetSystems().Locate<Game::IdentitySystem>();
     REQUIRE(identitySystem);
 
     CHECK_EQ(identitySystem->GetNamedEntityCount(), 0);
