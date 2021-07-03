@@ -40,7 +40,10 @@ namespace Engine
 
         ErrorCode Run();
 
-        const Core::EngineSystemStorage& GetSystems() const;
+        const Core::EngineSystemStorage& GetSystems() const
+        {
+            return m_engineSystems;
+        }
 
     private:
         Root();

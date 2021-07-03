@@ -244,8 +244,3 @@ Root::ErrorCode Root::Run()
 
     return ErrorCode(0);
 }
-
-const Core::EngineSystemStorage& Root::GetSystems() const
-{
-    return m_engineSystems;
-}
