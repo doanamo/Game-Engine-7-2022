@@ -16,11 +16,11 @@ IdentitySystem::IdentitySystem()
 
 IdentitySystem::~IdentitySystem() = default;
 
-bool IdentitySystem::OnAttach(GameInstance* gameInstance)
+bool IdentitySystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_entitySystem == nullptr);
 
-    m_entitySystem = gameInstance->GetSystem<EntitySystem>();
+    m_entitySystem = gameSystems.Locate<EntitySystem>();
     if(m_entitySystem == nullptr)
     {
         LOG_ERROR("Could not retrieve entity system!");

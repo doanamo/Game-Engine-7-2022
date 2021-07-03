@@ -24,7 +24,7 @@ namespace Game
         ~InterpolationSystem() override;
 
     private:
-        bool OnAttach(GameInstance* gameInstance) override;
+        bool OnAttach(const GameSystemStorage& gameSystems) override;
         void OnTick(float timeDelta) override;
 
         ComponentSystem* m_componentSystem = nullptr;

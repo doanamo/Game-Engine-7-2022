@@ -14,11 +14,11 @@ using namespace Game;
 InterpolationSystem::InterpolationSystem() = default;
 InterpolationSystem::~InterpolationSystem() = default;
 
-bool InterpolationSystem::OnAttach(GameInstance* gameInstance)
+bool InterpolationSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_componentSystem == nullptr);
 
-    m_componentSystem = gameInstance->GetSystem<ComponentSystem>();
+    m_componentSystem = gameSystems.Locate<ComponentSystem>();
     if(m_componentSystem == nullptr)
     {
         LOG_ERROR("Could not retrieve component system!");

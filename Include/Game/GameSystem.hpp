@@ -5,38 +5,37 @@
 
 #pragma once
 
+#include "Core/SystemInterface.hpp"
+
 /*
     Game System
+
+    Base class for game systems to be used with system storage.
 */
 
 namespace Game
 {
-    class GameInstance;
-
-    class GameSystem : private Common::NonCopyable
+    class GameSystem : public Core::SystemInterface<GameSystem>
     {
         REFLECTION_ENABLE(GameSystem)
 
     public:
         virtual ~GameSystem() = default;
 
-    protected:
-        friend GameInstance;
-
-        virtual bool OnAttach(GameInstance* gameInstance)
-        {
-            return true;
-        }
-
-        virtual bool OnFinalize(GameInstance* gameInstance)
-        {
-            return true;
-        }
-
         virtual void OnTick(float timeDelta)
         {
         }
+
+    protected:
+        GameSystem() = default;
+
+        bool OnAttach(const Core::SystemStorage<GameSystem>& gameInstance) override
+        {
+            return true;
+        }
     };
+
+    using GameSystemStorage = Core::SystemStorage<GameSystem>;
 }
 
 REFLECTION_TYPE(Game::GameSystem)

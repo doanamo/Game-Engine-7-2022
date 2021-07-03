@@ -52,7 +52,7 @@ namespace Game
         EntitySystem* GetEntitySystem() const;
 
     private:
-        bool OnAttach(GameInstance* gameInstance) override;
+        bool OnAttach(const GameSystemStorage& gameSystems) override;
 
         const EntityEntry* GetEntityEntry(EntityHandle handle) const;
 

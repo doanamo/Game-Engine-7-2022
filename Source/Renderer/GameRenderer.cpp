@@ -92,11 +92,12 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     }
 
     // Make sure time alpha is normalized.
-    ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f, "Time alpha is not normalized!");
+    ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f,
+        "Time alpha is not normalized!");
 
     // Get game instance systems.
-    auto* componentSystem = drawParams.gameInstance->GetSystem<Game::ComponentSystem>();
-    auto* identitySystem = drawParams.gameInstance->GetSystem<Game::IdentitySystem>();
+    auto* componentSystem = drawParams.gameInstance->GetSystems().Locate<Game::ComponentSystem>();
+    auto* identitySystem = drawParams.gameInstance->GetSystems().Locate<Game::IdentitySystem>();
     ASSERT(componentSystem && identitySystem);
 
     // Update sprite components for rendering.
@@ -105,13 +106,16 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         // Update sprite texture view using currently playing animation.
         if(spriteAnimationComponent.IsPlaying())
         {
-            Game::SpriteComponent* spriteComponent = spriteAnimationComponent.GetSpriteComponent();
+            Game::SpriteComponent* spriteComponent =
+                spriteAnimationComponent.GetSpriteComponent();
 
             auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
-            float animationTime = spriteAnimationComponent.CalculateAnimationTime(drawParams.timeAlpha);
+            float animationTime = spriteAnimationComponent
+                .CalculateAnimationTime(drawParams.timeAlpha);
 
             ASSERT(spriteAnimation, "Sprite animation is null despite being played!");
-            spriteComponent->SetTextureView(spriteAnimation->GetFrameByTime(animationTime).textureView);
+            spriteComponent->SetTextureView(
+                spriteAnimation->GetFrameByTime(animationTime).textureView);
         }
     }
 
@@ -138,7 +142,8 @@ void GameRenderer::Draw(const DrawParams& drawParams)
 
     if(cameraEntityResult.IsSuccess())
     {
-        auto cameraComponent = componentSystem->Lookup<Game::CameraComponent>(cameraEntityResult.Unwrap());
+        auto cameraComponent =
+            componentSystem->Lookup<Game::CameraComponent>(cameraEntityResult.Unwrap());
 
         if(cameraComponent != nullptr)
         {
@@ -152,7 +157,8 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         }
         else
         {
-            LOG_WARNING("Could not retrieve camera component from \"{}\" entity.", drawParams.cameraName);
+            LOG_WARNING("Could not retrieve camera component from \"{}\" entity.",
+                drawParams.cameraName);
         }
     }
     else

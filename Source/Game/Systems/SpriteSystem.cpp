@@ -15,11 +15,11 @@ using namespace Game;
 SpriteSystem::SpriteSystem() = default;
 SpriteSystem::~SpriteSystem() = default;
 
-bool SpriteSystem::OnAttach(GameInstance* gameInstance)
+bool SpriteSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_componentSystem == nullptr);
 
-    m_componentSystem = gameInstance->GetSystem<ComponentSystem>();
+    m_componentSystem = gameSystems.Locate<ComponentSystem>();
     if(m_componentSystem == nullptr)
     {
         LOG_ERROR("Could not retrieve component system!");

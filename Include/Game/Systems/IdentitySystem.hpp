@@ -81,7 +81,7 @@ namespace Game
         unsigned int GetGroupCount() const;
 
     private:
-        bool OnAttach(GameInstance* gameInstance) override;
+        bool OnAttach(const GameSystemStorage& gameSystems) override;
         void OnEntityDestroyed(EntityHandle entity);
 
         void RegisterNamedEntity(const EntityHandle& entity, const std::string& name);

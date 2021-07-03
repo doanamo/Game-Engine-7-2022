@@ -58,12 +58,6 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         return Common::Failure(CreateErrors::FailedGameInstanceCreate);
     }
 
-    if(!instance->m_gameInstance->Finalize())
-    {
-        LOG_ERROR("Could not finalize game instance!");
-        return Common::Failure(CreateErrors::FailedGameInstanceFinalize);
-    }
-
     // Load sprite animation list.
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
     spriteAnimationListParams.engineSystems = &engine->GetSystems();
@@ -91,9 +85,9 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     }
 
     // Retrieve game systems.
-    auto* entitySystem = instance->m_gameInstance->GetSystem<Game::EntitySystem>();
-    auto* componentSystem = instance->m_gameInstance->GetSystem<Game::ComponentSystem>();
-    auto* identitySystem = instance->m_gameInstance->GetSystem<Game::IdentitySystem>();
+    auto* entitySystem = instance->m_gameInstance->GetSystems().Locate<Game::EntitySystem>();
+    auto* componentSystem = instance->m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
+    auto* identitySystem = instance->m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
     ASSERT(entitySystem && componentSystem && identitySystem);
 
     // Create camera entity.
@@ -123,7 +117,9 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         auto* transform = componentSystem->Create<Game::TransformComponent>(playerEntity);
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
         transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(0.0f)));
-        transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(0.0f, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+        transform->SetRotation(glm::rotate(glm::identity<glm::quat>(),
+            2.0f * glm::pi<float>() * ((float)std::fmod(0.0f, 10.0) / 10.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Create sprite component.
         auto* sprite = componentSystem->Create<Game::SpriteComponent>(playerEntity);
@@ -134,7 +130,8 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         sprite->SetFiltered(true);
 
         // Create sprite animation component.
-        auto* spriteAnimation = componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity);
+        auto* spriteAnimation =
+            componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity);
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
     }
@@ -149,8 +146,8 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 void SpriteDemo::Tick(const float tickTime)
 {
     // Retrieve game systems.
-    auto* componentSystem = m_gameInstance->GetSystem<Game::ComponentSystem>();
-    auto* identitySystem = m_gameInstance->GetSystem<Game::IdentitySystem>();
+    auto* componentSystem = m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
+    auto* identitySystem = m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
 
     // Retrieve player transform.
     Game::EntityHandle playerEntity = identitySystem->GetEntityByName("Player").Unwrap();
@@ -160,7 +157,9 @@ void SpriteDemo::Tick(const float tickTime)
     // Animate the entity.
     double timeAccumulated = m_tickTimer->GetTotalTickSeconds();
     transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(timeAccumulated)));
-    transform->SetRotation(glm::rotate(glm::identity<glm::quat>(), 2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    transform->SetRotation(glm::rotate(glm::identity<glm::quat>(),
+        2.0f * glm::pi<float>() * ((float)std::fmod(timeAccumulated, 10.0) / 10.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
     auto* inputManager = m_engine->GetSystems().Locate<System::InputManager>();
@@ -190,7 +189,8 @@ void SpriteDemo::Tick(const float tickTime)
 
     if(direction != glm::vec3(0.0f))
     {
-        transform->SetPosition(transform->GetPosition() + 4.0f * glm::normalize(direction) * tickTime);
+        transform->SetPosition(transform->GetPosition()
+            + 4.0f * glm::normalize(direction) * tickTime);
     }
 }
 

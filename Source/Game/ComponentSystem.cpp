@@ -17,11 +17,11 @@ ComponentSystem::ComponentSystem()
 
 ComponentSystem::~ComponentSystem() = default;
 
-bool ComponentSystem::OnAttach(GameInstance* gameInstance)
+bool ComponentSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_entitySystem == nullptr);
 
-    m_entitySystem = gameInstance->GetSystem<EntitySystem>();
+    m_entitySystem = gameSystems.Locate<EntitySystem>();
     if(m_entitySystem == nullptr)
     {
         LOG_ERROR("Could not retrieve entity system!");
