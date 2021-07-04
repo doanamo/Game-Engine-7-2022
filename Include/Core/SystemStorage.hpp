@@ -70,16 +70,11 @@ namespace Core
             if(createdSystem != nullptr)
             {
                 if(!Attach(std::move(createdSystem)))
-                {
-                    LOG_ERROR("Could not attach \"{}\" to \"{}\" system storage!",
-                        Reflection::GetName(systemType).GetString(),
-                        Reflection::GetName<SystemBase>().GetString());
                     return false;
-                }
             }
             else
             {
-                LOG_ERROR("Could not create \"{}\" in \"{}\" system storage!",
+                LOG_ERROR("Failed to create \"{}\" in \"{}\" system storage!",
                     Reflection::GetName(systemType).GetString(),
                     Reflection::GetName<SystemBase>().GetString());
                 return false;
@@ -93,9 +88,9 @@ namespace Core
     template<typename SystemBase>
     bool SystemStorage<SystemBase>::Attach(std::unique_ptr<SystemBase>&& system)
     {
-        LOG_INFO("Attaching \"{}\" to \"{}\" system storage...",
-            Reflection::GetName(system).GetString(),
-            Reflection::GetName<SystemBase>().GetString());
+        LOG_INFO("System storage \"{}\" is attaching \"{}\"...",
+            Reflection::GetName<SystemBase>().GetString(),
+            Reflection::GetName(system).GetString());
 
         // Check if system is valid for attachment.
         if(system == nullptr)
