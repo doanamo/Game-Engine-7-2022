@@ -5,7 +5,8 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
-#include <Core/SystemStorage.hpp>
+#include "Editor/Modules/InputManagerEditor.hpp"
+#include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Core/PerformanceMetrics.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
@@ -41,25 +42,24 @@ bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 
 bool EditorShell::CreateModules(const Core::EngineSystemStorage& engineSystems)
 {
-    // Create input manager editor.
-    InputManagerEditor::CreateFromParams inputManagerEditorParams;
-    inputManagerEditorParams.engineSystems = &engineSystems;
-
-    m_inputManagerEditor = InputManagerEditor::Create(inputManagerEditorParams).UnwrapOr(nullptr);
-    if(m_inputManagerEditor == nullptr)
+    // Create editor module context.
+    auto editorModuleContext = std::make_unique<EditorModuleContext>(engineSystems);
+    if(!editorModuleContext || !m_editorModules.Attach(std::move(editorModuleContext)))
     {
-        LOG_ERROR(CreateModulesError, "Could not create input manager editor module.");
+        LOG_ERROR(CreateModulesError, "Could not attach editor module context.");
         return false;
     }
 
-    // Create game instance editor.
-    GameInstanceEditor::CreateFromParams gameInstanceEditorParams;
-    gameInstanceEditorParams.engineSystems = &engineSystems;
-
-    m_gameInstanceEditor = GameInstanceEditor::Create(gameInstanceEditorParams).UnwrapOr(nullptr);
-    if(m_gameInstanceEditor == nullptr)
+    // Create default editor modules.
+    const std::vector<Reflection::TypeIdentifier> defaultEditorModuleTypes =
     {
-        LOG_ERROR(CreateModulesError, "Could not create game instance editor module.");
+        Reflection::GetIdentifier<InputManagerEditor>(),
+        Reflection::GetIdentifier<GameInstanceEditor>(),
+    };
+
+    if(!m_editorModules.CreateFromTypes(defaultEditorModuleTypes))
+    {
+        LOG_ERROR(CreateModulesError, "Could not populate system storage.");
         return false;
     }
 
@@ -77,8 +77,11 @@ void EditorShell::OnBeginInterface(float timeDelta)
     DisplayMenuBar();
     DisplayFramerate();
 
-    m_inputManagerEditor->Display(timeDelta);
-    m_gameInstanceEditor->Display(timeDelta);
+    m_editorModules.ForEach([timeDelta](EditorModule& editorModule)
+    {
+        editorModule.OnDisplay(timeDelta);
+        return true;
+    });
 }
 
 void EditorShell::DisplayMenuBar()
@@ -100,17 +103,11 @@ void EditorShell::DisplayMenuBar()
 
         ImGui::Separator();
 
-        if(ImGui::BeginMenu("System"))
+        m_editorModules.ForEach([](EditorModule& editorModule)
         {
-            ImGui::MenuItem("Input Manager", "", &m_inputManagerEditor->mainWindowOpen, true);
-            ImGui::EndMenu();
-        }
-
-        if(ImGui::BeginMenu("Game"))
-        {
-            ImGui::MenuItem("Game Framework", "", &m_gameInstanceEditor->mainWindowOpen, true);
-            ImGui::EndMenu();
-        }
+            editorModule.OnDisplayMenuBar();
+            return true;
+        });
 
         ImGui::EndMainMenuBar();
     }

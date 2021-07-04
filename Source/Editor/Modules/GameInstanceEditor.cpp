@@ -14,7 +14,7 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create game instance editor module! {}";
+    const char* AttachError = "Failed to attach game instance editor module! {}";
 }
 
 GameInstanceEditor::GameInstanceEditor()
@@ -29,27 +29,29 @@ GameInstanceEditor::GameInstanceEditor()
 
 GameInstanceEditor::~GameInstanceEditor() = default;
 
-GameInstanceEditor::CreateResult GameInstanceEditor::Create(const CreateFromParams& params)
+bool GameInstanceEditor::OnAttach(const Core::SystemStorage<EditorModule>& editorModules)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    // Retrieve needed systems.
+    auto* editorContext = editorModules.Locate<EditorModuleContext>();
+    auto& engineSystems = editorContext->GetEngineSystems();
+    auto* gameFramework = engineSystems.Locate<Game::GameFramework>();
 
-    auto instance = std::unique_ptr<GameInstanceEditor>(new GameInstanceEditor());
-    instance->m_tickTimeHistogram.resize(100, 0.0f);
-
-    if(!instance->SubscribeEvents(params.engineSystems))
+    // Subscribe events.
+    if(!SubscribeEvents(gameFramework))
     {
-        LOG_ERROR(CreateError, "Could not subscribe to game framework events.");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
+        LOG_ERROR(AttachError, "Could not subscribe to game framework events.");
+        return false;
     }
 
-    LOG_SUCCESS("Created game instance editor module.");
-    return Common::Success(std::move(instance));
+    // Size histogram buffer.
+    m_tickTimeHistogram.resize(100, 0.0f);
+
+    // Success!
+    return true;
 }
 
-bool GameInstanceEditor::SubscribeEvents(const Core::EngineSystemStorage* engineSystems)
+bool GameInstanceEditor::SubscribeEvents(Game::GameFramework* gameFramework)
 {
-    auto* gameFramework = engineSystems->Locate<Game::GameFramework>();
     Game::GameFramework::Events& events = gameFramework->events;
 
     bool subscriptionResults = true;
@@ -59,16 +61,16 @@ bool GameInstanceEditor::SubscribeEvents(const Core::EngineSystemStorage* engine
     return subscriptionResults;
 }
 
-void GameInstanceEditor::Display(float timeDelta)
+void GameInstanceEditor::OnDisplay(float timeDelta)
 {
-    if(!mainWindowOpen)
+    if(!m_isOpen)
         return;
 
     if(!m_gameInstance)
         return;
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
-    if(ImGui::Begin("Game Framework", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
+    if(ImGui::Begin("Game Framework", &m_isOpen, ImGuiWindowFlags_AlwaysAutoResize))
     {
         if(ImGui::CollapsingHeader("Core"))
         {
@@ -193,6 +195,15 @@ void GameInstanceEditor::Display(float timeDelta)
     }
 
     ImGui::End();
+}
+
+void GameInstanceEditor::OnDisplayMenuBar()
+{
+    if(ImGui::BeginMenu("Game"))
+    {
+        ImGui::MenuItem("Game Framework", "", &m_isOpen, true);
+        ImGui::EndMenu();
+    }
 }
 
 void GameInstanceEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)

@@ -30,7 +30,6 @@ namespace Editor
         EditorConsole();
         ~EditorConsole();
 
-        void Display(float timeDelta);
         void Toggle(bool visibility);
         bool IsVisible() const;
 

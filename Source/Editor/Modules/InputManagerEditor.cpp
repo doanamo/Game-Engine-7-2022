@@ -6,13 +6,14 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include <Core/SystemStorage.hpp>
+#include <Core/EngineSystem.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create input manager editor module! {}";
+    const char* AttachError = "Failed to attach input manager editor module! {}";
 }
 
 InputManagerEditor::InputManagerEditor()
@@ -28,46 +29,55 @@ InputManagerEditor::InputManagerEditor()
 
 InputManagerEditor::~InputManagerEditor() = default;
 
-InputManagerEditor::CreateResult InputManagerEditor::Create(const CreateFromParams& params)
+bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& editorModules)
 {
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    // Retrieve needed systems.
+    auto* editorContext = editorModules.Locate<EditorModuleContext>();
+    auto& engineSystems = editorContext->GetEngineSystems();
 
-    auto instance = std::unique_ptr<InputManagerEditor>(new InputManagerEditor());
-    
-    auto* window = params.engineSystems->Locate<System::Window>();
-    auto* inputManager = params.engineSystems->Locate<System::InputManager>();
+    m_window = engineSystems.Locate<System::Window>();
+    if(!m_window)
+    {
+        LOG_ERROR(AttachError, "Could not retrieve window.");
+        return false;
+    }
 
+    auto* inputManager = engineSystems.Locate<System::InputManager>();
+    if(!inputManager)
+    {
+        LOG_ERROR(AttachError, "Could not retrieve input manager.");
+        return false;
+    }
+
+    // Subscribe to input events.
     System::InputState& inputState = inputManager->GetInputState();
 
     bool subscriptionResults = true;
-    subscriptionResults &= window->events.Subscribe(instance->m_windowFocusReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_keyboardKeyReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_textInputReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_mouseButtonReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_mouseScrollReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_cursorPositionReceiver);
-    subscriptionResults &= inputState.events.Subscribe(instance->m_cursorEnterReceiver);
+    subscriptionResults &= m_window->events.Subscribe(m_windowFocusReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_keyboardKeyReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_textInputReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_mouseButtonReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_mouseScrollReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_cursorPositionReceiver);
+    subscriptionResults &= inputState.events.Subscribe(m_cursorEnterReceiver);
 
     if(!subscriptionResults)
     {
-        LOG_ERROR(CreateError, "Could not subscribe to window events.");
-        return Common::Failure(CreateErrors::FailedEventSubscription);
+        LOG_ERROR(AttachError, "Could not subscribe to window events.");
+        return false;
     }
 
-    instance->m_window = window;
-
-    LOG_SUCCESS("Created input manager editor module.");
-    return Common::Success(std::move(instance));
+    // Success!
+    return true;
 }
 
-void InputManagerEditor::Display(float timeDelta)
+void InputManagerEditor::OnDisplay(float timeDelta)
 {
-    if(!mainWindowOpen)
+    if(!m_isOpen)
         return;
 
     ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
-    if(ImGui::Begin("Input Manager", &mainWindowOpen, ImGuiWindowFlags_AlwaysAutoResize))
+    if(ImGui::Begin("Input Manager", &m_isOpen, ImGuiWindowFlags_AlwaysAutoResize))
     {
         if(ImGui::CollapsingHeader("Events"))
         {
@@ -123,6 +133,15 @@ void InputManagerEditor::Display(float timeDelta)
     }
 
     ImGui::End();
+}
+
+void InputManagerEditor::OnDisplayMenuBar()
+{
+    if(ImGui::BeginMenu("System"))
+    {
+        ImGui::MenuItem("Input Manager", "", &m_isOpen, true);
+        ImGui::EndMenu();
+    }
 }
 
 void InputManagerEditor::AddIncomingEventLog(std::string text)

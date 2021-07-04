@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
-#include <Core/EngineSystem.hpp>
+#include "Editor/EditorModule.hpp"
 
 namespace Game
 {
@@ -24,46 +24,29 @@ namespace Game
 
 namespace Editor
 {
-    class GameInstanceEditor final : private Common::NonCopyable
+    class GameInstanceEditor final : public EditorModule
     {
+        REFLECTION_ENABLE(GameInstanceEditor, EditorModule)
+
     public:
-        struct CreateFromParams
-        {
-            const Core::EngineSystemStorage* engineSystems = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedEventSubscription,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<GameInstanceEditor>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
-
         ~GameInstanceEditor();
-
-        void Display(float timeDelta);
-
-        bool mainWindowOpen = false;
-
-    private:
         GameInstanceEditor();
 
-        bool SubscribeEvents(const Core::EngineSystemStorage* engineSystems);
+    private:
+        bool OnAttach(const Core::SystemStorage<EditorModule>& editorModules) override;
+        bool SubscribeEvents(Game::GameFramework* gameFramework);
+        void OnDisplay(float timeDelta) override;
+        void OnDisplayMenuBar() override;
+
         void OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState);
         void OnTickRequested();
         void OnTickProcessed(float tickTime);
 
-        struct Receivers
-        {
-            Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
-            Event::Receiver<void()> tickRequested;
-            Event::Receiver<void(float)> tickProcessed;
-        } m_receivers;
-
+    private:
         Game::TickTimer* m_tickTimer = nullptr;
         Game::GameInstance* m_gameInstance = nullptr;
+
+        bool m_isOpen = false;
 
         std::vector<float> m_tickTimeHistogram;
         bool m_tickTimeHistogramPaused = false;
@@ -74,5 +57,14 @@ namespace Editor
         float m_updateNoiseSlider = 0.0f;
         float m_updateNoiseValue = 0.0f;
         float m_updateFreezeSlider = 1.0f;
+
+        struct Receivers
+        {
+            Event::Receiver<void(const std::shared_ptr<Game::GameState>&)> gameStateChanged;
+            Event::Receiver<void()> tickRequested;
+            Event::Receiver<void(float)> tickProcessed;
+        } m_receivers;
     };
 }
+
+REFLECTION_TYPE(Editor::GameInstanceEditor, Editor::EditorModule)

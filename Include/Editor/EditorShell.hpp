@@ -5,10 +5,10 @@
 
 #pragma once
 
+#include <Core/SystemStorage.hpp>
 #include <Core/EngineSystem.hpp>
 #include "Editor/EditorSubsystem.hpp"
-#include "Editor/Modules/InputManagerEditor.hpp"
-#include "Editor/Modules/GameInstanceEditor.hpp"
+#include "Editor/EditorModule.hpp"
 
 namespace Core
 {
@@ -19,11 +19,6 @@ namespace System
 {
     class Window;
 };
-
-namespace Game
-{
-    class GameFramework;
-}
 
 /*
     Editor Shell
@@ -53,8 +48,7 @@ namespace Editor
         Core::PerformanceMetrics* m_performanceMetrics = nullptr;
         System::Window* m_window = nullptr;
 
-        std::unique_ptr<InputManagerEditor> m_inputManagerEditor;
-        std::unique_ptr<GameInstanceEditor> m_gameInstanceEditor;
+        EditorModuleStorage m_editorModules;
 
         bool m_showDemoWindow = false;
     };

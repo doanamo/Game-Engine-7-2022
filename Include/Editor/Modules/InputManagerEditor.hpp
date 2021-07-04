@@ -6,9 +6,9 @@
 #pragma once
 
 #include <Common/Event/Receiver.hpp>
-#include <Core/EngineSystem.hpp>
 #include <System/WindowEvents.hpp>
 #include <System/InputDefinitions.hpp>
+#include "Editor/EditorModule.hpp"
 
 namespace System
 {
@@ -23,32 +23,18 @@ namespace System
 
 namespace Editor
 {
-    class InputManagerEditor final : private Common::NonCopyable
+    class InputManagerEditor final : public EditorModule
     {
-    public:
-        struct CreateFromParams
-        {
-            const Core::EngineSystemStorage* engineSystems = nullptr;
-        };
-
-        enum class CreateErrors
-        {
-            InvalidArgument,
-            FailedEventSubscription,
-        };
-
-        using CreateResult = Common::Result<std::unique_ptr<InputManagerEditor>, CreateErrors>;
-        static CreateResult Create(const CreateFromParams& params);
+        REFLECTION_ENABLE(InputManagerEditor, EditorModule)
 
     public:
         ~InputManagerEditor();
-
-        void Display(float timeDelta);
-
-        bool mainWindowOpen = false;
+        InputManagerEditor();
 
     private:
-        InputManagerEditor();
+        bool OnAttach(const Core::SystemStorage<EditorModule>& editorModules) override;
+        void OnDisplay(float timeDelta) override;
+        void OnDisplayMenuBar() override;
 
         void AddIncomingEventLog(std::string text);
 
@@ -68,7 +54,10 @@ namespace Editor
         Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_cursorPositionReceiver;
         Event::Receiver<void(const System::InputEvents::CursorEnter&)> m_cursorEnterReceiver;
 
+    private:
         System::Window* m_window = nullptr;
+
+        bool m_isOpen = false;
 
         bool m_incomingEventFreeze = false;
         bool m_incomingWindowFocus = false;
@@ -90,3 +79,5 @@ namespace Editor
         unsigned short m_incomingEventCounter = 0;
     };
 }
+
+REFLECTION_TYPE(Editor::InputManagerEditor, Editor::EditorModule)

@@ -53,7 +53,7 @@ REFLECTION_TYPE(Editor::EditorSubsystem)
 /*
     Editor Subsystem Context
 
-    Utility for retrieving engine system storage in editor subsystems.
+    Utility for retrieving engine system storage from editor subsystems.
 */
 
 namespace Editor

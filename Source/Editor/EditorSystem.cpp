@@ -135,11 +135,8 @@ bool EditorSystem::CreateContext()
 bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSystems)
 {
     // Create editor subsystem context.
-    if(auto provider = std::make_unique<EditorSubsystemContext>(engineSystems))
-    {
-        m_subsystems.Attach(std::move(provider));
-    }
-    else
+    auto context = std::make_unique<EditorSubsystemContext>(engineSystems);
+    if(!context || !m_subsystems.Attach(std::move(context)))
     {
         LOG_ERROR(CreateSubsystemsError, "Could not create engine system provider.");
         return false;
