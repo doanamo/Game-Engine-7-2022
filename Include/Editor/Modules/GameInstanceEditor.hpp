@@ -29,8 +29,8 @@ namespace Editor
         REFLECTION_ENABLE(GameInstanceEditor, EditorModule)
 
     public:
-        ~GameInstanceEditor();
         GameInstanceEditor();
+        ~GameInstanceEditor();
 
     private:
         bool OnAttach(const Core::SystemStorage<EditorModule>& editorModules) override;
