@@ -10,67 +10,94 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Debug.hpp"
-    "Utility.hpp"
-    "NonCopyable.hpp"
-    "Resettable.hpp"
-    "ScopeGuard.hpp"
-    "Result.hpp"
-    "LinkedList.hpp"
-    "StateMachine.hpp"
-    "Handle.hpp"
-    "HandleMap.hpp"
-    "Name.hpp"
-    "NameRegistry.hpp"
-    "Logger/Logger.hpp"
-    "Logger/Message.hpp"
-    "Logger/Sink.hpp"
-    "Logger/Format.hpp"
-    "Logger/Output.hpp"
-    "Logger/History.hpp"
-    "Event/Delegate.hpp"
-    "Event/Collector.hpp"
-    "Event/Dispatcher.hpp"
-    "Event/Receiver.hpp"
-    "Event/Policies.hpp"
-    "Event/EventBase.hpp"
-    "Event/Queue.hpp"
-    "Event/Broker.hpp"
-    "Test/InstanceCounter.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Common")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_DEBUG
+    "${INCLUDE_DIR}/Debug.hpp"
+    "${SOURCE_DIR}/Debug.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Common/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "Debug.cpp"
-    "Utility.cpp"
-    "NameRegistry.cpp"
-    "Logger/Logger.cpp"
-    "Logger/Message.cpp"
-    "Logger/Sink.cpp"
-    "Logger/Format.cpp"
-    "Logger/Output.cpp"
-    "Logger/History.cpp"
+set(FILES_UTILITY
+    "${INCLUDE_DIR}/Utility.hpp"
+    "${INCLUDE_DIR}/NonCopyable.hpp"
+    "${INCLUDE_DIR}/Resettable.hpp"
+    "${INCLUDE_DIR}/ScopeGuard.hpp"
+    "${INCLUDE_DIR}/Delegate.hpp"
+    "${INCLUDE_DIR}/Result.hpp"
+    "${INCLUDE_DIR}/Name.hpp"
+    "${INCLUDE_DIR}/NameRegistry.hpp"
+    "${SOURCE_DIR}/Utility.cpp"
+    "${SOURCE_DIR}/NameRegistry.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(FILES_STRUCTURES
+    "${INCLUDE_DIR}/LinkedList.hpp"
+    "${INCLUDE_DIR}/StateMachine.hpp"
+    "${INCLUDE_DIR}/Handle.hpp"
+    "${INCLUDE_DIR}/HandleMap.hpp"
+)
+
+set(FILES_LOGGER
+    "${INCLUDE_DIR}/Logger/Logger.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerMessage.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerSink.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerFormat.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerOutput.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerHistory.hpp"
+    "${SOURCE_DIR}/Logger/Logger.cpp"
+    "${SOURCE_DIR}/Logger/LoggerMessage.cpp"
+    "${SOURCE_DIR}/Logger/LoggerSink.cpp"
+    "${SOURCE_DIR}/Logger/LoggerFormat.cpp"
+    "${SOURCE_DIR}/Logger/LoggerOutput.cpp"
+    "${SOURCE_DIR}/Logger/LoggerHistory.cpp"
+)
+
+set(FILES_EVENT
+    "${INCLUDE_DIR}/Event/EventCollector.hpp"
+    "${INCLUDE_DIR}/Event/EventDispatcher.hpp"
+    "${INCLUDE_DIR}/Event/EventReceiver.hpp"
+    "${INCLUDE_DIR}/Event/EventPolicies.hpp"
+    "${INCLUDE_DIR}/Event/EventBase.hpp"
+    "${INCLUDE_DIR}/Event/EventQueue.hpp"
+    "${INCLUDE_DIR}/Event/EventBroker.hpp"
+)
+
+set(FILES_TEST
+    "${INCLUDE_DIR}/Test/InstanceCounter.hpp"
+)
+
+source_group("Debug" FILES ${FILES_DEBUG})
+source_group("Utility" FILES ${FILES_UTILITY})
+source_group("Structures" FILES ${FILES_STRUCTURES})
+source_group("Logger" FILES ${FILES_LOGGER})
+source_group("Event" FILES ${FILES_EVENT})
+source_group("Test" FILES ${FILES_TEST})
 
 #
 # Library
 #
 
-project(Common)
-add_library(Common ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Common PUBLIC cxx_std_17)
-target_include_directories(Common PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Common PRIVATE "Precompiled.hpp")
+add_library(Common
+    ${FILES_DEBUG}
+    ${FILES_UTILITY}
+    ${FILES_STRUCTURES}
+    ${FILES_LOGGER}
+    ${FILES_EVENT}
+    ${FILES_TEST}
+)
+
 set_property(TARGET Common PROPERTY FOLDER "Engine")
+target_compile_features(Common PUBLIC cxx_std_17)
+target_include_directories(Common PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Common PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Common PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies
@@ -78,7 +105,6 @@ set_property(TARGET Common PROPERTY FOLDER "Engine")
 
 add_subdirectory("../Reflection" "Reflection")
 target_link_libraries(Common PUBLIC Reflection)
-
 enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #

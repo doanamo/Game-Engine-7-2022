@@ -7,7 +7,7 @@
 #include "Editor/EditorShell.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
-#include <Core/PerformanceMetrics.hpp>
+#include <Core/EngineMetrics.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -26,7 +26,7 @@ bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
     auto& engineSystems = editorContext->GetEngineSystems();
 
-    m_performanceMetrics = engineSystems.Locate<Core::PerformanceMetrics>();
+    m_engineMetrics = engineSystems.Locate<Core::EngineMetrics>();
     m_window = engineSystems.Locate<System::Window>();
 
     // Create editor modules.
@@ -136,7 +136,7 @@ void EditorShell::DisplayFramerate()
     if(ImGui::Begin("Framerate Counter Button", 0, flags))
     {
         if(ImGui::Button(fmt::format("FPS: {:.0f} ({:.5f} ms)",
-            m_performanceMetrics->GetFrameRate(), m_performanceMetrics->GetFrameTime()).c_str()))
+            m_engineMetrics->GetFrameRate(), m_engineMetrics->GetFrameTime()).c_str()))
         {
         }
     }

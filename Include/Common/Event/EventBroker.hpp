@@ -10,7 +10,7 @@
 #include <Reflection/Reflection.hpp>
 #include "Common/Result.hpp"
 #include "Common/Event/EventBase.hpp"
-#include "Common/Event/Dispatcher.hpp"
+#include "Common/Event/EventDispatcher.hpp"
 
 /*
     Event Broker

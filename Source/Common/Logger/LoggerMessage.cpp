@@ -4,8 +4,8 @@
 */
 
 #include "Common/Precompiled.hpp"
-#include "Common/Logger/Message.hpp"
-#include "Common/Logger/Sink.hpp"
+#include "Common/Logger/LoggerMessage.hpp"
+#include "Common/Logger/LoggerSink.hpp"
 using namespace Logger;
 
 Message::Message(Message&& other)

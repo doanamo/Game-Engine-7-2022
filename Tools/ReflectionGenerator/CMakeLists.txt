@@ -19,13 +19,14 @@ set(SOURCE_FILES
 )
 
 if(NOT EMSCRIPTEN)
-    project(ReflectionGenerator)
     add_executable(ReflectionGenerator ${SOURCE_FILES})
     target_compile_features(ReflectionGenerator PUBLIC cxx_std_17)
     export(TARGETS ReflectionGenerator FILE "${CMAKE_BINARY_DIR}/ReflectionGenerator.cmake")
 
     set_property(TARGET ReflectionGenerator PROPERTY FOLDER "Tools")
     set_property(GLOBAL PROPERTY REFLECTION_GENERATOR ReflectionGenerator)
+
+    source_group("" FILES ${SOURCE_FILES})
 else()
     include("${CMAKE_BINARY_DIR}/ReflectionGenerator/ReflectionGenerator.cmake")
 

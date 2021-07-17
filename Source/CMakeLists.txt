@@ -10,33 +10,35 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Engine.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_ENGINE
+    "${INCLUDE_DIR}/Engine.hpp"
+    "${SOURCE_DIR}/Engine.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../Include/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "Engine.cpp"
-)
-
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group("" FILES ${FILES_ENGINE})
 
 #
 # Library
 #
 
-project(Engine)
-add_library(Engine ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Engine PUBLIC cxx_std_17)
-target_include_directories(Engine PUBLIC "../Include" "../../Source")
-target_precompile_headers(Engine PRIVATE "Precompiled.hpp")
+add_library(Engine
+    ${FILES_ENGINE}
+)
+
 set_property(TARGET Engine PROPERTY FOLDER "Engine")
+target_compile_features(Engine PUBLIC cxx_std_17)
+target_include_directories(Engine PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Engine PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Engine PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

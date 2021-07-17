@@ -6,9 +6,9 @@
 #pragma once
 
 #include "Common/Debug.hpp"
-#include "Common/Event/Dispatcher.hpp"
-#include "Common/Event/Delegate.hpp"
-#include "Common/Event/Policies.hpp"
+#include "Common/Delegate.hpp"
+#include "Common/Event/EventDispatcher.hpp"
+#include "Common/Event/EventPolicies.hpp"
 
 namespace Event
 {

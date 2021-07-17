@@ -6,7 +6,7 @@
 #pragma once
 
 #include <string>
-#include "Common/Logger/Sink.hpp"
+#include "Common/Logger/LoggerSink.hpp"
 
 /*
     Message

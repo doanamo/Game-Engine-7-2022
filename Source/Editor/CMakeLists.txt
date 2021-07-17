@@ -10,53 +10,63 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "EditorSystem.hpp"
-    "EditorSubsystem.hpp"
-    "EditorShell.hpp"
-    "EditorModule.hpp"
-    "EditorConsole.hpp"
-    "EditorRenderer.hpp"
-    "Modules/InputManagerEditor.hpp"
-    "Modules/GameInstanceEditor.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Editor")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_RESOURCES
+    "${PROJECT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Interface.shader"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Editor/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "EditorSystem.cpp"
-    "EditorShell.cpp"
-    "EditorConsole.cpp"
-    "EditorRenderer.cpp"
-    "Modules/InputManagerEditor.cpp"
-    "Modules/GameInstanceEditor.cpp"
+set(FILES_MODULES
+    "${INCLUDE_DIR}/EditorModule.hpp"
+    "${INCLUDE_DIR}/Modules/InputManagerEditor.hpp"
+    "${INCLUDE_DIR}/Modules/GameInstanceEditor.hpp"
+    "${SOURCE_DIR}/Modules/InputManagerEditor.cpp"
+    "${SOURCE_DIR}/Modules/GameInstanceEditor.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
-
-set(RESOURCE_FILES
-    "Shaders/Interface.shader"
+set(FILES_SUBSYSTEMS
+    "${INCLUDE_DIR}/EditorSubsystem.hpp"
+    "${INCLUDE_DIR}/EditorShell.hpp"
+    "${INCLUDE_DIR}/EditorConsole.hpp"
+    "${INCLUDE_DIR}/EditorRenderer.hpp"
+    "${SOURCE_DIR}/EditorShell.cpp"
+    "${SOURCE_DIR}/EditorConsole.cpp"
+    "${SOURCE_DIR}/EditorRenderer.cpp"
 )
 
-set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/")
-list(TRANSFORM RESOURCE_FILES PREPEND ${RESOURCE_DIR})
-source_group(TREE ${RESOURCE_DIR} PREFIX "Resource Files" FILES ${RESOURCE_FILES})
+set(FILES_EDITOR
+    "${INCLUDE_DIR}/EditorSystem.hpp"
+    "${SOURCE_DIR}/EditorSystem.cpp"
+)
+
+source_group("Resources" FILES ${FILES_RESOURCES})
+source_group("Modules" FILES ${FILES_MODULES})
+source_group("Subsystems" FILES ${FILES_SUBSYSTEMS})
+source_group("" FILES ${FILES_EDITOR})
 
 #
 # Library
 #
 
-project(Editor)
-add_library(Editor ${INCLUDE_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
-target_compile_features(Editor PUBLIC cxx_std_17)
-target_include_directories(Editor PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Editor PRIVATE "Precompiled.hpp")
+add_library(Editor
+    ${FILES_RESOURCES}
+    ${FILES_MODULES}
+    ${FILES_SUBSYSTEMS}
+    ${FILES_EDITOR}
+)
+
 set_property(TARGET Editor PROPERTY FOLDER "Engine")
+target_compile_features(Editor PUBLIC cxx_std_17)
+target_include_directories(Editor PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Editor PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Editor PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

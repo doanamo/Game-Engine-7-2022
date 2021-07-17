@@ -10,16 +10,16 @@ include_guard(GLOBAL)
 # Files
 #
 
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 set(SOURCE_FILES
-    "Main.cpp"
-    "Precompiled.hpp"
-    "GameStates/SpriteDemo.hpp"
-    "GameStates/SpriteDemo.cpp"
+    "${SOURCE_DIR}/Main.cpp"
+    "${SOURCE_DIR}/Precompiled.hpp"
+    "${SOURCE_DIR}/GameStates/SpriteDemo.hpp"
+    "${SOURCE_DIR}/GameStates/SpriteDemo.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group(TREE ${SOURCE_DIR} PREFIX "" FILES ${SOURCE_FILES})
 
 #
 # Application
@@ -31,7 +31,12 @@ set(TARGET_NAME Example)
 project(${PROJECT_NAME})
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
-target_precompile_headers(${TARGET_NAME} PRIVATE "Precompiled.hpp")
+
+
+target_sources(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

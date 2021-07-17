@@ -8,7 +8,7 @@
 #include <Build/Build.hpp>
 #include <Reflection/Reflection.hpp>
 #include <Core/Config.hpp>
-#include <Core/PerformanceMetrics.hpp>
+#include <Core/EngineMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
 #include <System/FileSystem/FileSystem.hpp>
@@ -101,7 +101,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
     // Create remaining engine systems.
     const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
-        Reflection::GetIdentifier<Core::PerformanceMetrics>(),
+        Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<System::Platform>(),
         Reflection::GetIdentifier<System::FileSystem>(),
         Reflection::GetIdentifier<System::Window>(),
@@ -172,7 +172,7 @@ void Root::ProcessFrame()
 
     Logger::AdvanceFrameReference();
 
-    auto* performanceMetrics = m_engineSystems.Locate<Core::PerformanceMetrics>();
+    auto* metrics = m_engineSystems.Locate<Core::EngineMetrics>();
     auto* timer = m_engineSystems.Locate<System::Timer>();
     auto* window = m_engineSystems.Locate<System::Window>();
     auto* inputManager = m_engineSystems.Locate<System::InputManager>();
@@ -182,7 +182,7 @@ void Root::ProcessFrame()
 
     const float timeDelta = timer->Advance(m_maxUpdateDelta);
 
-    performanceMetrics->MarkFrameStart();
+    metrics->MarkFrameStart();
     resourceManager->ReleaseUnused();
     window->ProcessEvents();
 
@@ -195,7 +195,7 @@ void Root::ProcessFrame()
     editorSystem->EndInterface();
 
     window->Present();
-    performanceMetrics->MarkFrameEnd();
+    metrics->MarkFrameEnd();
 }
 
 Root::ErrorCode Root::Run()

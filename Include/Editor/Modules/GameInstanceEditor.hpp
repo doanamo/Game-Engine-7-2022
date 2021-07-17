@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/Receiver.hpp>
+#include <Common/Event/EventReceiver.hpp>
 #include "Editor/EditorModule.hpp"
 
 namespace Game

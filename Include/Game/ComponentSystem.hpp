@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/Receiver.hpp>
+#include <Common/Event/EventReceiver.hpp>
 #include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 #include "Game/ComponentPool.hpp"

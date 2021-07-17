@@ -7,9 +7,9 @@
 
 #include <functional>
 #include "Common/LinkedList.hpp"
-#include "Common/Event/Collector.hpp"
-#include "Common/Event/Receiver.hpp"
-#include "Common/Event/Policies.hpp"
+#include "Common/Event/EventCollector.hpp"
+#include "Common/Event/EventReceiver.hpp"
+#include "Common/Event/EventPolicies.hpp"
 
 namespace Event
 {

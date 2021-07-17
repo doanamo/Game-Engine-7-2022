@@ -4,12 +4,12 @@
 */
 
 #include <doctest/doctest.h>
+#include <Common/Delegate.hpp>
+#include <Common/Event/EventCollector.hpp>
+#include <Common/Event/EventDispatcher.hpp>
+#include <Common/Event/EventReceiver.hpp>
+#include <Common/Event/EventBroker.hpp>
 #include <Common/Test/InstanceCounter.hpp>
-#include <Common/Event/Delegate.hpp>
-#include <Common/Event/Collector.hpp>
-#include <Common/Event/Dispatcher.hpp>
-#include <Common/Event/Receiver.hpp>
-#include <Common/Event/Broker.hpp>
 
 static const char* Text = "0123456789";
 

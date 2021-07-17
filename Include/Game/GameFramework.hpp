@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/Dispatcher.hpp>
+#include <Common/Event/EventDispatcher.hpp>
 #include <Core/EngineSystem.hpp>
 #include "Game/GameState.hpp"
 

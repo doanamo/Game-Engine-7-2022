@@ -10,33 +10,35 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "GameRenderer.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Renderer")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_RENDERER
+    "${INCLUDE_DIR}/GameRenderer.hpp"
+    "${SOURCE_DIR}/GameRenderer.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Renderer/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "GameRenderer.cpp"
-)
-
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group("" FILES ${FILES_RENDERER})
 
 #
 # Library
 #
 
-project(Renderer)
-add_library(Renderer ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Renderer PUBLIC cxx_std_17)
-target_include_directories(Renderer PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Renderer PRIVATE "Precompiled.hpp")
+add_library(Renderer
+    ${FILES_RENDERER}
+)
+
 set_property(TARGET Renderer PROPERTY FOLDER "Engine")
+target_compile_features(Renderer PUBLIC cxx_std_17)
+target_include_directories(Renderer PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Renderer PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Renderer PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

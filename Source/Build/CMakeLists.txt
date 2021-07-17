@@ -10,33 +10,37 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Build.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Build")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_GENERATED
+    "${SOURCE_DIR}/BuildInfo.hpp.in"
+    "${SOURCE_DIR}/BuildInfo.cmake"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Build/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Build.cpp"
-    "BuildInfo.hpp.in"
-    "BuildInfo.cmake"
+set(FILES_BUILD
+    "${INCLUDE_DIR}/Build.hpp"
+    "${SOURCE_DIR}/Build.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group("Generated" FILES ${FILES_GENERATED})
+source_group("" FILES ${FILES_BUILD})
 
 #
 # Library
 #
 
-project(Build)
-add_library(Build ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Build PUBLIC cxx_std_17)
-target_include_directories(Build PUBLIC "../../Include" "../../Source")
+add_library(Build
+    ${FILES_GENERATED}
+    ${FILES_BUILD}
+)
+
 set_property(TARGET Build PROPERTY FOLDER "Engine")
+target_compile_features(Build PUBLIC cxx_std_17)
+target_include_directories(Build PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
 
 #
 # Dependencies
@@ -67,7 +71,8 @@ set_property(TARGET BuildInfo PROPERTY FOLDER "Generated")
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.
-# We have to create a dummy file as it will not be generated yet.
+# Create empty output file first otherwise CMake will complain.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
+source_group("Generated" FILES "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
 target_sources(Build PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
 target_include_directories(Build PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")

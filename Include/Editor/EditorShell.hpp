@@ -12,7 +12,7 @@
 
 namespace Core
 {
-    class PerformanceMetrics;
+    class EngineMetrics;
 };
 
 namespace System
@@ -45,7 +45,7 @@ namespace Editor
         void DisplayFramerate();
 
     private:
-        Core::PerformanceMetrics* m_performanceMetrics = nullptr;
+        Core::EngineMetrics* m_engineMetrics = nullptr;
         System::Window* m_window = nullptr;
 
         EditorModuleStorage m_editorModules;

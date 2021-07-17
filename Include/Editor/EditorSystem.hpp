@@ -7,7 +7,7 @@
 
 #include <Core/EngineSystem.hpp>
 #include <Core/SystemStorage.hpp>
-#include <Common/Event/Receiver.hpp>
+#include <Common/Event/EventReceiver.hpp>
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"
 

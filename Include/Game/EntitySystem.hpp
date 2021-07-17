@@ -7,7 +7,7 @@
 
 #include <queue>
 #include <Common/HandleMap.hpp>
-#include <Common/Event/Dispatcher.hpp>
+#include <Common/Event/EventDispatcher.hpp>
 #include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 

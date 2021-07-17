@@ -21,7 +21,6 @@ set(TEST_FILES
 # Test
 #
 
-project(TestReflection)
 add_executable(TestReflection ${TEST_FILES})
 target_compile_features(TestReflection PUBLIC cxx_std_17)
 add_test("Reflection" TestReflection)

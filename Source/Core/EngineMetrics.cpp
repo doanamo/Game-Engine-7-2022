@@ -4,7 +4,7 @@
 */
 
 #include "Core/Precompiled.hpp"
-#include "Core/PerformanceMetrics.hpp"
+#include "Core/EngineMetrics.hpp"
 using namespace Core;
 
 namespace
@@ -12,15 +12,15 @@ namespace
     float FrameRateUpdateFrequency = 1.0f;
 }
 
-PerformanceMetrics::PerformanceMetrics() = default;
-PerformanceMetrics::~PerformanceMetrics() = default;
+EngineMetrics::EngineMetrics() = default;
+EngineMetrics::~EngineMetrics() = default;
 
-void PerformanceMetrics::MarkFrameStart()
+void EngineMetrics::MarkFrameStart()
 {
     m_frameStart = std::chrono::steady_clock::now();
 }
 
-void PerformanceMetrics::MarkFrameEnd()
+void EngineMetrics::MarkFrameEnd()
 {
     m_frameEnd = std::chrono::steady_clock::now();
 
@@ -37,12 +37,12 @@ void PerformanceMetrics::MarkFrameEnd()
     }
 }
 
-float PerformanceMetrics::GetFrameTime() const
+float EngineMetrics::GetFrameTime() const
 {
     return m_frameTimeAverage;
 }
 
-float PerformanceMetrics::GetFrameRate() const
+float EngineMetrics::GetFrameRate() const
 {
     return 1.0f / GetFrameTime();
 }

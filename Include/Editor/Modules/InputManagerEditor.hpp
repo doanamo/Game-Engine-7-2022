@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/Receiver.hpp>
+#include <Common/Event/EventReceiver.hpp>
 #include <System/WindowEvents.hpp>
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorModule.hpp"

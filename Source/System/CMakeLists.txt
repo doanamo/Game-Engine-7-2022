@@ -10,66 +10,93 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Platform.hpp"
-    "Timer.hpp"
-    "Window.hpp"
-    "WindowEvents.hpp"
-    "InputDefinitions.hpp"
-    "InputState.hpp"
-    "InputManager.hpp"
-    "ResourcePool.hpp"
-    "ResourceManager.hpp"
-    "Image.hpp"
-    "FileSystem/FileSystem.hpp"
-    "FileSystem/FileHandle.hpp"
-    "FileSystem/FileDepot.hpp"
-    "FileSystem/NativeFileHandle.hpp"
-    "FileSystem/NativeFileDepot.hpp"
-    "FileSystem/MemoryFileHandle.hpp"
-    "FileSystem/MemoryFileDepot.hpp"
-    "FileSystem/ArchiveFileHandle.hpp"
-    "FileSystem/ArchiveFileDepot.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/System")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_FILESYSTEM
+    "${INCLUDE_DIR}/FileSystem/FileSystem.hpp"
+    "${INCLUDE_DIR}/FileSystem/FileHandle.hpp"
+    "${INCLUDE_DIR}/FileSystem/FileDepot.hpp"
+    "${INCLUDE_DIR}/FileSystem/NativeFileHandle.hpp"
+    "${INCLUDE_DIR}/FileSystem/NativeFileDepot.hpp"
+    "${INCLUDE_DIR}/FileSystem/MemoryFileHandle.hpp"
+    "${INCLUDE_DIR}/FileSystem/MemoryFileDepot.hpp"
+    "${INCLUDE_DIR}/FileSystem/ArchiveFileHandle.hpp"
+    "${INCLUDE_DIR}/FileSystem/ArchiveFileDepot.hpp"
+    "${SOURCE_DIR}/FileSystem/FileSystem.cpp"
+    "${SOURCE_DIR}/FileSystem/FileHandle.cpp"
+    "${SOURCE_DIR}/FileSystem/NativeFileHandle.cpp"
+    "${SOURCE_DIR}/FileSystem/NativeFileDepot.cpp"
+    "${SOURCE_DIR}/FileSystem/MemoryFileHandle.cpp"
+    "${SOURCE_DIR}/FileSystem/MemoryFileDepot.cpp"
+    "${SOURCE_DIR}/FileSystem/ArchiveFileHandle.cpp"
+    "${SOURCE_DIR}/FileSystem/ArchiveFileDepot.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/System/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "Platform.cpp"
-    "Timer.cpp"
-    "Window.cpp"
-    "InputDefinitions.cpp"
-    "InputState.cpp"
-    "InputManager.cpp"
-    "ResourceManager.cpp"
-    "Image.cpp"
-    "FileSystem/FileSystem.cpp"
-    "FileSystem/FileHandle.cpp"
-    "FileSystem/NativeFileHandle.cpp"
-    "FileSystem/NativeFileDepot.cpp"
-    "FileSystem/MemoryFileHandle.cpp"
-    "FileSystem/MemoryFileDepot.cpp"
-    "FileSystem/ArchiveFileHandle.cpp"
-    "FileSystem/ArchiveFileDepot.cpp"
+set(FILES_RESOURCEMANAGER
+    "${INCLUDE_DIR}/ResourcePool.hpp"
+    "${INCLUDE_DIR}/ResourceManager.hpp"
+    "${SOURCE_DIR}/ResourceManager.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(FILES_INPUT
+    "${INCLUDE_DIR}/InputDefinitions.hpp"
+    "${INCLUDE_DIR}/InputState.hpp"
+    "${INCLUDE_DIR}/InputManager.hpp"
+    "${SOURCE_DIR}/InputDefinitions.cpp"
+    "${SOURCE_DIR}/InputState.cpp"
+    "${SOURCE_DIR}/InputManager.cpp"
+)
+
+set(FILES_WINDOW
+    "${INCLUDE_DIR}/Window.hpp"
+    "${INCLUDE_DIR}/WindowEvents.hpp"
+    "${SOURCE_DIR}/Window.cpp"
+)
+
+set(FILES_UTILITY
+    "${INCLUDE_DIR}/Timer.hpp"
+    "${INCLUDE_DIR}/Image.hpp"
+    "${SOURCE_DIR}/Timer.cpp"
+    "${SOURCE_DIR}/Image.cpp"
+)
+
+set(FILES_SYSTEM
+    "${INCLUDE_DIR}/Platform.hpp"
+    "${SOURCE_DIR}/Platform.cpp"
+)
+
+source_group("FileSystem" FILES ${FILES_FILESYSTEM})
+source_group("ResourceManager" FILES ${FILES_RESOURCEMANAGER})
+source_group("Input" FILES ${FILES_INPUT})
+source_group("Window" FILES ${FILES_WINDOW})
+source_group("Utility" FILES ${FILES_UTILITY})
+source_group("" FILES ${FILES_SYSTEM})
 
 #
 # Library
 #
 
-project(System)
-add_library(System ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(System PUBLIC cxx_std_17)
-target_include_directories(System PUBLIC "../../Include" "../../Source")
-target_precompile_headers(System PRIVATE "Precompiled.hpp")
+add_library(System
+    ${FILES_FILESYSTEM}
+    ${FILES_RESOURCEMANAGER}
+    ${FILES_INPUT}
+    ${FILES_WINDOW}
+    ${FILES_UTILITY}
+    ${FILES_SYSTEM}
+)
+
 set_property(TARGET System PROPERTY FOLDER "Engine")
+target_compile_features(System PUBLIC cxx_std_17)
+target_include_directories(System PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(System PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(System PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

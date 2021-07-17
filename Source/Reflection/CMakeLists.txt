@@ -10,42 +10,49 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Reflection.hpp"
-    "ReflectionUtility.hpp"
-    "ReflectionDetail.hpp"
-    "ReflectionStatic.hpp"
-    "ReflectionDynamic.hpp"
-    "ReflectionRegistry.hpp"
-    "ReflectionDeclare.hpp"
-    "ReflectionTypes.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Reflection")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_DETAIL
+    "${INCLUDE_DIR}/ReflectionUtility.hpp"
+    "${INCLUDE_DIR}/ReflectionDetail.hpp"
+    "${INCLUDE_DIR}/ReflectionStatic.hpp"
+    "${INCLUDE_DIR}/ReflectionDynamic.hpp"
+    "${INCLUDE_DIR}/ReflectionRegistry.hpp"
+    "${INCLUDE_DIR}/ReflectionDeclare.hpp"
+    "${INCLUDE_DIR}/ReflectionTypes.hpp"
+    "${SOURCE_DIR}/ReflectionDynamic.cpp"
+    "${SOURCE_DIR}/ReflectionRegistry.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Reflection/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "Reflection.cpp"
-    "ReflectionDynamic.cpp"
-    "ReflectionRegistry.cpp"
+set(FILES_REFLECTION
+    "${INCLUDE_DIR}/Reflection.hpp"
+    "${SOURCE_DIR}/Reflection.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group("Detail" FILES ${FILES_DETAIL})
+source_group("" FILES ${FILES_REFLECTION})
 
 #
 # Library
 #
 
-project(Reflection)
-add_library(Reflection ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Reflection PUBLIC cxx_std_17)
-target_include_directories(Reflection PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Reflection PRIVATE "Precompiled.hpp")
+add_library(Reflection
+    ${FILES_DETAIL}
+    ${FILES_REFLECTION}
+)
+
 set_property(TARGET Reflection PROPERTY FOLDER "Engine")
+target_compile_features(Reflection PUBLIC cxx_std_17)
+target_include_directories(Reflection PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Reflection PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Reflection PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies
@@ -61,7 +68,6 @@ target_link_libraries(Reflection PUBLIC Common)
 add_subdirectory("../../Tools/ReflectionGenerator" "ReflectionGenerator")
 
 function(collect_reflected_dependencies TARGET_NAME OUTPUT_LIST)
-
     get_target_property(TARGET_LINK_LIBRARIES ${TARGET_NAME} LINK_LIBRARIES)
 
     if(TARGET_LINK_LIBRARIES)
@@ -105,5 +111,6 @@ function(enable_reflection TARGET_NAME)
     target_sources(${TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_BINARY_DIR}/Include/${TARGET_NAME}/ReflectionGenerated.hpp")
 
+    source_group("Generated\\Reflection" REGULAR_EXPRESSION "ReflectionGenerated")
     set_target_properties(${TARGET_NAME} PROPERTIES REFLECTION_ENABLED TRUE)
 endfunction()

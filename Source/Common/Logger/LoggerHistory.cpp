@@ -4,8 +4,8 @@
 */
 
 #include "Common/Precompiled.hpp"
-#include "Common/Logger/History.hpp"
-#include "Common/Logger/Format.hpp"
+#include "Common/Logger/LoggerHistory.hpp"
+#include "Common/Logger/LoggerFormat.hpp"
 using namespace Logger;
 
 namespace

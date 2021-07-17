@@ -10,67 +10,77 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "RenderContext.hpp"
-    "RenderState.hpp"
-    "ScreenSpace.hpp"
-    "Buffer.hpp"
-    "VertexArray.hpp"
-    "Texture.hpp"
-    "TextureView.hpp"
-    "TextureAtlas.hpp"
-    "Sampler.hpp"
-    "Shader.hpp"
-    "Sprite/Sprite.hpp"
-    "Sprite/SpriteDrawList.hpp"
-    "Sprite/SpriteRenderer.hpp"
-    "Sprite/SpriteAnimationList.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Graphics")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_RESOURCES
+    "${PROJECT_SOURCE_DIR}/Deploy/Data/Engine/Shaders/Sprite.shader"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Graphics/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "RenderContext.cpp"
-    "RenderState.cpp"
-    "ScreenSpace.cpp"
-    "Buffer.cpp"
-    "VertexArray.cpp"
-    "Texture.cpp"
-    "TextureView.cpp"
-    "TextureAtlas.cpp"
-    "Sampler.cpp"
-    "Shader.cpp"
-    "Sprite/Sprite.cpp"
-    "Sprite/SpriteDrawList.cpp"
-    "Sprite/SpriteRenderer.cpp"
-    "Sprite/SpriteAnimationList.cpp"
+set(FILES_SPRITE
+    "${INCLUDE_DIR}/Sprite/Sprite.hpp"
+    "${INCLUDE_DIR}/Sprite/SpriteDrawList.hpp"
+    "${INCLUDE_DIR}/Sprite/SpriteRenderer.hpp"
+    "${INCLUDE_DIR}/Sprite/SpriteAnimationList.hpp"
+    "${SOURCE_DIR}/Sprite/Sprite.cpp"
+    "${SOURCE_DIR}/Sprite/SpriteDrawList.cpp"
+    "${SOURCE_DIR}/Sprite/SpriteRenderer.cpp"
+    "${SOURCE_DIR}/Sprite/SpriteAnimationList.cpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
-
-set(RESOURCE_FILES
-    "Shaders/Sprite.shader"
+set(FILES_OBJECTS
+    "${INCLUDE_DIR}/ScreenSpace.hpp"
+    "${INCLUDE_DIR}/Buffer.hpp"
+    "${INCLUDE_DIR}/VertexArray.hpp"
+    "${INCLUDE_DIR}/Texture.hpp"
+    "${INCLUDE_DIR}/TextureView.hpp"
+    "${INCLUDE_DIR}/TextureAtlas.hpp"
+    "${INCLUDE_DIR}/Sampler.hpp"
+    "${INCLUDE_DIR}/Shader.hpp"
+    "${SOURCE_DIR}/ScreenSpace.cpp"
+    "${SOURCE_DIR}/Buffer.cpp"
+    "${SOURCE_DIR}/VertexArray.cpp"
+    "${SOURCE_DIR}/Texture.cpp"
+    "${SOURCE_DIR}/TextureView.cpp"
+    "${SOURCE_DIR}/TextureAtlas.cpp"
+    "${SOURCE_DIR}/Sampler.cpp"
+    "${SOURCE_DIR}/Shader.cpp"
 )
 
-set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Deploy/Data/Engine/")
-list(TRANSFORM RESOURCE_FILES PREPEND ${RESOURCE_DIR})
-source_group(TREE ${RESOURCE_DIR} PREFIX "Resource Files" FILES ${RESOURCE_FILES})
+set(FILES_CONTEXT
+    "${INCLUDE_DIR}/RenderContext.hpp"
+    "${INCLUDE_DIR}/RenderState.hpp"
+    "${SOURCE_DIR}/RenderContext.cpp"
+    "${SOURCE_DIR}/RenderState.cpp"
+)
+
+source_group("Resources" FILES ${FILES_RESOURCES})
+source_group("Sprite" FILES ${FILES_SPRITE})
+source_group("Objects" FILES ${FILES_OBJECTS})
+source_group("Context" FILES ${FILES_CONTEXT})
 
 #
 # Library
 #
 
-project(Graphics)
-add_library(Graphics ${INCLUDE_FILES} ${SOURCE_FILES} ${RESOURCE_FILES})
-target_compile_features(Graphics PUBLIC cxx_std_17)
-target_include_directories(Graphics PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Graphics PRIVATE "Precompiled.hpp")
+add_library(Graphics
+    ${FILES_RESOURCES}
+    ${FILES_SPRITE}
+    ${FILES_OBJECTS}
+    ${FILES_CONTEXT}
+)
+
 set_property(TARGET Graphics PROPERTY FOLDER "Engine")
+target_compile_features(Graphics PUBLIC cxx_std_17)
+target_include_directories(Graphics PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Graphics PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Graphics PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

@@ -10,33 +10,35 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "ScriptState.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Script")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_SCRIPT
+    "${INCLUDE_DIR}/ScriptState.hpp"
+    "${SOURCE_DIR}/ScriptState.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Script/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "ScriptState.cpp"
-)
-
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+source_group("" FILES ${FILES_SCRIPT})
 
 #
 # Library
 #
 
-project(Script)
-add_library(Script ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Script PUBLIC cxx_std_17)
-target_include_directories(Script PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Script PRIVATE "Precompiled.hpp")
+add_library(Script
+    ${FILES_SCRIPT}
+)
+
 set_property(TARGET Script PROPERTY FOLDER "Engine")
+target_compile_features(Script PUBLIC cxx_std_17)
+target_include_directories(Script PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Script PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Script PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies
@@ -47,6 +49,8 @@ target_link_libraries(Script PRIVATE Core)
 
 add_subdirectory("../System" "System")
 target_link_libraries(Script PRIVATE System)
+
+enable_reflection(Script ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #
 # External

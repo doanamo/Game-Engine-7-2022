@@ -8,21 +8,21 @@
 #include "Core/EngineSystem.hpp"
 
 /*
-    Performance Metrics
+    Engine Metrics
 
-    Utility subsystem for tracking important performance events and their
+    Utility subsystem for tracking important engine events and their
     timings, such as frame start/end times used to calculate framerate.
 */
 
 namespace Core
 {
-    class PerformanceMetrics final : public EngineSystem
+    class EngineMetrics final : public EngineSystem
     {
-        REFLECTION_ENABLE(PerformanceMetrics, EngineSystem)
+        REFLECTION_ENABLE(EngineMetrics, EngineSystem)
 
     public:
-        PerformanceMetrics();
-        ~PerformanceMetrics() override;
+        EngineMetrics();
+        ~EngineMetrics() override;
 
         void MarkFrameStart();
         void MarkFrameEnd();
@@ -41,4 +41,4 @@ namespace Core
     };
 }
 
-REFLECTION_TYPE(Core::PerformanceMetrics, Core::EngineSystem)
+REFLECTION_TYPE(Core::EngineMetrics, Core::EngineSystem)

@@ -10,41 +10,58 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(INCLUDE_FILES
-    "Core.hpp"
-    "SystemInterface.hpp"
-    "SystemStorage.hpp"
-    "EngineSystem.hpp"
-    "Config.hpp"
-    "ConfigTypes.hpp"
-    "PerformanceMetrics.hpp"
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Core")
+set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(FILES_CONFIG
+    "${INCLUDE_DIR}/Config.hpp"
+    "${INCLUDE_DIR}/ConfigTypes.hpp"
+    "${SOURCE_DIR}/Config.cpp"
 )
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../Include/Core/")
-list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR})
-source_group(TREE ${INCLUDE_DIR} PREFIX "Header Files" FILES ${INCLUDE_FILES})
-
-set(SOURCE_FILES
-    "Precompiled.hpp"
-    "Core.cpp"
-    "Config.cpp"
-    "PerformanceMetrics.cpp"
+set(FILES_SYSTEMS
+    "${INCLUDE_DIR}/SystemInterface.hpp"
+    "${INCLUDE_DIR}/SystemStorage.hpp"
+    "${INCLUDE_DIR}/EngineSystem.hpp"
 )
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/")
-list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_DIR})
-source_group(TREE ${SOURCE_DIR} PREFIX "Source Files" FILES ${SOURCE_FILES})
+set(FILES_METRICS
+    "${INCLUDE_DIR}/EngineMetrics.hpp"
+    "${SOURCE_DIR}/EngineMetrics.cpp"
+)
+
+set(FILES_CORE
+    "${INCLUDE_DIR}/Core.hpp"
+    "${SOURCE_DIR}/Core.cpp"
+)
+
+source_group("Config" FILES ${FILES_CONFIG})
+source_group("Systems" FILES ${FILES_SYSTEMS})
+source_group("Metrics" FILES ${FILES_METRICS})
+source_group("" FILES ${FILES_CORE})
 
 #
 # Library
 #
 
-project(Core)
-add_library(Core ${INCLUDE_FILES} ${SOURCE_FILES})
-target_compile_features(Core PUBLIC cxx_std_17)
-target_include_directories(Core PUBLIC "../../Include" "../../Source")
-target_precompile_headers(Core PRIVATE "Precompiled.hpp")
+add_library(Core
+    ${FILES_CONFIG}
+    ${FILES_SYSTEMS}
+    ${FILES_METRICS}
+    ${FILES_CORE}
+)
+
 set_property(TARGET Core PROPERTY FOLDER "Engine")
+target_compile_features(Core PUBLIC cxx_std_17)
+target_include_directories(Core PUBLIC
+    "${PROJECT_SOURCE_DIR}/Include"
+    "${PROJECT_SOURCE_DIR}/Source"
+)
+
+target_sources(Core PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Core PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 
 #
 # Dependencies

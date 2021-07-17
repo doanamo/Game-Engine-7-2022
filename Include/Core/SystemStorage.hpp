@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/Delegate.hpp>
+#include <Common/Delegate.hpp>
 #include "Core/SystemInterface.hpp"
 
 /*
