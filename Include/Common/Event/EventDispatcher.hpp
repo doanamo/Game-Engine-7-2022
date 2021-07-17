@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <functional>
 #include "Common/LinkedList.hpp"
 #include "Common/Event/EventCollector.hpp"
 #include "Common/Event/EventReceiver.hpp"

@@ -32,7 +32,6 @@ project(${PROJECT_NAME})
 add_executable(${TARGET_NAME} ${SOURCE_FILES})
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_17)
 
-
 target_sources(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_precompile_headers(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")

@@ -3,6 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
+#include <memory>
+#include <functional>
 #include <doctest/doctest.h>
 #include <Common/Delegate.hpp>
 #include <Common/Event/EventCollector.hpp>
