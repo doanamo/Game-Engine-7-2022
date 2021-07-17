@@ -369,6 +369,8 @@ int main(int argc, const char* argv[])
         "\n"
         "    void RegisterModule" << parameters.targetName << "()\n"
         "    {\n"
+        "        LOG(\"Registering types from " << parameters.targetName << " module...\");\n"
+        "        LOG_SCOPED_INDENT();\n\n"
         "        static bool registered = false;\n"
         "        if(registered)\n"
         "            return;\n";
@@ -398,7 +400,9 @@ int main(int argc, const char* argv[])
         reflectionBinding <<
             "\n"
             "    void RegisterExecutable()\n"
-            "    {\n";
+            "    {\n"
+            "        LOG(\"Registering reflected types...\");\n"
+            "        LOG_SCOPED_INDENT();\n\n";
 
         for(const auto& dependency : parameters.targetDependencies)
         {
