@@ -27,22 +27,21 @@ namespace
             return;
 
         // Add message history as output.
+        // Add default output sinks.
         GlobalSink.AddOutput(&GlobalHistory);
+        GlobalSink.AddOutput(&GlobalDebuggerOutput);
 
-        // Add file output.
         if(GlobalFileOutput.Open("Log.txt"))
         {
             GlobalSink.AddOutput(&GlobalFileOutput);
         }
 
-        // Add console output.
-        // Console window is disabled by default.
-        #if 0
+ #if WIN32
+        if(GetConsoleWindow())
+        {
             GlobalSink.AddOutput(&GlobalConsoleOutput);
-        #endif
-
-        // Add debugger output.
-        GlobalSink.AddOutput(&GlobalDebuggerOutput);
+        }
+ #endif
 
         // Set initialization state.
         GlobalLoggerInitialized = true;
