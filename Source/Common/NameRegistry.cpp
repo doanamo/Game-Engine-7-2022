@@ -35,7 +35,7 @@ void NameRegistry::Register(const Name& name, std::string_view string)
     auto it = m_registry.find(name.GetHash());
     if(it != m_registry.end())
     {
-        ASSERT_EVALUATE(it->second == string, "Detected name hash collision!");
+        ASSERT(it->second == string, "Detected name hash collision!");
     }
     else
     {
