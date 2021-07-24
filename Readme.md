@@ -7,12 +7,13 @@ Repository
 ===
 
 * *Build/* - Build configuration files
+* *Deploy/* - Files needed to run compiled binaries
+* *Example/* - Example project built using this library
+* *External/* - Dependencies such as third party libraries
 * *Include/* - Include files for engine library
 * *Source/* - Source files for engine library
-* *External/* - External dependencies such as third party libraries
-* *Deploy/* - Files needed to run compiled binaries
-* *Example/* - Example project built using engine library
-* *Tests/* - Unit tests and their resources
+* *Tests/* - Code unit tests and their resources
+* *Tools/* - Miscellaneous tools used by engine
 
 Requirements
 ===
@@ -39,7 +40,7 @@ For web browser (manual):
 
 Contributions
 ===
-Engine is not intended nor anywhere close near being suitable for use yet. Please refrain for sending pull requests. However, feel free to open issues for dicussion or any questions about this project and its code!
+Engine is not intended nor anywhere close near being suitable for use yet. For now please refrain for sending pull requests for new features. However, feel free to open issues for dicussion or any questions about this project and its code!
 
 License
 ===
