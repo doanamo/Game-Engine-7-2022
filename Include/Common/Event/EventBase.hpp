@@ -6,7 +6,9 @@
 #pragma once
 
 /*
-    Event
+    Event Base
+
+    Base class for events types.
 */
 
 namespace Event

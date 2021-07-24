@@ -34,17 +34,14 @@ namespace
 
 std::string DefaultFormat::ComposeSessionStart()
 {
-    std::string sessionText;
-
-    // Retrieve current system time.
-    std::tm time = fmt::localtime(std::time(nullptr));
-
     // Format session start text.
-    sessionText += fmt::format("Session started at {:%Y-%m-%d %H:%M:%S}\n\n", time);
+    std::tm time = fmt::localtime(std::time(nullptr));
+    std::string sessionText = fmt::format("Session started at {:%Y-%m-%d %H:%M:%S}\n\n", time);
 
     // Format log message legend text.
     sessionText += fmt::format(
-        "Log message legend: [{}] Trace, [{}] Debug, [{}] Info, [{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
+        "Log message legend: "
+        "[{}] Trace, [{}] Debug, [{}] Info, [{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
         MessageSeverityMarker(Severity::Trace),
         MessageSeverityMarker(Severity::Debug),
         MessageSeverityMarker(Severity::Info),
@@ -55,31 +52,25 @@ std::string DefaultFormat::ComposeSessionStart()
     );
 
     // Format log message format text.
-    sessionText += fmt::format("Log message format: [Time][Frame][Type] Message {{Source:Line}}\n\n");
+    sessionText += fmt::format(
+        "Log message format: [Time][Frame][Type] Message {{Source:Line}}\n\n");
 
-    // Return formated string.
     return sessionText;
 }
 
 std::string DefaultFormat::ComposeMessage(const Message& message, const SinkContext& context)
 {
-    std::string messageText;
-    messageText.reserve(256);
-
     // Retrieve current system time.
     // fmt::localtime() is a thread safe version of std::localtime().
     std::tm time = fmt::localtime(std::time(nullptr));
 
-    // Format current time.
+    // Format log message.
+    std::string messageText;
+    messageText.reserve(256);
+
     messageText += fmt::format("[{:%H:%M:%S}]", time);
-
-    // Format frame reference.
     messageText += fmt::format("[{:03d}]", context.referenceFrame % 1000);
-
-    // Format message severity.
     messageText += fmt::format("[{}]", MessageSeverityMarker(message.GetSeverity()));
-
-    // Format message text with indent.
     messageText += fmt::format(" {: >{}}{}", "", context.messageIndent, message.GetText());
         
     // Format message source.
@@ -121,7 +112,7 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
             }
         }
 
-        // Remove base path to a file.
+        // Remove base path to file.
         if(reverseIt != sourcePath.rend())
         {
             sourcePath.erase(sourcePath.begin(), reverseIt.base());
@@ -133,21 +124,14 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
 
     // Write message suffix.
     messageText += '\n';
-
-    // Return composed string.
     return messageText;
 }
 
 std::string DefaultFormat::ComposeSessionEnd()
 {
-    std::string sessionText;
-
-    // Retrieve current system time.
-    std::tm time = fmt::localtime(std::time(nullptr));
-
     // Format session end string.
+    std::string sessionText;
+    std::tm time = fmt::localtime(std::time(nullptr));
     sessionText += fmt::format("\nSession ended at {:%Y-%m-%d %H:%M:%S}\n\n", time);
-
-    // Return composed string.
     return sessionText;
 }

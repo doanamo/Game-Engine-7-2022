@@ -11,21 +11,7 @@
 /*
     Message
 
-    Object that holds a log message and its properties.
-
-    void ExampleLoggerMessage(Logger::Sink& sink)
-    {
-        // Simply usage of log macro with global sink.
-        // Utilizes fmt library for modern printf formatting.
-        LOG("Hello {}!", "world");
-
-        // Above macro equals to the following:
-        Logger::Message message;
-        message.SetText("Hello world!");
-        message.SetSource(__FILE__);
-        message.SetLine(__LINE__);
-        sink.Write(message);
-    }
+    Object that holds log message and its properties.
 */
 
 namespace Logger
@@ -52,11 +38,7 @@ namespace Logger
     {
     public:
         Message() = default;
-        Message(Message&& other);
-
-        // Destructor left intentionally without virtual dispatch
-        // to save on vtable lookup when ScopeMessage gets destroyed.
-        ~Message() = default;
+        virtual ~Message() = default;
 
         Message(const Message&) = delete;
         Message& operator=(const Message&) = delete;

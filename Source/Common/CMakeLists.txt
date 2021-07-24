@@ -46,7 +46,6 @@ set(FILES_LOGGER
     "${INCLUDE_DIR}/Logger/LoggerOutput.hpp"
     "${INCLUDE_DIR}/Logger/LoggerHistory.hpp"
     "${SOURCE_DIR}/Logger/Logger.cpp"
-    "${SOURCE_DIR}/Logger/LoggerMessage.cpp"
     "${SOURCE_DIR}/Logger/LoggerSink.cpp"
     "${SOURCE_DIR}/Logger/LoggerFormat.cpp"
     "${SOURCE_DIR}/Logger/LoggerOutput.cpp"

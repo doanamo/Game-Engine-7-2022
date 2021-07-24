@@ -38,7 +38,7 @@ TEST_CASE("Utility")
         elements.push_back(243);
         elements.push_back(432);
         elements.push_back(342);
-        Common::ClearContainer(elements);
+        Common::FreeContainer(elements);
 
         CHECK_EQ(elements.size(), 0);
         CHECK_EQ(elements.capacity(), 0);

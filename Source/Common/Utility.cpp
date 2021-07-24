@@ -13,10 +13,12 @@ std::string Common::GetTextFileContent(const std::filesystem::path path)
 
     if(file)
     {
+        // Check file size and allocate space.
         file.seekg(0, std::ios::end);
         content.resize((unsigned int)file.tellg());
         file.seekg(0, std::ios::beg);
 
+        // Read file content.
         file.read(&content[0], content.size());
     }
 
@@ -30,10 +32,12 @@ std::vector<char> Common::GetBinaryFileContent(const std::filesystem::path path)
 
     if(file)
     {
+        // Check file size and allocate space.
         file.seekg(0, std::ios::end);
         content.resize((unsigned int)file.tellg());
         file.seekg(0, std::ios::beg);
 
+        // Read file content.
         file.read(&content[0], content.size());
     }
 
@@ -105,7 +109,6 @@ uint32_t Common::CalculateCrc32(uint32_t crc, const uint8_t* data, std::size_t s
     */
 
     crc = ~crc;
-
     while(size--)
     {
         crc ^= *data++;

@@ -11,9 +11,9 @@
 /*
     Event Queue
 
-    Sequence of different types of events that can be later passed to event
-    broker to be sent via appropriate dispatcher that match their type.
-    Note that events are stored in std::any which can trigger allocations.
+    Sequence of different types of events that can be later passed to event broker to be sent via
+    appropriate dispatcher that match their type. Note that events are stored in std::any which
+    can trigger allocations if event exceeds small storage optimization.
 */
 
 namespace Event

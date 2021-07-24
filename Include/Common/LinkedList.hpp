@@ -11,15 +11,13 @@
 /*
     Linked List
 
-    Circular double linked list implementation that is quick and favors
-    simplicity. Nodes never point at null previous/next node and a list with
-    single element is represented by a single node. Having list with single node
-    means the only node has its previous/next nodes pointing at itself (circular
-    property). List being circular does not mean that it cannot be used as
-    a finite sequence.
+    Circular double linked list implementation that is quick and favors simplicity. Nodes never
+    point at null previous/next node and a list with single element is represented by single node.
+    Having list with single node means the only node has its previous/next nodes pointing at itself
+    (circular property). List being circular does not mean that it can't be used as finite sequence.
 
-    Since linked nodes are meant to be stored in an intrusive way along with
-    objects, reference can be set to point back at object that given node refers to.
+    Since linked nodes are meant to be stored in an intrusive way along with objects, reference can
+    be set to point back at object that given node refers to.
 */
 
 namespace Common
@@ -44,11 +42,10 @@ namespace Common
         ListNode<Type>& operator=(ListNode<Type>&& other)
         {
             /*
-                Do not swap references to objects as we will be pointing at
-                same addresses in memory, as only data of both objects is
-                moved. Fix up swapped pointers along the way for which order
-                of instructions is very important here due to deep dereferencing
-                after pointer swap.
+                Do not swap references to objects as we will be pointing at same addresses 
+                memory, as only data of both objects is moved. Fix up swapped pointers along
+                the way for which order of instructions is very important here due to deep
+                dereferencing after pointer swap.
             */
 
             std::swap(m_previous, other.m_previous);
@@ -81,14 +78,12 @@ namespace Common
         bool ForEach(Function function, Arguments&&... arguments)
         {
             /*
-                Iterate over all linked receivers (excluding ourselves)
-                in an ordered fashion. This handles adding/removing current
-                and next nodes that are or will be processed, but will not
-                process nodes added before currently processed node.
+                Iterate over all linked receivers (excluding ourselves) in an ordered fashion.
+                This handles adding/removing current and next nodes that are or will be processed,
+                but will not process nodes added before currently processed node.
 
-                Cache previous and next iterators to determine cases where
-                currently invoked function is adding or removing nodes during
-                its invocation.
+                Cache previous and next iterators to determine cases where currently invoked
+                function is adding or removing nodes during its invocation.
 
                 There are three cases to consider:
                 1. Current node has been removed.

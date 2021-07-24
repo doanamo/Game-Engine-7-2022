@@ -14,7 +14,7 @@ namespace
 {
     Logger::Sink GlobalSink;
     Logger::History GlobalHistory;
-    Logger::FileOutput GlobalFileOutput;
+    Logger::FileOutput GlobalFileOutput("Log.txt");
     Logger::ConsoleOutput GlobalConsoleOutput;
     Logger::DebuggerOutput GlobalDebuggerOutput;
 
@@ -22,29 +22,23 @@ namespace
 
     void LazyInitialize()
     {
-        // Make sure not to initialize twice.
         if(GlobalLoggerInitialized)
             return;
 
-        // Add message history as output.
+        // Profile initialization time.
+        auto startTime = std::chrono::steady_clock::now();
+
         // Add default output sinks.
         GlobalSink.AddOutput(&GlobalHistory);
+        GlobalSink.AddOutput(&GlobalFileOutput);
+        GlobalSink.AddOutput(&GlobalConsoleOutput);
         GlobalSink.AddOutput(&GlobalDebuggerOutput);
 
-        if(GlobalFileOutput.Open("Log.txt"))
-        {
-            GlobalSink.AddOutput(&GlobalFileOutput);
-        }
-
- #if WIN32
-        if(GetConsoleWindow())
-        {
-            GlobalSink.AddOutput(&GlobalConsoleOutput);
-        }
- #endif
-
-        // Set initialization state.
+        // Finalize initialization.
         GlobalLoggerInitialized = true;
+
+        LOG("Initialized logger in {:.4f}s.", std::chrono::duration<float>(
+            std::chrono::steady_clock::now() - startTime).count());
     }
 }
 

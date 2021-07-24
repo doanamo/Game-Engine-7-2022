@@ -16,6 +16,11 @@ namespace
 History::History() = default;
 History::~History() = default;
 
+bool History::Initialize() const
+{
+    return true;
+}
+
 void History::Write(const Logger::Message& message, const Logger::SinkContext& context)
 {
     // Truncate message history.

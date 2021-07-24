@@ -7,6 +7,7 @@
 
 #include <string>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include "Common/Utility.hpp"
 #include "Common/NameRegistry.hpp"
 
@@ -41,39 +42,51 @@ namespace Common
         constexpr Name& operator=(const Name& other) = default;
         constexpr Name& operator=(Name&& other) noexcept = default;
 
-        NAME_REGISTRY_CONSTEXPR Name(const char* string)
+#ifdef NAME_REGISTRY_ENABLED
+        Name(const char* string)
             : m_hash(Common::StringHash<HashType>(string))
         {
-#ifdef NAME_REGISTRY_ENABLED
             NameRegistry::GetInstance().Register(*this, string);
-#endif
         }
 
-        NAME_REGISTRY_CONSTEXPR Name(const std::string_view string)
+        Name(const std::string_view string)
             : m_hash(Common::StringHash<HashType>(string))
         {
-#ifdef NAME_REGISTRY_ENABLED
             NameRegistry::GetInstance().Register(*this, string);
-#endif
         }
 
-        NAME_REGISTRY_CONSTEXPR Name(const HashType hash)
+        Name(const HashType hash)
             : m_hash(hash)
         {
-#ifdef NAME_REGISTRY_ENABLED
             ASSERT(NameRegistry::GetInstance().IsRegistered(hash),
                 "Instantiating name with hash that is not registered!");
-#endif
         }
 
         std::string GetString() const
         {
-#ifdef NAME_REGISTRY_ENABLED
             return std::string(NameRegistry::GetInstance().Lookup(m_hash));
-#else
-            return fmt::format("{{{}}}", m_hash);
-#endif
         }
+#else
+        constexpr Name(const char* string)
+            : m_hash(Common::StringHash<HashType>(string))
+        {
+        }
+
+        constexpr Name(const std::string_view string)
+            : m_hash(Common::StringHash<HashType>(string))
+        {
+        }
+
+        constexpr Name(const HashType hash)
+            : m_hash(hash)
+        {
+        }
+
+        std::string GetString() const
+        {
+            return fmt::format("{{{}}}", m_hash);
+        }
+#endif
 
         constexpr bool operator==(const Name& other) const
         {

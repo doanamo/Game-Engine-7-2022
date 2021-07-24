@@ -14,13 +14,12 @@
 /*
     Handle Map
 
-    Generational list of handles, identified by unique integer and version.
-    Handle identifier can be reused or invalidated by incrementing its version
-    integer.
+    Generational list of handles, identified by unique integer and version. Handle identifier can
+    be reused or invalidated by incrementing its version integer.
 
-    Implements caching mechanism that ensures that there is always a rotating
-    pool of free handles to avoid situations where a single handle is reused
-    repeatedly leading to too fast exhaustion of its available version values.
+    Implements caching mechanism that ensures that there is always a rotating pool of free handles
+    to avoid situations where a single handle is reused repeatedly leading to too fast exhaustion
+    of its available version values.
 
     See unit tests for example usage.
 */
@@ -46,11 +45,10 @@ namespace Common
             void Invalidate()
             {
                 /*
-                    Reconstruct storage so it can be used again when this
-                    handle entry will be reused to provide new handle.
-                    There is still an unfortunate chance to keep in mind
-                    where someone could hold old reference to storage and
-                    keep writing to it while it is already invalidated.
+                    Reconstruct storage so it can be used again when this handle entry will be
+                    reused to provide new handle. There is still an unfortunate chance to keep
+                    in mind where someone could hold old reference to storage and keep writing
+                    to it while it is already invalidated.
                 */
 
                 (&storage)->~StorageType();
@@ -238,6 +236,7 @@ namespace Common
                 which will likely result in failure result if incorrectly used.
             */
 
+            // Find or allocate free handle.
             std::optional<FreeListIterator> freeHandleIterator;
             if(auto result = FindRequestedHandle(handleRequest))
             {
@@ -260,6 +259,7 @@ namespace Common
             std::size_t handleEntryIndex = *freeHandleIterator.value();
             m_freeList.erase(freeHandleIterator.value());
 
+            // Initialize free handle for use.
             HandleEntry& handleEntry = m_handles[handleEntryIndex];
             handleEntry.valid = true;
 
@@ -304,23 +304,26 @@ namespace Common
                 not adding it back to the free list queue.
             */
 
-            if(HandleEntry* handleEntry = FetchHandleEntry(handle))
+            // Retrieve handle entry.
+            HandleEntry* handleEntry = FetchHandleEntry(handle);
+            if(!handleEntry)
             {
-                handleEntry->Invalidate();
-
-                if(handleEntry->handle.GetVersion() != HandleType::MaximumVersion)
-                {
-                    m_freeList.push_back(handleEntry->handle.GetIdentifier() - 1);
-                }
-                else
-                {
-                    m_retiredHandles++;
-                }
-
-                return true;
+                return false;
             }
 
-            return false;
+            // Invalidate handle entry.
+            handleEntry->Invalidate();
+
+            if(handleEntry->handle.GetVersion() != HandleType::MaximumVersion)
+            {
+                m_freeList.push_back(handleEntry->handle.GetIdentifier() - 1);
+            }
+            else
+            {
+                m_retiredHandles++;
+            }
+
+            return true;
         }
 
         HandleValueType GetValidHandleCount() const
@@ -369,6 +372,7 @@ namespace Common
                 in the free list queue.
             */
 
+            // Find handle with requested identifier..
             if(!handleRequest.IsValid())
             {
                 return Common::Failure(FindRequestedHandleErrors::InvalidRequest);
@@ -378,8 +382,7 @@ namespace Common
                 [handleRequest](const HandleValueType& index) -> bool
                 {
                     return (index + 1) == handleRequest.GetIdentifier();
-                }
-            );
+                });
 
             if(foundFreeEntry != m_freeList.end())
             {
@@ -391,16 +394,15 @@ namespace Common
 
                 return Common::Success(foundFreeEntry);
             }
-            else
+            
+            // Determine whether handle with this identifier has already been created.
+            HandleValueType currentMaxIdentifier = (HandleValueType)m_handles.size();
+            if(handleRequest.GetIdentifier() <= currentMaxIdentifier)
             {
-                HandleValueType currentMaxIdentifier = (HandleValueType)m_handles.size();
-                if(handleRequest.GetIdentifier() <= currentMaxIdentifier)
-                {
-                    return Common::Failure(FindRequestedHandleErrors::AlreadyCreated);
-                }
-
-                return Common::Failure(FindRequestedHandleErrors::NotFound);
+                return Common::Failure(FindRequestedHandleErrors::AlreadyCreated);
             }
+
+            return Common::Failure(FindRequestedHandleErrors::NotFound);
         }
 
         FreeListIterator AllocateFreeHandle(const HandleType handleRequest)
@@ -448,19 +450,25 @@ namespace Common
                 to storage index and ensure that handle versions match.
             */
 
+            // Check whether handle identifier is valid.
             if(handle.GetIdentifier() <= 0)
-                return nullptr;
-
-            if(handle.GetIdentifier() > (HandleValueType)m_handles.size())
-                return nullptr;
-
-            const HandleEntry& handleEntry = m_handles[handle.GetIdentifier() - 1];
-            if(handleEntry.handle.GetVersion() == handle.GetVersion())
             {
-                return &handleEntry;
+                return nullptr;
             }
 
-            return nullptr;
+            if(handle.GetIdentifier() > (HandleValueType)m_handles.size())
+            {
+                return nullptr;
+            }
+
+            // Check whether this is current handle version.
+            const HandleEntry& handleEntry = m_handles[handle.GetIdentifier() - 1];
+            if(handleEntry.handle.GetVersion() != handle.GetVersion())
+            {
+                return nullptr;
+            }
+
+            return &handleEntry;
         }
 
         HandleEntry* FetchHandleEntry(const HandleType handle)
@@ -469,6 +477,7 @@ namespace Common
                 static_cast<const HandleMap<StorageType>&>(*this).FetchHandleEntry(handle));
         }
 
+    private:
         HandleList m_handles;
         FreeList m_freeList;
 

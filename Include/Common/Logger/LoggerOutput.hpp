@@ -21,6 +21,7 @@ namespace Logger
     class Output
     {
     public:
+        virtual bool Initialize() const = 0;
         virtual void Write(const Logger::Message& message, const Logger::SinkContext& context) = 0;
     };
 }
@@ -28,20 +29,7 @@ namespace Logger
 /*
     File Output
 
-    Writes log messages to a file.
-
-    void ExampleLoggerFileOutput()
-    {
-        // Create logger sink.
-        Logger::Sink sink;
-
-        // Open file output.
-        Logger::FileOutput fileOutput;
-        fileOutput.Open("Log.txt");
-
-        // Add output to the sink.
-        sink.AddOutput(&fileOutput);
-    }
+    Writes log messages to file.
 */
 
 namespace Logger
@@ -49,10 +37,10 @@ namespace Logger
     class FileOutput : public Output
     {
     public:
-        FileOutput();
+        FileOutput(std::string filename);
         ~FileOutput();
 
-        bool Open(std::string filename);
+        bool Initialize() const override;
         void Write(const Message& message, const SinkContext& context) override;
 
     private:
@@ -63,19 +51,7 @@ namespace Logger
 /*
     Console Output
 
-    Writes log messages to the application's console window.
-
-    void ExampleLoggerConsoleOutput()
-    {
-        // Create logger sink.
-        Logger::Sink sink;
-
-        // Open console output.
-        Logger::ConsoleOutput consoleOutput;
-
-        // Add output to the sink.
-        sink.AddOutput(&consoleOutput);
-    }
+    Writes log messages to application's console window.
 */
 
 namespace Logger
@@ -86,6 +62,7 @@ namespace Logger
         ConsoleOutput();
         ~ConsoleOutput();
 
+        bool Initialize() const override;
         void Write(const Message& message, const SinkContext& context) override;
     };
 }
@@ -93,19 +70,7 @@ namespace Logger
 /*
     Debugger Output
 
-    Writes log messages to the debugger's window.
-
-    void ExampleLoggerDebuggerOutput()
-    {
-        // Create logger sink.
-        Logger::Sink sink;
-
-        // Open debugger output.
-        Logger::DebuggerOutput debuggerOutput;
-
-        // Add output to the sink.
-        sink.AddOutput(&debuggerOutput);
-    }
+    Writes log messages to debugger's window.
 */
 
 namespace Logger
@@ -116,6 +81,7 @@ namespace Logger
         DebuggerOutput();
         ~DebuggerOutput();
 
+        bool Initialize() const override;
         void Write(const Message& message, const SinkContext& context) override;
     };
 }

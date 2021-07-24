@@ -15,8 +15,7 @@
 /*
     Event Broker
 
-    Shared point where multiple receiver and dispatcher
-    can be stored and signaled for different event types.
+    Maps receivers to event types to allow dispatching arbitrary events through a single point.
 */
 
 namespace Event
@@ -87,9 +86,13 @@ namespace Event
         template<typename ResultType, typename EventType>
         RegisterResult Register(std::unique_ptr<Collector<ResultType>>&& collector = nullptr)
         {
+            // Only allow new event types if broker has not been finalized.
             if(m_finalized)
+            {
                 return Common::Failure(RegisterErrors::AlreadyFinalized);
+            }
 
+            // Register new event type.
             Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
@@ -112,18 +115,26 @@ namespace Event
             SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
             PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
+            // Ensure that event type has been registered.
             Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
+            {
                 return Common::Failure(SubscriptionErrors::UnregisteredEventType);
+            }
 
+            // Subscribe receiver to registered event type.
             DispatcherStorage<ResultType, EventType>* storage = nullptr;
             storage = std::any_cast<DispatcherStorage<ResultType, EventType>>(&it->second);
             if(storage == nullptr)
+            {
                 return Common::Failure(SubscriptionErrors::IncorrectResultType);
+            }
 
             if(!storage->dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy))
+            {
                 return Common::Failure(SubscriptionErrors::SubscriptionFailed);
+            }
 
             return Common::Success();
         }
@@ -131,15 +142,21 @@ namespace Event
         template<typename ResultType, typename EventType>
         DispatchResult<ResultType> Dispatch(const EventType& event)
         {
+            // Ensure that event type has been registered.
             Reflection::TypeIdentifier eventType = Reflection::GetIdentifier<EventType>();
             auto it = m_dispatcherMap.find(eventType);
             if(it == m_dispatcherMap.end())
+            {
                 return Common::Failure(DispatchErrors::UnregisteredEventType);
+            }
 
+            // Dispatch event to receivers.
             DispatcherStorage<ResultType, EventType>* storage = nullptr;
             storage = std::any_cast<DispatcherStorage<ResultType, EventType>>(&it->second);
             if(storage == nullptr)
+            {
                 return Common::Failure(DispatchErrors::IncorrectResultType);
+            }
 
             if constexpr(std::is_same<ResultType, void>::value)
             {

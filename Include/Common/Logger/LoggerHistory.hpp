@@ -30,6 +30,7 @@ namespace Logger
         History();
         ~History();
 
+        bool Initialize() const override;
         void Write(const Logger::Message& message, const Logger::SinkContext& context) override;
         const MessageList& GetMessages() const;
 

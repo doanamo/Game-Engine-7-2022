@@ -10,10 +10,9 @@
 /*
     Delegate
 
-    Binds function, class method or functor/closure which can be invoked
-    at later time. Be careful not to invoke a delegate to method of an 
-    object that no longer exists. Check Receiver and Dispatcher class
-    templates for subscription based solution that wraps delegates.
+    Binds function, class method or functor/closure which can be invoked at later time. Be careful
+    not to invoke a delegate to method of an object that no longer exists. Check Receiver and
+    Dispatcher class templates for subscription based solution that wraps delegates.
     
     Implementation partially based on:
     - http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
@@ -94,7 +93,6 @@ namespace Event
         Delegate& operator=(Delegate&& other)
         {
             ASSERT(&other != this);
-
             std::swap(m_erased, other.m_erased);
             std::swap(m_invoker, other.m_invoker);
             std::swap(m_copier, other.m_copier);
@@ -165,6 +163,12 @@ namespace Event
         template<typename FunctionType>
         void Bind(FunctionType closure)
         {
+            /*
+                Depending on whether closure is a plain function or a lambda expression that
+                actually captures any variables in its scope, there may be an allocation
+                associated with binding it in order to accommodate space for its capture list.
+            */
+
             static_assert(std::is_invocable<FunctionType, Arguments...>::value,
                 "Arguments of provided callable must match arguments of delegate!");
 
@@ -243,6 +247,7 @@ namespace Event
             }
         }
 
+    private:
         ErasedPtr m_erased = nullptr;
         InvokerPtr m_invoker = nullptr;
         CopierPtr m_copier = nullptr;

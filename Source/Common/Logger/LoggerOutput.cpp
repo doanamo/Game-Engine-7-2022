@@ -11,7 +11,24 @@
 #include "Common/Logger/LoggerSink.hpp"
 using namespace Logger;
 
-FileOutput::FileOutput() = default;
+/*
+    File Output
+*/
+
+FileOutput::FileOutput(std::string filename)
+{
+    assert(!m_file.is_open() && "File stream is already open!");
+
+    m_file.open(filename);
+    if(!m_file.is_open())
+    {
+        return;
+    }
+
+    m_file << DefaultFormat::ComposeSessionStart();
+    m_file.flush();
+}
+
 FileOutput::~FileOutput()
 {
     if(m_file.is_open())
@@ -22,20 +39,9 @@ FileOutput::~FileOutput()
     }
 }
 
-bool FileOutput::Open(std::string filename)
+bool FileOutput::Initialize() const
 {
-    assert(!m_file.is_open() && "File stream is already open!");
-
-    m_file.open(filename);
-    if(!m_file.is_open())
-    {
-        assert("Log file output could not be opened!");
-        return false;
-    }
-
-    m_file << DefaultFormat::ComposeSessionStart();
-    m_file.flush();
-    return true;
+    return m_file.is_open();
 }
 
 void FileOutput::Write(const Message& message, const SinkContext& context)
@@ -46,23 +52,46 @@ void FileOutput::Write(const Message& message, const SinkContext& context)
     m_file.flush();
 }
 
+/*
+    Console Output
+*/
+
 ConsoleOutput::ConsoleOutput() = default;
 ConsoleOutput::~ConsoleOutput() = default;
+
+bool ConsoleOutput::Initialize() const
+{
+#ifdef WIN32
+    return GetConsoleWindow();
+#else
+    return false;
+#endif
+}
 
 void ConsoleOutput::Write(const Message& message, const SinkContext& context)
 {
     std::cout << DefaultFormat::ComposeMessage(message, context);
 }
 
+/*
+    Debugger Output
+*/
+
 DebuggerOutput::DebuggerOutput() = default;
 DebuggerOutput::~DebuggerOutput() = default;
+
+bool DebuggerOutput::Initialize() const
+{
+#ifdef WIN32
+    return IsDebuggerPresent();
+#else
+    return false;
+#endif
+}
 
 void DebuggerOutput::Write(const Message& message, const SinkContext& context)
 {
 #ifdef WIN32
-    if(!IsDebuggerPresent())
-        return;
-
     std::string output = DefaultFormat::ComposeMessage(message, context);
     OutputDebugStringA(output.c_str());
 #endif

@@ -14,7 +14,7 @@
     Writes log messages to multiple outputs for debugging purposes.
     - Logger:  Interface for global logger sink.
     - Message: Single log message that will be written.
-    - Output:  Message output streams (e.g. file writer, console output).
+    - Output:  Message output streams (e.g. file writer, console, debugger, history).
     - Format:  Defines how log messages are formatted before being written.
     - Sink:    Collects messages and sends them to registered outputs.
     

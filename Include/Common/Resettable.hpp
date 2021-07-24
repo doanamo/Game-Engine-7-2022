@@ -8,7 +8,8 @@
 /*
     Resettable
 
-    Gives class instance an ability to reset itself to its original state. 
+    Gives class instance an ability to reset itself to its original state. Legacy code that should
+    not be used unless you absolutely know what you are doing.
 */
 
 namespace Common

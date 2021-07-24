@@ -34,7 +34,7 @@ Window::~Window()
 bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve config variables.
-    Core::Config* config = engineSystems.Locate<Core::Config>();
+    auto* config = engineSystems.Locate<Core::Config>();
 
     m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
     int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);
@@ -76,7 +76,7 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_context.handle = glfwCreateWindow(width, height, m_title.c_str(), nullptr, nullptr);
     if(m_context.handle == nullptr)
     {
-        LOG_ERROR("Could not create GLFW window!");
+        LOG_ERROR("Could not create window!");
         return false;
     }
 
@@ -91,7 +91,7 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     glfwMakeContextCurrent(m_context.handle);
     glfwSwapInterval((int)vsync);
 
-    // Prepare OpenGL function and extension loaded
+    // Prepare OpenGL function and extension loader.
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
         LOG_ERROR("Could not load OpenGL function and extension loader!");

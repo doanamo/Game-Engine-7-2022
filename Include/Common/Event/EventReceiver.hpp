@@ -80,17 +80,17 @@ namespace Event
 
         bool Unsubscribe()
         {
-            bool unsubcribed = false;
-
-            if(m_dispatcher)
+            if(!m_dispatcher)
             {
-                unsubcribed = m_dispatcher->Unsubscribe(*this);
+                return false;
             }
 
-            ASSERT(m_dispatcher == nullptr, "Invalid state after unsubcribing!");
-            ASSERT(m_listNode.IsFree(), "Invalid state after unsubcribing!");
+            m_dispatcher->Unsubscribe(*this);
 
-            return unsubcribed;
+            ASSERT(m_dispatcher == nullptr, "Invalid state after unsubscribing!");
+            ASSERT(m_listNode.IsFree(), "Invalid state after unsubscribing!");
+
+            return true;
         }
 
         bool IsSubscribed() const

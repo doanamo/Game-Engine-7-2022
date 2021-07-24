@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include <chrono>
 
 #ifdef WIN32
     #define WIN32_LEAD_AND_MEAN
@@ -21,4 +22,5 @@
 #endif
 
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/chrono.h>

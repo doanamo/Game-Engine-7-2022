@@ -14,7 +14,6 @@
 #if defined(WIN32) && !defined(NDEBUG)
     #define _CRTDBG_MAP_ALLOC
     #define _CRTDBG_MAP_ALLOC_NEW
-    #include <stdlib.h>
     #include <crtdbg.h>
 
     // Override new operator to store additional information about allocations.
@@ -105,8 +104,7 @@ namespace Debug
     Assert Evaluate Macros
 
     Ensures that given expression is true in debug configuration.
-    Used as sanity check to guard against programming errors.
-    In contrary to regular assert, evaluated expression in Release.
+    In contrary to regular assert, evaluates expression in release configuration.
 
     Behavior in different build configurations:
     - Debug: Evaluates expression and triggers abort
@@ -147,7 +145,7 @@ namespace Debug
     Assert Always Macro
 
     Ensures that given expression is true in all configurations.
-    Used to safeguard against errors we choose not to handle.
+    Used to safeguard against possible errors we choose not to handle.
 
     Behavior in different build configurations:
     - Debug: Evaluates expression and triggers abort
@@ -183,7 +181,7 @@ namespace Debug
     Assert Warn Macro
 
     Ensures that given expression is true in all configurations.
-    Used to print warnings when we want to continue execution.
+    Used to only print warnings when we want to continue execution.
 
     Behavior in different build configurations:
     - Debug: Evaluates expression and logs warning

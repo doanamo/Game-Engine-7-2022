@@ -12,24 +12,6 @@
     Sink
 
     Writes log messages to multiple logging outputs.
-
-    void ExampleLoggerSink()
-    {
-        // Create logging sink.
-        Logger::Sink sink;
-
-        // Open file output.
-        Logger::FileOutput fileOutput;
-        fileOutput.Open("Log.txt");
-
-        // Add output to the sink.
-        sink.AddOutput(&fileOutput);
-
-        // Write log message.
-        Logger::Message message;
-        message.Format("Hello {}!", "world");
-        sink.Write(message);
-    }
 */
 
 namespace Logger
@@ -76,20 +58,7 @@ namespace Logger
 /*
     Scoped Indent
 
-    Increases logging indent in a sink for a duration of a scope.
-
-    void ExampleLoggerScopedIndent()
-    {
-        // Initialize logging system.
-        Logger::Initialize();
-
-        // Use macro to create an indent.
-        LOG("Initializing nothingness...");
-        LOG_SCOPED_INDENT();
-
-        // Write log message.
-        LOG_DEBUG("Success!");
-    }
+    Increases logging indent in sink for duration of scope.
 */
 
 namespace Logger

@@ -11,8 +11,8 @@
 /*
     Result
 
-    Wrapper inspired by Rust language for return values that can indicate
-    either success or failure. See unit tests for example usage.
+    Wrapper inspired by Rust language for return values that can indicate either success or failure.
+    See unit tests for example usage.
 */
 
 namespace Common::Detail

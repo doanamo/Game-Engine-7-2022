@@ -80,7 +80,8 @@ namespace Common
     class StateMachine
     {
     public:
-        static_assert(std::is_base_of<State<Type>, Type>::value, "Type is not derived from State<Type>!");
+        static_assert(std::is_base_of<State<Type>, Type>::value,
+            "Type is not derived from State<Type>!");
         using StateSharedPtr = std::shared_ptr<Type>;
 
         StateMachine() = default;
@@ -117,7 +118,8 @@ namespace Common
         {
             if(m_currentState)
             {
-                ASSERT(m_currentState->GetStateMachine() == this, "Current state does not have reference set to this state machine!");
+                ASSERT(m_currentState->GetStateMachine() == this,
+                    "Current state does not have reference set to this state machine!");
 
                 if(!m_currentState->CanExitState(newState.get()))
                 {
@@ -149,8 +151,10 @@ namespace Common
 
         void TransitionStates(StateSharedPtr& newState)
         {
-            // Methods called on states are in very specific order to detect
-            // illegal transitions occurring during exit and enter transitions.
+            /*
+                Methods called on states are in very specific order to detect illegal
+                transitions occurring during exit and enter transitions.
+            */
 
             StateSharedPtr previousState;
 
@@ -160,7 +164,8 @@ namespace Common
                 previousState->SetStateMachine(nullptr);
                 previousState->OnExitState(newState.get());
 
-                ASSERT(m_currentState == previousState, "Illegal state transition occured during exit of current state!");
+                ASSERT(m_currentState == previousState,
+                    "Illegal state transition occurred during exit of current state!");
                 m_currentState = nullptr;
             }
 
@@ -172,6 +177,7 @@ namespace Common
             }
         }
 
+    private:
         StateSharedPtr m_currentState = nullptr;
     };
 }

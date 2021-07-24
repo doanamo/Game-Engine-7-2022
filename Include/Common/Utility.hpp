@@ -14,6 +14,8 @@
 
 /*
     Utility
+
+    Collection of small useful functions.
 */
 
 namespace Common
@@ -52,12 +54,11 @@ namespace Common
     constexpr Target NumericalCast(const Source& value)
     {
         /*
-            Casts numerical types with assertion guarantee for data loss.
-            Checks in debug if conversion will lead to any loss of data.
-            This is useful when dealing with libraries which do not fully
-            convert from 32bit to 64bit types on their own (e.g. OpenGL).
-            Loss check is performed by converting to target type and then
-            back to source type, after which results are compared.
+            Casts numerical types with assertion guarantee for data loss. Checks in debug if
+            conversion will lead to any loss of data. This is useful when dealing with libraries
+            which do not fully convert from 32bit to 64bit types on their own (e.g. OpenGL). Loss
+            check is performed by converting to target type and then back to source type, after
+            which results are compared.
         */
 
         ASSERT(static_cast<Source>(static_cast<Target>(value)) == value,
@@ -67,10 +68,14 @@ namespace Common
     }
 
     template<typename Type>
-    void ClearContainer(Type& container)
+    void FreeContainer(Type& container)
     {
-        Type temp;
-        container.swap(temp);
+        /*
+            Swaps container with new one to ensure that its memory gets deallocated.
+        */
+
+        Type empty;
+        container.swap(empty);
     }
 
     std::string GetTextFileContent(const std::filesystem::path path);
@@ -88,10 +93,9 @@ namespace Common
         static_assert(std::is_same<Type, uint32_t>::value || std::is_same<Type, uint64_t>::value);
 
         /*
-            Small and simple hashing function for strings.
-            May need to be replaced in case of collisions.
-            Use only if you can detect possible collisions.
-            It is obviously not cryptographically secure.
+            Small and simple hashing function for strings. May need to be replaced in case of
+            collisions. Use only if you can detect possible collisions, as t is obviously not
+            cryptographically secure.
 
             Current implementation: djb2
         */
@@ -109,8 +113,8 @@ namespace Common
     constexpr Type CombineHash(const Type seed, const Type hash)
     {
         /*
-            Combines two hashes into new unique one of same size.
-            Requires good hashing function for this to work properly.
+            Combines two hashes into new unique one of same size. Requires good hashing function
+            for this to work properly.
 
             Current implementation: boost::hash_combine
         */
@@ -124,11 +128,10 @@ namespace Common
     bool ReorderWithIndices(std::vector<Type>& elements, const std::vector<std::size_t>& order)
     {
         /*
-            Reorders vector using an array of indices.
-            This is useful in case we have two collections that need to be sorted in
-            same way based on information from both. Sort can be performed on array of
-            indices that then can be used to quickly rearrange elements in two collections.
-            Result will not make sense if order indices are duplicated!
+            Reorders vector using an array of indices. This is useful in case we have two or more
+            collections that need to be sorted in same way based on information from each. Sort can
+            be performed on array of indices that then can be used to quickly rearrange elements in
+            two collections. Result will not make sense if order indices are duplicated!
         */
 
         if(elements.size() != order.size())

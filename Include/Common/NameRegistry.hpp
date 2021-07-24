@@ -34,6 +34,7 @@ namespace Common
         static NameRegistry& GetInstance();
 
 #ifdef NAME_REGISTRY_ENABLED
+    public:
         void Register(std::string_view string);
         std::string_view Lookup(HashType hash);
 
@@ -42,7 +43,6 @@ namespace Common
 
     private:
         friend Name;
-
         void Register(const Name& name, std::string_view string);
         std::unordered_map<HashType, std::string> m_registry;
 #endif

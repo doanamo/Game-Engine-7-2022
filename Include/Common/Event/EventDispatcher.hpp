@@ -19,16 +19,14 @@ namespace Event
 /*
     Dispatcher
 
-    Holds list of subscribed receivers that can be invoked in sequence. 
-    Safer than using raw delegates as unsubscribing is automatically
-    invoked on destruction, so no dangerous dangling pointers are left.
+    Holds list of subscribed receivers that can be invoked in sequence. Safer than using raw
+    delegates as unsubscribing is automatically invoked on destruction, so no dangerous dangling
+    pointers are left.
 
-    Single dispatcher instance can have multiple receivers subscribed,
-    but single receiver can be only subscribed to one dispatcher.
-
-    DispatcherBase type does not allow dispatching/invoking receivers,
-    enabling dispatcher instance to be safely passed as a reference
-    for subscription only purposes.
+    Single dispatcher instance can have multiple receivers subscribed, but single receiver can be
+    only subscribed to one dispatcher. DispatcherBase type does not allow dispatching/invoking
+    receivers, enabling dispatcher instance to be safely passed as a reference for subscription
+    only purposes.
 */
 
 namespace Event
@@ -89,17 +87,23 @@ namespace Event
             SubscriptionPolicy subscriptionPolicy = SubscriptionPolicy::RetainSubscription,
             PriorityPolicy priorityPolicy = PriorityPolicy::InsertBack)
         {
+            // Handle current subscription state of receiver.
             if(receiver.IsSubscribed())
             {
                 if(receiver.m_dispatcher == this)
+                {
                     return true;
+                }
 
                 if(subscriptionPolicy == SubscriptionPolicy::RetainSubscription)
+                {
                     return false;
+                }
 
                 receiver.Unsubscribe();
             }
 
+            // Subscribe receiver using defined insertion policy.
             if(priorityPolicy == PriorityPolicy::InsertFront)
             {
                 receiver.m_listNode.InsertBefore(m_receiverList.GetNext());
@@ -116,11 +120,12 @@ namespace Event
         bool Unsubscribe(ReceiverType& receiver)
         {
             if(receiver.m_dispatcher != this)
+            {
                 return false;
+            }
 
             receiver.m_listNode.Remove();
             receiver.m_dispatcher = nullptr;
-
             return true;
         }
 
@@ -158,6 +163,7 @@ namespace Event
 
         DispatcherBase& operator=(DispatcherBase&& other)
         {
+            // Swap receiver lists and fix up pointers.
             std::swap(m_receiverList, other.m_receiverList);
 
             ReceiverListNode* iterator = m_receiverList.GetNext();
@@ -190,6 +196,7 @@ namespace Event
                 {
                     if(collector.ShouldContinue())
                     {
+                        // Invoke receiver with provided arguments.
                         ReceiverType* receiver = node.GetReference();
                         ASSERT(receiver != nullptr);
 
@@ -199,9 +206,11 @@ namespace Event
                             invocation(collector, *receiver, std::forward<Arguments>(arguments)...);
                         }
 
+                        // Result has been collected and next receiver will be invoked.
                         return true;
                     }
 
+                    // Collector has requested abortion of further receiver invocations.
                     return false;
                 },
                 std::forward<Arguments>(arguments)...
