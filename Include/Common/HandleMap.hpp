@@ -307,9 +307,7 @@ namespace Common
             // Retrieve handle entry.
             HandleEntry* handleEntry = FetchHandleEntry(handle);
             if(!handleEntry)
-            {
                 return false;
-            }
 
             // Invalidate handle entry.
             handleEntry->Invalidate();
@@ -452,21 +450,15 @@ namespace Common
 
             // Check whether handle identifier is valid.
             if(handle.GetIdentifier() <= 0)
-            {
                 return nullptr;
-            }
 
             if(handle.GetIdentifier() > (HandleValueType)m_handles.size())
-            {
                 return nullptr;
-            }
 
             // Check whether this is current handle version.
             const HandleEntry& handleEntry = m_handles[handle.GetIdentifier() - 1];
             if(handleEntry.handle.GetVersion() != handle.GetVersion())
-            {
                 return nullptr;
-            }
 
             return &handleEntry;
         }

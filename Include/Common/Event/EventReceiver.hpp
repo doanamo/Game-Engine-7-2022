@@ -81,9 +81,7 @@ namespace Event
         bool Unsubscribe()
         {
             if(!m_dispatcher)
-            {
                 return false;
-            }
 
             m_dispatcher->Unsubscribe(*this);
 

@@ -91,14 +91,10 @@ namespace Event
             if(receiver.IsSubscribed())
             {
                 if(receiver.m_dispatcher == this)
-                {
                     return true;
-                }
 
                 if(subscriptionPolicy == SubscriptionPolicy::RetainSubscription)
-                {
                     return false;
-                }
 
                 receiver.Unsubscribe();
             }
@@ -120,9 +116,7 @@ namespace Event
         bool Unsubscribe(ReceiverType& receiver)
         {
             if(receiver.m_dispatcher != this)
-            {
                 return false;
-            }
 
             receiver.m_listNode.Remove();
             receiver.m_dispatcher = nullptr;

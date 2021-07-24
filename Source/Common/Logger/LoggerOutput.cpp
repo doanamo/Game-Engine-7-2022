@@ -20,13 +20,11 @@ FileOutput::FileOutput(std::string filename)
     assert(!m_file.is_open() && "File stream is already open!");
 
     m_file.open(filename);
-    if(!m_file.is_open())
+    if(m_file.is_open())
     {
-        return;
+        m_file << DefaultFormat::ComposeSessionStart();
+        m_file.flush();
     }
-
-    m_file << DefaultFormat::ComposeSessionStart();
-    m_file.flush();
 }
 
 FileOutput::~FileOutput()

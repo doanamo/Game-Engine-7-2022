@@ -16,9 +16,7 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
     auto* configSystem = engineSystems.Locate<ConfigSystem>();
     if(configSystem == nullptr)
-    {
         return false;
-    }
 
     m_frameRateUpdateFrequency =
         configSystem->Get<double>(NAME_CONSTEXPR("metrics.frame_rate_update_frequency"))

@@ -122,9 +122,7 @@ namespace Common
                     "Current state does not have reference set to this state machine!");
 
                 if(!m_currentState->CanExitState(newState.get()))
-                {
                     return false;
-                }
             }
 
             return true;
@@ -141,9 +139,7 @@ namespace Common
                 }
 
                 if(!newState->CanEnterState(m_currentState.get()))
-                {
                     return false;
-                }
             }
 
             return true;
