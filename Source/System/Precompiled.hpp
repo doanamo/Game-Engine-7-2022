@@ -9,7 +9,4 @@
     Precompiled Header
 */
 
-#include <fstream>
-#include <algorithm>
-#include <filesystem>
 #include <Core/Core.hpp>

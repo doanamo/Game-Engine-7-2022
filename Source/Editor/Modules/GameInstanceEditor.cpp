@@ -14,7 +14,7 @@ using namespace Editor;
 
 namespace
 {
-    const char* AttachError = "Failed to attach game instance editor module! {}";
+    const char* LogAttachFailed = "Failed to attach game instance editor module! {}";
 }
 
 GameInstanceEditor::GameInstanceEditor()
@@ -33,31 +33,42 @@ bool GameInstanceEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
 {
     // Retrieve needed systems.
     auto* editorContext = editorModules.Locate<EditorModuleContext>();
+    if(editorContext == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate editor module context.");
+        return false;
+    }
+
     auto& engineSystems = editorContext->GetEngineSystems();
     auto* gameFramework = engineSystems.Locate<Game::GameFramework>();
+    if(gameFramework == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate game framework system.");
+        return false;
+    }
 
     // Subscribe events.
     if(!SubscribeEvents(gameFramework))
     {
-        LOG_ERROR(AttachError, "Could not subscribe to game framework events.");
+        LOG_ERROR(LogAttachFailed, "Could not subscribe to game framework events.");
         return false;
     }
 
-    // Size histogram buffer.
+    // Allocate histogram buffer.
     m_tickTimeHistogram.resize(100, 0.0f);
 
-    // Success!
     return true;
 }
 
 bool GameInstanceEditor::SubscribeEvents(Game::GameFramework* gameFramework)
 {
-    Game::GameFramework::Events& events = gameFramework->events;
-
     bool subscriptionResults = true;
+
+    Game::GameFramework::Events& events = gameFramework->events;
     subscriptionResults &= m_receivers.gameStateChanged.Subscribe(events.gameStateChanged);
     subscriptionResults &= m_receivers.tickRequested.Subscribe(events.tickRequested);
     subscriptionResults &= m_receivers.tickProcessed.Subscribe(events.tickProcessed);
+
     return subscriptionResults;
 }
 
@@ -151,7 +162,7 @@ void GameInstanceEditor::OnDisplay(float timeDelta)
 
                 if(m_updateDelayValue > 0.0f)
                 {
-                    int sleepTime = (int)(m_updateDelayValue * 1000.0f);
+                    int sleepTime = static_cast<int>(m_updateDelayValue * 1000.0f);
                     std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
                 }
 
@@ -168,7 +179,7 @@ void GameInstanceEditor::OnDisplay(float timeDelta)
 
                 if(m_updateNoiseValue > 0.0f)
                 {
-                    int sleepTime = std::rand() % (int)(m_updateNoiseValue * 1000.0f);
+                    int sleepTime = std::rand() % static_cast<int>(m_updateNoiseValue * 1000.0f);
                     std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
                 }
 
@@ -180,7 +191,7 @@ void GameInstanceEditor::OnDisplay(float timeDelta)
                 ImGui::SameLine();
                 if(ImGui::Button("Freeze"))
                 {
-                    int sleepTime = (int)(m_updateFreezeSlider * 1000.0f);
+                    int sleepTime = static_cast<int>(m_updateFreezeSlider * 1000.0f);
                     std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
                 }
 
@@ -208,9 +219,11 @@ void GameInstanceEditor::OnDisplayMenuBar()
 
 void GameInstanceEditor::OnGameStateChanged(const std::shared_ptr<Game::GameState>& gameState)
 {
+    // Update references.
     m_tickTimer = gameState ? gameState->GetTickTimer() : nullptr;
     m_gameInstance = gameState ? gameState->GetGameInstance() : nullptr;
 
+    // Reset controls.
     if(m_tickTimer)
     {
         m_tickRateSlider = 1.0f / m_tickTimer->GetTickSeconds();
@@ -227,6 +240,7 @@ void GameInstanceEditor::OnTickRequested()
     if(m_tickTimeHistogramPaused)
         return;
 
+    // Rotate out oldest histogram value.
     if(m_tickTimeHistogram.size() >= 2)
     {
         std::rotate(m_tickTimeHistogram.begin(),
@@ -244,6 +258,7 @@ void GameInstanceEditor::OnTickProcessed(float tickTime)
     if(m_tickTimeHistogramPaused)
         return;
 
+    // Add time to newest histogram value.
     if(!m_tickTimeHistogram.empty())
     {
         m_tickTimeHistogram.back() += tickTime;

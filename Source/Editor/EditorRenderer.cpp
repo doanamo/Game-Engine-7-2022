@@ -12,8 +12,8 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create editor renderer subsystem! {}";
-    const char* CreateResourcesError = "Failed to create editor renderer resources! {}";
+    const char* LogAttachFailed = "Failed to attach editor renderer subsystem! {}";
+    const char* LogCreateResourcesFailed = "Failed to create editor renderer resources! {}";
 }
 
 EditorRenderer::EditorRenderer() = default;
@@ -23,19 +23,33 @@ bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
     // Locate needed engine systems.
     auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
-    auto& engineSystems = editorContext->GetEngineSystems();
-
-    m_window = engineSystems.Locate<System::Window>();
-    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
-
-    // Create graphics resources.
-    if(!CreateResources(engineSystems))
+    if(editorContext == nullptr)
     {
-        LOG_ERROR(CreateError, "Could not create resources.");
+        LOG_ERROR(LogAttachFailed, "Could not locate editor context.");
         return false;
     }
 
-    // Success!
+    m_window = editorContext->GetEngineSystems().Locate<System::Window>();
+    if(m_window == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        return false;
+    }
+
+    m_renderContext = editorContext->GetEngineSystems().Locate<Graphics::RenderContext>();
+    if(m_renderContext == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
+        return false;
+    }
+
+    // Create graphics resources.
+    if(!CreateResources(editorContext->GetEngineSystems()))
+    {
+        LOG_ERROR(LogAttachFailed, "Could not create resources.");
+        return false;
+    }
+
     return true;
 }
 
@@ -52,7 +66,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     m_vertexBuffer = Graphics::VertexBuffer::Create(vertexBufferParams).UnwrapOr(nullptr);
     if(m_vertexBuffer == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create vertex buffer.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create vertex buffer.");
         return false;
     }
 
@@ -92,7 +106,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
         m_renderContext, inputLayoutParams).UnwrapOr(nullptr);
     if(m_vertexArray == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create vertex array.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create vertex array.");
         return false;
     }
 
@@ -105,7 +119,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     m_indexBuffer = Graphics::IndexBuffer::Create(indexBufferParams).UnwrapOr(nullptr);
     if(m_indexBuffer == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create index buffer.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create index buffer.");
         return false;
     }
 
@@ -118,7 +132,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
 
     if(fontData == nullptr || fontWidth == 0 || fontHeight == 0)
     {
-        LOG_ERROR(CreateResourcesError, "Could not retrieve font data.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not retrieve font data.");
         return false;
     }
 
@@ -133,7 +147,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     m_fontTexture = Graphics::Texture::Create(textureParams).UnwrapOr(nullptr);
     if(m_fontTexture == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create font texture.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create font texture.");
         return false;
     }
 
@@ -148,7 +162,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     m_sampler = Graphics::Sampler::Create(samplerParams).UnwrapOr(nullptr);
     if(m_sampler == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create texture sampler.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create texture sampler.");
         return false;
     }
 
@@ -161,7 +175,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
 
     if(m_shader == nullptr)
     {
-        LOG_ERROR(CreateResourcesError, "Could not create shader.");
+        LOG_ERROR(LogCreateResourcesFailed, "Could not create shader.");
         return false;
     }
 
@@ -172,12 +186,14 @@ void EditorRenderer::OnEndInterface()
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
+    // Render interface and retrieve draw data.
     ImGui::Render();
 
     ImDrawData* drawData = ImGui::GetDrawData();
     if(drawData == nullptr)
         return;
 
+    // Draw vertices from draw data.
     auto& renderState = m_renderContext->PushState();
     SCOPE_GUARD([this]
     {

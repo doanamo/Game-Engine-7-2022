@@ -68,7 +68,7 @@ bool ConsoleOutput::Initialize() const
 
 void ConsoleOutput::Write(const Message& message, const SinkContext& context)
 {
-    std::cout << DefaultFormat::ComposeMessage(message, context);
+    fmt::print("{}", DefaultFormat::ComposeMessage(message, context));
 }
 
 /*

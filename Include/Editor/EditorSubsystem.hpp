@@ -33,6 +33,7 @@ namespace Editor
 
         virtual bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
         {
+            // Return false if we do not intend on capturing input event.
             return false;
         }
 

@@ -13,8 +13,8 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create editor shell subsystem! {}";
-    const char* CreateModulesError = "Failed to create editor shell modules! {}";
+    const char* LogAttachFailed = "Failed to create editor shell subsystem! {}";
+    const char* LogCreateModulesFailed = "Failed to create editor shell modules! {}";
 }
 
 EditorShell::EditorShell() = default;
@@ -24,19 +24,33 @@ bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
     // Locate needed engine systems.
     auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
-    auto& engineSystems = editorContext->GetEngineSystems();
-
-    m_engineMetrics = engineSystems.Locate<Core::EngineMetrics>();
-    m_window = engineSystems.Locate<System::Window>();
-
-    // Create editor modules.
-    if(!CreateModules(engineSystems))
+    if(editorContext == nullptr)
     {
-        LOG_ERROR(CreateError, "Could not create editor modules.");
+        LOG_ERROR(LogAttachFailed, "Could not locate editor context.");
         return false;
     }
 
-    // Success!
+    m_engineMetrics = editorContext->GetEngineSystems().Locate<Core::EngineMetrics>();
+    if(m_engineMetrics == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate engine metrics!");
+        return false;
+    }
+
+    m_window = editorContext->GetEngineSystems().Locate<System::Window>();
+    if(m_window == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        return false;
+    }
+
+    // Create editor modules.
+    if(!CreateModules(editorContext->GetEngineSystems()))
+    {
+        LOG_ERROR(LogAttachFailed, "Could not create editor modules.");
+        return false;
+    }
+
     return true;
 }
 
@@ -46,7 +60,7 @@ bool EditorShell::CreateModules(const Core::EngineSystemStorage& engineSystems)
     auto editorModuleContext = std::make_unique<EditorModuleContext>(engineSystems);
     if(!editorModuleContext || !m_editorModules.Attach(std::move(editorModuleContext)))
     {
-        LOG_ERROR(CreateModulesError, "Could not attach editor module context.");
+        LOG_ERROR(LogCreateModulesFailed, "Could not attach editor module context.");
         return false;
     }
 
@@ -59,11 +73,10 @@ bool EditorShell::CreateModules(const Core::EngineSystemStorage& engineSystems)
 
     if(!m_editorModules.CreateFromTypes(defaultEditorModuleTypes))
     {
-        LOG_ERROR(CreateModulesError, "Could not populate system storage.");
+        LOG_ERROR(LogCreateModulesFailed, "Could not populate system storage.");
         return false;
     }
 
-    // Success!
     return true;
 }
 

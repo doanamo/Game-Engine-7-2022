@@ -9,6 +9,4 @@
     Precompiled Header
 */
 
-#include <unordered_map>
-#include <fstream>
 #include <Core/Core.hpp>

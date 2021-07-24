@@ -12,22 +12,36 @@ using namespace Editor;
 
 namespace
 {
+    const char* LogAttachFailed = "Failed to attach editor console subsystem! {}";
+
     ImVec4 GetLogMessageColor(Logger::Severity::Type severity)
     {
         switch(severity)
         {
-        case Logger::Severity::Trace:   return ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-        case Logger::Severity::Debug:   return ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
-        case Logger::Severity::Info:    return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        case Logger::Severity::Success: return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-        case Logger::Severity::Warning: return ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
-        case Logger::Severity::Error:   return ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
-        case Logger::Severity::Fatal:   return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+        case Logger::Severity::Trace:
+            return ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 
-        default:
-            ASSERT(false, "Invalid message severity!");
+        case Logger::Severity::Debug:
+            return ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
+
+        case Logger::Severity::Info:
             return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        case Logger::Severity::Success:
+            return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+        case Logger::Severity::Warning:
+            return ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+
+        case Logger::Severity::Error:
+            return ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+
+        case Logger::Severity::Fatal:
+            return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
         }
+
+        ASSERT(false, "Invalid message severity!");
+        return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     }
 }
 
@@ -36,20 +50,28 @@ EditorConsole::~EditorConsole() = default;
 
 bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
-    // Locate needed engine systems.
+    // Locate needed systems.
     auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    if(editorContext == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate editor subsystem context.");
+        return false;
+    }
+
     auto& engineSystems = editorContext->GetEngineSystems();
-
     m_window = engineSystems.Locate<System::Window>();
+    if(m_window == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        return false;
+    }
 
-    // Success!
     return true;
 }
 
 bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 {
-    if(event.key == System::KeyboardKeys::KeyTilde
-        && event.state == System::InputStates::Pressed)
+    if(event.key == System::KeyboardKeys::KeyTilde && event.state == System::InputStates::Pressed)
     {
         Toggle(!IsVisible());
         return true;
@@ -92,6 +114,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     {
         const auto copiedMessages = Logger::GetGlobalHistory().GetMessages();
 
+        // Console message panel.
         ImVec2 windowSize = ImGui::GetWindowSize();
         ImGuiWindowFlags messagesFlags = 0;
 
@@ -117,6 +140,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         }
         ImGui::EndChild();
 
+        // Console context menu.
         if(ImGui::BeginPopupContextItem("Console Context Menu"))
         {
             if(ImGui::Selectable("Copy to clipboard"))
@@ -138,6 +162,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         ImGui::Separator();
         ImGui::PushItemWidth(-1);
 
+        // Console input.
         if(ImGui::InputText("Console Input", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             ImGui::SetKeyboardFocusHere();

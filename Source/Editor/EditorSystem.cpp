@@ -16,8 +16,9 @@ using namespace Editor;
 
 namespace
 {
-    const char* CreateError = "Failed to create editor system instance! {}";
-    const char* CreateSubsystemsError = "Failed to create editor subsystems! {}";
+    const char* LogAttachFailed = "Failed to attach editor system! {}";
+    const char* LogCreateSubsystemsFailed = "Failed to create editor subsystems! {}";
+    const char* LogSubscribeEventsFailed = "Failed to subscribe editor events! {}";
 
     void SetClipboardTextCallback(void* userData, const char* text)
     {
@@ -56,37 +57,29 @@ bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR("Failed to locate window system!");
-        return false;
-    }
-
-    auto* inputManager = engineSystems.Locate<System::InputManager>();
-    if(!inputManager)
-    {
-        LOG_ERROR("Failed to locate input manager system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate window.");
         return false;
     }
 
     // Initialize editor system.
     if(!CreateContext())
     {
-        LOG_ERROR(CreateError, "Could not create editor context.");
+        LOG_ERROR(LogAttachFailed, "Could not create editor context.");
         return false;
     }
 
     if(!CreateSubsystems(engineSystems))
     {
-        LOG_ERROR(CreateError, "Could not create editor subsystems.");
+        LOG_ERROR(LogAttachFailed, "Could not create editor subsystems.");
         return false;
     }
 
     if(!SubscribeEvents(engineSystems))
     {
-        LOG_ERROR(CreateError, "Could not subscribe editor events.");
+        LOG_ERROR(LogAttachFailed, "Could not subscribe editor events.");
         return false;
     }
 
-    // Success!
     return true;
 }
 
@@ -95,6 +88,7 @@ bool EditorSystem::CreateContext()
     ASSERT(m_window != nullptr);
     ASSERT(m_interface == nullptr);
 
+    // Create ImGui context.
     m_interface = ImGui::CreateContext();
     if(m_interface == nullptr)
         return false;
@@ -138,7 +132,7 @@ bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSyste
     auto context = std::make_unique<EditorSubsystemContext>(engineSystems);
     if(!context || !m_subsystems.Attach(std::move(context)))
     {
-        LOG_ERROR(CreateSubsystemsError, "Could not create engine system provider.");
+        LOG_ERROR(LogCreateSubsystemsFailed, "Could not create engine subsystem context.");
         return false;
     }
 
@@ -152,23 +146,28 @@ bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSyste
 
     if(!m_subsystems.CreateFromTypes(defaultEditorSubsystemTypes))
     {
-        LOG_ERROR(CreateSubsystemsError, "Could not populate system storage.");
+        LOG_ERROR(LogCreateSubsystemsFailed, "Could not populate system storage.");
         return false;
     }
 
-    // Success!
     return true;
 }
 
 bool EditorSystem::SubscribeEvents(const Core::EngineSystemStorage& engineSystems)
 {
     auto* inputManager = engineSystems.Locate<System::InputManager>();
-    System::InputState& inputState = inputManager->GetInputState();
+    if(!inputManager)
+    {
+        LOG_ERROR(LogSubscribeEventsFailed, "Could not locate input manager.");
+        return false;
+    }
 
     Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
     bool subscriptionResults = true;
+
+    System::InputState& inputState = inputManager->GetInputState();
     subscriptionResults &= inputState.events.Subscribe(
         m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
     subscriptionResults &= inputState.events.Subscribe(
@@ -229,7 +228,6 @@ bool EditorSystem::OnTextInput(const System::InputEvents::TextInput& event)
     utf8::unchecked::utf32to8(&event.utf32Character, &event.utf32Character + 1, &utf8Character[0]);
 
     io.AddInputCharactersUTF8(&utf8Character[0]);
-
     return io.WantCaptureKeyboard;
 }
 
@@ -260,7 +258,6 @@ bool EditorSystem::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
     io.KeyCtrl = event.modifiers & System::KeyboardModifiers::Ctrl;
     io.KeyShift = event.modifiers & System::KeyboardModifiers::Shift;
     io.KeySuper = event.modifiers & System::KeyboardModifiers::Super;
-
     return io.WantCaptureKeyboard;
 }
 
@@ -270,17 +267,17 @@ bool EditorSystem::OnMouseButton(const System::InputEvents::MouseButton& event)
     ImGuiIO& io = ImGui::GetIO();
 
     const std::size_t SupportedMouseButtonCount = std::min(
-        Common::StaticArraySize(io.MouseDown), (std::size_t)System::MouseButtons::Count);
+        Common::StaticArraySize(io.MouseDown),
+        static_cast<std::size_t>(System::MouseButtons::Count));
 
-    if(event.button < System::MouseButtons::Button1)
+    if(event.button < System::MouseButtons::Begin)
         return false;
 
-    if(event.button >= System::MouseButtons::Button1 + SupportedMouseButtonCount)
+    if(event.button >= System::MouseButtons::Begin + SupportedMouseButtonCount)
         return false;
 
-    const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Button1;
+    const unsigned int MouseButtonIndex = event.button - System::MouseButtons::Begin;
     io.MouseDown[MouseButtonIndex] = event.state == System::InputStates::Pressed;
-
     return io.WantCaptureMouse;
 }
 
@@ -289,7 +286,7 @@ bool EditorSystem::OnMouseScroll(const System::InputEvents::MouseScroll& event)
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    io.MouseWheel = (float)event.offset;
+    io.MouseWheel = static_cast<float>(event.offset);
 
     return io.WantCaptureMouse;
 }
@@ -299,6 +296,6 @@ void EditorSystem::OnCursorPosition(const System::InputEvents::CursorPosition& e
     ImGui::SetCurrentContext(m_interface);
     ImGuiIO& io = ImGui::GetIO();
 
-    io.MousePos.x = (float)event.x;
-    io.MousePos.y = (float)event.y;
+    io.MousePos.x = static_cast<float>(event.x);
+    io.MousePos.y = static_cast<float>(event.y);
 }

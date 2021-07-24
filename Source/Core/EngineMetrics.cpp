@@ -16,7 +16,10 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
     auto* configSystem = engineSystems.Locate<ConfigSystem>();
     if(configSystem == nullptr)
+    {
+        LOG_ERROR("Failed to attach engine metrics! Could not retrieve window.");
         return false;
+    }
 
     m_frameRateUpdateFrequency =
         configSystem->Get<double>(NAME_CONSTEXPR("metrics.frame_rate_update_frequency"))

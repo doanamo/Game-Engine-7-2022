@@ -173,8 +173,6 @@ namespace System
 
         enum
         {
-            Invalid,
-
             None = 0 << 0,
             Shift = 1 << 0,
             Ctrl = 1 << 1,
@@ -195,7 +193,9 @@ namespace System
         {
             Invalid,
 
-            Button1,
+            Begin = 1,
+
+            Button1 = Begin,
             Button2,
             Button3,
             Button4,
@@ -250,7 +250,7 @@ namespace System
             }
 
             MouseButtons::Type button = MouseButtons::Invalid;
-            KeyboardKeys::Type modifiers = KeyboardModifiers::Invalid;
+            KeyboardModifiers::Type modifiers = KeyboardModifiers::None;
             InputStates::Type state = InputStates::ReleasedRepeat;
             float stateTime = 0.0f;
         };

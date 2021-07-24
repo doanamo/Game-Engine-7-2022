@@ -13,7 +13,52 @@ using namespace Editor;
 
 namespace
 {
-    const char* AttachError = "Failed to attach input manager editor module! {}";
+    const char* LogAttachFailed = "Failed to attach input manager editor module! {}";
+
+    const char* GetInputStateText(System::InputStates::Type state)
+    {
+        switch(state)
+        {
+        case System::InputStates::Pressed:
+            return "Pressed";
+
+        case System::InputStates::PressedReleased:
+            return "PressedReleased";
+
+        case System::InputStates::PressedRepeat:
+            return "PressedRepeat";
+
+        case System::InputStates::Released:
+            return "Released";
+
+        case System::InputStates::ReleasedRepeat:
+            return "ReleasedRepeat";
+        }
+
+        return "Unknown";
+    }
+
+    std::string GetInputModifiersText(System::KeyboardModifiers::Type modifiers)
+    {
+        std::string text;
+
+        if(modifiers & System::KeyboardModifiers::Shift)
+            text += "Shift ";
+
+        if(modifiers & System::KeyboardModifiers::Ctrl)
+            text += "Ctrl ";
+
+        if(modifiers & System::KeyboardModifiers::Alt)
+            text += "Alt ";
+
+        if(modifiers & System::KeyboardModifiers::Super)
+            text += "Super ";
+
+        if(text.empty())
+            text = "None";
+
+        return text;
+    }
 }
 
 InputManagerEditor::InputManagerEditor()
@@ -38,21 +83,21 @@ bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
     m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR(AttachError, "Could not retrieve window.");
+        LOG_ERROR(LogAttachFailed, "Could not retrieve window.");
         return false;
     }
 
     auto* inputManager = engineSystems.Locate<System::InputManager>();
     if(!inputManager)
     {
-        LOG_ERROR(AttachError, "Could not retrieve input manager.");
+        LOG_ERROR(LogAttachFailed, "Could not retrieve input manager.");
         return false;
     }
 
     // Subscribe to input events.
-    System::InputState& inputState = inputManager->GetInputState();
-
     bool subscriptionResults = true;
+
+    System::InputState& inputState = inputManager->GetInputState();
     subscriptionResults &= m_window->events.Subscribe(m_windowFocusReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_keyboardKeyReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_textInputReceiver);
@@ -63,11 +108,10 @@ bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
 
     if(!subscriptionResults)
     {
-        LOG_ERROR(AttachError, "Could not subscribe to window events.");
+        LOG_ERROR(LogAttachFailed, "Could not subscribe to window events.");
         return false;
     }
 
-    // Success!
     return true;
 }
 
@@ -83,7 +127,8 @@ void InputManagerEditor::OnDisplay(float timeDelta)
         {
             if(ImGui::TreeNode("Incoming"))
             {
-                ImGui::BeginChild("Incoming Event Log", ImVec2(300, 340), true);
+                // Event log panel.
+                ImGui::BeginChild("Event Log", ImVec2(300, 340), true);
                 {
                     for(const std::string& eventText : m_incomingEventLog)
                     {
@@ -93,8 +138,9 @@ void InputManagerEditor::OnDisplay(float timeDelta)
                 }
                 ImGui::EndChild();
 
+                // Event control panel.
                 ImGui::SameLine();
-                ImGui::BeginChild("Event Type Toggle", ImVec2(150, 0), false);
+                ImGui::BeginChild("Event Control", ImVec2(150, 0), false);
                 {
                     if(ImGui::Button("Clear"))
                     {
@@ -149,6 +195,7 @@ void InputManagerEditor::AddIncomingEventLog(std::string text)
     if(m_incomingEventFreeze)
         return;
 
+    // Remove oldest entry.
     while(m_incomingEventLog.size() > m_incomingEventLogSize)
     {
         m_incomingEventLog.pop_front();
@@ -156,22 +203,16 @@ void InputManagerEditor::AddIncomingEventLog(std::string text)
 
     m_incomingEventCounter = ++m_incomingEventCounter % 1000;
 
-    std::stringstream textStream;
-    textStream << std::setw(3) << std::setfill('0') << m_incomingEventCounter;
-    textStream << ": " << text;
-
-    m_incomingEventLog.push_back(textStream.str());
+    // Add new formatted entry.
+    m_incomingEventLog.push_back(fmt::format("{:0>4}: {}", m_incomingEventCounter, text));
 }
 
 void InputManagerEditor::OnWindowFocus(const System::WindowEvents::Focus& event)
 {
     if(m_incomingWindowFocus)
     {
-        std::stringstream eventText;
-        eventText << "Window Focus\n";
-        eventText << "  Focused: " << (event.focused ? "True" : "False");
-
-        AddIncomingEventLog(eventText.str());
+        AddIncomingEventLog(fmt::format("Window Focus\n  Focused: {}",
+            event.focused ? "True" : "False"));
     }
 }
 
@@ -179,11 +220,8 @@ bool InputManagerEditor::OnTextInput(const System::InputEvents::TextInput& event
 {
     if(m_incomingTextInput)
     {
-        std::stringstream eventText;
-        eventText << "Text Input\n";
-        eventText << "  Character: " << event.utf32Character;
-
-        AddIncomingEventLog(eventText.str());
+        AddIncomingEventLog(fmt::format("Text Input\n  Character: {}", 
+            event.utf32Character));
     }
 
     return false;
@@ -204,61 +242,9 @@ bool InputManagerEditor::OnKeyboardKey(const System::InputEvents::KeyboardKey& e
 
         if(processEvent)
         {
-            std::stringstream eventText;
-            eventText << "Keyboard Key\n";
-            eventText << "  Key: " << event.key << "\n";
-            eventText << "  State: ";
-
-            switch(event.state)
-            {
-            case System::InputStates::Pressed:
-                eventText << "Pressed";
-                break;
-
-            case System::InputStates::PressedReleased:
-                eventText << "Pressed (Released)";
-                break;
-
-            case System::InputStates::PressedRepeat:
-                eventText << "Pressed (Repeat)";
-                break;
-
-            case System::InputStates::Released:
-                eventText << "Released";
-                break;
-
-            case System::InputStates::ReleasedRepeat:
-                eventText << "Released (Repeat)";
-                break;
-
-            default:
-                eventText << "Unknown";
-                break;
-            }
-
-            eventText << "\n";
-            eventText << "  Modifiers: ";
-
-            if(event.modifiers)
-            {
-                if(event.modifiers & System::KeyboardModifiers::Shift)
-                    eventText << "Shift ";
-
-                if(event.modifiers & System::KeyboardModifiers::Ctrl)
-                    eventText << "Ctrl ";
-
-                if(event.modifiers & System::KeyboardModifiers::Alt)
-                    eventText << "Alt ";
-
-                if(event.modifiers & System::KeyboardModifiers::Super)
-                    eventText << "Super ";
-            }
-            else
-            {
-                eventText << "None";
-            }
-
-            AddIncomingEventLog(eventText.str());
+            AddIncomingEventLog(
+                fmt::format("Keyboard Key\n  Key: {}\n  State: {}\n  Modifiers: {}",
+                event.key, GetInputStateText(event.state), GetInputModifiersText(event.modifiers)));
         }
     }
 
@@ -280,61 +266,10 @@ bool InputManagerEditor::OnMouseButton(const System::InputEvents::MouseButton& e
 
         if(processEvent)
         {
-            std::stringstream eventText;
-            eventText << "Mouse Button\n";
-            eventText << "  Button: " << event.button << "\n";
-            eventText << "  Action: ";
-
-            switch(event.state)
-            {
-            case System::InputStates::Pressed:
-                eventText << "Pressed";
-                break;
-
-            case System::InputStates::PressedReleased:
-                eventText << "Pressed (Released)";
-                break;
-
-            case System::InputStates::PressedRepeat:
-                eventText << "Pressed (Repeat)";
-                break;
-
-            case System::InputStates::Released:
-                eventText << "Released";
-                break;
-
-            case System::InputStates::ReleasedRepeat:
-                eventText << "Released (Repeat)";
-                break;
-
-            default:
-                eventText << "Unknown";
-                break;
-            }
-
-            eventText << "\n";
-            eventText << "  Modifiers: ";
-
-            if(event.modifiers)
-            {
-                if(event.modifiers & System::KeyboardModifiers::Shift)
-                    eventText << "Shift ";
-
-                if(event.modifiers & System::KeyboardModifiers::Ctrl)
-                    eventText << "Ctrl ";
-
-                if(event.modifiers & System::KeyboardModifiers::Alt)
-                    eventText << "Alt ";
-
-                if(event.modifiers & System::KeyboardModifiers::Super)
-                    eventText << "Super ";
-            }
-            else
-            {
-                eventText << "None";
-            }
-
-            AddIncomingEventLog(eventText.str());
+            AddIncomingEventLog(
+                fmt::format("Mouse Button\n  Button: {}\n  State: {}\n  Modifiers: {}",
+                event.button, GetInputStateText(event.state),
+                GetInputModifiersText(event.modifiers)));
         }
     }
 
@@ -345,11 +280,7 @@ bool InputManagerEditor::OnMouseScroll(const System::InputEvents::MouseScroll& e
 {
     if(m_incomingMouseScroll)
     {
-        std::stringstream eventText;
-        eventText << "Mouse Scroll\n";
-        eventText << "  Offset: " << event.offset;
-
-        AddIncomingEventLog(eventText.str());
+        AddIncomingEventLog(fmt::format("Mouse Scroll\n  Offset: {}", event.offset));
     }
 
     return false;
@@ -359,11 +290,8 @@ void InputManagerEditor::OnCursorPosition(const System::InputEvents::CursorPosit
 {
     if(m_incomingCursorPosition)
     {
-        std::stringstream eventText;
-        eventText << "Cursor Position\n";
-        eventText << "  Position: " << event.x << " / " << event.y;
-
-        AddIncomingEventLog(eventText.str());
+        AddIncomingEventLog(fmt::format("Cursor Position\n  Position: {} / {}",
+            event.x, event.y));
     }
 }
 
@@ -371,10 +299,7 @@ void InputManagerEditor::OnCursorEnter(const System::InputEvents::CursorEnter& e
 {
     if(m_incomingCursorEnter)
     {
-        std::stringstream eventText;
-        eventText << "Cursor Enter\n";
-        eventText << "  Entered: " << (event.entered ? "True" : "False");
-
-        AddIncomingEventLog(eventText.str());
+        AddIncomingEventLog(fmt::format("Cursor Enter\n  Entered: {}",
+            event.entered ? "True" : "False"));
     }
 }
