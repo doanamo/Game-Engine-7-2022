@@ -92,6 +92,8 @@ namespace Core
             Reflection::GetName<SystemBase>().GetString(),
             Reflection::GetName(system).GetString());
 
+        auto startTime = std::chrono::steady_clock::now();
+
         // Check if system is valid for attachment.
         if(system == nullptr)
         {
@@ -123,6 +125,12 @@ namespace Core
         auto [it, result] = m_systemMap.emplace(systemType, attachedSystem);
         ASSERT(result, "Failed to emplace entry in \"{}\" system storage!",
             Reflection::GetName<SystemBase>().GetString());
+
+        // Profile system attach time.
+        LOG("System storage \"{}\" attached \"{}\" in {:.4f}s.",
+            Reflection::GetName<SystemBase>().GetString(),
+            Reflection::GetName(it->second).GetString(),
+            std::chrono::duration<float>(std::chrono::steady_clock::now() - startTime).count());
 
         return true;
     }

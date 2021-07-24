@@ -35,7 +35,7 @@ namespace Reflection
     template<typename RegisteredType>
     constexpr const DynamicTypeInfo& DynamicType(const RegisteredType& instance)
     {
-        ASSERT(Common::Pointer(instance));
+        ASSERT(Common::Pointer(instance), "Instance pointer is null!");
         return Common::Pointer(instance)->GetTypeInfo();
     }
 
