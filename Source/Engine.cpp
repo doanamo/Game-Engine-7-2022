@@ -7,7 +7,7 @@
 #include "Engine.hpp"
 #include <Build/Build.hpp>
 #include <Reflection/Reflection.hpp>
-#include <Core/Config.hpp>
+#include <Core/ConfigSystem.hpp>
 #include <Core/EngineMetrics.hpp>
 #include <System/Platform.hpp>
 #include <System/Timer.hpp>
@@ -61,7 +61,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
         return Common::Failure(failureResult.Unwrap());
     }
 
-    if(auto config = engine->GetSystems().Locate<Core::Config>())
+    if(auto config = engine->GetSystems().Locate<Core::ConfigSystem>())
     {
         float maxUpdateDelta = config->Get<float>(
             NAME_CONSTEXPR("engine.maxUpdateDelta"))
@@ -87,7 +87,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
 Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigVariables& configVars)
 {
     // Create config system for engine parametrization.
-    if(auto config = std::make_unique<Core::Config>())
+    if(auto config = std::make_unique<Core::ConfigSystem>())
     {
         config->Load(configVars);
         m_engineSystems.Attach(std::move(config));

@@ -11,7 +11,7 @@
 /*
     System Storage
 
-    Generic storage for instantiating, attaching and storing unique systems.
+    Generic storage for instantiating, attaching, storing and processing unique systems.
 */
 
 namespace Core
@@ -63,6 +63,7 @@ namespace Core
     template<typename SystemBase>
     bool SystemStorage<SystemBase>::CreateFromTypes(const SystemTypes& systemTypes)
     {
+        // Construct and attach systems created from type identifiers.
         for(auto systemType : systemTypes)
         {
             SystemPtr createdSystem(Reflection::Construct<SystemBase>(systemType));
@@ -81,7 +82,6 @@ namespace Core
             }
         }
 
-        // Success!
         return true;
     }
 
@@ -124,7 +124,6 @@ namespace Core
         ASSERT(result, "Failed to emplace entry in \"{}\" system storage!",
             Reflection::GetName<SystemBase>().GetString());
 
-        // Success!
         return true;
     }
 
@@ -156,6 +155,8 @@ namespace Core
     template<typename SystemBase>
     void SystemStorage<SystemBase>::ForEach(ForEachCallback callback)
     {
+        // Run callback for each system in attachment order.
+        // Returning false from callback with abort further processing.
         for(auto& system : m_systemList)
         {
             ASSERT(system);

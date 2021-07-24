@@ -14,9 +14,9 @@ set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Core")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(FILES_CONFIG
-    "${INCLUDE_DIR}/Config.hpp"
     "${INCLUDE_DIR}/ConfigTypes.hpp"
-    "${SOURCE_DIR}/Config.cpp"
+    "${INCLUDE_DIR}/ConfigSystem.hpp"
+    "${SOURCE_DIR}/ConfigSystem.cpp"
 )
 
 set(FILES_SYSTEMS

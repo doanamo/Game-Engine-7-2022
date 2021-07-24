@@ -10,8 +10,8 @@
 /*
     Engine Metrics
 
-    Utility subsystem for tracking important engine events and their
-    timings, such as frame start/end times used to calculate framerate.
+    Utility subsystem for tracking important engine events and their timings, such as frame
+    start and end times used to calculate framerate.
 */
 
 namespace Core
@@ -31,12 +31,17 @@ namespace Core
         float GetFrameRate() const;
 
     private:
+        bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override;
+
+    private:
+        double m_frameRateUpdateFrequency = 1.0;
+
         std::chrono::steady_clock::time_point m_frameStart;
         std::chrono::steady_clock::time_point m_frameEnd;
         std::chrono::steady_clock::time_point m_frameTimeUpdate;
 
-        float m_frameTimeAverage = 0.0f;
-        float m_frameTimeAccumulated = 0.0f;
+        double m_frameTimeAverage = 0.0f;
+        double m_frameTimeAccumulated = 0.0f;
         int m_frameTimeAccumulations = 0;
     };
 }

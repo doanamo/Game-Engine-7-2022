@@ -6,7 +6,9 @@
 #pragma once
 
 /*
-    Common Includes
+    Core Header
+
+    Contains common includes that will be part of precompiled header for every project.
 */
 
 #include <cctype>

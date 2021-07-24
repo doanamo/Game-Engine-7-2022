@@ -4,13 +4,13 @@
 */
 
 #include "Precompiled.hpp"
-#include "Core/Config.hpp"
+#include "Core/ConfigSystem.hpp"
 using namespace Core;
 
-Config::Config() = default;
-Config::~Config() = default;
+ConfigSystem::ConfigSystem() = default;
+ConfigSystem::~ConfigSystem() = default;
 
-void Config::Load(const ConfigVariableArray& variables)
+void ConfigSystem::Load(const ConfigVariableArray& variables)
 {
     for(const auto& variable : variables)
     {

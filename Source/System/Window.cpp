@@ -6,7 +6,7 @@
 #include "System/Precompiled.hpp"
 #include "System/Window.hpp"
 #include <Core/SystemStorage.hpp>
-#include <Core/Config.hpp>
+#include <Core/ConfigSystem.hpp>
 using namespace System;
 
 Window::Window() :
@@ -34,7 +34,7 @@ Window::~Window()
 bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve config variables.
-    auto* config = engineSystems.Locate<Core::Config>();
+    auto* config = engineSystems.Locate<Core::ConfigSystem>();
 
     m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
     int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);

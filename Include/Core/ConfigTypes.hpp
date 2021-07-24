@@ -11,6 +11,10 @@
 
 namespace Core
 {
+    /*
+        Base
+    */
+
     using ConfigVariablePair = std::pair<Common::Name, std::string>;
     using ConfigVariableArray = std::vector<ConfigVariablePair>;
 
@@ -23,6 +27,10 @@ namespace Core
             return false;
         }
     };
+
+    /*
+        Boolean
+    */
 
     template<>
     class ConfigValueType<bool>
@@ -43,6 +51,10 @@ namespace Core
             return true;
         }
     };
+
+    /*
+        Integer
+    */
 
     template<>
     class ConfigValueType<int>
@@ -71,6 +83,10 @@ namespace Core
         }
     };
 
+    /*
+        Single Floating Point Precision
+    */
+
     template<>
     class ConfigValueType<float>
     {
@@ -97,6 +113,41 @@ namespace Core
             return true;
         }
     };
+
+    /*
+        Double Floating Point Precision
+    */
+
+    template<>
+    class ConfigValueType<double>
+    {
+    public:
+        static std::string Format(const double& value)
+        {
+            return std::to_string(value);
+        }
+
+        static Common::Result<double, void> Parse(const std::string& value)
+        {
+            try
+            {
+                return Common::Success(std::stod(value));
+            }
+            catch(...)
+            {
+                return Common::Failure();
+            }
+        }
+
+        static constexpr bool IsSupported()
+        {
+            return true;
+        }
+    };
+
+    /*
+        Character String
+    */
 
     template<>
     class ConfigValueType<std::string>

@@ -135,7 +135,9 @@ namespace Common
         */
 
         if(elements.size() != order.size())
+        {
             return false;
+        }
 
         for(std::size_t i : order)
         {
@@ -144,7 +146,9 @@ namespace Common
         }
 
         if(elements.size() == 0)
+        {
             return true;
+        }
 
         std::vector<std::size_t> indices(order.size());
         std::iota(indices.begin(), indices.end(), 0);

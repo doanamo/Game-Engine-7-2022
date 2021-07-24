@@ -8,13 +8,17 @@
 #include <fstream>
 
 /*
-    Base Output
+    Logger Output
     
-    Interface for output implementations that are added to logger sinks.
+    Writes log messages that are received from logger sink.
 */
 
 namespace Logger
 {
+    /*
+        Output Interface
+    */
+
     class Message;
     struct SinkContext;
 
@@ -24,16 +28,11 @@ namespace Logger
         virtual bool Initialize() const = 0;
         virtual void Write(const Logger::Message& message, const Logger::SinkContext& context) = 0;
     };
-}
 
-/*
-    File Output
+    /*
+        File Output
+    */
 
-    Writes log messages to file.
-*/
-
-namespace Logger
-{
     class FileOutput : public Output
     {
     public:
@@ -46,16 +45,11 @@ namespace Logger
     private:
         std::ofstream m_file;
     };
-}
 
-/*
-    Console Output
+    /*
+        Console Output
+    */
 
-    Writes log messages to application's console window.
-*/
-
-namespace Logger
-{
     class ConsoleOutput : public Output
     {
     public:
@@ -65,16 +59,11 @@ namespace Logger
         bool Initialize() const override;
         void Write(const Message& message, const SinkContext& context) override;
     };
-}
 
-/*
-    Debugger Output
+    /*
+        Debugger Output
+    */
 
-    Writes log messages to debugger's window.
-*/
-
-namespace Logger
-{
     class DebuggerOutput : public Output
     {
     public:

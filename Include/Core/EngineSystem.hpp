@@ -27,6 +27,7 @@ namespace Core
 
         bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override
         {
+            // Return true to signal that everything is fine and we can continue.
             return true;
         }
     };

@@ -15,6 +15,10 @@
 
 namespace Event
 {
+    /*
+        Base Collector    
+    */
+
     template<typename ResultType>
     class Collector
     {
@@ -39,6 +43,10 @@ namespace Event
         ResultType m_defaultResult;
     };
 
+    /*
+        Collect Void
+    */
+
     template<>
     class Collector<void>
     {
@@ -53,6 +61,10 @@ namespace Event
     };
 
     using CollectNothing = Collector<void>;
+
+    /*
+        Collect Last
+    */
 
     template<typename ResultType>
     class CollectLast : public Collector<ResultType>
@@ -87,6 +99,10 @@ namespace Event
     using CollectDefault = typename std::conditional_t<
         std::is_same<ResultType, void>::value, CollectNothing, CollectLast<ResultType>>;
 
+    /*
+        Collect While True
+    */
+
     class CollectWhileTrue : public Collector<bool>
     {
     public:
@@ -114,6 +130,10 @@ namespace Event
     private:
         bool m_result;
     };
+
+    /*
+        Collect While False
+    */
 
     class CollectWhileFalse : public Collector<bool>
     {
