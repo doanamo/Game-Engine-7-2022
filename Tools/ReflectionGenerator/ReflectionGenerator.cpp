@@ -401,17 +401,22 @@ int main(int argc, const char* argv[])
             "\n"
             "    void RegisterExecutable()\n"
             "    {\n"
-            "        LOG(\"Registering reflected types...\");\n"
-            "        LOG_SCOPED_INDENT();\n\n";
+            "        auto startTime = std::chrono::steady_clock::now();\n\n"
+            "        {\n"
+            "            LOG(\"Registering reflected types...\");\n"
+            "            LOG_SCOPED_INDENT();\n\n";
 
         for(const auto& dependency : parameters.targetDependencies)
         {
             reflectionBinding <<
-                "        RegisterModule" << dependency << "();\n";
+                "            RegisterModule" << dependency << "();\n";
         }
 
         reflectionBinding <<
-            "        RegisterModule" << parameters.targetName << "();\n"
+            "            RegisterModule" << parameters.targetName << "();\n"
+            "        }\n\n"
+            "        LOG(\"Registered reflected types in {:.4f}s.\", std::chrono::duration<float>("
+            "\n            std::chrono::steady_clock::now() - startTime).count());\n"
             "    }\n";
     }
 
