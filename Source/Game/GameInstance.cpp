@@ -14,7 +14,7 @@ using namespace Game;
 
 namespace
 {
-    const char* CreateSystemsError = "Failed to create game systems! {}";
+    const char* LogCreateSystemsFailed = "Failed to create game systems! {}";
 }
 
 GameInstance::GameInstance() = default;
@@ -39,11 +39,16 @@ GameInstance::CreateResult GameInstance::Create()
 
     if(!instance->m_gameSystems.CreateFromTypes(defaultGameSystemTypes))
     {
-        LOG_ERROR(CreateSystemsError, "Could not populate system storage.");
+        LOG_ERROR(LogCreateSystemsFailed, "Could not populate system storage.");
         return Common::Failure(CreateErrors::FailedGameSystemCreation);
     }
 
-    // Success!
+    if(!instance->m_gameSystems.Finalize())
+    {
+        LOG_ERROR(LogCreateSystemsFailed, "Could not finalize system storage.");
+        return Common::Failure(CreateErrors::FailedGameSystemCreation);
+    }
+
     return Common::Success(std::move(instance));
 }
 

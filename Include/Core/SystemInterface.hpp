@@ -21,6 +21,17 @@ namespace Core
     {
     protected:
         friend SystemStorage<SystemBase>;
-        virtual bool OnAttach(const SystemStorage<SystemBase>& systemStorage) = 0;
+
+        virtual bool OnAttach(const SystemStorage<SystemBase>& systemStorage)
+        {
+            // Return true to indicate that everything is fine and we can continue.
+            return true;
+        }
+        
+        virtual bool OnFinalize(const SystemStorage<SystemBase>& systemStorage)
+        {
+            // Return true to indicate that everything is fine and we can continue.
+            return true;
+        }
     };
 }

@@ -77,6 +77,12 @@ bool EditorShell::CreateModules(const Core::EngineSystemStorage& engineSystems)
         return false;
     }
 
+    if(!m_editorModules.Finalize())
+    {
+        LOG_ERROR(LogCreateModulesFailed, "Could not finalize system storage.");
+        return false;
+    }
+
     return true;
 }
 

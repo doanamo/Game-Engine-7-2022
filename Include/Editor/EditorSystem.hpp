@@ -13,7 +13,7 @@
 
 namespace System
 {
-    class InputState;
+    class Timer;
     class Window;
 };
 
@@ -40,11 +40,10 @@ namespace Editor
         EditorSystem();
         ~EditorSystem() override;
 
-        void BeginInterface(float timeDelta);
-        void EndInterface();
-
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
+        void OnBeginFrame() override;
+        void OnEndFrame() override;
 
         bool CreateContext();
         bool CreateSubsystems(const Core::EngineSystemStorage& engineSystems);
@@ -63,6 +62,7 @@ namespace Editor
         Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
     private:
+        System::Timer* m_timer = nullptr;
         System::Window* m_window = nullptr;
         ImGuiContext* m_interface = nullptr;
 

@@ -17,7 +17,7 @@ int main()
 
     const Core::ConfigVariableArray configVars =
     {
-        { "engine.maxUpdateDelta", "1.0f" },
+        { "timer.maxUpdateDelta", "1.0f" },
     };
 
     if(auto engine = Engine::Root::Create(configVars).UnwrapOr(nullptr))

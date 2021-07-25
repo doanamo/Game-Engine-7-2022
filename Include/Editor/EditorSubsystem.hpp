@@ -39,11 +39,6 @@ namespace Editor
 
     protected:
         EditorSubsystem() = default;
-
-        bool OnAttach(const Core::SystemStorage<EditorSubsystem>& editorSubsystems) override
-        {
-            return true;
-        }
     };
 
     using EditorSubsystemStorage = Core::SystemStorage<EditorSubsystem>;

@@ -55,6 +55,5 @@ namespace Engine
 
     private:
         Core::EngineSystemStorage m_engineSystems;
-        float m_maxUpdateDelta = 1.0f;
     };
 }

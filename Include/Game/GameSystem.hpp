@@ -21,18 +21,10 @@ namespace Game
 
     public:
         virtual ~GameSystem() = default;
-
-        virtual void OnTick(float timeDelta)
-        {
-        }
+        virtual void OnTick(float timeDelta) {}
 
     protected:
         GameSystem() = default;
-
-        bool OnAttach(const Core::SystemStorage<GameSystem>& gameInstance) override
-        {
-            return true;
-        }
     };
 
     using GameSystemStorage = Core::SystemStorage<GameSystem>;

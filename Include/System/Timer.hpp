@@ -52,10 +52,15 @@ namespace System
         static double ConvertToSeconds(TimeUnit units);
 
     private:
+        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
+        void OnBeginFrame() override;
+
         static TimeUnit ReadClockUnits();
         static TimeUnit ReadClockFrequency();
 
     private:
+        float m_maxUpdateDelta = 1.0f;
+
         TimeUnit m_currentTimeUnits;
         TimeUnit m_previousTimeUnits;
     };

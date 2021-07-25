@@ -9,6 +9,7 @@
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
 #include <Core/SystemStorage.hpp>
+#include <System/Timer.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
@@ -54,6 +55,13 @@ EditorSystem::~EditorSystem()
 bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Acquire engine systems.
+    m_timer = engineSystems.Locate<System::Timer>();
+    if(!m_timer)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate timer.");
+        return false;
+    }
+
     m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
@@ -150,6 +158,12 @@ bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSyste
         return false;
     }
 
+    if(!m_subsystems.Finalize())
+    {
+        LOG_ERROR(LogCreateSubsystemsFailed, "Could not finalize system storage.");
+        return false;
+    }
+
     return true;
 }
 
@@ -182,25 +196,25 @@ bool EditorSystem::SubscribeEvents(const Core::EngineSystemStorage& engineSystem
     return subscriptionResults;
 }
 
-void EditorSystem::BeginInterface(float timeDelta)
+void EditorSystem::OnBeginFrame()
 {
     ImGui::SetCurrentContext(m_interface);
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = timeDelta;
+    io.DeltaTime = m_timer->GetDeltaSeconds();
     io.DisplaySize.x = (float)m_window->GetWidth();
     io.DisplaySize.y = (float)m_window->GetHeight();
 
     ImGui::NewFrame();
 
-    m_subsystems.ForEach([timeDelta](EditorSubsystem& subsystem)
+    m_subsystems.ForEach([timeDelta = io.DeltaTime](EditorSubsystem& subsystem)
     {
         subsystem.OnBeginInterface(timeDelta);
         return true;
     });
 }
 
-void EditorSystem::EndInterface()
+void EditorSystem::OnEndFrame()
 {
     ImGui::SetCurrentContext(m_interface);
     ImGui::EndFrame();

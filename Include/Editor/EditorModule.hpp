@@ -22,17 +22,11 @@ namespace Editor
 
     public:
         virtual ~EditorModule() = default;
-
         virtual void OnDisplay(float timeDelta) {}
         virtual void OnDisplayMenuBar() {}
 
     protected:
         EditorModule() = default;
-
-        bool OnAttach(const Core::SystemStorage<EditorModule>& editorModules) override
-        {
-            return true;
-        }
     };
 
     using EditorModuleStorage = Core::SystemStorage<EditorModule>;

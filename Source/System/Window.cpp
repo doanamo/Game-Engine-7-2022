@@ -115,6 +115,16 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     return true;
 }
 
+void Window::OnBeginFrame()
+{
+    ProcessEvents();
+}
+
+void Window::OnEndFrame()
+{
+    Present();
+}
+
 void Window::MakeContextCurrent()
 {
     ASSERT(m_context.handle);

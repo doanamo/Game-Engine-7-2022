@@ -24,14 +24,13 @@ namespace Core
         EngineMetrics();
         ~EngineMetrics() override;
 
-        void MarkFrameStart();
-        void MarkFrameEnd();
-
         float GetFrameTime() const;
         float GetFrameRate() const;
 
     private:
         bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override;
+        void OnBeginFrame() override;
+        void OnEndFrame() override;
 
     private:
         double m_frameRateUpdateFrequency = 1.0;

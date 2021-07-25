@@ -25,9 +25,9 @@ using namespace Engine;
 
 namespace
 {
-    const char* CreateEngineError = "Failed to create engine! {}";
-    const char* CreateSystemsError = "Failed to create engine systems! {}";
-    const char* LoadDefaultResourcesError = "Failed to load default resources! {}";
+    const char* LogCreateEngineFailed = "Failed to create engine! {}";
+    const char* LogCreateSystemsFailed = "Failed to create engine systems! {}";
+    const char* LogLoadDefaultResourcesFailed = "Failed to load default resources! {}";
 }
 
 Root::Root() = default;
@@ -42,50 +42,39 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
         At the end we load default resources such as placeholder texture.
     */
 
+    auto startTime = std::chrono::steady_clock::now();
+
+    // Initialize static systems.
     Debug::Initialize();
     Logger::Initialize();
     Build::Initialize();
     Reflection::Initialize();
 
+    // Create engine instance.
     auto engine = std::unique_ptr<Root>(new Root());
 
     if(auto failureResult = engine->CreateEngineSystems(configVars).AsFailure())
     {
-        LOG_FATAL(CreateEngineError, "Could not create engine systems.");
+        LOG_FATAL(LogCreateEngineFailed, "Could not create engine systems.");
         return Common::Failure(failureResult.Unwrap());
     }
 
     if(auto failureResult = engine->LoadDefaultResources().AsFailure())
     {
-        LOG_FATAL(CreateEngineError, "Could not load default resources.");
+        LOG_FATAL(LogCreateEngineFailed, "Could not load default resources.");
         return Common::Failure(failureResult.Unwrap());
     }
 
-    if(auto config = engine->GetSystems().Locate<Core::ConfigSystem>())
-    {
-        float maxUpdateDelta = config->Get<float>(
-            NAME_CONSTEXPR("engine.maxUpdateDelta"))
-            .UnwrapOr(1.0f);
+    LOG("Created engine instance in {:.4f}s.", std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - startTime).count());
 
-        if(maxUpdateDelta > 0.0f)
-        {
-            engine->m_maxUpdateDelta = maxUpdateDelta;
-        }
-        else
-        {
-            LOG_WARNING("Ignoring invalid \"engine.maxUpdateDelta={}\" "
-                "config variable - value must be positive!", maxUpdateDelta);
-            config->Set<float>(NAME_CONSTEXPR("engine.maxUpdateDelta"),
-                engine->m_maxUpdateDelta, true);
-        }
-    }
-
-    LOG_SUCCESS("Created engine instance.");
     return Common::Success(std::move(engine));
 }
 
 Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigVariables& configVars)
 {
+    auto startTime = std::chrono::steady_clock::now();
+
     // Create config system for engine parametrization.
     if(auto config = std::make_unique<Core::ConfigSystem>())
     {
@@ -94,7 +83,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
     }
     else
     {
-        LOG_ERROR(CreateSystemsError, "Could not create config system.");
+        LOG_ERROR(LogCreateSystemsFailed, "Could not create config system.");
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
@@ -104,10 +93,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<System::Platform>(),
         Reflection::GetIdentifier<System::FileSystem>(),
+        Reflection::GetIdentifier<System::Timer>(),
         Reflection::GetIdentifier<System::Window>(),
         Reflection::GetIdentifier<System::InputManager>(),
         Reflection::GetIdentifier<System::ResourceManager>(),
-        Reflection::GetIdentifier<System::Timer>(),
         Reflection::GetIdentifier<Game::GameFramework>(),
         Reflection::GetIdentifier<Graphics::RenderContext>(),
         Reflection::GetIdentifier<Graphics::SpriteRenderer>(),
@@ -117,17 +106,27 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
 
     if(!m_engineSystems.CreateFromTypes(defaultEngineSystemTypes))
     {
-        LOG_ERROR(CreateSystemsError, "Could not populate system storage.");
+        LOG_ERROR(LogCreateSystemsFailed, "Could not populate system storage.");
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
-    // Success!
-    LOG_SUCCESS("Created engine systems.");
+    if(!m_engineSystems.Finalize())
+    {
+        LOG_ERROR(LogCreateSystemsFailed, "Could not finalize system storage.");
+        return Common::Failure(CreateErrors::FailedSystemCreation);
+    }
+
+    LOG("Created engine systems in {:.4f}s.", std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - startTime).count());
+
     return Common::Success();
 }
 
 Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
+    auto startTime = std::chrono::steady_clock::now();
+
+    // Locate systems needed to load resources.
     auto* fileSystem = m_engineSystems.Locate<System::FileSystem>();
     auto* resourceManager = m_engineSystems.Locate<System::ResourceManager>();
 
@@ -149,62 +148,54 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
         }
         else
         {
-            LOG_ERROR(LoadDefaultResourcesError, "Could not load default texture resource.");
+            LOG_ERROR(LogLoadDefaultResourcesFailed, "Could not load default texture resource.");
             return Common::Failure(CreateErrors::FailedResourceLoading);
         }
     }
     else
     {
-        LOG_ERROR(LoadDefaultResourcesError, "Could not resolve default texture path.");
+        LOG_ERROR(LogLoadDefaultResourcesFailed, "Could not resolve default texture path.");
         return Common::Failure(CreateErrors::FailedResourceLoading);
     }
     
-    LOG_SUCCESS("Loaded default engine resources.");
+    LOG("Load engine default resources in {:.4f}s.", std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - startTime).count());
+
     return Common::Success();
 }
 
 void Root::ProcessFrame()
 {
-    /*
-        Single frame execution, running repeatedly in main loop.
-        Engine systems are updated here each frame if needed.
-    */
-
+    // Begin processing frame.
     Logger::AdvanceFrameReference();
 
-    auto* metrics = m_engineSystems.Locate<Core::EngineMetrics>();
-    auto* timer = m_engineSystems.Locate<System::Timer>();
-    auto* window = m_engineSystems.Locate<System::Window>();
-    auto* inputManager = m_engineSystems.Locate<System::InputManager>();
-    auto* resourceManager = m_engineSystems.Locate<System::ResourceManager>();
-    auto* gameFramework = m_engineSystems.Locate<Game::GameFramework>();
-    auto* editorSystem = m_engineSystems.Locate<Editor::EditorSystem>();
-
-    const float timeDelta = timer->Advance(m_maxUpdateDelta);
-
-    metrics->MarkFrameStart();
-    resourceManager->ReleaseUnused();
-    window->ProcessEvents();
-
-    editorSystem->BeginInterface(timeDelta);
-    if(gameFramework->ProcessGameState(timeDelta) ==
-        Game::GameFramework::ProcessGameStateResults::TickedAndUpdated)
+    m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
     {
-        inputManager->UpdateInputState(timeDelta);
-    }
-    editorSystem->EndInterface();
+        engineSystem.OnBeginFrame();
+        return true;
+    });
 
-    window->Present();
-    metrics->MarkFrameEnd();
+    // Perform frame processing.
+    m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
+    {
+        engineSystem.OnProcessFrame();
+        return true;
+    });
+
+    // End processing frame.
+    m_engineSystems.ForEachReverse([](Core::EngineSystem& engineSystem)
+    {
+        engineSystem.OnEndFrame();
+        return true;
+    });
 }
 
 Root::ErrorCode Root::Run()
 {
     /*
-        Initiates infinite main loop that exits only when application requests
-        to be closed. Before main loop is run we have to set window context as
-        current, then timer is reset on the first iteration to exclude time
-        accumulated during initialization.
+        Initiates main loop that exits only when application requests to be closed. Before main
+        loop is run we have to set window context as current, then timer is reset on the first
+        iteration to exclude time accumulated during initialization.
     */
 
     auto* timer = m_engineSystems.Locate<System::Timer>();

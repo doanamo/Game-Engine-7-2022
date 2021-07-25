@@ -42,18 +42,12 @@ namespace Game
 
         using ChangeGameStateResult = Common::Result<void, ChangeGameStateErrors>;
 
-        enum class ProcessGameStateResults
-        {
-            TickedAndUpdated,
-            UpdatedOnly,
-        };
-
     public:
         GameFramework();
         ~GameFramework() override;
 
         ChangeGameStateResult ChangeGameState(std::shared_ptr<GameState> gameState);
-        ProcessGameStateResults ProcessGameState(float timeDelta);
+        void ProcessGameState();
         bool HasGameState() const;
 
         struct Events
@@ -71,12 +65,19 @@ namespace Game
             // This is also good time to run custom tick logic in response.
             Event::Dispatcher<void(float)> tickProcessed;
 
+            // Called when state had its update processed.
+            // Event will be dispatched only once event if multiple ticks are processed.
+            // This is also good time to run custom update logic in response.
+            Event::Dispatcher<void(float)> updateProcessed;
+
             // Called when game instance should be drawn, before game state's custom draw.
             Event::Dispatcher<void(GameInstance*, float)> drawGameInstance;
         } events;
 
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
+        bool OnFinalize(const Core::EngineSystemStorage& engineSystems) override;
+        void OnProcessFrame() override;
 
     private:
         System::Timer* m_timer = nullptr;

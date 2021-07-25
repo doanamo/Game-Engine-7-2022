@@ -5,9 +5,15 @@
 
 #pragma once
 
+#include <Common/Event/EventReceiver.hpp>
 #include <Core/EngineSystem.hpp>
 #include "System/InputState.hpp"
 #include "System/WindowEvents.hpp"
+
+namespace System
+{
+    class Timer;
+}
 
 /*
     Input Manager
@@ -27,10 +33,17 @@ namespace System
         InputManager();
         ~InputManager() override;
 
-        void UpdateInputState(float timeDelta);
+        void UpdateInputState();
         void ResetInputState();
 
         InputState& GetInputState();
+
+    public:
+        struct Events
+        {
+            // Should be dispatched when tick is processed in order to update input state.
+            Event::Receiver<void(float)> onTickProcessed;
+        } events;
 
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
@@ -44,6 +57,7 @@ namespace System
         static void CursorEnterCallback(GLFWwindow* handle, int entered);
 
     private:
+        System::Timer* m_timer = nullptr;
         WindowContext* m_windowContext = nullptr;
         InputState m_inputState;
     };

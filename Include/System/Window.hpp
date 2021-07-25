@@ -72,6 +72,8 @@ namespace System
 
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
+        void OnBeginFrame() override;
+        void OnEndFrame() override;
 
         static Window& GetWindowFromUserData(GLFWwindow* handle);
         static void MoveCallback(GLFWwindow* handle, int x, int y);

@@ -25,6 +25,11 @@ bool ResourceManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
     return true;
 }
 
+void ResourceManager::OnBeginFrame()
+{
+     ReleaseUnused();
+}
+
 void ResourceManager::ReleaseUnused()
 {
     // Release all unused resources from all pools.

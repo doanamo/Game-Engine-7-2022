@@ -5,7 +5,14 @@
 
 #include "System/Precompiled.hpp"
 #include "System/Timer.hpp"
+#include <Core/SystemStorage.hpp>
+#include <Core/ConfigSystem.hpp>
 using namespace System;
+
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach timer! {}";
+}
 
 Timer::Timer()
 {
@@ -13,6 +20,31 @@ Timer::Timer()
 }
 
 Timer::~Timer() = default;
+
+bool Timer::OnAttach(const Core::EngineSystemStorage& engineSystems)
+{
+    // Retrieve needed engine systems.
+    auto* configSystem = engineSystems.Locate<Core::ConfigSystem>();
+    if(configSystem == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate config system.");
+        return false;
+    }
+
+    // Read config variables.
+    float maxUpdateDelta = configSystem->Get<float>(
+        NAME_CONSTEXPR("timer.maxUpdateDelta"))
+        .UnwrapOr(m_maxUpdateDelta);
+
+    m_maxUpdateDelta = std::max(0.0f, m_maxUpdateDelta);
+
+    return true;
+}
+
+void Timer::OnBeginFrame()
+{
+    Advance(m_maxUpdateDelta);
+}
 
 Timer::TimeUnit Timer::ReadClockUnits()
 {

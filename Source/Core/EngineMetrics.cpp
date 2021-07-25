@@ -22,18 +22,18 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
     }
 
     m_frameRateUpdateFrequency =
-        configSystem->Get<double>(NAME_CONSTEXPR("metrics.frame_rate_update_frequency"))
+        configSystem->Get<double>(NAME_CONSTEXPR("metrics.frameRateUpdateFrequency"))
         .UnwrapOr(m_frameRateUpdateFrequency);
 
     return true;
 }
 
-void EngineMetrics::MarkFrameStart()
+void EngineMetrics::OnBeginFrame()
 {
     m_frameStart = std::chrono::steady_clock::now();
 }
 
-void EngineMetrics::MarkFrameEnd()
+void EngineMetrics::OnEndFrame()
 {
     m_frameEnd = std::chrono::steady_clock::now();
 

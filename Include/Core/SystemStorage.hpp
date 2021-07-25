@@ -38,16 +38,19 @@ namespace Core
 
         bool CreateFromTypes(const SystemTypes& systemTypes);
         bool Attach(std::unique_ptr<SystemBase>&& system);
+        bool Finalize();
 
         template<typename SystemType>
         SystemType* Locate() const;
         SystemBase* Locate(Reflection::TypeIdentifier systemType) const;
 
         void ForEach(ForEachCallback callback);
+        void ForEachReverse(ForEachCallback callback);
 
     private:
         SystemList m_systemList;
         SystemMap m_systemMap;
+        bool m_finalized = false;
     };
 
     template<typename SystemBase>
@@ -88,11 +91,21 @@ namespace Core
     template<typename SystemBase>
     bool SystemStorage<SystemBase>::Attach(std::unique_ptr<SystemBase>&& system)
     {
+        auto startTime = std::chrono::steady_clock::now();
+
         LOG_INFO("System storage \"{}\" is attaching \"{}\"...",
             Reflection::GetName<SystemBase>().GetString(),
             Reflection::GetName(system).GetString());
 
-        auto startTime = std::chrono::steady_clock::now();
+        // Check if storage is finalized.
+        if(m_finalized)
+        {
+            ASSERT(!m_finalized,
+                "Cannot attach \"{}\" to storage \"{}\" because it is already finalized!",
+                Reflection::GetName(system).GetString(),
+                Reflection::GetName<SystemBase>().GetString());
+            return false;
+        }
 
         // Check if system is valid for attachment.
         if(system == nullptr)
@@ -111,16 +124,26 @@ namespace Core
             return false;
         }
 
-        // Attach system to storage.
-        auto* systemInterface = static_cast<SystemInterface<SystemBase>*>(system.get());
-        if(!systemInterface->OnAttach(*this))
+        // Perform system attach to storage.
+        // Temporarily toggle finalized state so we can locate other systems.
         {
-            LOG_ERROR("Failed to attach \"{}\" to \"{}\" system storage!",
-                Reflection::GetName(systemType).GetString(),
-                Reflection::GetName<SystemBase>().GetString());
-            return false;
+            m_finalized = true;
+            SCOPE_GUARD([this]()
+            {
+                m_finalized = false;
+            });
+
+             auto* systemInterface = static_cast<SystemInterface<SystemBase>*>(system.get());
+            if(!systemInterface->OnAttach(*this))
+            {
+                LOG_ERROR("Failed to attach \"{}\" to \"{}\" system storage!",
+                    Reflection::GetName(systemType).GetString(),
+                    Reflection::GetName<SystemBase>().GetString());
+                return false;
+            }
         }
 
+        // Emplace attached system in storage.
         SystemBase* attachedSystem = m_systemList.emplace_back(std::move(system)).get();
         auto [it, result] = m_systemMap.emplace(systemType, attachedSystem);
         ASSERT(result, "Failed to emplace entry in \"{}\" system storage!",
@@ -131,6 +154,44 @@ namespace Core
             Reflection::GetName<SystemBase>().GetString(),
             Reflection::GetName(it->second).GetString(),
             std::chrono::duration<float>(std::chrono::steady_clock::now() - startTime).count());
+
+        return true;
+    }
+
+    template<typename SystemBase>
+    bool Core::SystemStorage<SystemBase>::Finalize()
+    {
+        ASSERT(!m_finalized, "System storage \"{}\" has already been finalized!",
+            Reflection::GetName<SystemBase>().GetString());
+
+        if(!m_finalized)
+        {
+            // Toggle finalized state now so we can locate other systems.
+            m_finalized = true;
+
+            // Finalize all attached systems.
+            for(auto& system : m_systemList)
+            {
+                auto startTime = std::chrono::steady_clock::now();
+
+                LOG_INFO("System storage \"{}\" is finalizing \"{}\"...",
+                    Reflection::GetName<SystemBase>().GetString(),
+                    Reflection::GetName(system).GetString());
+
+                ASSERT(system);
+                if(!system->OnFinalize(*this))
+                {
+                    m_finalized = false;
+                    return false;
+                }
+
+                LOG("System storage \"{}\" finalized \"{}\" in {:.4f}s.",
+                    Reflection::GetName<SystemBase>().GetString(),
+                    Reflection::GetName(system).GetString(),
+                    std::chrono::duration<float>(
+                        std::chrono::steady_clock::now() - startTime).count());
+            }
+        }
 
         return true;
     }
@@ -147,6 +208,9 @@ namespace Core
     SystemBase* SystemStorage<SystemBase>::Locate(
         const Reflection::TypeIdentifier systemType) const
     {
+        ASSERT(m_finalized, "Cannot locate systems while storage \"{}\" is not finalized!",
+            Reflection::GetName<SystemBase>().GetString());
+
         // Find system by type identifier.
         const auto it = m_systemMap.find(systemType);
         if(it == m_systemMap.end())
@@ -163,13 +227,38 @@ namespace Core
     template<typename SystemBase>
     void SystemStorage<SystemBase>::ForEach(ForEachCallback callback)
     {
+        ASSERT(m_finalized, "Cannot iterate systems while storage \"{}\" is not finalized!",
+            Reflection::GetName<SystemBase>().GetString());
+
         // Run callback for each system in attachment order.
-        // Returning false from callback with abort further processing.
-        for(auto& system : m_systemList)
+        // Returning false from callback will abort further processing.
+        auto it = m_systemList.begin();
+        while(it != m_systemList.end())
         {
-            ASSERT(system);
-            if(!callback(*system.get()))
+            ASSERT(*it);
+            if(!callback(*it->get()))
                 break;
+
+            ++it;
+        }
+    }
+
+    template<typename SystemBase>
+    void Core::SystemStorage<SystemBase>::ForEachReverse(ForEachCallback callback)
+    {
+        ASSERT(m_finalized, "Cannot iterate systems while storage \"{}\" is not finalized!",
+            Reflection::GetName<SystemBase>().GetString());
+
+        // Run callback for each system in reverse attachment order.
+        // Returning false from callback will abort further processing.
+        auto it = m_systemList.rbegin();
+        while(it != m_systemList.rend())
+        {
+            ASSERT(*it);
+            if(!callback(*it->get()))
+                break;
+
+            ++it;
         }
     }
 }

@@ -5,11 +5,24 @@
 
 #include "System/Precompiled.hpp"
 #include "System/InputManager.hpp"
+#include "System/Timer.hpp"
 #include "System/Window.hpp"
 #include <Core/SystemStorage.hpp>
 using namespace System;
 
-InputManager::InputManager() = default;
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach input manager! {}";
+}
+
+InputManager::InputManager()
+{
+    events.onTickProcessed.Bind([this](float timeDelta)
+    {
+        UpdateInputState();
+    });
+}
+
 InputManager::~InputManager()
 {
     ASSERT(m_windowContext->inputManager == this);
@@ -19,10 +32,17 @@ InputManager::~InputManager()
 bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate needed engine systems.
+    m_timer = engineSystems.Locate<System::Timer>();
+    if(m_timer == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate timer.");
+        return false;
+    }
+
     auto* window = engineSystems.Locate<System::Window>();
     if(window == nullptr)
     {
-        LOG_ERROR("Failed to locate window system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate window.");
         return false;
     }
 
@@ -45,13 +65,12 @@ bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
     glfwSetCursorPosCallback(windowHandle, InputManager::CursorPositionCallback);
     glfwSetCursorEnterCallback(windowHandle, InputManager::CursorEnterCallback);
 
-    // Success!
     return true;
 }
 
-void InputManager::UpdateInputState(float timeDelta)
+void InputManager::UpdateInputState()
 {
-    m_inputState.UpdateStates(timeDelta);
+    m_inputState.UpdateStates(m_timer->GetDeltaSeconds());
 }
 
 void InputManager::ResetInputState()

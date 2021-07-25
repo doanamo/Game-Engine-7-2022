@@ -9,7 +9,14 @@
 #include "Game/TickTimer.hpp"
 #include <Core/SystemStorage.hpp>
 #include <System/Window.hpp>
+#include <System/InputManager.hpp>
 using namespace Game;
+
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach game framework! {}";
+    const char* LogFinalizeFailed = "Failed to finalize game framework! {}";
+}
 
 GameFramework::GameFramework() = default;
 GameFramework::~GameFramework() = default;
@@ -20,42 +27,58 @@ bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_timer = engineSystems.Locate<System::Timer>();
     if(!m_timer)
     {
-        LOG_ERROR("Failed to locate timer system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
         return false;
     }
 
-    // Success!
     return true;
 }
 
-GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const float timeDelta)
+bool GameFramework::OnFinalize(const Core::EngineSystemStorage& engineSystems)
 {
-    // Acquire current state and its parts.
+    // Subscribe input manager to tick processed event so it can update its input state.
+    auto* inputManager = engineSystems.Locate<System::InputManager>();
+    if(!inputManager)
+    {
+        LOG_ERROR(LogFinalizeFailed, "Could not locate input manager.");
+        return false;
+    }
+
+    if(!inputManager->events.onTickProcessed.Subscribe(events.tickProcessed))
+    {
+        LOG_ERROR(LogFinalizeFailed, "Could not subscribe input manager to event.");
+        return false;
+    }
+
+    return true;
+}
+
+void GameFramework::OnProcessFrame()
+{
+    // Acquire current state and its modules.
     std::shared_ptr<GameState> currentState = m_stateMachine.GetState();
     TickTimer* tickTimer = currentState ? currentState->GetTickTimer() : nullptr;
     GameInstance* gameInstance = currentState ? currentState->GetGameInstance() : nullptr;
 
-    // Track whether tick was processed.
-    bool tickProcessed = false;
-
     // Process current game state.
     if(currentState)
     {
+        // Determine current update time.
+        const float updateTime = m_timer->GetDeltaSeconds();
+
         // Process tick timer.
         if(tickTimer)
         {
             tickTimer->Advance(*m_timer);
         }
 
-        // Inform about tick being requested.
         events.tickRequested.Dispatch();
 
-        // Process game tick.
-        // Tick may be processed multiple times if behind the schedule.
+        // Process game tick. Multiple times if behind the schedule.
         while(!tickTimer || tickTimer->Tick())
         {
             // Determine tick time.
-            float tickTime = tickTimer ? tickTimer->GetLastTickSeconds() : timeDelta;
+            float tickTime = tickTimer ? tickTimer->GetLastTickSeconds() : updateTime;
 
             // Tick game instance.
             if(gameInstance)
@@ -65,12 +88,7 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const flo
 
             // Call game state tick method.
             currentState->Tick(tickTime);
-
-            // Inform that tick has been processed.
             events.tickProcessed.Dispatch(tickTime);
-
-            // Mark tick as processed.
-            tickProcessed = true;
 
             // Tick only once if there is no tick timer.
             if(!tickTimer)
@@ -78,9 +96,10 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const flo
         }
 
         // Call game state update method.
-        currentState->Update(timeDelta);
+        currentState->Update(updateTime);
+        events.updateProcessed.Dispatch(updateTime);
 
-        // Determine time alpha.
+        // Determine alpha time for interpolation.
         float timeAlpha = tickTimer ? tickTimer->GetAlphaSeconds() : 1.0f;
 
         // Request game instance to be drawn.
@@ -92,11 +111,6 @@ GameFramework::ProcessGameStateResults GameFramework::ProcessGameState(const flo
         // Call game state draw method.
         currentState->Draw(timeAlpha);
     }
-
-    // Return whether tick was processed.
-    return tickProcessed
-        ? ProcessGameStateResults::TickedAndUpdated
-        : ProcessGameStateResults::UpdatedOnly;
 }
 
 GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)
@@ -108,14 +122,14 @@ GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_
         return Common::Failure(ChangeGameStateErrors::AlreadyCurrent);
     }
 
-    // Change into new game state.
+    // Attempt to change into new game state.
     if(!m_stateMachine.ChangeState(gameState))
+    {
         return Common::Failure(ChangeGameStateErrors::FailedTransition);
+    }
 
-    // Notify listeners about game state transition.
+    // Notify listeners about successful game state transition.
     events.gameStateChanged.Dispatch(gameState);
-
-    // State transition succeeded.
     return Common::Success();
 }
 
