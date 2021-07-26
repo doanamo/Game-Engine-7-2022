@@ -18,6 +18,7 @@ bool InterpolationSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_componentSystem == nullptr);
 
+    // Retrieve needed game systems.
     m_componentSystem = gameSystems.Locate<ComponentSystem>();
     if(m_componentSystem == nullptr)
     {

@@ -9,6 +9,8 @@
 
 /*
     Interpolation System
+
+    Responsible for interpolation of position/rotation/scale in entities between game ticks.
 */
 
 namespace Game
@@ -27,6 +29,7 @@ namespace Game
         bool OnAttach(const GameSystemStorage& gameSystems) override;
         void OnTick(float timeDelta) override;
 
+    private:
         ComponentSystem* m_componentSystem = nullptr;
     };
 }

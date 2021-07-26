@@ -32,7 +32,8 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
     LOG_SCOPED_INDENT();
 
     // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
     auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();

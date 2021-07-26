@@ -28,9 +28,10 @@ namespace Game
                 Orthogonal,
             };
 
-            using Type = unsigned int;
+            using Type = int8_t;
         };
 
+    public:
         CameraComponent();
         ~CameraComponent();
 
@@ -38,12 +39,16 @@ namespace Game
         void SetupPerspective(float fov, float nearPlane, float farPlane);
         glm::mat4 CalculateTransform(const glm::ivec2& viewportSize);
 
-        TransformComponent* GetTransformComponent();
+        TransformComponent* GetTransformComponent()
+        {
+            return m_transform;
+        }
 
     private:
         bool OnInitialize(ComponentSystem* componentSystem,
             const EntityHandle& entitySelf) override;
 
+    private:
         TransformComponent* m_transform = nullptr;
         ProjectionTypes::Type m_projection = ProjectionTypes::Perspective;
         glm::vec2 m_viewSize = glm::vec2(2.0f, 2.0f);

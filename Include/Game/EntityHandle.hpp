@@ -22,15 +22,13 @@ namespace Game
             // Entity handle has been allocated but cannot be used.
             Unused = 0,
 
-            // Entity handle exists and can be referenced.
-            // Systems may not acknowledge this entity yet and its
-            // components may be still in uninitialized state.
+            // Entity handle exists and can be referenced. Systems may not acknowledge this entity
+            // yet and its components may be still in uninitialized state.
             Exists = 1 << 0,
 
-            // Entity handle exists and has been officially created.
-            // Important difference is that other systems have been
-            // informed about an entity being created, resulting in
-            // its components being initialized as well.
+            // Entity handle exists and has been officially created. Important difference is that
+            // other systems have been informed about an entity being created, resulting in its
+            // components being initialized as well.
             Created = 1 << 1,
 
             // Entity handle has been scheduled to be destroyed.

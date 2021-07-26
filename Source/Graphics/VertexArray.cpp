@@ -98,18 +98,25 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.attributeCount > 0, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.attributes != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributeCount > 0,
+        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.attributes != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     for(std::size_t i = 0; i < params.attributeCount; ++i)
     {
         const Attribute& attribute = params.attributes[i];
 
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr, Common::Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER, Common::Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != AttributeType::Invalid, Common::Failure(CreateErrors::InvalidAttribute));
-        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum, Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer != nullptr,
+            Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.buffer->GetType() == GL_ARRAY_BUFFER,
+            Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.attributeType != AttributeType::Invalid,
+            Common::Failure(CreateErrors::InvalidAttribute));
+        CHECK_ARGUMENT_OR_RETURN(attribute.valueType != OpenGL::InvalidEnum,
+            Common::Failure(CreateErrors::InvalidAttribute));
     }
 
     // Create instance.

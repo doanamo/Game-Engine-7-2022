@@ -16,7 +16,8 @@ SpriteAnimationComponent::~SpriteAnimationComponent() = default;
 bool SpriteAnimationComponent::OnInitialize(ComponentSystem* componentSystem,
     const EntityHandle& entitySelf)
 {
-    m_spriteComponent = componentSystem->Lookup<SpriteComponent>(entitySelf);
+    // Retrieve needed components.
+    m_spriteComponent = componentSystem->Lookup<SpriteComponent>(entitySelf).UnwrapOr(nullptr);
     if(m_spriteComponent == nullptr)
         return false;
 
@@ -36,12 +37,11 @@ void SpriteAnimationComponent::SetSpriteAnimationList(SpriteAnimationListPtr spr
 void SpriteAnimationComponent::ResetInterpolation()
 {
     /*
-        Proceed to end of next interpolation range with assurance that
-        overflown animation time is handled without accumulating time
-        error when animation is looping.
+        Proceed to end of next interpolation range with assurance that overflown animation time is
+        handled without accumulating time error when animation is looping.
     */
     
-    if(m_playingSpriteAnimation)
+    if(m_currentSpriteAnimation)
     {
         m_currentAnimationTime = CalculateAnimationTime(1.0f);
         m_previousAnimationTime = m_currentAnimationTime;
@@ -56,14 +56,14 @@ void SpriteAnimationComponent::Tick(float timeDelta)
 
     if(IsPlaying())
     {
-        ASSERT(m_playingSpriteAnimation, "Playing sprite animation without an animation set!");
-        ASSERT(m_playingSpriteAnimation->duration >= 0.0f, "Sprite animation has an invalid duration!");
+        ASSERT(m_currentSpriteAnimation, "Current sprite animation without an animation set!");
+        ASSERT(m_currentSpriteAnimation->duration >= 0.0f, "Sprite animation has an invalid duration!");
 
         m_currentAnimationTime += timeDelta;
 
         if(!IsLooped())
         {
-            if(m_currentAnimationTime >= m_playingSpriteAnimation->duration)
+            if(m_currentAnimationTime >= m_currentSpriteAnimation->duration)
             {
                 Pause();
             }
@@ -83,8 +83,8 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
     if(auto animationIndexResult = m_spriteAnimationList->GetAnimationIndex(animationName))
     {
         uint32_t animationIndex = animationIndexResult.Unwrap();
-        m_playingSpriteAnimation = m_spriteAnimationList->GetAnimationByIndex(animationIndex);
-        ASSERT(m_playingSpriteAnimation, "Sprite animation retrieved via its index is null!");
+        m_currentSpriteAnimation = m_spriteAnimationList->GetAnimationByIndex(animationIndex);
+        ASSERT(m_currentSpriteAnimation, "Sprite animation retrieved via its index is null!");
 
         m_playbackInfo = PlaybackFlags::Playing;
         m_currentAnimationTime = 0.0f;
@@ -101,16 +101,6 @@ void SpriteAnimationComponent::Play(std::string animationName, bool loop)
     }
 }
 
-bool SpriteAnimationComponent::IsPlaying() const
-{
-    return m_playbackInfo & PlaybackFlags::Playing;
-}
-
-bool SpriteAnimationComponent::IsLooped() const
-{
-    return m_playbackInfo & PlaybackFlags::Loop;
-}
-
 void SpriteAnimationComponent::Pause()
 {
     m_playbackInfo &= ~PlaybackFlags::Playing;
@@ -118,7 +108,7 @@ void SpriteAnimationComponent::Pause()
 
 void SpriteAnimationComponent::Resume()
 {
-    if(m_playingSpriteAnimation)
+    if(m_currentSpriteAnimation)
     {
         m_playbackInfo |= PlaybackFlags::Playing;
     }
@@ -126,7 +116,7 @@ void SpriteAnimationComponent::Resume()
 
 void SpriteAnimationComponent::Stop()
 {
-    m_playingSpriteAnimation = nullptr;
+    m_currentSpriteAnimation = nullptr;
     m_playbackInfo = PlaybackFlags::None;
     m_currentAnimationTime = 0.0f;
     m_previousAnimationTime = 0.0f;
@@ -135,39 +125,21 @@ void SpriteAnimationComponent::Stop()
 float SpriteAnimationComponent::CalculateAnimationTime(float timeAlpha) const
 {
     /*
-        Calculate current animation time based on frame time alpha and handle
-        looping time in such way that avoid time error from being accumulated.
+        Calculate current animation time based on frame time alpha and handle looping time in such
+        way that avoid time error from being accumulated.
     */
 
     ASSERT(timeAlpha >= 0.0f && timeAlpha <= 1.0f, "Time alpha is not normalized!");
-    ASSERT(m_playingSpriteAnimation, "Cannot calculate animation time without sprite animation set!");
+    ASSERT(m_currentSpriteAnimation, "Cannot calculate animation time without sprite animation set!");
 
     float animationTime = glm::mix(m_previousAnimationTime, m_currentAnimationTime, timeAlpha);
 
     if(IsLooped())
     {
-        return glm::mod(animationTime, m_playingSpriteAnimation->duration);
+        return glm::mod(animationTime, m_currentSpriteAnimation->duration);
     }
     else
     {
-        return glm::min(animationTime, m_playingSpriteAnimation->duration);
+        return glm::min(animationTime, m_currentSpriteAnimation->duration);
     }
-}
-
-const SpriteAnimationComponent::SpriteAnimationListPtr&
-    SpriteAnimationComponent::GetSpriteAnimationList() const
-{
-    return m_spriteAnimationList;
-}
-
-const SpriteAnimationComponent::SpriteAnimation*
-    SpriteAnimationComponent::GetSpriteAnimation() const
-{
-    return m_playingSpriteAnimation;
-}
-
-SpriteComponent* SpriteAnimationComponent::GetSpriteComponent() const
-{
-    ASSERT(m_spriteComponent);
-    return m_spriteComponent;
 }

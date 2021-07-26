@@ -22,12 +22,13 @@ GameInstance::~GameInstance() = default;
 
 GameInstance::CreateResult GameInstance::Create()
 {
-    LOG("Creating game instance...");
-    LOG_SCOPED_INDENT();
+    // Profile creation time.
+    auto startTime = std::chrono::steady_clock::now();
 
+    // Create class instance.
     auto instance = std::unique_ptr<GameInstance>(new GameInstance());
 
-    // Create  default game engine systems.
+    // Create default game engine systems.
     const std::vector<Reflection::TypeIdentifier> defaultGameSystemTypes =
     {
         Reflection::GetIdentifier<EntitySystem>(),
@@ -40,20 +41,25 @@ GameInstance::CreateResult GameInstance::Create()
     if(!instance->m_gameSystems.CreateFromTypes(defaultGameSystemTypes))
     {
         LOG_ERROR(LogCreateSystemsFailed, "Could not populate system storage.");
-        return Common::Failure(CreateErrors::FailedGameSystemCreation);
+        return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
     if(!instance->m_gameSystems.Finalize())
     {
         LOG_ERROR(LogCreateSystemsFailed, "Could not finalize system storage.");
-        return Common::Failure(CreateErrors::FailedGameSystemCreation);
+        return Common::Failure(CreateErrors::FailedSystemCreation);
     }
+
+    // Log profiled time.
+    LOG("Created game instance in {:.4f}s.", std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - startTime).count());
 
     return Common::Success(std::move(instance));
 }
 
 void GameInstance::Tick(const float timeDelta)
 {
+    // Tick all game systems.
     m_gameSystems.ForEach([timeDelta](GameSystem& gameSystem)
     {
         gameSystem.OnTick(timeDelta);

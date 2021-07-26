@@ -47,21 +47,30 @@ namespace Game
 
         using CommandList = std::queue<EntityCommand>;
 
+        using CreateEntityResult = Common::Result<EntityHandle, void>;
+        using LookupEntityEntryResult = Common::Result<const EntityEntry*, void>;
+
     public:
         EntitySystem();
         ~EntitySystem() override;
 
         void ProcessCommands();
 
-        EntityHandle CreateEntity();
+        CreateEntityResult CreateEntity();
+        LookupEntityEntryResult LookupEntityEntry(const EntityHandle entity) const;
+
         void DestroyEntity(const EntityHandle entity);
         void DestroyAllEntities();
 
         bool IsEntityValid(const EntityHandle entity) const;
         bool IsEntityCreated(const EntityHandle entity) const;
-        const EntityEntry* GetEntityEntry(const EntityHandle entity) const;
-        std::size_t GetEntityCount() const;
 
+        std::size_t GetEntityCount() const
+        {
+            return m_entities.GetValidHandleCount();
+        }
+
+    public:
         struct Events
         {
             Events();
@@ -73,6 +82,7 @@ namespace Game
     private:
         void OnTick(float timeDelta) override;
 
+    private:
         CommandList m_commands;
         EntityList m_entities;
     };

@@ -30,9 +30,12 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
 
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
-    CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum, Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.elementSize != 0, Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum,
+        Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
+        Common::Failure(BufferErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.elementSize != 0,
+        Common::Failure(BufferErrors::InvalidArgument));
 
     // Create buffer handle.
     ASSERT(m_handle == OpenGL::InvalidHandle);

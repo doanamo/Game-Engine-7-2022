@@ -100,7 +100,7 @@ void GameFramework::OnProcessFrame()
         events.updateProcessed.Dispatch(updateTime);
 
         // Determine alpha time for interpolation.
-        float timeAlpha = tickTimer ? tickTimer->GetAlphaSeconds() : 1.0f;
+        float timeAlpha = tickTimer ? tickTimer->CalculateAlphaSeconds() : 1.0f;
 
         // Request game instance to be drawn.
         if(gameInstance)
@@ -131,9 +131,4 @@ GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_
     // Notify listeners about successful game state transition.
     events.gameStateChanged.Dispatch(gameState);
     return Common::Success();
-}
-
-bool GameFramework::HasGameState() const
-{
-    return m_stateMachine.HasState();
 }

@@ -109,7 +109,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
             Game::SpriteComponent* spriteComponent =
                 spriteAnimationComponent.GetSpriteComponent();
 
-            auto spriteAnimation = spriteAnimationComponent.GetSpriteAnimation();
+            auto spriteAnimation = spriteAnimationComponent.GetCurrentSpriteAnimation();
             float animationTime = spriteAnimationComponent
                 .CalculateAnimationTime(drawParams.timeAlpha);
 
@@ -142,10 +142,10 @@ void GameRenderer::Draw(const DrawParams& drawParams)
 
     if(cameraEntityResult.IsSuccess())
     {
-        auto cameraComponent =
-            componentSystem->Lookup<Game::CameraComponent>(cameraEntityResult.Unwrap());
+        auto cameraComponentResult = componentSystem->Lookup<
+            Game::CameraComponent>(cameraEntityResult.Unwrap());
 
-        if(cameraComponent != nullptr)
+        if(cameraComponentResult)
         {
             // Calculate viewport size.
             glm::ivec2 viewportSize;
@@ -153,7 +153,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
             viewportSize.y = drawParams.viewportRect.w - drawParams.viewportRect.y;
 
             // Calculate camera transform.
-            cameraTransform = cameraComponent->CalculateTransform(viewportSize);
+            cameraTransform = cameraComponentResult.Unwrap()->CalculateTransform(viewportSize);
         }
         else
         {

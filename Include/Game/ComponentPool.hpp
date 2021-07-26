@@ -14,8 +14,7 @@
 /*
     Component Pool
 
-    Manages a pool for a single type of a component.
-    See ComponentSystem for more context.
+    Manages a pool for a single type of component.
 */
 
 namespace Game
@@ -25,15 +24,10 @@ namespace Game
     class ComponentPoolInterface
     {
     protected:
-        ComponentPoolInterface()
-        {
-        }
+        ComponentPoolInterface() = default;
 
     public:
-        virtual ~ComponentPoolInterface()
-        {
-        }
-
+        virtual ~ComponentPoolInterface() = default;
         virtual bool InitializeComponent(EntityHandle handle) = 0;
         virtual bool DestroyComponent(EntityHandle handle) = 0;
     };
@@ -48,12 +42,12 @@ namespace Game
         {
             enum
             {
-                Unused = 0, // Components is unused and wait in the free list.
-                Exists = 1 << 0, // Component exists and can be accessed.
-                Initialized = 1 << 1, // Component has been initialized.
+                Unused = 0 << 0,        // Components is unused and waits in the free list.
+                Exists = 1 << 0,        // Component exists and can be accessed.
+                Initialized = 1 << 1,   // Component has been initialized and can be used.
             };
 
-            using Type = unsigned int;
+            using Type = uint8_t;
         };
 
         struct ComponentEntry
@@ -82,48 +76,50 @@ namespace Game
             ComponentIterator& operator++();
 
         private:
-            // Iterate to next valid component.
-            void ValidateIterator();
+            void EnsureValid();
 
         private:
-            // Iterator that we are wrapping around.
-            BaseIterator m_iterator;
-
-            // End of container that we are iterating over.
-            BaseIterator m_end;
+            BaseIterator m_iterator; // Iterator that we are wrapping around.
+            BaseIterator m_end; // End of container that we are iterating over.
         };
+
+        enum class CreateComponentErrors
+        {
+            AlreadyExists,
+        };
+
+        using CreateComponentResult = Common::Result<ComponentType*, CreateComponentErrors>;
+
+        enum class LookupComponentErrors
+        {
+            Missing,
+        };
+
+        using LookupComponentResult = Common::Result<ComponentType*, LookupComponentErrors>;
 
     public:
         ComponentPool(ComponentSystem* componentSystem);
         ~ComponentPool();
 
-        // Returns nullptr if component could not be created.
-        ComponentType* CreateComponent(EntityHandle entity);
-
-        // Returns nullptr if component could not be found.
-        ComponentType* LookupComponent(EntityHandle entity);
-
-        // Returns true if component was successfully initialized.
+        CreateComponentResult CreateComponent(EntityHandle entity);
+        LookupComponentResult LookupComponent(EntityHandle entity);
         bool InitializeComponent(EntityHandle entity) override;
-
-        // Returns true if component was found and destroyed.
         bool DestroyComponent(EntityHandle entity) override;
 
         ComponentIterator Begin();
         ComponentIterator End();
 
     private:
-        ComponentSystem* m_componentSystem;
+        ComponentSystem* m_componentSystem = nullptr;
         ComponentList m_entries;
         ComponentLookup m_lookup;
         ComponentFreeList m_freeList;
     };
 
     template<typename ComponentType>
-    void ComponentPool<ComponentType>::ComponentIterator::ValidateIterator()
+    void ComponentPool<ComponentType>::ComponentIterator::EnsureValid()
     {
-        // Make sure that the current iterator is valid 
-        // and if not, find the next iterator that is.
+        // Make sure that the current iterator is valid and if not, find the next iterator that is.
         while(m_iterator != m_end)
         {
             // Check if current iterator points at a valid component.
@@ -146,8 +142,7 @@ namespace Game
     ComponentPool<ComponentType>::ComponentIterator::ComponentIterator(const BaseIterator& iterator, const BaseIterator& end) :
         m_iterator(iterator), m_end(end)
     {
-        // Make sure iterator is valid.
-        this->ValidateIterator();
+        this->EnsureValid();
     }
 
     template<typename ComponentType>
@@ -173,12 +168,8 @@ namespace Game
     {
         ASSERT(m_iterator != m_end, "Trying to increment component iterator past end!");
 
-        // Increment the iterator.
         ++m_iterator;
-
-        // Make sure iterator is valid.
-        this->ValidateIterator();
-
+        EnsureValid();
         return *this;
     }
 
@@ -193,19 +184,20 @@ namespace Game
     ComponentPool<ComponentType>::~ComponentPool() = default;
 
     template<typename ComponentType>
-    ComponentType* ComponentPool<ComponentType>::CreateComponent(EntityHandle entity)
+    typename ComponentPool<ComponentType>::CreateComponentResult
+        ComponentPool<ComponentType>::CreateComponent(EntityHandle entity)
     {
-        // Make sure that there is no component with this entity handle.
+        // Make sure that there is no existing component with this entity handle.
         if(m_lookup.find(entity) != m_lookup.end())
-            return nullptr;
+        {
+            return Common::Failure(
+                ComponentPool<ComponentType>::CreateComponentErrors::AlreadyExists);
+        }
 
-        // Create a new component entry if the free list is empty.
+        // Create new component entry if free list is empty.
         if(m_freeList.empty())
         {
-            // Create a new component entry.
             m_entries.emplace_back();
-
-            // Add a new entry to the free list queue.
             m_freeList.emplace(m_entries.size() - 1);
         }
 
@@ -213,102 +205,86 @@ namespace Game
         ComponentIndex componentIndex = m_freeList.front();
         m_freeList.pop();
 
-        // Add newly created component to the lookup dictionary.
+        // Add free component to entity lookup dictionary.
         auto result = m_lookup.emplace(entity, componentIndex);
-        ASSERT(result.second, "Failed to add a component to the dictionary!");
+        ASSERT(result.second, "Failed to add a component to look up dictionary!");
 
-        // Retrieve a component entry.
+        // Retrieve component entry and mark is as existing.
         ComponentEntry& componentEntry = m_entries[componentIndex];
-
-        // Mark component as existing.
         ASSERT(componentEntry.flags == ComponentFlags::Unused);
         componentEntry.flags = ComponentFlags::Exists;
-
-        // Return newly created component
-        return &componentEntry.component;
+        return Common::Success(&componentEntry.component);
     }
 
     template<typename ComponentType>
-    ComponentType* ComponentPool<ComponentType>::LookupComponent(EntityHandle handle)
+    typename ComponentPool<ComponentType>::LookupComponentResult
+        ComponentPool<ComponentType>::LookupComponent(EntityHandle handle)
     {
-        // Find the component index.
+        // Find component index using entity handle.
         auto it = m_lookup.find(handle);
         if(it == m_lookup.end())
-            return nullptr;
+        {
+            return Common::Failure(
+                ComponentPool<ComponentType>::LookupComponentErrors::Missing);
+        }
 
+        // Retrieve component entry using the index.
         ComponentIndex componentIndex = it->second;
-
-        // Retrieve the component entry.
         ComponentEntry& componentEntry = m_entries[componentIndex];
-
-        // Validate component entry state.
         ASSERT(componentEntry.flags & ComponentFlags::Exists);
-
-        // Return a pointer to the component.
-        return &componentEntry.component;
+        return Common::Success(&componentEntry.component);
     }
 
     template<typename ComponentType>
     bool ComponentPool<ComponentType>::InitializeComponent(EntityHandle entity)
     {
-        // Find the component index.
+        // Find component index using entity handle.
+        // If component does not exist, consider initialization a non-failure scenario.
         auto it = m_lookup.find(entity);
-
-        // Return true if there is no such component to initialize.
         if(it == m_lookup.end())
             return true;
 
-        // Retrieve the component entry.
+        // Retrieve component entry using the index.
         ComponentIndex componentIndex = it->second;
         ComponentEntry& componentEntry = m_entries[componentIndex];
-
-        // Make sure that component's state is valid.
         ASSERT(componentEntry.flags & ComponentFlags::Exists);
         ASSERT(!(componentEntry.flags & ComponentFlags::Initialized));
 
-        // Get base component interface.
-        Component& componentInterface = componentEntry.component;
-
         // Initialize component and return result.
+        Component& componentInterface = componentEntry.component;
         ASSERT(m_componentSystem != nullptr, "Component system cannot be null!");
         if(!componentInterface.OnInitialize(m_componentSystem, entity))
             return false;
 
         // Mark component as initialized.
         componentEntry.flags |= ComponentFlags::Initialized;
-
         return true;
     }
 
     template<typename ComponentType>
     bool ComponentPool<ComponentType>::DestroyComponent(EntityHandle entity)
     {
-        // Find the component index.
+        // Find component index using entity handle.
         auto it = m_lookup.find(entity);
         if(it == m_lookup.end())
             return false;
 
+        // Retrieve component entry using the index.
         ComponentIndex componentIndex = it->second;
-
-        // Retrieve the component entry.
         ComponentEntry& componentEntry = m_entries[componentIndex];
 
         // Mark component as unused.
         ASSERT(componentEntry.flags & ComponentFlags::Exists);
         componentEntry.flags = ComponentFlags::Unused;
 
-        // Recreate component instance to trigger a destructor and create a new element.
+        // Recreate component storage in place.
         ComponentType* component = &componentEntry.component;
-
         component->~ComponentType();
         new (component) ComponentType();
 
-        // Add an unused component index to the free list.
+        // Add unused component index to free list and remove it from lookup dictionary.
         m_freeList.emplace(componentIndex);
-
-        // Remove component entry from the dictionary.
         m_lookup.erase(it);
-
         return true;
     }
 

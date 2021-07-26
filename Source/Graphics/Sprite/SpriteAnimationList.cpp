@@ -54,7 +54,8 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
     LOG_SCOPED_INDENT();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
     auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();

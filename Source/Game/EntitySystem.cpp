@@ -25,11 +25,11 @@ void EntitySystem::OnTick(float timeDelta)
     ProcessCommands();
 }
 
-EntityHandle EntitySystem::CreateEntity()
+EntitySystem::CreateEntityResult EntitySystem::CreateEntity()
 {
-    // Create new entity entry.
     if(auto cratedHandleResult = m_entities.CreateHandle())
     {
+        // Retrieve storage from handle map.
         EntityList::HandleEntryRef handleEntry = cratedHandleResult.Unwrap();
         EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr);
@@ -44,33 +44,48 @@ EntityHandle EntitySystem::CreateEntity()
         command.handle = handleEntry.GetHandle();
         m_commands.emplace(command);
 
-        // Return entity handle.
-        return handleEntry.GetHandle();
+        return Common::Success(handleEntry.GetHandle());
     }
     else
     {
         ASSERT(false, "Failed to create valid entity entry!");
-        return EntityHandle();
+        return Common::Failure();
+    }
+}
+
+EntitySystem::LookupEntityEntryResult
+    EntitySystem::LookupEntityEntry(const EntityHandle entity) const
+{
+    if(auto lookupHandleResult = m_entities.LookupHandle(entity))
+    {
+        EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
+        const EntityEntry* entityEntry = handleEntry.GetStorage();
+        ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
+        return Common::Success(entityEntry);
+    }
+    else
+    {
+        return Common::Failure();
     }
 }
 
 void EntitySystem::DestroyEntity(const EntityHandle entity)
 {
-    // Retrieve entity entry.
     if(auto lookupHandleResult = m_entities.LookupHandle(entity))
     {
+        // Retrieve storage from handle map.
         EntityList::HandleEntryRef handleEntry = lookupHandleResult.Unwrap();
         EntityEntry* entityEntry = handleEntry.GetStorage();
         ASSERT(entityEntry != nullptr);
 
-        // Set handle destroy flag.
-        // Also check if entity is already marked for destruction.
+        // Check if entity is already marked for destruction.
         if(entityEntry->flags & EntityFlags::Destroy)
             return;
 
+        // Mark handle entry for destruction.
         entityEntry->flags |= EntityFlags::Destroy;
 
-        // Queue destroy entity command.
+        // Queue destroy entity command
         EntityCommand command;
         command.type = EntityCommands::Destroy;
         command.handle = handleEntry.GetHandle();
@@ -102,19 +117,19 @@ void EntitySystem::DestroyAllEntities()
 
 void EntitySystem::ProcessCommands()
 {
-    // Guard against infinite loops that can be caused when entity triggers
-    // additional commands that in turn could trigger more and so on.
+    // Guard against infinite loops that can be caused when entity triggers additional commands
+    // such as create new entities that in turn could trigger more and so on.
     int iterationCount = 0;
 
     // Process entity commands.
     while(!m_commands.empty())
     {
-        // Check iteration count.
-        ASSERT(iterationCount <= 100, "Infinite loop detected! Maximum iteration in entity processing loop has been reached.");
+        // Check iteration count to prevent infinite loops.
+        ASSERT(iterationCount <= 32, "Infinite loop detected! "
+            "Maximum iteration in entity processing loop has been reached.");
 
-        // Extract and process command list.
-        // This is done to operate only on currently queued commands
-        // and not ones that could be subsequently queued in the process.
+        // Extract and process command list. This is done to operate only on currently queued
+        // commands and not ones that could be subsequently queued in the process.
         CommandList commands;
         commands.swap(m_commands);
 
@@ -124,8 +139,7 @@ void EntitySystem::ProcessCommands()
             EntityCommand command = commands.front();
             commands.pop();
 
-            // Retrieve entity entry.
-            // Handle may no longer be valid and command could be out of date.
+            // Retrieve entity entry. Handle may be invalid and command could be out of date.
             auto lookupHandleResult = m_entities.LookupHandle(command.handle);
             if(!lookupHandleResult)
                 continue;
@@ -139,15 +153,13 @@ void EntitySystem::ProcessCommands()
             {
             case EntityCommands::Create:
                 {
-                    // Inform that new entity was created
-                    // since last time commands were processed.
-                    // This will allow systems to acknowledge this
-                    // entity and initialize its components.
+                    // Inform that new entity was created since last time commands were processed.
+                    // This will allow systems to acknowledge this entity and initialize its
+                    // components.
                     if(!events.entityCreate(handleEntry.GetHandle()))
                     {
-                        // Some system failed to initialize this entity.
-                        // Destroy the entity immediately and also inform
-                        // systems that may have already processed it.
+                        // Some system failed to initialize this entity. Destroy the entity
+                        // immediately and also inform systems that may have already processed it.
                         events.entityDestroy(handleEntry.GetHandle());
                         m_entities.DestroyHandle(handleEntry.GetHandle());
                         break;
@@ -161,8 +173,7 @@ void EntitySystem::ProcessCommands()
 
             case EntityCommands::Destroy:
                 {
-                    // Inform about entity being destroyed
-                    // since last time commands were processed.
+                    // Inform about entity being destroyed since last time commands were processed.
                     events.entityDestroy(handleEntry.GetHandle());
 
                     // Free the entity handle and return it to the pool.
@@ -173,7 +184,7 @@ void EntitySystem::ProcessCommands()
             }
         }
 
-        // Increment iteration count for infinite loop guard.
+        // Increment iteration count for infinite loop prevention.
         ++iterationCount;
     }
 }
@@ -200,24 +211,4 @@ bool Game::EntitySystem::IsEntityCreated(const EntityHandle entity) const
     {
         return false;
     }
-}
-
-const EntityEntry* EntitySystem::GetEntityEntry(const EntityHandle entity) const
-{
-    if(auto lookupHandleResult = m_entities.LookupHandle(entity))
-    {
-        EntityList::ConstHandleEntryRef handleEntry = lookupHandleResult.Unwrap();
-        const EntityEntry* entityEntry = handleEntry.GetStorage();
-        ASSERT(entityEntry != nullptr && entityEntry->flags & EntityFlags::Exists);
-        return entityEntry;
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-std::size_t EntitySystem::GetEntityCount() const
-{
-    return m_entities.GetValidHandleCount();
 }

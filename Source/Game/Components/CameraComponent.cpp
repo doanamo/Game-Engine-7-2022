@@ -14,7 +14,8 @@ CameraComponent::~CameraComponent() = default;
 
 bool CameraComponent::OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
 {
-    m_transform = componentSystem->Lookup<TransformComponent>(entitySelf);
+    // Retrieve needed components.
+    m_transform = componentSystem->Lookup<TransformComponent>(entitySelf).UnwrapOr(nullptr);
     if(m_transform == nullptr)
         return false;
 
@@ -82,9 +83,4 @@ glm::mat4 CameraComponent::CalculateTransform(const glm::ivec2& viewportSize)
 
     output = glm::translate(output, -m_transform->GetPosition());
     return output;
-}
-
-TransformComponent* CameraComponent::GetTransformComponent()
-{
-    return m_transform;
 }

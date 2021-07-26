@@ -25,23 +25,67 @@ namespace Game
         SpriteComponent();
         ~SpriteComponent();
 
-        void SetTextureView(Graphics::TextureView texture);
-        void SetRectangle(const glm::vec4& rectangle);
-        void SetColor(const glm::vec4& color);
-        void SetTransparent(bool toggle);
-        void SetFiltered(bool toggle);
+        void SetTextureView(Graphics::TextureView texture)
+        {
+            m_textureView = texture;
+        }
 
-        TransformComponent* GetTransformComponent() const;
-        const Graphics::TextureView& GetTextureView() const;
-        glm::vec4 GetRectangle() const;
-        glm::vec4 GetColor() const;
-        bool IsTransparent() const;
-        bool IsFiltered() const;
+        void SetRectangle(const glm::vec4& rectangle)
+        {
+            m_rectangle = rectangle;
+        }
+
+        void SetColor(const glm::vec4& color)
+        {
+            m_color = color;
+        }
+
+        void SetTransparent(bool toggle)
+        {
+            m_transparent = toggle;
+        }
+
+        void SetFiltered(bool toggle)
+        {
+            m_filtered = toggle;
+        }
+
+        TransformComponent* GetTransformComponent() const
+        {
+            ASSERT(m_transformComponent);
+            return m_transformComponent;
+        }
+
+        const Graphics::TextureView& GetTextureView() const
+        {
+            return m_textureView;
+        }
+
+        glm::vec4 GetRectangle() const
+        {
+            return m_rectangle;
+        }
+
+        glm::vec4 GetColor() const
+        {
+            return m_color;
+        }
+
+        bool IsTransparent() const
+        {
+            return m_transparent;
+        }
+
+        bool IsFiltered() const
+        {
+            return m_filtered;
+        }
 
     private:
         bool OnInitialize(ComponentSystem* componentSystem,
             const EntityHandle& entitySelf) override;
 
+    private:
         TransformComponent* m_transformComponent = nullptr;
         Graphics::TextureView m_textureView;
         glm::vec4 m_rectangle = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);

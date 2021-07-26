@@ -27,10 +27,14 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     LOG("Creating texture...");
     LOG_SCOPED_INDENT();
 
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.width > 0, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.height > 0, Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.width > 0,
+        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.height > 0,
+        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     auto instance = std::unique_ptr<Texture>(new Texture());
 
@@ -86,7 +90,9 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
     LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
     LOG_SCOPED_INDENT();
 
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
+        Common::Failure(CreateErrors::InvalidArgument));
+
     auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
     auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);

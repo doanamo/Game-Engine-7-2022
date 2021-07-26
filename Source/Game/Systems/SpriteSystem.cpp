@@ -19,6 +19,7 @@ bool SpriteSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_componentSystem == nullptr);
 
+    // Retrieve needed game systems.
     m_componentSystem = gameSystems.Locate<ComponentSystem>();
     if(m_componentSystem == nullptr)
     {
@@ -31,10 +32,9 @@ bool SpriteSystem::OnAttach(const GameSystemStorage& gameSystems)
 
 void SpriteSystem::OnTick(const float timeDelta)
 {
-    // Get all sprite animation components.
+    // Tick all sprite animation components.
     for(auto& spriteAnimationComponent : m_componentSystem->GetPool<SpriteAnimationComponent>())
     {
-        // Tick sprite animation component.
         spriteAnimationComponent.Tick(timeDelta);
     }
 }

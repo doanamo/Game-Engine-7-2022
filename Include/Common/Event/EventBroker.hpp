@@ -37,7 +37,7 @@ namespace Event
         {
             UnregisteredEventType,
             IncorrectResultType,
-            SubscriptionFailed,
+            FailedSubscription,
         };
 
         using SubscriptionResult = Common::Result<void, SubscriptionErrors>;
@@ -133,7 +133,7 @@ namespace Event
 
             if(!storage->dispatcher->Subscribe(receiver, subscriptionPolicy, priorityPolicy))
             {
-                return Common::Failure(SubscriptionErrors::SubscriptionFailed);
+                return Common::Failure(SubscriptionErrors::FailedSubscription);
             }
 
             return Common::Success();

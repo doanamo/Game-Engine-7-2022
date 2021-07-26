@@ -30,12 +30,13 @@ namespace Game
                 Loop = 1 << 2,
             };
 
-            using Type = unsigned int;
+            using Type = uint8_t;
         };
 
         using SpriteAnimationListPtr = std::shared_ptr<Graphics::SpriteAnimationList>;
         using SpriteAnimation = Graphics::SpriteAnimationList::Animation;
 
+    public:
         SpriteAnimationComponent();
         ~SpriteAnimationComponent();
 
@@ -44,24 +45,46 @@ namespace Game
         void Tick(float timeDelta);
 
         void Play(std::string animationName, bool loop);
-        bool IsPlaying() const;
-        bool IsLooped() const;
         void Pause();
         void Resume();
         void Stop();
 
         float CalculateAnimationTime(float timeAlpha) const;
-        SpriteComponent* GetSpriteComponent() const;
-        const SpriteAnimationListPtr& GetSpriteAnimationList() const;
-        const SpriteAnimation* GetSpriteAnimation() const;
+
+        bool IsPlaying() const
+        {
+            return m_playbackInfo & PlaybackFlags::Playing;
+        }
+
+        bool IsLooped() const
+        {
+            return m_playbackInfo & PlaybackFlags::Loop;
+        }
+
+        SpriteComponent* GetSpriteComponent() const
+        {
+            ASSERT(m_spriteComponent);
+            return m_spriteComponent;
+        }
+
+        const SpriteAnimationListPtr& GetSpriteAnimationList() const
+        {
+            return m_spriteAnimationList;
+        }
+
+        const SpriteAnimation* GetCurrentSpriteAnimation() const
+        {
+            return m_currentSpriteAnimation;
+        }
 
     private:
         bool OnInitialize(ComponentSystem* componentSystem,
             const EntityHandle& entitySelf) override;
 
+    private:
         SpriteComponent* m_spriteComponent = nullptr;
         SpriteAnimationListPtr m_spriteAnimationList = nullptr;
-        const SpriteAnimation* m_playingSpriteAnimation = nullptr;
+        const SpriteAnimation* m_currentSpriteAnimation = nullptr;
         PlaybackFlags::Type m_playbackInfo = PlaybackFlags::None;
         float m_currentAnimationTime = 0.0f;
         float m_previousAnimationTime = 0.0f;

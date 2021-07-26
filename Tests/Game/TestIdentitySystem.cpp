@@ -34,7 +34,7 @@ TEST_CASE("Identity System")
         CHECK_FALSE(identitySystem->GetEntityByName("Invalid").IsSuccess());
 
         // Name single entity before processing entity commands.
-        Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity();
+        Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity().Unwrap();
         CHECK(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne"));
         CHECK_EQ(identitySystem->GetNamedEntityCount(), 1);
 
@@ -48,7 +48,7 @@ TEST_CASE("Identity System")
         }
 
         // Name single entity after processing entity commands.
-        Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity();
+        Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity().Unwrap();
         entitySystem->ProcessCommands();
 
         CHECK(entityPlayerTwo.IsValid());
@@ -108,8 +108,13 @@ TEST_CASE("Identity System")
         CHECK_FALSE(identitySystem->SetEntityGroup(Game::EntityHandle(), "Invalid"));
         CHECK_FALSE(identitySystem->GetEntitiesByGroup("Invalid").IsSuccess());
 
+        // Check group of never registered entity.
+        Game::EntityHandle entityPlayerNone = entitySystem->CreateEntity().Unwrap();
+        CHECK_EQ(identitySystem->GetEntityGroups(entityPlayerNone).UnwrapFailure(),
+            Game::IdentitySystem::LookupErrors::EntityNotFound);
+
         // Group single entity before processing entity commands.
-        Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity();
+        Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity().Unwrap();
         CHECK(identitySystem->SetEntityGroup(entityPlayerOne, "GroupA"));
         CHECK_EQ(identitySystem->GetGroupedEntityCount(), 1);
         CHECK_EQ(identitySystem->GetGroupCount(), 1);
@@ -126,9 +131,9 @@ TEST_CASE("Identity System")
         }
 
         // Group multiple entities after processing entity commands.
-        Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity();
-        Game::EntityHandle entityPlayerThree = entitySystem->CreateEntity();
-        Game::EntityHandle entityPlayerFour = entitySystem->CreateEntity();
+        Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity().Unwrap();
+        Game::EntityHandle entityPlayerThree = entitySystem->CreateEntity().Unwrap();
+        Game::EntityHandle entityPlayerFour = entitySystem->CreateEntity().Unwrap();
         entitySystem->ProcessCommands();
 
         CHECK(identitySystem->SetEntityGroup(entityPlayerTwo, "GroupA"));
@@ -157,8 +162,24 @@ TEST_CASE("Identity System")
         CHECK(identitySystem->SetEntityGroup(entityPlayerTwo, "GroupA"));
         CHECK(identitySystem->SetEntityGroup(entityPlayerFour, "GroupB"));
 
+        // Entity to multiple groups.
+        CHECK(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupA"));
+        CHECK_FALSE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupB"));
+
+        CHECK(identitySystem->SetEntityGroup(entityPlayerOne, "GroupB"));
+        CHECK(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupA"));
+        CHECK(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupB"));
+
+        // Clear group from entity.
+        CHECK_EQ(identitySystem->GetEntityGroupCount(entityPlayerOne), 2);
+        CHECK(identitySystem->ClearEntityGroup(entityPlayerOne, "GroupA"));
+        CHECK(identitySystem->ClearEntityGroup(entityPlayerOne, "GroupB"));
+        CHECK_EQ(identitySystem->GetEntityGroupCount(entityPlayerOne), 0);
+
         // Query destroyed entity.
         entitySystem->DestroyAllEntities();
+        CHECK_EQ(identitySystem->GetEntityGroups(entityPlayerThree).UnwrapFailure(),
+            Game::IdentitySystem::LookupErrors::InvalidEntity);
         CHECK_EQ(identitySystem->GetEntitiesByGroup("GroupA").UnwrapFailure(),
             Game::IdentitySystem::LookupErrors::GroupNotFound);
     }

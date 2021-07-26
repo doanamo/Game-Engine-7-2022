@@ -32,7 +32,8 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     LOG_SCOPED_INDENT();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(engine != nullptr,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
     auto* inputManager = engine->GetSystems().Locate<System::InputManager>();
@@ -93,16 +94,16 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = entitySystem->CreateEntity();
+        Game::EntityHandle cameraEntity = entitySystem->CreateEntity().Unwrap();
         identitySystem->SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = componentSystem->Create<Game::TransformComponent>(cameraEntity);
+        auto* transform = componentSystem->Create<Game::TransformComponent>(cameraEntity).Unwrap();
         ASSERT(transform != nullptr, "Could not create transform component!");
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
-        auto* camera = componentSystem->Create<Game::CameraComponent>(cameraEntity);
+        auto* camera = componentSystem->Create<Game::CameraComponent>(cameraEntity).Unwrap();
         ASSERT(camera != nullptr, "Could not create camera component!");
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
     }
@@ -110,11 +111,11 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create player entity.
     {
         // Create named entity.
-        Game::EntityHandle playerEntity = entitySystem->CreateEntity();
+        Game::EntityHandle playerEntity = entitySystem->CreateEntity().Unwrap();
         identitySystem->SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = componentSystem->Create<Game::TransformComponent>(playerEntity);
+        auto* transform = componentSystem->Create<Game::TransformComponent>(playerEntity).Unwrap();
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
         transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(0.0f)));
         transform->SetRotation(glm::rotate(glm::identity<glm::quat>(),
@@ -122,7 +123,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
             glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Create sprite component.
-        auto* sprite = componentSystem->Create<Game::SpriteComponent>(playerEntity);
+        auto* sprite = componentSystem->Create<Game::SpriteComponent>(playerEntity).Unwrap();
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         sprite->SetTextureView(textureAtlas->GetRegion("animation_frame_3"));
@@ -131,7 +132,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
         // Create sprite animation component.
         auto* spriteAnimation =
-            componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity);
+            componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity).Unwrap();
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
     }
@@ -151,8 +152,7 @@ void SpriteDemo::Tick(const float tickTime)
 
     // Retrieve player transform.
     Game::EntityHandle playerEntity = identitySystem->GetEntityByName("Player").Unwrap();
-    auto transform = componentSystem->Lookup<Game::TransformComponent>(playerEntity);
-    ASSERT(transform != nullptr, "Could not create transform component!");
+    auto transform = componentSystem->Lookup<Game::TransformComponent>(playerEntity).Unwrap();
 
     // Animate the entity.
     double timeAccumulated = m_tickTimer->GetTotalTickSeconds();

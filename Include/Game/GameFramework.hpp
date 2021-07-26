@@ -47,27 +47,31 @@ namespace Game
         ~GameFramework() override;
 
         ChangeGameStateResult ChangeGameState(std::shared_ptr<GameState> gameState);
-        void ProcessGameState();
-        bool HasGameState() const;
 
+        bool HasGameState() const
+        {
+            return m_stateMachine.HasState();
+        }
+
+    public:
         struct Events
         {
-            // Called whether game state changes.
-            // This will be dispatched only on successful game state transition.
+            // Called whether game state changes. This will be dispatched only on successful game
+            // state transition.
             Event::Dispatcher<void(const std::shared_ptr<GameState>&)> gameStateChanged;
 
-            // Called when tick method is called.
-            // This does not mean that the state was actually ticked.
+            // Called when tick method is called. This does not mean that the state was actually
+            // ticked.
             Event::Dispatcher<void()> tickRequested;
 
-            // Called when state had its tick processed.
-            // Event can be dispatched multiple times during the same tick method call.
-            // This is also good time to run custom tick logic in response.
+            // Called when state had its tick processed. Event can be dispatched multiple times
+            // during the same tick method call. This is also good time to run custom tick logic in
+            // response.
             Event::Dispatcher<void(float)> tickProcessed;
 
-            // Called when state had its update processed.
-            // Event will be dispatched only once event if multiple ticks are processed.
-            // This is also good time to run custom update logic in response.
+            // Called when state had its update processed. Event will be dispatched only once event
+            // if multiple ticks are processed. This is also good time to run custom update logic in
+            // response.
             Event::Dispatcher<void(float)> updateProcessed;
 
             // Called when game instance should be drawn, before game state's custom draw.

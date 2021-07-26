@@ -14,8 +14,7 @@
 /*
     Identity System
 
-    Manages entity names and groups they belong to
-    and allows them to be queried by these properties.
+    Manages entity names and groups that they belong to and allows them to be queried by them.
 */
 
 namespace Game
@@ -70,15 +69,24 @@ namespace Game
         NamingResult SetEntityName(EntityHandle entity, std::string name, bool force = false);
         LookupResult<EntityHandle> GetEntityByName(std::string name) const;
         LookupResult<std::string> GetEntityName(EntityHandle entity) const;
-        unsigned int GetNamedEntityCount() const;
+        std::size_t GetNamedEntityCount() const;
 
         GroupingResult SetEntityGroup(EntityHandle entity, std::string group);
         GroupingResult ClearEntityGroup(EntityHandle entity, std::string group);
         LookupResult<GroupEntitiesSet> GetEntitiesByGroup(std::string group) const;
         LookupResult<EntityGroupsSet> GetEntityGroups(EntityHandle entity) const;
         bool IsEntityInGroup(EntityHandle entity, std::string group) const;
-        unsigned int GetGroupedEntityCount() const;
-        unsigned int GetGroupCount() const;
+        std::size_t GetEntityGroupCount(EntityHandle entity) const;
+
+        std::size_t GetGroupedEntityCount() const
+        {
+            return m_entityGroupsLookup.size();
+        }
+
+        std::size_t GetGroupCount() const
+        {
+            return m_groupEntitiesLookup.size();
+        }
 
     private:
         bool OnAttach(const GameSystemStorage& gameSystems) override;

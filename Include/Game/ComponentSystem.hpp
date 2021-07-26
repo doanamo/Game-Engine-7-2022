@@ -30,15 +30,33 @@ namespace Game
         using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
 
+        enum class CreateComponentErrors
+        {
+            InvalidEntity,
+            AlreadyExists,
+            FailedInitialization,
+        };
+
+        template<typename ComponentType>
+        using CreateComponentResult = Common::Result<ComponentType*, CreateComponentErrors>;
+
+        enum class LookupComponentErrors
+        {
+            Missing,
+        };
+
+        template<typename ComponentType>
+        using LookupComponentResult = Common::Result<ComponentType*, LookupComponentErrors>;
+
     public:
         ComponentSystem();
         ~ComponentSystem() override;
 
         template<typename ComponentType>
-        ComponentType* Create(EntityHandle handle);
+        CreateComponentResult<ComponentType> Create(EntityHandle handle);
 
         template<typename ComponentType>
-        ComponentType* Lookup(EntityHandle handle);
+        LookupComponentResult<ComponentType> Lookup(EntityHandle handle);
 
         template<typename ComponentType>
         ComponentPool<ComponentType>& GetPool();
@@ -49,7 +67,10 @@ namespace Game
         template<typename ComponentType>
         typename ComponentPool<ComponentType>::ComponentIterator End();
 
-        EntitySystem* GetEntitySystem() const;
+        EntitySystem* GetEntitySystem() const
+        {
+            return m_entitySystem;
+        }
 
     private:
         bool OnAttach(const GameSystemStorage& gameSystems) override;
@@ -74,9 +95,9 @@ namespace Game
     };
 
     template<typename ComponentType>
-    ComponentType* ComponentSystem::Create(EntityHandle handle)
+    ComponentSystem::CreateComponentResult<ComponentType>
+        ComponentSystem::Create(EntityHandle handle)
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Retrieve entity entry to determine if handle is valid.
@@ -84,80 +105,90 @@ namespace Game
         if(!entityEntry)
         {
             LOG_WARNING("Attempted to create component for an invalid entity handle.");
-            return nullptr;
+            return Common::Failure(CreateComponentErrors::InvalidEntity);
         }
 
-        // Get component pool.
-        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
-
         // Create new component.
-        ComponentType* component = pool.CreateComponent(handle);
-
-        if(component != nullptr)
+        ComponentPool<ComponentType>& pool = GetPool<ComponentType>();
+        auto componentResult = pool.CreateComponent(handle);
+        if(!componentResult)
         {
-            // Check if entity has already been created and has its components initialized.
-            // If entity has already been created, initialize the component right away.
-            if(entityEntry->flags & EntityFlags::Created)
+            switch(componentResult.UnwrapFailure())
             {
-                // Initialize component.
-                if(!pool.InitializeComponent(handle))
-                {
-                    // Destroy component if initialization fails.
-                    bool destroyResult = pool.DestroyComponent(handle);
-                    ASSERT(destroyResult, "Could not destroy component!");
-                    return nullptr;
-                }
+            default:
+                ASSERT(false, "Unknown error result!");
+
+            case ComponentPool<ComponentType>::CreateComponentErrors::AlreadyExists:
+                return Common::Failure(CreateComponentErrors::AlreadyExists);
             }
         }
 
-        // Return the created component.
-        return component;
+        ComponentType* component = componentResult.Unwrap();
+
+        // Check if entity has already been created and has its components initialized.
+        // If entity has already been created, initialize the component right away.
+        if(entityEntry->flags & EntityFlags::Created)
+        {
+            if(!pool.InitializeComponent(handle))
+            {
+                ASSERT_EVALUATE(pool.DestroyComponent(handle), "Could not destroy component!");
+                return Common::Failure(CreateComponentErrors::FailedInitialization);
+            }
+        }
+
+        return Common::Success(component);
     }
 
     template<typename ComponentType>
-    ComponentType* ComponentSystem::Lookup(EntityHandle handle)
+    ComponentSystem::LookupComponentResult<ComponentType>
+        ComponentSystem::Lookup(EntityHandle handle)
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get component pool.
-        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
+        // Lookup from component pool
+        ComponentPool<ComponentType>& pool = GetPool<ComponentType>();
+        auto componentResult = pool.LookupComponent(handle);
+        if(!componentResult)
+        {
+            switch(componentResult.UnwrapFailure())
+            {
+            default:
+                ASSERT(false, "Unknown error result!");
 
-        // Lookup and return the component.
-        return pool.LookupComponent(handle);
+            case ComponentPool<ComponentType>::LookupComponentErrors::Missing:
+                return Common::Failure(LookupComponentErrors::Missing);
+            }
+        }
+        
+        return Common::Success(componentResult.Unwrap());
     }
 
     template<typename ComponentType>
     bool ComponentSystem::Destroy(EntityHandle handle)
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get component pool.
-        ComponentPool<ComponentType>* pool = this->GetPool<ComponentType>();
+        // Get component pool and attempt to destroy component.
+        ComponentPool<ComponentType>* pool = GetPool<ComponentType>();
         ASSERT(pool != nullptr, "Retrieved a null component pool!");
-
-        // Destroy the component.
         return pool->DestroyComponent(handle);
     }
 
     template<typename ComponentType>
     ComponentPool<ComponentType>& ComponentSystem::GetPool()
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Find pool by component type.
+        // Find pool by component type and if missing, create one.
         auto it = m_pools.find(typeid(ComponentType));
         if(it == m_pools.end())
         {
-            // Create and return a new component pool.
-            auto* pool = this->CreatePool<ComponentType>();
+            auto* pool = CreatePool<ComponentType>();
             ASSERT(pool, "Failed to create component pool!");
             return *pool;
         }
 
-        // Cast and return the pointer that we already know is a component pool.
+        // Cast and return pointer that we already know is a component pool.
         auto* pool = reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
         ASSERT(pool, "Component systems contains null component pool!");
         return *pool;
@@ -166,46 +197,33 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>* ComponentSystem::CreatePool()
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
         // Create and add pool to the collection.
         auto pool = std::make_unique<ComponentPool<ComponentType>>(this);
-        auto result = m_pools.emplace(std::piecewise_construct,
+        auto [it, result] = m_pools.emplace(std::piecewise_construct,
             std::forward_as_tuple(typeid(ComponentType)),
             std::forward_as_tuple(std::move(pool))
         );
 
-        ASSERT(result.second == true, "Failed to insert new component pool type!");
-
-        // Return created pool.
-        return reinterpret_cast<ComponentPool<ComponentType>*>(result.first->second.get());
+        ASSERT(result, "Failed to emplace new component pool type!");
+        return reinterpret_cast<ComponentPool<ComponentType>*>(it->second.get());
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentSystem::Begin()
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get component pool.
-        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
-
-        // Return iterator.
-        return pool.Begin();
+        return GetPool<ComponentType>().Begin();
     }
 
     template<typename ComponentType>
     typename ComponentPool<ComponentType>::ComponentIterator ComponentSystem::End()
     {
-        // Validate component type.
         static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
 
-        // Get component pool.
-        ComponentPool<ComponentType>& pool = this->GetPool<ComponentType>();
-
-        // Return iterator.
-        return pool.End();
+        return GetPool<ComponentType>().End();
     }
 }
 

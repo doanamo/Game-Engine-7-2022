@@ -19,7 +19,7 @@ namespace Game
     public:
         enum class CreateErrors
         {
-            FailedGameSystemCreation,
+            FailedSystemCreation,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<GameInstance>, CreateErrors>;

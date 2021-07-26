@@ -5,7 +5,6 @@
 
 #include "Game/Precompiled.hpp"
 #include "Game/TickTimer.hpp"
-using System::Timer;
 using namespace Game;
 
 TickTimer::TickTimer() = default;
@@ -13,13 +12,13 @@ TickTimer::~TickTimer() = default;
 
 TickTimer::CreateResult TickTimer::Create()
 {
-    LOG("Creating tick timer...");
-    LOG_SCOPED_INDENT();
+    // Profile creation time.
+    auto startTime = std::chrono::steady_clock::now();
 
-    // Create instance.
+    // Create class instance.
     auto instance = std::unique_ptr<TickTimer>(new TickTimer());
 
-    // Create timer.
+    // Create timer instance for use by tick timer.
     instance->m_timer = std::make_unique<System::Timer>();
     if(instance->m_timer == nullptr)
     {
@@ -30,7 +29,10 @@ TickTimer::CreateResult TickTimer::Create()
     // Set forward tick counter to trigger on next tick.
     instance->m_forwardTickTimeUnits = instance->m_timer->GetCurrentTimeUnits();
 
-    // Success!
+    // Log profiled time.
+    LOG("Created tick timer in {:.4f}s.", std::chrono::duration<float>(
+        std::chrono::steady_clock::now() - startTime).count());
+
     return Common::Success(std::move(instance));
 }
 
@@ -44,12 +46,7 @@ void TickTimer::Reset()
     m_lastTickSeconds = 0.0f;
 }
 
-void TickTimer::SetTickSeconds(float tickTime)
-{
-    m_tickSeconds = tickTime;
-}
-
-void TickTimer::Advance(const Timer& timer)
+void TickTimer::Advance(const System::Timer& timer)
 {
     m_timer->Advance(timer);
 }
@@ -57,7 +54,7 @@ void TickTimer::Advance(const Timer& timer)
 bool TickTimer::Tick()
 {
     // Convert tick seconds to tick units.
-    TimeUnit tickUnits = Timer::ConvertToUnits((double)m_tickSeconds);
+    TimeUnit tickUnits = System::Timer::ConvertToUnits((double)m_tickSeconds);
 
     // Do not allow forward tick counter to fall behind the previous tick time.
     // This allows timer with capped delta time to prevent a large number of ticks.
@@ -84,32 +81,18 @@ bool TickTimer::Tick()
     return false;
 }
 
-float TickTimer::GetAlphaSeconds() const
+float TickTimer::CalculateAlphaSeconds() const
 {
     // Calculate accumulated time units since the last tick.
     TimeUnit accumulatedTickUnits = m_forwardTickTimeUnits - m_timer->GetCurrentTimeUnits();
     ASSERT(accumulatedTickUnits >= 0, "Accumulated tick units cannot be negative!");
 
     // Calculate normalized range between last two ticks.
-    float accumulatedTickSeconds = (float)Timer::ConvertToSeconds(accumulatedTickUnits);
+    float accumulatedTickSeconds = (float)System::Timer::ConvertToSeconds(accumulatedTickUnits);
     float normalizedTickAlpha = (m_lastTickSeconds - accumulatedTickSeconds) / m_lastTickSeconds;
-    ASSERT(normalizedTickAlpha >= 0.0f && normalizedTickAlpha <= 1.0f, "Tick alpha is not clamped in normal range!");
+    ASSERT(normalizedTickAlpha >= 0.0f && normalizedTickAlpha <= 1.0f,
+        "Tick alpha is not clamped in normal range!");
 
     // Return alpha time in normalized range between last two ticks.
     return normalizedTickAlpha;
-}
-
-float TickTimer::GetTickSeconds() const
-{
-    return m_tickSeconds;
-}
-
-double TickTimer::GetTotalTickSeconds() const
-{
-    return Timer::ConvertToSeconds(m_totalTickTimeUnits);
-}
-
-float TickTimer::GetLastTickSeconds() const
-{
-    return m_lastTickSeconds;
 }

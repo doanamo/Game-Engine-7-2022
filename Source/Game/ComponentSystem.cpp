@@ -21,6 +21,7 @@ bool ComponentSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
     ASSERT(m_entitySystem == nullptr);
 
+    // Retrieve needed game systems.
     m_entitySystem = gameSystems.Locate<EntitySystem>();
     if(m_entitySystem == nullptr)
     {
@@ -28,6 +29,7 @@ bool ComponentSystem::OnAttach(const GameSystemStorage& gameSystems)
         return false;
     }
 
+    // Subscribe to entity events.
     if(!m_entityCreate.Subscribe(m_entitySystem->events.entityCreate))
     {
         LOG_ERROR("Failed to subscribe to entity system!");
@@ -67,12 +69,7 @@ void ComponentSystem::OnEntityDestroy(EntityHandle handle)
     }
 }
 
-EntitySystem* ComponentSystem::GetEntitySystem() const
-{
-    return m_entitySystem;
-}
-
 const EntityEntry* ComponentSystem::GetEntityEntry(EntityHandle handle) const
 {
-    return m_entitySystem->GetEntityEntry(handle);
+    return m_entitySystem->LookupEntityEntry(handle).UnwrapOr(nullptr);
 }

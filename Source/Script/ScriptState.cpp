@@ -83,7 +83,8 @@ ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(), Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(),
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
@@ -113,7 +114,8 @@ ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const Lo
     LOG_SCOPED_INDENT();
 
     // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
+        Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();

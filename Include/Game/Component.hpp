@@ -26,6 +26,7 @@ namespace Game
     public:
         virtual bool OnInitialize(ComponentSystem* componentSystem, const EntityHandle& entitySelf)
         {
+            // Return true to indicate that component's initialization succeeded.
             return true;
         }
     };

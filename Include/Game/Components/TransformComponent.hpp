@@ -10,8 +10,7 @@
 /*
     Transform Component
 
-    Interpolated transform that represents
-    position, rotation and scale in the world.
+    Interpolated transform that represents position, rotation and scale in the world.
 */
 
 namespace Game
@@ -23,15 +22,37 @@ namespace Game
         ~TransformComponent();
 
         void ResetInterpolation();
-        void SetPosition(const glm::vec3& position);
-        void SetRotation(const glm::quat& rotation);
-        void SetScale(const glm::vec3& scale);
-
-        const glm::vec3& GetPosition() const;
-        const glm::quat& GetRotation() const;
-        const glm::vec3& GetScale() const;
-
         glm::mat4 CalculateMatrix(float timeAlpha = 1.0f) const;
+
+        void SetPosition(const glm::vec3& position)
+        {
+            m_currentPosition = position;
+        }
+
+        void SetRotation(const glm::quat& rotation)
+        {
+            m_currentRotation = rotation;
+        }
+
+        void SetScale(const glm::vec3& scale)
+        {
+            m_currentScale = scale;
+        }
+
+        const glm::vec3& GetPosition() const
+        {
+            return m_currentPosition;
+        }
+
+        const glm::quat& GetRotation() const
+        {
+            return m_currentRotation;
+        }
+
+        const glm::vec3& GetScale() const
+        {
+            return m_currentScale;
+        }
 
     private:
         glm::quat m_currentRotation = glm::quat(1.0, 0.0, 0.0, 0.0);

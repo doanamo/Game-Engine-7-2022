@@ -178,7 +178,7 @@ namespace Debug
 #define ASSERT_ALWAYS(...) DEBUG_EXPAND_MACRO(ASSERT_ALWAYS_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
-    Assert Warn Macro
+    Check Macro
 
     Ensures that given expression is true in all configurations.
     Used to only print warnings when we want to continue execution.
@@ -188,36 +188,36 @@ namespace Debug
     - Release: Evaluates expression and logs warning
 
     Example usage:
-        ASSERT_WARN(m_initialized);
-        ASSERT_WARN(instance != nullptr, "Invalid instance.");
+        CHECK(m_initialized);
+        CHECK(instance != nullptr, "Invalid instance.");
 */
 
-#define ASSERT_WARN_SIMPLE(expression) \
+#define CHECK_SIMPLE(expression) \
     if(expression) { } else \
     { \
-        LOG_WARNING("Assertion failed: " DEBUG_STRINGIFY(expression)); \
+        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression)); \
     }
 
-#define ASSERT_WARN_MESSAGE(expression, message, ...) \
+#define CHECK_MESSAGE(expression, message, ...) \
     if(expression) { } else \
     { \
-        LOG_WARNING("Assertion failed: " DEBUG_STRINGIFY(expression) \
+        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
             " - " message, ## __VA_ARGS__); \
     }
 
-#define ASSERT_WARN_OR_RETURN(expression, value, message, ...) \
+#define CHECK_OR_RETURN(expression, value, message, ...) \
     if(expression) { } else \
     { \
-        LOG_WARNING("Assertion failed: " DEBUG_STRINGIFY(expression) \
+        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
             " - " message, ## __VA_ARGS__); \
         return value; \
     }
 
-#define ASSERT_WARN_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define ASSERT_WARN_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_WARN_DEDUCE(__VA_ARGS__, \
-    ASSERT_WARN_MESSAGE, ASSERT_WARN_MESSAGE, ASSERT_WARN_MESSAGE, \
-    ASSERT_WARN_MESSAGE, ASSERT_WARN_MESSAGE, ASSERT_WARN_SIMPLE))
-#define ASSERT_WARN(...) DEBUG_EXPAND_MACRO(ASSERT_WARN_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
+#define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, \
+    CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, \
+    CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
+#define CHECK(...) DEBUG_EXPAND_MACRO(CHECK_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 /*
     Argument Handling
@@ -225,7 +225,7 @@ namespace Debug
 
 #define ASSERT_ARGUMENT(expression) ASSERT_MESSAGE(expression, "Invalid argument!")
 #define ASSERT_ALWAYS_ARGUMENT(expression) ASSERT_ALWAYS_MESSAGE(expression, "Invalid argument!")
-#define ASSERT_LOG_ARGUMENT(expression) ASSERT_WARN_MESSAGE(expression, "Invalid argument!");
+#define CHECK_ARGUMENT(expression) CHECK_MESSAGE(expression, "Invalid argument!");
 
 #define CHECK_ARGUMENT_OR_RETURN(expression, value, ...) \
-    ASSERT_WARN_OR_RETURN(expression, value, "Invalid argument!")
+    CHECK_OR_RETURN(expression, value, "Invalid argument!")
