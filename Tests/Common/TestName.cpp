@@ -3,8 +3,10 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <sstream>
+#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
 #include <doctest/doctest.h>
+
+#include <sstream>
 #include <Common/Name.hpp>
 #include <Reflection/Reflection.hpp>
 
@@ -14,49 +16,49 @@ class TestNameType
 
 REFLECTION_TYPE(TestNameType);
 
-TEST_CASE("Name")
+DOCTEST_TEST_CASE("Name")
 {
-    SUBCASE("Empty")
+    DOCTEST_SUBCASE("Empty")
     {
         Common::Name nameEmpty;
-        CHECK_EQ(nameEmpty, Common::StringHash<Common::Name::HashType>(""));
+        DOCTEST_CHECK_EQ(nameEmpty, Common::StringHash<Common::Name::HashType>(""));
     }
 
-    SUBCASE("Basic")
+    DOCTEST_SUBCASE("Basic")
     {
         Common::Name nameOne = NAME_CONSTEXPR("One");
         Common::Name nameTwo = NAME_CONSTEXPR("Two");
 
-        CHECK_NE(nameOne, nameTwo);
-        CHECK_EQ(nameOne, Common::Name("One"));
-        CHECK_EQ(nameTwo, Common::Name("Two"));
+        DOCTEST_CHECK_NE(nameOne, nameTwo);
+        DOCTEST_CHECK_EQ(nameOne, Common::Name("One"));
+        DOCTEST_CHECK_EQ(nameTwo, Common::Name("Two"));
 
-        SUBCASE("Copy")
+        DOCTEST_SUBCASE("Copy")
         {
             Common::Name nameOneCopy;
             nameOneCopy = nameOne;
-            CHECK_EQ(nameOneCopy, nameOne);
+            DOCTEST_CHECK_EQ(nameOneCopy, nameOne);
 
             Common::Name nameTwoCopy(nameTwo);
-            CHECK_EQ(nameTwoCopy, nameTwo);
+            DOCTEST_CHECK_EQ(nameTwoCopy, nameTwo);
         }
 
-        SUBCASE("From identifier")
+        DOCTEST_SUBCASE("From identifier")
         {
             Common::Name NameIdentifier(Common::StringHash<Common::Name::HashType>("One"));
 
-            CHECK_EQ(nameOne, NameIdentifier);
-            CHECK_NE(nameTwo, NameIdentifier);
+            DOCTEST_CHECK_EQ(nameOne, NameIdentifier);
+            DOCTEST_CHECK_NE(nameTwo, NameIdentifier);
         }
     }
 
-    SUBCASE("Hash")
+    DOCTEST_SUBCASE("Hash")
     {
         Common::Name nameTest = NAME_CONSTEXPR("TestNameType");
-        CHECK_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
+        DOCTEST_CHECK_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
     }
 
-    SUBCASE("String")
+    DOCTEST_SUBCASE("String")
     {
         std::string string = Common::Name("TestNameType").GetString();
 
@@ -70,6 +72,6 @@ TEST_CASE("Name")
         std::string compare = stream.str();
 #endif
 
-        CHECK_EQ(string, compare);
+        DOCTEST_CHECK_EQ(string, compare);
     }
 }

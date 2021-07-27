@@ -60,7 +60,7 @@ namespace Test
 
         InstanceCounter& operator=(const InstanceCounter& other)
         {
-            REQUIRE(&other != this);
+            DOCTEST_REQUIRE(&other != this);
 
             m_instance = other.m_instance;
             m_stats = other.m_stats;
@@ -71,7 +71,7 @@ namespace Test
 
         InstanceCounter& operator=(InstanceCounter&& other)
         {
-            REQUIRE(&other != this);
+            DOCTEST_REQUIRE(&other != this);
 
             std::swap(m_instance, other.m_instance);
             std::swap(m_stats, other.m_stats);
@@ -82,13 +82,13 @@ namespace Test
 
         Type& GetInstance()
         {
-            REQUIRE(m_instance.get() != nullptr);
+            DOCTEST_REQUIRE(m_instance.get() != nullptr);
             return *m_instance;
         }
 
         Stats& GetStats() const
         {
-            REQUIRE(m_stats.get() != nullptr);
+            DOCTEST_REQUIRE(m_stats.get() != nullptr);
             return *m_stats;
         }
 

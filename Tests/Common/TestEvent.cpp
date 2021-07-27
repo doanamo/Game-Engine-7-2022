@@ -3,9 +3,11 @@
     Software distributed under the permissive MIT License.
 */
 
+#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
+#include <doctest/doctest.h>
+
 #include <memory>
 #include <functional>
-#include <doctest/doctest.h>
 #include <Common/Delegate.hpp>
 #include <Common/Event/EventCollector.hpp>
 #include <Common/Event/EventDispatcher.hpp>
@@ -38,38 +40,38 @@ public:
     }
 };
 
-TEST_CASE("Event Delegate")
+DOCTEST_TEST_CASE("Event Delegate")
 {
-    SUBCASE("Binding")
+    DOCTEST_SUBCASE("Binding")
     {
         Test::InstanceCounter<> counter;
         Event::Delegate<char(Test::InstanceCounter<>, int)> delegate;
-        REQUIRE(!delegate.IsBound());
+        DOCTEST_REQUIRE(!delegate.IsBound());
 
-        SUBCASE("Static function binding")
+        DOCTEST_SUBCASE("Static function binding")
         {
             delegate.Bind<&Function>();
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 4), '4');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 4), '4');
         }
 
-        SUBCASE("Class method binding")
+        DOCTEST_SUBCASE("Class method binding")
         {
             BaseClass baseClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 6), '6');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 6), '6');
         }
 
-        SUBCASE("Virtual method binding")
+        DOCTEST_SUBCASE("Virtual method binding")
         {
             DerivedClass derivedClass;
             delegate.Bind<BaseClass, &BaseClass::Method>(&derivedClass);
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 1), '1');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 1), '1');
         }
 
-        SUBCASE("Lambda function binding")
+        DOCTEST_SUBCASE("Lambda function binding")
         {
             auto functor = [](Test::InstanceCounter<> counter, int index) -> char
             {
@@ -77,11 +79,11 @@ TEST_CASE("Event Delegate")
             };
 
             delegate.Bind(&functor);
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 9), '9');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 9), '9');
         }
 
-        SUBCASE("Lambda capture binding via constructor")
+        DOCTEST_SUBCASE("Lambda DOCTEST_CAPTURE binding via constructor")
         {
             int modifier = 4;
             delegate = Event::Delegate<char(Test::InstanceCounter<>, int)>(
@@ -90,11 +92,11 @@ TEST_CASE("Event Delegate")
                     return Text[index + modifier];
                 });
 
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 3), '7');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 3), '7');
         }
 
-        SUBCASE("Lambda with parameter binding")
+        DOCTEST_SUBCASE("Lambda with parameter binding")
         {
             auto functor = [](Test::InstanceCounter<> counter, int index, int modifier) -> char
             {
@@ -103,16 +105,16 @@ TEST_CASE("Event Delegate")
 
             delegate = std::bind(functor, std::placeholders::_1, std::placeholders::_2, 4 );
 
-            CHECK(delegate.IsBound());
-            CHECK_EQ(delegate.Invoke(counter, 3), '7');
+            DOCTEST_CHECK(delegate.IsBound());
+            DOCTEST_CHECK_EQ(delegate.Invoke(counter, 3), '7');
         }
 
         delegate.Bind(nullptr);
-        CHECK(!delegate.IsBound());
-        CHECK_EQ(counter.GetStats().copies, 1);
+        DOCTEST_CHECK(!delegate.IsBound());
+        DOCTEST_CHECK_EQ(counter.GetStats().copies, 1);
     }
 
-    SUBCASE("Similar lambda signatures")
+    DOCTEST_SUBCASE("Similar lambda signatures")
     {
         int i = 0, y = 0;
 
@@ -122,11 +124,11 @@ TEST_CASE("Event Delegate")
         delegateOne.Invoke();
         delegateTwo.Invoke();
 
-        CHECK_EQ(i, 3);
-        CHECK_EQ(y, 7);
+        DOCTEST_CHECK_EQ(i, 3);
+        DOCTEST_CHECK_EQ(y, 7);
     }
 
-    SUBCASE("Lambda capture lifetime")
+    DOCTEST_SUBCASE("Lambda DOCTEST_CAPTURE lifetime")
     {
         int currentValue = 0;
         int expectedValue = 0;
@@ -134,12 +136,12 @@ TEST_CASE("Event Delegate")
         int expectedInstances = 0;
 
         Test::InstanceCounter<> counter;
-        CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+        DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
 
         Event::Delegate<void()> delegate;
 
         {
-            SUBCASE("Bind lvalue lambda")
+            DOCTEST_SUBCASE("Bind lvalue lambda")
             {
                 {
                     auto lambda = [&currentValue, counter]()
@@ -147,21 +149,21 @@ TEST_CASE("Event Delegate")
                         currentValue += 1;
                     };
 
-                    CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                    CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                    DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                    DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                     delegate = lambda;
                     expectedValue += 1;
 
-                    CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                    CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                    DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                    DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
                 }
                 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
             
-            SUBCASE("Bind rvalue lambda")
+            DOCTEST_SUBCASE("Bind rvalue lambda")
             {
                 delegate.Bind([&currentValue, counter]()
                 {
@@ -170,11 +172,11 @@ TEST_CASE("Event Delegate")
 
                 expectedValue += 10;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
             }
 
-            SUBCASE("Copy delegate")
+            DOCTEST_SUBCASE("Copy delegate")
             {
                 Event::Delegate<void()> delegateCopy([&currentValue, counter]()
                 {
@@ -183,21 +185,21 @@ TEST_CASE("Event Delegate")
 
                 expectedValue += 100;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegate = delegateCopy;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegateCopy = nullptr;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
 
-            SUBCASE("Move delegate")
+            DOCTEST_SUBCASE("Move delegate")
             {
                 Event::Delegate<void()> delegateMove([&currentValue, counter]()
                 {
@@ -206,119 +208,119 @@ TEST_CASE("Event Delegate")
 
                 expectedValue += 1000;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances += 1);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies += 1);
 
                 delegate = std::move(delegateMove);
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
                 delegateMove = nullptr;
 
-                CHECK_EQ(counter.GetStats().instances, expectedInstances);
-                CHECK_EQ(counter.GetStats().copies, expectedCopies);
+                DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances);
+                DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
             }
 
-            CHECK_EQ(counter.GetStats().instances, expectedInstances);
-            CHECK_EQ(counter.GetStats().copies, expectedCopies);
+            DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances);
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
             delegate.Invoke();
-            CHECK_EQ(currentValue, expectedValue);
+            DOCTEST_CHECK_EQ(currentValue, expectedValue);
 
-            CHECK_EQ(counter.GetStats().instances, expectedInstances);
-            CHECK_EQ(counter.GetStats().copies, expectedCopies);
+            DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances);
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
 
             delegate = nullptr;
 
-            CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
-            CHECK_EQ(counter.GetStats().copies, expectedCopies);
+            DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances -= 1);
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
         }
 
-        CHECK_EQ(counter.GetStats().instances, expectedInstances);
-        CHECK_EQ(counter.GetStats().copies, expectedCopies);
+        DOCTEST_CHECK_EQ(counter.GetStats().instances, expectedInstances);
+        DOCTEST_CHECK_EQ(counter.GetStats().copies, expectedCopies);
     }
 }
 
-TEST_CASE("Event Collector")
+DOCTEST_TEST_CASE("Event Collector")
 {
-    SUBCASE("Collect nothing")
+    DOCTEST_SUBCASE("Collect nothing")
     {
         Event::CollectNothing collectNothing;
-        CHECK(collectNothing.ShouldContinue());
+        DOCTEST_CHECK(collectNothing.ShouldContinue());
     }
 
-    SUBCASE("Collect last result")
+    DOCTEST_SUBCASE("Collect last result")
     {
         Event::CollectLast<int> collectLast(0);
 
         for(int i = 0; i < 10; ++i)
         {
-            CHECK_EQ(collectLast.GetResult(), i);
+            DOCTEST_CHECK_EQ(collectLast.GetResult(), i);
             collectLast.ConsumeResult(i + 1);
-            CHECK(collectLast.ShouldContinue());
-            CHECK_EQ(collectLast.GetResult(), i + 1);
+            DOCTEST_CHECK(collectLast.ShouldContinue());
+            DOCTEST_CHECK_EQ(collectLast.GetResult(), i + 1);
         }
     }
 
-    SUBCASE("Collect while true")
+    DOCTEST_SUBCASE("Collect while true")
     {
         Event::CollectWhileTrue collectWhileTrue(true);
-        CHECK(collectWhileTrue.GetResult());
+        DOCTEST_CHECK(collectWhileTrue.GetResult());
 
         collectWhileTrue.ConsumeResult(true);
-        CHECK(collectWhileTrue.ShouldContinue());
-        CHECK(collectWhileTrue.GetResult());
+        DOCTEST_CHECK(collectWhileTrue.ShouldContinue());
+        DOCTEST_CHECK(collectWhileTrue.GetResult());
 
         collectWhileTrue.ConsumeResult(false);
-        CHECK_FALSE(collectWhileTrue.ShouldContinue());
-        CHECK_FALSE(collectWhileTrue.GetResult());
+        DOCTEST_CHECK_FALSE(collectWhileTrue.ShouldContinue());
+        DOCTEST_CHECK_FALSE(collectWhileTrue.GetResult());
 
-        SUBCASE("Collect after reset")
+        DOCTEST_SUBCASE("Collect after reset")
         {
             collectWhileTrue.Reset();
 
             collectWhileTrue.ConsumeResult(true);
-            CHECK(collectWhileTrue.ShouldContinue());
-            CHECK(collectWhileTrue.GetResult());
+            DOCTEST_CHECK(collectWhileTrue.ShouldContinue());
+            DOCTEST_CHECK(collectWhileTrue.GetResult());
 
             collectWhileTrue.ConsumeResult(false);
-            CHECK_FALSE(collectWhileTrue.ShouldContinue());
-            CHECK_FALSE(collectWhileTrue.GetResult());
+            DOCTEST_CHECK_FALSE(collectWhileTrue.ShouldContinue());
+            DOCTEST_CHECK_FALSE(collectWhileTrue.GetResult());
         }
     }
 
-    SUBCASE("Collect while false")
+    DOCTEST_SUBCASE("Collect while false")
     {
         Event::CollectWhileFalse collectWhileFalse(false);
-        CHECK_FALSE(collectWhileFalse.GetResult());
+        DOCTEST_CHECK_FALSE(collectWhileFalse.GetResult());
 
         collectWhileFalse.ConsumeResult(false);
-        CHECK(collectWhileFalse.ShouldContinue());
-        CHECK_FALSE(collectWhileFalse.GetResult());
+        DOCTEST_CHECK(collectWhileFalse.ShouldContinue());
+        DOCTEST_CHECK_FALSE(collectWhileFalse.GetResult());
 
         collectWhileFalse.ConsumeResult(true);
-        CHECK_FALSE(collectWhileFalse.ShouldContinue());
-        CHECK(collectWhileFalse.GetResult());
+        DOCTEST_CHECK_FALSE(collectWhileFalse.ShouldContinue());
+        DOCTEST_CHECK(collectWhileFalse.GetResult());
 
-        SUBCASE("Collect after reset")
+        DOCTEST_SUBCASE("Collect after reset")
         {
             collectWhileFalse.Reset();
 
             collectWhileFalse.ConsumeResult(false);
-            CHECK(collectWhileFalse.ShouldContinue());
-            CHECK_FALSE(collectWhileFalse.GetResult());
+            DOCTEST_CHECK(collectWhileFalse.ShouldContinue());
+            DOCTEST_CHECK_FALSE(collectWhileFalse.GetResult());
 
             collectWhileFalse.ConsumeResult(true);
-            CHECK_FALSE(collectWhileFalse.ShouldContinue());
-            CHECK(collectWhileFalse.GetResult());
+            DOCTEST_CHECK_FALSE(collectWhileFalse.ShouldContinue());
+            DOCTEST_CHECK(collectWhileFalse.GetResult());
         }
     }
 }
 
-TEST_CASE("Event Dispatcher")
+DOCTEST_TEST_CASE("Event Dispatcher")
 {
-    SUBCASE("Collecting last result")
+    DOCTEST_SUBCASE("Collecting last result")
     {
         int i = 0;
 
@@ -329,26 +331,26 @@ TEST_CASE("Event Dispatcher")
         receiverAddTwo.Bind([](int& i) { i += 2; return i; });
 
         Event::Dispatcher<int(int&)> dispatcher(0);
-        CHECK_EQ(dispatcher.Dispatch(i), 0);
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(i), 0);
 
-        CHECK(dispatcher.Subscribe(receiverAddOne));
-        CHECK(dispatcher.Subscribe(receiverAddOne));
-        CHECK_EQ(dispatcher.Dispatch(i), 1);
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverAddOne));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverAddOne));
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(i), 1);
 
-        CHECK(dispatcher.Subscribe(receiverAddTwo));
-        CHECK(dispatcher.Subscribe(receiverAddTwo));
-        CHECK_EQ(dispatcher.Dispatch(i), 4);
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverAddTwo));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverAddTwo));
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(i), 4);
 
-        CHECK(receiverAddOne.Unsubscribe());
-        CHECK_FALSE(receiverAddOne.Unsubscribe());
-        CHECK_EQ(dispatcher.Dispatch(i), 6);
+        DOCTEST_CHECK(receiverAddOne.Unsubscribe());
+        DOCTEST_CHECK_FALSE(receiverAddOne.Unsubscribe());
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(i), 6);
 
-        CHECK(dispatcher.Unsubscribe(receiverAddTwo));
-        CHECK_FALSE(dispatcher.Unsubscribe(receiverAddTwo));
-        CHECK_EQ(dispatcher.Dispatch(i), 0);
+        DOCTEST_CHECK(dispatcher.Unsubscribe(receiverAddTwo));
+        DOCTEST_CHECK_FALSE(dispatcher.Unsubscribe(receiverAddTwo));
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(i), 0);
     }
 
-    SUBCASE("Collecting boolean result")
+    DOCTEST_SUBCASE("Collecting boolean result")
     {
         Event::Receiver<bool(int&)> receiverTrue;
         receiverTrue.Bind([](int& i) { i += 1; return true; });
@@ -359,90 +361,90 @@ TEST_CASE("Event Dispatcher")
         Event::Receiver<bool(int&)> receiverDummy;
         receiverDummy.Bind([](int& i) { i += 9999; return true; });
         
-        SUBCASE("While returning true")
+        DOCTEST_SUBCASE("While returning true")
         {
             int i = 0;
 
             auto collector = std::make_unique<Event::CollectWhileTrue>(true);
             Event::Dispatcher<bool(int&)> dispatcherWhileTrue(std::move(collector));
-            CHECK(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
 
-            CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
-            CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
-            CHECK(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 1);
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverTrue));
+            DOCTEST_CHECK(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 1);
 
-            CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
-            CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
-            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 4);
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverFalse));
+            DOCTEST_CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 4);
 
-            CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
-            CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
-            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 7);
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
+            DOCTEST_CHECK(dispatcherWhileTrue.Subscribe(receiverDummy));
+            DOCTEST_CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 7);
         }
 
-        SUBCASE("While returning false")
+        DOCTEST_SUBCASE("While returning false")
         {
             int i = 0;
 
             auto collector = std::make_unique<Event::CollectWhileFalse>(false);
             Event::Dispatcher<bool(int&)> dispatcherWhileFalse(std::move(collector));
-            CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
 
-            CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
-            CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
-            CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 2);
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverFalse));
+            DOCTEST_CHECK_FALSE(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 2);
 
-            CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
-            CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
-            CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 5);
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverTrue));
+            DOCTEST_CHECK(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 5);
 
-            CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
-            CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
-            CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 8);
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
+            DOCTEST_CHECK(dispatcherWhileFalse.Subscribe(receiverDummy));
+            DOCTEST_CHECK(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 8);
         }
 
-        SUBCASE("Stopped by initial false")
+        DOCTEST_SUBCASE("Stopped by initial false")
         {
             int i = 0;
 
             auto collector = std::make_unique<Event::CollectWhileTrue>(false);
             Event::Dispatcher<bool(int&)> dispatcherWhileTrue(std::move(collector));
-            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
 
             dispatcherWhileTrue.Subscribe(receiverTrue);
-            CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK_FALSE(dispatcherWhileTrue.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
         }
 
-        SUBCASE("Stopped by initial true")
+        DOCTEST_SUBCASE("Stopped by initial true")
         {
             int i = 0;
 
             auto collector = std::make_unique<Event::CollectWhileFalse>(true);
             Event::Dispatcher<bool(int&)> dispatcherWhileFalse(std::move(collector));
-            CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
 
             dispatcherWhileFalse.Subscribe(receiverFalse);
-            CHECK(dispatcherWhileFalse.Dispatch(i));
-            CHECK_EQ(i, 0);
+            DOCTEST_CHECK(dispatcherWhileFalse.Dispatch(i));
+            DOCTEST_CHECK_EQ(i, 0);
         }
 
-        CHECK_FALSE(receiverTrue.IsSubscribed());
-        CHECK_FALSE(receiverFalse.IsSubscribed());
-        CHECK_FALSE(receiverDummy.IsSubscribed());
+        DOCTEST_CHECK_FALSE(receiverTrue.IsSubscribed());
+        DOCTEST_CHECK_FALSE(receiverFalse.IsSubscribed());
+        DOCTEST_CHECK_FALSE(receiverDummy.IsSubscribed());
     }
 
-    SUBCASE("Receiver subscription")
+    DOCTEST_SUBCASE("Receiver subscription")
     {
         int currentA = 0, expectedA = 0, incrementA = 0;
         int currentB = 0, expectedB = 0, incrementB = 0;
@@ -462,81 +464,89 @@ TEST_CASE("Event Dispatcher")
         Event::Dispatcher<void(int&)> dispatcherA;
         Event::Dispatcher<void(int&)> dispatcherB;
 
-        auto dispatchAndCheck = [&]()
+        auto dispatchAndDOCTEST_CHECK = [&]()
         {
             dispatcherA.Dispatch(currentA);
-            CHECK_EQ(currentA, expectedA += incrementA);
+            DOCTEST_CHECK_EQ(currentA, expectedA += incrementA);
 
             dispatcherB.Dispatch(currentB);
-            CHECK_EQ(currentB, expectedB += incrementB);
+            DOCTEST_CHECK_EQ(currentB, expectedB += incrementB);
         };
 
-        SUBCASE("Subcribe receivers")
+        DOCTEST_SUBCASE("Subcribe receivers")
         {
-            CHECK(dispatcherA.Subscribe(receiverAddOne));
-            CHECK(dispatcherA.Subscribe(receiverAddTwo));
-            CHECK(dispatcherA.Subscribe(receiverAddThree));
-            CHECK(dispatcherA.Subscribe(receiverAddFour));
+            DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddOne));
+            DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddTwo));
+            DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddThree));
+            DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddFour));
             incrementA = 10;
 
-            dispatchAndCheck();
+            dispatchAndDOCTEST_CHECK();
 
-            SUBCASE("Repeat subscription")
+            DOCTEST_SUBCASE("Repeat subscription")
             {
-                CHECK(dispatcherA.Subscribe(receiverAddOne));
-                CHECK(dispatcherA.Subscribe(receiverAddTwo));
-                CHECK(dispatcherA.Subscribe(receiverAddThree));
-                CHECK(dispatcherA.Subscribe(receiverAddFour));
+                DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddOne));
+                DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddTwo));
+                DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddThree));
+                DOCTEST_CHECK(dispatcherA.Subscribe(receiverAddFour));
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
             }
 
-            SUBCASE("Unsubcribe nonsubscribed")
+            DOCTEST_SUBCASE("Unsubcribe nonsubscribed")
             {
-                CHECK_FALSE(dispatcherB.Subscribe(receiverAddOne));
-                CHECK_FALSE(dispatcherB.Subscribe(receiverAddTwo));
-                CHECK_FALSE(dispatcherB.Subscribe(receiverAddThree));
-                CHECK_FALSE(dispatcherB.Subscribe(receiverAddFour));
+                DOCTEST_CHECK_FALSE(dispatcherB.Subscribe(receiverAddOne));
+                DOCTEST_CHECK_FALSE(dispatcherB.Subscribe(receiverAddTwo));
+                DOCTEST_CHECK_FALSE(dispatcherB.Subscribe(receiverAddThree));
+                DOCTEST_CHECK_FALSE(dispatcherB.Subscribe(receiverAddFour));
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
             }
 
-            SUBCASE("Replace subscription")
+            DOCTEST_SUBCASE("Replace subscription")
             {
-                CHECK(dispatcherB.Subscribe(receiverAddOne, Event::SubscriptionPolicy::ReplaceSubscription));
+                DOCTEST_CHECK(dispatcherB.Subscribe(receiverAddOne,
+                    Event::SubscriptionPolicy::ReplaceSubscription));
                 incrementA -= 1;
                 incrementB += 1;
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
 
-                CHECK(dispatcherB.Subscribe(receiverAddThree, Event::SubscriptionPolicy::ReplaceSubscription));
+                DOCTEST_CHECK(dispatcherB.Subscribe(receiverAddThree,
+                    Event::SubscriptionPolicy::ReplaceSubscription));
                 incrementA -= 3;
                 incrementB += 3;
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
 
-                CHECK(dispatcherB.Subscribe(receiverAddFour, Event::SubscriptionPolicy::ReplaceSubscription));
+                DOCTEST_CHECK(dispatcherB.Subscribe(receiverAddFour,
+                    Event::SubscriptionPolicy::ReplaceSubscription));
                 incrementA -= 4;
                 incrementB += 4;
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
 
-                CHECK(dispatcherB.Subscribe(receiverAddTwo, Event::SubscriptionPolicy::ReplaceSubscription));
+                DOCTEST_CHECK(dispatcherB.Subscribe(receiverAddTwo,
+                    Event::SubscriptionPolicy::ReplaceSubscription));
                 incrementA -= 2;
                 incrementB += 2;
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
 
-                CHECK_FALSE(dispatcherA.Subscribe(receiverAddOne, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK_FALSE(dispatcherA.Subscribe(receiverAddTwo, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK_FALSE(dispatcherA.Subscribe(receiverAddThree, Event::SubscriptionPolicy::RetainSubscription));
-                CHECK_FALSE(dispatcherA.Subscribe(receiverAddFour, Event::SubscriptionPolicy::RetainSubscription));
+                DOCTEST_CHECK_FALSE(dispatcherA.Subscribe(receiverAddOne,
+                    Event::SubscriptionPolicy::RetainSubscription));
+                DOCTEST_CHECK_FALSE(dispatcherA.Subscribe(receiverAddTwo,
+                    Event::SubscriptionPolicy::RetainSubscription));
+                DOCTEST_CHECK_FALSE(dispatcherA.Subscribe(receiverAddThree,
+                    Event::SubscriptionPolicy::RetainSubscription));
+                DOCTEST_CHECK_FALSE(dispatcherA.Subscribe(receiverAddFour,
+                    Event::SubscriptionPolicy::RetainSubscription));
 
-                dispatchAndCheck();
+                dispatchAndDOCTEST_CHECK();
             }
         }
 
-        dispatchAndCheck();
+        dispatchAndDOCTEST_CHECK();
 
         dispatcherA.UnsubscribeAll();
         incrementA = 0;
@@ -544,10 +554,10 @@ TEST_CASE("Event Dispatcher")
         dispatcherB.UnsubscribeAll();
         incrementB = 0;
 
-        dispatchAndCheck();
+        dispatchAndDOCTEST_CHECK();
     }
 
-    SUBCASE("Subscription change during dispatch")
+    DOCTEST_SUBCASE("Subscription change during dispatch")
     {
         int value = 0, firstDispatch = 0, secondDispatch = 0;
 
@@ -602,42 +612,42 @@ TEST_CASE("Event Dispatcher")
             return true;
         });
 
-        SUBCASE("Subscribe fire once receiver")
+        DOCTEST_SUBCASE("Subscribe fire once receiver")
         {
-            CHECK(dispatcher.Subscribe(receiverFireOnce));
+            DOCTEST_CHECK(dispatcher.Subscribe(receiverFireOnce));
             firstDispatch += 1;
             secondDispatch += 0;
         }
 
-        SUBCASE("Subscribe fire always receiver")
+        DOCTEST_SUBCASE("Subscribe fire always receiver")
         {
-            CHECK(dispatcher.Subscribe(receiverFireAlways));
+            DOCTEST_CHECK(dispatcher.Subscribe(receiverFireAlways));
             firstDispatch += 10;
             secondDispatch += 10;
         }
 
-        SUBCASE("Susbcribe receiver chain")
+        DOCTEST_SUBCASE("Susbcribe receiver chain")
         {
-            CHECK(dispatcher.Subscribe(receiverChainD));
+            DOCTEST_CHECK(dispatcher.Subscribe(receiverChainD));
             firstDispatch += 111100;
             secondDispatch += 1100;
         }
 
-        CHECK(dispatcher.Dispatch());
-        CHECK_EQ(value, firstDispatch);
+        DOCTEST_CHECK(dispatcher.Dispatch());
+        DOCTEST_CHECK_EQ(value, firstDispatch);
 
         value = 0;
-        CHECK(dispatcher.Dispatch());
-        CHECK_EQ(value, secondDispatch);
+        DOCTEST_CHECK(dispatcher.Dispatch());
+        DOCTEST_CHECK_EQ(value, secondDispatch);
 
         dispatcher.UnsubscribeAll();
 
         value = 0;
-        CHECK(dispatcher.Dispatch());
-        CHECK_EQ(value, 0);
+        DOCTEST_CHECK(dispatcher.Dispatch());
+        DOCTEST_CHECK_EQ(value, 0);
     }
 
-    SUBCASE("Invoking unbound receivers")
+    DOCTEST_SUBCASE("Invoking unbound receivers")
     {
         Event::Dispatcher<int(int&)> dispatcher(0);
         Event::Receiver<int(int&)> receiverUnboundFirst;
@@ -650,44 +660,44 @@ TEST_CASE("Event Dispatcher")
         Event::Receiver<int(int&)> receiverBoundSecond;
         receiverBoundSecond.Bind([](int& i) { i += 2; return 2; });
 
-        CHECK(dispatcher.Subscribe(receiverUnboundFirst));
-        CHECK(dispatcher.Subscribe(receiverBoundFirst));
-        CHECK(dispatcher.Subscribe(receiverUnboundMiddle));
-        CHECK(dispatcher.Subscribe(receiverBoundSecond));
-        CHECK(dispatcher.Subscribe(receiverUnboundLast));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverUnboundFirst));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverBoundFirst));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverUnboundMiddle));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverBoundSecond));
+        DOCTEST_CHECK(dispatcher.Subscribe(receiverUnboundLast));
 
         int value = 0;
-        CHECK_EQ(dispatcher.Dispatch(value), 2);
-        CHECK_EQ(value, 3);
+        DOCTEST_CHECK_EQ(dispatcher.Dispatch(value), 2);
+        DOCTEST_CHECK_EQ(value, 3);
     }
 
-    SUBCASE("Dispatch copy count")
+    DOCTEST_SUBCASE("Dispatch copy count")
     {
         Test::InstanceCounter<> counter;
         Event::Dispatcher<char(Test::InstanceCounter<>, int)> dispatcher('\0');
         Event::Receiver<char(Test::InstanceCounter<>, int)> receiver;
-        CHECK(receiver.Subscribe(dispatcher));
+        DOCTEST_CHECK(receiver.Subscribe(dispatcher));
 
-        SUBCASE("Function dispatch")
+        DOCTEST_SUBCASE("Function dispatch")
         {
             receiver.Bind<&Function>();
-            CHECK_EQ(dispatcher.Dispatch(counter, 0), '0');
-            CHECK_EQ(counter.GetStats().copies, 1);
+            DOCTEST_CHECK_EQ(dispatcher.Dispatch(counter, 0), '0');
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, 1);
         }
 
-        SUBCASE("Method dispatch")
+        DOCTEST_SUBCASE("Method dispatch")
         {
             BaseClass baseClass;
             receiver.Bind<BaseClass, &BaseClass::Method>(&baseClass);
-            CHECK_EQ(dispatcher.Dispatch(counter, 3), '3');
-            CHECK_EQ(counter.GetStats().copies, 1);
+            DOCTEST_CHECK_EQ(dispatcher.Dispatch(counter, 3), '3');
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, 1);
         }
 
-        SUBCASE("Lambda dispatch")
+        DOCTEST_SUBCASE("Lambda dispatch")
         {
             receiver.Bind([](Test::InstanceCounter<>, int index) { return Text[index]; });
-            CHECK_EQ(dispatcher.Dispatch(counter, 5), '5');
-            CHECK_EQ(counter.GetStats().copies, 1);
+            DOCTEST_CHECK_EQ(dispatcher.Dispatch(counter, 5), '5');
+            DOCTEST_CHECK_EQ(counter.GetStats().copies, 1);
         }
     }
 }
@@ -749,7 +759,7 @@ REFLECTION_TYPE(EventInteger, Event::EventBase)
 REFLECTION_TYPE(EventString, Event::EventBase)
 REFLECTION_TYPE(EventVector, Event::EventBase)
 
-TEST_CASE("Event Broker")
+DOCTEST_TEST_CASE("Event Broker")
 {
     int currentValue = 0;
     int expectedValue = 0;
@@ -790,60 +800,63 @@ TEST_CASE("Event Broker")
 
     Event::Broker broker;
 
-    SUBCASE("Dispatch empty")
+    DOCTEST_SUBCASE("Dispatch empty")
     {
-        CHECK(broker.Dispatch<bool>(EventInteger{ 4 }).IsFailure());
-        CHECK(broker.Dispatch<bool>(EventString{ "Null" }).IsFailure());
-        CHECK_EQ(currentValue, expectedValue);
+        DOCTEST_CHECK(broker.Dispatch<bool>(EventInteger{ 4 }).IsFailure());
+        DOCTEST_CHECK(broker.Dispatch<bool>(EventString{ "Null" }).IsFailure());
+        DOCTEST_CHECK_EQ(currentValue, expectedValue);
     }
 
-    SUBCASE("Dispatch unregistered")
+    DOCTEST_SUBCASE("Dispatch unregistered")
     {
-        CHECK(broker.Subscribe(receiverIntegerTrue).IsFailure());
-        CHECK(broker.Subscribe(receiverStringFalse).IsFailure());
+        DOCTEST_CHECK(broker.Subscribe(receiverIntegerTrue).IsFailure());
+        DOCTEST_CHECK(broker.Subscribe(receiverStringFalse).IsFailure());
 
-        CHECK(broker.Dispatch<bool>(EventInteger{ 2 }).IsFailure());
-        CHECK_EQ(currentValue, expectedValue);
+        DOCTEST_CHECK(broker.Dispatch<bool>(EventInteger{ 2 }).IsFailure());
+        DOCTEST_CHECK_EQ(currentValue, expectedValue);
 
-        CHECK(broker.Dispatch<bool>(EventString{ "Jelly" }).IsFailure());
-        CHECK_EQ(currentValue, expectedValue);
+        DOCTEST_CHECK(broker.Dispatch<bool>(EventString{ "Jelly" }).IsFailure());
+        DOCTEST_CHECK_EQ(currentValue, expectedValue);
     }
 
-    SUBCASE("Dispatch registered")
+    DOCTEST_SUBCASE("Dispatch registered")
     {
-        CHECK(broker.Register<void, EventBoolean>(std::make_unique<Event::CollectNothing>()));
-        CHECK(broker.Register<bool, EventInteger>(std::make_unique<Event::CollectWhileTrue>()));
-        CHECK(broker.Register<bool, EventString>(std::make_unique<Event::CollectWhileFalse>()));
+        DOCTEST_CHECK(broker.Register<void, EventBoolean>(
+            std::make_unique<Event::CollectNothing>()));
+        DOCTEST_CHECK(broker.Register<bool, EventInteger>(
+            std::make_unique<Event::CollectWhileTrue>()));
+        DOCTEST_CHECK(broker.Register<bool, EventString>(
+            std::make_unique<Event::CollectWhileFalse>()));
         broker.Finalize();
 
-        SUBCASE("Register when finalized")
+        DOCTEST_SUBCASE("Register when finalized")
         {
-            CHECK_FALSE(broker.Register<bool, EventVector>());
+            DOCTEST_CHECK_FALSE(broker.Register<bool, EventVector>());
         }
 
-        CHECK(broker.Subscribe(receiverBooleanVoid).IsSuccess());
-        CHECK(broker.Subscribe(receiverIntegerTrue).IsSuccess());
-        CHECK(broker.Subscribe(receiverStringFalse).IsSuccess());
+        DOCTEST_CHECK(broker.Subscribe(receiverBooleanVoid).IsSuccess());
+        DOCTEST_CHECK(broker.Subscribe(receiverIntegerTrue).IsSuccess());
+        DOCTEST_CHECK(broker.Subscribe(receiverStringFalse).IsSuccess());
 
-        CHECK(broker.Dispatch<void>(EventBoolean{ true }).IsSuccess());
-        CHECK_EQ(currentValue, expectedValue += 10);
+        DOCTEST_CHECK(broker.Dispatch<void>(EventBoolean{ true }).IsSuccess());
+        DOCTEST_CHECK_EQ(currentValue, expectedValue += 10);
 
-        CHECK_EQ(broker.Dispatch<bool>(EventInteger{ 2 }).Unwrap(), true);
-        CHECK_EQ(currentValue, expectedValue += 2);
+        DOCTEST_CHECK_EQ(broker.Dispatch<bool>(EventInteger{ 2 }).Unwrap(), true);
+        DOCTEST_CHECK_EQ(currentValue, expectedValue += 2);
 
-        CHECK_EQ(broker.Dispatch<bool>(EventString{ "Jelly" }).Unwrap(), false);
-        CHECK_EQ(currentValue, expectedValue += 5);
+        DOCTEST_CHECK_EQ(broker.Dispatch<bool>(EventString{ "Jelly" }).Unwrap(), false);
+        DOCTEST_CHECK_EQ(currentValue, expectedValue += 5);
 
-        SUBCASE("Dispatch with mismatched result type")
+        DOCTEST_SUBCASE("Dispatch with mismatched result type")
         {
-            CHECK(broker.Dispatch<bool>(EventBoolean{ true }).IsFailure());
-            CHECK_EQ(currentValue, expectedValue);
+            DOCTEST_CHECK(broker.Dispatch<bool>(EventBoolean{ true }).IsFailure());
+            DOCTEST_CHECK_EQ(currentValue, expectedValue);
 
-            CHECK(broker.Dispatch<int>(EventInteger{ 2 }).IsFailure());
-            CHECK_EQ(currentValue, expectedValue);
+            DOCTEST_CHECK(broker.Dispatch<int>(EventInteger{ 2 }).IsFailure());
+            DOCTEST_CHECK_EQ(currentValue, expectedValue);
 
-            CHECK(broker.Dispatch<float>(EventString{ "Jelly" }).IsFailure());
-            CHECK_EQ(currentValue, expectedValue);
+            DOCTEST_CHECK(broker.Dispatch<float>(EventString{ "Jelly" }).IsFailure());
+            DOCTEST_CHECK_EQ(currentValue, expectedValue);
         }
     }
 }

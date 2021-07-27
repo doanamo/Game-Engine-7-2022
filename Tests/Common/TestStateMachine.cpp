@@ -3,9 +3,11 @@
     Software distributed under the permissive MIT License.
 */
 
+#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
+#include <doctest/doctest.h>
+
 #include <string>
 #include <memory>
-#include <doctest/doctest.h>
 #include <Common/StateMachine.hpp>
 
 class TestState : public Common::State<TestState>
@@ -59,189 +61,189 @@ public:
     std::shared_ptr<TestState> transitionOnExit;
 };
 
-TEST_CASE("State Machine")
+DOCTEST_TEST_CASE("State Machine")
 {
     Common::StateMachine<TestState> stateMachine;
-    CHECK_FALSE(stateMachine.HasState());
-    CHECK_EQ(stateMachine.GetState(), nullptr);
+    DOCTEST_CHECK_FALSE(stateMachine.HasState());
+    DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 
-    SUBCASE("Regular Transitions")
+    DOCTEST_SUBCASE("Regular Transitions")
     {
         // Create states.
         int expectedCounterOne = 0;
         auto stateOne = std::make_shared<TestState>("One", 100);
-        CHECK_FALSE(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), nullptr);
-        CHECK_EQ(stateOne->counter, expectedCounterOne += 100);
+        DOCTEST_CHECK_FALSE(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne += 100);
 
         int expectedCounterTwo = 0;
         auto stateTwo = std::make_shared<TestState>("Two", 200);
-        CHECK_FALSE(stateTwo->HasStateMachine());
-        CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
-        CHECK_EQ(stateTwo->counter, expectedCounterTwo += 200);
+        DOCTEST_CHECK_FALSE(stateTwo->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateTwo->counter, expectedCounterTwo += 200);
 
         // Change to state one.
-        CHECK(stateMachine.ChangeState(stateOne));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateOne);
+        DOCTEST_CHECK(stateMachine.ChangeState(stateOne));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateOne);
 
-        CHECK(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateOne->counter, expectedCounterOne += 10);
+        DOCTEST_CHECK(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne += 10);
 
         // Change current state.
-        CHECK(stateMachine.ChangeState(stateTwo));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateTwo);
+        DOCTEST_CHECK(stateMachine.ChangeState(stateTwo));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateTwo);
 
-        CHECK_FALSE(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), nullptr);
-        CHECK_EQ(stateOne->counter, expectedCounterOne -= 1);
+        DOCTEST_CHECK_FALSE(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne -= 1);
 
-        CHECK(stateTwo->HasStateMachine());
-        CHECK_EQ(stateTwo->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateTwo->counter, expectedCounterTwo += 10);
+        DOCTEST_CHECK(stateTwo->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateTwo->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateTwo->counter, expectedCounterTwo += 10);
 
         // Change to previous state.
-        CHECK(stateMachine.ChangeState(stateOne));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateOne);
+        DOCTEST_CHECK(stateMachine.ChangeState(stateOne));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateOne);
 
-        CHECK(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateOne->counter, expectedCounterOne += 10);
+        DOCTEST_CHECK(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne += 10);
 
-        CHECK_FALSE(stateTwo->HasStateMachine());
-        CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
-        CHECK_EQ(stateTwo->counter, expectedCounterTwo -= 1);
+        DOCTEST_CHECK_FALSE(stateTwo->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateTwo->counter, expectedCounterTwo -= 1);
 
         // Change to blocked enter transition.
         stateTwo->allowEnter = false;
 
-        CHECK_FALSE(stateMachine.ChangeState(stateTwo));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateOne);
+        DOCTEST_CHECK_FALSE(stateMachine.ChangeState(stateTwo));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateOne);
 
-        CHECK(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateOne->counter, expectedCounterOne);
+        DOCTEST_CHECK(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne);
 
-        CHECK_FALSE(stateTwo->HasStateMachine());
-        CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
-        CHECK_EQ(stateTwo->counter, expectedCounterTwo);
+        DOCTEST_CHECK_FALSE(stateTwo->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateTwo->counter, expectedCounterTwo);
 
         stateTwo->allowEnter = true;
 
         // Change to blocked exit transition.
         stateOne->allowExit = false;
 
-        CHECK_FALSE(stateMachine.ChangeState(stateTwo));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateOne);
+        DOCTEST_CHECK_FALSE(stateMachine.ChangeState(stateTwo));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateOne);
 
-        CHECK(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateOne->counter, expectedCounterOne);
+        DOCTEST_CHECK(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne);
 
-        CHECK_FALSE(stateTwo->HasStateMachine());
-        CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
-        CHECK_EQ(stateTwo->counter, expectedCounterTwo);
+        DOCTEST_CHECK_FALSE(stateTwo->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateTwo->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateTwo->counter, expectedCounterTwo);
 
         stateOne->allowExit = true;
 
-        // Check state after freeing shared pointers.
+        // DOCTEST_CHECK state after freeing shared pointers.
         stateOne = nullptr;
         stateTwo = nullptr;
 
-        CHECK(stateMachine.HasState());
+        DOCTEST_CHECK(stateMachine.HasState());
         stateOne = stateMachine.GetState();
 
-        CHECK(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateOne->name, "One");
-        CHECK_EQ(stateOne->counter, expectedCounterOne);
+        DOCTEST_CHECK(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateOne->name, "One");
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne);
 
         // Discard current state.
         stateMachine.ChangeState(nullptr);
-        CHECK_FALSE(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), nullptr);
+        DOCTEST_CHECK_FALSE(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 
-        CHECK_FALSE(stateOne->HasStateMachine());
-        CHECK_EQ(stateOne->GetStateMachine(), nullptr);
-        CHECK_EQ(stateOne->counter, expectedCounterOne -= 1);
+        DOCTEST_CHECK_FALSE(stateOne->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateOne->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne -= 1);
     }
 
-    SUBCASE("Recursive Transitions")
+    DOCTEST_SUBCASE("Recursive Transitions")
     {
         // Create state machine.
         Common::StateMachine<TestState> stateMachine;
-        CHECK_FALSE(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), nullptr);
+        DOCTEST_CHECK_FALSE(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 
         // Setup transition chain.
         auto stateFirst = std::make_shared<TestState>("First", 100);
-        CHECK_FALSE(stateFirst->HasStateMachine());
-        CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_FALSE(stateFirst->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
 
         auto stateSecond = std::make_shared<TestState>("Second", 200);
-        CHECK_FALSE(stateSecond->HasStateMachine());
-        CHECK_EQ(stateSecond->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_FALSE(stateSecond->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateSecond->GetStateMachine(), nullptr);
 
         auto stateThird = std::make_shared<TestState>("Third", 300);
-        CHECK_FALSE(stateThird->HasStateMachine());
-        CHECK_EQ(stateThird->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_FALSE(stateThird->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateThird->GetStateMachine(), nullptr);
 
         stateFirst->transitionOnEnter = stateSecond;
         stateSecond->transitionOnEnter = stateThird;
         stateThird->allowEnter = false;
 
         // Perform chained transitions.
-        CHECK(stateMachine.ChangeState(stateFirst));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateSecond);
+        DOCTEST_CHECK(stateMachine.ChangeState(stateFirst));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateSecond);
 
-        CHECK_FALSE(stateFirst->HasStateMachine());
-        CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
-        CHECK_EQ(stateFirst->counter, 109);
+        DOCTEST_CHECK_FALSE(stateFirst->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateFirst->counter, 109);
 
-        CHECK(stateSecond->HasStateMachine());
-        CHECK_EQ(stateSecond->GetStateMachine(), &stateMachine);
-        CHECK_EQ(stateSecond->counter, 210);
+        DOCTEST_CHECK(stateSecond->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateSecond->GetStateMachine(), &stateMachine);
+        DOCTEST_CHECK_EQ(stateSecond->counter, 210);
 
-        CHECK_FALSE(stateThird->HasStateMachine());
-        CHECK_EQ(stateThird->GetStateMachine(), nullptr);
-        CHECK_EQ(stateThird->counter, 300);
+        DOCTEST_CHECK_FALSE(stateThird->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateThird->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_EQ(stateThird->counter, 300);
     }
 
-    SUBCASE("Exit Transitions")
+    DOCTEST_SUBCASE("Exit Transitions")
     {
         // Create state machine.
         Common::StateMachine<TestState> stateMachine;
-        CHECK_FALSE(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), nullptr);
+        DOCTEST_CHECK_FALSE(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 
         // Create states.
         auto stateFirst = std::make_shared<TestState>();
         auto stateSecond = std::make_shared<TestState>();
         stateFirst->transitionOnExit = stateSecond;
 
-        CHECK_FALSE(stateFirst->HasStateMachine());
-        CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_FALSE(stateFirst->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateFirst->GetStateMachine(), nullptr);
 
-        CHECK_FALSE(stateSecond->HasStateMachine());
-        CHECK_EQ(stateSecond->GetStateMachine(), nullptr);
+        DOCTEST_CHECK_FALSE(stateSecond->HasStateMachine());
+        DOCTEST_CHECK_EQ(stateSecond->GetStateMachine(), nullptr);
 
         // Trigger transition on exit.
-        CHECK(stateMachine.ChangeState(stateFirst));
-        CHECK(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), stateFirst);
+        DOCTEST_CHECK(stateMachine.ChangeState(stateFirst));
+        DOCTEST_CHECK(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), stateFirst);
 
-        CHECK(stateMachine.ChangeState(nullptr));
-        CHECK_FALSE(stateMachine.HasState());
-        CHECK_EQ(stateMachine.GetState(), nullptr);
+        DOCTEST_CHECK(stateMachine.ChangeState(nullptr));
+        DOCTEST_CHECK_FALSE(stateMachine.HasState());
+        DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
     }
 
-    CHECK(stateMachine.ChangeState(nullptr));
-    CHECK_FALSE(stateMachine.HasState());
-    CHECK_EQ(stateMachine.GetState(), nullptr);
+    DOCTEST_CHECK(stateMachine.ChangeState(nullptr));
+    DOCTEST_CHECK_FALSE(stateMachine.HasState());
+    DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 }
