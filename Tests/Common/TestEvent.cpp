@@ -128,7 +128,7 @@ DOCTEST_TEST_CASE("Event Delegate")
         DOCTEST_CHECK_EQ(y, 7);
     }
 
-    DOCTEST_SUBCASE("Lambda DOCTEST_CAPTURE lifetime")
+    DOCTEST_SUBCASE("Lambda capture lifetime")
     {
         int currentValue = 0;
         int expectedValue = 0;

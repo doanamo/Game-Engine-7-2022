@@ -67,7 +67,7 @@ DOCTEST_TEST_CASE("State Machine")
     DOCTEST_CHECK_FALSE(stateMachine.HasState());
     DOCTEST_CHECK_EQ(stateMachine.GetState(), nullptr);
 
-    DOCTEST_SUBCASE("Regular Transitions")
+    DOCTEST_SUBCASE("Regular transitions")
     {
         // Create states.
         int expectedCounterOne = 0;
@@ -173,7 +173,7 @@ DOCTEST_TEST_CASE("State Machine")
         DOCTEST_CHECK_EQ(stateOne->counter, expectedCounterOne -= 1);
     }
 
-    DOCTEST_SUBCASE("Recursive Transitions")
+    DOCTEST_SUBCASE("Recursive transitions")
     {
         // Create state machine.
         Common::StateMachine<TestState> stateMachine;
@@ -215,7 +215,7 @@ DOCTEST_TEST_CASE("State Machine")
         DOCTEST_CHECK_EQ(stateThird->counter, 300);
     }
 
-    DOCTEST_SUBCASE("Exit Transitions")
+    DOCTEST_SUBCASE("Exit transitions")
     {
         // Create state machine.
         Common::StateMachine<TestState> stateMachine;

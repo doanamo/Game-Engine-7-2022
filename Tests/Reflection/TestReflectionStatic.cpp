@@ -14,7 +14,7 @@
 
 DOCTEST_TEST_CASE("Static Reflection")
 {
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected built-in types")
+    DOCTEST_SUBCASE("Check reflected built-in types")
     {
         DOCTEST_CHECK(Reflection::IsReflected<Reflection::NullType>());
         DOCTEST_CHECK(Reflection::IsReflected<Reflection::TypeAttribute>());
@@ -28,13 +28,13 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Derived>().IsNullType());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type name from namespace")
+    DOCTEST_SUBCASE("Check reflected type name from namespace")
     {
         using namespace Reflection;
         DOCTEST_CHECK_EQ(Reflection::StaticType<NullType>().Name, "Reflection::NullType");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflection for types")
+    DOCTEST_SUBCASE("Check reflection for types")
     {
         DOCTEST_CHECK_FALSE(Reflection::IsReflected<Undefined>());
         DOCTEST_CHECK_FALSE(Reflection::IsReflected<CrossUnit>());
@@ -46,7 +46,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::IsReflected<BranchedTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflection for const types")
+    DOCTEST_SUBCASE("Check reflection for const types")
     {
         DOCTEST_CHECK_FALSE(Reflection::IsReflected<const Undefined>());
         DOCTEST_CHECK_FALSE(Reflection::IsReflected<const CrossUnit>());
@@ -68,7 +68,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             Reflection::GetIdentifier<Empty>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type names")
+    DOCTEST_SUBCASE("Check reflected type names")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Name, "Empty");
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Name, "Base");
@@ -78,7 +78,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Name, "BranchedTwo");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type names against identifiers")
+    DOCTEST_SUBCASE("Check reflected type names against identifiers")
     {
         DOCTEST_CHECK_EQ(Reflection::GetName<Empty>(),
             Reflection::GetIdentifier<Empty>());
@@ -94,7 +94,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             Reflection::GetIdentifier<BranchedTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type identifier")
+    DOCTEST_SUBCASE("Check reflected type identifier")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Identifier,
             Reflection::GetIdentifier("Empty"));
@@ -113,7 +113,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             Reflection::StaticType<BranchedTwo>().Identifier);
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type by value")
+    DOCTEST_SUBCASE("Check reflected type by value")
     {
         DOCTEST_CHECK_FALSE(Reflection::StaticType(Undefined()).IsType<Empty>());
         DOCTEST_CHECK(Reflection::StaticType(Undefined()).IsType<Undefined>());
@@ -125,7 +125,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::StaticType(BranchedTwo()).IsType<BranchedTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type for base type")
+    DOCTEST_SUBCASE("Check reflected type for base type")
     {
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Undefined>().HasBaseType());
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Empty>().HasBaseType());
@@ -136,7 +136,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().HasBaseType());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected base type")
+    DOCTEST_SUBCASE("Check reflected base type")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().GetBaseType().Name, "Base");
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().GetBaseType().Name, "Derived");
@@ -152,7 +152,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type attributes")
+    DOCTEST_SUBCASE("Check reflected type attributes")
     {
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Empty>().HasAttributes());
         DOCTEST_CHECK(Reflection::StaticType<Base>().HasAttributes());
@@ -162,7 +162,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().HasAttributes());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type attribute count")
+    DOCTEST_SUBCASE("Check reflected type attribute count")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Attributes.Count, 0);
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attributes.Count, 1);
@@ -172,7 +172,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attributes.Count, 2);
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type attribute names")
+    DOCTEST_SUBCASE("Check reflected type attribute names")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Name,
             "BaseAttribute");
@@ -184,7 +184,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             "BranchedAttributeTwo");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type attribute types")
+    DOCTEST_SUBCASE("Check reflected type attribute types")
     {
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Base>()
             .Attribute<0>().IsType<DerivedAttribute>());
@@ -198,7 +198,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             .Attribute<1>().IsType<BranchedAttributeTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type attribute instances")
+    DOCTEST_SUBCASE("Check reflected type attribute instances")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance,
             BaseAttribute());
@@ -210,7 +210,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             "Big");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type member count")
+    DOCTEST_SUBCASE("Check reflected type member count")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Members.Count, 0);
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Members.Count, 2);
@@ -220,7 +220,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Members.Count, 2);
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type member names")
+    DOCTEST_SUBCASE("Check reflected type member names")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Name, "textWithoutAttribute");
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textPtrWithAttribute");
@@ -232,7 +232,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Name, "letterTwo");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type member types")
+    DOCTEST_SUBCASE("Check reflected type member types")
     {
         DOCTEST_CHECK_FALSE(Reflection::StaticType<Base>().Member<0>().IsType<void>());
         DOCTEST_CHECK(Reflection::StaticType<Base>().Member<0>().IsType<std::string>());
@@ -244,7 +244,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().Member<1>().IsType<char>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected type member pointers")
+    DOCTEST_SUBCASE("Check reflected type member pointers")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Pointer,
             &Base::textWithoutAttribute);
@@ -264,7 +264,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             &BranchedTwo::letterTwo);
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected member attribute count")
+    DOCTEST_SUBCASE("Check reflected member attribute count")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
@@ -276,7 +276,7 @@ DOCTEST_TEST_CASE("Static Reflection")
         DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attributes.Count, 1);
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected member attribute names")
+    DOCTEST_SUBCASE("Check reflected member attribute names")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().Name, "TextAttribute");
@@ -294,7 +294,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             .Member<1>().Attribute<0>().Name, "LetterAttribute");
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected member attribute types")
+    DOCTEST_SUBCASE("Check reflected member attribute types")
     {
         DOCTEST_CHECK(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().IsType<TextAttribute>());
@@ -312,7 +312,7 @@ DOCTEST_TEST_CASE("Static Reflection")
             .Member<1>().Attribute<0>().IsType<LetterAttribute>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK reflected members attribute instances")
+    DOCTEST_SUBCASE("Check reflected members attribute instances")
     {
         DOCTEST_CHECK_EQ(Reflection::StaticType<Base>()
             .Member<1>().Attribute<0>().Instance, TextAttribute());

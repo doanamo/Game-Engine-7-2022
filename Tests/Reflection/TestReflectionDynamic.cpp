@@ -15,7 +15,7 @@
 
 DOCTEST_TEST_CASE("Dynamic Reflection")
 {
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered built-in types")
+    DOCTEST_SUBCASE("Check registered built-in types")
     {
         Reflection::TypeIdentifier nullTypeIdentifier =
             Reflection::GetIdentifier<Reflection::NullType>();
@@ -31,7 +31,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<Derived>()).IsNullType());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered types")
+    DOCTEST_SUBCASE("Check registered types")
     {
         DOCTEST_CHECK_FALSE(Reflection::IsRegistered(Reflection::GetIdentifier<Undefined>()));
         DOCTEST_CHECK_FALSE(Reflection::IsRegistered(Reflection::GetIdentifier<CrossUnit>()));
@@ -51,7 +51,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<BranchedTwo>()).IsRegistered());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered type names")
+    DOCTEST_SUBCASE("Check registered type names")
     {
         DOCTEST_CHECK_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Empty>())
             .GetName(), Common::Name("Empty"));
@@ -70,7 +70,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
         DOCTEST_CHECK_EQ(Reflection::GetName(branchedTwo), NAME_CONSTEXPR("BranchedTwo"));
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered type identifier")
+    DOCTEST_SUBCASE("Check registered type identifier")
     {
         DOCTEST_CHECK_EQ(Reflection::DynamicType(
             Reflection::GetIdentifier<Empty>()).GetIdentifier(),
@@ -95,7 +95,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<BranchedTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered type by value")
+    DOCTEST_SUBCASE("Check registered type by value")
     {
         DOCTEST_CHECK(Reflection::IsRegistered(Reflection::NullType()));
         DOCTEST_CHECK(Reflection::DynamicType(Empty()).IsType<Empty>());
@@ -106,7 +106,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
         DOCTEST_CHECK(Reflection::DynamicType(BranchedTwo()).IsType<BranchedTwo>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered type for base type")
+    DOCTEST_SUBCASE("Check registered type for base type")
     {
         DOCTEST_CHECK_FALSE(Reflection::DynamicType(
             Reflection::GetIdentifier<Undefined>()).HasBaseType());
@@ -124,7 +124,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
             Reflection::GetIdentifier<BranchedTwo>()).HasBaseType());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered base type")
+    DOCTEST_SUBCASE("Check registered base type")
     {
         DOCTEST_CHECK_EQ(Reflection::DynamicType<Derived>().GetBaseType().GetName(),
             Common::Name("Base"));
@@ -145,7 +145,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
         DOCTEST_CHECK(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered super declaration")
+    DOCTEST_SUBCASE("Check registered super declaration")
     {
         DOCTEST_CHECK_EQ(Reflection::DynamicType<Derived>().GetBaseType().GetIdentifier(),
             Reflection::DynamicType<Derived::Super>().GetIdentifier());
@@ -156,7 +156,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
             .GetBaseType().IsType<BranchedTwo::Super>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered polymorphic type")
+    DOCTEST_SUBCASE("Check registered polymorphic type")
     {
         DOCTEST_CHECK(Reflection::DynamicType<BranchedOne>().IsType<BranchedOne>());
         DOCTEST_CHECK(Reflection::DynamicType<BranchedTwo>().IsType<BranchedTwo>());
@@ -200,7 +200,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
         DOCTEST_CHECK_FALSE(Reflection::DynamicType<Derived>().IsBaseOf<Inner>());
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered polymorphic instance")
+    DOCTEST_SUBCASE("Check registered polymorphic instance")
     {
         BranchedOne branchedOne;
         Derived& branchedOneDerived = branchedOne;
@@ -237,7 +237,7 @@ DOCTEST_TEST_CASE("Dynamic Reflection")
         DOCTEST_CHECK_FALSE(branchedTwoBase.GetTypeInfo().IsType(branchedOneBase));
     }
 
-    DOCTEST_SUBCASE("DOCTEST_CHECK registered type casting")
+    DOCTEST_SUBCASE("Check registered type casting")
     {
         BranchedOne branchedOne;
         branchedOne.inner.value = 42;
