@@ -91,7 +91,9 @@ namespace Core
     template<typename SystemBase>
     bool SystemStorage<SystemBase>::Attach(std::unique_ptr<SystemBase>&& system)
     {
-        auto startTime = std::chrono::steady_clock::now();
+        LOG_PROFILE_SCOPE("System storage \"{}\" attachment of \"{}\"", 
+            Reflection::GetName<SystemBase>().GetString(),
+            Reflection::GetName(system).GetString());
 
         LOG_INFO("System storage \"{}\" is attaching \"{}\"...",
             Reflection::GetName<SystemBase>().GetString(),
@@ -149,12 +151,6 @@ namespace Core
         ASSERT(result, "Failed to emplace entry in \"{}\" system storage!",
             Reflection::GetName<SystemBase>().GetString());
 
-        // Profile system attach time.
-        LOG("System storage \"{}\" attached \"{}\" in {:.4f}s.",
-            Reflection::GetName<SystemBase>().GetString(),
-            Reflection::GetName(it->second).GetString(),
-            std::chrono::duration<float>(std::chrono::steady_clock::now() - startTime).count());
-
         return true;
     }
 
@@ -172,7 +168,9 @@ namespace Core
             // Finalize all attached systems.
             for(auto& system : m_systemList)
             {
-                auto startTime = std::chrono::steady_clock::now();
+                LOG_PROFILE_SCOPE("System storage \"{}\" finalization of \"{}\"",
+                    Reflection::GetName<SystemBase>().GetString(),
+                    Reflection::GetName(system).GetString());
 
                 LOG_INFO("System storage \"{}\" is finalizing \"{}\"...",
                     Reflection::GetName<SystemBase>().GetString(),
@@ -181,15 +179,11 @@ namespace Core
                 ASSERT(system);
                 if(!system->OnFinalize(*this))
                 {
-                    m_finalized = false;
-                    return false;
+                    LOG_ERROR("System storage \"{}\" failed to finalize \"{}\"!",
+                        Reflection::GetName<SystemBase>().GetString(),
+                        Reflection::GetName(system).GetString());
+                    return m_finalized = false;
                 }
-
-                LOG("System storage \"{}\" finalized \"{}\" in {:.4f}s.",
-                    Reflection::GetName<SystemBase>().GetString(),
-                    Reflection::GetName(system).GetString(),
-                    std::chrono::duration<float>(
-                        std::chrono::steady_clock::now() - startTime).count());
             }
         }
 

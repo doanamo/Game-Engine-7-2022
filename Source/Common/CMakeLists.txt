@@ -18,6 +18,10 @@ set(FILES_DEBUG
     "${SOURCE_DIR}/Debug.cpp"
 )
 
+set(FILES_PROFILE
+    "${INCLUDE_DIR}/Profile.hpp"
+)
+
 set(FILES_UTILITY
     "${INCLUDE_DIR}/Utility.hpp"
     "${INCLUDE_DIR}/NonCopyable.hpp"
@@ -67,6 +71,7 @@ set(FILES_TEST
 )
 
 source_group("Debug" FILES ${FILES_DEBUG})
+source_group("Profile" FILES ${FILES_PROFILE})
 source_group("Utility" FILES ${FILES_UTILITY})
 source_group("Structures" FILES ${FILES_STRUCTURES})
 source_group("Logger" FILES ${FILES_LOGGER})
@@ -79,6 +84,7 @@ source_group("Test" FILES ${FILES_TEST})
 
 add_library(Common
     ${FILES_DEBUG}
+    ${FILES_PROFILE}
     ${FILES_UTILITY}
     ${FILES_STRUCTURES}
     ${FILES_LOGGER}

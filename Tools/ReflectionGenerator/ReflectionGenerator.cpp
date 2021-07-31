@@ -401,7 +401,7 @@ int main(int argc, const char* argv[])
             "\n"
             "    void RegisterExecutable()\n"
             "    {\n"
-            "        auto startTime = std::chrono::steady_clock::now();\n\n"
+            "        LOG_PROFILE_SCOPE(\"Register reflection types\");\n\n"
             "        {\n"
             "            LOG(\"Registering reflected types...\");\n"
             "            LOG_SCOPED_INDENT();\n\n";
@@ -414,9 +414,7 @@ int main(int argc, const char* argv[])
 
         reflectionBinding <<
             "            RegisterModule" << parameters.targetName << "();\n"
-            "        }\n\n"
-            "        LOG(\"Registered reflected types in {:.4f}s.\", std::chrono::duration<float>("
-            "\n            std::chrono::steady_clock::now() - startTime).count());\n"
+            "        }\n"
             "    }\n";
     }
 

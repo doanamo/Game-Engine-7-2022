@@ -12,8 +12,7 @@ TickTimer::~TickTimer() = default;
 
 TickTimer::CreateResult TickTimer::Create()
 {
-    // Profile creation time.
-    auto startTime = std::chrono::steady_clock::now();
+    LOG_PROFILE_SCOPE("Create tick timer");
 
     // Create class instance.
     auto instance = std::unique_ptr<TickTimer>(new TickTimer());
@@ -28,10 +27,6 @@ TickTimer::CreateResult TickTimer::Create()
 
     // Set forward tick counter to trigger on next tick.
     instance->m_forwardTickTimeUnits = instance->m_timer->GetCurrentTimeUnits();
-
-    // Log profiled time.
-    LOG("Created tick timer in {:.4f}s.", std::chrono::duration<float>(
-        std::chrono::steady_clock::now() - startTime).count());
 
     return Common::Success(std::move(instance));
 }

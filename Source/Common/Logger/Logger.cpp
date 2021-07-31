@@ -9,6 +9,7 @@
 #include "Common/Logger/LoggerSink.hpp"
 #include "Common/Logger/LoggerOutput.hpp"
 #include "Common/Logger/LoggerHistory.hpp"
+#include "Common/Profile.hpp"
 
 namespace
 {
@@ -25,8 +26,7 @@ namespace
         if(GlobalLoggerInitialized)
             return;
 
-        // Profile initialization time.
-        auto startTime = std::chrono::steady_clock::now();
+        LOG_PROFILE_SCOPE("Initialize logger");
 
         // Add default output sinks.
         GlobalSink.AddOutput(&GlobalHistory);
@@ -36,9 +36,6 @@ namespace
 
         // Finalize initialization.
         GlobalLoggerInitialized = true;
-
-        LOG("Initialized logger in {:.4f}s.", std::chrono::duration<float>(
-            std::chrono::steady_clock::now() - startTime).count());
     }
 }
 

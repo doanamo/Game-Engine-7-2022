@@ -42,7 +42,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
         At the end we load default resources such as placeholder texture.
     */
 
-    auto startTime = std::chrono::steady_clock::now();
+    LOG_PROFILE_SCOPE("Create engine");
 
     // Initialize static systems.
     Debug::Initialize();
@@ -65,15 +65,12 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
         return Common::Failure(failureResult.Unwrap());
     }
 
-    LOG("Created engine instance in {:.4f}s.", std::chrono::duration<float>(
-        std::chrono::steady_clock::now() - startTime).count());
-
     return Common::Success(std::move(engine));
 }
 
 Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigVariables& configVars)
 {
-    auto startTime = std::chrono::steady_clock::now();
+    LOG_PROFILE_SCOPE("Create engine systems");
 
     // Create config system for engine parametrization.
     if(auto config = std::make_unique<Core::ConfigSystem>())
@@ -116,15 +113,12 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
-    LOG("Created engine systems in {:.4f}s.", std::chrono::duration<float>(
-        std::chrono::steady_clock::now() - startTime).count());
-
     return Common::Success();
 }
 
 Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
-    auto startTime = std::chrono::steady_clock::now();
+    LOG_PROFILE_SCOPE("Load default engine resources");
 
     // Locate systems needed to load resources.
     auto* fileSystem = m_engineSystems.Locate<System::FileSystem>();
@@ -157,9 +151,6 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
         LOG_ERROR(LogLoadDefaultResourcesFailed, "Could not resolve default texture path.");
         return Common::Failure(CreateErrors::FailedResourceLoading);
     }
-    
-    LOG("Load engine default resources in {:.4f}s.", std::chrono::duration<float>(
-        std::chrono::steady_clock::now() - startTime).count());
 
     return Common::Success();
 }

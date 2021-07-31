@@ -22,8 +22,7 @@ GameInstance::~GameInstance() = default;
 
 GameInstance::CreateResult GameInstance::Create()
 {
-    // Profile creation time.
-    auto startTime = std::chrono::steady_clock::now();
+    LOG_PROFILE_SCOPE("Create game instance");
 
     // Create class instance.
     auto instance = std::unique_ptr<GameInstance>(new GameInstance());
@@ -49,10 +48,6 @@ GameInstance::CreateResult GameInstance::Create()
         LOG_ERROR(LogCreateSystemsFailed, "Could not finalize system storage.");
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
-
-    // Log profiled time.
-    LOG("Created game instance in {:.4f}s.", std::chrono::duration<float>(
-        std::chrono::steady_clock::now() - startTime).count());
 
     return Common::Success(std::move(instance));
 }

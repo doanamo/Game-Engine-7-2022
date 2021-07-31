@@ -63,6 +63,7 @@ namespace fs = std::filesystem;
 
 #include <Reflection/Reflection.hpp>
 #include <Common/Debug.hpp>
+#include <Common/Profile.hpp>
 #include <Common/Utility.hpp>
 #include <Common/NonCopyable.hpp>
 #include <Common/Resettable.hpp>
