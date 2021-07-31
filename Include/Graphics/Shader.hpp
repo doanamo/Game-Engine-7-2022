@@ -74,12 +74,6 @@ namespace Graphics
 
     using ShaderPtr = std::shared_ptr<Shader>;
 
-    template<typename Type>
-    void Shader::SetUniform(std::string name, const Type& value)
-    {
-        static_assert(false, "Not implemented for this type!");
-    }
-
     template<>
     inline void Shader::SetUniform(std::string name, const GLint& value)
     {

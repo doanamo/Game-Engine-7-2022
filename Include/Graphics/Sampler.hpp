@@ -65,12 +65,6 @@ namespace Graphics
         GLuint m_handle = OpenGL::InvalidHandle;
     };
 
-    template<typename Type>
-    void Sampler::SetParameter(GLenum parameter, const Type& value)
-    {
-        static_assert(false, "Not implemented for this type!");
-    }
-
     template<>
     inline void Sampler::SetParameter<GLint>(GLenum parameter, const GLint& value)
     {
