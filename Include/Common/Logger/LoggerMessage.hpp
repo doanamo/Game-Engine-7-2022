@@ -24,6 +24,7 @@ namespace Logger
 
             Trace,
             Debug,
+            Profile,
             Info,
             Success,
             Warning,

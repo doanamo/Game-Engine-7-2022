@@ -17,33 +17,6 @@
     - Output:  Message output streams (e.g. file writer, console, debugger, history).
     - Format:  Defines how log messages are formatted before being written.
     - Sink:    Collects messages and sends them to registered outputs.
-    
-    void ExampleLogger()
-    {
-        // Initialize default logger.
-        Logger::Initialize();
-
-        // Write log message.
-        LOG("Hello {}!", "world");
-
-        // Write log messages of different severity.
-        // This will allow us to filter them if needed.
-        LOG_TRACE("Writing trace message.");
-        LOG_DEBUG("Writing debug message.");
-        LOG_INFO("Writing diagnostic message.");
-        LOG_SUCCESS("Writing success message.");
-        LOG_WARNING("Writing warning message.");
-        LOG_ERROR("Writing error message.");
-        LOG_FATAL("Writing fatal message.");
-
-        // Create an indent until the end of the current scope.
-        {
-            LOG_SCOPED_INDENT();
-            LOG("Indented message!");
-        }
-
-        LOG("Non indented message.");
-    }
 */
 
 namespace Logger
@@ -77,6 +50,7 @@ namespace Logger
 #define LOG(format, ...)         LOG_SCOPED_MESSAGE().Format(format, ## __VA_ARGS__)
 #define LOG_TRACE(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Trace)
 #define LOG_DEBUG(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Debug)
+#define LOG_PROFILE(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Profile)
 #define LOG_INFO(format, ...)    LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Info)
 #define LOG_SUCCESS(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Success)
 #define LOG_WARNING(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Warning)

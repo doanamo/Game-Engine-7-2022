@@ -17,6 +17,7 @@ namespace
         {
             case Severity::Trace:   return "t";
             case Severity::Debug:   return "d";
+            case Severity::Profile: return "p";
             case Severity::Info:    return "i";
             case Severity::Success: return "s";
             case Severity::Warning: return "w";
@@ -41,9 +42,11 @@ std::string DefaultFormat::ComposeSessionStart()
     // Format log message legend text.
     sessionText += fmt::format(
         "Log message legend: "
-        "[{}] Trace, [{}] Debug, [{}] Info, [{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
+        "[{}] Trace, [{}] Debug, [{}] Profile, [{}] Info, "
+        "[{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
         MessageSeverityMarker(Severity::Trace),
         MessageSeverityMarker(Severity::Debug),
+        MessageSeverityMarker(Severity::Profile),
         MessageSeverityMarker(Severity::Info),
         MessageSeverityMarker(Severity::Success),
         MessageSeverityMarker(Severity::Warning),
