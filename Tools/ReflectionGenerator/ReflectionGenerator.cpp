@@ -333,6 +333,7 @@ int main(int argc, const char* argv[])
 
     reflectionBinding <<
         "#include <Common/Debug.hpp>\n"
+        "#include <Common/Profile.hpp>\n"
         "#include <Reflection/Reflection.hpp>\n";
 
     reflectionBinding <<
