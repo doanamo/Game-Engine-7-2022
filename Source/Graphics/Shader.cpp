@@ -28,7 +28,6 @@ namespace
 }
 
 Shader::Shader() = default;
-
 Shader::~Shader()
 {
     if(m_handle != OpenGL::InvalidHandle)
@@ -40,8 +39,7 @@ Shader::~Shader()
 
 Shader::CreateResult Shader::Create(const LoadFromString& params)
 {
-    LOG("Creating shader...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create shader");
 
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext,
@@ -51,8 +49,6 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     // Create instance.
     auto instance = std::unique_ptr<Shader>(new Shader());
-
-    // Save render context reference.
     instance->m_renderContext = params.renderContext;
 
     // Create array of shader objects for each type that can be linked.
@@ -71,7 +67,6 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     // Extract shader version.
     std::string shaderVersion;
-
     std::size_t versionStart = shaderCode.find("#version ");
     std::size_t versionEnd = shaderCode.find('\n', versionStart);
 
@@ -83,7 +78,6 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     // Compile shader objects.
     bool shaderObjectsFound = false;
-
     for(unsigned int i = 0; i < ShaderTypeCount; ++i)
     {
         const ShaderType& shaderType = ShaderTypes[i];
@@ -94,7 +88,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
         {
             shaderObjectsFound = true;
 
-            LOG_INFO("Compiling {}...", shaderType.name);
+            LOG_PROFILE_SCOPE("Compile {}", shaderType.name);
 
             // Create shader object.
             shaderObject = glCreateShader(shaderType.type);
@@ -130,20 +124,18 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
             OpenGL::CheckErrors();
 
             // Check compiling info.
+            GLint infoLength = 0;
+            glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &infoLength);
+            OpenGL::CheckErrors();
+
+            if(infoLength > 1)
             {
-                GLint infoLength = 0;
-                glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &infoLength);
+                std::vector<char> infoText(infoLength);
+                glGetShaderInfoLog(shaderObject, infoLength, &infoLength, &infoText[0]);
                 OpenGL::CheckErrors();
 
-                if(infoLength > 1)
-                {
-                    std::vector<char> infoText(infoLength);
-                    glGetShaderInfoLog(shaderObject, infoLength, &infoLength, &infoText[0]);
-                    OpenGL::CheckErrors();
-
-                    LOG_ERROR("Shader compile info output:");
-                    LOG_ERROR("{}", infoText.data());
-                }
+                LOG_ERROR("Shader compilation error output:");
+                LOG_ERROR("{}", infoText.data());
             }
 
             // Check compiling results.
@@ -177,10 +169,8 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     }
 
     // Attach compiled shader objects.
-    for(unsigned int i = 0; i < ShaderTypeCount; ++i)
+    for(unsigned int & shaderObject : shaderObjects)
     {
-        GLuint& shaderObject = shaderObjects[i];
-
         if(shaderObject != OpenGL::InvalidHandle)
         {
             glAttachShader(instance->m_handle, shaderObject);
@@ -189,38 +179,37 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     }
 
     // Link attached shader objects.
-    LOG_INFO("Linking shader program...");
-
-    glLinkProgram(instance->m_handle);
-    OpenGL::CheckErrors();
-
-    // Detach already linked shader objects.
-    for(unsigned int i = 0; i < ShaderTypeCount; ++i)
     {
-        GLuint& shaderObject = shaderObjects[i];
+        LOG_PROFILE_SCOPE("Link shader");
 
-        if(shaderObject != OpenGL::InvalidHandle)
+        // Create link result handle.
+        glLinkProgram(instance->m_handle);
+        OpenGL::CheckErrors();
+
+        // Detach already linked shader objects.
+        for(unsigned int & shaderObject : shaderObjects)
         {
-            glDetachShader(instance->m_handle, shaderObject);
-            OpenGL::CheckErrors();
+            if(shaderObject != OpenGL::InvalidHandle)
+            {
+                glDetachShader(instance->m_handle, shaderObject);
+                OpenGL::CheckErrors();
+            }
         }
     }
 
     // Check linking output.
+    GLint infoLength = 0;
+    glGetProgramiv(instance->m_handle, GL_INFO_LOG_LENGTH, &infoLength);
+    OpenGL::CheckErrors();
+
+    if(infoLength > 1)
     {
-        GLint infoLength = 0;
-        glGetProgramiv(instance->m_handle, GL_INFO_LOG_LENGTH, &infoLength);
+        std::vector<char> infoText(infoLength);
+        glGetProgramInfoLog(instance->m_handle, infoLength, &infoLength, &infoText[0]);
         OpenGL::CheckErrors();
 
-        if(infoLength > 1)
-        {
-            std::vector<char> infoText(infoLength);
-            glGetProgramInfoLog(instance->m_handle, infoLength, &infoLength, &infoText[0]);
-            OpenGL::CheckErrors();
-
-            LOG_ERROR("Shader link info output:");
-            LOG_ERROR("{}", infoText.data());
-        }
+        LOG_ERROR("Shader linkage error output:");
+        LOG_ERROR("{}", infoText.data());
     }
 
     // Check linking results.
@@ -234,14 +223,16 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
         return Common::Failure(CreateErrors::FailedProgramLinkage);
     }
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 
 Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading shader from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load shader from \"{}\" file",
+        file.GetPath().generic_string());
+
+    LOG_INFO("Loading shader from \"{}\" file...",
+        file.GetPath().generic_string());
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext,
@@ -251,7 +242,7 @@ Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile
     std::string shaderCode = file.ReadAsTextString();
     if(shaderCode.empty())
     {
-        LOG_ERROR("File could not be read!");
+        LOG_ERROR("Shader file could not be read!");
         return Common::Failure(CreateErrors::InvalidFileContents);
     }
 
@@ -274,9 +265,4 @@ GLint Shader::GetUniformIndex(std::string name) const
     ASSERT(!name.empty(), "Uniform name cannot be empty!");
     GLint location = glGetUniformLocation(m_handle, name.c_str());
     return location;
-}
-
-GLuint Shader::GetHandle() const
-{
-    return m_handle;
 }

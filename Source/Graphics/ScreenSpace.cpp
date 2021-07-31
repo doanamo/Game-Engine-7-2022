@@ -42,13 +42,13 @@ void ScreenSpace::Rebuild() const
 {
     if(m_rebuild)
     {
-        // Build source size if needed.
+        // Rebuild source size if needed.
         if(m_rebuildSourceSize)
         {
-            // Set source size equal to target size.
+            // Set source size equal to target size before adjusting aspect ratio.
             m_sourceSize = m_targetSize;
 
-            // Adjust source size aspect ratio.
+            // Adjust aspect ratio of source size.
             float targetAspectRatio = m_targetSize.x / m_targetSize.y;
 
             if(targetAspectRatio > m_sourceAspectRatio)
@@ -97,42 +97,32 @@ void ScreenSpace::Rebuild() const
     }
 }
 
-const glm::vec2& ScreenSpace::GetTargetSize() const
-{
-    return m_targetSize;
-}
-
-const glm::vec2& ScreenSpace::GetSourceSize() const
-{
-    return m_sourceSize;
-}
-
 const glm::vec4& ScreenSpace::GetVisibleSourceExtents() const
 {
-    this->Rebuild();
+    Rebuild();
     return m_coords;
 }
 
 const glm::vec2& ScreenSpace::GetOffsetFromCenter() const
 {
-    this->Rebuild();
+    Rebuild();
     return m_offset;
 }
 
 const glm::mat4& ScreenSpace::GetProjection() const
 {
-    this->Rebuild();
+    Rebuild();
     return m_projection;
 }
 
 const glm::mat4& ScreenSpace::GetView() const
 {
-    this->Rebuild();
+    Rebuild();
     return m_view;
 }
 
 const glm::mat4& ScreenSpace::GetTransform() const
 {
-    this->Rebuild();
+    Rebuild();
     return m_transform;
 }

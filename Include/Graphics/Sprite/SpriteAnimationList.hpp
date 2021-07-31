@@ -52,10 +52,10 @@ namespace Graphics
 
         struct Animation
         {
+            Frame GetFrameByTime(float animationTime) const;
+
             std::vector<Frame> frames;
             float duration = 0.0f;
-
-            Frame GetFrameByTime(float animationTime) const;
         };
 
         using AnimationList = std::vector<Animation>;
@@ -63,6 +63,7 @@ namespace Graphics
 
         using AnimationIndexResult = Common::Result<uint32_t, void>;
 
+    public:
         ~SpriteAnimationList();
 
         AnimationIndexResult GetAnimationIndex(std::string animationName) const;
@@ -71,6 +72,7 @@ namespace Graphics
     private:
         SpriteAnimationList();
 
+    private:
         AnimationList m_animationList;
         AnimationMap m_animationMap;
     };

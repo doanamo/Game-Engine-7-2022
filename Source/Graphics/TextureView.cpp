@@ -11,41 +11,28 @@ using namespace Graphics;
 TextureView::TextureView() = default;
 TextureView::~TextureView() = default;
 
-TextureView::TextureView(ConstTexturePtr texture) :
-    TextureView()
+TextureView::TextureView(ConstTexturePtr texture)
+    : TextureView()
 {
-    this->SetTexture(texture);
+    SetTexture(texture);
 }
 
-TextureView::TextureView(ConstTexturePtr texture, glm::ivec4 imageRect) :
-    TextureView()
+TextureView::TextureView(ConstTexturePtr texture, glm::ivec4 imageRect)
+    : TextureView()
 {
-    this->SetTexture(texture);
-    this->SetImageRect(imageRect);
+    SetTexture(texture);
+    SetImageRect(imageRect);
 }
 
-TextureView::TextureView(ConstTexturePtr texture, glm::vec4 textureRect) :
-    TextureView()
+TextureView::TextureView(ConstTexturePtr texture, glm::vec4 textureRect)
+    : TextureView()
 {
-    this->SetTexture(texture);
-    this->SetTextureRect(textureRect);
+    SetTexture(texture);
+    SetTextureRect(textureRect);
 }
 
-TextureView::TextureView(const TextureView& other)
-{
-    *this = other;
-}
-
-TextureView& TextureView::operator=(const TextureView& other)
-{
-    m_texture = other.m_texture;
-    m_textureRect = other.m_textureRect;
-
-    return *this;
-}
-
-TextureView::TextureView(TextureView&& other) :
-    TextureView()
+TextureView::TextureView(TextureView&& other)
+    : TextureView()
 {
     *this = std::move(other);
 }
@@ -54,13 +41,7 @@ TextureView& TextureView::operator=(TextureView&& other)
 {
     std::swap(m_texture, other.m_texture);
     std::swap(m_textureRect, other.m_textureRect);
-
     return *this;
-}
-
-void TextureView::SetTexture(ConstTexturePtr texture)
-{
-    m_texture = texture;
 }
 
 void TextureView::SetImageRect(const glm::ivec4 imageRect)
@@ -84,21 +65,6 @@ void TextureView::SetImageRect(const glm::ivec4 imageRect)
     }
 }
 
-void TextureView::SetTextureRect(const glm::vec4 normalRect)
-{
-    m_textureRect = normalRect;
-}
-
-TextureView::ConstTexturePtr TextureView::GetTexture() const
-{
-    return m_texture;
-}
-
-const Texture* TextureView::GetTexturePtr() const
-{
-    return m_texture.get();
-}
-
 glm::ivec4 TextureView::GetImageRect() const
 {
     ASSERT(m_texture != nullptr, "Cannot get image rectangle without texture!");
@@ -117,9 +83,4 @@ glm::ivec4 TextureView::GetImageRect() const
     }
 
     return rectangle;
-}
-
-glm::vec4 TextureView::GetTextureRect() const
-{
-    return m_textureRect;
 }

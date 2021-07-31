@@ -8,11 +8,14 @@
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
 #include <Core/SystemStorage.hpp>
+#include <Core/ConfigSystem.hpp>
 #include <System/ResourceManager.hpp>
 using namespace Graphics;
 
 namespace
 {
+    const char* LogAttachFailed = "Failed to attach sprite renderer! {}";
+
     struct SpriteVertex
     {
         glm::vec2 position;
@@ -26,21 +29,30 @@ SpriteRenderer::~SpriteRenderer() = default;
 bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate required engine systems.
+    auto* configSystem = engineSystems.Locate<Core::ConfigSystem>();
+    if(configSystem == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate config system.");
+        return false;
+    }
+
     auto* resourceManager = engineSystems.Locate<System::ResourceManager>();
     if(resourceManager == nullptr)
     {
-        LOG_ERROR("Failed to locate resource manager system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate resource manager.");
         return false;
     }
 
     m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
     if(m_renderContext == nullptr)
     {
-        LOG_ERROR("Failed to locate render context system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
         return false;
     }
 
-    m_spriteBatchSize = 128;
+    m_spriteBatchSize = configSystem->Get<std::size_t>(
+        NAME_CONSTEXPR("render.spriteBatchSize"))
+        .UnwrapOr(m_spriteBatchSize);
 
     // Create vertex buffer.
     const SpriteVertex SpriteVertices[4] =
@@ -61,7 +73,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_vertexBuffer = VertexBuffer::Create(vertexBufferParams).UnwrapOr(nullptr);
     if(m_vertexBuffer == nullptr)
     {
-        LOG_ERROR("Could not create vertex buffer!");
+        LOG_ERROR(LogAttachFailed, "Could not create vertex buffer!");
         return false;
     }
 
@@ -76,19 +88,28 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_instanceBuffer = InstanceBuffer::Create(instanceBufferParams).UnwrapOr(nullptr);
     if(m_instanceBuffer == nullptr)
     {
-        LOG_ERROR("Could not create instance buffer!");
+        LOG_ERROR(LogAttachFailed, "Could not create instance buffer!");
         return false;
     }
 
     // Create vertex array.
     const VertexArray::Attribute vertexAttributes[] =
     {
-        { m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false }, // Position
-        { m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false }, // Texture
-        { m_instanceBuffer.get(), VertexArray::AttributeType::Matrix4x4, GL_FLOAT, false }, // Transform
-        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Rectangle
-        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Coordinates
-        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false }, // Color
+        /*
+            1: Position
+            2: Texture
+            3: Transform
+            4: Rectangle
+            5: Coordinates
+            6: Color
+        */
+
+        { m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false },
+        { m_vertexBuffer.get(),   VertexArray::AttributeType::Vector2,   GL_FLOAT, false },
+        { m_instanceBuffer.get(), VertexArray::AttributeType::Matrix4x4, GL_FLOAT, false },
+        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false },
+        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false },
+        { m_instanceBuffer.get(), VertexArray::AttributeType::Vector4,   GL_FLOAT, false },
     };
 
     VertexArray::FromArrayParams vertexArrayParams;
@@ -98,7 +119,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_vertexArray = VertexArray::Create(m_renderContext, vertexArrayParams).UnwrapOr(nullptr);
     if(m_vertexArray == nullptr)
     {
-        LOG_ERROR("Could not create vertex array!");
+        LOG_ERROR(LogAttachFailed, "Could not create vertex array!");
         return false;
     }
 
@@ -111,7 +132,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_nearestSampler = Sampler::Create(nearestSamplerParams).UnwrapOr(nullptr);
     if(m_nearestSampler == nullptr)
     {
-        LOG_ERROR("Could not create nearest sampler!");
+        LOG_ERROR(LogAttachFailed, "Could not create nearest sampler!");
         return false;
     }
 
@@ -124,7 +145,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_linearSampler = Sampler::Create(linearSamplerParams).UnwrapOr(nullptr);
     if(m_linearSampler == nullptr)
     {
-        LOG_ERROR("Could not create linear sampler!");
+        LOG_ERROR(LogAttachFailed, "Could not create linear sampler!");
         return false;
     }
 
@@ -138,7 +159,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
 
     if(m_shader == nullptr)
     {
-        LOG_ERROR("Could not load sprite shader!");
+        LOG_ERROR(LogAttachFailed, "Could not load sprite shader!");
         return false;
     }
 
@@ -234,7 +255,8 @@ void SpriteRenderer::DrawSprites(const SpriteDrawList& sprites, const glm::mat4&
         }
 
         // Draw instanced sprite batch.
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, Common::NumericalCast<GLsizei>(spritesBatched));
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4,
+            Common::NumericalCast<GLsizei>(spritesBatched));
         OpenGL::CheckErrors();
 
         // Update counter of drawn sprites.

@@ -13,7 +13,6 @@ using namespace Graphics;
 */
 
 Buffer::Buffer() = default;
-
 Buffer::~Buffer()
 {
     if(m_handle != OpenGL::InvalidHandle)
@@ -25,9 +24,6 @@ Buffer::~Buffer()
 
 Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& params)
 {
-    LOG("Initializing buffer...");
-    LOG_SCOPED_INDENT();
-
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
     CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum,
@@ -54,12 +50,12 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
 
     if(bufferSize != 0)
     {
-        LOG_INFO("Uploading {} bytes of buffer data...", bufferSize);
-
         glBindBuffer(type, m_handle);
         glBufferData(type, bufferSize, params.data, params.usage);
         glBindBuffer(type, params.renderContext->GetState().GetBufferBinding(type));
         OpenGL::CheckErrors();
+
+        LOG_INFO("Uploaded {} bytes of buffer data.", bufferSize);
     }
 
     // Save buffer parameters.
@@ -71,7 +67,6 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
     // Save render context reference.
     m_renderContext = params.renderContext;
 
-    // Success!
     return Common::Success();
 }
 
@@ -87,36 +82,6 @@ void Buffer::Update(const void* data, std::size_t elementCount)
     OpenGL::CheckErrors();
 }
 
-GLenum Buffer::GetType() const
-{
-    return m_type;
-}
-
-GLuint Buffer::GetHandle() const
-{
-    return m_handle;
-}
-
-std::size_t Buffer::GetElementSize() const
-{
-    return m_elementSize;
-}
-
-std::size_t Buffer::GetElementCount() const
-{
-    return m_elementCount;
-}
-
-GLenum Buffer::GetElementType() const
-{
-    return OpenGL::InvalidEnum;
-}
-
-bool Buffer::IsInstanced() const
-{
-    return false;
-}
-
 /*
     Vertex Buffer
 */
@@ -126,22 +91,16 @@ VertexBuffer::~VertexBuffer() = default;
 
 VertexBuffer::BufferResult VertexBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG("Creating vertex buffer...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create vertex buffer");
 
-    // Create instance.
+    // Create and initialize instance.
     auto instance = std::unique_ptr<VertexBuffer>(new VertexBuffer());
-
-    // Create base.
-    auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params);
-
-    if(!initializeResult)
+    if(auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params).AsFailure())
     {
-        LOG_ERROR("Failed to initialize buffer!");
-        return Common::Failure(initializeResult.UnwrapFailure());
+        LOG_ERROR("Failed to initialize vertex buffer!");
+        return Common::Failure(initializeResult.Unwrap());
     }
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 
@@ -154,22 +113,16 @@ IndexBuffer::~IndexBuffer() = default;
 
 IndexBuffer::BufferResult IndexBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG("Creating index buffer...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create index buffer");
 
-    // Create instance.
+    // Create and initialize instance.
     auto instance = std::unique_ptr<IndexBuffer>(new IndexBuffer());
-
-    // Initialize base class.
-    auto initializeResult = instance->Initialize(GL_ELEMENT_ARRAY_BUFFER, params);
-
-    if(!initializeResult)
+    if(auto initializeResult = instance->Initialize(GL_ELEMENT_ARRAY_BUFFER, params).AsFailure())
     {
-        LOG_ERROR("Failed to initialize buffer!");
-        return Common::Failure(initializeResult.UnwrapFailure());
+        LOG_ERROR("Failed to initialize index buffer!");
+        return Common::Failure(initializeResult.Unwrap());
     }
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 
@@ -197,26 +150,15 @@ InstanceBuffer::~InstanceBuffer() = default;
 
 InstanceBuffer::BufferResult InstanceBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG("Creating index buffer...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create instance buffer");
 
-    // Create instance.
+    // Create and initialize instance.
     auto instance = std::unique_ptr<InstanceBuffer>(new InstanceBuffer());
-
-    // Initialize base class.
-    auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params);
-
-    if(!initializeResult)
+    if(auto initializeResult = instance->Initialize(GL_ARRAY_BUFFER, params).AsFailure())
     {
         LOG_ERROR("Failed to initialize buffer!");
-        return Common::Failure(initializeResult.UnwrapFailure());
+        return Common::Failure(initializeResult.Unwrap());
     }
 
-    // Success!
     return Common::Success(std::move(instance));
-}
-
-bool InstanceBuffer::IsInstanced() const
-{
-    return true;
 }

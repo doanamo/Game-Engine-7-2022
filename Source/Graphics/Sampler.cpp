@@ -24,14 +24,21 @@ namespace
 
     void InitializeDefaults()
     {
-        // Check if already initialized.
         if(DefaultsInitialized)
             return;
+
+        LOG_PROFILE_SCOPE("Initialize sampler defaults");
+
+        // Mark as initialized once done.
+        SCOPE_GUARD([]()
+        {
+            DefaultsInitialized = true;
+        });
 
         // Create temporary sampler.
         GLuint defaultSampler = OpenGL::InvalidHandle;
         glGenSamplers(1, &defaultSampler);
-        OpenGL::CheckErrors();
+        ASSERT(!OpenGL::CheckErrors(), "Failed to gather default sampler states!");
 
         ASSERT(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
         SCOPE_GUARD([&defaultSampler]
@@ -50,9 +57,6 @@ namespace
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
         glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
         OpenGL::CheckErrors();
-
-        // Success!
-        DefaultsInitialized = true;
     }
 }
 
@@ -60,7 +64,6 @@ Sampler::CreateFromParams::CreateFromParams()
 {
     InitializeDefaults();
 
-    renderContext = nullptr;
     textureMinFilter = DefaultTextureMinFilter;
     textureMagFilter = DefaultTextureMagFilter;
     textureWrapS = DefaultTextureWrapS;
@@ -73,7 +76,6 @@ Sampler::CreateFromParams::CreateFromParams()
 }
 
 Sampler::Sampler() = default;
-
 Sampler::~Sampler()
 {
     if(m_handle != OpenGL::InvalidHandle)
@@ -85,14 +87,13 @@ Sampler::~Sampler()
 
 Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
 {
-    LOG("Creating sampler...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create sampler");
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
-    // Create instance.
+    // Create class instance.
     auto instance = std::unique_ptr<Sampler>(new Sampler());
 
     // Create sampler handle.
@@ -154,11 +155,5 @@ Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
     // Save render context reference.
     instance->m_renderContext = params.renderContext;
 
-    // Success!
     return Common::Success(std::move(instance));
-}
-
-GLuint Sampler::GetHandle() const
-{
-    return m_handle;
 }

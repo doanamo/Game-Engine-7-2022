@@ -18,6 +18,7 @@ int main()
     const Core::ConfigVariableArray configVars =
     {
         { "timer.maxUpdateDelta", "1.0f" },
+        { "render.spriteBatchSize", "128" },
     };
 
     if(auto engine = Engine::Root::Create(configVars).UnwrapOr(nullptr))

@@ -31,8 +31,12 @@ namespace Graphics
 
         void MakeCurrent();
         RenderState& PushState();
-        RenderState& GetState();
         void PopState();
+
+        RenderState& GetState()
+        {
+            return m_currentState;
+        }
 
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;

@@ -61,7 +61,10 @@ namespace Graphics
     public:
         ~VertexArray();
 
-        GLuint GetHandle() const;
+        GLuint GetHandle() const
+        {
+            return m_handle;
+        }
 
     private:
         VertexArray();

@@ -24,7 +24,7 @@ namespace Graphics
         {
             CreateFromParams();
 
-            Graphics::RenderContext* renderContext;
+            Graphics::RenderContext* renderContext = nullptr;
 
             GLint textureMinFilter;
             GLint textureMagFilter;
@@ -52,7 +52,10 @@ namespace Graphics
         template<typename Type>
         void SetParameter(GLenum parameter, const Type& value);
 
-        GLuint GetHandle() const;
+        GLuint GetHandle() const
+        {
+            return m_handle;
+        }
 
     private:
         Sampler();
@@ -61,6 +64,12 @@ namespace Graphics
         RenderContext* m_renderContext = nullptr;
         GLuint m_handle = OpenGL::InvalidHandle;
     };
+
+    template<typename Type>
+    void Sampler::SetParameter(GLenum parameter, const Type& value)
+    {
+        static_assert(false, "Not implemented for this type!");
+    }
 
     template<>
     inline void Sampler::SetParameter<GLint>(GLenum parameter, const GLint& value)

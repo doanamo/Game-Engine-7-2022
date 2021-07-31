@@ -19,9 +19,7 @@ bool OpenGL::CheckErrors()
     }
 
     ASSERT(error == GL_NO_ERROR, "Breaking due to encountered OpenGL error(s)!");
-
-    // Return true if no errors have been found.
-    return !errorFound;
+    return errorFound;
 }
 
 RenderState::RenderState()
@@ -209,30 +207,30 @@ void RenderState::Apply(RenderState& other)
     {
         if(other.m_capabilities[i] == GL_TRUE)
         {
-            this->Enable(OpenGL::Capabilities[i]);
+            Enable(OpenGL::Capabilities[i]);
         }
         else
         {
-            this->Disable(OpenGL::Capabilities[i]);
+            Disable(OpenGL::Capabilities[i]);
         }
     }
 
     // glBindVertexArray
-    this->BindVertexArray(other.m_vertexArrayBinding);
+    BindVertexArray(other.m_vertexArrayBinding);
 
     // glBindBuffer
     for(std::size_t i = 0; i < OpenGL::BufferBindingTargetCount; ++i)
     {
-        this->BindBuffer(std::get<0>(OpenGL::BufferBindingTargets[i]), other.m_bufferBindings[i]);
+        BindBuffer(std::get<0>(OpenGL::BufferBindingTargets[i]), other.m_bufferBindings[i]);
     }
 
     // glActiveTexture
-    this->ActiveTexture(other.m_activeTexture);
+    ActiveTexture(other.m_activeTexture);
 
     // glBindTexture
     for(std::size_t i = 0; i < OpenGL::TextureBindingTargetCount; ++i)
     {
-        this->BindTexture(std::get<0>(OpenGL::TextureBindingTargets[i]), other.m_textureBindings[i]);
+        BindTexture(std::get<0>(OpenGL::TextureBindingTargets[i]), other.m_textureBindings[i]);
     }
 
     // glBindSampler
@@ -241,20 +239,20 @@ void RenderState::Apply(RenderState& other)
 
     for(std::size_t i = 0; i < m_samplerBindings.size(); ++i)
     {
-        this->BindSampler(Common::NumericalCast<GLuint>(i), other.m_samplerBindings[i]);
+        BindSampler(Common::NumericalCast<GLuint>(i), other.m_samplerBindings[i]);
     }
 
     // glPixelStore
     for(std::size_t i = 0; i < OpenGL::PixelStoreParameterCount; ++i)
     {
-        this->PixelStore(OpenGL::PixelStoreParameters[i], other.m_pixelStore[i]);
+        PixelStore(OpenGL::PixelStoreParameters[i], other.m_pixelStore[i]);
     }
 
     // glUseProgram
-    this->UseProgram(other.m_currentProgram);
+    UseProgram(other.m_currentProgram);
 
     // glViewport
-    this->Viewport(
+    Viewport(
         std::get<0>(other.m_viewport),
         std::get<1>(other.m_viewport),
         std::get<2>(other.m_viewport),
@@ -262,10 +260,10 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glClearDepth
-    this->ClearDepth(other.m_clearDepth);
+    ClearDepth(other.m_clearDepth);
 
     // glClearColor
-    this->ClearColor(
+    ClearColor(
         std::get<0>(other.m_clearColor),
         std::get<1>(other.m_clearColor),
         std::get<2>(other.m_clearColor),
@@ -273,10 +271,10 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glDepthMask
-    this->DepthMask(other.m_depthMask);
+    DepthMask(other.m_depthMask);
 
     // glBlendFuncSeparate
-    this->BlendFuncSeparate(
+    BlendFuncSeparate(
         std::get<0>(other.m_blendFuncSeparate),
         std::get<1>(other.m_blendFuncSeparate),
         std::get<2>(other.m_blendFuncSeparate),
@@ -284,13 +282,13 @@ void RenderState::Apply(RenderState& other)
     );
 
     // glBlendEquationSeparate
-    this->BlendEquationSeparate(
+    BlendEquationSeparate(
         std::get<0>(other.m_blendEquationSeparate),
         std::get<1>(other.m_blendEquationSeparate)
     );
 
     // glScissor
-    this->Scissor(
+    Scissor(
         std::get<0>(other.m_scissorBox),
         std::get<1>(other.m_scissorBox),
         std::get<2>(other.m_scissorBox),
@@ -301,7 +299,7 @@ void RenderState::Apply(RenderState& other)
 void RenderState::Enable(GLenum cap)
 {
     // Check if states match.
-    if(this->IsEnabled(cap))
+    if(IsEnabled(cap))
         return;
 
     // Call OpenGL function.
@@ -474,7 +472,6 @@ GLuint RenderState::GetSamplerBinding(GLuint unit) const
 {
     ASSERT(!m_samplerBindings.empty(), "Sampler bindings array is empty!");
     ASSERT_ALWAYS(unit >= 0 && unit < m_samplerBindings.size(), "Unsupported texture unit!");
-
     return m_samplerBindings[unit];
 }
 
@@ -609,7 +606,7 @@ GLboolean RenderState::GetDepthMask() const
 void RenderState::BlendFunc(GLenum sfactor, GLenum dfactor)
 {
     // Call aliased OpenGL function.
-    this->BlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
+    BlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
 }
 
 void RenderState::BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)

@@ -12,9 +12,9 @@
 using namespace Graphics;
 
 SpriteAnimationList::Frame::Frame() = default;
-
-SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration) :
-    textureView(std::move(textureView)), duration(duration)
+SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration)
+    : textureView(std::move(textureView))
+    , duration(duration)
 {
 }
 
@@ -38,20 +38,21 @@ SpriteAnimationList::~SpriteAnimationList() = default;
 
 SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 {
-    LOG("Creating sprite animation list...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create sprite animation list");
 
-    // Create instance.
+    // Create class instance.
     auto instance = std::unique_ptr<SpriteAnimationList>(new SpriteAnimationList());
-
-    // Success!
     return Common::Success(std::move(instance));
 }
 
-SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle& file, const LoadFromFile& params)
+SpriteAnimationList::CreateResult SpriteAnimationList::Create(
+    System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading sprite animation list from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load sprite animation list from \"{}\" file...",
+        file.GetPath().generic_string());
+
+    LOG("Loading sprite animation list from \"{}\" file...",
+        file.GetPath().generic_string());
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
@@ -96,7 +97,6 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
     // Load texture atlas.
     std::shared_ptr<TextureAtlas> textureAtlas;
-
     {
         lua_getfield(*resourceScript, -1, "TextureAtlas");
         SCOPE_GUARD([&resourceScript]
@@ -114,7 +114,6 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
         TextureAtlas::LoadFromFile textureAtlasParams;
         textureAtlasParams.engineSystems = params.engineSystems;
-
         textureAtlas = resourceManager->AcquireRelative<TextureAtlas>(
             textureAtlasPath, file.GetPath(), textureAtlasParams).UnwrapOr(nullptr);
 
@@ -153,12 +152,15 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
         // Read animation frames.
         Animation animation;
 
-        for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
+        for(lua_pushnil(*resourceScript);
+            lua_next(*resourceScript, -2);
+            lua_pop(*resourceScript, 1))
         {
             // Make sure that we have a table.
             if(!lua_istable(*resourceScript, -1))
             {
-                LOG_WARNING("Value in \"SpriteAnimationList.Animations[\"{}\"]\" is not a table!", animationName);
+                LOG_WARNING("Value in \"SpriteAnimationList.Animations[\"{}\"]\" "
+                    "is not a table!", animationName);
                 LOG_WARNING("Skipping one ill formated sprite animation frame!");
                 continue;
             }
@@ -176,7 +178,8 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
                 if(!lua_isstring(*resourceScript, -1))
                 {
-                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[{}][0]\" is not a string!", animationName);
+                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[{}][0]\" "
+                        "is not a string!", animationName);
                     LOG_WARNING("Skipping one ill formated sprite animation frame!");
                     continue;
                 }
@@ -197,7 +200,8 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
 
                 if(!lua_isnumber(*resourceScript, -1))
                 {
-                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[\"{}\"][1]\" is not a number!", animationName);
+                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[\"{}\"][1]\" "
+                        "is not a number!", animationName);
                     LOG_WARNING("Skipping one ill formated sprite animation frame!");
                     continue;
                 }
@@ -216,11 +220,11 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(System::FileHandle
             Common::NumericalCast<uint32_t>(instance->m_animationList.size() - 1));
     }
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 
-SpriteAnimationList::AnimationIndexResult SpriteAnimationList::GetAnimationIndex(std::string animationName) const
+SpriteAnimationList::AnimationIndexResult
+    SpriteAnimationList::GetAnimationIndex(std::string animationName) const
 {
     auto it = m_animationMap.find(animationName);
     if(it == m_animationMap.end())
@@ -231,7 +235,8 @@ SpriteAnimationList::AnimationIndexResult SpriteAnimationList::GetAnimationIndex
     return Common::Success(it->second);
 }
 
-const SpriteAnimationList::Animation* SpriteAnimationList::GetAnimationByIndex(std::size_t animationIndex) const
+const SpriteAnimationList::Animation*
+    SpriteAnimationList::GetAnimationByIndex(std::size_t animationIndex) const
 {
     // Make sure that index is valid.
     bool isIndexValid = animationIndex >= 0 && animationIndex < m_animationList.size();

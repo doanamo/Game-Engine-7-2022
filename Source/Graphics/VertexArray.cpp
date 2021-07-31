@@ -25,8 +25,6 @@ namespace
             return 3;
 
         case VertexArray::AttributeType::Vector4:
-            return 4;
-
         case VertexArray::AttributeType::Matrix4x4:
             return 4;
 
@@ -69,8 +67,6 @@ namespace
             
         case GL_INT:
         case GL_UNSIGNED_INT:
-            return 4;
-
         case GL_FLOAT:
             return 4;
 
@@ -82,7 +78,6 @@ namespace
 }
 
 VertexArray::VertexArray() = default;
-
 VertexArray::~VertexArray()
 {
     if(m_handle != OpenGL::InvalidHandle)
@@ -92,10 +87,10 @@ VertexArray::~VertexArray()
     }
 }
 
-VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, const FromArrayParams& params)
+VertexArray::CreateResult VertexArray::Create(
+    RenderContext* renderContext, const FromArrayParams& params)
 {
-    LOG("Creating vertex array...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create vertex array");
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr,
@@ -119,7 +114,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
             Common::Failure(CreateErrors::InvalidAttribute));
     }
 
-    // Create instance.
+    // Create class instance.
     auto instance = std::unique_ptr<VertexArray>(new VertexArray());
 
     // Create vertex array object.
@@ -134,6 +129,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
 
     // Bind vertex array handle.
     glBindVertexArray(instance->m_handle);
+    OpenGL::CheckErrors();
 
     SCOPE_GUARD([&renderContext]
     {
@@ -151,7 +147,7 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
     {
         const Attribute& attribute = params.attributes[i];
 
-        // Bind a vertex buffer.
+        // Bind vertex buffer.
         if(currentBuffer != attribute.buffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER, attribute.buffer->GetHandle());
@@ -191,18 +187,13 @@ VertexArray::CreateResult VertexArray::Create(RenderContext* renderContext, cons
             currentLocation += 1;
 
             // Increment current offset.
-            currentOffset += GetVertexAttributeValueBytes(attribute.valueType) * GetVertexAttributeTypeRowElements(attribute.attributeType);
+            currentOffset += GetVertexAttributeValueBytes(attribute.valueType)
+                * GetVertexAttributeTypeRowElements(attribute.attributeType);
         }
     }
 
     // Save render context reference.
     instance->m_renderContext = renderContext;
 
-    // Success!
     return Common::Success(std::move(instance));
-}
-
-GLuint VertexArray::GetHandle() const
-{
-    return m_handle;
 }

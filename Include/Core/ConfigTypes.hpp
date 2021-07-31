@@ -83,6 +83,33 @@ namespace Core
         }
     };
 
+    template<>
+    class ConfigValueType<std::size_t>
+    {
+    public:
+        static std::string Format(const std::size_t& value)
+        {
+            return std::to_string(value);
+        }
+
+        static Common::Result<std::size_t, void> Parse(const std::string& value)
+        {
+            try
+            {
+                return Common::Success(std::stoul(value));
+            }
+            catch(...)
+            {
+                return Common::Failure();
+            }
+        }
+
+        static constexpr bool IsSupported()
+        {
+            return true;
+        }
+    };
+
     /*
         Single Floating Point Precision
     */

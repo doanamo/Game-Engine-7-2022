@@ -9,6 +9,7 @@
 #include "Common/Logger/LoggerSink.hpp"
 #include "Common/Logger/LoggerOutput.hpp"
 #include "Common/Logger/LoggerHistory.hpp"
+#include "Common/ScopeGuard.hpp"
 #include "Common/Profile.hpp"
 
 namespace
@@ -28,14 +29,17 @@ namespace
 
         LOG_PROFILE_SCOPE("Initialize logger");
 
+        // Mark as initialized once done.
+        SCOPE_GUARD([]()
+        {
+            GlobalLoggerInitialized = true;
+        });
+
         // Add default output sinks.
         GlobalSink.AddOutput(&GlobalHistory);
         GlobalSink.AddOutput(&GlobalFileOutput);
         GlobalSink.AddOutput(&GlobalConsoleOutput);
         GlobalSink.AddOutput(&GlobalDebuggerOutput);
-
-        // Finalize initialization.
-        GlobalLoggerInitialized = true;
     }
 }
 

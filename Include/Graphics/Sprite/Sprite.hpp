@@ -8,10 +8,9 @@
 /*
     Sprite
 
-    Structure that defines a textured quad. Consists of two parts - information
-    that can be shared between different instances of sprites and data that is
-    unique for each sprite. This is done to support efficient sprite sorting
-    and rendering.
+    Structure that defines a textured quad. Consists of two parts - information that can be shared
+    between different instances of sprites and data that is unique for each sprite. This is done to
+    support efficient sprite sorting and rendering.
 */
 
 namespace Graphics

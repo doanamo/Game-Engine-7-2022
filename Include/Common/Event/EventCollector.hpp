@@ -16,7 +16,7 @@
 namespace Event
 {
     /*
-        Base Collector    
+        Base Collector
     */
 
     template<typename ResultType>

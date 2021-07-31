@@ -76,19 +76,3 @@ void SpriteDrawList::SortSprites()
     reorderResult &= Common::ReorderWithIndices(m_spriteData, m_spriteSort);
     ASSERT(reorderResult, "Reorder with indices failed!");
 }
-
-std::size_t Graphics::SpriteDrawList::GetSpriteCount() const
-{
-    ASSERT(m_spriteInfo.size() == m_spriteData.size(), "Arrays of sprite info and data have different size!");
-    return m_spriteInfo.size();
-}
-
-const std::vector<Sprite::Info>& SpriteDrawList::GetSpriteInfo() const
-{
-    return m_spriteInfo;
-}
-
-const std::vector<Sprite::Data>& SpriteDrawList::GetSpriteData() const
-{
-    return m_spriteData;
-}

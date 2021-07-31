@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <tuple>
-
 /*
     Render state
 */
@@ -31,7 +29,8 @@ namespace Graphics
             GL_STENCIL_TEST,
         };
 
-        const std::size_t CapabilityCount = Common::StaticArraySize(Capabilities);
+        const std::size_t CapabilityCount =
+            Common::StaticArraySize(Capabilities);
 
         static const std::tuple<GLenum, GLenum> BufferBindingTargets[] =
         {
@@ -39,14 +38,16 @@ namespace Graphics
             { GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING },
         };
 
-        const std::size_t BufferBindingTargetCount = Common::StaticArraySize(BufferBindingTargets);
+        const std::size_t BufferBindingTargetCount =
+            Common::StaticArraySize(BufferBindingTargets);
 
         static const std::tuple<GLenum, GLenum> TextureBindingTargets[] =
         {
             { GL_TEXTURE_2D, GL_TEXTURE_BINDING_2D },
         };
 
-        const std::size_t TextureBindingTargetCount = Common::StaticArraySize(TextureBindingTargets);
+        const std::size_t TextureBindingTargetCount =
+            Common::StaticArraySize(TextureBindingTargets);
 
         static const GLenum PixelStoreParameters[] =
         {
@@ -54,7 +55,8 @@ namespace Graphics
             GL_UNPACK_ALIGNMENT,
         };
 
-        const std::size_t PixelStoreParameterCount = Common::StaticArraySize(PixelStoreParameters);
+        const std::size_t PixelStoreParameterCount =
+            Common::StaticArraySize(PixelStoreParameters);
     }
 
     class RenderState final : public Common::Resettable<RenderState>

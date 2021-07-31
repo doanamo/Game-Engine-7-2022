@@ -41,12 +41,35 @@ namespace Graphics
     public:
         void Update(const void* data, std::size_t elementCount);
 
-        GLenum GetType() const;
-        GLuint GetHandle() const;
-        std::size_t GetElementSize() const;
-        std::size_t GetElementCount() const;
-        virtual GLenum GetElementType() const;
-        virtual bool IsInstanced() const;
+        GLenum GetType() const
+        {
+            return m_type;
+        }
+
+        GLuint GetHandle() const
+        {
+            return m_handle;
+        }
+
+        std::size_t GetElementSize() const
+        {
+            return m_elementSize;
+        }
+
+        std::size_t GetElementCount() const
+        {
+            return m_elementCount;
+        }
+
+        virtual GLenum GetElementType() const
+        {
+            return OpenGL::InvalidEnum;
+        }
+
+        virtual bool IsInstanced() const
+        {
+            return false;
+        }
 
     protected:
         Buffer();
@@ -123,7 +146,10 @@ namespace Graphics
     public:
         ~InstanceBuffer();
 
-        bool IsInstanced() const override;
+        bool IsInstanced() const override
+        {
+            return true;
+        }
 
     private:
         InstanceBuffer();

@@ -58,9 +58,20 @@ namespace Graphics
         ~Texture();
         void Update(const void* data);
 
-        GLuint GetHandle() const;
-        int GetWidth() const;
-        int GetHeight() const;
+        GLuint GetHandle() const
+        {
+            return m_handle;
+        }
+
+        int GetWidth() const
+        {
+            return m_width;
+        }
+
+        int GetHeight() const
+        {
+            return m_height;
+        }
 
     private:
         Texture();

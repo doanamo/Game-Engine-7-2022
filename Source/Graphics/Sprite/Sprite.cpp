@@ -9,10 +9,14 @@ using namespace Graphics;
 
 bool Sprite::Info::operator==(const Info& other) const
 {
-    return texture == other.texture && transparent == other.transparent && filtered == other.filtered;
+    return texture == other.texture
+        && transparent == other.transparent
+        && filtered == other.filtered;
 }
 
 bool Sprite::Info::operator!=(const Info& other) const
 {
-    return texture != other.texture || transparent != other.transparent || filtered != other.filtered;
+    return texture != other.texture
+        || transparent != other.transparent
+        || filtered != other.filtered;
 }

@@ -22,7 +22,6 @@ namespace Graphics
         SpriteDrawList();
         ~SpriteDrawList();
 
-        // Sprite list is too short lived to require moving.
         SpriteDrawList(SpriteDrawList&& other) = delete;
         SpriteDrawList& operator=(SpriteDrawList&& other) = delete;
 
@@ -31,9 +30,21 @@ namespace Graphics
         void SortSprites();
         void ClearSprites();
 
-        std::size_t GetSpriteCount() const;
-        const std::vector<Sprite::Info>& GetSpriteInfo() const;
-        const std::vector<Sprite::Data>& GetSpriteData() const;
+        std::size_t GetSpriteCount() const
+        {
+            ASSERT(m_spriteInfo.size() == m_spriteData.size());
+            return m_spriteInfo.size();
+        }
+
+        const std::vector<Sprite::Info>& GetSpriteInfo() const
+        {
+            return m_spriteInfo;
+        }
+
+        const std::vector<Sprite::Data>& GetSpriteData() const
+        {
+            return m_spriteData;
+        }
 
     private:
         std::vector<Sprite::Info> m_spriteInfo;

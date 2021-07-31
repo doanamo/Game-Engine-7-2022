@@ -16,7 +16,6 @@ namespace System
     Shader
     
     Loads and links GLSL shaders into an OpenGL program object.
-    Supports geometry, vertex and fragment shaders.
 */
 
 namespace Graphics
@@ -59,7 +58,11 @@ namespace Graphics
 
         GLint GetAttributeIndex(std::string name) const;
         GLint GetUniformIndex(std::string name) const;
-        GLuint GetHandle() const;
+
+        GLuint GetHandle() const
+        {
+            return m_handle;
+        }
 
     private:
         Shader();
@@ -70,6 +73,12 @@ namespace Graphics
     };
 
     using ShaderPtr = std::shared_ptr<Shader>;
+
+    template<typename Type>
+    void Shader::SetUniform(std::string name, const Type& value)
+    {
+        static_assert(false, "Not implemented for this type!");
+    }
 
     template<>
     inline void Shader::SetUniform(std::string name, const GLint& value)

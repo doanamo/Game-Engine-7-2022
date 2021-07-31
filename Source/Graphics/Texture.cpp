@@ -12,7 +12,6 @@
 using namespace Graphics;
 
 Texture::Texture() = default;
-
 Texture::~Texture()
 {
     if(m_handle != OpenGL::InvalidHandle)
@@ -24,9 +23,9 @@ Texture::~Texture()
 
 Texture::CreateResult Texture::Create(const CreateFromParams& params)
 {
-    LOG("Creating texture...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create texture");
 
+    // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
     CHECK_ARGUMENT_OR_RETURN(params.width > 0,
@@ -36,8 +35,10 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum,
         Common::Failure(CreateErrors::InvalidArgument));
 
+    // Create class instance.
     auto instance = std::unique_ptr<Texture>(new Texture());
 
+    // Create texture handle.
     glGenTextures(1, &instance->m_handle);
     OpenGL::CheckErrors();
 
@@ -87,14 +88,20 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
 
 Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load texture from \"{}\" file...",
+        file.GetPath().generic_string());
 
+    LOG("Loading texture from \"{}\" file...",
+        file.GetPath().generic_string());
+
+    // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
         Common::Failure(CreateErrors::InvalidArgument));
 
+    // Retrieve needed engine systems.
     auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
+    // Load image from file.
     auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);
     if(image == nullptr)
     {
@@ -102,6 +109,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
         return Common::Failure(CreateErrors::FailedImageLoad);
     }
     
+    // Determine texture format.
     GLenum textureFormat = GL_NONE;
     switch(image->GetChannels())
     {
@@ -126,6 +134,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
         return Common::Failure(CreateErrors::UnsupportedImageFormat);
     }
 
+    // Create texture from image data.
     CreateFromParams createParams;
     createParams.renderContext = renderContext;
     createParams.width = image->GetWidth();
@@ -140,23 +149,9 @@ void Texture::Update(const void* data)
 {
     ASSERT_ALWAYS_ARGUMENT(data != nullptr);
 
+    // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
     glBindTexture(GL_TEXTURE_2D, m_renderContext->GetState().GetTextureBinding(GL_TEXTURE_2D));
     OpenGL::CheckErrors();
-}
-
-GLuint Texture::GetHandle() const
-{
-    return m_handle;
-}
-
-int Texture::GetWidth() const
-{
-    return m_width;
-}
-
-int Texture::GetHeight() const
-{
-    return m_height;
 }

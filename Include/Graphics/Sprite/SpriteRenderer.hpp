@@ -42,7 +42,7 @@ namespace Graphics
 
     private:
         RenderContext* m_renderContext = nullptr;
-        std::size_t m_spriteBatchSize = 0;
+        std::size_t m_spriteBatchSize = 128;
 
         std::unique_ptr<VertexBuffer> m_vertexBuffer;
         std::unique_ptr<InstanceBuffer> m_instanceBuffer;

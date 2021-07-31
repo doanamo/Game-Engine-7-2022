@@ -18,8 +18,7 @@ TextureAtlas::~TextureAtlas() = default;
 
 TextureAtlas::CreateResult TextureAtlas::Create()
 {
-    LOG("Creating texture atlas...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create texture atlas");
 
     // Create instance.
     auto instance = std::unique_ptr<TextureAtlas>(new TextureAtlas());
@@ -28,8 +27,11 @@ TextureAtlas::CreateResult TextureAtlas::Create()
 
 TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading texture atlas from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load texture atlas from \"{}\" file",
+        file.GetPath().generic_string());
+
+    LOG("Loading texture atlas from \"{}\" file...",
+        file.GetPath().generic_string());
 
     // Validate parameters.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
@@ -111,16 +113,16 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
 
     for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
     {
-        // Check if key is a string.
+        // Check key type.
         if(!lua_isstring(*resourceScript, -2))
         {
-            LOG_WARNING("Key in \"TextureAtlas.Regions\" is not string!");
+            LOG_WARNING("Key in \"TextureAtlas.Regions\" is not a string!");
             continue;
         }
 
         std::string regionName = lua_tostring(*resourceScript, -2);
 
-        // Read the region rectangle.
+        // Read region rectangle.
         glm::ivec4 pixelCoords(0);
 
         for(int i = 0; i < 4; ++i)
@@ -130,7 +132,8 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
 
             if(!lua_isinteger(*resourceScript, -1))
             {
-                LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!", regionName, i);
+                LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!",
+                    regionName, i);
             }
 
             pixelCoords[i] = Common::NumericalCast<int>(lua_tointeger(*resourceScript, -1));
@@ -138,7 +141,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
             lua_pop(*resourceScript, 1);
         }
 
-        // Add a new texture region.
+        // Add new texture region.
         if(!instance->AddRegion(regionName, pixelCoords))
         {
             LOG_WARNING("Could not add region with \"{}\" name!", regionName);
@@ -146,22 +149,18 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
         }
     }
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 
 bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)
 {
-    // Add texture region to map.
     auto result = m_regions.emplace(name, pixelCoords);
     return result.second;
 }
 
 TextureView TextureAtlas::GetRegion(std::string name)
 {
-    // Find and return texture region.
     auto it = m_regions.find(name);
-
     if(it != m_regions.end())
     {
         return TextureView(m_texture, it->second);
