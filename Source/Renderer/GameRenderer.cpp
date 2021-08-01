@@ -20,10 +20,16 @@
 #include <Game/Systems/IdentitySystem.hpp>
 using namespace Renderer;
 
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach game renderer! {}";
+}
+
 GameRenderer::GameRenderer()
 {
     m_receivers.drawGameInstance.Bind<GameRenderer, &GameRenderer::OnDrawGameInstance>(this);
 }
+
 GameRenderer::~GameRenderer() = default;
 
 bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
@@ -32,38 +38,38 @@ bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_window = engineSystems.Locate<System::Window>();
     if(!m_window)
     {
-        LOG_ERROR("Failed to locate window system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
     m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
     if(!m_renderContext)
     {
-        LOG_ERROR("Failed to locate render context system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
         return false;
     }
 
     m_spriteRenderer = engineSystems.Locate<Graphics::SpriteRenderer>();
     if(!m_spriteRenderer)
     {
-        LOG_ERROR("Failed to locate sprite renderer system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate sprite renderer.");
         return false;
     }
 
-    Game::GameFramework* gameFramework = engineSystems.Locate<Game::GameFramework>();
+    auto* gameFramework = engineSystems.Locate<Game::GameFramework>();
     if(!gameFramework)
     {
-        LOG_ERROR("Failed to locate game framework system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate game framework.");
         return false;
     }
 
+    // Subscribe to events.
     if(!m_receivers.drawGameInstance.Subscribe(gameFramework->events.drawGameInstance))
     {
-        LOG_ERROR("Failed to subscribe to game framework events!");
+        LOG_ERROR(LogAttachFailed, "Could not subscribe to game framework events.");
         return false;
     }
 
-    // Success!
     return true;
 }
 
@@ -95,10 +101,10 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     ASSERT(drawParams.timeAlpha >= 0.0f && drawParams.timeAlpha <= 1.0f,
         "Time alpha is not normalized!");
 
-    // Get game instance systems.
+    // Retrieve systems from game instance.
     auto* componentSystem = drawParams.gameInstance->GetSystems().Locate<Game::ComponentSystem>();
     auto* identitySystem = drawParams.gameInstance->GetSystems().Locate<Game::IdentitySystem>();
-    ASSERT(componentSystem && identitySystem);
+    ASSERT(componentSystem && identitySystem, "Critical systems missing from game instance!");
 
     // Update sprite components for rendering.
     for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())
@@ -109,7 +115,9 @@ void GameRenderer::Draw(const DrawParams& drawParams)
             Game::SpriteComponent* spriteComponent =
                 spriteAnimationComponent.GetSpriteComponent();
 
-            auto spriteAnimation = spriteAnimationComponent.GetCurrentSpriteAnimation();
+            const Game::SpriteAnimationComponent::SpriteAnimation* spriteAnimation =
+                spriteAnimationComponent.GetCurrentSpriteAnimation();
+
             float animationTime = spriteAnimationComponent
                 .CalculateAnimationTime(drawParams.timeAlpha);
 
@@ -169,14 +177,14 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     // Create list of sprites that will be drawn.
     Graphics::SpriteDrawList spriteDrawList;
 
-    // Get all sprite components.
+    // Iterate all sprite components.
     for(auto& spriteComponent : componentSystem->GetPool<Game::SpriteComponent>())
     {
-        // Get transform component.
+        // Retrieve transform component.
         Game::TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
         ASSERT(transformComponent != nullptr, "Required transform component is missing!");
 
-        // Add sprite to the draw list.
+        // Add sprite to draw list.
         Graphics::Sprite sprite;
         sprite.info.texture = spriteComponent.GetTextureView().GetTexturePtr();
         sprite.info.transparent = spriteComponent.IsTransparent();
@@ -185,7 +193,6 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         sprite.data.rectangle = spriteComponent.GetRectangle();
         sprite.data.coords = spriteComponent.GetTextureView().GetTextureRect();
         sprite.data.color = spriteComponent.GetColor();
-
         spriteDrawList.AddSprite(sprite);
     }
 
