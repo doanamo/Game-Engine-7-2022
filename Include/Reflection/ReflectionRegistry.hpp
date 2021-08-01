@@ -39,6 +39,7 @@ namespace Reflection
     template<typename Type>
     bool Registry::RegisterType()
     {
+        // Validate type.
         constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
         static_assert(StaticType.Reflected, "Cannot register not reflected type!");
 
@@ -46,6 +47,7 @@ namespace Reflection
             "\"{}\" ({}) with static identifier equal to invalid identifier!",
             StaticType.Name, StaticType.Identifier);
 
+        // Retrieve base type info.
         using BaseType = typename decltype(StaticType)::BaseType;
         static_assert(std::is_same<typename Type::Super, BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
@@ -67,6 +69,7 @@ namespace Reflection
                 "info pointer for type \"{}\" ({})!", StaticType.Name, StaticType.Identifier);
         }
 
+        // Map type identifier to dynamic type info.
         auto result = m_types.emplace(StaticType.Identifier, Type::GetTypeStorage().m_dynamicType);
         DynamicTypeInfo& dynamicType = result.first->second;
 
@@ -95,6 +98,7 @@ namespace Reflection
             return false;
         }
 
+        // Initialize dynamic type info.
         DynamicTypeInfo::ConstructFunction constructFunction = nullptr;
         if constexpr(StaticType.IsConstructible())
         {

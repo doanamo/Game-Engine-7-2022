@@ -14,13 +14,16 @@ const DynamicTypeInfo DynamicTypeInfo::Invalid{};
 void DynamicTypeInfo::Register(const Common::Name& name,
     const ConstructFunction constructFunction, DynamicTypeInfo* baseType)
 {
+    ASSERT(!m_registered, "Cannot register same dynamic type info twice!");
+
     m_registered = true;
     m_name = name;
     m_constructFunction = constructFunction;
 
     if(!IsNullType())
     {
-        ASSERT(baseType, "Null base type is only valid for NullType to avoid cyclic dependency!");
+        ASSERT(baseType != nullptr,
+            "Empty base type is only valid for NullType to avoid cyclic dependency!");
 
         m_baseType = baseType;
         baseType->AddDerivedType(*this);

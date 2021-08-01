@@ -116,11 +116,12 @@ namespace Reflection
 
     private:
         void Register(const Common::Name& name,
-                      ConstructFunction constructFunction,
-                      DynamicTypeInfo* baseType);
+            ConstructFunction constructFunction,
+            DynamicTypeInfo* baseType);
 
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
+    private:
         bool m_registered = false;
         Common::Name m_name = NAME_CONSTEXPR("<UnregisteredType>");
         ConstructFunction m_constructFunction = nullptr;

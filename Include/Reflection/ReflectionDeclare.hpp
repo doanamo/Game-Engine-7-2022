@@ -9,6 +9,7 @@
     Reflection Declaration Macros
 */
 
+// Class declaration macros.
 #define REFLECTION_SUPER(ReflectedBaseType) \
     using Super = ReflectedBaseType;
 
@@ -61,6 +62,7 @@
     REFLECTION_ENABLE_DEDUCE(__VA_ARGS__, REFLECTION_ENABLE_DERIVED, REFLECTION_ENABLE_BASE))
 #define REFLECTION_ENABLE(...) REFLECTION_EXPAND(REFLECTION_ENABLE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
+// Type declaration macros.
 #define REFLECTION_TYPE_INFO_BEGIN(ReflectedType, ReflectedBaseType) \
     template<> struct Reflection::Detail::TypeInfo<ReflectedType> : public TypeInfoBase \
     { \
@@ -113,6 +115,7 @@
     REFLECTION_TYPE_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED, REFLECTION_TYPE_BASE))
 #define REFLECTION_TYPE(...) REFLECTION_EXPAND(REFLECTION_TYPE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
+// Field declaration macros.
 #define REFLECTION_FIELD_BEGIN(Field) \
     template<typename ReflectedType, typename Dummy> \
     struct MemberInfo<__COUNTER__ - MemberIndexOffset, ReflectedType, Dummy> \
