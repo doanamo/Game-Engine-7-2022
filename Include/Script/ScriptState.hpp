@@ -46,11 +46,12 @@ namespace Script
         using CreateResult = Common::Result<std::unique_ptr<ScriptState>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(const LoadFromText& params);
         static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~ScriptState();
+
+        bool Execute(std::string script);
 
         void PrintError();
         void CleanStack();

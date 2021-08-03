@@ -29,7 +29,6 @@ namespace
 }
 
 ScriptState::ScriptState() = default;
-
 ScriptState::~ScriptState()
 {
     if(m_state)
@@ -40,8 +39,7 @@ ScriptState::~ScriptState()
 
 ScriptState::CreateResult ScriptState::Create()
 {
-    LOG("Creating script state...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create script state");
 
     // Create instance.
     auto instance = std::unique_ptr<ScriptState>(new ScriptState());
@@ -73,45 +71,16 @@ ScriptState::CreateResult ScriptState::Create()
     // Make sure that we did not leave anything on the stack.
     ASSERT(lua_gettop(instance->m_state) == 0, "Lua stack is not empty!");
 
-    // Success!
-    return Common::Success(std::move(instance));
-}
-
-ScriptState::CreateResult ScriptState::Create(const LoadFromText& params)
-{
-    LOG("Loading script state from text...");
-    LOG_SCOPED_INDENT();
-
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(!params.scriptText.empty(),
-        Common::Failure(CreateErrors::InvalidArgument));
-
-    // Call base create method to retrieve new instance.
-    auto createResult = Create();
-
-    if(!createResult)
-    {
-        return createResult;
-    }
-
-    auto instance = createResult.Unwrap();
-
-    // Execute script text.
-    if(luaL_dostring(instance->m_state, params.scriptText.c_str()) != 0)
-    {
-        LOG_ERROR("Could not execute script!");
-        instance->PrintError();
-        return Common::Failure(CreateErrors::FailedLuaScriptExecution);
-    }
-
-    // Success!
     return Common::Success(std::move(instance));
 }
 
 ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG("Loading script state from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load script state from \"{}\" file...",
+        file.GetPath().generic_string());
+
+    LOG("Loading script state from \"{}\" file...",
+        file.GetPath().generic_string());
 
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
@@ -129,15 +98,26 @@ ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const Lo
     // Execute script file.
     std::string scriptCode = file.ReadAsTextString();
 
-    if(luaL_dostring(instance->m_state, scriptCode.c_str()) != 0)
+    if(!instance->Execute(scriptCode))
     {
         LOG_ERROR("Could not execute script file!");
         instance->PrintError();
         return Common::Failure(CreateErrors::FailedLuaScriptExecution);
     }
 
-    // Success!
     return Common::Success(std::move(instance));
+}
+
+bool ScriptState::Execute(std::string script)
+{
+    if(luaL_dostring(m_state, script.c_str()) != 0)
+    {
+        LOG_ERROR("Could not execute script!");
+        PrintError();
+        return false;
+    }
+
+    return true;
 }
 
 void ScriptState::PrintError()
