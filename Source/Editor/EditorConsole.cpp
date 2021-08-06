@@ -116,9 +116,11 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         {
             for(const auto& message : copiedMessages)
             {
+                ImGui::PushTextWrapPos(0.0f);
                 ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
-                ImGui::TextWrapped(message.text.c_str());
+                ImGui::TextUnformatted(message.text.c_str());
                 ImGui::PopStyleColor();
+                ImGui::PopTextWrapPos();
             }
 
             if(m_autoScroll)
