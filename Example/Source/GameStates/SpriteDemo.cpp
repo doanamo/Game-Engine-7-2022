@@ -28,8 +28,7 @@ SpriteDemo::~SpriteDemo() = default;
 
 SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 {
-    LOG("Creating game scene...");
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Create game scene");
 
     // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr,
@@ -140,7 +139,6 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Save engine reference.
     instance->m_engine = engine;
 
-    // Success!
     return Common::Success(std::move(instance));
 }
 

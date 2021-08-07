@@ -88,11 +88,8 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
 
 Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load texture from \"{}\" file...",
-        file.GetPath().generic_string());
-
-    LOG("Loading texture from \"{}\" file...",
-        file.GetPath().generic_string());
+    LOG_PROFILE_SCOPE("Loading texture from \"{}\" file...", file.GetPath().generic_string());
+    LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,

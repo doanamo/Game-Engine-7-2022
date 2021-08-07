@@ -59,11 +59,13 @@ file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" ${ABSOLUTE_GAME_DIR})
 set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS
+        "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
 if(EMSCRIPTEN)
-    target_link_options(${TARGET_NAME} PUBLIC "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
+    target_link_options(${TARGET_NAME} PUBLIC
+        "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
 endif()
 
 #
