@@ -10,8 +10,8 @@
 /*
     Native File Depot
 
-    Collection of loose files present in native directory that can be mounted
-    under different path using file system.
+    Collection of loose files present in native directory that can be mounted under different path
+    using file system.
 */
 
 namespace System
@@ -28,6 +28,7 @@ namespace System
         using CreateResult = Common::Result<std::unique_ptr<NativeFileDepot>, CreateErrors>;
         static CreateResult Create(fs::path fileDirectory);
 
+    public:
         ~NativeFileDepot();
 
         OpenFileResult OpenFile(const fs::path& depotPath, const fs::path& requestedPath,
@@ -36,6 +37,7 @@ namespace System
     private:
         NativeFileDepot();
 
+    private:
         fs::path m_fileDirectory;
     };
 }

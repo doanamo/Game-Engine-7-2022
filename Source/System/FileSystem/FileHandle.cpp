@@ -7,8 +7,9 @@
 #include "System/FileSystem/FileHandle.hpp"
 using namespace System;
 
-FileHandle::FileHandle(const fs::path& path, OpenFlags::Type flags) :
-    m_path(path), m_flags(flags)
+FileHandle::FileHandle(const fs::path& path, OpenFlags::Type flags)
+    : m_path(path)
+    , m_flags(flags)
 {
 }
 
@@ -35,7 +36,7 @@ std::vector<uint8_t> FileHandle::ReadAsBinaryArray()
     binary.resize(GetSize());
 
     Seek(0, SeekMode::Begin);
-    Read((uint8_t*)&binary[0], GetSize());
+    Read(reinterpret_cast<uint8_t*>(&binary[0]), GetSize());
 
     return binary;
 }
@@ -46,7 +47,7 @@ std::string FileHandle::ReadAsTextString()
     text.resize(GetSize());
 
     Seek(0, SeekMode::Begin);
-    Read((uint8_t*)&text[0], GetSize());
+    Read(reinterpret_cast<uint8_t*>(&text[0]), GetSize());
 
     return text;
 }

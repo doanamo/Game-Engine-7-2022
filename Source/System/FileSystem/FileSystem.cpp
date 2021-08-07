@@ -11,7 +11,7 @@ using namespace System;
 
 namespace
 {
-    const char* AttachError = "Failed to create file system instance! {}";
+    const char* AttachError = "Failed to attach file system! {}";
 }
 
 FileSystem::FileSystem() = default;

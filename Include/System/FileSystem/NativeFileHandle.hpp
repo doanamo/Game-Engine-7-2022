@@ -22,6 +22,7 @@ namespace System
         static FileDepot::OpenFileResult Create(const fs::path& filePath,
             const fs::path& requestedPath, OpenFlags::Type openFlags);
 
+    public:
         ~NativeFileHandle();
 
         uint64_t Tell() override;
@@ -35,6 +36,7 @@ namespace System
     private:
         NativeFileHandle(const fs::path& path, OpenFlags::Type flags);
 
+    private:
         std::fstream m_stream;
         uint64_t m_size;
     };

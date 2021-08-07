@@ -23,7 +23,7 @@ namespace System
             EmptyFilePathArgument,
             InvalidFilePathArgument,
             InvalidOpenFlagsArgument,
-            UnknownFileOpeningError,
+            UnknownFileOpenError,
             FileNotFound,
             AccessDenied,
             TooManyHandles,
@@ -33,7 +33,9 @@ namespace System
         using OpenFileResult = Common::Result<std::unique_ptr<FileHandle>, OpenFileErrors>;
         using DirectoryContentList = std::vector<fs::path>;
 
+    public:
         virtual ~FileDepot() = default;
+
         virtual OpenFileResult OpenFile(const fs::path& depotPath,
             const fs::path& requestedPath, FileHandle::OpenFlags::Type openFlags) = 0;
     };

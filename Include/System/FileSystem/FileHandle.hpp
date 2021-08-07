@@ -8,8 +8,8 @@
 /*
     File Handle
 
-    Base for implementations of files opened by file system through file depots
-    that are ready for reading and writing if returned.
+    Base for implementations of files opened by file system through file depot that are ready for
+    reading and writing if returned (if appropriate flags are set and permissions allow it).
 */
 
 namespace System
@@ -41,6 +41,7 @@ namespace System
             using Type = uint8_t;
         };
 
+    public:
         virtual ~FileHandle();
 
         virtual uint64_t Tell() = 0;

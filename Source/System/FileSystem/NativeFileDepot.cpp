@@ -21,6 +21,7 @@ NativeFileDepot::CreateResult NativeFileDepot::Create(fs::path fileDirectory)
     CHECK_ARGUMENT_OR_RETURN(!fileDirectory.empty(),
         Common::Failure(CreateErrors::EmptyDepotDirectoryArgument));
 
+    // Ensure that directory exists.
     fileDirectory = fileDirectory.lexically_normal();
     if(!fs::is_directory(fileDirectory))
     {
@@ -28,6 +29,7 @@ NativeFileDepot::CreateResult NativeFileDepot::Create(fs::path fileDirectory)
         return Common::Failure(CreateErrors::NonExistingDepotDirectory);
     }
 
+    // Create class instance.
     auto instance = std::unique_ptr<NativeFileDepot>(new NativeFileDepot());
     instance->m_fileDirectory = fileDirectory;
 

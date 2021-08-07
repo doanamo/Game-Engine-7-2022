@@ -7,8 +7,8 @@
 #include "System/FileSystem/NativeFileHandle.hpp"
 using namespace System;
 
-NativeFileHandle::NativeFileHandle(const fs::path& path, OpenFlags::Type flags) :
-    FileHandle(path, flags)
+NativeFileHandle::NativeFileHandle(const fs::path& path, OpenFlags::Type flags)
+    : FileHandle(path, flags)
 {
 }
 
@@ -17,9 +17,11 @@ NativeFileHandle::~NativeFileHandle() = default;
 FileDepot::OpenFileResult NativeFileHandle::Create(const fs::path& filePath,
     const fs::path& requestedPath, OpenFlags::Type openFlags)
 {
+    // Create class instance.
     auto instance = std::unique_ptr<NativeFileHandle>(
         new NativeFileHandle(requestedPath, openFlags));
 
+    // Determine file stream mode.
     std::ios_base::openmode openMode = std::fstream::binary;
 
     if(openFlags & OpenFlags::Read)
@@ -42,11 +44,11 @@ FileDepot::OpenFileResult NativeFileHandle::Create(const fs::path& filePath,
         openMode |= std::fstream::trunc;
     }
 
-    errno = 0;
+    // Open file stream.
     instance->m_stream.open(filePath, openMode);
     if(!instance->m_stream.is_open() || !instance->m_stream.good())
     {
-        OpenFileErrors error = OpenFileErrors::UnknownFileOpeningError;
+        OpenFileErrors error = OpenFileErrors::UnknownFileOpenError;
 
         switch(errno)
         {
@@ -70,6 +72,7 @@ FileDepot::OpenFileResult NativeFileHandle::Create(const fs::path& filePath,
         return Common::Failure(error);
     }
 
+    // Determine file stream size.
     instance->m_stream.ignore(std::numeric_limits<std::streamsize>::max());
     instance->m_size = instance->m_stream.gcount();
     instance->m_stream.clear();
@@ -93,6 +96,7 @@ uint64_t NativeFileHandle::Seek(uint64_t offset, SeekMode mode)
     case FileHandle::SeekMode::Current:
         seekDirection = std::ios_base::cur;
         break;
+
     case FileHandle::SeekMode::End:
         seekDirection = std::ios_base::end;
         break;
@@ -117,7 +121,6 @@ uint64_t NativeFileHandle::Write(const uint8_t* data, uint64_t bytes)
         return 0;
 
     m_size = std::max(m_size, Common::NumericalCast<uint64_t>(m_stream.tellg()));
-
     return bytes;
 }
 
