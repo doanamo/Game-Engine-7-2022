@@ -1,5 +1,8 @@
-# Ignore CMake build directories containing temporary files.
+# External directory with third-party libraries.
+External/*
+
+# CMake build directories containing temporary files.
 Build/CMake*/
 
-# Ignore external directory with external libraries.
-External/*
+# Editors and programming IDEs.
+.vscode/
