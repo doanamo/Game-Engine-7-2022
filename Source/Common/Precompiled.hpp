@@ -20,6 +20,10 @@
     #include <windows.h>
 #endif
 
+#ifdef __linux__
+    #include <unistd.h>
+#endif
+
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
