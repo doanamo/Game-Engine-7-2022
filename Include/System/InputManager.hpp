@@ -36,12 +36,15 @@ namespace System
         void UpdateInputState();
         void ResetInputState();
 
-        InputState& GetInputState();
+        InputState& GetInputState()
+        {
+            return m_inputState;
+        }
 
     public:
         struct Events
         {
-            // Should be dispatched when tick is processed in order to update input state.
+            // Should be received when tick is processed in order to update input state.
             Event::Receiver<void(float)> onTickProcessed;
         } events;
 

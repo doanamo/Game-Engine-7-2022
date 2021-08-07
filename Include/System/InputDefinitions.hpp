@@ -285,4 +285,3 @@ REFLECTION_TYPE(System::InputEvents::MouseButton, Event::EventBase)
 REFLECTION_TYPE(System::InputEvents::MouseScroll, Event::EventBase)
 REFLECTION_TYPE(System::InputEvents::CursorPosition, Event::EventBase)
 REFLECTION_TYPE(System::InputEvents::CursorEnter, Event::EventBase)
-

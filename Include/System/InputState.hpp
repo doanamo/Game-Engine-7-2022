@@ -28,6 +28,7 @@ namespace System
         bool IsMouseButtonPressed(KeyboardKeys::Type key, bool repeat = true) const;
         bool IsMouseButtonReleased(KeyboardKeys::Type key, bool repeat = true) const;
 
+    public:
         Event::Broker events;
 
     private:
@@ -45,6 +46,7 @@ namespace System
         void OnCursorPosition(const InputEvents::CursorPosition& event);
         void OnCursorEnter(const InputEvents::CursorEnter& event);
 
+    private:
         InputEvents::KeyboardKey m_keyboardKeyStates[KeyboardKeys::Count];
         InputEvents::MouseButton m_mouseButtonStates[MouseButtons::Count];
     };

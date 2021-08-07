@@ -8,6 +8,11 @@
 #include <Core/SystemStorage.hpp>
 using namespace System;
 
+namespace
+{
+    const char* LogAttachError = "Failed to attach resource manager! {}";
+}
+
 ResourceManager::ResourceManager() = default;
 ResourceManager::~ResourceManager() = default;
 
@@ -17,11 +22,10 @@ bool ResourceManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_fileSystem = engineSystems.Locate<System::FileSystem>();
     if(!m_fileSystem)
     {
-        LOG_ERROR("Failed to locate file system!");
+        LOG_ERROR(LogAttachError, "Could not locate file system.");
         return false;
     }
 
-    // Success!
     return true;
 }
 

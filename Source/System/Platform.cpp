@@ -27,6 +27,7 @@ Platform::~Platform()
 
         if(InstanceCounter == 0)
         {
+            // Terminate GLFW library along with last instance.
             glfwTerminate();
         }
     }

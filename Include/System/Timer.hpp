@@ -59,10 +59,10 @@ namespace System
         static TimeUnit ReadClockFrequency();
 
     private:
-        float m_maxUpdateDelta = 1.0f;
-
         TimeUnit m_currentTimeUnits;
         TimeUnit m_previousTimeUnits;
+
+        float m_maxUpdateDelta = 1.0f;
     };
 }
 

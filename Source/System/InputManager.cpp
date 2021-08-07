@@ -78,11 +78,6 @@ void InputManager::ResetInputState()
     m_inputState.ResetStates();
 }
 
-InputState& InputManager::GetInputState()
-{
-    return m_inputState;
-}
-
 InputManager* InputManager::GetInputManagerFromUserData(GLFWwindow* handle)
 {
     ASSERT(handle != nullptr, "Window handle is invalid!");
@@ -96,18 +91,16 @@ InputManager* InputManager::GetInputManagerFromUserData(GLFWwindow* handle)
 
 void InputManager::TextInputCallback(GLFWwindow* handle, unsigned int character)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::TextInput outgoingEvent;
     outgoingEvent.utf32Character = character;
+
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnTextInput(outgoingEvent);
 }
 
 void InputManager::KeyboardKeyCallback(GLFWwindow* handle,
     int key, int scancode, int action, int mods)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::KeyboardKey outgoingEvent;
     outgoingEvent.key = TranslateKeyboardKey(key);
     outgoingEvent.state = TranslateInputAction(action);
@@ -125,13 +118,12 @@ void InputManager::KeyboardKeyCallback(GLFWwindow* handle,
         return;
     }
 
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnKeyboardKey(outgoingEvent);
 }
 
 void InputManager::MouseButtonCallback(GLFWwindow* handle, int button, int action, int mods)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::MouseButton outgoingEvent;
     outgoingEvent.button = TranslateMouseButton(button);
     outgoingEvent.state = TranslateInputAction(action);
@@ -143,33 +135,34 @@ void InputManager::MouseButtonCallback(GLFWwindow* handle, int button, int actio
         return;
     }
 
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnMouseButton(outgoingEvent);
 }
 
 void InputManager::MouseScrollCallback(GLFWwindow* handle, double offsetx, double offsety)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::MouseScroll outgoingEvent;
     outgoingEvent.offset = offsety;
+
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnMouseScroll(outgoingEvent);
 }
 
 void InputManager::CursorPositionCallback(GLFWwindow* handle, double x, double y)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::CursorPosition outgoingEvent;
     outgoingEvent.x = x;
     outgoingEvent.y = y;
+
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnCursorPosition(outgoingEvent);
 }
 
 void InputManager::CursorEnterCallback(GLFWwindow* handle, int entered)
 {
-    InputManager* inputManager = GetInputManagerFromUserData(handle);
-
     InputEvents::CursorEnter outgoingEvent;
     outgoingEvent.entered = entered;
+
+    InputManager* inputManager = GetInputManagerFromUserData(handle);
     inputManager->m_inputState.OnCursorEnter(outgoingEvent);
 }

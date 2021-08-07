@@ -1,3 +1,4 @@
+
 /*
     Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
     Software distributed under the permissive MIT License.
@@ -9,8 +10,13 @@
 #include <Core/ConfigSystem.hpp>
 using namespace System;
 
-Window::Window() :
-    m_context(*this)
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach window! {}";
+}
+
+Window::Window()
+    : m_context(*this)
 {
     events.Register<void, WindowEvents::Move>();
     events.Register<void, WindowEvents::Resize>();
@@ -35,13 +41,17 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve config variables.
     auto* config = engineSystems.Locate<Core::ConfigSystem>();
+    if(config == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate config.");
+        return false;
+    }
 
     m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
     int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);
     int height = config->Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(576);
     bool vsync = config->Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(true);
     bool visible = config->Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(true);
-
     int minWidth = config->Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(-1);
     int minHeight = config->Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(-1);
     int maxWidth = config->Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(-1);
@@ -76,13 +86,12 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     m_context.handle = glfwCreateWindow(width, height, m_title.c_str(), nullptr, nullptr);
     if(m_context.handle == nullptr)
     {
-        LOG_ERROR("Could not create window!");
+        LOG_ERROR(LogAttachFailed, "Could not create window.");
         return false;
     }
 
     glfwSetWindowUserPointer(m_context.handle, &m_context);
     glfwSetWindowSizeLimits(m_context.handle, minWidth, minHeight, maxWidth, maxHeight);
-
     glfwSetWindowPosCallback(m_context.handle, Window::MoveCallback);
     glfwSetFramebufferSizeCallback(m_context.handle, Window::ResizeCallback);
     glfwSetWindowFocusCallback(m_context.handle, Window::FocusCallback);
@@ -94,16 +103,15 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     // Prepare OpenGL function and extension loader.
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Could not load OpenGL function and extension loader!");
+        LOG_ERROR(LogAttachFailed, "Could not load OpenGL function and extension loader.");
         return false;
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
 
-    // Print window and context info.
-    int windowWidth, windowHeight;
-    glfwGetFramebufferSize(m_context.handle, &windowWidth, &windowHeight);
-    LOG_INFO("Resolution is {}x{}.", windowWidth, windowHeight);
+    // Retrieve window and context info.
+    glfwGetFramebufferSize(m_context.handle, &m_width, &m_height);
+    LOG_INFO("Resolution is {}x{}.", m_width, m_height);
 
     int glInterface = glfwGetWindowAttrib(m_context.handle, GLFW_CLIENT_API);
     int glMajor = glfwGetWindowAttrib(m_context.handle, GLFW_CONTEXT_VERSION_MAJOR);
@@ -111,7 +119,6 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     LOG_INFO("Using OpenGL {}{}.{} context.",
         glInterface == GLFW_OPENGL_API ? "" : "ES ", glMajor, glMinor);
 
-    // Success!
     return true;
 }
 
@@ -133,15 +140,15 @@ void Window::MakeContextCurrent()
 
 void Window::ProcessEvents()
 {
+    // Poll window events.
     ASSERT(m_context.handle);
     glfwPollEvents();
 
+    // Save new window size.
     if(m_sizeChanged)
     {
-        int windowWidth, windowHeight;
-        glfwGetFramebufferSize(m_context.handle, &windowWidth, &windowHeight);
-        LOG_INFO("Resolution changed to {}x{}.", windowWidth, windowHeight);
-
+        glfwGetFramebufferSize(m_context.handle, &m_width, &m_height);
+        LOG_INFO("Resolution changed to {}x{}.", m_width, m_height);
         m_sizeChanged = false;
     }
 }
@@ -187,27 +194,6 @@ void Window::SetVisibility(bool show)
     }
 }
 
-std::string Window::GetTitle() const
-{
-    return m_title;
-}
-
-int Window::GetWidth() const
-{
-    int width = 0;
-    ASSERT(m_context.handle);
-    glfwGetFramebufferSize(m_context.handle, &width, nullptr);
-    return width;
-}
-
-int Window::GetHeight() const
-{
-    int height = 0;
-    ASSERT(m_context.handle);
-    glfwGetFramebufferSize(m_context.handle, nullptr, &height);
-    return height;
-}
-
 bool Window::ShouldClose() const
 {
     ASSERT(m_context.handle);
@@ -218,11 +204,6 @@ bool Window::IsFocused() const
 {
     ASSERT(m_context.handle);
     return glfwGetWindowAttrib(m_context.handle, GLFW_FOCUSED) > 0;
-}
-
-WindowContext& Window::GetContext()
-{
-    return m_context;
 }
 
 Window& Window::GetWindowFromUserData(GLFWwindow* handle)
@@ -236,40 +217,36 @@ Window& Window::GetWindowFromUserData(GLFWwindow* handle)
 
 void Window::MoveCallback(GLFWwindow* handle, int x, int y)
 {
-    Window& window = GetWindowFromUserData(handle);
-
     WindowEvents::Move eventData;
     eventData.x = x;
     eventData.y = y;
 
+    Window& window = GetWindowFromUserData(handle);
     window.events.Dispatch<void>(eventData);
 }
 
 void Window::ResizeCallback(GLFWwindow* handle, int width, int height)
 {
-    Window& window = GetWindowFromUserData(handle);
-
     WindowEvents::Resize eventData;
     eventData.width = width;
     eventData.height = height;
 
+    Window& window = GetWindowFromUserData(handle);
     window.events.Dispatch<void>(eventData).Unwrap();
     window.m_sizeChanged = true;
 }
 
 void Window::FocusCallback(GLFWwindow* handle, int focused)
 {
-    Window& window = GetWindowFromUserData(handle);
-
     WindowEvents::Focus eventData;
     eventData.focused = focused > 0;
 
+    Window& window = GetWindowFromUserData(handle);
     window.events.Dispatch<void>(eventData).Unwrap();
 }
 
 void Window::CloseCallback(GLFWwindow* handle)
 {
     Window& window = GetWindowFromUserData(handle);
-
     window.events.Dispatch<void>(WindowEvents::Close{}).Unwrap();
 }

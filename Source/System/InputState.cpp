@@ -119,20 +119,22 @@ bool InputState::OnKeyboardKey(const InputEvents::KeyboardKey& event)
 {
     InputEvents::KeyboardKey keyboardKeyEvent = m_keyboardKeyStates[event.key];
 
+    // Check whether we are still in intermediate state triggered during same frame.
     if(keyboardKeyEvent.state == InputStates::Pressed && event.state == InputStates::Released)
     {
+        // State changes from pressed to released in single frame.
         keyboardKeyEvent.state = InputStates::PressedReleased;
     }
     else
     {
+        // Change to new state.
         keyboardKeyEvent.state = event.state;
+        keyboardKeyEvent.modifiers = event.modifiers;
         keyboardKeyEvent.stateTime = 0.0f;
     }
 
-    keyboardKeyEvent.modifiers = event.modifiers;
-
+    // Dispatch input event and determine whether input has been captured.
     bool inputCaptured = events.Dispatch<bool>(keyboardKeyEvent).Unwrap();
-
     if(!inputCaptured || IsInputStateReleased(keyboardKeyEvent.state))
     {
         m_keyboardKeyStates[event.key] = keyboardKeyEvent;
@@ -145,20 +147,22 @@ bool InputState::OnMouseButton(const InputEvents::MouseButton& event)
 {
     InputEvents::MouseButton mouseButtonEvent = m_mouseButtonStates[event.button];
 
+    // Check whether we are still in intermediate state triggered during same frame.
     if(mouseButtonEvent.state == InputStates::Pressed && event.state == InputStates::Released)
     {
+        // State changes from pressed to released in single frame.
         mouseButtonEvent.state = InputStates::PressedReleased;
     }
     else
     {
+        // Change to new state.
         mouseButtonEvent.state = event.state;
+        mouseButtonEvent.modifiers = event.modifiers;
         mouseButtonEvent.stateTime = 0.0f;
     }
 
-    mouseButtonEvent.modifiers = event.modifiers;
-
+    // Dispatch input event and determine whether input has been captured.
     bool inputCaptured = events.Dispatch<bool>(mouseButtonEvent).Unwrap();
-
     if(!inputCaptured || IsInputStateReleased(mouseButtonEvent.state))
     {
         m_mouseButtonStates[event.button] = mouseButtonEvent;

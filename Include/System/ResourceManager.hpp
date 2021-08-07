@@ -12,9 +12,8 @@
 /*
     Resource Manager
 
-    Tracks resource references and releases them when no longer needed.
-    Wraps multiple ResourcePool instances that can hold resources of different
-    types in a single ResourceManager instance.
+    Tracks resource references and releases them when no longer needed. Wraps multiple ResourcePool
+    instances that can hold resources of different types in a single ResourceManager instance.
 */
 
 namespace System
@@ -73,14 +72,14 @@ namespace System
     void ResourceManager::SetDefault(std::unique_ptr<Type>&& resource)
     {
         // Construct shared pointer from unique pointer.
-        this->SetDefault(std::shared_ptr<Type>(std::move(resource)));
+        SetDefault(std::shared_ptr<Type>(std::move(resource)));
     }
 
     template<typename Type>
     void ResourceManager::SetDefault(std::shared_ptr<Type> resource)
     {
         // Get resource pool.
-        ResourcePool<Type>* pool = this->GetPool<Type>();
+        ResourcePool<Type>* pool = GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve resource pool!");
 
         // Set default resource.
@@ -91,7 +90,7 @@ namespace System
     std::shared_ptr<Type> ResourceManager::GetDefault() const
     {
         // Get resource pool.
-        ResourcePool<Type>* pool = this->GetPool<Type>();
+        ResourcePool<Type>* pool = GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve resource pool!");
 
         // Return default resource.
@@ -103,7 +102,7 @@ namespace System
         fs::path path, Arguments... arguments)
     {
         // Call relative acquisition method with empty relative path.
-        return this->AcquireRelative<Type>(path, "",
+        return AcquireRelative<Type>(path, "",
             std::forward<Arguments>(arguments)...);
     }
 
@@ -111,7 +110,7 @@ namespace System
     typename ResourcePool<Type>::AcquireResult ResourceManager::AcquireRelative(
         fs::path path, fs::path relativePath, Arguments... arguments)
     {
-        ResourcePool<Type>* pool = this->GetPool<Type>();
+        ResourcePool<Type>* pool = GetPool<Type>();
         ASSERT(pool != nullptr, "Could not retrieve resource pool!");
         return pool->Acquire(relativePath.remove_filename() / path,
             std::forward<Arguments>(arguments)...);
@@ -144,7 +143,7 @@ namespace System
         else
         {
             // Create and return new resource pool.
-            return this->CreatePool<Type>();
+            return CreatePool<Type>();
         }
     }
 };

@@ -10,17 +10,21 @@ namespace System
 {
     bool IsInputStatePressed(InputStates::Type state, bool repeat)
     {
-        return state == InputStates::Pressed || state == InputStates::PressedReleased || (state == InputStates::PressedRepeat && repeat);
+        return state == InputStates::Pressed
+            || state == InputStates::PressedReleased
+            || (state == InputStates::PressedRepeat && repeat);
     }
 
     bool IsInputStateReleased(InputStates::Type state, bool repeat)
     {
-        return state == InputStates::Released || (state == InputStates::ReleasedRepeat && repeat);
+        return state == InputStates::Released
+            || (state == InputStates::ReleasedRepeat && repeat);
     }
 
     bool IsInputStateRepeating(InputStates::Type state)
     {
-        return state == InputStates::PressedRepeat || state == InputStates::ReleasedRepeat;
+        return state == InputStates::PressedRepeat
+            || state == InputStates::ReleasedRepeat;
     }
 
     InputStates::Type TransitionInputState(InputStates::Type state)
@@ -185,7 +189,8 @@ namespace System
     MouseButtons::Type TranslateMouseButton(int button)
     {
         MouseButtons::Type result = MouseButtons::Button1 + button;
-        ASSERT(result >= MouseButtons::Button1 && button < MouseButtons::Count, "Unexpected mouse button index argument!");
+        ASSERT(result >= MouseButtons::Button1 && button < MouseButtons::Count,
+            "Unexpected mouse button index argument!");
         return result < MouseButtons::Count ? result : MouseButtons::Invalid;
     }
 }

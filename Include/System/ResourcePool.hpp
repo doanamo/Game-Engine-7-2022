@@ -57,8 +57,8 @@ namespace System
     };
 
     template<typename Type>
-    ResourcePool<Type>::ResourcePool(FileSystem* fileSystem) :
-        m_fileSystem(fileSystem)
+    ResourcePool<Type>::ResourcePool(FileSystem* fileSystem)
+        : m_fileSystem(fileSystem)
     {
         ASSERT(m_fileSystem, "Resource pool needs valid file system reference!");
     }
@@ -86,6 +86,7 @@ namespace System
     typename ResourcePool<Type>::AcquireResult ResourcePool<Type>::Acquire(
         fs::path path, Arguments... arguments)
     {
+        // Normalize path to generic key form.
         path = path.lexically_normal();
         std::string key = path.generic_string();
 
@@ -112,10 +113,10 @@ namespace System
             std::shared_ptr<Type> resource = resourceCreateResult.Unwrap();
             ASSERT(resource != nullptr, "Successfully created resource is null!");
 
-            auto result = m_resources.emplace(key, std::move(resource));
-            ASSERT(result.second, "Failed to emplace new resource in resource pool!");
+            auto [it, result] = m_resources.emplace(key, std::move(resource));
+            ASSERT(result, "Failed to emplace new resource in resource pool!");
 
-            return Common::Success(result.first->second);
+            return Common::Success(it->second);
         }
         else
         {

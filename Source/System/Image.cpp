@@ -8,26 +8,37 @@
 #include "System/FileSystem/FileHandle.hpp"
 using namespace System;
 
+namespace
+{
+    const char* LogLoadFromFileFailed = "Failed to load image from \"{}\" file! {}";
+}
+
 Image::Image() = default;
 Image::~Image() = default;
 
 Image::CreateResult Image::Create(FileHandle& file, const LoadFromFile& params)
 {
+    LOG_PROFILE_SCOPE("Load image from \"{}\" file", file.GetPath().generic_string());
     LOG("Loading image from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
 
+    // Create class instance.
     auto instance = std::unique_ptr<Image>(new Image());
 
+    // Load image data from format.
     fs::path extension = file.GetPath().extension();
     if(extension == ".png")
     {
         if(auto failureResult = instance->LoadPNG(file).AsFailure())
         {
+            LOG_ERROR(LogLoadFromFileFailed, file.GetPath().generic_string(),
+                "Could not load PNG image data.");
             return Common::Failure(failureResult.Unwrap());
         }
     }
     else
     {
+        LOG_ERROR(LogLoadFromFileFailed, file.GetPath().generic_string(),
+             "Unknown image file format.");
         return Common::Failure(CreateErrors::UnknownExtension);
     }
 
@@ -36,9 +47,10 @@ Image::CreateResult Image::Create(FileHandle& file, const LoadFromFile& params)
 
 Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
 {
-    LOG("Loading PNG image from \"{}\" file...", file.GetPath().generic_string());
-    LOG_SCOPED_INDENT();
+    LOG_PROFILE_SCOPE("Load PNG image data from \"{}\" file", file.GetPath().generic_string());
+    LOG("Loading PNG image data from \"{}\" file...", file.GetPath().generic_string());
 
+    // Initialize PNG library for reading data.
     const size_t png_sig_size = 8;
     png_byte png_sig[png_sig_size];
 
@@ -54,7 +66,8 @@ Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
         return Common::Failure(CreateErrors::FailedPngLoad);
     }
 
-    png_structp png_read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    png_structp png_read_ptr = png_create_read_struct(
+        PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if(png_read_ptr == nullptr)
     {
         LOG_ERROR("Could not create PNG read structure!");
@@ -107,6 +120,7 @@ Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
         return Common::Failure(CreateErrors::FailedPngLoad);
     }
 
+    // Read image data description.
     png_set_read_fn(png_read_ptr, (png_voidp)&file, png_read_function);
     png_set_sig_bytes(png_read_ptr, png_sig_size);
     png_read_info(png_read_ptr, png_info_ptr);
@@ -164,6 +178,7 @@ Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
         return Common::Failure(CreateErrors::FailedPngLoad);
     }
 
+    // Read image data.
     m_data.resize(width * height* channels);
     static_assert(sizeof(Data::value_type) == sizeof(png_byte));
 
@@ -191,24 +206,4 @@ Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
     m_channels = channels;
 
     return Common::Success();
-}
-
-const uint8_t* Image::GetData() const
-{
-    return m_data.data();
-}
-
-int Image::GetWidth() const
-{
-    return m_width;
-}
-
-int Image::GetHeight() const
-{
-    return m_height;
-}
-
-int Image::GetChannels() const
-{
-    return m_channels;
 }

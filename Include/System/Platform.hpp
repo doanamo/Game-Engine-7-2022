@@ -26,6 +26,7 @@ namespace System
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
+    private:
         bool m_attached = false;
     };
 }

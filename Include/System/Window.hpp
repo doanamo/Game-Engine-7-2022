@@ -14,8 +14,8 @@ struct GLFWwindow;
 /*
     Window
 
-    Creates and handles a multimedia window that also manages its own OpenGL
-    context along with input. Supports multiple windows and OpenGL contexts.
+    Creates and handles a multimedia window that also manages its own OpenGL context along with
+    input. Supports creation of multiple windows and OpenGL contexts.
 */
 
 namespace System
@@ -26,8 +26,12 @@ namespace System
     class WindowContext
     {
     public:
-        WindowContext(Window& window) :
-            window(window)
+        friend Window;
+        friend InputManager;
+
+    public:
+        WindowContext(Window& window)
+            : window(window)
         {
         }
 
@@ -37,9 +41,6 @@ namespace System
         }
 
     private:
-        friend Window;
-        friend InputManager;
-
         Window& window;
         GLFWwindow* handle = nullptr;
         InputManager* inputManager = nullptr;
@@ -61,13 +62,30 @@ namespace System
         void SetTitle(std::string title);
         void SetVisibility(bool show);
 
-        WindowContext& GetContext();
-        std::string GetTitle() const;
-        int GetWidth() const;
-        int GetHeight() const;
+        WindowContext& GetContext()
+        {
+            return m_context;
+        }
+
+        std::string GetTitle() const
+        {
+            return m_title;
+        }
+
+        int GetWidth() const
+        {
+            return m_width;
+        }
+
+        int GetHeight() const
+        {
+            return m_height;
+        }
+
         bool ShouldClose() const;
         bool IsFocused() const;
 
+    public:
         Event::Broker events;
 
     private:
@@ -86,6 +104,8 @@ namespace System
 
         std::string m_title;
         bool m_sizeChanged = false;
+        int m_width = 0;
+        int m_height = 0;
     };
 }
 
