@@ -11,14 +11,13 @@
 /*
     File System
 
-    Manages file depots that are mounted to specified directions, used to
-    locate and then open files. File depots acts as virtual file systems
-    when mounted, allowing directories to be mapped under specified paths.
-    This is not limited to mounting directories, as zipped archives and
+    Manages file depots that are mounted to specified directions, used to locate and then open
+    files. File depots acts as virtual file systems when mounted, allowing directories to be mapped
+    under specified paths. This is not limited to mounting directories, as zipped archives and
     memory regions can be used as mounted virtual file systems as well.
 
-    Implementation of separate native/memory/archive depots was roughly
-    inspired by: https://github.com/yevgeniy-logachev/vfspp
+    Implementation of separate native/memory/archive depots was roughly inspired by:
+    - https://github.com/yevgeniy-logachev/vfspp
 */
 
 namespace System

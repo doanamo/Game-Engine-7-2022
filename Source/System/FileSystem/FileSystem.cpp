@@ -11,7 +11,7 @@ using namespace System;
 
 namespace
 {
-    const char* CreateError = "Failed to create file system instance! {}";
+    const char* AttachError = "Failed to create file system instance! {}";
 }
 
 FileSystem::FileSystem() = default;
@@ -20,17 +20,19 @@ FileSystem::~FileSystem() = default;
 bool FileSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Mount native working directory.
+    LOG("Current working directory: {}", fs::current_path().generic_string());
+
     if(auto workingDirectoryDepot = NativeFileDepot::Create("./"))
     {
         if(!MountDepot("./", workingDirectoryDepot.Unwrap()))
         {
-            LOG_ERROR(CreateError, "Could not mount default working directory.");
+            LOG_ERROR(AttachError, "Could not mount default working directory.");
             return false;
         }
     }
     else
     {
-        LOG_ERROR(CreateError, "Could not create default working directory.");
+        LOG_ERROR(AttachError, "Could not create default working directory.");
         return false;
     }
 
@@ -41,13 +43,13 @@ bool FileSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
         {
             if(!MountDepot("./", engineDirectoryDepot.Unwrap()))
             {
-                LOG_ERROR(CreateError, "Could not mount default engine directory.");
+                LOG_ERROR(AttachError, "Could not mount default engine directory.");
                 return false;
             }
         }
         else
         {
-            LOG_ERROR(CreateError, "Could not create default engine directory depot.");
+            LOG_ERROR(AttachError, "Could not create default engine directory depot.");
             return false;
         }
     }
@@ -59,18 +61,17 @@ bool FileSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
         {
             if(!MountDepot("./", gameDirectoryDepot.Unwrap()))
             {
-                LOG_ERROR(CreateError, "Could not mount default game directory.");
+                LOG_ERROR(AttachError, "Could not mount default game directory.");
                 return false;
             }
         }
         else
         {
-            LOG_ERROR(CreateError, "Could not create default game directory depot.");
+            LOG_ERROR(AttachError, "Could not create default game directory depot.");
             return false;
         }
     }
 
-    // Success!
     return true;
 }
 
@@ -81,14 +82,16 @@ FileSystem::MountDepotResult FileSystem::MountDepot(fs::path mountPath, FileDepo
     CHECK_ARGUMENT_OR_RETURN(fileDepot != nullptr,
         Common::Failure(MountDepotErrors::InvalidFileDepotArgument));
 
+    // Check whether mount path is a valid directory path.
     if(mountPath.has_filename())
     {
-        LOG_ERROR("Cannot mount path \"{}\" that contains filename!", mountPath.generic_string());
+        LOG_ERROR("Cannot mount path \"{}\" that contains file name!",
+            mountPath.generic_string());
         return Common::Failure(MountDepotErrors::InvalidMountPathArgument);
     }
 
+    // Map file depot to mount path.
     m_mountedDepots.push_back({ mountPath.lexically_normal(), std::move(fileDepot) });
-
     return Common::Success();
 }
 
@@ -100,50 +103,60 @@ FileDepot::OpenFileResult FileSystem::OpenFile(
     CHECK_ARGUMENT_OR_RETURN(openFlags != FileHandle::OpenFlags::None,
         Common::Failure(FileDepot::OpenFileErrors::InvalidOpenFlagsArgument));
 
+    // Check whether file path contains file name.
     filePath = filePath.lexically_normal();
-
     if(!filePath.has_filename())
     {
-        LOG_ERROR("Cannot open file from path \"{}\" that does not contain filename!",
+        LOG_ERROR("Cannot open file from path \"{}\" that does not contain file name!",
             filePath.generic_string());
         return Common::Failure(FileDepot::OpenFileErrors::InvalidFilePathArgument);
     }
 
-    for(auto entry = m_mountedDepots.crbegin(); entry != m_mountedDepots.crend(); ++entry)
+    // Walk through mounted file depots in reverse order (last mounted file depot has precedence).
+    for(auto depot = m_mountedDepots.crbegin(); depot != m_mountedDepots.crend(); ++depot)
     {
-        const fs::path& mountPath = entry->mountPath;
-
+        const fs::path& mountPath = depot->mountPath;
         auto mountPathIt = mountPath.begin();
         auto filePathIt = filePath.begin();
 
-        if(*mountPathIt == ".")
+        // Check whether file path is within mounted depot path.
+        while(mountPathIt != mountPath.end() && filePathIt != filePath.end())
         {
-            mountPathIt++;
-        }
+            if(*mountPathIt == ".")
+            {
+                ++mountPathIt;
+                continue;
+            }
 
-        while(mountPathIt != mountPath.end())
-        {
-            if(filePathIt == filePath.end())
-                break;
+            if(*filePathIt == ".")
+            {
+                ++filePathIt;
+                continue;
+            }
 
             if(*mountPathIt != *filePathIt)
                 break;
 
             ++mountPathIt;
+            ++filePathIt;
         }
 
+        // If we reached the end of mount path then it is contained withing file path.
         if(mountPathIt == mountPath.end())
         {
+            // Determine file path inside depot.
             fs::path depotFilePath = std::accumulate(
                 filePathIt, filePath.end(), fs::path(), std::divides());
 
-            if(auto openFileResult = entry->fileDepot->OpenFile(depotFilePath, filePath, openFlags))
+            // Attempt to open file inside depot.
+            if(auto openFileResult = depot->fileDepot->OpenFile(depotFilePath, filePath, openFlags))
             {
                 LOG_SUCCESS("Opened \"{}\" file.", filePath.generic_string());
                 return openFileResult;
             }
             else
             {
+                // If file was simply not found in depot, continue looking through remaining depots.
                 FileDepot::OpenFileErrors openFileError = openFileResult.UnwrapFailure();
                 if(openFileError != FileDepot::OpenFileErrors::FileNotFound)
                 {
@@ -153,6 +166,7 @@ FileDepot::OpenFileResult FileSystem::OpenFile(
         }
     }
 
+    // Could not find file in any mounted file depot.
     LOG_ERROR("Could not open \"{}\" file!", filePath.generic_string());
     return Common::Failure(FileDepot::OpenFileErrors::FileNotFound);
 }
