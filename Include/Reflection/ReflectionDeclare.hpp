@@ -26,6 +26,12 @@
         return GetTypeStorage().GetTypeInfo(); \
     }
 
+#define REFLECTION_TYPE_INFO_OVERRIDE \
+    virtual const Reflection::DynamicTypeInfo& GetTypeInfo() const override \
+    { \
+        return GetTypeStorage().GetTypeInfo(); \
+    }
+
 #define REFLECTION_ENABLE_BASE(ReflectedType) \
     public: \
         REFLECTION_SUPER(Reflection::NullType) \
@@ -36,7 +42,7 @@
     public: \
         REFLECTION_SUPER(ReflectedBaseType) \
         REFLECTION_TYPE_STORAGE \
-        REFLECTION_TYPE_INFO
+        REFLECTION_TYPE_INFO_OVERRIDE
 
 #define REFLECTION_CHECK_TYPE(ReflectedType) \
     static_assert(std::is_class<ReflectedType>::value || \

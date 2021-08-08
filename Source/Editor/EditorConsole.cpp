@@ -18,18 +18,19 @@ namespace
     {
         switch(severity)
         {
-        case Logger::Severity::Trace:   return ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-        case Logger::Severity::Debug:   return ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
-        case Logger::Severity::Profile: return ImVec4(0.6f, 0.2f, 1.0f, 1.0f);
-        case Logger::Severity::Info:    return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        case Logger::Severity::Success: return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
-        case Logger::Severity::Warning: return ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
-        case Logger::Severity::Error:   return ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
-        case Logger::Severity::Fatal:   return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-        }
+            case Logger::Severity::Trace:   return ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+            case Logger::Severity::Debug:   return ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
+            case Logger::Severity::Profile: return ImVec4(0.6f, 0.2f, 1.0f, 1.0f);
+            case Logger::Severity::Info:    return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+            case Logger::Severity::Success: return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+            case Logger::Severity::Warning: return ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+            case Logger::Severity::Error:   return ImVec4(1.0f, 0.4f, 0.0f, 1.0f);
+            case Logger::Severity::Fatal:   return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
 
-        ASSERT(false, "Invalid message severity!");
-        return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+            default:
+                ASSERT(false, "Unknown message severity!");
+                return ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
 }
 

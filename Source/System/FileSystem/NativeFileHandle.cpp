@@ -89,16 +89,24 @@ uint64_t NativeFileHandle::Tell()
 
 uint64_t NativeFileHandle::Seek(uint64_t offset, SeekMode mode)
 {
-    std::ios_base::seekdir seekDirection = std::ios_base::beg;
+    std::ios_base::seekdir seekDirection;
 
     switch(mode)
     {
+    case FileHandle::SeekMode::Begin:
+        seekDirection = std::ios_base::beg;
+        break;
+
     case FileHandle::SeekMode::Current:
         seekDirection = std::ios_base::cur;
         break;
 
     case FileHandle::SeekMode::End:
         seekDirection = std::ios_base::end;
+        break;
+
+    default:
+        ASSERT(false, "Unknown seek mode!");
         break;
     }
 

@@ -35,7 +35,7 @@ namespace Editor
 
     private:
         bool OnAttach(const EditorSubsystemStorage& editorSubsystems) override;
-        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
+        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event) override;
         void OnBeginInterface(float timeDelta) override;
 
     private:
