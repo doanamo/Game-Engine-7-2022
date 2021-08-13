@@ -28,8 +28,9 @@ Using build scripts (see *Build* directory):
 * For Visual Studio on Windows, there are batch scripts that will generate/update solution via CMake and then automatically open IDE
 * For Emscripten on Windows, there is batch script that will download Emscripten SDK along with needed build tools, compile the entire engine and then run Example project in browser
 
-For native desktop (manual):
+Using CMake manually:
 * Run CMake and input main directory to generate makefiles or IDE solution of your choice
+* Before debugging ensure that working directory is set to CMAKE_BINARY_DIR (done automatically for Visual Studio)
 * Compile and run Example project
 
 For web browser (manual):
@@ -40,7 +41,7 @@ For web browser (manual):
 
 Contributions
 ===
-Engine is not intended nor anywhere close near being suitable for use yet. For now please refrain for sending pull requests for new features. However, feel free to open issues for dicussion or any questions about this project and its code!
+Engine is in prototyping phase and will not be ready for use in production anytime soon. For now please refrain from sending pull requests for new features. However, feel free to open issues for discussion or any questions about this project and its code!
 
 License
 ===
