@@ -41,9 +41,12 @@ namespace Editor
     private:
         System::Window* m_window = nullptr;
 
-        bool m_visible = false;
+        bool m_windowVisible = false;
+        bool m_optionsVisible = false;
         bool m_autoScroll = true;
         std::string m_inputBuffer;
+
+        bool m_severityFilters[Logger::Severity::Count];
     };
 }
 

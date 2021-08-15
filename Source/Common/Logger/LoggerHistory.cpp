@@ -10,7 +10,15 @@ using namespace Logger;
 
 namespace
 {
-    static const int MessageHistorySize = 1000;
+    static const int MessageHistorySize = 10000;
+}
+
+History::MessageStats::MessageStats()
+{
+    for(auto& severity : severityCount)
+    {
+        severity = 0;
+    }
 }
 
 History::History() = default;
@@ -21,22 +29,35 @@ bool History::Initialize() const
     return true;
 }
 
-void History::Write(const Logger::Message& message, const Logger::SinkContext& context)
+void History::Write(const Message& message, const SinkContext& context)
 {
+    std::scoped_lock guard(m_lock);
+
     // Truncate message history.
     if(m_messages.size() == MessageHistorySize)
     {
+        assert(m_messages.front().severity < Severity::Count);
+        int severityID = static_cast<int>(m_messages.front().severity);
+        m_stats.severityCount[severityID] -= 1;
+
         m_messages.pop_front();
     }
 
     // Add new message entry.
+    assert(message.GetSeverity() < Severity::Count);
+    int severityID = static_cast<int>(message.GetSeverity());
+    m_stats.severityCount[severityID] += 1;
+
     MessageEntry messageEntry;
     messageEntry.severity = message.GetSeverity();
     messageEntry.text = DefaultFormat::ComposeMessage(message, context);
     m_messages.emplace_back(std::move(messageEntry));
 }
 
-const History::MessageList& History::GetMessages() const
+void History::Clear()
 {
-    return m_messages;
+    std::scoped_lock guard(m_lock);
+
+    m_messages = MessageList();
+    m_stats = MessageStats();
 }

@@ -20,8 +20,15 @@ namespace Logger
     public:
         struct MessageEntry
         {
-            Logger::Severity::Type severity;
+            Severity::Type severity;
             std::string text;
+        };
+
+        struct MessageStats
+        {
+            MessageStats();
+
+            uint32_t severityCount[Severity::Count];
         };
 
         using MessageList = std::deque<MessageEntry>;
@@ -31,10 +38,24 @@ namespace Logger
         ~History();
 
         bool Initialize() const override;
-        void Write(const Logger::Message& message, const Logger::SinkContext& context) override;
-        const MessageList& GetMessages() const;
+        void Write(const Message& message, const SinkContext& context) override;
+        void Clear();
+
+        MessageList GetMessages() const
+        {
+            std::scoped_lock guard(m_lock);
+            return m_messages;
+        }
+
+        MessageStats GetStats() const
+        {
+            std::scoped_lock guard(m_lock);
+            return m_stats;
+        }
 
     private:
+        mutable std::mutex m_lock;
         MessageList m_messages;
+        MessageStats m_stats;
     };
 }

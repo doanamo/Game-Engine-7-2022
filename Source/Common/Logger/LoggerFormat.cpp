@@ -11,22 +11,6 @@ using namespace Logger;
 
 namespace
 {
-    const char* MessageSeverityMarker(Severity::Type severity)
-    {
-        switch(severity)
-        {
-            case Severity::Trace:   return "t";
-            case Severity::Debug:   return "d";
-            case Severity::Profile: return "p";
-            case Severity::Info:    return "i";
-            case Severity::Success: return "s";
-            case Severity::Warning: return "w";
-            case Severity::Error:   return "e";
-            case Severity::Fatal:   return "f";
-            default:                return " ";
-        }
-    }
-
     bool CaseInsensitiveCharacterComparison(char a, char b)
     {
         return std::tolower(a) == std::tolower(b);
@@ -44,14 +28,14 @@ std::string DefaultFormat::ComposeSessionStart()
         "Log message legend: "
         "[{}] Trace, [{}] Debug, [{}] Profile, [{}] Info, "
         "[{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
-        MessageSeverityMarker(Severity::Trace),
-        MessageSeverityMarker(Severity::Debug),
-        MessageSeverityMarker(Severity::Profile),
-        MessageSeverityMarker(Severity::Info),
-        MessageSeverityMarker(Severity::Success),
-        MessageSeverityMarker(Severity::Warning),
-        MessageSeverityMarker(Severity::Error),
-        MessageSeverityMarker(Severity::Fatal)
+        GetSeverityMarker(Severity::Trace),
+        GetSeverityMarker(Severity::Debug),
+        GetSeverityMarker(Severity::Profile),
+        GetSeverityMarker(Severity::Info),
+        GetSeverityMarker(Severity::Success),
+        GetSeverityMarker(Severity::Warning),
+        GetSeverityMarker(Severity::Error),
+        GetSeverityMarker(Severity::Fatal)
     );
 
     // Format log message format text.
@@ -73,7 +57,7 @@ std::string DefaultFormat::ComposeMessage(const Message& message, const SinkCont
 
     messageText += fmt::format("[{:%H:%M:%S}]", time);
     messageText += fmt::format("[{:03d}]", context.referenceFrame % 1000);
-    messageText += fmt::format("[{}]", MessageSeverityMarker(message.GetSeverity()));
+    messageText += fmt::format("[{}]", GetSeverityMarker(message.GetSeverity()));
     messageText += fmt::format(" {: >{}}{}", "", context.messageIndent, message.GetText());
         
     // Format message source.

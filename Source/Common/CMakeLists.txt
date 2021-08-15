@@ -44,12 +44,14 @@ set(FILES_STRUCTURES
 
 set(FILES_LOGGER
     "${INCLUDE_DIR}/Logger/Logger.hpp"
+    "${INCLUDE_DIR}/Logger/LoggerSeverity.hpp"
     "${INCLUDE_DIR}/Logger/LoggerMessage.hpp"
     "${INCLUDE_DIR}/Logger/LoggerSink.hpp"
     "${INCLUDE_DIR}/Logger/LoggerFormat.hpp"
     "${INCLUDE_DIR}/Logger/LoggerOutput.hpp"
     "${INCLUDE_DIR}/Logger/LoggerHistory.hpp"
     "${SOURCE_DIR}/Logger/Logger.cpp"
+    "${SOURCE_DIR}/Logger/LoggerSeverity.cpp"
     "${SOURCE_DIR}/Logger/LoggerSink.cpp"
     "${SOURCE_DIR}/Logger/LoggerFormat.cpp"
     "${SOURCE_DIR}/Logger/LoggerOutput.cpp"

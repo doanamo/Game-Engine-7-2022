@@ -34,7 +34,14 @@ namespace
     }
 }
 
-EditorConsole::EditorConsole() = default;
+EditorConsole::EditorConsole()
+{
+    for(bool& severity : m_severityFilters)
+    {
+        severity = false;
+    }
+}
+
 EditorConsole::~EditorConsole() = default;
 
 bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
@@ -71,7 +78,7 @@ bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
 
 void EditorConsole::OnBeginInterface(float timeDelta)
 {
-    if(!m_visible)
+    if(!m_windowVisible)
         return;
 
     ImGuiWindowFlags windowFlags = 0;
@@ -99,46 +106,24 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
+    SCOPE_GUARD([]()
+    {
+        ImGui::PopStyleVar(2);
+    });
+
     if(ImGui::Begin("Console", nullptr, windowFlags))
     {
-        const auto copiedMessages = Logger::GetGlobalHistory().GetMessages();
+        const Logger::History::MessageList messages = Logger::GetGlobalHistory().GetMessages();
+        const Logger::History::MessageStats stats = Logger::GetGlobalHistory().GetStats();
 
-        // Console message panel.
-        ImVec2 windowSize = ImGui::GetWindowSize();
-        ImGuiWindowFlags messagesFlags = 0;
-
-        if(m_autoScroll)
-        {
-            messagesFlags |= ImGuiWindowFlags_NoScrollWithMouse;
-        }
-
-        if(ImGui::BeginChild("Console Messages",
-            ImVec2(0.0f, windowSize.y - 40.0f), false, messagesFlags))
-        {
-            for(const auto& message : copiedMessages)
-            {
-                ImGui::PushTextWrapPos(0.0f);
-                ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
-                ImGui::TextUnformatted(message.text.c_str());
-                ImGui::PopStyleColor();
-                ImGui::PopTextWrapPos();
-            }
-
-            if(m_autoScroll)
-            {
-                ImGui::SetScrollHereY(1.0f);
-            }
-        }
-        ImGui::EndChild();
-
-        // Console context menu.
-        if(ImGui::BeginPopupContextItem("Console Context Menu"))
+        // Context menu.
+        if(ImGui::BeginPopupContextItem("Context Menu"))
         {
             if(ImGui::Selectable("Copy to clipboard"))
             {
                 std::string clipboardText;
 
-                for(const auto& message : copiedMessages)
+                for(const auto& message : messages)
                 {
                     clipboardText += message.text;
                 }
@@ -150,11 +135,108 @@ void EditorConsole::OnBeginInterface(float timeDelta)
             ImGui::EndPopup();
         }
 
-        ImGui::Separator();
-        ImGui::PushItemWidth(-1);
+        // Console messages
+        ImGui::BeginChild("Console Messages", ImVec2(0.0f, -24.0f));
+        {
+            ImVec2 windowSize = ImGui::GetWindowSize();
+            ImGuiWindowFlags messagesFlags = 0;
+
+            if(m_autoScroll)
+            {
+                messagesFlags |= ImGuiWindowFlags_NoScrollWithMouse;
+            }
+
+            if(ImGui::BeginChild("Message History",
+                ImVec2(m_optionsVisible ? -180.0f : 0, 0.0f), false, messagesFlags))
+            {
+                bool filterActive = std::find(std::begin(m_severityFilters),
+                    std::end(m_severityFilters), true) != std::end(m_severityFilters);
+
+                for(const auto& message : messages)
+                {
+                    if(filterActive)
+                    {
+                        ASSERT(message.severity < Logger::Severity::Count);
+                        int severityID = static_cast<int>(message.severity);
+                        if(!m_severityFilters[severityID])
+                            continue;
+                    }
+
+                    ImGui::PushTextWrapPos(0.0f);
+                    ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
+                    ImGui::TextUnformatted(message.text.c_str());
+                    ImGui::PopStyleColor();
+                    ImGui::PopTextWrapPos();
+                }
+
+                if(m_autoScroll)
+                {
+                    ImGui::SetScrollHereY(1.0f);
+                }
+            }
+            ImGui::EndChild();
+
+            if(m_optionsVisible)
+            {
+                ImGui::SameLine();
+                if(ImGui::BeginChild("Console Options"),
+                    ImVec2(0.0f, 0.0f), true)
+                {
+                    static bool temp = false;
+                    ImGui::Text("Filter severity:");
+
+                    ImGui::Indent();
+
+                    int severityID = 0;
+                    for(bool& severityFilter : m_severityFilters)
+                    {
+                        if(severityID != 0)
+                        {
+                            std::string text = fmt::format("{} ({})", Logger::GetSeverityName(
+                                static_cast<Logger::Severity::Type>(severityID)),
+                                stats.severityCount[severityID]);
+
+                            ImGui::PushID(severityID);
+                            ImGui::Checkbox(text.c_str(), &severityFilter);
+                            ImGui::PopID();
+                        }
+
+                        severityID++;
+                    }
+
+                    ImGui::Unindent();
+
+                    if(ImGui::Button("Filter by none"))
+                    {
+                        for(bool& severityFilter : m_severityFilters)
+                        {
+                            severityFilter = false;
+                        }
+                    }
+
+                    if(ImGui::Button("Filter by all"))
+                    {
+                        for(bool& severityFilter : m_severityFilters)
+                        {
+                            severityFilter = true;
+                        }
+                    }
+
+                    if(ImGui::Button("Clear history"))
+                    {
+                        Logger::GetGlobalHistory().Clear();
+                    }
+                }
+                ImGui::EndChild();
+            }
+        }
+        ImGui::EndChild();
 
         // Console input.
-        if(ImGui::InputText("Console Input", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
+        ImGui::Separator();
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 60.0f);
+
+        if(ImGui::InputText("##ConsoleInput", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             ImGui::SetKeyboardFocusHere();
 
@@ -170,18 +252,24 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         }
 
         ImGui::PopItemWidth();
+
+        // Console options toggle.
+        ImGui::SameLine();
+
+        if(ImGui::Button("Options", ImVec2(60.0f, 0.0f)))
+        {
+            m_optionsVisible = !m_optionsVisible;
+        }
     }
     ImGui::End();
-
-    ImGui::PopStyleVar(2);
 }
 
 void EditorConsole::Toggle(bool visibility)
 {
-    m_visible = visibility;
+    m_windowVisible = visibility;
 }
 
 bool EditorConsole::IsVisible() const
 {
-    return m_visible;
+    return m_windowVisible;
 }

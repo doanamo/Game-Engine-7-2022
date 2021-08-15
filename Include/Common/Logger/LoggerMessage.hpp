@@ -6,6 +6,7 @@
 #pragma once
 
 #include <string>
+#include "Common/Logger/LoggerSeverity.hpp"
 #include "Common/Logger/LoggerSink.hpp"
 
 /*
@@ -16,25 +17,6 @@
 
 namespace Logger
 {
-    struct Severity
-    {
-        enum Type
-        {
-            Invalid,
-
-            Trace,
-            Debug,
-            Profile,
-            Info,
-            Success,
-            Warning,
-            Error,
-            Fatal,
-
-            Count,
-        };
-    };
-
     class Message
     {
     public:
