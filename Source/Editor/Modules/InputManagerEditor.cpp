@@ -134,7 +134,7 @@ void InputManagerEditor::OnDisplay(float timeDelta)
                     {
                         ImGui::TextWrapped("%s", eventText.c_str());
                     }
-                    ImGui::SetScrollHere(1.0f);
+                    ImGui::SetScrollHereY(1.0f);
                 }
                 ImGui::EndChild();
 
