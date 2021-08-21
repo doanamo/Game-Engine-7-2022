@@ -29,7 +29,7 @@ bool ResourceManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
     return true;
 }
 
-void ResourceManager::OnBeginFrame()
+void ResourceManager::OnPreFrame()
 {
      ReleaseUnused();
 }

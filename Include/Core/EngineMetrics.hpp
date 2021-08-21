@@ -29,8 +29,8 @@ namespace Core
 
     private:
         bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override;
-        void OnBeginFrame() override;
-        void OnEndFrame() override;
+        void OnPreFrame() override;
+        void OnPostFrame() override;
 
     private:
         double m_frameRateUpdateFrequency = 1.0;

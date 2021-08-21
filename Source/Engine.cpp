@@ -157,9 +157,16 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 
 void Root::ProcessFrame()
 {
-    // Begin processing frame.
+    // Before processing frame.
     Logger::AdvanceFrameReference();
 
+    m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
+    {
+        engineSystem.OnPreFrame();
+        return true;
+    });
+
+    // Begin processing frame.
     m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
     {
         engineSystem.OnBeginFrame();
@@ -177,6 +184,13 @@ void Root::ProcessFrame()
     m_engineSystems.ForEachReverse([](Core::EngineSystem& engineSystem)
     {
         engineSystem.OnEndFrame();
+        return true;
+    });
+
+    // After processing frame.
+    m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
+    {
+        engineSystem.OnPostFrame();
         return true;
     });
 }

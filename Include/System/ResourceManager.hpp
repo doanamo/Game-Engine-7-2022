@@ -55,7 +55,7 @@ namespace System
 
     private:
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
-        void OnBeginFrame() override;
+        void OnPreFrame() override;
 
         template<typename Type>
         ResourcePool<Type>* CreatePool();

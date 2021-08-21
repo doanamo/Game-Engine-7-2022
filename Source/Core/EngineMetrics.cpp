@@ -28,12 +28,12 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
     return true;
 }
 
-void EngineMetrics::OnBeginFrame()
+void EngineMetrics::OnPreFrame()
 {
     m_frameStart = std::chrono::steady_clock::now();
 }
 
-void EngineMetrics::OnEndFrame()
+void EngineMetrics::OnPostFrame()
 {
     m_frameEnd = std::chrono::steady_clock::now();
 
