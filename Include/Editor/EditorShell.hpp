@@ -17,7 +17,7 @@ namespace Core
 
 namespace System
 {
-    class Window;
+    class WindowSystem;
 };
 
 /*
@@ -46,7 +46,7 @@ namespace Editor
 
     private:
         Core::EngineMetrics* m_engineMetrics = nullptr;
-        System::Window* m_window = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
 
         EditorModuleStorage m_editorModules;
 

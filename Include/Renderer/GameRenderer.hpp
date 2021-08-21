@@ -10,7 +10,7 @@
 
 namespace System
 {
-    class Window;
+    class WindowSystem;
 }
 
 namespace Graphics
@@ -59,7 +59,7 @@ namespace Renderer
         } m_receivers;
 
     private:
-        System::Window* m_window = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };

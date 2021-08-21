@@ -10,7 +10,7 @@
 
 namespace System
 {
-    class Window;
+    class WindowSystem;
 }
 
 /*
@@ -42,7 +42,7 @@ namespace Graphics
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
     private:
-        System::Window* m_window = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
 
         RenderState m_currentState;
         std::stack<RenderState> m_pushedStates;

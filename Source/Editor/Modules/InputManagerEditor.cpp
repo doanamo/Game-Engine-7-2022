@@ -7,6 +7,7 @@
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include <Core/SystemStorage.hpp>
 #include <Core/EngineSystem.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 using namespace Editor;
@@ -80,8 +81,8 @@ bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
     auto* editorContext = editorModules.Locate<EditorModuleContext>();
     auto& engineSystems = editorContext->GetEngineSystems();
 
-    m_window = engineSystems.Locate<System::Window>();
-    if(!m_window)
+    auto* m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(!m_windowSystem)
     {
         LOG_ERROR(LogAttachFailed, "Could not retrieve window.");
         return false;
@@ -97,8 +98,9 @@ bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
     // Subscribe to input events.
     bool subscriptionResults = true;
 
+    System::Window& window = m_windowSystem->GetWindow();
     System::InputState& inputState = inputManager->GetInputState();
-    subscriptionResults &= m_window->events.Subscribe(m_windowFocusReceiver);
+    subscriptionResults &= window.events.Subscribe(m_windowFocusReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_keyboardKeyReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_textInputReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_mouseButtonReceiver);

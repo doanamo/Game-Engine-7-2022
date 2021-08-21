@@ -8,7 +8,8 @@
 #include "Game/GameInstance.hpp"
 #include "Game/TickTimer.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/Window.hpp>
+#include <System/TimerSystem.hpp>
+#include <System/Timer.hpp>
 #include <System/InputManager.hpp>
 using namespace Game;
 
@@ -24,8 +25,8 @@ GameFramework::~GameFramework() = default;
 bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve required engine systems.
-    m_timer = engineSystems.Locate<System::Timer>();
-    if(!m_timer)
+    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
+    if(!m_timerSystem)
     {
         LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
         return false;
@@ -64,12 +65,12 @@ void GameFramework::OnProcessFrame()
     if(currentState)
     {
         // Determine current update time.
-        const float updateTime = m_timer->GetDeltaSeconds();
+        const float updateTime = m_timerSystem->GetTimer().GetDeltaSeconds();
 
         // Process tick timer.
         if(tickTimer)
         {
-            tickTimer->Advance(*m_timer);
+            tickTimer->Advance(m_timerSystem->GetTimer());
         }
 
         events.tickRequested.Dispatch();
@@ -111,6 +112,17 @@ void GameFramework::OnProcessFrame()
         // Call game state draw method.
         currentState->Draw(timeAlpha);
     }
+}
+
+bool GameFramework::IsRequestingExit()
+{
+    if(!HasGameState())
+    {
+        LOG_INFO("Requesting exit because there is no active game state.");
+        return true;
+    }
+
+    return false;
 }
 
 GameFramework::ChangeGameStateResult GameFramework::ChangeGameState(std::shared_ptr<GameState> gameState)

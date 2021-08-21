@@ -12,7 +12,7 @@
 
 namespace System
 {
-    class Timer;
+    class TimerSystem;
 }
 
 /*
@@ -60,7 +60,7 @@ namespace System
         static void CursorEnterCallback(GLFWwindow* handle, int entered);
 
     private:
-        System::Timer* m_timer = nullptr;
+        System::TimerSystem* m_timerSystem = nullptr;
         WindowContext* m_windowContext = nullptr;
         InputState m_inputState;
     };

@@ -11,8 +11,7 @@
 
 namespace System
 {
-    class Timer;
-    class Window;
+    class TimerSystem;
     class InputManager;
 }
 
@@ -82,9 +81,10 @@ namespace Game
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
         bool OnFinalize(const Core::EngineSystemStorage& engineSystems) override;
         void OnProcessFrame() override;
+        bool IsRequestingExit() override;
 
     private:
-        System::Timer* m_timer = nullptr;
+        System::TimerSystem* m_timerSystem = nullptr;
         Common::StateMachine<GameState> m_stateMachine;
     };
 }

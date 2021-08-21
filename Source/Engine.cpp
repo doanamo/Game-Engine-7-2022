@@ -10,11 +10,11 @@
 #include <Core/ConfigSystem.hpp>
 #include <Core/EngineMetrics.hpp>
 #include <System/Platform.hpp>
-#include <System/Timer.hpp>
+#include <System/TimerSystem.hpp>
 #include <System/FileSystem/FileSystem.hpp>
 #include <System/ResourceManager.hpp>
 #include <System/InputManager.hpp>
-#include <System/Window.hpp>
+#include <System/WindowSystem.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
@@ -90,8 +90,8 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<System::Platform>(),
         Reflection::GetIdentifier<System::FileSystem>(),
-        Reflection::GetIdentifier<System::Timer>(),
-        Reflection::GetIdentifier<System::Window>(),
+        Reflection::GetIdentifier<System::TimerSystem>(),
+        Reflection::GetIdentifier<System::WindowSystem>(),
         Reflection::GetIdentifier<System::InputManager>(),
         Reflection::GetIdentifier<System::ResourceManager>(),
         Reflection::GetIdentifier<Game::GameFramework>(),
@@ -203,27 +203,24 @@ Root::ErrorCode Root::Run()
         iteration to exclude time accumulated during initialization.
     */
 
-    auto* timer = m_engineSystems.Locate<System::Timer>();
-    auto* window = m_engineSystems.Locate<System::Window>();
-    auto* gameFramework = m_engineSystems.Locate<Game::GameFramework>();
-
-    window->MakeContextCurrent();
-    timer->Reset();
+    m_engineSystems.ForEach([](Core::EngineSystem& engineSystem)
+    {
+        engineSystem.OnRunEngine();
+        return true;
+    });
 
 #ifndef __EMSCRIPTEN__
     while(true)
     {
-        if(!window->ShouldClose())
+        bool requestingExit = false;
+        m_engineSystems.ForEach([&requestingExit](Core::EngineSystem& engineSystem)
         {
-            LOG_INFO("Exiting main loop because window has been requested to close.");
-            break;
-        }
+            requestingExit |= engineSystem.IsRequestingExit();
+            return true;
+        });
 
-        if(!gameFramework->HasGameState())
-        {
-            LOG_INFO("Exiting main loop because there is no active game state.");
+        if(requestingExit)
             break;
-        }
 
         ProcessFrame();
     }

@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <Core/EngineSystem.hpp>
-
 #ifndef __EMSCRIPTEN__
     // Use precise time counters on platforms that support it.
     // Emscripten does not implement GLFW function for reading high frequency clock.
@@ -22,9 +20,9 @@
 
 namespace System
 {
-    class Timer final : public Core::EngineSystem
+    class Timer final
     {
-        REFLECTION_ENABLE(Timer, Core::EngineSystem)
+        REFLECTION_ENABLE(Timer)
 
     public:
 #ifdef USE_PRECISE_TIME_COUNTERS
@@ -37,7 +35,7 @@ namespace System
 
     public:
         Timer();
-        ~Timer() override;
+        ~Timer();
 
         float Advance(float maxDeltaSeconds = 0.0f);
         void Advance(const Timer& timer);
@@ -52,18 +50,13 @@ namespace System
         static double ConvertToSeconds(TimeUnit units);
 
     private:
-        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
-        void OnBeginFrame() override;
-
         static TimeUnit ReadClockUnits();
         static TimeUnit ReadClockFrequency();
 
     private:
         TimeUnit m_currentTimeUnits;
         TimeUnit m_previousTimeUnits;
-
-        float m_maxUpdateDelta = 1.0f;
     };
 }
 
-REFLECTION_TYPE(System::Timer, Core::EngineSystem)
+REFLECTION_TYPE(System::Timer)

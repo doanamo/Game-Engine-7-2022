@@ -7,6 +7,7 @@
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/LoggerHistory.hpp>
 #include <Core/SystemStorage.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -55,10 +56,10 @@ bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     }
 
     auto& engineSystems = editorContext->GetEngineSystems();
-    m_window = engineSystems.Locate<System::Window>();
-    if(m_window == nullptr)
+    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(m_windowSystem == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
@@ -81,6 +82,8 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     if(!m_windowVisible)
         return;
 
+    const System::Window& window = m_windowSystem->GetWindow();
+
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;
     windowFlags |= ImGuiWindowFlags_NoTitleBar;
@@ -88,16 +91,16 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     windowFlags |= ImGuiWindowFlags_NoScrollWithMouse;
 
     ImVec2 consoleMinSize;
-    consoleMinSize.x = m_window->GetWidth();
+    consoleMinSize.x = window.GetWidth();
     consoleMinSize.y = 52.0f;
 
     ImVec2 consoleMaxSize;
-    consoleMaxSize.x = m_window->GetWidth();
-    consoleMaxSize.y = std::max((float)m_window->GetHeight(), consoleMinSize.y);
+    consoleMaxSize.x = window.GetWidth();
+    consoleMaxSize.y = std::max((float)window.GetHeight(), consoleMinSize.y);
 
     ImVec2 consoleWindowSize;
-    consoleWindowSize.x = m_window->GetWidth();
-    consoleWindowSize.y = m_window->GetHeight() * 0.6f;
+    consoleWindowSize.x = window.GetWidth();
+    consoleWindowSize.y = window.GetHeight() * 0.6f;
 
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(consoleWindowSize, ImGuiCond_Once);

@@ -6,7 +6,6 @@
 #pragma once
 
 #include <Common/Event/EventBroker.hpp>
-#include <Core/EngineSystem.hpp>
 #include "System/WindowEvents.hpp"
 
 struct GLFWwindow;
@@ -46,13 +45,36 @@ namespace System
         InputManager* inputManager = nullptr;
     };
 
-    class Window final : public Core::EngineSystem
+    class Window final
     {
-        REFLECTION_ENABLE(Window, Core::EngineSystem)
+        REFLECTION_ENABLE(Window)
 
     public:
-        Window();
-        ~Window() override;
+        struct CreateParams
+        {
+            std::string title = "Game";
+            int width = 1024;
+            int height = 576;
+            int minWidth = -1;
+            int minHeight = -1;
+            int maxWidth = -1;
+            int maxHeight = -1;
+            bool vsync = true;
+            bool visible = true;
+        };
+
+        enum class CreateErrors
+        {
+            InvalidSize,
+            FailedWindowCreation,
+            OpenGLLoaderError,
+        };
+
+        using CreateResult = Common::Result<std::unique_ptr<Window>, CreateErrors>;
+        static CreateResult Create(const CreateParams& params);
+
+    public:
+        ~Window();
 
         void MakeContextCurrent();
         void ProcessEvents();
@@ -89,9 +111,7 @@ namespace System
         Event::Broker events;
 
     private:
-        bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
-        void OnBeginFrame() override;
-        void OnEndFrame() override;
+        Window();
 
         static Window& GetWindowFromUserData(GLFWwindow* handle);
         static void MoveCallback(GLFWwindow* handle, int x, int y);
@@ -109,4 +129,4 @@ namespace System
     };
 }
 
-REFLECTION_TYPE(System::Window, Core::EngineSystem)
+REFLECTION_TYPE(System::Window)

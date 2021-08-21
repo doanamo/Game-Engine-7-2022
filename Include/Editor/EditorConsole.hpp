@@ -11,7 +11,7 @@
 
 namespace System
 {
-    class Window;
+    class WindowSystem;
 }
 
 /*
@@ -39,7 +39,7 @@ namespace Editor
         void OnBeginInterface(float timeDelta) override;
 
     private:
-        System::Window* m_window = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
 
         bool m_windowVisible = false;
         bool m_optionsVisible = false;

@@ -21,11 +21,17 @@ namespace Core
 
     public:
         virtual ~EngineSystem() = default;
+        virtual void OnRunEngine() {}
         virtual void OnPreFrame() {}
         virtual void OnBeginFrame() {}
         virtual void OnProcessFrame() {}
         virtual void OnEndFrame() {}
         virtual void OnPostFrame() {}
+
+        virtual bool IsRequestingExit()
+        {
+            return false;
+        }
 
     protected:
         EngineSystem() = default;

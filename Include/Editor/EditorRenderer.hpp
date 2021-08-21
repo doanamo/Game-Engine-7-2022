@@ -16,7 +16,7 @@
 
 namespace System
 {
-    class Window;
+    class WindowSystem;
     class FileSystem;
     class ResourceManager;
 }
@@ -48,7 +48,7 @@ namespace Editor
         void OnEndInterface() override;
 
     private:
-        System::Window* m_window = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 
         std::unique_ptr<Graphics::VertexBuffer> m_vertexBuffer;

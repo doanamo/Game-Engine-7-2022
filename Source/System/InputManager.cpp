@@ -5,7 +5,9 @@
 
 #include "System/Precompiled.hpp"
 #include "System/InputManager.hpp"
+#include "System/TimerSystem.hpp"
 #include "System/Timer.hpp"
+#include "System/WindowSystem.hpp"
 #include "System/Window.hpp"
 #include <Core/SystemStorage.hpp>
 using namespace System;
@@ -32,22 +34,22 @@ InputManager::~InputManager()
 bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate needed engine systems.
-    m_timer = engineSystems.Locate<System::Timer>();
-    if(m_timer == nullptr)
+    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
+    if(m_timerSystem == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate timer.");
+        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
         return false;
     }
 
-    auto* window = engineSystems.Locate<System::Window>();
-    if(window == nullptr)
+    auto* windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(windowSystem == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
     // Register input manager with current window context.
-    m_windowContext = &window->GetContext();
+    m_windowContext = &windowSystem->GetWindow().GetContext();
     if(m_windowContext->inputManager != nullptr)
     {
         LOG_ERROR("Existing input manager already associated with this window context!");
@@ -70,7 +72,7 @@ bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
 void InputManager::UpdateInputState()
 {
-    m_inputState.UpdateStates(m_timer->GetDeltaSeconds());
+    m_inputState.UpdateStates(m_timerSystem->GetTimer().GetDeltaSeconds());
 }
 
 void InputManager::ResetInputState()

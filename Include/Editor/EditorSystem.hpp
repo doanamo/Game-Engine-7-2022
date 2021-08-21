@@ -13,8 +13,8 @@
 
 namespace System
 {
-    class Timer;
-    class Window;
+    class TimerSystem;
+    class WindowSystem;
 };
 
 namespace Editor
@@ -62,8 +62,8 @@ namespace Editor
         Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
 
     private:
-        System::Timer* m_timer = nullptr;
-        System::Window* m_window = nullptr;
+        System::TimerSystem* m_timerSystem = nullptr;
+        System::WindowSystem* m_windowSystem = nullptr;
         ImGuiContext* m_interface = nullptr;
 
         EditorSubsystemStorage m_subsystems;

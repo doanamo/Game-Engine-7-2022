@@ -6,8 +6,14 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/RenderContext.hpp"
 #include <Core/SystemStorage.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 using namespace Graphics;
+
+namespace
+{
+    const char* LogAttachFailed = "Failed to attach render context! {}";
+}
 
 RenderContext::RenderContext() = default;
 RenderContext::~RenderContext() = default;
@@ -15,17 +21,17 @@ RenderContext::~RenderContext() = default;
 bool RenderContext::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_window = engineSystems.Locate<System::Window>();
-    if(!m_window)
+    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(!m_windowSystem)
     {
-        LOG_ERROR("Failed to locate window system!");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
     // Save initial render state. Window has to set its OpenGL context as current for this to
     // succeed. Here we assume that at this point OpenGL context is still in pristine state, but
     // maybe default render state should be collected immediately when context is created?
-    m_window->MakeContextCurrent();
+    m_windowSystem->GetWindow().MakeContextCurrent();
     m_currentState.Save();
 
     return true;
@@ -33,7 +39,7 @@ bool RenderContext::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
 void RenderContext::MakeCurrent()
 {
-    m_window->MakeContextCurrent();
+    m_windowSystem->GetWindow().MakeContextCurrent();
 }
 
 RenderState& RenderContext::PushState()

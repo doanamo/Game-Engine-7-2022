@@ -10,11 +10,6 @@
 #include <System/InputDefinitions.hpp>
 #include "Editor/EditorModule.hpp"
 
-namespace System
-{
-    class Window;
-}
-
 /*
     Input Manager Editor
 
@@ -55,8 +50,6 @@ namespace Editor
         Event::Receiver<void(const System::InputEvents::CursorEnter&)> m_cursorEnterReceiver;
 
     private:
-        System::Window* m_window = nullptr;
-
         bool m_isOpen = false;
 
         bool m_incomingEventFreeze = false;

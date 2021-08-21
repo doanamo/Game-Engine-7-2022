@@ -8,6 +8,7 @@
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Core/EngineMetrics.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 using namespace Editor;
 
@@ -37,10 +38,10 @@ bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
         return false;
     }
 
-    m_window = editorContext->GetEngineSystems().Locate<System::Window>();
-    if(m_window == nullptr)
+    m_windowSystem = editorContext->GetEngineSystems().Locate<System::WindowSystem>();
+    if(m_windowSystem == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
@@ -114,7 +115,7 @@ void EditorShell::DisplayMenuBar()
 
             if(ImGui::MenuItem("Exit"))
             {
-                m_window->Close();
+                m_windowSystem->GetWindow().Close();
             }
 
             ImGui::EndMenu();
@@ -139,7 +140,7 @@ void EditorShell::DisplayFramerate()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
 
-    ImGui::SetNextWindowPos(ImVec2(4.0f, m_window->GetHeight() - 4.0f),
+    ImGui::SetNextWindowPos(ImVec2(4.0f, m_windowSystem->GetWindow().GetHeight() - 4.0f),
         ImGuiCond_Always, ImVec2(0.0f, 1.0f));
     ImGui::SetNextWindowBgAlpha(0.0f);
 

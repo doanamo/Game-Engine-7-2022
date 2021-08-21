@@ -6,13 +6,11 @@
 
 #include "System/Precompiled.hpp"
 #include "System/Window.hpp"
-#include <Core/SystemStorage.hpp>
-#include <Core/ConfigSystem.hpp>
 using namespace System;
 
 namespace
 {
-    const char* LogAttachFailed = "Failed to attach window! {}";
+    const char* LogCreateFailed = "Failed to create window! {}";
 }
 
 Window::Window()
@@ -37,28 +35,16 @@ Window::~Window()
     }
 }
 
-bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
+Window::CreateResult Window::Create(const CreateParams& params)
 {
-    // Retrieve config variables.
-    auto* config = engineSystems.Locate<Core::ConfigSystem>();
-    if(config == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate config.");
-        return false;
-    }
+    LOG_PROFILE_SCOPE("Create window");
 
-    m_title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr("Game");
-    int width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(1024);
-    int height = config->Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(576);
-    bool vsync = config->Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(true);
-    bool visible = config->Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(true);
-    int minWidth = config->Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(-1);
-    int minHeight = config->Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(-1);
-    int maxWidth = config->Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(-1);
-    int maxHeight = config->Get<int>(NAME_CONSTEXPR("window.maxHeight")).UnwrapOr(-1);
+    // Check parameters.
+    CHECK_ARGUMENT_OR_RETURN(params.width >= 0 && params.height >= 0,
+        Common::Failure(CreateErrors::InvalidSize));
 
-    width = std::max(0, width);
-    height = std::max(0, height);
+    // Create window instance.
+    auto instance = std::unique_ptr<Window>(new Window());
 
     // Setup window hints.
     glfwWindowHint(GLFW_RED_BITS, 8);
@@ -80,56 +66,51 @@ bool Window::OnAttach(const Core::EngineSystemStorage& engineSystems)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-    glfwWindowHint(GLFW_VISIBLE, visible ? 1 : 0);
+    glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
 
     // Create window.
-    m_context.handle = glfwCreateWindow(width, height, m_title.c_str(), nullptr, nullptr);
-    if(m_context.handle == nullptr)
+    instance->m_context.handle = glfwCreateWindow(
+        params.width, params.height, params.title.c_str(), nullptr, nullptr);
+    if( instance->m_context.handle == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not create window.");
-        return false;
+        LOG_ERROR(LogCreateFailed, "Could not create window.");
+        return Common::Failure(CreateErrors::FailedWindowCreation);
     }
 
-    glfwSetWindowUserPointer(m_context.handle, &m_context);
-    glfwSetWindowSizeLimits(m_context.handle, minWidth, minHeight, maxWidth, maxHeight);
-    glfwSetWindowPosCallback(m_context.handle, Window::MoveCallback);
-    glfwSetFramebufferSizeCallback(m_context.handle, Window::ResizeCallback);
-    glfwSetWindowFocusCallback(m_context.handle, Window::FocusCallback);
-    glfwSetWindowCloseCallback(m_context.handle, Window::CloseCallback);
+    glfwSetWindowUserPointer(instance->m_context.handle, &instance->m_context);
+    glfwSetWindowSizeLimits(instance->m_context.handle,
+        params.minWidth, params.minHeight, params.maxWidth, params.maxHeight);
+    glfwSetWindowPosCallback(instance->m_context.handle, Window::MoveCallback);
+    glfwSetFramebufferSizeCallback(instance->m_context.handle, Window::ResizeCallback);
+    glfwSetWindowFocusCallback(instance->m_context.handle, Window::FocusCallback);
+    glfwSetWindowCloseCallback(instance->m_context.handle, Window::CloseCallback);
 
-    glfwMakeContextCurrent(m_context.handle);
-    glfwSwapInterval((int)vsync);
+    glfwMakeContextCurrent(instance->m_context.handle);
+    glfwSwapInterval((int)params.vsync);
+
+    // Save window parameters.
+    glfwGetFramebufferSize(instance->m_context.handle, &instance->m_width, &instance->m_height);
+    LOG_INFO("Resolution is {}x{}.", instance->m_width, instance->m_height);
+
+    instance->m_title = params.title;
 
     // Prepare OpenGL function and extension loader.
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR(LogAttachFailed, "Could not load OpenGL function and extension loader.");
-        return false;
+        LOG_ERROR(LogCreateFailed, "Could not load OpenGL function and extension loader.");
+        return Common::Failure(CreateErrors::OpenGLLoaderError);
     }
 
     ASSERT(glGetError() == GL_NO_ERROR, "OpenGL error occurred during context initialization!");
 
-    // Retrieve window and context info.
-    glfwGetFramebufferSize(m_context.handle, &m_width, &m_height);
-    LOG_INFO("Resolution is {}x{}.", m_width, m_height);
-
-    int glInterface = glfwGetWindowAttrib(m_context.handle, GLFW_CLIENT_API);
-    int glMajor = glfwGetWindowAttrib(m_context.handle, GLFW_CONTEXT_VERSION_MAJOR);
-    int glMinor = glfwGetWindowAttrib(m_context.handle, GLFW_CONTEXT_VERSION_MINOR);
+    // Log version of created OpenGL context.
+    int glInterface = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CLIENT_API);
+    int glMajor = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CONTEXT_VERSION_MAJOR);
+    int glMinor = glfwGetWindowAttrib(instance->m_context.handle, GLFW_CONTEXT_VERSION_MINOR);
     LOG_INFO("Using OpenGL {}{}.{} context.",
         glInterface == GLFW_OPENGL_API ? "" : "ES ", glMajor, glMinor);
 
-    return true;
-}
-
-void Window::OnBeginFrame()
-{
-    ProcessEvents();
-}
-
-void Window::OnEndFrame()
-{
-    Present();
+    return Common::Success(std::move(instance));
 }
 
 void Window::MakeContextCurrent()
@@ -197,7 +178,7 @@ void Window::SetVisibility(bool show)
 bool Window::ShouldClose() const
 {
     ASSERT(m_context.handle);
-    return glfwWindowShouldClose(m_context.handle) == 0;
+    return glfwWindowShouldClose(m_context.handle) != 0;
 }
 
 bool Window::IsFocused() const

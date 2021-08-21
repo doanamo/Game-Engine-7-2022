@@ -6,6 +6,7 @@
 #include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
 #include <Core/SystemStorage.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
@@ -35,8 +36,8 @@ GameRenderer::~GameRenderer() = default;
 bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_window = engineSystems.Locate<System::Window>();
-    if(!m_window)
+    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(!m_windowSystem)
     {
         LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
@@ -77,8 +78,10 @@ void GameRenderer::OnDrawGameInstance(Game::GameInstance* gameInstance, float ti
 {
     ASSERT(gameInstance != nullptr);
 
+    const System::Window& window = m_windowSystem->GetWindow();
+
     DrawParams drawParams;
-    drawParams.viewportRect = { 0, 0, m_window->GetWidth(), m_window->GetHeight() };
+    drawParams.viewportRect = { 0, 0, window.GetWidth(), window.GetHeight() };
     drawParams.gameInstance = gameInstance;
     drawParams.cameraName = "Camera";
     drawParams.timeAlpha = timeAlpha;

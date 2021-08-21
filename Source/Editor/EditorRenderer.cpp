@@ -6,6 +6,7 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include <Core/SystemStorage.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 #include <System/ResourceManager.hpp>
 using namespace Editor;
@@ -29,10 +30,10 @@ bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
         return false;
     }
 
-    m_window = editorContext->GetEngineSystems().Locate<System::Window>();
-    if(m_window == nullptr)
+    m_windowSystem = editorContext->GetEngineSystems().Locate<System::WindowSystem>();
+    if(m_windowSystem == nullptr)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
@@ -200,8 +201,8 @@ void EditorRenderer::OnEndInterface()
         m_renderContext->PopState();
     });
 
-    int windowWidth = m_window->GetWidth();
-    int windowHeight = m_window->GetHeight();
+    int windowWidth = m_windowSystem->GetWindow().GetWidth();
+    int windowHeight = m_windowSystem->GetWindow().GetHeight();
     renderState.Viewport(0, 0, windowWidth, windowHeight);
 
     renderState.Enable(GL_BLEND);

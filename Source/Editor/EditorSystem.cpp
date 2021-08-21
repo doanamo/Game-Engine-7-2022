@@ -9,7 +9,9 @@
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
 #include <Core/SystemStorage.hpp>
+#include <System/TimerSystem.hpp>
 #include <System/Timer.hpp>
+#include <System/WindowSystem.hpp>
 #include <System/Window.hpp>
 #include <System/InputManager.hpp>
 #include <Game/GameInstance.hpp>
@@ -55,17 +57,17 @@ EditorSystem::~EditorSystem()
 bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Acquire engine systems.
-    m_timer = engineSystems.Locate<System::Timer>();
-    if(!m_timer)
+    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
+    if(!m_timerSystem)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate timer.");
+        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
         return false;
     }
 
-    m_window = engineSystems.Locate<System::Window>();
-    if(!m_window)
+    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    if(!m_windowSystem)
     {
-        LOG_ERROR(LogAttachFailed, "Could not locate window.");
+        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
         return false;
     }
 
@@ -93,7 +95,7 @@ bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
 bool EditorSystem::CreateContext()
 {
-    ASSERT(m_window != nullptr);
+    ASSERT(m_windowSystem != nullptr);
     ASSERT(m_interface == nullptr);
 
     // Create ImGui context.
@@ -129,7 +131,7 @@ bool EditorSystem::CreateContext()
     io.KeyMap[ImGuiKey_Z] = System::KeyboardKeys::KeyZ;
     io.SetClipboardTextFn = SetClipboardTextCallback;
     io.GetClipboardTextFn = GetClipboardTextCallback;
-    io.ClipboardUserData = m_window->GetContext().GetPrivateHandle();
+    io.ClipboardUserData = m_windowSystem->GetWindow().GetContext().GetPrivateHandle();
 
     return true;
 }
@@ -201,9 +203,9 @@ void EditorSystem::OnBeginFrame()
     ImGui::SetCurrentContext(m_interface);
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = m_timer->GetDeltaSeconds();
-    io.DisplaySize.x = (float)m_window->GetWidth();
-    io.DisplaySize.y = (float)m_window->GetHeight();
+    io.DeltaTime = m_timerSystem->GetTimer().GetDeltaSeconds();
+    io.DisplaySize.x = (float)m_windowSystem->GetWindow().GetWidth();
+    io.DisplaySize.y = (float)m_windowSystem->GetWindow().GetHeight();
 
     ImGui::NewFrame();
 

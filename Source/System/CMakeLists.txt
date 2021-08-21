@@ -39,7 +39,7 @@ set(FILES_RESOURCEMANAGER
     "${SOURCE_DIR}/ResourceManager.cpp"
 )
 
-set(FILES_INPUT
+set(FILES_INPUTMANAGER
     "${INCLUDE_DIR}/InputDefinitions.hpp"
     "${INCLUDE_DIR}/InputState.hpp"
     "${INCLUDE_DIR}/InputManager.hpp"
@@ -49,15 +49,19 @@ set(FILES_INPUT
 )
 
 set(FILES_WINDOW
-    "${INCLUDE_DIR}/Window.hpp"
     "${INCLUDE_DIR}/WindowEvents.hpp"
+    "${INCLUDE_DIR}/Window.hpp"
+    "${INCLUDE_DIR}/WindowSystem.hpp"
     "${SOURCE_DIR}/Window.cpp"
+    "${SOURCE_DIR}/WindowSystem.cpp"
 )
 
 set(FILES_UTILITY
     "${INCLUDE_DIR}/Timer.hpp"
+    "${INCLUDE_DIR}/TimerSystem.hpp"
     "${INCLUDE_DIR}/Image.hpp"
     "${SOURCE_DIR}/Timer.cpp"
+    "${SOURCE_DIR}/TimerSystem.cpp"
     "${SOURCE_DIR}/Image.cpp"
 )
 
@@ -68,7 +72,7 @@ set(FILES_SYSTEM
 
 source_group("FileSystem" FILES ${FILES_FILESYSTEM})
 source_group("ResourceManager" FILES ${FILES_RESOURCEMANAGER})
-source_group("Input" FILES ${FILES_INPUT})
+source_group("InputManager" FILES ${FILES_INPUTMANAGER})
 source_group("Window" FILES ${FILES_WINDOW})
 source_group("Utility" FILES ${FILES_UTILITY})
 source_group("" FILES ${FILES_SYSTEM})
@@ -80,7 +84,7 @@ source_group("" FILES ${FILES_SYSTEM})
 add_library(System
     ${FILES_FILESYSTEM}
     ${FILES_RESOURCEMANAGER}
-    ${FILES_INPUT}
+    ${FILES_INPUTMANAGER}
     ${FILES_WINDOW}
     ${FILES_UTILITY}
     ${FILES_SYSTEM}
