@@ -33,7 +33,7 @@ bool Timer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
     // Read config variables.
     float maxUpdateDelta = configSystem->Get<float>(
-        NAME_CONSTEXPR("timer.maxUpdateDelta"))
+        NAME_CONSTEXPR("system.maxUpdateDelta"))
         .UnwrapOr(m_maxUpdateDelta);
 
     m_maxUpdateDelta = std::max(0.0f, m_maxUpdateDelta);

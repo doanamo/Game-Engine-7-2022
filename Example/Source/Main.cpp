@@ -17,7 +17,7 @@ int main()
 
     const Core::ConfigVariableArray configVars =
     {
-        { "timer.maxUpdateDelta", "1.0f" },
+        { "system.maxUpdateDelta", "1.0" },
         { "render.spriteBatchSize", "128" },
     };
 
