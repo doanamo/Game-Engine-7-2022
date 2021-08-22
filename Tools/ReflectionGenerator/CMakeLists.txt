@@ -28,8 +28,8 @@ if(NOT EMSCRIPTEN)
 
     source_group("" FILES ${SOURCE_FILES})
 else()
+    # Import already compiled reflection generator binary.
     include("${CMAKE_BINARY_DIR}/ReflectionGenerator/ReflectionGenerator.cmake")
-
     get_target_property(REFLECTION_GENERATOR ReflectionGenerator IMPORTED_LOCATION_RELEASE)
     set_property(GLOBAL PROPERTY REFLECTION_GENERATOR ${REFLECTION_GENERATOR})
 endif()
