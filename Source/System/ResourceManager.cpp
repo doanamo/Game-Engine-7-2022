@@ -19,12 +19,7 @@ ResourceManager::~ResourceManager() = default;
 bool ResourceManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate required engine systems.
-    m_fileSystem = engineSystems.Locate<System::FileSystem>();
-    if(!m_fileSystem)
-    {
-        LOG_ERROR(LogAttachError, "Could not locate file system.");
-        return false;
-    }
+    m_fileSystem = &engineSystems.Locate<System::FileSystem>();
 
     return true;
 }

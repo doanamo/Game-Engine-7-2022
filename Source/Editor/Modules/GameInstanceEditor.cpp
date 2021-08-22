@@ -32,22 +32,11 @@ GameInstanceEditor::~GameInstanceEditor() = default;
 bool GameInstanceEditor::OnAttach(const Core::SystemStorage<EditorModule>& editorModules)
 {
     // Retrieve needed systems.
-    auto* editorContext = editorModules.Locate<EditorModuleContext>();
-    if(editorContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate editor module context.");
-        return false;
-    }
-
-    auto& engineSystems = editorContext->GetEngineSystems();
-    auto* gameFramework = engineSystems.Locate<Game::GameFramework>();
-    if(gameFramework == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate game framework system.");
-        return false;
-    }
+    auto& editorContext = editorModules.Locate<EditorModuleContext>();
+    auto& engineSystems = editorContext.GetEngineSystems();
 
     // Subscribe events.
+    auto& gameFramework = engineSystems.Locate<Game::GameFramework>();
     if(!SubscribeEvents(gameFramework))
     {
         LOG_ERROR(LogAttachFailed, "Could not subscribe to game framework events.");
@@ -60,11 +49,11 @@ bool GameInstanceEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
     return true;
 }
 
-bool GameInstanceEditor::SubscribeEvents(Game::GameFramework* gameFramework)
+bool GameInstanceEditor::SubscribeEvents(Game::GameFramework& gameFramework)
 {
     bool subscriptionResults = true;
 
-    Game::GameFramework::Events& events = gameFramework->events;
+    Game::GameFramework::Events& events = gameFramework.events;
     subscriptionResults &= m_receivers.gameStateChanged.Subscribe(events.gameStateChanged);
     subscriptionResults &= m_receivers.tickRequested.Subscribe(events.tickRequested);
     subscriptionResults &= m_receivers.tickProcessed.Subscribe(events.tickProcessed);

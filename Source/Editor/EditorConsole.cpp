@@ -48,20 +48,10 @@ EditorConsole::~EditorConsole() = default;
 bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
     // Locate needed systems.
-    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
-    if(editorContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate editor subsystem context.");
-        return false;
-    }
+    auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext.GetEngineSystems();
 
-    auto& engineSystems = editorContext->GetEngineSystems();
-    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(m_windowSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
 
     return true;
 }

@@ -19,15 +19,8 @@ ComponentSystem::~ComponentSystem() = default;
 
 bool ComponentSystem::OnAttach(const GameSystemStorage& gameSystems)
 {
-    ASSERT(m_entitySystem == nullptr);
-
     // Retrieve needed game systems.
-    m_entitySystem = gameSystems.Locate<EntitySystem>();
-    if(m_entitySystem == nullptr)
-    {
-        LOG_ERROR("Could not retrieve entity system!");
-        return false;
-    }
+    m_entitySystem = &gameSystems.Locate<EntitySystem>();
 
     // Subscribe to entity events.
     if(!m_entityCreate.Subscribe(m_entitySystem->events.entityCreate))

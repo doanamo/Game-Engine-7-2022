@@ -21,12 +21,7 @@ bool IdentitySystem::OnAttach(const GameSystemStorage& gameSystems)
     ASSERT(m_entitySystem == nullptr);
 
     // Retrieve needed game systems.
-    m_entitySystem = gameSystems.Locate<EntitySystem>();
-    if(m_entitySystem == nullptr)
-    {
-        LOG_ERROR("Could not retrieve entity system!");
-        return false;
-    }
+    m_entitySystem = &gameSystems.Locate<EntitySystem>();
 
     // Subscribe to entity destroy event which let us known when we should unregister entities.
     if(!m_entityDestroyReceiver.Subscribe(m_entitySystem->events.entityDestroy))

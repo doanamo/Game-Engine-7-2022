@@ -34,22 +34,11 @@ InputManager::~InputManager()
 bool InputManager::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate needed engine systems.
-    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
-    if(m_timerSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
-        return false;
-    }
-
-    auto* windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(windowSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
+    m_timerSystem = &engineSystems.Locate<System::TimerSystem>();
 
     // Register input manager with current window context.
-    m_windowContext = &windowSystem->GetWindow().GetContext();
+    auto& windowSystem = engineSystems.Locate<System::WindowSystem>();
+    m_windowContext = &windowSystem.GetWindow().GetContext();
     if(m_windowContext->inputManager != nullptr)
     {
         LOG_ERROR("Existing input manager already associated with this window context!");

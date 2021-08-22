@@ -23,29 +23,14 @@ EditorRenderer::~EditorRenderer() = default;
 bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
     // Locate needed engine systems.
-    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
-    if(editorContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate editor context.");
-        return false;
-    }
+    auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext.GetEngineSystems();
 
-    m_windowSystem = editorContext->GetEngineSystems().Locate<System::WindowSystem>();
-    if(m_windowSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
-
-    m_renderContext = editorContext->GetEngineSystems().Locate<Graphics::RenderContext>();
-    if(m_renderContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
-        return false;
-    }
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
 
     // Create graphics resources.
-    if(!CreateResources(editorContext->GetEngineSystems()))
+    if(!CreateResources(engineSystems))
     {
         LOG_ERROR(LogAttachFailed, "Could not create resources.");
         return false;
@@ -57,6 +42,9 @@ bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSystems)
 {
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
+
+    // Retrieve needed engine systems.
+    auto& resourceManager = engineSystems.Locate<System::ResourceManager>();
 
     // Vertex buffer.
     Graphics::Buffer::CreateFromParams vertexBufferParams;
@@ -171,7 +159,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     Graphics::Shader::LoadFromFile shaderParams;
     shaderParams.renderContext = m_renderContext;
 
-    m_shader = engineSystems.Locate<System::ResourceManager>()->Acquire<Graphics::Shader>(
+    m_shader = resourceManager.Acquire<Graphics::Shader>(
         "Data/Engine/Shaders/Interface.shader", shaderParams).UnwrapOr(nullptr);
 
     if(m_shader == nullptr)

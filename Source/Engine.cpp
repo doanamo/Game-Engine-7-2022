@@ -123,12 +123,12 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
     LOG_PROFILE_SCOPE("Load default engine resources");
 
     // Locate systems needed to load resources.
-    auto* fileSystem = m_engineSystems.Locate<System::FileSystem>();
-    auto* resourceManager = m_engineSystems.Locate<System::ResourceManager>();
+    auto& fileSystem = m_engineSystems.Locate<System::FileSystem>();
+    auto& resourceManager = m_engineSystems.Locate<System::ResourceManager>();
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
-    const std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem->OpenFile(
+    const std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem.OpenFile(
         "Data/Engine/Default/Texture.png", System::FileHandle::OpenFlags::Read)
         .UnwrapOr(nullptr);
 
@@ -140,7 +140,7 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
         if(auto defaultTextureResult = Graphics::Texture::Create(
             *defaultTextureFileResult, defaultTextureParams))
         {
-            resourceManager->SetDefault<Graphics::Texture>(defaultTextureResult.Unwrap());
+            resourceManager.SetDefault<Graphics::Texture>(defaultTextureResult.Unwrap());
         }
         else
         {

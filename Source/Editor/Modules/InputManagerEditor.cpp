@@ -78,28 +78,17 @@ InputManagerEditor::~InputManagerEditor() = default;
 bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& editorModules)
 {
     // Retrieve needed systems.
-    auto* editorContext = editorModules.Locate<EditorModuleContext>();
-    auto& engineSystems = editorContext->GetEngineSystems();
+    auto& editorContext = editorModules.Locate<EditorModuleContext>();
+    auto& engineSystems = editorContext.GetEngineSystems();
 
-    auto* m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(!m_windowSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not retrieve window.");
-        return false;
-    }
-
-    auto* inputManager = engineSystems.Locate<System::InputManager>();
-    if(!inputManager)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not retrieve input manager.");
-        return false;
-    }
+    auto& m_windowSystem = engineSystems.Locate<System::WindowSystem>();
+    auto& inputManager = engineSystems.Locate<System::InputManager>();
 
     // Subscribe to input events.
     bool subscriptionResults = true;
 
-    System::Window& window = m_windowSystem->GetWindow();
-    System::InputState& inputState = inputManager->GetInputState();
+    System::Window& window = m_windowSystem.GetWindow();
+    System::InputState& inputState = inputManager.GetInputState();
     subscriptionResults &= window.events.Subscribe(m_windowFocusReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_keyboardKeyReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_textInputReceiver);

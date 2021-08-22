@@ -29,28 +29,13 @@ SpriteRenderer::~SpriteRenderer() = default;
 bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Locate required engine systems.
-    auto* configSystem = engineSystems.Locate<Core::ConfigSystem>();
-    if(configSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate config system.");
-        return false;
-    }
+    auto& configSystem = engineSystems.Locate<Core::ConfigSystem>();
+    auto& resourceManager = engineSystems.Locate<System::ResourceManager>();
 
-    auto* resourceManager = engineSystems.Locate<System::ResourceManager>();
-    if(resourceManager == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate resource manager.");
-        return false;
-    }
+    m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
 
-    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
-    if(m_renderContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
-        return false;
-    }
-
-    m_spriteBatchSize = configSystem->Get<std::size_t>(
+    // Read config variables.
+    m_spriteBatchSize = configSystem.Get<std::size_t>(
         NAME_CONSTEXPR("render.spriteBatchSize"))
         .UnwrapOr(m_spriteBatchSize);
 
@@ -153,7 +138,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     Shader::LoadFromFile shaderParams;
     shaderParams.renderContext = m_renderContext;
 
-    m_shader = resourceManager->Acquire<Shader>(
+    m_shader = resourceManager.Acquire<Shader>(
         "Data/Engine/Shaders/Sprite.shader", shaderParams)
         .UnwrapOr(nullptr);
 

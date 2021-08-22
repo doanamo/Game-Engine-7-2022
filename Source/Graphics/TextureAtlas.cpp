@@ -38,7 +38,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<System::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();
@@ -94,7 +94,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
         textureParams.engineSystems = params.engineSystems;
         textureParams.mipmaps = true;
 
-        instance->m_texture = resourceManager->AcquireRelative<Graphics::Texture>(
+        instance->m_texture = resourceManager.AcquireRelative<Graphics::Texture>(
             texturePath, file.GetPath(), textureParams).UnwrapEither();
     }
 

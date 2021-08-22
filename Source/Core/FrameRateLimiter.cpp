@@ -21,25 +21,18 @@ FrameRateLimiter::~FrameRateLimiter() = default;
 bool FrameRateLimiter::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
     // Retrieve engine systems.
-    m_engineMetrics = engineSystems.Locate<Core::EngineMetrics>();
-    if(m_engineMetrics == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate engine metrics.");
-        return false;
-    }
-
-    auto* config = engineSystems.Locate<Core::ConfigSystem>();
-    if(config == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate config system.");
-        return false;
-    }
+    m_engineMetrics = &engineSystems.Locate<Core::EngineMetrics>();
 
     // Read config variables.
-    m_foregroundFpsLimit = config->Get<float>(
-        NAME_CONSTEXPR("core.foregroundFpsLimit")).UnwrapOr(m_foregroundFpsLimit);
-    m_backgroundFpsLimit = config->Get<float>(
-        NAME_CONSTEXPR("core.backgroundFpsLimit")).UnwrapOr(m_backgroundFpsLimit);
+    auto& config = engineSystems.Locate<Core::ConfigSystem>();
+
+    m_foregroundFpsLimit = config.Get<float>(
+        NAME_CONSTEXPR("core.foregroundFpsLimit"))
+        .UnwrapOr(m_foregroundFpsLimit);
+
+    m_backgroundFpsLimit = config.Get<float>(
+        NAME_CONSTEXPR("core.backgroundFpsLimit"))
+        .UnwrapOr(m_backgroundFpsLimit);
 
     return true;
 }

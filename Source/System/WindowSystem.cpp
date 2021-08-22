@@ -26,32 +26,21 @@ WindowSystem::~WindowSystem() = default;
 bool WindowSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve engine systems.
-    auto* config = engineSystems.Locate<Core::ConfigSystem>();
-    if(config == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate config.");
-        return false;
-    }
-
-    m_frameRateLimiter = engineSystems.Locate<Core::FrameRateLimiter>();
-    if(m_frameRateLimiter == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate frame rate limiter.");
-        return false;
-    }
+    auto& config = engineSystems.Locate<Core::ConfigSystem>();
+    m_frameRateLimiter = &engineSystems.Locate<Core::FrameRateLimiter>();
 
     // Prepare window parameters.
     Window::CreateParams params;
 
-    params.title = config->Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr(params.title);
-    params.width = config->Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(params.width);
-    params.height = config->Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(params.height);
-    params.vsync = config->Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(params.vsync);
-    params.visible = config->Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(params.visible);
-    params.minWidth = config->Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(params.minWidth);
-    params.minHeight = config->Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(params.minHeight);
-    params.maxWidth = config->Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(params.maxWidth);
-    params.maxHeight = config->Get<int>(NAME_CONSTEXPR("window.maxHeight")).UnwrapOr(params.maxHeight);
+    params.title = config.Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr(params.title);
+    params.width = config.Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(params.width);
+    params.height = config.Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(params.height);
+    params.vsync = config.Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(params.vsync);
+    params.visible = config.Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(params.visible);
+    params.minWidth = config.Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(params.minWidth);
+    params.minHeight = config.Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(params.minHeight);
+    params.maxWidth = config.Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(params.maxWidth);
+    params.maxHeight = config.Get<int>(NAME_CONSTEXPR("window.maxHeight")).UnwrapOr(params.maxHeight);
 
     // Create window instance.
     m_window = Window::Create(params).UnwrapOr(nullptr);

@@ -57,19 +57,8 @@ EditorSystem::~EditorSystem()
 bool EditorSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Acquire engine systems.
-    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
-    if(!m_timerSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
-        return false;
-    }
-
-    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(!m_windowSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
+    m_timerSystem = &engineSystems.Locate<System::TimerSystem>();
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
 
     // Initialize editor system.
     if(!CreateContext())
@@ -171,19 +160,14 @@ bool EditorSystem::CreateSubsystems(const Core::EngineSystemStorage& engineSyste
 
 bool EditorSystem::SubscribeEvents(const Core::EngineSystemStorage& engineSystems)
 {
-    auto* inputManager = engineSystems.Locate<System::InputManager>();
-    if(!inputManager)
-    {
-        LOG_ERROR(LogSubscribeEventsFailed, "Could not locate input manager.");
-        return false;
-    }
+    auto& inputManager = engineSystems.Locate<System::InputManager>();
 
     Event::SubscriptionPolicy subscriptionPolicy = Event::SubscriptionPolicy::ReplaceSubscription;
     Event::PriorityPolicy priorityPolicy = Event::PriorityPolicy::InsertFront;
 
     bool subscriptionResults = true;
 
-    System::InputState& inputState = inputManager->GetInputState();
+    System::InputState& inputState = inputManager.GetInputState();
     subscriptionResults &= inputState.events.Subscribe(
         m_receiverKeyboardKey, subscriptionPolicy, priorityPolicy);
     subscriptionResults &= inputState.events.Subscribe(

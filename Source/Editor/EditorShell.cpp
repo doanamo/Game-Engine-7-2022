@@ -24,29 +24,14 @@ EditorShell::~EditorShell() = default;
 bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
 {
     // Locate needed engine systems.
-    auto* editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
-    if(editorContext == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate editor context.");
-        return false;
-    }
+    auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
+    auto& engineSystems = editorContext.GetEngineSystems();
 
-    m_engineMetrics = editorContext->GetEngineSystems().Locate<Core::EngineMetrics>();
-    if(m_engineMetrics == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate engine metrics!");
-        return false;
-    }
-
-    m_windowSystem = editorContext->GetEngineSystems().Locate<System::WindowSystem>();
-    if(m_windowSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
+    m_engineMetrics = &engineSystems.Locate<Core::EngineMetrics>();
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
 
     // Create editor modules.
-    if(!CreateModules(editorContext->GetEngineSystems()))
+    if(!CreateModules(engineSystems))
     {
         LOG_ERROR(LogAttachFailed, "Could not create editor modules.");
         return false;

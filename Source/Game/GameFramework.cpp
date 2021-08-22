@@ -25,12 +25,7 @@ GameFramework::~GameFramework() = default;
 bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve required engine systems.
-    m_timerSystem = engineSystems.Locate<System::TimerSystem>();
-    if(!m_timerSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate timer system.");
-        return false;
-    }
+    m_timerSystem = &engineSystems.Locate<System::TimerSystem>();
 
     return true;
 }
@@ -38,14 +33,8 @@ bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 bool GameFramework::OnFinalize(const Core::EngineSystemStorage& engineSystems)
 {
     // Subscribe input manager to tick processed event so it can update its input state.
-    auto* inputManager = engineSystems.Locate<System::InputManager>();
-    if(!inputManager)
-    {
-        LOG_ERROR(LogFinalizeFailed, "Could not locate input manager.");
-        return false;
-    }
-
-    if(!inputManager->events.onTickProcessed.Subscribe(events.tickProcessed))
+    auto& inputManager = engineSystems.Locate<System::InputManager>();
+    if(!inputManager.events.onTickProcessed.Subscribe(events.tickProcessed))
     {
         LOG_ERROR(LogFinalizeFailed, "Could not subscribe input manager to event.");
         return false;

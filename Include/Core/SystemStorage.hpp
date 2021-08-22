@@ -41,8 +41,12 @@ namespace Core
         bool Finalize();
 
         template<typename SystemType>
-        SystemType* Locate() const;
-        SystemBase* Locate(Reflection::TypeIdentifier systemType) const;
+        SystemType& Locate() const;
+        SystemBase& Locate(Reflection::TypeIdentifier systemType) const;
+
+        template<typename SystemType>
+        SystemType* TryLocate() const;
+        SystemBase* TryLocate(Reflection::TypeIdentifier systemType) const;
 
         void ForEach(ForEachCallback callback);
         void ForEachReverse(ForEachCallback callback);
@@ -192,14 +196,32 @@ namespace Core
 
     template<typename SystemBase>
     template<typename SystemType>
-    SystemType* SystemStorage<SystemBase>::Locate() const
+    SystemType& SystemStorage<SystemBase>::Locate() const
     {
-        return static_cast<SystemType*>(
-            Locate(Reflection::GetIdentifier<SystemType>()));
+        return static_cast<SystemType&>(Locate(Reflection::GetIdentifier<SystemType>()));
     }
 
     template<typename SystemBase>
-    SystemBase* SystemStorage<SystemBase>::Locate(
+    SystemBase& SystemStorage<SystemBase>::Locate(
+        const Reflection::TypeIdentifier systemType) const
+    {
+        SystemBase* system = TryLocate(systemType);
+        ASSERT(system, "Could not find \"{}\" in \"{}\" system storage!",
+            Reflection::GetName(systemType).GetString(),
+            Reflection::GetName<SystemBase>().GetString());
+
+        return *system;
+    }
+
+    template<typename SystemBase>
+    template<typename SystemType>
+    SystemType* SystemStorage<SystemBase>::TryLocate() const
+    {
+        return static_cast<SystemType*>(TryLocate(Reflection::GetIdentifier<SystemType>()));
+    }
+
+    template<typename SystemBase>
+    SystemBase* SystemStorage<SystemBase>::TryLocate(
         const Reflection::TypeIdentifier systemType) const
     {
         ASSERT(m_finalized, "Cannot locate systems while storage \"{}\" is not finalized!",
@@ -209,9 +231,6 @@ namespace Core
         const auto it = m_systemMap.find(systemType);
         if(it == m_systemMap.end())
         {
-            ASSERT(false, "Could not find \"{}\" in \"{}\" system storage!",
-                Reflection::GetName(systemType).GetString(),
-                Reflection::GetName<SystemBase>().GetString());
             return nullptr;
         }
 

@@ -21,12 +21,7 @@ RenderContext::~RenderContext() = default;
 bool RenderContext::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(!m_windowSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
 
     // Save initial render state. Window has to set its OpenGL context as current for this to
     // succeed. Here we assume that at this point OpenGL context is still in pristine state, but

@@ -34,7 +34,7 @@ namespace Editor
 
     private:
         bool OnAttach(const Core::SystemStorage<EditorModule>& editorModules) override;
-        bool SubscribeEvents(Game::GameFramework* gameFramework);
+        bool SubscribeEvents(Game::GameFramework& gameFramework);
         void OnDisplay(float timeDelta) override;
         void OnDisplayMenuBar() override;
 

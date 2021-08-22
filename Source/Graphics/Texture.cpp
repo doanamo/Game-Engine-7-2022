@@ -96,7 +96,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Retrieve needed engine systems.
-    auto* renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
+    auto& renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
     // Load image from file.
     auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);
@@ -133,7 +133,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
 
     // Create texture from image data.
     CreateFromParams createParams;
-    createParams.renderContext = renderContext;
+    createParams.renderContext = &renderContext;
     createParams.width = image->GetWidth();
     createParams.height = image->GetHeight();
     createParams.format = textureFormat;

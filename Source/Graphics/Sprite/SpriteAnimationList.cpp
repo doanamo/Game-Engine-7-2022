@@ -59,7 +59,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto* resourceManager = params.engineSystems->Locate<System::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<System::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();
@@ -114,8 +114,9 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
 
         TextureAtlas::LoadFromFile textureAtlasParams;
         textureAtlasParams.engineSystems = params.engineSystems;
-        textureAtlas = resourceManager->AcquireRelative<TextureAtlas>(
-            textureAtlasPath, file.GetPath(), textureAtlasParams).UnwrapOr(nullptr);
+        textureAtlas = resourceManager.AcquireRelative<TextureAtlas>(
+            textureAtlasPath, file.GetPath(), textureAtlasParams)
+            .UnwrapOr(nullptr);
 
         if(textureAtlas == nullptr)
         {

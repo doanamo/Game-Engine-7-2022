@@ -14,17 +14,10 @@ EngineMetrics::~EngineMetrics() = default;
 
 bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
-    // Retrieve needed engine systems
-    auto* configSystem = engineSystems.Locate<ConfigSystem>();
-    if(configSystem == nullptr)
-    {
-        LOG_ERROR("Failed to attach engine metrics! Could not retrieve window.");
-        return false;
-    }
-
     // Read config variables.
-    m_frameRateUpdateFrequency =
-        configSystem->Get<double>(NAME_CONSTEXPR("metrics.frameRateUpdateFrequency"))
+    auto& configSystem = engineSystems.Locate<ConfigSystem>();
+    m_frameRateUpdateFrequency = configSystem.Get<double>(
+        NAME_CONSTEXPR("metrics.frameRateUpdateFrequency"))
         .UnwrapOr(m_frameRateUpdateFrequency);
 
     // Reset time points.

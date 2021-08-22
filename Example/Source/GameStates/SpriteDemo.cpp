@@ -35,9 +35,9 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto* inputManager = engine->GetSystems().Locate<System::InputManager>();
-    auto* resourceManager = engine->GetSystems().Locate<System::ResourceManager>();
-    auto* gameFramework = engine->GetSystems().Locate<Game::GameFramework>();
+    auto& inputManager = engine->GetSystems().Locate<System::InputManager>();
+    auto& resourceManager = engine->GetSystems().Locate<System::ResourceManager>();
+    auto& gameFramework = engine->GetSystems().Locate<Game::GameFramework>();
 
     // Create instance.
     auto instance = std::unique_ptr<SpriteDemo>(new SpriteDemo());
@@ -62,7 +62,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     Graphics::SpriteAnimationList::LoadFromFile spriteAnimationListParams;
     spriteAnimationListParams.engineSystems = &engine->GetSystems();
 
-    auto spriteAnimationList = resourceManager->Acquire<Graphics::SpriteAnimationList>(
+    auto spriteAnimationList = resourceManager.Acquire<Graphics::SpriteAnimationList>(
         "Data/Textures/Checker.animation", spriteAnimationListParams).UnwrapOr(nullptr);
 
     if(spriteAnimationList == nullptr)
@@ -75,7 +75,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     Graphics::TextureAtlas::LoadFromFile textureAtlasParams;
     textureAtlasParams.engineSystems = &engine->GetSystems();
 
-    auto textureAtlas = resourceManager->Acquire<Graphics::TextureAtlas>(
+    auto textureAtlas = resourceManager.Acquire<Graphics::TextureAtlas>(
         "Data/Textures/Checker.atlas", textureAtlasParams).UnwrapOr(nullptr);
 
     if(textureAtlas == nullptr)
@@ -85,24 +85,23 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     }
 
     // Retrieve game systems.
-    auto* entitySystem = instance->m_gameInstance->GetSystems().Locate<Game::EntitySystem>();
-    auto* componentSystem = instance->m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
-    auto* identitySystem = instance->m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
-    ASSERT(entitySystem && componentSystem && identitySystem);
+    auto& entitySystem = instance->m_gameInstance->GetSystems().Locate<Game::EntitySystem>();
+    auto& componentSystem = instance->m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
+    auto& identitySystem = instance->m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
 
     // Create camera entity.
     {
         // Create named entity.
-        Game::EntityHandle cameraEntity = entitySystem->CreateEntity().Unwrap();
-        identitySystem->SetEntityName(cameraEntity, "Camera");
+        Game::EntityHandle cameraEntity = entitySystem.CreateEntity().Unwrap();
+        identitySystem.SetEntityName(cameraEntity, "Camera");
 
         // Create transform component.
-        auto* transform = componentSystem->Create<Game::TransformComponent>(cameraEntity).Unwrap();
+        auto* transform = componentSystem.Create<Game::TransformComponent>(cameraEntity).Unwrap();
         ASSERT(transform != nullptr, "Could not create transform component!");
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 
         // Create camera component.
-        auto* camera = componentSystem->Create<Game::CameraComponent>(cameraEntity).Unwrap();
+        auto* camera = componentSystem.Create<Game::CameraComponent>(cameraEntity).Unwrap();
         ASSERT(camera != nullptr, "Could not create camera component!");
         camera->SetupOrthogonal(glm::vec2(16.0f, 9.0f), 0.1f, 1000.0f);
     }
@@ -110,11 +109,11 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     // Create player entity.
     {
         // Create named entity.
-        Game::EntityHandle playerEntity = entitySystem->CreateEntity().Unwrap();
-        identitySystem->SetEntityName(playerEntity, "Player");
+        Game::EntityHandle playerEntity = entitySystem.CreateEntity().Unwrap();
+        identitySystem.SetEntityName(playerEntity, "Player");
 
         // Create transform component.
-        auto* transform = componentSystem->Create<Game::TransformComponent>(playerEntity).Unwrap();
+        auto* transform = componentSystem.Create<Game::TransformComponent>(playerEntity).Unwrap();
         transform->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
         transform->SetScale(glm::vec3(1.0f) * (2.0f + (float)glm::cos(0.0f)));
         transform->SetRotation(glm::rotate(glm::identity<glm::quat>(),
@@ -122,7 +121,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
             glm::vec3(0.0f, 0.0f, 1.0f)));
 
         // Create sprite component.
-        auto* sprite = componentSystem->Create<Game::SpriteComponent>(playerEntity).Unwrap();
+        auto* sprite = componentSystem.Create<Game::SpriteComponent>(playerEntity).Unwrap();
         sprite->SetRectangle(glm::vec4(-0.5f, -0.5f, 0.5f, 0.5f));
         sprite->SetColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         sprite->SetTextureView(textureAtlas->GetRegion("animation_frame_3"));
@@ -131,7 +130,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
         // Create sprite animation component.
         auto* spriteAnimation =
-            componentSystem->Create<Game::SpriteAnimationComponent>(playerEntity).Unwrap();
+            componentSystem.Create<Game::SpriteAnimationComponent>(playerEntity).Unwrap();
         spriteAnimation->SetSpriteAnimationList(spriteAnimationList);
         spriteAnimation->Play("rotation", true);
     }
@@ -145,12 +144,12 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 void SpriteDemo::Tick(const float tickTime)
 {
     // Retrieve game systems.
-    auto* componentSystem = m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
-    auto* identitySystem = m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
+    auto& componentSystem = m_gameInstance->GetSystems().Locate<Game::ComponentSystem>();
+    auto& identitySystem = m_gameInstance->GetSystems().Locate<Game::IdentitySystem>();
 
     // Retrieve player transform.
-    Game::EntityHandle playerEntity = identitySystem->GetEntityByName("Player").Unwrap();
-    auto transform = componentSystem->Lookup<Game::TransformComponent>(playerEntity).Unwrap();
+    Game::EntityHandle playerEntity = identitySystem.GetEntityByName("Player").Unwrap();
+    auto transform = componentSystem.Lookup<Game::TransformComponent>(playerEntity).Unwrap();
 
     // Animate the entity.
     double timeAccumulated = m_tickTimer->GetTotalTickSeconds();
@@ -160,8 +159,8 @@ void SpriteDemo::Tick(const float tickTime)
         glm::vec3(0.0f, 0.0f, 1.0f)));
 
     // Control the entity with keyboard.
-    auto* inputManager = m_engine->GetSystems().Locate<System::InputManager>();
-    System::InputState& inputState = inputManager->GetInputState();
+    auto& inputManager = m_engine->GetSystems().Locate<System::InputManager>();
+    System::InputState& inputState = inputManager.GetInputState();
 
     glm::vec3 direction(0.0f, 0.0f, 0.0f);
 

@@ -30,15 +30,10 @@ void TimerSystem::OnRunEngine()
 bool TimerSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    auto* configSystem = engineSystems.Locate<Core::ConfigSystem>();
-    if(configSystem == nullptr)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate config system.");
-        return false;
-    }
+    auto& configSystem = engineSystems.Locate<Core::ConfigSystem>();
 
     // Read config variables.
-    float maxUpdateDelta = configSystem->Get<float>(
+    float maxUpdateDelta = configSystem.Get<float>(
         NAME_CONSTEXPR("system.maxUpdateDelta"))
         .UnwrapOr(m_maxUpdateDelta);
 

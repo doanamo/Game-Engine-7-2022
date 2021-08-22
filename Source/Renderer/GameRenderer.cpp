@@ -36,36 +36,13 @@ GameRenderer::~GameRenderer() = default;
 bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    if(!m_windowSystem)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate window system.");
-        return false;
-    }
-
-    m_renderContext = engineSystems.Locate<Graphics::RenderContext>();
-    if(!m_renderContext)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate render context.");
-        return false;
-    }
-
-    m_spriteRenderer = engineSystems.Locate<Graphics::SpriteRenderer>();
-    if(!m_spriteRenderer)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate sprite renderer.");
-        return false;
-    }
-
-    auto* gameFramework = engineSystems.Locate<Game::GameFramework>();
-    if(!gameFramework)
-    {
-        LOG_ERROR(LogAttachFailed, "Could not locate game framework.");
-        return false;
-    }
+    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
+    m_spriteRenderer = &engineSystems.Locate<Graphics::SpriteRenderer>();
 
     // Subscribe to events.
-    if(!m_receivers.drawGameInstance.Subscribe(gameFramework->events.drawGameInstance))
+    auto& gameFramework = engineSystems.Locate<Game::GameFramework>();
+    if(!m_receivers.drawGameInstance.Subscribe(gameFramework.events.drawGameInstance))
     {
         LOG_ERROR(LogAttachFailed, "Could not subscribe to game framework events.");
         return false;
@@ -105,12 +82,12 @@ void GameRenderer::Draw(const DrawParams& drawParams)
         "Time alpha is not normalized!");
 
     // Retrieve systems from game instance.
-    auto* componentSystem = drawParams.gameInstance->GetSystems().Locate<Game::ComponentSystem>();
-    auto* identitySystem = drawParams.gameInstance->GetSystems().Locate<Game::IdentitySystem>();
-    ASSERT(componentSystem && identitySystem, "Critical systems missing from game instance!");
+    auto& gameSystems = drawParams.gameInstance->GetSystems();
+    auto& componentSystem = gameSystems.Locate<Game::ComponentSystem>();
+    auto& identitySystem = gameSystems.Locate<Game::IdentitySystem>();
 
     // Update sprite components for rendering.
-    for(auto& spriteAnimationComponent : componentSystem->GetPool<Game::SpriteAnimationComponent>())
+    for(auto& spriteAnimationComponent : componentSystem.GetPool<Game::SpriteAnimationComponent>())
     {
         // Update sprite texture view using currently playing animation.
         if(spriteAnimationComponent.IsPlaying())
@@ -149,11 +126,11 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     glm::mat4 cameraTransform(1.0f);
 
     // Retrieve transform from camera entity.
-    auto cameraEntityResult = identitySystem->GetEntityByName(drawParams.cameraName);
+    auto cameraEntityResult = identitySystem.GetEntityByName(drawParams.cameraName);
 
     if(cameraEntityResult.IsSuccess())
     {
-        auto cameraComponentResult = componentSystem->Lookup<
+        auto cameraComponentResult = componentSystem.Lookup<
             Game::CameraComponent>(cameraEntityResult.Unwrap());
 
         if(cameraComponentResult)
@@ -181,7 +158,7 @@ void GameRenderer::Draw(const DrawParams& drawParams)
     Graphics::SpriteDrawList spriteDrawList;
 
     // Iterate all sprite components.
-    for(auto& spriteComponent : componentSystem->GetPool<Game::SpriteComponent>())
+    for(auto& spriteComponent : componentSystem.GetPool<Game::SpriteComponent>())
     {
         // Retrieve transform component.
         Game::TransformComponent* transformComponent = spriteComponent.GetTransformComponent();
