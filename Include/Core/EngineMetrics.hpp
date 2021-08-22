@@ -24,8 +24,25 @@ namespace Core
         EngineMetrics();
         ~EngineMetrics() override;
 
-        float GetFrameTime() const;
-        float GetFrameRate() const;
+        double GetFrameTimeLast() const
+        {
+            return m_frameTimeLast;
+        }
+
+        double GetFrameRateLast() const
+        {
+            return m_frameRateLast;
+        }
+
+        double GetFrameTimeAverage() const
+        {
+            return m_frameTimeAverage;
+        }
+
+        double GetFrameRateAverage() const
+        {
+            return m_frameRateAverage;
+        }
 
     private:
         bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override;
@@ -39,8 +56,11 @@ namespace Core
         std::chrono::steady_clock::time_point m_frameEnd;
         std::chrono::steady_clock::time_point m_frameTimeUpdate;
 
-        double m_frameTimeAverage = 0.0f;
-        double m_frameTimeAccumulated = 0.0f;
+        double m_frameTimeLast = 0.0;
+        double m_frameRateLast = 0.0;
+        double m_frameTimeAverage = 0.0;
+        double m_frameRateAverage = 0.0;
+        double m_frameTimeAccumulated = 0.0;
         int m_frameTimeAccumulations = 0;
     };
 }

@@ -23,11 +23,10 @@ set(FILES_SYSTEMS
     "${INCLUDE_DIR}/SystemInterface.hpp"
     "${INCLUDE_DIR}/SystemStorage.hpp"
     "${INCLUDE_DIR}/EngineSystem.hpp"
-)
-
-set(FILES_METRICS
     "${INCLUDE_DIR}/EngineMetrics.hpp"
+    "${INCLUDE_DIR}/FrameRateLimiter.hpp"
     "${SOURCE_DIR}/EngineMetrics.cpp"
+    "${SOURCE_DIR}/FrameRateLimiter.cpp"
 )
 
 set(FILES_CORE
@@ -37,7 +36,6 @@ set(FILES_CORE
 
 source_group("Config" FILES ${FILES_CONFIG})
 source_group("Systems" FILES ${FILES_SYSTEMS})
-source_group("Metrics" FILES ${FILES_METRICS})
 source_group("" FILES ${FILES_CORE})
 
 #
@@ -47,7 +45,6 @@ source_group("" FILES ${FILES_CORE})
 add_library(Core
     ${FILES_CONFIG}
     ${FILES_SYSTEMS}
-    ${FILES_METRICS}
     ${FILES_CORE}
 )
 

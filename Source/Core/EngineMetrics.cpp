@@ -14,6 +14,7 @@ EngineMetrics::~EngineMetrics() = default;
 
 bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
+    // Retrieve needed engine systems
     auto* configSystem = engineSystems.Locate<ConfigSystem>();
     if(configSystem == nullptr)
     {
@@ -21,9 +22,15 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
         return false;
     }
 
+    // Read config variables.
     m_frameRateUpdateFrequency =
         configSystem->Get<double>(NAME_CONSTEXPR("metrics.frameRateUpdateFrequency"))
         .UnwrapOr(m_frameRateUpdateFrequency);
+
+    // Reset time points.
+    m_frameStart = std::chrono::steady_clock::now();
+    m_frameEnd = std::chrono::steady_clock::now();
+    m_frameTimeUpdate = std::chrono::steady_clock::now();
 
     return true;
 }
@@ -35,7 +42,16 @@ void EngineMetrics::OnPreFrame()
 
 void EngineMetrics::OnPostFrame()
 {
-    m_frameEnd = std::chrono::steady_clock::now();
+    // Calculate current frame time from time slice without any frame rate limiting.
+    // For last frame rate we only measure time between pre and post frame calls.
+    auto timeNow = std::chrono::steady_clock::now();
+    m_frameTimeLast = std::chrono::duration<double>(timeNow - m_frameStart).count();
+    m_frameRateLast = 1.0 / m_frameTimeLast;
+
+    // Count time slice for average calculation with frame rate limiting applied.
+    // For average frame rate we measure entire time since previous post frame call.
+    m_frameStart = m_frameEnd;
+    m_frameEnd = timeNow;
 
     // Count accumulated frames between frame rate counter update.
     m_frameTimeAccumulated += std::chrono::duration<double>(m_frameEnd - m_frameStart).count();
@@ -47,17 +63,8 @@ void EngineMetrics::OnPostFrame()
     {
         m_frameTimeUpdate = m_frameEnd;
         m_frameTimeAverage = m_frameTimeAccumulated / static_cast<double>(m_frameTimeAccumulations);
+        m_frameRateAverage = 1.0 / m_frameTimeAverage;
         m_frameTimeAccumulated = 0.0;
         m_frameTimeAccumulations = 0;
     }
-}
-
-float EngineMetrics::GetFrameTime() const
-{
-    return static_cast<float>(m_frameTimeAverage);
-}
-
-float EngineMetrics::GetFrameRate() const
-{
-    return static_cast<float>(1.0 / m_frameTimeAverage);
 }

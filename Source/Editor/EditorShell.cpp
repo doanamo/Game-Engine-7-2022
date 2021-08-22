@@ -155,8 +155,9 @@ void EditorShell::DisplayFramerate()
 
     if(ImGui::Begin("Framerate Counter Button", nullptr, flags))
     {
-        std::string text = fmt::format("FPS: {:.0f} ({:.5f} ms)",
-            m_engineMetrics->GetFrameRate(), m_engineMetrics->GetFrameTime());
+        std::string text = fmt::format("FPS: {:.0f} ({:.3f} ms)",
+            static_cast<float>(m_engineMetrics->GetFrameRateAverage()),
+            static_cast<float>(m_engineMetrics->GetFrameTimeAverage() * 1000.0));
         if(ImGui::Button(text.c_str()))
         {
         }

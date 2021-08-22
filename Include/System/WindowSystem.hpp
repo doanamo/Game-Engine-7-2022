@@ -5,7 +5,14 @@
 
 #pragma once
 
+#include "System/WindowEvents.hpp"
+#include <Common/Event/EventReceiver.hpp>
 #include <Core/EngineSystem.hpp>
+
+namespace Core
+{
+    class FrameRateLimiter;
+}
 
 /*
     Window System
@@ -38,8 +45,16 @@ namespace System
         void OnEndFrame() override;
         bool IsRequestingExit() override;
 
+        void OnWindowFocusChange(const WindowEvents::Focus& event);
+
     private:
         std::unique_ptr<Window> m_window;
+        Core::FrameRateLimiter* m_frameRateLimiter;
+
+        struct Receivers
+        {
+            Event::Receiver<void(const WindowEvents::Focus&)> focusChange;
+        } m_receivers;
     };
 }
 

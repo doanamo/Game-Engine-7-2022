@@ -8,6 +8,7 @@
 #include "System/Window.hpp"
 #include <Core/SystemStorage.hpp>
 #include <Core/ConfigSystem.hpp>
+#include <Core/FrameRateLimiter.hpp>
 using namespace System;
 
 namespace
@@ -15,16 +16,27 @@ namespace
     const char* LogAttachFailed = "Failed to attach window system! {}";
 }
 
-WindowSystem::WindowSystem() = default;
+WindowSystem::WindowSystem()
+{
+    m_receivers.focusChange.Bind<WindowSystem, &WindowSystem::OnWindowFocusChange>(this);
+}
+
 WindowSystem::~WindowSystem() = default;
 
 bool WindowSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
-    // Retrieve config variables.
+    // Retrieve engine systems.
     auto* config = engineSystems.Locate<Core::ConfigSystem>();
     if(config == nullptr)
     {
         LOG_ERROR(LogAttachFailed, "Could not locate config.");
+        return false;
+    }
+
+    m_frameRateLimiter = engineSystems.Locate<Core::FrameRateLimiter>();
+    if(m_frameRateLimiter == nullptr)
+    {
+        LOG_ERROR(LogAttachFailed, "Could not locate frame rate limiter.");
         return false;
     }
 
@@ -46,6 +58,13 @@ bool WindowSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
     if(m_window == nullptr)
     {
         LOG_ERROR(LogAttachFailed, "Could not create window.");
+        return false;
+    }
+
+    // Subscribe to window events.
+    if(!m_window->events.Subscribe(m_receivers.focusChange))
+    {
+        LOG_ERROR(LogAttachFailed, "Could not subscribe to window events.");
         return false;
     }
 
@@ -76,4 +95,10 @@ bool WindowSystem::IsRequestingExit()
     }
 
     return false;
+}
+
+void WindowSystem::OnWindowFocusChange(const WindowEvents::Focus& event)
+{
+    LOG_TRACE("Window focus state changed to {}.", event.focused ? "foreground" : "background");
+    m_frameRateLimiter->ToggleWindowFocusState(event.focused);
 }

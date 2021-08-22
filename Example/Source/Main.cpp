@@ -17,6 +17,8 @@ int main()
 
     const Core::ConfigVariableArray configVars =
     {
+        { "core.foregroundFpsLimit", "0.0" },
+        { "core.backgroundFpsLimit", "10.0" },
         { "system.maxUpdateDelta", "1.0" },
         { "render.spriteBatchSize", "128" },
     };

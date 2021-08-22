@@ -9,6 +9,7 @@
 #include <Reflection/Reflection.hpp>
 #include <Core/ConfigSystem.hpp>
 #include <Core/EngineMetrics.hpp>
+#include <Core/FrameRateLimiter.hpp>
 #include <System/Platform.hpp>
 #include <System/TimerSystem.hpp>
 #include <System/FileSystem/FileSystem.hpp>
@@ -88,6 +89,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
     const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
         Reflection::GetIdentifier<Core::EngineMetrics>(),
+        Reflection::GetIdentifier<Core::FrameRateLimiter>(),
         Reflection::GetIdentifier<System::Platform>(),
         Reflection::GetIdentifier<System::FileSystem>(),
         Reflection::GetIdentifier<System::TimerSystem>(),
