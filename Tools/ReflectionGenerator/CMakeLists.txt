@@ -15,6 +15,15 @@ set_property(GLOBAL PROPERTY REFLECTION_BINDING_TEMPLATE ${REFLECTION_BINDING_TE
 
 set(SOURCE_FILES
     "ReflectionGenerator.cpp"
+    "ReflectionGeneratorTypes.hpp"
+    "ReflectionGeneratorUtility.hpp"
+    "ReflectionGeneratorUtility.cpp"
+    "ReflectionGeneratorCache.hpp"
+    "ReflectionGeneratorCache.cpp"
+    "ReflectionGeneratorParser.hpp"
+    "ReflectionGeneratorParser.cpp"
+    "ReflectionGeneratorWriter.hpp"
+    "ReflectionGeneratorWriter.cpp"
     ${REFLECTION_BINDING_TEMPLATE_FILE}
 )
 
@@ -22,6 +31,11 @@ if(NOT EMSCRIPTEN)
     add_executable(ReflectionGenerator ${SOURCE_FILES})
     target_compile_features(ReflectionGenerator PUBLIC cxx_std_17)
     export(TARGETS ReflectionGenerator FILE "${CMAKE_BINARY_DIR}/ReflectionGenerator.cmake")
+
+    target_sources(ReflectionGenerator PRIVATE "Precompiled.hpp")
+    target_precompile_headers(ReflectionGenerator PRIVATE "Precompiled.hpp")
+    source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+    source_group("" FILES "Precompiled.hpp")
 
     set_property(TARGET ReflectionGenerator PROPERTY FOLDER "Tools")
     set_property(GLOBAL PROPERTY REFLECTION_GENERATOR ReflectionGenerator)
