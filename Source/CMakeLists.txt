@@ -47,9 +47,6 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 add_subdirectory("Core")
 target_link_libraries(Engine PUBLIC Core)
 
-add_subdirectory("Build")
-target_link_libraries(Engine PUBLIC Build)
-
 add_subdirectory("System")
 target_link_libraries(Engine PUBLIC System)
 

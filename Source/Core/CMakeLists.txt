@@ -13,6 +13,13 @@ include_guard(GLOBAL)
 set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Core")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
+set(FILES_BUILD
+    "${INCLUDE_DIR}/Build.hpp"
+    "${SOURCE_DIR}/BuildInfo.hpp.in"
+    "${SOURCE_DIR}/BuildInfo.cmake"
+    "${SOURCE_DIR}/Build.cpp"
+)
+
 set(FILES_CONFIG
     "${INCLUDE_DIR}/ConfigTypes.hpp"
     "${INCLUDE_DIR}/ConfigSystem.hpp"
@@ -34,6 +41,7 @@ set(FILES_CORE
     "${SOURCE_DIR}/Core.cpp"
 )
 
+source_group("Build" FILES ${FILES_BUILD})
 source_group("Config" FILES ${FILES_CONFIG})
 source_group("Systems" FILES ${FILES_SYSTEMS})
 source_group("" FILES ${FILES_CORE})
@@ -43,6 +51,7 @@ source_group("" FILES ${FILES_CORE})
 #
 
 add_library(Core
+    ${FILES_BUILD}
     ${FILES_CONFIG}
     ${FILES_SYSTEMS}
     ${FILES_CORE}
@@ -68,6 +77,34 @@ add_subdirectory("../Common" "Common")
 target_link_libraries(Core PUBLIC Common)
 
 enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
+
+#
+# Configuration
+#
+
+find_package("Git")
+
+add_custom_target(BuildInfo
+    COMMAND ${CMAKE_COMMAND} -E echo "Generating build info header..."
+    COMMAND ${CMAKE_COMMAND}
+        -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
+        -D ENGINE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../"
+        -D GAME_PROJECT_DIR="${CMAKE_SOURCE_DIR}"
+        -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.hpp.in"
+        -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.cmake"
+)
+
+add_dependencies(Core BuildInfo)
+set_property(TARGET BuildInfo PROPERTY FOLDER "Generated")
+
+# Add file with generated build version to engine sources.
+# Only the output header file is needed for the build process.
+# Create empty output file first otherwise CMake will complain.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
+source_group("Generated\\Build" FILES "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
+target_sources(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
+target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 #
 # Externals

@@ -106,9 +106,6 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Build" "Build")
-target_link_libraries(System PRIVATE Build)
-
 add_subdirectory("../Core" "Core")
 target_link_libraries(System PRIVATE Core)
 

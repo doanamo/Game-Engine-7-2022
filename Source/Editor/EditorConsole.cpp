@@ -128,7 +128,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
             ImGui::EndPopup();
         }
 
-        // Console messages
+        // Console messages.
         ImGui::BeginChild("Console Messages", ImVec2(0.0f, -24.0f));
         {
             ImVec2 windowSize = ImGui::GetWindowSize();

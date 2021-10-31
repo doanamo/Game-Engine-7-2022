@@ -6,7 +6,7 @@
 #include "System/Precompiled.hpp"
 #include "System/FileSystem/FileSystem.hpp"
 #include "System/FileSystem/NativeFileDepot.hpp"
-#include <Build/Build.hpp>
+#include <Core/Build.hpp>
 using namespace System;
 
 namespace
