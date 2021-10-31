@@ -25,14 +25,8 @@ bool FrameRateLimiter::OnAttach(const SystemStorage<EngineSystem>& engineSystems
 
     // Read config variables.
     auto& config = engineSystems.Locate<Core::ConfigSystem>();
-
-    m_foregroundFpsLimit = config.Get<float>(
-        NAME_CONSTEXPR("core.foregroundFpsLimit"))
-        .UnwrapOr(m_foregroundFpsLimit);
-
-    m_backgroundFpsLimit = config.Get<float>(
-        NAME_CONSTEXPR("core.backgroundFpsLimit"))
-        .UnwrapOr(m_backgroundFpsLimit);
+    config.Read(NAME_CONSTEXPR("core.foregroundFpsLimit"), &m_foregroundFpsLimit);
+    config.Read(NAME_CONSTEXPR("core.backgroundFpsLimit"), &m_backgroundFpsLimit);
 
     return true;
 }

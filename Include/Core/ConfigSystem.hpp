@@ -39,6 +39,9 @@ namespace Core
         template<typename Type>
         Common::Result<Type, void> Get(Common::Name variable);
 
+        template<typename Type>
+        bool Read(Common::Name variable, Type* value);
+
     private:
         VariableMap m_variables;
     };
@@ -85,6 +88,20 @@ namespace Core
         }
         
         return Common::Failure();
+    }
+
+    template<typename Type>
+    bool ConfigSystem::Read(Common::Name variable, Type* value)
+    {
+        CHECK_ARGUMENT_OR_RETURN(value, false);
+
+        if(auto result = Get<Type>(variable))
+        {
+            *value = result.Unwrap();
+            return true;
+        }
+
+        return false;
     }
 }
 

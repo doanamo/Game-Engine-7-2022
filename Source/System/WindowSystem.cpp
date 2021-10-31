@@ -31,16 +31,15 @@ bool WindowSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
     // Prepare window parameters.
     Window::CreateParams params;
-
-    params.title = config.Get<std::string>(NAME_CONSTEXPR("window.title")).UnwrapOr(params.title);
-    params.width = config.Get<int>(NAME_CONSTEXPR("window.width")).UnwrapOr(params.width);
-    params.height = config.Get<int>(NAME_CONSTEXPR("window.height")).UnwrapOr(params.height);
-    params.vsync = config.Get<bool>(NAME_CONSTEXPR("window.vsync")).UnwrapOr(params.vsync);
-    params.visible = config.Get<bool>(NAME_CONSTEXPR("window.visible")).UnwrapOr(params.visible);
-    params.minWidth = config.Get<int>(NAME_CONSTEXPR("window.minWidth")).UnwrapOr(params.minWidth);
-    params.minHeight = config.Get<int>(NAME_CONSTEXPR("window.minHeight")).UnwrapOr(params.minHeight);
-    params.maxWidth = config.Get<int>(NAME_CONSTEXPR("window.maxWidth")).UnwrapOr(params.maxWidth);
-    params.maxHeight = config.Get<int>(NAME_CONSTEXPR("window.maxHeight")).UnwrapOr(params.maxHeight);
+    config.Read(NAME_CONSTEXPR("window.title"), &params.title);
+    config.Read(NAME_CONSTEXPR("window.width"), &params.width);
+    config.Read(NAME_CONSTEXPR("window.height"), &params.height);
+    config.Read(NAME_CONSTEXPR("window.vsync"), &params.vsync);
+    config.Read(NAME_CONSTEXPR("window.visible"), &params.visible);
+    config.Read(NAME_CONSTEXPR("window.minWidth"), &params.minWidth);
+    config.Read(NAME_CONSTEXPR("window.minHeight"), &params.minHeight);
+    config.Read(NAME_CONSTEXPR("window.maxWidth"), &params.maxWidth);
+    config.Read(NAME_CONSTEXPR("window.maxHeight"), &params.maxHeight);
 
     // Create window instance.
     m_window = Window::Create(params).UnwrapOr(nullptr);
