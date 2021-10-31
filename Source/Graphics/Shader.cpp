@@ -6,7 +6,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/RenderContext.hpp"
-#include <System/FileSystem/FileHandle.hpp>
+#include <Platform/FileSystem/FileHandle.hpp>
 using namespace Graphics;
 
 namespace
@@ -226,7 +226,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     return Common::Success(std::move(instance));
 }
 
-Shader::CreateResult Shader::Create(System::FileHandle& file, const LoadFromFile& params)
+Shader::CreateResult Shader::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
     LOG_PROFILE_SCOPE("Load shader from \"{}\" file",
         file.GetPath().generic_string());

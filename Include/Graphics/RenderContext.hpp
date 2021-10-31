@@ -8,7 +8,7 @@
 #include <Core/EngineSystem.hpp>
 #include "Graphics/RenderState.hpp"
 
-namespace System
+namespace Platform
 {
     class WindowSystem;
 }
@@ -42,7 +42,7 @@ namespace Graphics
         bool OnAttach(const Core::EngineSystemStorage& engineSystems) override;
 
     private:
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
 
         RenderState m_currentState;
         std::stack<RenderState> m_pushedStates;

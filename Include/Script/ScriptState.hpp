@@ -8,7 +8,7 @@
 #include <lua.hpp>
 #include <Core/EngineSystem.hpp>
 
-namespace System
+namespace Platform
 {
     class FileHandle;
 }
@@ -46,7 +46,7 @@ namespace Script
         using CreateResult = Common::Result<std::unique_ptr<ScriptState>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
+        static CreateResult Create(Platform::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~ScriptState();

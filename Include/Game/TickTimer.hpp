@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <System/Timer.hpp>
+#include <Platform/Timer.hpp>
 
 /*
     Tick Timer
@@ -16,14 +16,14 @@ namespace Game
     class TickTimer final : public Common::NonCopyable
     {
     public:
-        using TimeUnit = System::Timer::TimeUnit;
+        using TimeUnit = Platform::Timer::TimeUnit;
         using CreateResult = Common::Result<std::unique_ptr<TickTimer>, void>;
         static CreateResult Create();
 
     public:
         ~TickTimer();
 
-        void Advance(const System::Timer& timer);
+        void Advance(const Platform::Timer& timer);
         bool Tick();
         void Reset();
 
@@ -46,14 +46,14 @@ namespace Game
 
         double GetTotalTickSeconds() const
         {
-            return System::Timer::ConvertToSeconds(m_totalTickTimeUnits);
+            return Platform::Timer::ConvertToSeconds(m_totalTickTimeUnits);
         }
 
     private:
         TickTimer();
 
     private:
-        std::unique_ptr<System::Timer> m_timer;
+        std::unique_ptr<Platform::Timer> m_timer;
 
         float m_tickSeconds = 1.0f / 10.0f;
         TimeUnit m_forwardTickTimeUnits = 0;

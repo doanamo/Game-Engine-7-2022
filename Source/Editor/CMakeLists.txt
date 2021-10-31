@@ -75,8 +75,8 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 add_subdirectory("../Core" "Core")
 target_link_libraries(Editor PRIVATE Core)
 
-add_subdirectory("../System" "System")
-target_link_libraries(Editor PRIVATE System)
+add_subdirectory("../Platform" "Platform")
+target_link_libraries(Editor PRIVATE Platform)
 
 add_subdirectory("../Game" "Game")
 target_link_libraries(Editor PRIVATE Game)

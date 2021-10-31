@@ -6,8 +6,8 @@
 #include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
 #include <Game/Components/TransformComponent.hpp>
@@ -36,7 +36,7 @@ GameRenderer::~GameRenderer() = default;
 bool GameRenderer::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
     m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
     m_spriteRenderer = &engineSystems.Locate<Graphics::SpriteRenderer>();
 
@@ -55,7 +55,7 @@ void GameRenderer::OnDrawGameInstance(Game::GameInstance* gameInstance, float ti
 {
     ASSERT(gameInstance != nullptr);
 
-    const System::Window& window = m_windowSystem->GetWindow();
+    const Platform::Window& window = m_windowSystem->GetWindow();
 
     DrawParams drawParams;
     drawParams.viewportRect = { 0, 0, window.GetWidth(), window.GetHeight() };

@@ -8,8 +8,8 @@
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Core/EngineMetrics.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
 using namespace Editor;
 
 namespace
@@ -28,7 +28,7 @@ bool EditorShell::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     auto& engineSystems = editorContext.GetEngineSystems();
 
     m_engineMetrics = &engineSystems.Locate<Core::EngineMetrics>();
-    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
 
     // Create editor modules.
     if(!CreateModules(engineSystems))

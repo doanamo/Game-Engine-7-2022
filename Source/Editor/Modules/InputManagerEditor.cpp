@@ -7,52 +7,52 @@
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include <Core/SystemStorage.hpp>
 #include <Core/EngineSystem.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
-#include <System/InputManager.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
+#include <Platform/InputManager.hpp>
 using namespace Editor;
 
 namespace
 {
     const char* LogAttachFailed = "Failed to attach input manager editor module! {}";
 
-    const char* GetInputStateText(System::InputStates::Type state)
+    const char* GetInputStateText(Platform::InputStates::Type state)
     {
         switch(state)
         {
-        case System::InputStates::Pressed:
+        case Platform::InputStates::Pressed:
             return "Pressed";
 
-        case System::InputStates::PressedReleased:
+        case Platform::InputStates::PressedReleased:
             return "PressedReleased";
 
-        case System::InputStates::PressedRepeat:
+        case Platform::InputStates::PressedRepeat:
             return "PressedRepeat";
 
-        case System::InputStates::Released:
+        case Platform::InputStates::Released:
             return "Released";
 
-        case System::InputStates::ReleasedRepeat:
+        case Platform::InputStates::ReleasedRepeat:
             return "ReleasedRepeat";
         }
 
         return "Unknown";
     }
 
-    std::string GetInputModifiersText(System::KeyboardModifiers::Type modifiers)
+    std::string GetInputModifiersText(Platform::KeyboardModifiers::Type modifiers)
     {
         std::string text;
 
-        if(modifiers & System::KeyboardModifiers::Shift)
+        if(modifiers & Platform::KeyboardModifiers::Shift)
             text += "Shift ";
 
-        if(modifiers & System::KeyboardModifiers::Ctrl)
+        if(modifiers & Platform::KeyboardModifiers::Ctrl)
             text += "Ctrl ";
 
-        if(modifiers & System::KeyboardModifiers::Alt)
+        if(modifiers & Platform::KeyboardModifiers::Alt)
             text += "Alt ";
 
-        if(modifiers & System::KeyboardModifiers::Super)
+        if(modifiers & Platform::KeyboardModifiers::Super)
             text += "Super ";
 
         if(text.empty())
@@ -81,14 +81,14 @@ bool InputManagerEditor::OnAttach(const Core::SystemStorage<EditorModule>& edito
     auto& editorContext = editorModules.Locate<EditorModuleContext>();
     auto& engineSystems = editorContext.GetEngineSystems();
 
-    auto& m_windowSystem = engineSystems.Locate<System::WindowSystem>();
-    auto& inputManager = engineSystems.Locate<System::InputManager>();
+    auto& m_windowSystem = engineSystems.Locate<Platform::WindowSystem>();
+    auto& inputManager = engineSystems.Locate<Platform::InputManager>();
 
     // Subscribe to input events.
     bool subscriptionResults = true;
 
-    System::Window& window = m_windowSystem.GetWindow();
-    System::InputState& inputState = inputManager.GetInputState();
+    Platform::Window& window = m_windowSystem.GetWindow();
+    Platform::InputState& inputState = inputManager.GetInputState();
     subscriptionResults &= window.events.Subscribe(m_windowFocusReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_keyboardKeyReceiver);
     subscriptionResults &= inputState.events.Subscribe(m_textInputReceiver);
@@ -198,7 +198,7 @@ void InputManagerEditor::AddIncomingEventLog(std::string text)
     m_incomingEventLog.push_back(fmt::format("{:0>4}: {}", m_incomingEventCounter, text));
 }
 
-void InputManagerEditor::OnWindowFocus(const System::WindowEvents::Focus& event)
+void InputManagerEditor::OnWindowFocus(const Platform::WindowEvents::Focus& event)
 {
     if(m_incomingWindowFocus)
     {
@@ -207,7 +207,7 @@ void InputManagerEditor::OnWindowFocus(const System::WindowEvents::Focus& event)
     }
 }
 
-bool InputManagerEditor::OnTextInput(const System::InputEvents::TextInput& event)
+bool InputManagerEditor::OnTextInput(const Platform::InputEvents::TextInput& event)
 {
     if(m_incomingTextInput)
     {
@@ -218,15 +218,15 @@ bool InputManagerEditor::OnTextInput(const System::InputEvents::TextInput& event
     return false;
 }
 
-bool InputManagerEditor::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
+bool InputManagerEditor::OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event)
 {
     if(m_incomingKeyboardKey)
     {
         bool processEvent = false;
-        processEvent |= System::IsInputStatePressed(event.state) && m_incomingKeyboardKeyPress;
-        processEvent |= System::IsInputStateReleased(event.state) && m_incomingKeyboardKeyRelease;
+        processEvent |= Platform::IsInputStatePressed(event.state) && m_incomingKeyboardKeyPress;
+        processEvent |= Platform::IsInputStateReleased(event.state) && m_incomingKeyboardKeyRelease;
 
-        if(System::IsInputStateRepeating(event.state))
+        if(Platform::IsInputStateRepeating(event.state))
         {
             processEvent &= m_incomingKeyboardKeyRepeat;
         }
@@ -242,15 +242,15 @@ bool InputManagerEditor::OnKeyboardKey(const System::InputEvents::KeyboardKey& e
     return false;
 }
 
-bool InputManagerEditor::OnMouseButton(const System::InputEvents::MouseButton& event)
+bool InputManagerEditor::OnMouseButton(const Platform::InputEvents::MouseButton& event)
 {
     if(m_incomingMouseButton)
     {
         bool processEvent = false;
-        processEvent |= System::IsInputStatePressed(event.state) && m_incomingMouseButtonPress;
-        processEvent |= System::IsInputStateReleased(event.state) && m_incomingMouseButtonRelease;
+        processEvent |= Platform::IsInputStatePressed(event.state) && m_incomingMouseButtonPress;
+        processEvent |= Platform::IsInputStateReleased(event.state) && m_incomingMouseButtonRelease;
         
-        if(System::IsInputStateRepeating(event.state))
+        if(Platform::IsInputStateRepeating(event.state))
         {
             processEvent &= m_incomingKeyboardKeyRepeat;
         }
@@ -267,7 +267,7 @@ bool InputManagerEditor::OnMouseButton(const System::InputEvents::MouseButton& e
     return false;
 }
 
-bool InputManagerEditor::OnMouseScroll(const System::InputEvents::MouseScroll& event)
+bool InputManagerEditor::OnMouseScroll(const Platform::InputEvents::MouseScroll& event)
 {
     if(m_incomingMouseScroll)
     {
@@ -277,7 +277,7 @@ bool InputManagerEditor::OnMouseScroll(const System::InputEvents::MouseScroll& e
     return false;
 }
 
-void InputManagerEditor::OnCursorPosition(const System::InputEvents::CursorPosition& event)
+void InputManagerEditor::OnCursorPosition(const Platform::InputEvents::CursorPosition& event)
 {
     if(m_incomingCursorPosition)
     {
@@ -286,7 +286,7 @@ void InputManagerEditor::OnCursorPosition(const System::InputEvents::CursorPosit
     }
 }
 
-void InputManagerEditor::OnCursorEnter(const System::InputEvents::CursorEnter& event)
+void InputManagerEditor::OnCursorEnter(const Platform::InputEvents::CursorEnter& event)
 {
     if(m_incomingCursorEnter)
     {

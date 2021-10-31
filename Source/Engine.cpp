@@ -10,12 +10,12 @@
 #include <Core/ConfigSystem.hpp>
 #include <Core/EngineMetrics.hpp>
 #include <Core/FrameRateLimiter.hpp>
-#include <System/Platform.hpp>
-#include <System/TimerSystem.hpp>
-#include <System/FileSystem/FileSystem.hpp>
-#include <System/ResourceManager.hpp>
-#include <System/InputManager.hpp>
-#include <System/WindowSystem.hpp>
+#include <Platform/Platform.hpp>
+#include <Platform/TimerSystem.hpp>
+#include <Platform/FileSystem/FileSystem.hpp>
+#include <Platform/ResourceManager.hpp>
+#include <Platform/InputManager.hpp>
+#include <Platform/WindowSystem.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Texture.hpp>
 #include <Graphics/Sprite/SpriteRenderer.hpp>
@@ -90,12 +90,12 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
     {
         Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<Core::FrameRateLimiter>(),
-        Reflection::GetIdentifier<System::Platform>(),
-        Reflection::GetIdentifier<System::FileSystem>(),
-        Reflection::GetIdentifier<System::TimerSystem>(),
-        Reflection::GetIdentifier<System::WindowSystem>(),
-        Reflection::GetIdentifier<System::InputManager>(),
-        Reflection::GetIdentifier<System::ResourceManager>(),
+        Reflection::GetIdentifier<Platform::PlatformSystem>(),
+        Reflection::GetIdentifier<Platform::FileSystem>(),
+        Reflection::GetIdentifier<Platform::TimerSystem>(),
+        Reflection::GetIdentifier<Platform::WindowSystem>(),
+        Reflection::GetIdentifier<Platform::InputManager>(),
+        Reflection::GetIdentifier<Platform::ResourceManager>(),
         Reflection::GetIdentifier<Game::GameFramework>(),
         Reflection::GetIdentifier<Graphics::RenderContext>(),
         Reflection::GetIdentifier<Graphics::SpriteRenderer>(),
@@ -123,13 +123,13 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
     LOG_PROFILE_SCOPE("Load default engine resources");
 
     // Locate systems needed to load resources.
-    auto& fileSystem = m_engineSystems.Locate<System::FileSystem>();
-    auto& resourceManager = m_engineSystems.Locate<System::ResourceManager>();
+    auto& fileSystem = m_engineSystems.Locate<Platform::FileSystem>();
+    auto& resourceManager = m_engineSystems.Locate<Platform::ResourceManager>();
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.
-    const std::unique_ptr<System::FileHandle> defaultTextureFileResult = fileSystem.OpenFile(
-        "Data/Engine/Default/Texture.png", System::FileHandle::OpenFlags::Read)
+    const std::unique_ptr<Platform::FileHandle> defaultTextureFileResult = fileSystem.OpenFile(
+        "Data/Engine/Default/Texture.png", Platform::FileHandle::OpenFlags::Read)
         .UnwrapOr(nullptr);
 
     if(defaultTextureFileResult != nullptr)

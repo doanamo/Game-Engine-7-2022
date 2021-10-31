@@ -12,7 +12,7 @@ namespace Engine
     class Root;
 }
 
-namespace System
+namespace Platform
 {
     class Timer;
 }

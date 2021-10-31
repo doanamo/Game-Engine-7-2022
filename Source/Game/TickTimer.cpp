@@ -18,7 +18,7 @@ TickTimer::CreateResult TickTimer::Create()
     auto instance = std::unique_ptr<TickTimer>(new TickTimer());
 
     // Create timer instance for use by tick timer.
-    instance->m_timer = std::make_unique<System::Timer>();
+    instance->m_timer = std::make_unique<Platform::Timer>();
     if(instance->m_timer == nullptr)
     {
         LOG_ERROR("Could not create timer!");
@@ -41,7 +41,7 @@ void TickTimer::Reset()
     m_lastTickSeconds = 0.0f;
 }
 
-void TickTimer::Advance(const System::Timer& timer)
+void TickTimer::Advance(const Platform::Timer& timer)
 {
     m_timer->Advance(timer);
 }
@@ -49,7 +49,7 @@ void TickTimer::Advance(const System::Timer& timer)
 bool TickTimer::Tick()
 {
     // Convert tick seconds to tick units.
-    TimeUnit tickUnits = System::Timer::ConvertToUnits((double)m_tickSeconds);
+    TimeUnit tickUnits = Platform::Timer::ConvertToUnits((double)m_tickSeconds);
 
     // Do not allow forward tick counter to fall behind the previous tick time.
     // This allows timer with capped delta time to prevent a large number of ticks.
@@ -83,7 +83,7 @@ float TickTimer::CalculateAlphaSeconds() const
     ASSERT(accumulatedTickUnits >= 0, "Accumulated tick units cannot be negative!");
 
     // Calculate normalized range between last two ticks.
-    float accumulatedTickSeconds = (float)System::Timer::ConvertToSeconds(accumulatedTickUnits);
+    float accumulatedTickSeconds = (float)Platform::Timer::ConvertToSeconds(accumulatedTickUnits);
     float normalizedTickAlpha = (m_lastTickSeconds - accumulatedTickSeconds) / m_lastTickSeconds;
     ASSERT(normalizedTickAlpha >= 0.0f && normalizedTickAlpha <= 1.0f,
         "Tick alpha is not clamped in normal range!");

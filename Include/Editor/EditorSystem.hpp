@@ -8,10 +8,10 @@
 #include <Core/EngineSystem.hpp>
 #include <Core/SystemStorage.hpp>
 #include <Common/Event/EventReceiver.hpp>
-#include <System/InputDefinitions.hpp>
+#include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"
 
-namespace System
+namespace Platform
 {
     class TimerSystem;
     class WindowSystem;
@@ -49,21 +49,21 @@ namespace Editor
         bool CreateSubsystems(const Core::EngineSystemStorage& engineSystems);
         bool SubscribeEvents(const Core::EngineSystemStorage& engineSystems);
 
-        bool OnTextInput(const System::InputEvents::TextInput& event);
-        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
-        bool OnMouseButton(const System::InputEvents::MouseButton& event);
-        bool OnMouseScroll(const System::InputEvents::MouseScroll& event);
-        void OnCursorPosition(const System::InputEvents::CursorPosition& event);
+        bool OnTextInput(const Platform::InputEvents::TextInput& event);
+        bool OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event);
+        bool OnMouseButton(const Platform::InputEvents::MouseButton& event);
+        bool OnMouseScroll(const Platform::InputEvents::MouseScroll& event);
+        void OnCursorPosition(const Platform::InputEvents::CursorPosition& event);
 
-        Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_receiverCursorPosition;
-        Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_receiverMouseButton;
-        Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_receiverMouseScroll;
-        Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
-        Event::Receiver<bool(const System::InputEvents::TextInput&)> m_receiverTextInput;
+        Event::Receiver<void(const Platform::InputEvents::CursorPosition&)> m_receiverCursorPosition;
+        Event::Receiver<bool(const Platform::InputEvents::MouseButton&)> m_receiverMouseButton;
+        Event::Receiver<bool(const Platform::InputEvents::MouseScroll&)> m_receiverMouseScroll;
+        Event::Receiver<bool(const Platform::InputEvents::KeyboardKey&)> m_receiverKeyboardKey;
+        Event::Receiver<bool(const Platform::InputEvents::TextInput&)> m_receiverTextInput;
 
     private:
-        System::TimerSystem* m_timerSystem = nullptr;
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::TimerSystem* m_timerSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
         ImGuiContext* m_interface = nullptr;
 
         EditorSubsystemStorage m_subsystems;

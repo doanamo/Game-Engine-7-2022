@@ -8,8 +8,8 @@
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/FileSystem/FileHandle.hpp>
-#include <System/ResourceManager.hpp>
+#include <Platform/FileSystem/FileHandle.hpp>
+#include <Platform/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
 
@@ -25,7 +25,7 @@ TextureAtlas::CreateResult TextureAtlas::Create()
     return Common::Success(std::move(instance));
 }
 
-TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const LoadFromFile& params)
+TextureAtlas::CreateResult TextureAtlas::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
     LOG_PROFILE_SCOPE("Load texture atlas from \"{}\" file",
         file.GetPath().generic_string());
@@ -38,7 +38,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(System::FileHandle& file, const 
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<System::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<Platform::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();

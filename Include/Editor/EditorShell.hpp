@@ -15,7 +15,7 @@ namespace Core
     class EngineMetrics;
 };
 
-namespace System
+namespace Platform
 {
     class WindowSystem;
 };
@@ -46,7 +46,7 @@ namespace Editor
 
     private:
         Core::EngineMetrics* m_engineMetrics = nullptr;
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
 
         EditorModuleStorage m_editorModules;
 

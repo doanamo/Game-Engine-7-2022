@@ -8,7 +8,7 @@
 #include <Core/EngineSystem.hpp>
 #include "Graphics/RenderState.hpp"
 
-namespace System
+namespace Platform
 {
     class FileHandle;
 }
@@ -52,7 +52,7 @@ namespace Graphics
 
         using CreateResult = Common::Result<std::unique_ptr<Texture>, CreateErrors>;
         static CreateResult Create(const CreateFromParams& params);
-        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
+        static CreateResult Create(Platform::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~Texture();

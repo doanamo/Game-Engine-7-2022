@@ -8,9 +8,9 @@
 #include "Game/GameInstance.hpp"
 #include "Game/TickTimer.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/TimerSystem.hpp>
-#include <System/Timer.hpp>
-#include <System/InputManager.hpp>
+#include <Platform/TimerSystem.hpp>
+#include <Platform/Timer.hpp>
+#include <Platform/InputManager.hpp>
 using namespace Game;
 
 namespace
@@ -25,7 +25,7 @@ GameFramework::~GameFramework() = default;
 bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve required engine systems.
-    m_timerSystem = &engineSystems.Locate<System::TimerSystem>();
+    m_timerSystem = &engineSystems.Locate<Platform::TimerSystem>();
 
     return true;
 }
@@ -33,7 +33,7 @@ bool GameFramework::OnAttach(const Core::EngineSystemStorage& engineSystems)
 bool GameFramework::OnFinalize(const Core::EngineSystemStorage& engineSystems)
 {
     // Subscribe input manager to tick processed event so it can update its input state.
-    auto& inputManager = engineSystems.Locate<System::InputManager>();
+    auto& inputManager = engineSystems.Locate<Platform::InputManager>();
     if(!inputManager.events.onTickProcessed.Subscribe(events.tickProcessed))
     {
         LOG_ERROR(LogFinalizeFailed, "Could not subscribe input manager to event.");

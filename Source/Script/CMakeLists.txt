@@ -47,8 +47,8 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 add_subdirectory("../Core" "Core")
 target_link_libraries(Script PRIVATE Core)
 
-add_subdirectory("../System" "System")
-target_link_libraries(Script PRIVATE System)
+add_subdirectory("../Platform" "Platform")
+target_link_libraries(Script PRIVATE Platform)
 
 enable_reflection(Script ${INCLUDE_DIR} ${SOURCE_DIR})
 

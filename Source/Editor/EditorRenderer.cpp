@@ -6,9 +6,9 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
-#include <System/ResourceManager.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
+#include <Platform/ResourceManager.hpp>
 using namespace Editor;
 
 namespace
@@ -26,7 +26,7 @@ bool EditorRenderer::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
     auto& engineSystems = editorContext.GetEngineSystems();
 
-    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
     m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
 
     // Create graphics resources.
@@ -44,7 +44,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
     // Retrieve needed engine systems.
-    auto& resourceManager = engineSystems.Locate<System::ResourceManager>();
+    auto& resourceManager = engineSystems.Locate<Platform::ResourceManager>();
 
     // Vertex buffer.
     Graphics::Buffer::CreateFromParams vertexBufferParams;

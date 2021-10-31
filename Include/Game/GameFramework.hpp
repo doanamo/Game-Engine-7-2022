@@ -9,7 +9,7 @@
 #include <Core/EngineSystem.hpp>
 #include "Game/GameState.hpp"
 
-namespace System
+namespace Platform
 {
     class TimerSystem;
     class InputManager;
@@ -84,7 +84,7 @@ namespace Game
         bool IsRequestingExit() override;
 
     private:
-        System::TimerSystem* m_timerSystem = nullptr;
+        Platform::TimerSystem* m_timerSystem = nullptr;
         Common::StateMachine<GameState> m_stateMachine;
     };
 }

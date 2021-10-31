@@ -7,8 +7,8 @@
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/LoggerHistory.hpp>
 #include <Core/SystemStorage.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
 using namespace Editor;
 
 namespace
@@ -51,14 +51,14 @@ bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
     auto& engineSystems = editorContext.GetEngineSystems();
 
-    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
 
     return true;
 }
 
-bool EditorConsole::OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
+bool EditorConsole::OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event)
 {
-    if(event.key == System::KeyboardKeys::KeyTilde && event.state == System::InputStates::Pressed)
+    if(event.key == Platform::KeyboardKeys::KeyTilde && event.state == Platform::InputStates::Pressed)
     {
         Toggle(!IsVisible());
         return true;
@@ -72,7 +72,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     if(!m_windowVisible)
         return;
 
-    const System::Window& window = m_windowSystem->GetWindow();
+    const Platform::Window& window = m_windowSystem->GetWindow();
 
     ImGuiWindowFlags windowFlags = 0;
     windowFlags |= ImGuiWindowFlags_NoMove;

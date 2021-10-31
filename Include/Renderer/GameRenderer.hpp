@@ -8,7 +8,7 @@
 #include <Common/Event/EventReceiver.hpp>
 #include <Core/EngineSystem.hpp>
 
-namespace System
+namespace Platform
 {
     class WindowSystem;
 }
@@ -59,7 +59,7 @@ namespace Renderer
         } m_receivers;
 
     private:
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
         Graphics::SpriteRenderer* m_spriteRenderer = nullptr;
     };

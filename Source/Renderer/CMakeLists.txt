@@ -47,8 +47,8 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 add_subdirectory("../Core" "Core")
 target_link_libraries(Renderer PRIVATE Core)
 
-add_subdirectory("../System" "System")
-target_link_libraries(Renderer PRIVATE System)
+add_subdirectory("../Platform" "Platform")
+target_link_libraries(Renderer PRIVATE Platform)
 
 add_subdirectory("../Graphics" "Graphics")
 target_link_libraries(Renderer PRIVATE Graphics)

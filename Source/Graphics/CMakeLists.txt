@@ -89,8 +89,8 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 add_subdirectory("../Core" "Core")
 target_link_libraries(Graphics PRIVATE Core)
 
-add_subdirectory("../System" "System")
-target_link_libraries(Graphics PRIVATE System)
+add_subdirectory("../Platform" "Platform")
+target_link_libraries(Graphics PRIVATE Platform)
 
 add_subdirectory("../Script" "Script")
 target_link_libraries(Graphics PRIVATE Script)

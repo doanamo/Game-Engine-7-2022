@@ -7,7 +7,7 @@
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/ResourceManager.hpp>
+#include <Platform/ResourceManager.hpp>
 #include <Script/ScriptState.hpp>
 using namespace Graphics;
 
@@ -46,7 +46,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 }
 
 SpriteAnimationList::CreateResult SpriteAnimationList::Create(
-    System::FileHandle& file, const LoadFromFile& params)
+    Platform::FileHandle& file, const LoadFromFile& params)
 {
     LOG_PROFILE_SCOPE("Load sprite animation list from \"{}\" file...",
         file.GetPath().generic_string());
@@ -59,7 +59,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<System::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<Platform::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();

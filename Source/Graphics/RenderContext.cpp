@@ -6,8 +6,8 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/RenderContext.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/WindowSystem.hpp>
-#include <System/Window.hpp>
+#include <Platform/WindowSystem.hpp>
+#include <Platform/Window.hpp>
 using namespace Graphics;
 
 namespace
@@ -21,7 +21,7 @@ RenderContext::~RenderContext() = default;
 bool RenderContext::OnAttach(const Core::EngineSystemStorage& engineSystems)
 {
     // Retrieve needed engine systems.
-    m_windowSystem = &engineSystems.Locate<System::WindowSystem>();
+    m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
 
     // Save initial render state. Window has to set its OpenGL context as current for this to
     // succeed. Here we assume that at this point OpenGL context is still in pristine state, but

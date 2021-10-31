@@ -7,8 +7,8 @@
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/FileSystem/FileHandle.hpp>
-#include <System/Image.hpp>
+#include <Platform/FileSystem/FileHandle.hpp>
+#include <Platform/Image.hpp>
 using namespace Graphics;
 
 Texture::Texture() = default;
@@ -86,7 +86,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     return Common::Success(std::move(instance));
 }
 
-Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFile& params)
+Texture::CreateResult Texture::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
     LOG_PROFILE_SCOPE("Loading texture from \"{}\" file...", file.GetPath().generic_string());
     LOG("Loading texture from \"{}\" file...", file.GetPath().generic_string());
@@ -99,7 +99,7 @@ Texture::CreateResult Texture::Create(System::FileHandle& file, const LoadFromFi
     auto& renderContext = params.engineSystems->Locate<Graphics::RenderContext>();
 
     // Load image from file.
-    auto image = System::Image::Create(file, System::Image::LoadFromFile()).UnwrapOr(nullptr);
+    auto image = Platform::Image::Create(file, Platform::Image::LoadFromFile()).UnwrapOr(nullptr);
     if(image == nullptr)
     {
         LOG_ERROR("Could not create image from file!");

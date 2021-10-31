@@ -6,10 +6,10 @@
 #pragma once
 
 #include <Core/EngineSystem.hpp>
-#include <System/InputDefinitions.hpp>
+#include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"
 
-namespace System
+namespace Platform
 {
     class WindowSystem;
 }
@@ -35,11 +35,11 @@ namespace Editor
 
     private:
         bool OnAttach(const EditorSubsystemStorage& editorSubsystems) override;
-        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event) override;
+        bool OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event) override;
         void OnBeginInterface(float timeDelta) override;
 
     private:
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
 
         bool m_windowVisible = false;
         bool m_optionsVisible = false;

@@ -7,7 +7,7 @@
 
 #include <Core/EngineSystem.hpp>
 
-namespace System
+namespace Platform
 {
     class FileHandle;
 }
@@ -42,7 +42,7 @@ namespace Graphics
         using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
+        static CreateResult Create(Platform::FileHandle& file, const LoadFromFile& params);
 
         using ConstTexturePtr = std::shared_ptr<const Texture>;
         using RegionMap = std::unordered_map<std::string, glm::ivec4>;

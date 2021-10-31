@@ -7,7 +7,7 @@
 
 #include "Graphics/RenderContext.hpp"
 
-namespace System
+namespace Platform
 {
     class FileHandle;
 }
@@ -48,7 +48,7 @@ namespace Graphics
 
         using CreateResult = Common::Result<std::unique_ptr<Shader>, CreateErrors>;
         static CreateResult Create(const LoadFromString& params);
-        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
+        static CreateResult Create(Platform::FileHandle& file, const LoadFromFile& params);
 
     public:
         ~Shader();

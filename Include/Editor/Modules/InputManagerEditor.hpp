@@ -6,8 +6,8 @@
 #pragma once
 
 #include <Common/Event/EventReceiver.hpp>
-#include <System/WindowEvents.hpp>
-#include <System/InputDefinitions.hpp>
+#include <Platform/WindowEvents.hpp>
+#include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorModule.hpp"
 
 /*
@@ -33,21 +33,21 @@ namespace Editor
 
         void AddIncomingEventLog(std::string text);
 
-        void OnWindowFocus(const System::WindowEvents::Focus& event);
-        bool OnTextInput(const System::InputEvents::TextInput& event);
-        bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event);
-        bool OnMouseButton(const System::InputEvents::MouseButton& event);
-        bool OnMouseScroll(const System::InputEvents::MouseScroll& event);
-        void OnCursorPosition(const System::InputEvents::CursorPosition& event);
-        void OnCursorEnter(const System::InputEvents::CursorEnter& event);
+        void OnWindowFocus(const Platform::WindowEvents::Focus& event);
+        bool OnTextInput(const Platform::InputEvents::TextInput& event);
+        bool OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event);
+        bool OnMouseButton(const Platform::InputEvents::MouseButton& event);
+        bool OnMouseScroll(const Platform::InputEvents::MouseScroll& event);
+        void OnCursorPosition(const Platform::InputEvents::CursorPosition& event);
+        void OnCursorEnter(const Platform::InputEvents::CursorEnter& event);
 
-        Event::Receiver<void(const System::WindowEvents::Focus&)> m_windowFocusReceiver;
-        Event::Receiver<bool(const System::InputEvents::TextInput&)> m_textInputReceiver;
-        Event::Receiver<bool(const System::InputEvents::KeyboardKey&)> m_keyboardKeyReceiver;
-        Event::Receiver<bool(const System::InputEvents::MouseButton&)> m_mouseButtonReceiver;
-        Event::Receiver<bool(const System::InputEvents::MouseScroll&)> m_mouseScrollReceiver;
-        Event::Receiver<void(const System::InputEvents::CursorPosition&)> m_cursorPositionReceiver;
-        Event::Receiver<void(const System::InputEvents::CursorEnter&)> m_cursorEnterReceiver;
+        Event::Receiver<void(const Platform::WindowEvents::Focus&)> m_windowFocusReceiver;
+        Event::Receiver<bool(const Platform::InputEvents::TextInput&)> m_textInputReceiver;
+        Event::Receiver<bool(const Platform::InputEvents::KeyboardKey&)> m_keyboardKeyReceiver;
+        Event::Receiver<bool(const Platform::InputEvents::MouseButton&)> m_mouseButtonReceiver;
+        Event::Receiver<bool(const Platform::InputEvents::MouseScroll&)> m_mouseScrollReceiver;
+        Event::Receiver<void(const Platform::InputEvents::CursorPosition&)> m_cursorPositionReceiver;
+        Event::Receiver<void(const Platform::InputEvents::CursorEnter&)> m_cursorEnterReceiver;
 
     private:
         bool m_isOpen = false;

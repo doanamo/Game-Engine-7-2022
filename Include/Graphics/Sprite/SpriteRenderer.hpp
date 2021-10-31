@@ -13,7 +13,7 @@
 #include "Graphics/Sprite/Sprite.hpp"
 #include "Graphics/Sprite/SpriteDrawList.hpp"
 
-namespace System
+namespace Platform
 {
     class FileSystem;
     class ResourceManager;

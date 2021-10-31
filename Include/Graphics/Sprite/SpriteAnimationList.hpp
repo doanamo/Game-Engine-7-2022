@@ -8,7 +8,7 @@
 #include <Core/EngineSystem.hpp>
 #include "Graphics/TextureView.hpp"
 
-namespace System
+namespace Platform
 {
     class FileHandle;
 }
@@ -39,7 +39,7 @@ namespace Graphics
         using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;
 
         static CreateResult Create();
-        static CreateResult Create(System::FileHandle& file, const LoadFromFile& params);
+        static CreateResult Create(Platform::FileHandle& file, const LoadFromFile& params);
 
         struct Frame
         {

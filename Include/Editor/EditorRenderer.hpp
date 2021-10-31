@@ -14,7 +14,7 @@
 #include <Graphics/Shader.hpp>
 #include "Editor/EditorSubsystem.hpp"
 
-namespace System
+namespace Platform
 {
     class WindowSystem;
     class FileSystem;
@@ -48,7 +48,7 @@ namespace Editor
         void OnEndInterface() override;
 
     private:
-        System::WindowSystem* m_windowSystem = nullptr;
+        Platform::WindowSystem* m_windowSystem = nullptr;
         Graphics::RenderContext* m_renderContext = nullptr;
 
         std::unique_ptr<Graphics::VertexBuffer> m_vertexBuffer;

@@ -8,7 +8,7 @@
 #include <Core/SystemInterface.hpp>
 #include <Core/EngineSystem.hpp>
 
-namespace System::InputEvents
+namespace Platform::InputEvents
 {
     struct KeyboardKey;
 }
@@ -31,7 +31,7 @@ namespace Editor
         virtual void OnBeginInterface(float timeDelta) {}
         virtual void OnEndInterface() {}
 
-        virtual bool OnKeyboardKey(const System::InputEvents::KeyboardKey& event)
+        virtual bool OnKeyboardKey(const Platform::InputEvents::KeyboardKey& event)
         {
             // Return false if we do not intend on capturing input event.
             return false;

@@ -6,7 +6,7 @@
 #include "Script/Precompiled.hpp"
 #include "Script/ScriptState.hpp"
 #include <Core/SystemStorage.hpp>
-#include <System/FileSystem/FileHandle.hpp>
+#include <Platform/FileSystem/FileHandle.hpp>
 using namespace Script;
 
 namespace
@@ -74,7 +74,7 @@ ScriptState::CreateResult ScriptState::Create()
     return Common::Success(std::move(instance));
 }
 
-ScriptState::CreateResult ScriptState::Create(System::FileHandle& file, const LoadFromFile& params)
+ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
     LOG_PROFILE_SCOPE("Load script state from \"{}\" file...",
         file.GetPath().generic_string());
