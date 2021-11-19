@@ -3,12 +3,14 @@
     Software distributed under the permissive MIT License.
 */
 
-#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
-#include <doctest/doctest.h>
-
 #include <sstream>
 #include <Common/Name.hpp>
 #include <Reflection/Reflection.hpp>
+#include <gtest/gtest.h>
+
+/*
+    Helpers
+*/
 
 class TestNameType
 {
@@ -16,62 +18,69 @@ class TestNameType
 
 REFLECTION_TYPE(TestNameType);
 
-DOCTEST_TEST_CASE("Name")
+/*
+    Name
+*/
+
+TEST(Name, Empty)
 {
-    DOCTEST_SUBCASE("Empty")
-    {
-        Common::Name nameEmpty;
-        DOCTEST_CHECK_EQ(nameEmpty, Common::StringHash<Common::Name::HashType>(""));
-    }
+    Common::Name nameEmpty;
+    EXPECT_EQ(nameEmpty, Common::StringHash<Common::Name::HashType>(""));
+}
 
-    DOCTEST_SUBCASE("Basic")
-    {
-        Common::Name nameOne = NAME_CONSTEXPR("One");
-        Common::Name nameTwo = NAME_CONSTEXPR("Two");
+TEST(Name, Basic)
+{
+    Common::Name nameOne = NAME_CONSTEXPR("One");
+    Common::Name nameTwo = NAME_CONSTEXPR("Two");
 
-        DOCTEST_CHECK_NE(nameOne, nameTwo);
-        DOCTEST_CHECK_EQ(nameOne, Common::Name("One"));
-        DOCTEST_CHECK_EQ(nameTwo, Common::Name("Two"));
+    EXPECT_NE(nameOne, nameTwo);
+    EXPECT_EQ(nameOne, Common::Name("One"));
+    EXPECT_EQ(nameTwo, Common::Name("Two"));
+}
 
-        DOCTEST_SUBCASE("Copy")
-        {
-            Common::Name nameOneCopy;
-            nameOneCopy = nameOne;
-            DOCTEST_CHECK_EQ(nameOneCopy, nameOne);
+TEST(Name, Copy)
+{
+    Common::Name nameOne = NAME_CONSTEXPR("One");
+    Common::Name nameTwo = NAME_CONSTEXPR("Two");
 
-            Common::Name nameTwoCopy(nameTwo);
-            DOCTEST_CHECK_EQ(nameTwoCopy, nameTwo);
-        }
+    Common::Name nameOneCopy;
+    nameOneCopy = nameOne;
+    EXPECT_EQ(nameOneCopy, nameOne);
 
-        DOCTEST_SUBCASE("From identifier")
-        {
-            Common::Name NameIdentifier(Common::StringHash<Common::Name::HashType>("One"));
+    Common::Name nameTwoCopy(nameTwo);
+    EXPECT_EQ(nameTwoCopy, nameTwo);
+}
 
-            DOCTEST_CHECK_EQ(nameOne, NameIdentifier);
-            DOCTEST_CHECK_NE(nameTwo, NameIdentifier);
-        }
-    }
+TEST(Name, Identifier)
+{
+    Common::Name nameOne = NAME_CONSTEXPR("One");
+    Common::Name nameTwo = NAME_CONSTEXPR("Two");
 
-    DOCTEST_SUBCASE("Hash")
-    {
-        Common::Name nameTest = NAME_CONSTEXPR("TestNameType");
-        DOCTEST_CHECK_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
-    }
+    Common::Name nameIdentifier(Common::StringHash<Common::Name::HashType>("One"));
 
-    DOCTEST_SUBCASE("String")
-    {
-        std::string string = Common::Name("TestNameType").GetString();
+    EXPECT_EQ(nameOne, nameIdentifier);
+    EXPECT_NE(nameTwo, nameIdentifier);
+}
+
+TEST(Name, Hash)
+{
+    Common::Name nameTest = NAME_CONSTEXPR("TestNameType");
+    EXPECT_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
+}
+
+TEST(Name, String)
+{
+    std::string string = Common::Name("TestNameType").GetString();
 
 #ifdef NAME_REGISTRY_ENABLED
-        std::string compare = "TestNameType";
+    std::string compare = "TestNameType";
 #else
-        std::stringstream stream;
-        stream << "{";
-        stream << Common::StringHash<Common::Name::HashType>("TestNameType");
-        stream << "}";
-        std::string compare = stream.str();
+    std::stringstream stream;
+    stream << "{";
+    stream << Common::StringHash<Common::Name::HashType>("TestNameType");
+    stream << "}";
+    std::string compare = stream.str();
 #endif
 
-        DOCTEST_CHECK_EQ(string, compare);
-    }
+    EXPECT_EQ(string, compare);
 }

@@ -21,7 +21,6 @@ set(TEST_FILES
 
 add_executable(TestGame ${TEST_FILES})
 target_compile_features(TestGame PUBLIC cxx_std_17)
-add_test("Game" TestGame)
 
 #
 # Dependencies
@@ -45,4 +44,5 @@ set_target_properties(TestGame PROPERTIES FOLDER "Tests")
 # External
 #
 
-target_include_directories(TestGame PUBLIC "../../External/doctest")
+target_link_libraries(TestGame PRIVATE gtest_main)
+gtest_discover_tests(TestGame TEST_PREFIX "Game.")

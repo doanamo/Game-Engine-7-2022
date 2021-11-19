@@ -27,7 +27,6 @@ set(TEST_FILES
 
 add_executable(TestCommon ${TEST_FILES})
 target_compile_features(TestCommon PUBLIC cxx_std_17)
-add_test("Common" TestCommon)
 
 #
 # Dependencies
@@ -50,4 +49,5 @@ set_target_properties(TestCommon PROPERTIES COMPILE_DEFINITIONS
 # External
 #
 
-target_include_directories(TestCommon PUBLIC "../../External/doctest")
+target_link_libraries(TestCommon PRIVATE gtest_main)
+gtest_discover_tests(TestCommon TEST_PREFIX "Common.")

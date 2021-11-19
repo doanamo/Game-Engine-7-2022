@@ -3,494 +3,415 @@
     Software distributed under the permissive MIT License.
 */
 
-#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
-#include <doctest/doctest.h>
-
 #include <string>
 #include <vector>
 #include <cinttypes>
+#include <gtest/gtest.h>
 #include <Reflection/Reflection.hpp>
 #include "TestReflectionHeader.hpp"
 
-DOCTEST_TEST_CASE("Static Reflection")
+TEST(StaticReflection, BuiltTypes)
 {
-    DOCTEST_SUBCASE("Check reflected built-in types")
-    {
-        DOCTEST_CHECK(Reflection::IsReflected<Reflection::NullType>());
-        DOCTEST_CHECK(Reflection::IsReflected<Reflection::TypeAttribute>());
-        DOCTEST_CHECK(Reflection::IsReflected<Reflection::FieldAttribute>());
-        DOCTEST_CHECK(Reflection::IsReflected<Reflection::MethodAttribute>());
+    EXPECT_TRUE(Reflection::IsReflected<Reflection::NullType>());
+    EXPECT_TRUE(Reflection::IsReflected<Reflection::TypeAttribute>());
+    EXPECT_TRUE(Reflection::IsReflected<Reflection::FieldAttribute>());
+    EXPECT_TRUE(Reflection::IsReflected<Reflection::MethodAttribute>());
 
-        DOCTEST_CHECK(Reflection::StaticType<Reflection::NullType>().IsNullType());
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Reflection::NullType>().Name,
-            "Reflection::NullType");
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Undefined>().IsNullType());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Derived>().IsNullType());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type name from namespace")
-    {
-        using namespace Reflection;
-        DOCTEST_CHECK_EQ(Reflection::StaticType<NullType>().Name, "Reflection::NullType");
-    }
-
-    DOCTEST_SUBCASE("Check reflection for types")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::IsReflected<Undefined>());
-        DOCTEST_CHECK_FALSE(Reflection::IsReflected<CrossUnit>());
-        DOCTEST_CHECK(Reflection::IsReflected<Empty>());
-        DOCTEST_CHECK(Reflection::IsReflected<Base>());
-        DOCTEST_CHECK(Reflection::IsReflected<Derived>());
-        DOCTEST_CHECK(Reflection::IsReflected<Inner>());
-        DOCTEST_CHECK(Reflection::IsReflected<BranchedOne>());
-        DOCTEST_CHECK(Reflection::IsReflected<BranchedTwo>());
-    }
-
-    DOCTEST_SUBCASE("Check reflection for const types")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::IsReflected<const Undefined>());
-        DOCTEST_CHECK_FALSE(Reflection::IsReflected<const CrossUnit>());
-        DOCTEST_CHECK(Reflection::IsReflected<const Empty>());
-        DOCTEST_CHECK(Reflection::IsReflected<const Base>());
-
-        volatile Derived derived;
-        DOCTEST_CHECK(Reflection::IsReflected(derived));
-
-        const BranchedOne& branchedOne = BranchedOne();
-        DOCTEST_CHECK(Reflection::IsReflected(branchedOne));
-
-        const BranchedTwo* branchedTwo = nullptr;
-        DOCTEST_CHECK(Reflection::IsReflected(branchedTwo));
-
-        DOCTEST_CHECK_EQ(Reflection::GetIdentifier<const Empty&>(),
-            Reflection::GetIdentifier<Empty>());
-        DOCTEST_CHECK_EQ(Reflection::GetIdentifier<volatile Empty*>(),
-            Reflection::GetIdentifier<Empty>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type names")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Name, "Empty");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Name, "Base");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Name, "Derived");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Name, "Inner");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Name, "BranchedOne");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Name, "BranchedTwo");
-    }
-
-    DOCTEST_SUBCASE("Check reflected type names against identifiers")
-    {
-        DOCTEST_CHECK_EQ(Reflection::GetName<Empty>(),
-            Reflection::GetIdentifier<Empty>());
-        DOCTEST_CHECK_EQ(Reflection::GetName<Base>(),
-            Reflection::GetIdentifier<Base>());
-        DOCTEST_CHECK_EQ(Reflection::GetName<Derived>(),
-            Reflection::GetIdentifier<Derived>());
-        DOCTEST_CHECK_EQ(Reflection::GetName<Inner>(),
-            Reflection::GetIdentifier<Inner>());
-        DOCTEST_CHECK_EQ(Reflection::GetName<BranchedOne>(),
-            Reflection::GetIdentifier<BranchedOne>());
-        DOCTEST_CHECK_EQ(Reflection::GetName<BranchedTwo>(),
-            Reflection::GetIdentifier<BranchedTwo>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type identifier")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Identifier,
-            Reflection::GetIdentifier("Empty"));
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Identifier,
-            Reflection::GetIdentifier("Base"));
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Identifier,
-            Reflection::GetIdentifier("Derived"));
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Identifier,
-            Reflection::GetIdentifier("Inner"));
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Identifier,
-            Reflection::GetIdentifier("BranchedOne"));
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Identifier,
-            Reflection::GetIdentifier("BranchedTwo"));
-
-        DOCTEST_CHECK_NE(Reflection::StaticType<BranchedOne>().Identifier,
-            Reflection::StaticType<BranchedTwo>().Identifier);
-    }
-
-    DOCTEST_SUBCASE("Check reflected type by value")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::StaticType(Undefined()).IsType<Empty>());
-        DOCTEST_CHECK(Reflection::StaticType(Undefined()).IsType<Undefined>());
-        DOCTEST_CHECK(Reflection::StaticType(Empty()).IsType<Empty>());
-        DOCTEST_CHECK(Reflection::StaticType(Base()).IsType<Base>());
-        DOCTEST_CHECK(Reflection::StaticType(Derived()).IsType<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType(Inner()).IsType<Inner>());
-        DOCTEST_CHECK(Reflection::StaticType(BranchedOne()).IsType<BranchedOne>());
-        DOCTEST_CHECK(Reflection::StaticType(BranchedTwo()).IsType<BranchedTwo>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type for base type")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Undefined>().HasBaseType());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Empty>().HasBaseType());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Base>().HasBaseType());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().HasBaseType());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Inner>().HasBaseType());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>().HasBaseType());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().HasBaseType());
-    }
-
-    DOCTEST_SUBCASE("Check reflected base type")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().GetBaseType().Name, "Base");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().GetBaseType().Name, "Derived");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().GetBaseType().Name, "Derived");
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().GetBaseType().IsType<Base>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>().GetBaseType().IsType<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().GetBaseType().IsType<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().IsDerivedFrom<Base>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>().IsDerivedFrom<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().IsDerivedFrom<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType<Base>().IsBaseOf<Derived>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type attributes")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Empty>().HasAttributes());
-        DOCTEST_CHECK(Reflection::StaticType<Base>().HasAttributes());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().HasAttributes());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Inner>().HasAttributes());
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<BranchedOne>().HasAttributes());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().HasAttributes());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type attribute count")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Attributes.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Attributes.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Attributes.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attributes.Count, 2);
-    }
-
-    DOCTEST_SUBCASE("Check reflected type attribute names")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Name,
-            "BaseAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Attribute<0>().Name,
-            "DerivedAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Name,
-            "BranchedAttributeOne");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Name,
-            "BranchedAttributeTwo");
-    }
-
-    DOCTEST_SUBCASE("Check reflected type attribute types")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Base>()
-            .Attribute<0>().IsType<DerivedAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<Base>()
-            .Attribute<0>().IsType<BaseAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>()
-            .Attribute<0>().IsType<DerivedAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>()
-            .Attribute<0>().IsType<BranchedAttributeOne>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>()
-            .Attribute<1>().IsType<BranchedAttributeTwo>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type attribute instances")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance,
-            BaseAttribute());
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Attribute<0>().Instance.state,
-            false);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Instance.modifier,
-            "Small");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Instance.modifier,
-            "Big");
-    }
-
-    DOCTEST_SUBCASE("Check reflected type member count")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Empty>().Members.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Members.Count, 2);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Members.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Members.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Members.Count, 2);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Members.Count, 2);
-    }
-
-    DOCTEST_SUBCASE("Check reflected type member names")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Name, "textWithoutAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textPtrWithAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Name, "counter");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Name, "value");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Name, "toggle");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Name, "inner");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Name, "letterOne");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Name, "letterTwo");
-    }
-
-    DOCTEST_SUBCASE("Check reflected type member types")
-    {
-        DOCTEST_CHECK_FALSE(Reflection::StaticType<Base>().Member<0>().IsType<void>());
-        DOCTEST_CHECK(Reflection::StaticType<Base>().Member<0>().IsType<std::string>());
-        DOCTEST_CHECK(Reflection::StaticType<Base>().Member<1>().IsType<const char*>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>().Member<0>().IsType<int>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>().Member<0>().IsType<bool>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>().Member<1>().IsType<Inner>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().Member<0>().IsType<char>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>().Member<1>().IsType<char>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected type member pointers")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Pointer,
-            &Base::textWithoutAttribute);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Pointer,
-            &Base::textPtrWithAttribute);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer,
-            &Derived::counter);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer,
-            &Inner::value);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer,
-            &BranchedOne::toggle);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer,
-            &BranchedOne::inner);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer,
-            &BranchedTwo::letterOne);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer,
-            &BranchedTwo::letterTwo);
-    }
-
-    DOCTEST_SUBCASE("Check reflected member attribute count")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>().Member<0>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>().Member<0>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attributes.Count, 2);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Attributes.Count, 0);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Attributes.Count, 1);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attributes.Count, 1);
-    }
-
-    DOCTEST_SUBCASE("Check reflected member attribute names")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>()
-            .Member<1>().Attribute<0>().Name, "TextAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>()
-            .Member<0>().Attribute<0>().Name, "CounterAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>()
-            .Member<0>().Attribute<0>().Name, "InnerAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<0>().Name, "ToggleOnAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<1>().Name, "ToggleOffAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>()
-            .Member<0>().Attribute<0>().Name, "LetterAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>()
-            .Member<1>().Attribute<0>().Name, "LetterAttribute");
-    }
-
-    DOCTEST_SUBCASE("Check reflected member attribute types")
-    {
-        DOCTEST_CHECK(Reflection::StaticType<Base>()
-            .Member<1>().Attribute<0>().IsType<TextAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<Derived>()
-            .Member<0>().Attribute<0>().IsType<CounterAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<Inner>()
-            .Member<0>().Attribute<0>().IsType<InnerAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<0>().IsType<ToggleOnAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<1>().IsType<ToggleOffAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>()
-            .Member<0>().Attribute<0>().IsType<LetterAttribute>());
-        DOCTEST_CHECK(Reflection::StaticType<BranchedTwo>()
-            .Member<1>().Attribute<0>().IsType<LetterAttribute>());
-    }
-
-    DOCTEST_SUBCASE("Check reflected members attribute instances")
-    {
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>()
-            .Member<1>().Attribute<0>().Instance, TextAttribute());
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>()
-            .Member<0>().Attribute<0>().Instance.state, true);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Inner>()
-            .Member<0>().Attribute<0>().Instance.counter, 20);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<0>().Instance.state, true);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedOne>()
-            .Member<0>().Attribute<1>().Instance.state, false);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>()
-            .Member<0>().Attribute<0>().Instance.modifier, "Pretty");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<BranchedTwo>()
-            .Member<1>().Attribute<0>().Instance.modifier, "Ugly");
-    }
-
-    DOCTEST_SUBCASE("Enumerate reflected attribtues")
-    {
-        DOCTEST_SUBCASE("For base type")
-        {
-            std::vector<std::string_view> expectedAttributes;
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<Empty>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-
-        DOCTEST_SUBCASE("For derived type")
-        {
-            std::vector<std::string_view> expectedAttributes = { "DerivedAttribute" };
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<Derived>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-
-        DOCTEST_SUBCASE("For branched type")
-        {
-            std::vector<std::string_view> expectedAttributes =
-                { "BranchedAttributeOne", "BranchedAttributeTwo" };
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-
-        DOCTEST_SUBCASE("For their instances")
-        {
-            std::vector<std::string_view> expectedAttributes = { "Small", "Big" };
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Instance.modifier);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-    }
-
-    DOCTEST_SUBCASE("Enumarate reflected members")
-    {
-        DOCTEST_SUBCASE("For empty type")
-        {
-            std::vector<std::string_view> expectedMembers;
-            std::vector<std::string_view> presentMembers;
-
-            Reflection::ForEach(Reflection::StaticType<Empty>().Members,
-                [&presentMembers](const auto& member)
-            {
-                presentMembers.push_back(member.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentMembers, expectedMembers);
-        }
-
-        DOCTEST_SUBCASE("For base type")
-        {
-            std::vector<std::string_view> expectedMembers =
-                { "textWithoutAttribute", "textPtrWithAttribute" };
-            std::vector<std::string_view> presentMembers;
-
-            Reflection::ForEach(Reflection::StaticType<Base>().Members,
-                [&presentMembers](const auto& member)
-            {
-                presentMembers.push_back(member.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentMembers, expectedMembers);
-        }
-
-        DOCTEST_SUBCASE("For derived type")
-        {
-            std::vector<std::string_view> expectedMembers = { "toggle", "inner" };
-            std::vector<std::string_view> presentMembers;
-
-            Reflection::ForEach(Reflection::StaticType<BranchedOne>().Members,
-                [&presentMembers](const auto& member)
-            {
-                presentMembers.push_back(member.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentMembers, expectedMembers);
-        }
-    }
-
-    DOCTEST_SUBCASE("Enumerate reflected member attributes")
-    {
-        DOCTEST_SUBCASE("For base type")
-        {
-            std::vector<std::string_view> expectedAttributes;
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<Base>().Member<0>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-
-        DOCTEST_SUBCASE("For derived type")
-        {
-            std::vector<std::string_view> expectedAttributes =
-                { "ToggleOnAttribute", "ToggleOffAttribute" };
-            std::vector<std::string_view> presentAttributes;
-
-            Reflection::ForEach(Reflection::StaticType<BranchedOne>().Member<0>().Attributes,
-                [&presentAttributes](const auto& attribute)
-            {
-                presentAttributes.push_back(attribute.Name);
-            });
-
-            DOCTEST_CHECK_EQ(presentAttributes, expectedAttributes);
-        }
-    }
-
-    /*
-    DOCTEST_SUBCASE("Retrieving reflected type by name via constexpr")
-    {
-        // Find type members and attributes by name.
-        // String literal needs to be a static variable passed via template argument to
-        // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
-        // Disabled for now because of issues with compilation on Clang (GCC/MSVC is fine).
-        // Maybe use constexpr hashing or somehow allow to evaluate via argument.
-        
-        constexpr static char BaseMemberName[] = "textWithoutAttribute";
-        constexpr static char DerivedAttributeName[] = "DerivedAttribute";
-        constexpr static char DerivedMemberName[] = "counter";
-        constexpr static char DerivedMemberAttributeName[] = "CounterAttribute";
-        
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Base>()
-            .FindMember<BaseMemberName>().Name, "textWithoutAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>()
-            .FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>()
-            .FindAttribute<DerivedAttributeName>().Instance.state, false);
-        DOCTEST_CHECK_EQ(Reflection::StaticType<Derived>()
-            .FindMember<DerivedMemberName>()
-            .FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
-    }
-    */
+    EXPECT_TRUE(Reflection::StaticType<Reflection::NullType>().IsNullType());
+    EXPECT_EQ(Reflection::StaticType<Reflection::NullType>().Name, "Reflection::NullType");
+    EXPECT_FALSE(Reflection::StaticType<Undefined>().IsNullType());
+    EXPECT_FALSE(Reflection::StaticType<Derived>().IsNullType());
 }
+
+TEST(StaticReflection, RegularTypes)
+{
+    EXPECT_FALSE(Reflection::IsReflected<Undefined>());
+    EXPECT_FALSE(Reflection::IsReflected<CrossUnit>());
+    EXPECT_TRUE(Reflection::IsReflected<Empty>());
+    EXPECT_TRUE(Reflection::IsReflected<Base>());
+    EXPECT_TRUE(Reflection::IsReflected<Derived>());
+    EXPECT_TRUE(Reflection::IsReflected<Inner>());
+    EXPECT_TRUE(Reflection::IsReflected<BranchedOne>());
+    EXPECT_TRUE(Reflection::IsReflected<BranchedTwo>());
+}
+
+TEST(StaticReflection, ConstTypes)
+{
+    EXPECT_FALSE(Reflection::IsReflected<const Undefined>());
+    EXPECT_FALSE(Reflection::IsReflected<const CrossUnit>());
+    EXPECT_TRUE(Reflection::IsReflected<const Empty>());
+    EXPECT_TRUE(Reflection::IsReflected<const Base>());
+
+    volatile Derived derived;
+    EXPECT_TRUE(Reflection::IsReflected(derived));
+
+    const BranchedOne& branchedOne = BranchedOne();
+    EXPECT_TRUE(Reflection::IsReflected(branchedOne));
+
+    const BranchedTwo* branchedTwo = nullptr;
+    EXPECT_TRUE(Reflection::IsReflected(branchedTwo));
+
+    EXPECT_EQ(Reflection::GetIdentifier<const Empty&>(), Reflection::GetIdentifier<Empty>());
+    EXPECT_EQ(Reflection::GetIdentifier<volatile Empty*>(), Reflection::GetIdentifier<Empty>());
+}
+
+TEST(StaticReflection, TypeIdentifiers)
+{
+    EXPECT_EQ(Reflection::StaticType<Empty>().Identifier, Reflection::GetIdentifier("Empty"));
+    EXPECT_EQ(Reflection::StaticType<Base>().Identifier, Reflection::GetIdentifier("Base"));
+    EXPECT_EQ(Reflection::StaticType<Derived>().Identifier, Reflection::GetIdentifier("Derived"));
+    EXPECT_EQ(Reflection::StaticType<Inner>().Identifier, Reflection::GetIdentifier("Inner"));
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Identifier, Reflection::GetIdentifier("BranchedOne"));
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Identifier, Reflection::GetIdentifier("BranchedTwo"));
+    EXPECT_NE(Reflection::StaticType<BranchedOne>().Identifier, Reflection::StaticType<BranchedTwo>().Identifier);
+}
+
+TEST(StaticReflection, TypeNames)
+{
+    EXPECT_EQ(Reflection::StaticType<Empty>().Name, "Empty");
+    EXPECT_EQ(Reflection::StaticType<Base>().Name, "Base");
+    EXPECT_EQ(Reflection::StaticType<Derived>().Name, "Derived");
+    EXPECT_EQ(Reflection::StaticType<Inner>().Name, "Inner");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Name, "BranchedOne");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Name, "BranchedTwo");
+}
+
+TEST(StaticReflection, NamespacedTypeName)
+{
+    using namespace Reflection;
+    EXPECT_EQ(Reflection::StaticType<NullType>().Name, "Reflection::NullType");
+}
+
+TEST(StaticReflection, NamesFromIdentifier)
+{
+    EXPECT_EQ(Reflection::GetName<Empty>(), Reflection::GetIdentifier<Empty>());
+    EXPECT_EQ(Reflection::GetName<Base>(), Reflection::GetIdentifier<Base>());
+    EXPECT_EQ(Reflection::GetName<Derived>(), Reflection::GetIdentifier<Derived>());
+    EXPECT_EQ(Reflection::GetName<Inner>(), Reflection::GetIdentifier<Inner>());
+    EXPECT_EQ(Reflection::GetName<BranchedOne>(), Reflection::GetIdentifier<BranchedOne>());
+    EXPECT_EQ(Reflection::GetName<BranchedTwo>(), Reflection::GetIdentifier<BranchedTwo>());
+}
+
+TEST(StaticReflection, TypeFromValue)
+{
+    EXPECT_FALSE(Reflection::StaticType(Undefined()).IsType<Empty>());
+    EXPECT_TRUE(Reflection::StaticType(Undefined()).IsType<Undefined>());
+    EXPECT_TRUE(Reflection::StaticType(Empty()).IsType<Empty>());
+    EXPECT_TRUE(Reflection::StaticType(Base()).IsType<Base>());
+    EXPECT_TRUE(Reflection::StaticType(Derived()).IsType<Derived>());
+    EXPECT_TRUE(Reflection::StaticType(Inner()).IsType<Inner>());
+    EXPECT_TRUE(Reflection::StaticType(BranchedOne()).IsType<BranchedOne>());
+    EXPECT_TRUE(Reflection::StaticType(BranchedTwo()).IsType<BranchedTwo>());
+}
+
+TEST(StaticReflection, BaseTypes)
+{
+    EXPECT_FALSE(Reflection::StaticType<Undefined>().HasBaseType());
+    EXPECT_FALSE(Reflection::StaticType<Empty>().HasBaseType());
+    EXPECT_FALSE(Reflection::StaticType<Base>().HasBaseType());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().HasBaseType());
+    EXPECT_FALSE(Reflection::StaticType<Inner>().HasBaseType());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().HasBaseType());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().HasBaseType());
+
+    EXPECT_EQ(Reflection::StaticType<Derived>().GetBaseType().Name, "Base");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().GetBaseType().Name, "Derived");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().GetBaseType().Name, "Derived");
+    EXPECT_TRUE(Reflection::StaticType<Derived>().GetBaseType().IsType<Base>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().GetBaseType().IsType<Derived>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().GetBaseType().IsType<Derived>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().IsDerivedFrom<Base>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().IsDerivedFrom<Derived>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().IsDerivedFrom<Derived>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().IsBaseOf<Derived>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().IsBaseOf<BranchedOne>());
+}
+
+TEST(StaticReflection, Attributes)
+{
+    EXPECT_FALSE(Reflection::StaticType<Empty>().HasAttributes());
+    EXPECT_TRUE(Reflection::StaticType<Base>().HasAttributes());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().HasAttributes());
+    EXPECT_FALSE(Reflection::StaticType<Inner>().HasAttributes());
+    EXPECT_FALSE(Reflection::StaticType<BranchedOne>().HasAttributes());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().HasAttributes());
+}
+
+TEST(StaticReflection, AttributeCount)
+{
+    EXPECT_EQ(Reflection::StaticType<Empty>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<Base>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Derived>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Inner>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attributes.Count, 2);
+}
+
+TEST(StaticReflection, AttributeNames)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Name, "BaseAttribute");
+    EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Name, "DerivedAttribute");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Name, "BranchedAttributeOne");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Name, "BranchedAttributeTwo");
+}
+
+TEST(StaticReflection, AttributeTypes)
+{
+    EXPECT_FALSE(Reflection::StaticType<Base>().Attribute<0>().IsType<DerivedAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<0>().IsType<BaseAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().Attribute<0>().IsType<DerivedAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Attribute<0>().IsType<BranchedAttributeOne>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Attribute<1>().IsType<BranchedAttributeTwo>());
+}
+
+TEST(StaticReflection, AttributeInstances)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance, BaseAttribute());
+    EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Instance.state, false);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Instance.modifier, "Small");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Instance.modifier, "Big");
+}
+
+TEST(StaticReflection, MemberCount)
+{
+    EXPECT_EQ(Reflection::StaticType<Empty>().Members.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<Base>().Members.Count, 2);
+    EXPECT_EQ(Reflection::StaticType<Derived>().Members.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Inner>().Members.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Members.Count, 2);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Members.Count, 2);
+}
+
+TEST(StaticReflection, MemberNames)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Name, "textWithoutAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textPtrWithAttribute");
+    EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Name, "counter");
+    EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Name, "value");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Name, "toggle");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Name, "inner");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Name, "letterOne");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Name, "letterTwo");
+}
+
+TEST(StaticReflection, MemberTypes)
+{
+    EXPECT_FALSE(Reflection::StaticType<Base>().Member<0>().IsType<void>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<0>().IsType<std::string>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().IsType<const char*>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().IsType<int>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().IsType<bool>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<1>().IsType<Inner>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<0>().IsType<char>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<1>().IsType<char>());
+}
+
+TEST(StaticReflection, MemberPointers)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Pointer, &Base::textWithoutAttribute);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textPtrWithAttribute);
+    EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer, &Derived::counter);
+    EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer, &Inner::value);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer, &BranchedOne::toggle);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Pointer, &BranchedOne::inner);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Pointer, &BranchedTwo::letterOne);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Pointer, &BranchedTwo::letterTwo);
+}
+
+TEST(StaticReflection, MemberAttributeCount)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attributes.Count, 2);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<1>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attributes.Count, 1);
+}
+
+TEST(StaticReflection, MemberAttributeNames)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Name, "TextAttribute");
+    EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Name, "CounterAttribute");
+    EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Name, "InnerAttribute");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Name, "ToggleOnAttribute");
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<1>().Name, "ToggleOffAttribute");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Attribute<0>().Name, "LetterAttribute");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attribute<0>().Name, "LetterAttribute");
+}
+
+TEST(StaticReflection, MemberAttributeTypes)
+{
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().Attribute<0>().IsType<TextAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().IsType<CounterAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().IsType<InnerAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().IsType<ToggleOnAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<1>().IsType<ToggleOffAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<0>().Attribute<0>().IsType<LetterAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<1>().Attribute<0>().IsType<LetterAttribute>());
+}
+
+TEST(StaticReflection, MemberAttributeInstances)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Instance, TextAttribute());
+    EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Instance.state, true);
+    EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Instance.counter, 20);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Instance.state, true);
+    EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<1>().Instance.state, false);
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<0>().Attribute<0>().Instance.modifier, "Pretty");
+    EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Member<1>().Attribute<0>().Instance.modifier, "Ugly");
+}
+
+TEST(StaticReflection, EnumerateAttributesBase)
+{
+    std::vector<std::string_view> expectedAttributes;
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<Empty>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Name);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+TEST(StaticReflection, EnumerateAttributesDerived)
+{
+    std::vector<std::string_view> expectedAttributes = { "DerivedAttribute" };
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<Derived>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Name);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+TEST(StaticReflection, EnumerateAttributesBranched)
+{
+    std::vector<std::string_view> expectedAttributes = { "BranchedAttributeOne", "BranchedAttributeTwo" };
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Name);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+TEST(StaticReflection, EnumerateAttributesInstances)
+{
+    std::vector<std::string_view> expectedAttributes = { "Small", "Big" };
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Instance.modifier);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+TEST(StaticReflection, EnumerateMembersEmpty)
+{
+    std::vector<std::string_view> expectedMembers;
+    std::vector<std::string_view> presentMembers;
+
+    Reflection::ForEach(Reflection::StaticType<Empty>().Members,
+        [&presentMembers](const auto& member)
+    {
+        presentMembers.push_back(member.Name);
+    });
+
+    EXPECT_EQ(presentMembers, expectedMembers);
+}
+
+TEST(StaticReflection, EnumerateMembersBase)
+{
+    std::vector<std::string_view> expectedMembers = { "textWithoutAttribute", "textPtrWithAttribute" };
+    std::vector<std::string_view> presentMembers;
+
+    Reflection::ForEach(Reflection::StaticType<Base>().Members,
+        [&presentMembers](const auto& member)
+    {
+        presentMembers.push_back(member.Name);
+    });
+
+    EXPECT_EQ(presentMembers, expectedMembers);
+}
+
+TEST(StaticReflection, EnumerateMembersDerived)
+{
+    std::vector<std::string_view> expectedMembers = { "toggle", "inner" };
+    std::vector<std::string_view> presentMembers;
+
+    Reflection::ForEach(Reflection::StaticType<BranchedOne>().Members,
+        [&presentMembers](const auto& member)
+    {
+        presentMembers.push_back(member.Name);
+    });
+
+    EXPECT_EQ(presentMembers, expectedMembers);
+}
+
+TEST(StaticReflection, EnumerateMemberAttributesBase)
+{
+    std::vector<std::string_view> expectedAttributes;
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<Base>().Member<0>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Name);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+TEST(StaticReflection, EnumerateMemberAttributesDerived)
+{
+    std::vector<std::string_view> expectedAttributes = { "ToggleOnAttribute", "ToggleOffAttribute" };
+    std::vector<std::string_view> presentAttributes;
+
+    Reflection::ForEach(Reflection::StaticType<BranchedOne>().Member<0>().Attributes,
+        [&presentAttributes](const auto& attribute)
+    {
+        presentAttributes.push_back(attribute.Name);
+    });
+
+    EXPECT_EQ(presentAttributes, expectedAttributes);
+}
+
+/*
+TEST(StaticReflection, EnumerateViaConstexprString)
+{
+    // Find type members and attributes by name.
+    // String literal needs to be a static variable passed via template argument to
+    // be allowed in constexpr evaluation. This limitation will be lifted in C++20.
+    // Disabled for now because of issues with compilation on Clang (GCC/MSVC is fine).
+    // Maybe use constexpr hashing or somehow allow to evaluate via argument.
+
+    constexpr static char BaseMemberName[] = "textWithoutAttribute";
+    constexpr static char DerivedAttributeName[] = "DerivedAttribute";
+    constexpr static char DerivedMemberName[] = "counter";
+    constexpr static char DerivedMemberAttributeName[] = "CounterAttribute";
+
+    EXPECT_EQ(Reflection::StaticType<Base>()
+        .FindMember<BaseMemberName>().Name, "textWithoutAttribute");
+    EXPECT_EQ(Reflection::StaticType<Derived>()
+        .FindAttribute<DerivedAttributeName>().Name, "DerivedAttribute");
+    EXPECT_EQ(Reflection::StaticType<Derived>()
+        .FindAttribute<DerivedAttributeName>().Instance.state, false);
+    EXPECT_EQ(Reflection::StaticType<Derived>()
+        .FindMember<DerivedMemberName>()
+        .FindAttribute<DerivedMemberAttributeName>().Instance.state, true);
+}
+*/

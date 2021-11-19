@@ -3,13 +3,12 @@
     Software distributed under the permissive MIT License.
 */
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
-#include <doctest/doctest.h>
 #include <Reflection/Reflection.hpp>
+#include <gtest/gtest.h>
 
-int main(const int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     Reflection::Initialize();
-    return doctest::Context(argc, argv).run();
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

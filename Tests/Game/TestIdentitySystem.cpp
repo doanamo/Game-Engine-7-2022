@@ -3,188 +3,204 @@
     Software distributed under the permissive MIT License.
 */
 
-#define DOCTEST_CONFIG_NO_SHORT_MACRO_NAMES
-#include <doctest/doctest.h>
-
 #include <Core/Core.hpp>
 #include <Core/ReflectionGenerated.hpp>
 #include <Game/ReflectionGenerated.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/EntitySystem.hpp>
 #include <Game/Systems/IdentitySystem.hpp>
+#include <gtest/gtest.h>
 
-DOCTEST_TEST_CASE("Identity System")
+/*
+    Identity System
+*/
+
+class IdentitySystem : public testing::Test
 {
+protected:
+    void SetUp() override
+    {
+        gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
+        ASSERT_TRUE(gameInstance);
+
+        entitySystem = &gameInstance->GetSystems().Locate<Game::EntitySystem>();
+        identitySystem = &gameInstance->GetSystems().Locate<Game::IdentitySystem>();
+        ASSERT_EQ(identitySystem->GetNamedEntityCount(), 0);
+    }
+
+    void TearDown() override
+    {
+        if(identitySystem)
+        {
+            EXPECT_EQ(identitySystem->GetNamedEntityCount(), 0);
+            EXPECT_EQ(identitySystem->GetGroupedEntityCount(), 0);
+        }
+    }
+
+protected:
     std::unique_ptr<Game::GameInstance> gameInstance;
-    gameInstance = Game::GameInstance::Create().UnwrapOr(nullptr);
-    DOCTEST_REQUIRE(gameInstance);
+    Game::EntitySystem* entitySystem = nullptr;
+    Game::IdentitySystem* identitySystem = nullptr;
+};
 
-    auto& entitySystem = gameInstance->GetSystems().Locate<Game::EntitySystem>();
-    auto& identitySystem = gameInstance->GetSystems().Locate<Game::IdentitySystem>();
-    DOCTEST_CHECK_EQ(identitySystem.GetNamedEntityCount(), 0);
+TEST_F(IdentitySystem, Names)
+{
+    // Name invalid entity.
+    EXPECT_FALSE(identitySystem->SetEntityName(Game::EntityHandle(), "Invalid"));
+    EXPECT_FALSE(identitySystem->GetEntityByName("Invalid").IsSuccess());
 
-    DOCTEST_SUBCASE("Names")
+    // Name single entity before processing entity commands.
+    Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity().Unwrap();
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne"));
+    EXPECT_EQ(identitySystem->GetNamedEntityCount(), 1);
+
+    entitySystem->ProcessCommands();
+    EXPECT_TRUE(entityPlayerOne.IsValid());
+    EXPECT_TRUE(entitySystem->IsEntityValid(entityPlayerOne));
+
     {
-        // Name invalid entity.
-        DOCTEST_CHECK_FALSE(identitySystem.SetEntityName(Game::EntityHandle(), "Invalid"));
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityByName("Invalid").IsSuccess());
-
-        // Name single entity before processing entity commands.
-        Game::EntityHandle entityPlayerOne = entitySystem.CreateEntity().Unwrap();
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOne"));
-        DOCTEST_CHECK_EQ(identitySystem.GetNamedEntityCount(), 1);
-
-        entitySystem.ProcessCommands();
-        DOCTEST_CHECK(entityPlayerOne.IsValid());
-        DOCTEST_CHECK(entitySystem.IsEntityValid(entityPlayerOne));
-
-        {
-            auto namedEntityResult = identitySystem.GetEntityByName("PlayerOne");
-            DOCTEST_CHECK_EQ(namedEntityResult.Unwrap(), entityPlayerOne);
-        }
-
-        // Name single entity after processing entity commands.
-        Game::EntityHandle entityPlayerTwo = entitySystem.CreateEntity().Unwrap();
-        entitySystem.ProcessCommands();
-
-        DOCTEST_CHECK(entityPlayerTwo.IsValid());
-        DOCTEST_CHECK(entitySystem.IsEntityValid(entityPlayerTwo));
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerTwo, "PlayerTwo"));
-
-        {
-            auto namedEntityResult = identitySystem.GetEntityByName("PlayerTwo");
-            DOCTEST_CHECK_EQ(namedEntityResult.Unwrap(), entityPlayerTwo);
-        }
-
-        // Query entity name.
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerTwo).Unwrap(), "PlayerTwo");
-        DOCTEST_CHECK_EQ(identitySystem.GetNamedEntityCount(), 2);
-
-        // Remove entity name by setting empty string.
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, ""));
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, ""));
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityByName("").IsSuccess());
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityName(entityPlayerOne).IsSuccess());
-
-        // Rename entity.
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOne"));
-        DOCTEST_CHECK_FALSE(identitySystem.SetEntityName(entityPlayerOne, "PlayerTwo"));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
-        DOCTEST_CHECK_NE(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerTwo");
-
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOnee"));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerOnee");
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOne"));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
-
-        // Setting same name.
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOne"));
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerTwo, "PlayerTwo"));
-
-        // Name uniqueness.
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerTwo, "PlayerOne", true));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerTwo).Unwrap(), "PlayerOne");
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityName(entityPlayerOne).IsSuccess());
-
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerOne, "PlayerOne", true));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
-        DOCTEST_CHECK(identitySystem.SetEntityName(entityPlayerTwo, "PlayerTwo"));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityName(entityPlayerTwo).Unwrap(), "PlayerTwo");
-
-        // Query destroyed entity.
-        entitySystem.DestroyAllEntities();
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityName(entityPlayerOne).IsSuccess());
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntityByName("PlayerTwo").IsSuccess());
+        auto namedEntityResult = identitySystem->GetEntityByName("PlayerOne");
+        EXPECT_EQ(namedEntityResult.Unwrap(), entityPlayerOne);
     }
 
-    DOCTEST_SUBCASE("Groups")
+    // Name single entity after processing entity commands.
+    Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity().Unwrap();
+    entitySystem->ProcessCommands();
+
+    EXPECT_TRUE(entityPlayerTwo.IsValid());
+    EXPECT_TRUE(entitySystem->IsEntityValid(entityPlayerTwo));
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerTwo, "PlayerTwo"));
+
     {
-        // Group invalid entity.
-        DOCTEST_CHECK_FALSE(identitySystem.SetEntityGroup(Game::EntityHandle(), "Invalid"));
-        DOCTEST_CHECK_FALSE(identitySystem.GetEntitiesByGroup("Invalid").IsSuccess());
-
-        // DOCTEST_CHECK group of never registered entity.
-        Game::EntityHandle entityPlayerNone = entitySystem.CreateEntity().Unwrap();
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityGroups(entityPlayerNone).UnwrapFailure(),
-            Game::IdentitySystem::LookupErrors::EntityNotFound);
-
-        // Group single entity before processing entity commands.
-        Game::EntityHandle entityPlayerOne = entitySystem.CreateEntity().Unwrap();
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerOne, "GroupA"));
-        DOCTEST_CHECK_EQ(identitySystem.GetGroupedEntityCount(), 1);
-        DOCTEST_CHECK_EQ(identitySystem.GetGroupCount(), 1);
-
-        entitySystem.ProcessCommands();
-        DOCTEST_CHECK(entityPlayerOne.IsValid());
-        DOCTEST_CHECK(entitySystem.IsEntityValid(entityPlayerOne));
-
-        {
-            auto groupedEntitiesResult = 
-                identitySystem.GetEntitiesByGroup("GroupA").UnwrapSuccess();
-            DOCTEST_CHECK_NE(groupedEntitiesResult.find(entityPlayerOne),
-                groupedEntitiesResult.end());
-            DOCTEST_CHECK_EQ(groupedEntitiesResult.size(), 1);
-        }
-
-        // Group multiple entities after processing entity commands.
-        Game::EntityHandle entityPlayerTwo = entitySystem.CreateEntity().Unwrap();
-        Game::EntityHandle entityPlayerThree = entitySystem.CreateEntity().Unwrap();
-        Game::EntityHandle entityPlayerFour = entitySystem.CreateEntity().Unwrap();
-        entitySystem.ProcessCommands();
-
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerTwo, "GroupA"));
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerThree, "GroupB"));
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerFour, "GroupB"));
-
-        {
-            auto groupedEntitiesResultA = identitySystem.GetEntitiesByGroup("GroupA").Unwrap();
-            DOCTEST_CHECK_NE(groupedEntitiesResultA.find(entityPlayerOne),
-                groupedEntitiesResultA.end());
-            DOCTEST_CHECK_NE(groupedEntitiesResultA.find(entityPlayerTwo),
-                groupedEntitiesResultA.end());
-            DOCTEST_CHECK_EQ(groupedEntitiesResultA.size(), 2);
-
-            auto groupedEntitiesResultB = identitySystem.GetEntitiesByGroup("GroupB").Unwrap();
-            DOCTEST_CHECK_NE(groupedEntitiesResultB.find(entityPlayerThree),
-                groupedEntitiesResultB.end());
-            DOCTEST_CHECK_NE(groupedEntitiesResultB.find(entityPlayerFour),
-                groupedEntitiesResultB.end());
-            DOCTEST_CHECK_EQ(groupedEntitiesResultB.size(), 2);
-        }
-
-        // Query entity group.
-        DOCTEST_CHECK(identitySystem.IsEntityInGroup(entityPlayerOne, "GroupA"));
-        DOCTEST_CHECK(identitySystem.IsEntityInGroup(entityPlayerThree, "GroupB"));
-        DOCTEST_CHECK_EQ(identitySystem.GetGroupedEntityCount(), 4);
-        DOCTEST_CHECK_EQ(identitySystem.GetGroupCount(), 2);
-
-        // Setting same group.
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerTwo, "GroupA"));
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerFour, "GroupB"));
-
-        // Entity to multiple groups.
-        DOCTEST_CHECK(identitySystem.IsEntityInGroup(entityPlayerOne, "GroupA"));
-        DOCTEST_CHECK_FALSE(identitySystem.IsEntityInGroup(entityPlayerOne, "GroupB"));
-
-        DOCTEST_CHECK(identitySystem.SetEntityGroup(entityPlayerOne, "GroupB"));
-        DOCTEST_CHECK(identitySystem.IsEntityInGroup(entityPlayerOne, "GroupA"));
-        DOCTEST_CHECK(identitySystem.IsEntityInGroup(entityPlayerOne, "GroupB"));
-
-        // Clear group from entity.
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityGroupCount(entityPlayerOne), 2);
-        DOCTEST_CHECK(identitySystem.ClearEntityGroup(entityPlayerOne, "GroupA"));
-        DOCTEST_CHECK(identitySystem.ClearEntityGroup(entityPlayerOne, "GroupB"));
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityGroupCount(entityPlayerOne), 0);
-
-        // Query destroyed entity.
-        entitySystem.DestroyAllEntities();
-        DOCTEST_CHECK_EQ(identitySystem.GetEntityGroups(entityPlayerThree).UnwrapFailure(),
-            Game::IdentitySystem::LookupErrors::InvalidEntity);
-        DOCTEST_CHECK_EQ(identitySystem.GetEntitiesByGroup("GroupA").UnwrapFailure(),
-            Game::IdentitySystem::LookupErrors::GroupNotFound);
+        auto namedEntityResult = identitySystem->GetEntityByName("PlayerTwo");
+        EXPECT_EQ(namedEntityResult.Unwrap(), entityPlayerTwo);
     }
 
-    DOCTEST_CHECK_EQ(identitySystem.GetNamedEntityCount(), 0);
-    DOCTEST_CHECK_EQ(identitySystem.GetGroupedEntityCount(), 0);
+    // Query entity name.
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerTwo).Unwrap(), "PlayerTwo");
+    EXPECT_EQ(identitySystem->GetNamedEntityCount(), 2);
+
+    // Remove entity name by setting empty string.
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, ""));
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, ""));
+    EXPECT_FALSE(identitySystem->GetEntityByName("").IsSuccess());
+    EXPECT_FALSE(identitySystem->GetEntityName(entityPlayerOne).IsSuccess());
+
+    // Rename entity.
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne"));
+    EXPECT_FALSE(identitySystem->SetEntityName(entityPlayerOne, "PlayerTwo"));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
+    EXPECT_NE(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerTwo");
+
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOnee"));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerOnee");
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne"));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
+
+    // Setting same name.
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne"));
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerTwo, "PlayerTwo"));
+
+    // Name uniqueness.
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerTwo, "PlayerOne", true));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerTwo).Unwrap(), "PlayerOne");
+    EXPECT_FALSE(identitySystem->GetEntityName(entityPlayerOne).IsSuccess());
+
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerOne, "PlayerOne", true));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerOne).Unwrap(), "PlayerOne");
+    EXPECT_TRUE(identitySystem->SetEntityName(entityPlayerTwo, "PlayerTwo"));
+    EXPECT_EQ(identitySystem->GetEntityName(entityPlayerTwo).Unwrap(), "PlayerTwo");
+
+    // Query destroyed entity.
+    entitySystem->DestroyAllEntities();
+    EXPECT_FALSE(identitySystem->GetEntityName(entityPlayerOne).IsSuccess());
+    EXPECT_FALSE(identitySystem->GetEntityByName("PlayerTwo").IsSuccess());
+}
+
+TEST_F(IdentitySystem, Groups)
+{
+    // Group invalid entity.
+    EXPECT_FALSE(identitySystem->SetEntityGroup(Game::EntityHandle(), "Invalid"));
+    EXPECT_FALSE(identitySystem->GetEntitiesByGroup("Invalid").IsSuccess());
+
+    // EXPECT_TRUE group of never registered entity.
+    Game::EntityHandle entityPlayerNone = entitySystem->CreateEntity().Unwrap();
+    EXPECT_EQ(identitySystem->GetEntityGroups(entityPlayerNone).UnwrapFailure(),
+        Game::IdentitySystem::LookupErrors::EntityNotFound);
+
+    // Group single entity before processing entity commands.
+    Game::EntityHandle entityPlayerOne = entitySystem->CreateEntity().Unwrap();
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerOne, "GroupA"));
+    EXPECT_EQ(identitySystem->GetGroupedEntityCount(), 1);
+    EXPECT_EQ(identitySystem->GetGroupCount(), 1);
+
+    entitySystem->ProcessCommands();
+    EXPECT_TRUE(entityPlayerOne.IsValid());
+    EXPECT_TRUE(entitySystem->IsEntityValid(entityPlayerOne));
+
+    {
+        auto groupedEntitiesResult =
+            identitySystem->GetEntitiesByGroup("GroupA").UnwrapSuccess();
+        EXPECT_NE(groupedEntitiesResult.find(entityPlayerOne),
+            groupedEntitiesResult.end());
+        EXPECT_EQ(groupedEntitiesResult.size(), 1);
+    }
+
+    // Group multiple entities after processing entity commands.
+    Game::EntityHandle entityPlayerTwo = entitySystem->CreateEntity().Unwrap();
+    Game::EntityHandle entityPlayerThree = entitySystem->CreateEntity().Unwrap();
+    Game::EntityHandle entityPlayerFour = entitySystem->CreateEntity().Unwrap();
+    entitySystem->ProcessCommands();
+
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerTwo, "GroupA"));
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerThree, "GroupB"));
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerFour, "GroupB"));
+
+    {
+        auto groupedEntitiesResultA = identitySystem->GetEntitiesByGroup("GroupA").Unwrap();
+        EXPECT_NE(groupedEntitiesResultA.find(entityPlayerOne),
+            groupedEntitiesResultA.end());
+        EXPECT_NE(groupedEntitiesResultA.find(entityPlayerTwo),
+            groupedEntitiesResultA.end());
+        EXPECT_EQ(groupedEntitiesResultA.size(), 2);
+
+        auto groupedEntitiesResultB = identitySystem->GetEntitiesByGroup("GroupB").Unwrap();
+        EXPECT_NE(groupedEntitiesResultB.find(entityPlayerThree),
+            groupedEntitiesResultB.end());
+        EXPECT_NE(groupedEntitiesResultB.find(entityPlayerFour),
+            groupedEntitiesResultB.end());
+        EXPECT_EQ(groupedEntitiesResultB.size(), 2);
+    }
+
+    // Query entity group.
+    EXPECT_TRUE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupA"));
+    EXPECT_TRUE(identitySystem->IsEntityInGroup(entityPlayerThree, "GroupB"));
+    EXPECT_EQ(identitySystem->GetGroupedEntityCount(), 4);
+    EXPECT_EQ(identitySystem->GetGroupCount(), 2);
+
+    // Setting same group.
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerTwo, "GroupA"));
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerFour, "GroupB"));
+
+    // Entity to multiple groups.
+    EXPECT_TRUE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupA"));
+    EXPECT_FALSE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupB"));
+
+    EXPECT_TRUE(identitySystem->SetEntityGroup(entityPlayerOne, "GroupB"));
+    EXPECT_TRUE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupA"));
+    EXPECT_TRUE(identitySystem->IsEntityInGroup(entityPlayerOne, "GroupB"));
+
+    // Clear group from entity.
+    EXPECT_EQ(identitySystem->GetEntityGroupCount(entityPlayerOne), 2);
+    EXPECT_TRUE(identitySystem->ClearEntityGroup(entityPlayerOne, "GroupA"));
+    EXPECT_TRUE(identitySystem->ClearEntityGroup(entityPlayerOne, "GroupB"));
+    EXPECT_EQ(identitySystem->GetEntityGroupCount(entityPlayerOne), 0);
+
+    // Query destroyed entity.
+    entitySystem->DestroyAllEntities();
+    EXPECT_EQ(identitySystem->GetEntityGroups(entityPlayerThree).UnwrapFailure(),
+        Game::IdentitySystem::LookupErrors::InvalidEntity);
+    EXPECT_EQ(identitySystem->GetEntitiesByGroup("GroupA").UnwrapFailure(),
+        Game::IdentitySystem::LookupErrors::GroupNotFound);
 }

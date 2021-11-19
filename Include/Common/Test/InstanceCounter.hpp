@@ -6,6 +6,7 @@
 #pragma once
 
 #include <memory>
+#include <gtest/gtest.h>
 
 /*
     Instance Counter
@@ -60,7 +61,7 @@ namespace Test
 
         InstanceCounter& operator=(const InstanceCounter& other)
         {
-            DOCTEST_REQUIRE(&other != this);
+            EXPECT_NE(&other, this);
 
             m_instance = other.m_instance;
             m_stats = other.m_stats;
@@ -71,7 +72,7 @@ namespace Test
 
         InstanceCounter& operator=(InstanceCounter&& other)
         {
-            DOCTEST_REQUIRE(&other != this);
+            EXPECT_NE(&other, this);
 
             std::swap(m_instance, other.m_instance);
             std::swap(m_stats, other.m_stats);
@@ -82,13 +83,13 @@ namespace Test
 
         Type& GetInstance()
         {
-            DOCTEST_REQUIRE(m_instance.get() != nullptr);
+            EXPECT_NE(m_instance.get(), nullptr);
             return *m_instance;
         }
 
         Stats& GetStats() const
         {
-            DOCTEST_REQUIRE(m_stats.get() != nullptr);
+            EXPECT_NE(m_stats.get(), nullptr);
             return *m_stats;
         }
 

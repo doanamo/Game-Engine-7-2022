@@ -23,7 +23,6 @@ set(TEST_FILES
 
 add_executable(TestReflection ${TEST_FILES})
 target_compile_features(TestReflection PUBLIC cxx_std_17)
-add_test("Reflection" TestReflection)
 
 #
 # Dependencies
@@ -44,4 +43,5 @@ set_target_properties(TestReflection PROPERTIES FOLDER "Tests")
 # External
 #
 
-target_include_directories(TestReflection PUBLIC "../../External/doctest")
+target_link_libraries(TestReflection PRIVATE gtest_main)
+gtest_discover_tests(TestReflection TEST_PREFIX "Reflection.")
