@@ -5,4 +5,5 @@ External/*
 Build/CMake*/
 
 # Editors and programming IDEs.
+.vs/
 .vscode/
