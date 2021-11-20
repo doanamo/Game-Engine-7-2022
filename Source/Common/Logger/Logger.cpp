@@ -20,6 +20,7 @@ namespace
     Logger::ConsoleOutput GlobalConsoleOutput;
     Logger::DebuggerOutput GlobalDebuggerOutput;
 
+    Logger::Mode GlobalLoggerMode = Logger::Mode::Normal;
     bool GlobalLoggerInitialized = false;
 
     void LazyInitialize()
@@ -36,9 +37,13 @@ namespace
         });
 
         // Add default output sinks.
-        GlobalSink.AddOutput(&GlobalHistory);
+        if(GlobalLoggerMode != Logger::Mode::UnitTests)
+        {
+            GlobalSink.AddOutput(&GlobalHistory);
+            GlobalSink.AddOutput(&GlobalConsoleOutput);
+        }
+
         GlobalSink.AddOutput(&GlobalFileOutput);
-        GlobalSink.AddOutput(&GlobalConsoleOutput);
         GlobalSink.AddOutput(&GlobalDebuggerOutput);
     }
 }
@@ -58,6 +63,16 @@ int Logger::AdvanceFrameReference()
 {
     LazyInitialize();
     return GlobalSink.AdvanceFrameReference();
+}
+
+void Logger::SetMode(Mode mode)
+{
+    GlobalLoggerMode = mode;
+}
+
+Logger::Mode Logger::GetMode()
+{
+    return GlobalLoggerMode;
 }
 
 Logger::Sink& Logger::GetGlobalSink()

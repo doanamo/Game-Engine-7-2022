@@ -24,9 +24,18 @@ namespace Logger
     class Sink;
     class History;
 
+    enum class Mode
+    {
+        Normal,
+        UnitTests,
+    };
+
     void Initialize();
     void Write(const Message& message);
     int AdvanceFrameReference();
+
+    void SetMode(Mode mode);
+    Mode GetMode();
 
     Sink& GetGlobalSink();
     History& GetGlobalHistory();
