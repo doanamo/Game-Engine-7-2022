@@ -41,16 +41,16 @@ TEST(DynamicReflection, TypeNames)
 {
     EXPECT_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Empty>()).GetName(), Common::Name("Empty"));
     EXPECT_EQ(Reflection::DynamicType(Reflection::GetIdentifier<Base>()).GetName(), Common::Name("Base"));
-    EXPECT_EQ(Reflection::GetName(Derived()), NAME_CONSTEXPR("Derived"));
+    EXPECT_EQ(Reflection::GetName(Derived()), NAME("Derived"));
 
     Inner inner;
-    EXPECT_EQ(Reflection::GetName(&inner), NAME_CONSTEXPR("Inner"));
+    EXPECT_EQ(Reflection::GetName(&inner), NAME("Inner"));
 
     std::unique_ptr<Derived> branchedOne = std::make_unique<BranchedOne>();
-    EXPECT_EQ(Reflection::GetName(branchedOne), NAME_CONSTEXPR("BranchedOne"));
+    EXPECT_EQ(Reflection::GetName(branchedOne), NAME("BranchedOne"));
 
     Reflection::TypeIdentifier branchedTwo = Reflection::GetIdentifier<BranchedTwo>();
-    EXPECT_EQ(Reflection::GetName(branchedTwo), NAME_CONSTEXPR("BranchedTwo"));
+    EXPECT_EQ(Reflection::GetName(branchedTwo), NAME("BranchedTwo"));
 }
 
 TEST(DynamicReflection, TypeIdentifiers)

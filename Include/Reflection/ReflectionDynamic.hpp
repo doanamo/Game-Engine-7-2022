@@ -123,7 +123,7 @@ namespace Reflection
 
     private:
         bool m_registered = false;
-        Common::Name m_name = NAME_CONSTEXPR("<UnregisteredType>");
+        Common::Name m_name = NAME("<UnregisteredType>");
         ConstructFunction m_constructFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;

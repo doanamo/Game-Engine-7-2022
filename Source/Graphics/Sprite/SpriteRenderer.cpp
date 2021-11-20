@@ -35,9 +35,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
     m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
 
     // Read config variables.
-    m_spriteBatchSize = configSystem.Get<std::size_t>(
-        NAME_CONSTEXPR("render.spriteBatchSize"))
-        .UnwrapOr(m_spriteBatchSize);
+    configSystem.Read(NAME("render.spriteBatchSize"), &m_spriteBatchSize);
 
     // Create vertex buffer.
     const SpriteVertex SpriteVertices[4] =

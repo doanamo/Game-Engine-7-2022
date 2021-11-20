@@ -96,7 +96,7 @@ namespace Reflection
     template<typename ReflectedType>
     constexpr Common::Name GetName()
     {
-        return NAME_CONSTEXPR(StaticType<ReflectedType>().Name);
+        return NAME(StaticType<ReflectedType>().Name);
     }
 
     template<typename RegisteredType>

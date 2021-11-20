@@ -16,8 +16,7 @@ bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
 {
     // Read config variables.
     auto& configSystem = engineSystems.Locate<ConfigSystem>();
-    configSystem.Read(NAME_CONSTEXPR("metrics.frameRateUpdateFrequency"),
-        &m_frameRateUpdateFrequency);
+    configSystem.Read(NAME("metrics.frameRateUpdateFrequency"), &m_frameRateUpdateFrequency);
 
     // Reset time points.
     m_frameStart = std::chrono::steady_clock::now();

@@ -31,15 +31,15 @@ bool WindowSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
     // Prepare window parameters.
     Window::CreateParams params;
-    config.Read(NAME_CONSTEXPR("window.title"), &params.title);
-    config.Read(NAME_CONSTEXPR("window.width"), &params.width);
-    config.Read(NAME_CONSTEXPR("window.height"), &params.height);
-    config.Read(NAME_CONSTEXPR("window.vsync"), &params.vsync);
-    config.Read(NAME_CONSTEXPR("window.visible"), &params.visible);
-    config.Read(NAME_CONSTEXPR("window.minWidth"), &params.minWidth);
-    config.Read(NAME_CONSTEXPR("window.minHeight"), &params.minHeight);
-    config.Read(NAME_CONSTEXPR("window.maxWidth"), &params.maxWidth);
-    config.Read(NAME_CONSTEXPR("window.maxHeight"), &params.maxHeight);
+    config.Read(NAME("window.title"), &params.title);
+    config.Read(NAME("window.width"), &params.width);
+    config.Read(NAME("window.height"), &params.height);
+    config.Read(NAME("window.vsync"), &params.vsync);
+    config.Read(NAME("window.visible"), &params.visible);
+    config.Read(NAME("window.minWidth"), &params.minWidth);
+    config.Read(NAME("window.minHeight"), &params.minHeight);
+    config.Read(NAME("window.maxWidth"), &params.maxWidth);
+    config.Read(NAME("window.maxHeight"), &params.maxHeight);
 
     // Create window instance.
     m_window = Window::Create(params).UnwrapOr(nullptr);

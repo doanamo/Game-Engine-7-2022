@@ -30,8 +30,8 @@ TEST(Name, Empty)
 
 TEST(Name, Basic)
 {
-    Common::Name nameOne = NAME_CONSTEXPR("One");
-    Common::Name nameTwo = NAME_CONSTEXPR("Two");
+    Common::Name nameOne = NAME("One");
+    Common::Name nameTwo = NAME("Two");
 
     EXPECT_NE(nameOne, nameTwo);
     EXPECT_EQ(nameOne, Common::Name("One"));
@@ -40,8 +40,8 @@ TEST(Name, Basic)
 
 TEST(Name, Copy)
 {
-    Common::Name nameOne = NAME_CONSTEXPR("One");
-    Common::Name nameTwo = NAME_CONSTEXPR("Two");
+    Common::Name nameOne = NAME("One");
+    Common::Name nameTwo = NAME("Two");
 
     Common::Name nameOneCopy;
     nameOneCopy = nameOne;
@@ -53,8 +53,8 @@ TEST(Name, Copy)
 
 TEST(Name, Identifier)
 {
-    Common::Name nameOne = NAME_CONSTEXPR("One");
-    Common::Name nameTwo = NAME_CONSTEXPR("Two");
+    Common::Name nameOne = NAME("One");
+    Common::Name nameTwo = NAME("Two");
 
     Common::Name nameIdentifier(Common::StringHash<Common::Name::HashType>("One"));
 
@@ -64,7 +64,7 @@ TEST(Name, Identifier)
 
 TEST(Name, Hash)
 {
-    Common::Name nameTest = NAME_CONSTEXPR("TestNameType");
+    Common::Name nameTest = NAME("TestNameType");
     EXPECT_EQ(nameTest.GetHash(), Reflection::StaticType<TestNameType>().Identifier);
 }
 

@@ -22,12 +22,6 @@
     when name registry is disabled, otherwise constexpr cannot be enabled.
 */
 
-#ifdef NAME_REGISTRY_ENABLED
-    #define NAME_REGISTRY_CONSTEXPR
-#else
-    #define NAME_REGISTRY_CONSTEXPR constexpr
-#endif
-
 namespace Common
 {
     class Name
@@ -114,12 +108,12 @@ namespace Common
 }
 
 #ifdef NAME_REGISTRY_ENABLED
-    #define NAME_CONSTEXPR(string) Common::Name(string)
+    #define NAME(string) Common::Name(string)
 #else
-    #define NAME_CONSTEXPR(string) \
-        [&]() { \
-            NAME_REGISTRY_CONSTEXPR Common::Name name = \
-                Common::StringHash<Common::Name::HashType>(string); \
+    #define NAME(string) \
+        [&]() \
+        { \
+            constexpr Common::Name name = Common::StringHash<Common::Name::HashType>(string); \
             return name; \
         }()
 #endif

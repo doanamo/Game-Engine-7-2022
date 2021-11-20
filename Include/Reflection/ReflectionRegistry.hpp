@@ -108,7 +108,7 @@ namespace Reflection
             };
         }
 
-        dynamicType.Register(NAME_CONSTEXPR(StaticType.Name), constructFunction, baseType);
+        dynamicType.Register(NAME(StaticType.Name), constructFunction, baseType);
         LOG_TRACE("Registered type: \"{}\" ({})", StaticType.Name, dynamicType.GetIdentifier());
 
         return true;
