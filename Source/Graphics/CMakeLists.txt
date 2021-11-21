@@ -91,7 +91,4 @@ target_link_libraries(Graphics PRIVATE Core)
 add_subdirectory("../Platform" "Platform")
 target_link_libraries(Graphics PRIVATE Platform)
 
-add_subdirectory("../Script" "Script")
-target_link_libraries(Graphics PRIVATE Script)
-
 enable_reflection(Graphics ${INCLUDE_DIR} ${SOURCE_DIR})

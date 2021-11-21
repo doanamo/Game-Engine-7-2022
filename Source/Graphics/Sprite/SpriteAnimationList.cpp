@@ -6,9 +6,9 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/Script/ScriptState.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/ResourceManager.hpp>
-#include <Script/ScriptState.hpp>
 using namespace Graphics;
 
 SpriteAnimationList::Frame::Frame() = default;
@@ -72,10 +72,10 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
     auto instance = createResult.Unwrap();
 
     // Load resource script.
-    Script::ScriptState::LoadFromFile resourceParams;
+    Core::ScriptState::LoadFromFile resourceParams;
     resourceParams.engineSystems = params.engineSystems;
 
-    auto resourceScript = Script::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
+    auto resourceScript = Core::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load sprite animation list resource file!");

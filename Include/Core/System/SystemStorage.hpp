@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Delegate.hpp>
-#include "Core/SystemInterface.hpp"
+#include "Core/System/SystemInterface.hpp"
 
 /*
     System Storage

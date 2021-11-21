@@ -6,7 +6,7 @@
 #include "Graphics/Precompiled.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/RenderContext.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/FileSystem/FileHandle.hpp>
 #include <Platform/Image.hpp>
 using namespace Graphics;

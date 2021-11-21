@@ -6,9 +6,9 @@
 #include "Platform/Precompiled.hpp"
 #include "Platform/WindowSystem.hpp"
 #include "Platform/Window.hpp"
-#include <Core/SystemStorage.hpp>
-#include <Core/ConfigSystem.hpp>
-#include <Core/FrameRateLimiter.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/System/FrameRateLimiter.hpp>
+#include <Core/Config/ConfigSystem.hpp>
 using namespace Platform;
 
 namespace

@@ -49,9 +49,6 @@ target_link_libraries(Engine PUBLIC Core)
 add_subdirectory("Platform")
 target_link_libraries(Engine PUBLIC Platform)
 
-add_subdirectory("Script")
-target_link_libraries(Engine PUBLIC Script)
-
 add_subdirectory("Graphics")
 target_link_libraries(Engine PUBLIC Graphics)
 

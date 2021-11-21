@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 #include <Graphics/RenderContext.hpp>
 #include <Graphics/Buffer.hpp>
 #include <Graphics/VertexArray.hpp>

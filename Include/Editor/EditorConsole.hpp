@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 #include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"
 

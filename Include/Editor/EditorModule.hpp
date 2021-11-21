@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <Core/SystemInterface.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/SystemInterface.hpp>
+#include <Core/System/EngineSystem.hpp>
 
 /*
     Editor Module

@@ -3,8 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Core/Build.hpp"
-#include "BuildInfo.hpp"
+#include "Core/Build/Build.hpp"
+#include "Core/Build/BuildInfo.hpp"
 #include <Common/Utility.hpp>
 
 namespace

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include "Game/GameSystem.hpp"
 
 /*

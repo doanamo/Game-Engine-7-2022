@@ -9,7 +9,7 @@
 #include "Platform/Timer.hpp"
 #include "Platform/WindowSystem.hpp"
 #include "Platform/Window.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 using namespace Platform;
 
 namespace

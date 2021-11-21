@@ -6,8 +6,8 @@
 #include "Platform/Precompiled.hpp"
 #include "Platform/TimerSystem.hpp"
 #include "Platform/Timer.hpp"
-#include <Core/SystemStorage.hpp>
-#include <Core/ConfigSystem.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/Config/ConfigSystem.hpp>
 using namespace Platform;
 
 namespace

@@ -5,7 +5,7 @@
 
 #include "Platform/Precompiled.hpp"
 #include "Platform/ResourceManager.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 using namespace Platform;
 
 namespace

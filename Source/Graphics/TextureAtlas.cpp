@@ -7,10 +7,10 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/Script/ScriptState.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/FileSystem/FileHandle.hpp>
 #include <Platform/ResourceManager.hpp>
-#include <Script/ScriptState.hpp>
 using namespace Graphics;
 
 TextureAtlas::TextureAtlas() = default;
@@ -51,10 +51,10 @@ TextureAtlas::CreateResult TextureAtlas::Create(Platform::FileHandle& file, cons
     auto instance = createResult.Unwrap();
 
     // Load resource script.
-    Script::ScriptState::LoadFromFile resourceParams;
+    Core::ScriptState::LoadFromFile resourceParams;
     resourceParams.engineSystems = params.engineSystems;
 
-    auto resourceScript = Script::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
+    auto resourceScript = Core::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
     if(resourceScript == nullptr)
     {
         LOG_ERROR("Could not load texture atlas resource file!");

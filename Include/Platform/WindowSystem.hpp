@@ -7,7 +7,7 @@
 
 #include "Platform/WindowEvents.hpp"
 #include <Common/Event/EventReceiver.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 
 namespace Core
 {

@@ -6,9 +6,9 @@
 #pragma once
 
 #include <Core/Core.hpp>
-#include <Core/SystemStorage.hpp>
-#include <Core/EngineSystem.hpp>
-#include <Core/ConfigTypes.hpp>
+#include <Core/Config/ConfigTypes.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/System/EngineSystem.hpp>
 
 /*
     Engine Root

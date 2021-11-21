@@ -5,8 +5,8 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
-#include <Core/SystemStorage.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/System/EngineSystem.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
 #include <Platform/InputManager.hpp>

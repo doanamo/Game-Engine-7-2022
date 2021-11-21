@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/SystemInterface.hpp>
+#include <Core/System/SystemInterface.hpp>
 
 /*
     Game System

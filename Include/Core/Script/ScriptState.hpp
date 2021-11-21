@@ -6,7 +6,7 @@
 #pragma once
 
 #include <lua.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 
 namespace Platform
 {
@@ -19,7 +19,7 @@ namespace Platform
     Holds and manages Lua scripting state.
 */
 
-namespace Script
+namespace Core
 {
     class ScriptState final : private Common::NonCopyable
     {

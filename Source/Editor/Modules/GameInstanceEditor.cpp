@@ -5,7 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Game/GameFramework.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/GameState.hpp>

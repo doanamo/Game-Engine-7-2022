@@ -8,7 +8,7 @@
 #include "Editor/EditorRenderer.hpp"
 #include "Editor/EditorConsole.hpp"
 #include "Editor/EditorShell.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/TimerSystem.hpp>
 #include <Platform/Timer.hpp>
 #include <Platform/WindowSystem.hpp>

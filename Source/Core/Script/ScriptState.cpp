@@ -3,11 +3,11 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Script/Precompiled.hpp"
-#include "Script/ScriptState.hpp"
-#include <Core/SystemStorage.hpp>
+#include "Core/Precompiled.hpp"
+#include "Core/Script/ScriptState.hpp"
+#include "Core/System/SystemStorage.hpp"
 #include <Platform/FileSystem/FileHandle.hpp>
-using namespace Script;
+using namespace Core;
 
 namespace
 {

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "Core/EngineSystem.hpp"
-#include "Core/ConfigTypes.hpp"
+#include "Core/Config/ConfigTypes.hpp"
+#include "Core/System/EngineSystem.hpp"
 
 /*
     Config

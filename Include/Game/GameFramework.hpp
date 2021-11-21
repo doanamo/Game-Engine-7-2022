@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Event/EventDispatcher.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 #include "Game/GameState.hpp"
 
 namespace Platform

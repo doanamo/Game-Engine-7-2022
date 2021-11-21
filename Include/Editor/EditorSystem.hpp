@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <Core/EngineSystem.hpp>
-#include <Core/SystemStorage.hpp>
+#include <Core/System/EngineSystem.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Common/Event/EventReceiver.hpp>
 #include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"

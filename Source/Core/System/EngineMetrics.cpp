@@ -4,9 +4,9 @@
 */
 
 #include "Core/Precompiled.hpp"
-#include "Core/EngineMetrics.hpp"
-#include "Core/SystemStorage.hpp"
-#include "Core/ConfigSystem.hpp"
+#include "Core/System/EngineMetrics.hpp"
+#include "Core/System/SystemStorage.hpp"
+#include "Core/Config/ConfigSystem.hpp"
 using namespace Core;
 
 EngineMetrics::EngineMetrics() = default;

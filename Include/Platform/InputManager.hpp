@@ -6,7 +6,7 @@
 #pragma once
 
 #include <Common/Event/EventReceiver.hpp>
-#include <Core/EngineSystem.hpp>
+#include <Core/System/EngineSystem.hpp>
 #include "Platform/InputState.hpp"
 #include "Platform/WindowEvents.hpp"
 

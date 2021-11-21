@@ -5,7 +5,7 @@
 
 #include "Precompiled.hpp"
 #include "GameStates/SpriteDemo.hpp"
-#include <Core/ConfigTypes.hpp>
+#include <Core/Config/ConfigTypes.hpp>
 #include <Game/GameFramework.hpp>
 
 int main()

@@ -6,7 +6,8 @@
 #include "Platform/Precompiled.hpp"
 #include "Platform/FileSystem/FileSystem.hpp"
 #include "Platform/FileSystem/NativeFileDepot.hpp"
-#include <Core/Build.hpp>
+#include <Core/Build/Build.hpp>
+#include <Core/System/SystemStorage.hpp>
 using namespace Platform;
 
 namespace

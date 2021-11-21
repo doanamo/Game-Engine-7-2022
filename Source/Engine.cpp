@@ -6,10 +6,11 @@
 #include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Reflection/Reflection.hpp>
-#include <Core/Build.hpp>
-#include <Core/ConfigSystem.hpp>
-#include <Core/EngineMetrics.hpp>
-#include <Core/FrameRateLimiter.hpp>
+#include <Core/Build/Build.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/System/EngineMetrics.hpp>
+#include <Core/System/FrameRateLimiter.hpp>
+#include <Core/Config/ConfigSystem.hpp>
 #include <Platform/Platform.hpp>
 #include <Platform/TimerSystem.hpp>
 #include <Platform/FileSystem/FileSystem.hpp>

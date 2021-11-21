@@ -7,8 +7,8 @@
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"
-#include <Core/SystemStorage.hpp>
-#include <Core/ConfigSystem.hpp>
+#include <Core/System/SystemStorage.hpp>
+#include <Core/Config/ConfigSystem.hpp>
 #include <Platform/ResourceManager.hpp>
 using namespace Graphics;
 

@@ -13,26 +13,31 @@ set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Core")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(FILES_BUILD
-    "${INCLUDE_DIR}/Build.hpp"
-    "${SOURCE_DIR}/BuildInfo.hpp.in"
-    "${SOURCE_DIR}/BuildInfo.cmake"
-    "${SOURCE_DIR}/Build.cpp"
+    "${INCLUDE_DIR}/Build/Build.hpp"
+    "${SOURCE_DIR}/Build/BuildInfo.hpp.in"
+    "${SOURCE_DIR}/Build/BuildInfo.cmake"
+    "${SOURCE_DIR}/Build/Build.cpp"
+)
+
+set(FILES_SCRIPT
+    "${INCLUDE_DIR}/Script/ScriptState.hpp"
+    "${SOURCE_DIR}/Script/ScriptState.cpp"
 )
 
 set(FILES_CONFIG
-    "${INCLUDE_DIR}/ConfigTypes.hpp"
-    "${INCLUDE_DIR}/ConfigSystem.hpp"
-    "${SOURCE_DIR}/ConfigSystem.cpp"
+    "${INCLUDE_DIR}/Config/ConfigTypes.hpp"
+    "${INCLUDE_DIR}/Config/ConfigSystem.hpp"
+    "${SOURCE_DIR}/Config/ConfigSystem.cpp"
 )
 
-set(FILES_SYSTEMS
-    "${INCLUDE_DIR}/SystemInterface.hpp"
-    "${INCLUDE_DIR}/SystemStorage.hpp"
-    "${INCLUDE_DIR}/EngineSystem.hpp"
-    "${INCLUDE_DIR}/EngineMetrics.hpp"
-    "${INCLUDE_DIR}/FrameRateLimiter.hpp"
-    "${SOURCE_DIR}/EngineMetrics.cpp"
-    "${SOURCE_DIR}/FrameRateLimiter.cpp"
+set(FILES_SYSTEM
+    "${INCLUDE_DIR}/System/SystemInterface.hpp"
+    "${INCLUDE_DIR}/System/SystemStorage.hpp"
+    "${INCLUDE_DIR}/System/EngineSystem.hpp"
+    "${INCLUDE_DIR}/System/EngineMetrics.hpp"
+    "${INCLUDE_DIR}/System/FrameRateLimiter.hpp"
+    "${SOURCE_DIR}/System/EngineMetrics.cpp"
+    "${SOURCE_DIR}/System/FrameRateLimiter.cpp"
 )
 
 set(FILES_CORE
@@ -41,8 +46,9 @@ set(FILES_CORE
 )
 
 source_group("Build" FILES ${FILES_BUILD})
+source_group("Script" FILES ${FILES_SCRIPT})
 source_group("Config" FILES ${FILES_CONFIG})
-source_group("Systems" FILES ${FILES_SYSTEMS})
+source_group("System" FILES ${FILES_SYSTEM})
 source_group("" FILES ${FILES_CORE})
 
 #
@@ -51,8 +57,9 @@ source_group("" FILES ${FILES_CORE})
 
 add_library(Core
     ${FILES_BUILD}
+    ${FILES_SCRIPT}
     ${FILES_CONFIG}
-    ${FILES_SYSTEMS}
+    ${FILES_SYSTEM}
     ${FILES_CORE}
 )
 
@@ -92,9 +99,9 @@ set(BUILD_INFO_COMMAND_INVOKE
     -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
     -D ENGINE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../"
     -D GAME_PROJECT_DIR="${CMAKE_SOURCE_DIR}"
-    -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.hpp.in"
-    -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp"
-    -P "${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.cmake"
+    -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/Build/BuildInfo.hpp.in"
+    -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/Build/BuildInfo.hpp"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/Build/BuildInfo.cmake"
 )
 
 if(CMAKE_GENERATOR MATCHES "Visual Studio")
@@ -115,10 +122,10 @@ endif()
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.
 # Create empty output file first otherwise CMake will complain.
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
-source_group("Generated\\Build" FILES "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
-target_sources(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp")
-target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Build/BuildInfo.hpp")
+source_group("Generated\\Build" FILES "${CMAKE_CURRENT_BINARY_DIR}/Build/BuildInfo.hpp")
+target_sources(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/Build/BuildInfo.hpp")
+target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
 
 #
 # Externals
@@ -126,6 +133,11 @@ target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_include_directories(Core PUBLIC "../../External/utfcpp/source")
 target_include_directories(Core PUBLIC "../../External/glm")
+
+add_subdirectory("../../External/lua" "External/lua")
+target_link_libraries(Core PUBLIC "lua_static")
+set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "lua")
+set_property(TARGET "lua_static" PROPERTY FOLDER "External")
 
 if(NOT EMSCRIPTEN)
     add_subdirectory("../../External/zlib" "External/zlib" EXCLUDE_FROM_ALL)

@@ -4,7 +4,7 @@
 */
 
 #include "Precompiled.hpp"
-#include "Core/ConfigSystem.hpp"
+#include "Core/Config/ConfigSystem.hpp"
 using namespace Core;
 
 ConfigSystem::ConfigSystem() = default;

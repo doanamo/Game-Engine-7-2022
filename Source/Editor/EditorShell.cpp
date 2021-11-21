@@ -7,7 +7,7 @@
 #include "Editor/EditorShell.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
-#include <Core/EngineMetrics.hpp>
+#include <Core/System/EngineMetrics.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
 using namespace Editor;

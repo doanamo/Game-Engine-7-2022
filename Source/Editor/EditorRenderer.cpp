@@ -5,7 +5,7 @@
 
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
 #include <Platform/ResourceManager.hpp>

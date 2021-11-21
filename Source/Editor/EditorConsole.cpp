@@ -6,7 +6,7 @@
 #include "Editor/Precompiled.hpp"
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/LoggerHistory.hpp>
-#include <Core/SystemStorage.hpp>
+#include <Core/System/SystemStorage.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
 using namespace Editor;
