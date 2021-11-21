@@ -83,19 +83,34 @@ enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
 
 find_package("Git")
 
-add_custom_target(BuildInfo
-    COMMAND ${CMAKE_COMMAND} -E echo "Generating build info header..."
-    COMMAND ${CMAKE_COMMAND}
-        -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
-        -D ENGINE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../"
-        -D GAME_PROJECT_DIR="${CMAKE_SOURCE_DIR}"
-        -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.hpp.in"
-        -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.cmake"
+set(BUILD_INFO_COMMAND_ECHO
+    ${CMAKE_COMMAND} -E echo "Generating build info header..."
 )
 
-add_dependencies(Core BuildInfo)
-set_property(TARGET BuildInfo PROPERTY FOLDER "Generated")
+set(BUILD_INFO_COMMAND_INVOKE
+    ${CMAKE_COMMAND}
+    -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
+    -D ENGINE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../"
+    -D GAME_PROJECT_DIR="${CMAKE_SOURCE_DIR}"
+    -D INPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.hpp.in"
+    -D OUTPUT_FILE="${CMAKE_CURRENT_BINARY_DIR}/BuildInfo.hpp"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/BuildInfo.cmake"
+)
+
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
+    add_custom_command(TARGET Core PRE_BUILD
+        COMMAND ${BUILD_INFO_COMMAND_ECHO}
+        COMMAND ${BUILD_INFO_COMMAND_INVOKE}
+    )
+else()
+    add_custom_target(BuildInfo
+        COMMAND ${BUILD_INFO_COMMAND_ECHO}
+        COMMAND ${BUILD_INFO_COMMAND_INVOKE}
+    )
+
+    add_dependencies(Core BuildInfo)
+    set_property(TARGET BuildInfo PROPERTY FOLDER "Generated")
+endif()
 
 # Add file with generated build version to engine sources.
 # Only the output header file is needed for the build process.

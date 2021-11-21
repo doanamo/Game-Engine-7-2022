@@ -90,17 +90,32 @@ function(enable_reflection TARGET_NAME)
 
     collect_reflected_dependencies(${TARGET_NAME} TARGET_DEPENDENCIES)
 
-    add_custom_target(Reflection${TARGET_NAME}
-        COMMAND ${CMAKE_COMMAND} -E echo "Generating reflection binding for ${TARGET_NAME}..."
-        COMMAND ${REFLECTION_GENERATOR}
-            ${TARGET_TYPE} ${TARGET_NAME} "\"${TARGET_DEPENDENCIES}\""
-            ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+    set(COMMAND_ECHO
+        ${CMAKE_COMMAND} -E echo "Generating reflection for ${TARGET_NAME}..."
     )
 
-    add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
-    set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
-    target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/Include/")
+    set(COMMAND_INVOKE
+        ${REFLECTION_GENERATOR} ${TARGET_TYPE} ${TARGET_NAME} \"${TARGET_DEPENDENCIES}\"
+        ${CMAKE_CURRENT_BINARY_DIR} ${ARGN}
+    )
 
+    if(CMAKE_GENERATOR MATCHES "Visual Studio")
+        add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+            COMMAND ${COMMAND_ECHO}
+            COMMAND ${COMMAND_INVOKE}
+        )
+    else()
+        add_custom_target(Reflection${TARGET_NAME}
+            COMMAND ${COMMAND_ECHO}
+            COMMAND ${COMMAND_INVOKE}
+        )
+
+        add_dependencies(${TARGET_NAME} Reflection${TARGET_NAME})
+        set_property(TARGET Reflection${TARGET_NAME} PROPERTY FOLDER "Generated")
+    endif()
+
+    target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/Include/")
+    
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
     target_sources(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/ReflectionGenerated.cpp")
 

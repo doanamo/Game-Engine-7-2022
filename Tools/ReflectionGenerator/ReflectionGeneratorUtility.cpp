@@ -42,6 +42,11 @@ ReflectionGeneratorParameters ParseCommandLineArguments(const int argc, const ch
 
             if(end == std::string::npos)
             {
+                end = dependencyString.find(' ', start);
+            }
+
+            if(end == std::string::npos)
+            {
                 end = dependencyString.length();
             }
 
@@ -60,7 +65,8 @@ ReflectionGeneratorParameters ParseCommandLineArguments(const int argc, const ch
             }
 
             start = end + 1;
-        }         while(start < dependencyString.length());
+        }
+        while(start < dependencyString.length());
     }
 
     // Read target output directory for generated reflection bindings.
