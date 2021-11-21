@@ -1,4 +1,4 @@
-/*
+ /*
     Copyright (c) 2018-2021 Piotr Doan. All rights reserved.
     Software distributed under the permissive MIT License.
 */
@@ -18,7 +18,7 @@ void Debug::Initialize()
     LOG_PROFILE_SCOPE("Initialize debug");
 
     // Enable debug memory allocator and memory leak detection.
-#if defined(WIN32) && defined(CONFIG_DEBUG)
+#if defined(WIN32) && defined(BUILD_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);

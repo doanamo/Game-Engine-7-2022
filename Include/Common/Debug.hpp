@@ -11,7 +11,7 @@
     Platform Defines
 */
 
-#if defined(WIN32) && defined(CONFIG_DEBUG)
+#if defined(WIN32) && defined(BUILD_DEBUG)
     #define _CRTDBG_MAP_ALLOC
     #define _CRTDBG_MAP_ALLOC_NEW
     #include <crtdbg.h>
@@ -75,7 +75,7 @@ namespace Debug
         ASSERT(instance != nullptr, "Invalid instance.");
 */
 
-#ifndef CONFIG_RELEASE
+#ifndef BUILD_RELEASE
     #define ASSERT_SIMPLE(expression) \
         if(expression) { } else \
         { \
@@ -115,7 +115,7 @@ namespace Debug
         ASSERT_EVALUATE(Function() != nullptr, "Invalid call.");
 */
 
-#ifndef CONFIG_RELEASE
+#ifndef BUILD_RELEASE
     #define ASSERT_EVALUATE_SIMPLE(expression) \
             if(expression) { } else \
             { \

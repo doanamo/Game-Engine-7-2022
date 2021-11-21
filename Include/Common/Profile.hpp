@@ -36,7 +36,7 @@ namespace Common
 }
 
 // Utility macros.
-#ifndef CONFIG_RELEASE
+#ifndef BUILD_RELEASE
     #define LOG_PROFILE_SCOPE(name, ...) \
         Common::ScopedLogProfile scopedLogProfile(fmt::format(name, ## __VA_ARGS__))
 #else

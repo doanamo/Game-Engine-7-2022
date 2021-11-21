@@ -50,7 +50,7 @@ namespace Logger
 #define LOG_SCOPED_INDENT_NAME(line) LOG_SCOPED_INDENT_CONCAT(loggerIndent, line)
 #define LOG_SCOPED_INDENT() Logger::ScopedIndent LOG_SCOPED_INDENT_NAME(__LINE__)(Logger::GetGlobalSink())
 
-#ifndef CONFIG_RELEASE
+#ifndef BUILD_RELEASE
     #define LOG_SCOPED_MESSAGE() Logger::ScopedMessage(Logger::GetGlobalSink()).SetSource(__FILE__).SetLine(__LINE__)
 #else
     #define LOG_SCOPED_MESSAGE() Logger::ScopedMessage(Logger::GetGlobalSink())

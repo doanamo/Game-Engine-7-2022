@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include "Common/NonCopyable.hpp"
 
-#ifndef CONFIG_RELEASE
+#ifndef BUILD_RELEASE
     #define NAME_REGISTRY_ENABLED
 #endif
 
