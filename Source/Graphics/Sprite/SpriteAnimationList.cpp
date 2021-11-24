@@ -8,7 +8,7 @@
 #include "Graphics/TextureAtlas.hpp"
 #include <Core/Script/ScriptState.hpp>
 #include <Core/System/SystemStorage.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 using namespace Graphics;
 
 SpriteAnimationList::Frame::Frame() = default;
@@ -59,7 +59,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<Platform::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();

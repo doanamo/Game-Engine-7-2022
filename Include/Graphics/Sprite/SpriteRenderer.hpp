@@ -16,6 +16,10 @@
 namespace Platform
 {
     class FileSystem;
+}
+
+namespace Core
+{
     class ResourceManager;
 }
 

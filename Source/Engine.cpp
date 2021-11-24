@@ -14,7 +14,7 @@
 #include <Platform/Platform.hpp>
 #include <Platform/TimerSystem.hpp>
 #include <Platform/FileSystem/FileSystem.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 #include <Platform/InputManager.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Graphics/RenderContext.hpp>
@@ -96,7 +96,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         Reflection::GetIdentifier<Platform::TimerSystem>(),
         Reflection::GetIdentifier<Platform::WindowSystem>(),
         Reflection::GetIdentifier<Platform::InputManager>(),
-        Reflection::GetIdentifier<Platform::ResourceManager>(),
+        Reflection::GetIdentifier<Core::ResourceManager>(),
         Reflection::GetIdentifier<Game::GameFramework>(),
         Reflection::GetIdentifier<Graphics::RenderContext>(),
         Reflection::GetIdentifier<Graphics::SpriteRenderer>(),
@@ -125,7 +125,7 @@ Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 
     // Locate systems needed to load resources.
     auto& fileSystem = m_engineSystems.Locate<Platform::FileSystem>();
-    auto& resourceManager = m_engineSystems.Locate<Platform::ResourceManager>();
+    auto& resourceManager = m_engineSystems.Locate<Core::ResourceManager>();
 
     // Default texture placeholder for when requested texture is missing.
     // Texture is made to be easily spotted to indicate potential issues.

@@ -40,6 +40,12 @@ set(FILES_SYSTEM
     "${SOURCE_DIR}/System/FrameRateLimiter.cpp"
 )
 
+set(FILES_RESOURCEMANAGER
+    "${INCLUDE_DIR}/Resource/ResourcePool.hpp"
+    "${INCLUDE_DIR}/Resource/ResourceManager.hpp"
+    "${SOURCE_DIR}/Resource/ResourceManager.cpp"
+)
+
 set(FILES_CORE
     "${INCLUDE_DIR}/Core.hpp"
     "${SOURCE_DIR}/Core.cpp"
@@ -49,6 +55,7 @@ source_group("Build" FILES ${FILES_BUILD})
 source_group("Script" FILES ${FILES_SCRIPT})
 source_group("Config" FILES ${FILES_CONFIG})
 source_group("System" FILES ${FILES_SYSTEM})
+source_group("ResourceManager" FILES ${FILES_RESOURCEMANAGER})
 source_group("" FILES ${FILES_CORE})
 
 #
@@ -60,6 +67,7 @@ add_library(Core
     ${FILES_SCRIPT}
     ${FILES_CONFIG}
     ${FILES_SYSTEM}
+    ${FILES_RESOURCEMANAGER}
     ${FILES_CORE}
 )
 

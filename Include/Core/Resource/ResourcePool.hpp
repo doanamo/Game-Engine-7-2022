@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "Platform/FileSystem/FileSystem.hpp"
-#include "Platform/FileSystem/FileHandle.hpp"
+#include <Platform/FileSystem/FileSystem.hpp>
+#include <Platform/FileSystem/FileHandle.hpp>
 
 /*
     Resource Pool
@@ -15,7 +15,7 @@
     See ResourceManager class for more context.
 */
 
-namespace Platform
+namespace Core
 {
     class ResourcePoolInterface
     {
@@ -38,7 +38,7 @@ namespace Platform
         using AcquireResult = Common::Result<ResourcePtr, ResourcePtr>;
 
     public:
-        ResourcePool(FileSystem* fileSystem);
+        ResourcePool(Platform::FileSystem* fileSystem);
         ~ResourcePool();
 
         void SetDefault(std::shared_ptr<Type> resource);
@@ -51,13 +51,13 @@ namespace Platform
         void ReleaseAll() override;
 
     private:
-        FileSystem* m_fileSystem;
+        Platform::FileSystem* m_fileSystem = nullptr;
         std::shared_ptr<Type> m_defaultResource;
         ResourceList m_resources;
     };
 
     template<typename Type>
-    ResourcePool<Type>::ResourcePool(FileSystem* fileSystem)
+    ResourcePool<Type>::ResourcePool(Platform::FileSystem* fileSystem)
         : m_fileSystem(fileSystem)
     {
         ASSERT(m_fileSystem, "Resource pool needs valid file system reference!");
@@ -98,8 +98,8 @@ namespace Platform
             return Common::Success(it->second);
         }
 
-        std::unique_ptr<FileHandle> fileHandle = m_fileSystem->OpenFile(
-            path, FileHandle::OpenFlags::Read).UnwrapOr(nullptr);
+        std::unique_ptr<Platform::FileHandle> fileHandle = m_fileSystem->OpenFile(
+            path, Platform::FileHandle::OpenFlags::Read).UnwrapOr(nullptr);
 
         if(fileHandle == nullptr)
         {

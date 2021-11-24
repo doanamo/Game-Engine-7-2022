@@ -9,7 +9,7 @@
 #include "Graphics/Texture.hpp"
 #include <Core/System/SystemStorage.hpp>
 #include <Core/Config/ConfigSystem.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 using namespace Graphics;
 
 namespace
@@ -30,7 +30,7 @@ bool Graphics::SpriteRenderer::OnAttach(const Core::EngineSystemStorage& engineS
 {
     // Locate required engine systems.
     auto& configSystem = engineSystems.Locate<Core::ConfigSystem>();
-    auto& resourceManager = engineSystems.Locate<Platform::ResourceManager>();
+    auto& resourceManager = engineSystems.Locate<Core::ResourceManager>();
 
     m_renderContext = &engineSystems.Locate<Graphics::RenderContext>();
 

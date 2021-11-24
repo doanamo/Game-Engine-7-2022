@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <Core/System/EngineSystem.hpp>
-#include "Platform/ResourcePool.hpp"
-#include "Platform/FileSystem/FileSystem.hpp"
+#include <Platform/FileSystem/FileSystem.hpp>
+#include "Core/System/EngineSystem.hpp"
+#include "Core/Resource/ResourcePool.hpp"
 
 /*
     Resource Manager
@@ -16,7 +16,7 @@
     instances that can hold resources of different types in a single ResourceManager instance.
 */
 
-namespace Platform
+namespace Core
 {
     class FileSystem;
 
@@ -64,7 +64,7 @@ namespace Platform
         ResourcePool<Type>* GetPool();
 
     private:
-        FileSystem* m_fileSystem;
+        Platform::FileSystem* m_fileSystem = nullptr;
         ResourcePoolList m_pools;
     };
 
@@ -148,4 +148,4 @@ namespace Platform
     }
 };
 
-REFLECTION_TYPE(Platform::ResourceManager, Core::EngineSystem)
+REFLECTION_TYPE(Core::ResourceManager, Core::EngineSystem)

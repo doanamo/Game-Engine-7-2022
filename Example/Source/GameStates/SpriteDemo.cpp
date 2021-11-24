@@ -8,7 +8,7 @@
 #include <Engine.hpp>
 #include <Platform/Timer.hpp>
 #include <Platform/InputManager.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 #include <Graphics/TextureAtlas.hpp>
 #include <Graphics/Sprite/SpriteAnimationList.hpp>
 #include <Game/TickTimer.hpp>
@@ -36,7 +36,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 
     // Acquire engine systems.
     auto& inputManager = engine->GetSystems().Locate<Platform::InputManager>();
-    auto& resourceManager = engine->GetSystems().Locate<Platform::ResourceManager>();
+    auto& resourceManager = engine->GetSystems().Locate<Core::ResourceManager>();
     auto& gameFramework = engine->GetSystems().Locate<Game::GameFramework>();
 
     // Create instance.

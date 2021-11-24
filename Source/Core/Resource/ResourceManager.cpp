@@ -3,10 +3,10 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
-#include "Platform/ResourceManager.hpp"
-#include <Core/System/SystemStorage.hpp>
-using namespace Platform;
+#include "Precompiled.hpp"
+#include "Core/Resource/ResourceManager.hpp"
+#include "Core/System/SystemStorage.hpp"
+using namespace Core;
 
 namespace
 {

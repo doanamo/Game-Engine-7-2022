@@ -32,12 +32,6 @@ set(FILES_FILESYSTEM
     "${SOURCE_DIR}/FileSystem/ArchiveFileDepot.cpp"
 )
 
-set(FILES_RESOURCEMANAGER
-    "${INCLUDE_DIR}/ResourcePool.hpp"
-    "${INCLUDE_DIR}/ResourceManager.hpp"
-    "${SOURCE_DIR}/ResourceManager.cpp"
-)
-
 set(FILES_INPUTMANAGER
     "${INCLUDE_DIR}/InputDefinitions.hpp"
     "${INCLUDE_DIR}/InputState.hpp"
@@ -70,7 +64,6 @@ set(FILES_SYSTEM
 )
 
 source_group("FileSystem" FILES ${FILES_FILESYSTEM})
-source_group("ResourceManager" FILES ${FILES_RESOURCEMANAGER})
 source_group("InputManager" FILES ${FILES_INPUTMANAGER})
 source_group("Window" FILES ${FILES_WINDOW})
 source_group("Utility" FILES ${FILES_UTILITY})
@@ -82,7 +75,6 @@ source_group("" FILES ${FILES_SYSTEM})
 
 add_library(Platform
     ${FILES_FILESYSTEM}
-    ${FILES_RESOURCEMANAGER}
     ${FILES_INPUTMANAGER}
     ${FILES_WINDOW}
     ${FILES_UTILITY}

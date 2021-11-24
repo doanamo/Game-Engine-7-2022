@@ -10,7 +10,7 @@
 #include <Core/Script/ScriptState.hpp>
 #include <Core/System/SystemStorage.hpp>
 #include <Platform/FileSystem/FileHandle.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 using namespace Graphics;
 
 TextureAtlas::TextureAtlas() = default;
@@ -38,7 +38,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(Platform::FileHandle& file, cons
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<Platform::ResourceManager>();
+    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
 
     // Create base instance.
     auto createResult = Create();

@@ -8,7 +8,7 @@
 #include <Core/System/SystemStorage.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
-#include <Platform/ResourceManager.hpp>
+#include <Core/Resource/ResourceManager.hpp>
 using namespace Editor;
 
 namespace
@@ -44,7 +44,7 @@ bool EditorRenderer::CreateResources(const Core::EngineSystemStorage& engineSyst
     ASSERT(ImGui::GetCurrentContext() != nullptr, "ImGui context is not set!");
 
     // Retrieve needed engine systems.
-    auto& resourceManager = engineSystems.Locate<Platform::ResourceManager>();
+    auto& resourceManager = engineSystems.Locate<Core::ResourceManager>();
 
     // Vertex buffer.
     Graphics::Buffer::CreateFromParams vertexBufferParams;
