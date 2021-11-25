@@ -1,9 +1,31 @@
-image: gunstarpl/game-engine-linux-dev
+default:
+    image: $CI_REGISTRY_IMAGE:latest
 
 stages:
+    - image
     - generate
     - build
     - test
+
+build_docker_image:
+    stage: image
+    rules:
+        - changes:
+            - Build/.gitlab-ci.yml
+            - Build/Dockerfile
+    image:
+        name: docker:stable
+    services:
+        - name: docker:dind
+          alias: dockerdaemon
+    variables:
+        DOCKER_HOST: tcp://dockerdaemon:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker build -t "$CI_REGISTRY_IMAGE:latest" "Build/"
+        - docker push "$CI_REGISTRY_IMAGE:latest"
 
 generate_gcc_debug_x86:
     stage: generate
@@ -14,7 +36,7 @@ generate_gcc_debug_x86:
     artifacts:
         paths:
             - cmake-gcc-debug-x86/
-        
+
 generate_gcc_release_x86:
     stage: generate
     script:
@@ -34,7 +56,7 @@ generate_gcc_debug_x64:
     artifacts:
         paths:
             - cmake-gcc-debug-x64/
-        
+
 generate_gcc_release_x64:
     stage: generate
     script:
@@ -44,7 +66,7 @@ generate_gcc_release_x64:
     artifacts:
         paths:
             - cmake-gcc-release-x64/
-    
+
 build_gcc_debug_x86:
     stage: build
     needs:
@@ -55,7 +77,7 @@ build_gcc_debug_x86:
     artifacts:
         paths:
             - cmake-gcc-debug-x86/
-            
+
 build_gcc_release_x86:
     stage: build
     needs:
@@ -77,7 +99,7 @@ build_gcc_debug_x64:
     artifacts:
         paths:
             - cmake-gcc-debug-x64/
-            
+
 build_gcc_release_x64:
     stage: build
     needs:
@@ -88,7 +110,7 @@ build_gcc_release_x64:
     artifacts:
         paths:
             - cmake-gcc-release-x64/
-            
+
 test_gcc_debug_x86:
     stage: test
     needs:
@@ -96,7 +118,7 @@ test_gcc_debug_x86:
     script:
         - cd cmake-gcc-debug-x86
         - ctest --output-on-failure
-        
+
 test_gcc_release_x86:
     stage: test
     needs:
@@ -104,7 +126,7 @@ test_gcc_release_x86:
     script:
         - cd cmake-gcc-release-x86
         - ctest --output-on-failure
-        
+
 test_gcc_debug_x64:
     stage: test
     needs:
@@ -112,7 +134,7 @@ test_gcc_debug_x64:
     script:
         - cd cmake-gcc-debug-x64
         - ctest --output-on-failure
-        
+
 test_gcc_release_x64:
     stage: test
     needs:
@@ -130,7 +152,7 @@ generate_clang_debug_x86:
     artifacts:
         paths:
             - cmake-clang-debug-x86/
-            
+
 generate_clang_release_x86:
     stage: generate
     script:
@@ -140,7 +162,7 @@ generate_clang_release_x86:
     artifacts:
         paths:
             - cmake-clang-release-x86/
-        
+
 generate_clang_debug_x64:
     stage: generate
     script:
@@ -150,7 +172,7 @@ generate_clang_debug_x64:
     artifacts:
         paths:
             - cmake-clang-debug-x64/
-            
+
 generate_clang_release_x64:
     stage: generate
     script:
@@ -160,7 +182,7 @@ generate_clang_release_x64:
     artifacts:
         paths:
             - cmake-clang-release-x64/
-    
+
 build_clang_debug_x86:
     stage: build
     needs:
@@ -171,7 +193,7 @@ build_clang_debug_x86:
     artifacts:
         paths:
             - cmake-clang-debug-x86/
-            
+ 
 build_clang_release_x86:
     stage: build
     needs:
@@ -193,7 +215,7 @@ build_clang_debug_x64:
     artifacts:
         paths:
             - cmake-clang-debug-x64/
-            
+
 build_clang_release_x64:
     stage: build
     needs:
@@ -204,7 +226,7 @@ build_clang_release_x64:
     artifacts:
         paths:
             - cmake-clang-release-x64/
-            
+
 test_clang_debug_x86:
     stage: test
     needs:
@@ -212,7 +234,7 @@ test_clang_debug_x86:
     script:
         - cd cmake-clang-debug-x86
         - ctest --output-on-failure
-        
+
 test_clang_release_x86:
     stage: test
     needs:
@@ -220,7 +242,7 @@ test_clang_release_x86:
     script:
         - cd cmake-clang-release-x86
         - ctest --output-on-failure
-        
+
 test_clang_debug_x64:
     stage: test
     needs:
@@ -228,7 +250,7 @@ test_clang_debug_x64:
     script:
         - cd cmake-clang-debug-x64
         - ctest --output-on-failure
-        
+
 test_clang_release_x64:
     stage: test
     needs:
