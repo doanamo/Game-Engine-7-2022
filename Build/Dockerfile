@@ -6,12 +6,12 @@ FROM amd64/ubuntu:hirsute
 # Add support for x86 compilation.
 RUN dpkg --add-architecture i386
 
-# Enable additinal respositories.
-RUN add-apt-repository universe
-RUN apt-get update
-
 # Install core dependencies.
+RUN apt-get update
 RUN apt-get install -y apt-transport-https ca-certificates gnupg software-properties-common wget
+
+# Enable repository with more up-to-date tools.
+RUN apt-add-repository universe
 
 # Add repository for latest CMake.
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
