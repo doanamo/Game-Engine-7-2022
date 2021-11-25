@@ -6,6 +6,12 @@
 cmake_minimum_required(VERSION 3.21)
 
 #
+# Project
+#
+
+project(GameEngine)
+
+#
 # Configurations
 #
 
@@ -39,11 +45,19 @@ add_compile_definitions(
     $<$<CONFIG:Release>:BUILD_RELEASE>
 )
 
+# Disable RTTI and exceptions.
+if(MSVC)
+    string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    add_definitions("-D_HAS_EXCEPTIONS=0")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
+endif()
+
 #
-# Project
+# Sources
 #
 
-project(GameEngine)
 add_subdirectory("Source")
 add_subdirectory("Example")
 add_subdirectory("Tests")

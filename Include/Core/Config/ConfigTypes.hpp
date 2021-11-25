@@ -67,11 +67,12 @@ namespace Core
 
         static Common::Result<int, void> Parse(const std::string& value)
         {
-            try
+            int result;
+            if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
-                return Common::Success(std::stoi(value));
+                return Common::Success(result);
             }
-            catch(...)
+            else
             {
                 return Common::Failure();
             }
@@ -94,11 +95,12 @@ namespace Core
 
         static Common::Result<std::size_t, void> Parse(const std::string& value)
         {
-            try
+            std::size_t result;
+            if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
-                return Common::Success(std::stoul(value));
+                return Common::Success(result);
             }
-            catch(...)
+            else
             {
                 return Common::Failure();
             }
@@ -125,11 +127,12 @@ namespace Core
 
         static Common::Result<float, void> Parse(const std::string& value)
         {
-            try
+            float result;
+            if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
-                return Common::Success(std::stof(value));
+                return Common::Success(result);
             }
-            catch(...)
+            else
             {
                 return Common::Failure();
             }
@@ -156,11 +159,12 @@ namespace Core
 
         static Common::Result<double, void> Parse(const std::string& value)
         {
-            try
+            double result;
+            if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
-                return Common::Success(std::stod(value));
+                return Common::Success(result);
             }
-            catch(...)
+            else
             {
                 return Common::Failure();
             }
