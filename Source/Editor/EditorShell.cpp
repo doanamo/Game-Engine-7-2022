@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Editor/Precompiled.hpp"
 #include "Editor/EditorShell.hpp"
 #include "Editor/Modules/InputManagerEditor.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"

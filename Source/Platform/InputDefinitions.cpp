@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/InputDefinitions.hpp"
 
 namespace Platform

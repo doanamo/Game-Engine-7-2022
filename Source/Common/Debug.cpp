@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Common/Precompiled.hpp"
 #include "Common/Debug.hpp"
 #include "Common/Profile.hpp"
 

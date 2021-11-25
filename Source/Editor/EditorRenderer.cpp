@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Editor/Precompiled.hpp"
 #include "Editor/EditorRenderer.hpp"
 #include <Core/System/SystemStorage.hpp>
 #include <Platform/WindowSystem.hpp>

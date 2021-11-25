@@ -76,17 +76,14 @@ target_include_directories(Graphics PUBLIC
     "${PROJECT_SOURCE_DIR}/Source"
 )
 
-target_sources(Graphics PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
-target_precompile_headers(Graphics PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
-source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
-source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
-
 #
 # Dependencies
 #
 
 add_subdirectory("../Core" "Core")
 target_link_libraries(Graphics PRIVATE Core)
+target_precompile_headers(Graphics REUSE_FROM Core)
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
 add_subdirectory("../Platform" "Platform")
 target_link_libraries(Graphics PRIVATE Platform)

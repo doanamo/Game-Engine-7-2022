@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Core/Precompiled.hpp"
 #include "Core/System/FrameRateLimiter.hpp"
 #include "Core/System/SystemStorage.hpp"
 #include "Core/System/EngineMetrics.hpp"

@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Common/Precompiled.hpp"
 #include "Common/Logger/LoggerFormat.hpp"
 #include "Common/Logger/LoggerMessage.hpp"
 #include "Common/Logger/LoggerSink.hpp"

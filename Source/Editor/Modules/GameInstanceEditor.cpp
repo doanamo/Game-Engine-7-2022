@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Editor/Precompiled.hpp"
 #include "Editor/Modules/GameInstanceEditor.hpp"
 #include <Core/System/SystemStorage.hpp>
 #include <Game/GameFramework.hpp>

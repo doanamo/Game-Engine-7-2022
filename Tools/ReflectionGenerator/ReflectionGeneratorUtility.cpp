@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Precompiled.hpp"
 #include "ReflectionGeneratorTypes.hpp"
 #include "ReflectionGeneratorUtility.hpp"
 

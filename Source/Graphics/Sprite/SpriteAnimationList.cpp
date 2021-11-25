@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Graphics/Precompiled.hpp"
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
 #include <Core/Script/ScriptState.hpp>

@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
 #include "Game/TickTimer.hpp"
 using namespace Game;
 

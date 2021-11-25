@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "../Precompiled.hpp"
 #include "SpriteDemo.hpp"
 #include <Engine.hpp>
 #include <Platform/Timer.hpp>

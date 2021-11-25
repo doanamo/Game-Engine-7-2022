@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Game/Precompiled.hpp"
 #include "Game/Systems/InterpolationSystem.hpp"
 #include "Game/Components/TransformComponent.hpp"
 #include "Game/Components/SpriteAnimationComponent.hpp"

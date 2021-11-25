@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Precompiled.hpp"
 #include "Engine.hpp"
 #include <Reflection/Reflection.hpp>
 #include <Core/Build/Build.hpp>

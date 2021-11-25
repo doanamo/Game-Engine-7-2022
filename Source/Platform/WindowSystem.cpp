@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/WindowSystem.hpp"
 #include "Platform/Window.hpp"
 #include <Core/System/SystemStorage.hpp>

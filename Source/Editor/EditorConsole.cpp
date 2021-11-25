@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Editor/Precompiled.hpp"
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/LoggerHistory.hpp>
 #include <Core/System/SystemStorage.hpp>

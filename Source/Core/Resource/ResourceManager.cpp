@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Precompiled.hpp"
 #include "Core/Resource/ResourceManager.hpp"
 #include "Core/System/SystemStorage.hpp"
 using namespace Core;

@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Precompiled.hpp"
 #include "Core/Config/ConfigSystem.hpp"
 using namespace Core;
 

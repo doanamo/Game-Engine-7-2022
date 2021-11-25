@@ -4,7 +4,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/Window.hpp"
 using namespace Platform;
 

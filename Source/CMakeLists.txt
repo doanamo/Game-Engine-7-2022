@@ -34,17 +34,14 @@ target_include_directories(Engine PUBLIC
     "${PROJECT_SOURCE_DIR}/Source"
 )
 
-target_sources(Engine PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
-target_precompile_headers(Engine PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
-source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
-source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
-
 #
 # Dependencies
 #
 
 add_subdirectory("Core")
 target_link_libraries(Engine PUBLIC Core)
+target_precompile_headers(Engine REUSE_FROM Core)
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
 add_subdirectory("Platform")
 target_link_libraries(Engine PUBLIC Platform)

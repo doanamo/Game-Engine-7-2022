@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Precompiled.hpp"
 #include "GameStates/SpriteDemo.hpp"
 #include <Core/Config/ConfigTypes.hpp>
 #include <Game/GameFramework.hpp>

@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Graphics/Precompiled.hpp"
 #include "Graphics/Sprite/SpriteRenderer.hpp"
 #include "Graphics/RenderContext.hpp"
 #include "Graphics/Texture.hpp"

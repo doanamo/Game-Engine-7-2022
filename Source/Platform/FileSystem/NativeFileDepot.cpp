@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/FileSystem/NativeFileDepot.hpp"
 #include "Platform/FileSystem/NativeFileHandle.hpp"
 using namespace Platform;

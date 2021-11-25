@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Core/Precompiled.hpp"
 #include "Core/Script/ScriptState.hpp"
 #include "Core/System/SystemStorage.hpp"
 #include <Platform/FileSystem/FileHandle.hpp>

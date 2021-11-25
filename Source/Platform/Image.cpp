@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/Image.hpp"
 #include "Platform/FileSystem/FileHandle.hpp"
 using namespace Platform;

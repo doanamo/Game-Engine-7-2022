@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Renderer/Precompiled.hpp"
 #include "Renderer/GameRenderer.hpp"
 #include <Core/System/SystemStorage.hpp>
 #include <Platform/WindowSystem.hpp>

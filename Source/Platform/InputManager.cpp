@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Precompiled.hpp"
 #include "Platform/InputManager.hpp"
 #include "Platform/TimerSystem.hpp"
 #include "Platform/Timer.hpp"
