@@ -1,7 +1,7 @@
 # Warning: Making changes to this file requires triggering image rebuild on Docker Hub!
 
 # Specify base image.
-FROM amd64/ubuntu:hirsute
+FROM amd64/ubuntu:impish
 
 # Add support for x86 compilation.
 RUN dpkg --add-architecture i386
