@@ -15,7 +15,7 @@ RUN apt-get install -y apt-transport-https ca-certificates gnupg software-proper
 
 # Add repository for latest CMake.
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ hirsute main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
 
 # Install developer dependencies.
 RUN apt-get install -y git cmake g++-multilib clang
