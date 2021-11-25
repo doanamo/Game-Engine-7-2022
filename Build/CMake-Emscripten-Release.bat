@@ -15,7 +15,7 @@ if [%outputDir%] == [] set outputDir="CMake-Emscripten-Release"
 if [%configType%] == [] set configType="Release"
 if [%projectPage%] == [] set projectPage="Example/Example/Example.html"
 
-echo ---- Checking Python availability....
+echo ---- Checking Python availability...
 python --version 2>NUL
 if %ERRORLEVEL% NEQ 0 (
     echo Python could not be found!
