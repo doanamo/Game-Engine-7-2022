@@ -6,8 +6,11 @@ FROM amd64/ubuntu:hirsute
 # Add support for x86 compilation.
 RUN dpkg --add-architecture i386
 
-# Install core dependencies.
+# Enable additinal respositories.
+RUN add-apt-repository universe
 RUN apt-get update
+
+# Install core dependencies.
 RUN apt-get install -y apt-transport-https ca-certificates gnupg software-properties-common wget
 
 # Add repository for latest CMake.
