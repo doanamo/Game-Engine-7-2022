@@ -81,7 +81,7 @@ target_include_directories(Core PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
+add_subdirectory("../Common" "Engine/Common")
 target_link_libraries(Core PUBLIC Common)
 
 enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})

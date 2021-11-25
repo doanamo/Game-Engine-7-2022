@@ -27,7 +27,7 @@ target_compile_features(TestReflection PUBLIC cxx_std_17)
 # Dependencies
 #
 
-add_subdirectory("../../Source/Reflection" "Reflection")
+add_subdirectory("../../Source/Reflection" "Engine/Reflection")
 target_link_libraries(TestReflection PRIVATE Reflection)
 
 enable_reflection(TestReflection ${CMAKE_CURRENT_SOURCE_DIR})

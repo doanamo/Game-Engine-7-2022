@@ -66,15 +66,15 @@ target_include_directories(Editor PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Core" "Core")
+add_subdirectory("../Core" "Engine/Core")
 target_link_libraries(Editor PRIVATE Core)
 target_precompile_headers(Editor REUSE_FROM Core)
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
-add_subdirectory("../Platform" "Platform")
+add_subdirectory("../Platform" "Engine/Platform")
 target_link_libraries(Editor PRIVATE Platform)
 
-add_subdirectory("../Game" "Game")
+add_subdirectory("../Game" "Engine/Game")
 target_link_libraries(Editor PRIVATE Game)
 
 enable_reflection(Editor ${INCLUDE_DIR} ${SOURCE_DIR})

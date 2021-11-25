@@ -92,7 +92,7 @@ target_include_directories(Platform PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Core" "Core")
+add_subdirectory("../Core" "Engine/Core")
 target_link_libraries(Platform PRIVATE Core)
 target_precompile_headers(Platform REUSE_FROM Core)
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")

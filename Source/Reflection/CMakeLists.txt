@@ -57,7 +57,7 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 # Dependencies
 #
 
-add_subdirectory("../Common" "Common")
+add_subdirectory("../Common" "Engine/Common")
 target_link_libraries(Reflection PUBLIC Common)
 
 #

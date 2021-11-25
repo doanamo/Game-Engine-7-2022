@@ -25,10 +25,10 @@ target_compile_features(TestGame PUBLIC cxx_std_17)
 # Dependencies
 #
 
-add_subdirectory("../../Source/Core" "Core")
+add_subdirectory("../../Source/Core" "Engine/Core")
 target_link_libraries(TestGame PRIVATE Core)
 
-add_subdirectory("../../Source/Game" "Game")
+add_subdirectory("../../Source/Game" "Engine/Game")
 target_link_libraries(TestGame PRIVATE Game)
 
 enable_reflection(TestGame ${CMAKE_CURRENT_SOURCE_DIR})

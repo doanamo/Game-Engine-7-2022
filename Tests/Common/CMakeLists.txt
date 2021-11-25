@@ -31,7 +31,7 @@ target_compile_features(TestCommon PUBLIC cxx_std_17)
 # Dependencies
 #
 
-add_subdirectory("../../Source/Common" "Common")
+add_subdirectory("../../Source/Common" "Engine/Common")
 target_link_libraries(TestCommon PRIVATE Common)
 
 enable_reflection(TestCommon ${CMAKE_CURRENT_SOURCE_DIR})

@@ -104,7 +104,7 @@ target_include_directories(Common PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Reflection" "Reflection")
+add_subdirectory("../Reflection" "Engine/Reflection")
 target_link_libraries(Common PUBLIC Reflection)
 enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
 

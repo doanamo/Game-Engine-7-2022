@@ -85,12 +85,12 @@ target_include_directories(Game PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Core" "Core")
+add_subdirectory("../Core" "Engine/Core")
 target_link_libraries(Game PRIVATE Core)
 target_precompile_headers(Game REUSE_FROM Core)
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
-add_subdirectory("../Graphics" "Graphics")
+add_subdirectory("../Graphics" "Engine/Graphics")
 target_link_libraries(Game PRIVATE Graphics)
 
 enable_reflection(Game ${INCLUDE_DIR} ${SOURCE_DIR})

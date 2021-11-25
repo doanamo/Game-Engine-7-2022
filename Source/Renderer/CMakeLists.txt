@@ -38,18 +38,18 @@ target_include_directories(Renderer PUBLIC
 # Dependencies
 #
 
-add_subdirectory("../Core" "Core")
+add_subdirectory("../Core" "Engine/Core")
 target_link_libraries(Renderer PRIVATE Core)
 target_precompile_headers(Renderer REUSE_FROM Core)
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
-add_subdirectory("../Platform" "Platform")
+add_subdirectory("../Platform" "Engine/Platform")
 target_link_libraries(Renderer PRIVATE Platform)
 
-add_subdirectory("../Graphics" "Graphics")
+add_subdirectory("../Graphics" "Engine/Graphics")
 target_link_libraries(Renderer PRIVATE Graphics)
 
-add_subdirectory("../Game" "Game")
+add_subdirectory("../Game" "Engine/Game")
 target_link_libraries(Renderer PRIVATE Game)
 
 enable_reflection(Renderer ${INCLUDE_DIR} ${SOURCE_DIR})
