@@ -21,6 +21,8 @@ namespace Game
 
     class SpriteComponent final : public Component
     {
+        REFLECTION_ENABLE(SpriteComponent, Component)
+
     public:
         SpriteComponent();
         ~SpriteComponent();
@@ -94,3 +96,5 @@ namespace Game
         bool m_filtered = true;
     };
 }
+
+REFLECTION_TYPE(Game::SpriteComponent, Game::Component)

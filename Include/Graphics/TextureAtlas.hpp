@@ -26,6 +26,8 @@ namespace Graphics
 
     class TextureAtlas final : private Common::NonCopyable
     {
+        REFLECTION_ENABLE(TextureAtlas)
+
     public:
         struct LoadFromFile
         {
@@ -61,3 +63,5 @@ namespace Graphics
         RegionMap m_regions;
     };
 };
+
+REFLECTION_TYPE(Graphics::TextureAtlas)

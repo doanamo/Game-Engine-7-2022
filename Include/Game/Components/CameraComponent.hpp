@@ -19,6 +19,8 @@ namespace Game
 
     class CameraComponent final : public Component
     {
+        REFLECTION_ENABLE(CameraComponent, Component)
+
     public:
         struct ProjectionTypes
         {
@@ -57,3 +59,5 @@ namespace Game
         float m_fov = 90.0f;
     };
 }
+
+REFLECTION_TYPE(Game::CameraComponent, Game::Component)

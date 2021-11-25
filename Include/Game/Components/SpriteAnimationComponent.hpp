@@ -20,6 +20,8 @@ namespace Game
 
     class SpriteAnimationComponent final : public Component
     {
+        REFLECTION_ENABLE(SpriteAnimationComponent, Component)
+
     public:
         struct PlaybackFlags
         {
@@ -90,3 +92,5 @@ namespace Game
         float m_previousAnimationTime = 0.0f;
     };
 }
+
+REFLECTION_TYPE(Game::SpriteAnimationComponent, Game::Component)

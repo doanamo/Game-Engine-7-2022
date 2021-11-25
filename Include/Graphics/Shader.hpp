@@ -24,6 +24,8 @@ namespace Graphics
 
     class Shader final : private Common::NonCopyable
     {
+        REFLECTION_ENABLE(Shader)
+
     public:
         struct LoadFromString
         {
@@ -119,3 +121,5 @@ namespace Graphics
         m_renderContext->GetState().UseProgram(previousProgram);
     }
 }
+
+REFLECTION_TYPE(Graphics::Shader)

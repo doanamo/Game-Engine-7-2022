@@ -23,6 +23,8 @@ namespace Graphics
 
     class SpriteAnimationList final : private Common::NonCopyable
     {
+        REFLECTION_ENABLE(SpriteAnimationList)
+
     public:
         struct LoadFromFile
         {
@@ -77,3 +79,5 @@ namespace Graphics
         AnimationMap m_animationMap;
     };
 }
+
+REFLECTION_TYPE(Graphics::SpriteAnimationList)

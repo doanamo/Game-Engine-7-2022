@@ -17,6 +17,8 @@ namespace Game
 {
     class TransformComponent final : public Component
     {
+        REFLECTION_ENABLE(TransformComponent, Component)
+
     public:
         TransformComponent();
         ~TransformComponent();
@@ -63,3 +65,5 @@ namespace Game
         glm::vec3 m_previousScale = glm::vec3(1.0f, 1.0f, 1.0f);
     };
 }
+
+REFLECTION_TYPE(Game::TransformComponent, Game::Component)

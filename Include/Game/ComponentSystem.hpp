@@ -27,7 +27,7 @@ namespace Game
 
     public:
         using ComponentPoolPtr = std::unique_ptr<ComponentPoolInterface>;
-        using ComponentPoolList = std::unordered_map<std::type_index, ComponentPoolPtr>;
+        using ComponentPoolList = std::unordered_map<Reflection::TypeIdentifier, ComponentPoolPtr>;
         using ComponentPoolPair = ComponentPoolList::value_type;
 
         enum class CreateComponentErrors
@@ -177,10 +177,12 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>& ComponentSystem::GetPool()
     {
-        static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
+        static_assert(Reflection::IsReflected<ComponentType>(), "Component type must be reflected!");
+        static_assert(std::is_base_of<Component, ComponentType>::value,
+            "Component type not derived from base component type!");
 
         // Find pool by component type and if missing, create one.
-        auto it = m_pools.find(typeid(ComponentType));
+        auto it = m_pools.find(Reflection::GetIdentifier<ComponentType>());
         if(it == m_pools.end())
         {
             auto* pool = CreatePool<ComponentType>();
@@ -197,12 +199,14 @@ namespace Game
     template<typename ComponentType>
     ComponentPool<ComponentType>* ComponentSystem::CreatePool()
     {
-        static_assert(std::is_base_of<Component, ComponentType>::value, "Not a component type.");
+        static_assert(Reflection::IsReflected<ComponentType>(), "Component type must be reflected!");
+        static_assert(std::is_base_of<Component, ComponentType>::value,
+            "Component type not derived from base component type!");
 
         // Create and add pool to the collection.
         auto pool = std::make_unique<ComponentPool<ComponentType>>(this);
         auto [it, result] = m_pools.emplace(std::piecewise_construct,
-            std::forward_as_tuple(typeid(ComponentType)),
+            std::forward_as_tuple(Reflection::GetIdentifier<ComponentType>()),
             std::forward_as_tuple(std::move(pool))
         );
 

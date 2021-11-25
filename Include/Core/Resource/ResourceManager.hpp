@@ -26,7 +26,7 @@ namespace Core
 
     public:
         using ResourcePoolPtr = std::unique_ptr<ResourcePoolInterface>;
-        using ResourcePoolList = std::unordered_map<std::type_index, ResourcePoolPtr>;
+        using ResourcePoolList = std::unordered_map<Reflection::TypeIdentifier, ResourcePoolPtr>;
         using ResourcePoolPair = typename ResourcePoolList::value_type;
 
     public:
@@ -119,9 +119,11 @@ namespace Core
     template<typename Type>
     ResourcePool<Type>* ResourceManager::CreatePool()
     {
+        static_assert(Reflection::IsReflected<Type>(), "Resource type must be reflected!");
+
         // Create and add new resource pool.
         auto pool = std::make_unique<ResourcePool<Type>>(m_fileSystem);
-        auto pair = ResourcePoolPair(typeid(Type), std::move(pool));
+        auto pair = ResourcePoolPair(Reflection::GetIdentifier<Type>(), std::move(pool));
         auto result = m_pools.emplace(std::move(pair));
         ASSERT(result.second, "Could not emplace new resource pool!");
 
@@ -132,8 +134,10 @@ namespace Core
     template<typename Type>
     ResourcePool<Type>* ResourceManager::GetPool()
     {
+        static_assert(Reflection::IsReflected<Type>(), "Resource type must be reflected!");
+
         // Find pool by resource type.
-        auto it = m_pools.find(typeid(Type));
+        auto it = m_pools.find(Reflection::GetIdentifier<Type>());
         if(it != m_pools.end())
         {
             // Cast and return the pointer that we already know is a resource pool.

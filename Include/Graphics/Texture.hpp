@@ -25,6 +25,8 @@ namespace Graphics
 
     class Texture final : private Common::NonCopyable
     {
+        REFLECTION_ENABLE(Texture)
+
     public:
         struct CreateFromParams
         {
@@ -87,3 +89,5 @@ namespace Graphics
     using TexturePtr = std::shared_ptr<Texture>;
     using ConstTexturePtr = std::shared_ptr<const Texture>;
 }
+
+REFLECTION_TYPE(Graphics::Texture)

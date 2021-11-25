@@ -19,6 +19,8 @@ namespace Game
 
     class Component
     {
+        REFLECTION_ENABLE(Component)
+
     protected:
         Component() = default;
         virtual ~Component() = default;
@@ -31,3 +33,5 @@ namespace Game
         }
     };
 }
+
+REFLECTION_TYPE(Game::Component)
