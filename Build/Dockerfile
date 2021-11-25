@@ -12,10 +12,12 @@ RUN apt-get install -y apt-transport-https ca-certificates gnupg software-proper
 
 # Enable repository with more up-to-date tools.
 RUN apt-add-repository universe
+RUN apt-get update
 
 # Add repository for latest CMake.
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+RUN apt-get update
 
 # Install developer dependencies.
 RUN apt-get install -y git cmake g++-multilib clang
