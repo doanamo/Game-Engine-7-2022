@@ -9,6 +9,7 @@
 #include <Core/System/SystemStorage.hpp>
 #include <Core/System/EngineMetrics.hpp>
 #include <Core/System/FrameRateLimiter.hpp>
+#include <Core/Script/ScriptSystem.hpp>
 #include <Core/Config/ConfigSystem.hpp>
 #include <Platform/PlatformSystem.hpp>
 #include <Platform/TimerSystem.hpp>
@@ -85,9 +86,10 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
-    // Create other default engine systems.
+    // Create default engine systems.
     const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
+        Reflection::GetIdentifier<Core::ScriptSystem>(),
         Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<Core::FrameRateLimiter>(),
         Reflection::GetIdentifier<Platform::PlatformSystem>(),

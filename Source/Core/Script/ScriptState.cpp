@@ -123,11 +123,7 @@ void ScriptState::PrintError()
 {
     // Make sure that there is a string on top of the stack.
     ASSERT(lua_isstring(m_state, -1), "Expected a string!");
-
-    // Print error string to log.
     LOG_DEBUG("Lua Error: {}", lua_tostring(m_state, -1));
-
-    // Pop error string from stack.
     lua_pop(m_state, 1);
 }
 

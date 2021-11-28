@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <lua.hpp>
 #include <Core/System/EngineSystem.hpp>
 
 namespace Platform
@@ -55,7 +54,7 @@ namespace Core
 
         void PrintError();
         void CleanStack();
-        bool CollectGarbage(bool singleStep);
+        bool CollectGarbage(bool singleStep = false);
 
         operator lua_State*();
 

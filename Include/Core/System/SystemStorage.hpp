@@ -159,7 +159,7 @@ namespace Core
     }
 
     template<typename SystemBase>
-    bool Core::SystemStorage<SystemBase>::Finalize()
+    bool SystemStorage<SystemBase>::Finalize()
     {
         ASSERT(!m_finalized, "System storage \"{}\" has already been finalized!",
             Reflection::GetName<SystemBase>().GetString());
@@ -257,7 +257,7 @@ namespace Core
     }
 
     template<typename SystemBase>
-    void Core::SystemStorage<SystemBase>::ForEachReverse(ForEachCallback callback)
+    void SystemStorage<SystemBase>::ForEachReverse(ForEachCallback callback)
     {
         ASSERT(m_finalized, "Cannot iterate systems while storage \"{}\" is not finalized!",
             Reflection::GetName<SystemBase>().GetString());

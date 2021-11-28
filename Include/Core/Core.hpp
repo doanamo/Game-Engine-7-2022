@@ -55,6 +55,8 @@ namespace fs = std::filesystem;
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <lua.hpp>
+
 #ifdef __EMSCRIPTEN__
     #include <emscripten.h>
 #endif
