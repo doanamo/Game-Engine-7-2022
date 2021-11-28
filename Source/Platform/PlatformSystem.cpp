@@ -3,7 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Platform/Platform.hpp"
+#include "Platform/PlatformSystem.hpp"
 using namespace Platform;
 
 namespace

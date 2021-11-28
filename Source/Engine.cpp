@@ -10,7 +10,7 @@
 #include <Core/System/EngineMetrics.hpp>
 #include <Core/System/FrameRateLimiter.hpp>
 #include <Core/Config/ConfigSystem.hpp>
-#include <Platform/Platform.hpp>
+#include <Platform/PlatformSystem.hpp>
 #include <Platform/TimerSystem.hpp>
 #include <Platform/FileSystem/FileSystem.hpp>
 #include <Core/Resource/ResourceManager.hpp>
@@ -85,7 +85,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
         return Common::Failure(CreateErrors::FailedSystemCreation);
     }
 
-    // Create remaining engine systems.
+    // Create other default engine systems.
     const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
         Reflection::GetIdentifier<Core::EngineMetrics>(),

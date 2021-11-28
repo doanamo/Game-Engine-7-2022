@@ -58,16 +58,16 @@ set(FILES_UTILITY
     "${SOURCE_DIR}/Image.cpp"
 )
 
-set(FILES_SYSTEM
-    "${INCLUDE_DIR}/Platform.hpp"
-    "${SOURCE_DIR}/Platform.cpp"
+set(FILES_PLATFORM
+    "${INCLUDE_DIR}/PlatformSystem.hpp"
+    "${SOURCE_DIR}/PlatformSystem.cpp"
 )
 
 source_group("FileSystem" FILES ${FILES_FILESYSTEM})
 source_group("InputManager" FILES ${FILES_INPUTMANAGER})
 source_group("Window" FILES ${FILES_WINDOW})
 source_group("Utility" FILES ${FILES_UTILITY})
-source_group("" FILES ${FILES_SYSTEM})
+source_group("" FILES ${FILES_PLATFORM})
 
 #
 # Library
@@ -78,7 +78,7 @@ add_library(Platform
     ${FILES_INPUTMANAGER}
     ${FILES_WINDOW}
     ${FILES_UTILITY}
-    ${FILES_SYSTEM}
+    ${FILES_PLATFORM}
 )
 
 set_property(TARGET Platform PROPERTY FOLDER "Engine")
