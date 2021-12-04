@@ -3,9 +3,6 @@
 # Specify base image.
 FROM amd64/ubuntu:impish
 
-# Add support for x86 compilation.
-RUN dpkg --add-architecture i386
-
 # Install core dependencies.
 RUN apt-get update
 RUN apt-get install -y apt-transport-https ca-certificates gnupg software-properties-common wget
@@ -21,4 +18,4 @@ RUN apt-get update
 
 # Install developer dependencies.
 RUN apt-get install -y git cmake g++-multilib clang
-RUN apt-get install -y xorg-dev libgl1-mesa-dev libgl1-mesa-dev:i386
+RUN apt-get install -y xorg-dev libgl1-mesa-dev
