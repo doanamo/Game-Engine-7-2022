@@ -48,6 +48,10 @@ target_include_directories(Reflection PUBLIC
     "${PROJECT_SOURCE_DIR}/Source"
 )
 
+#
+# Precompiled Header
+#
+
 target_sources(Reflection PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_precompile_headers(Reflection PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")

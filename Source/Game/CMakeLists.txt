@@ -82,13 +82,20 @@ target_include_directories(Game PUBLIC
 )
 
 #
+# Precompiled Header
+#
+
+target_sources(Game PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+target_precompile_headers(Game PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
+
+#
 # Dependencies
 #
 
 add_subdirectory("../Core" "Engine/Core")
 target_link_libraries(Game PRIVATE Core)
-target_precompile_headers(Game REUSE_FROM Core)
-source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 
 add_subdirectory("../Graphics" "Engine/Graphics")
 target_link_libraries(Game PRIVATE Graphics)

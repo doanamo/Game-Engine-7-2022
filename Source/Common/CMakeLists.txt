@@ -101,14 +101,6 @@ target_include_directories(Common PUBLIC
 )
 
 #
-# Dependencies
-#
-
-add_subdirectory("../Reflection" "Engine/Reflection")
-target_link_libraries(Common PUBLIC Reflection)
-enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
-
-#
 # Precompiled Header
 #
 
@@ -116,6 +108,14 @@ target_sources(Common PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_precompile_headers(Common PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
+
+#
+# Dependencies
+#
+
+add_subdirectory("../Reflection" "Engine/Reflection")
+target_link_libraries(Common PUBLIC Reflection)
+enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #
 # External

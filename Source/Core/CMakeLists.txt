@@ -80,15 +80,6 @@ target_include_directories(Core PUBLIC
 )
 
 #
-# Dependencies
-#
-
-add_subdirectory("../Common" "Engine/Common")
-target_link_libraries(Core PUBLIC Common)
-
-enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
-
-#
 # Precompiled Header
 #
 
@@ -96,6 +87,15 @@ target_sources(Core PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_precompile_headers(Core PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
 source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
+
+#
+# Dependencies
+#
+
+add_subdirectory("../Common" "Engine/Common")
+target_link_libraries(Core PUBLIC Common)
+
+enable_reflection(Core ${INCLUDE_DIR} ${SOURCE_DIR})
 
 #
 # Configuration
