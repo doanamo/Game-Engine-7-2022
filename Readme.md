@@ -17,8 +17,8 @@ Repository
 
 Requirements
 ===
-* Windows or Linux (MacOS should work, but not tested)
-* Visual Studio 2019, GCC 9 or Clang 9 (or newer)
+* Windows or Linux (MacOS might work, but not tested)
+* Visual Studio 2022, GCC 11.2 or Clang 12 (or newer)
 * CMake (see CMakeLists.txt for specified minimum version)
 * All other build dependencies are included
 
