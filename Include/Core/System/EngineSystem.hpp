@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Core/System/SystemInterface.hpp"
+#include "Core/Config/ConfigTypes.hpp"
 
 /*
     Engine System
@@ -15,7 +16,12 @@
 
 namespace Core
 {
-    class EngineSystem : public SystemInterface<EngineSystem>
+    struct EngineStorageContext
+    {
+        ConfigVariableArray initialConfigVars;
+    };
+
+    class EngineSystem : public SystemInterface<EngineSystem, EngineStorageContext>
     {
         REFLECTION_ENABLE(EngineSystem)
 
@@ -37,7 +43,7 @@ namespace Core
         EngineSystem() = default;
     };
 
-    using EngineSystemStorage = SystemStorage<EngineSystem>;
+    using EngineSystemStorage = SystemStorage<EngineSystem, EngineStorageContext>;
 }
 
 REFLECTION_TYPE(Core::EngineSystem)

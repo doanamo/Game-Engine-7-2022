@@ -45,7 +45,7 @@ namespace Core
         }
 
     private:
-        bool OnAttach(const SystemStorage<EngineSystem>& engineSystems) override;
+        bool OnAttach(const EngineSystemStorage& engineSystems) override;
         void OnPreFrame() override;
         void OnPostFrame() override;
 

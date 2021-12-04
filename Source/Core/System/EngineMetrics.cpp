@@ -11,7 +11,7 @@ using namespace Core;
 EngineMetrics::EngineMetrics() = default;
 EngineMetrics::~EngineMetrics() = default;
 
-bool EngineMetrics::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
+bool EngineMetrics::OnAttach(const EngineSystemStorage& engineSystems)
 {
     // Read config variables.
     auto& configSystem = engineSystems.Locate<ConfigSystem>();

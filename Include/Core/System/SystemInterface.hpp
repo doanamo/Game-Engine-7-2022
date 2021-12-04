@@ -13,22 +13,26 @@
 
 namespace Core
 {
-    template<typename SystemInterface>
+    struct SystemStorageContextEmpty
+    {
+    };
+
+    template<typename SystemBase, typename StorageContext = SystemStorageContextEmpty>
     class SystemStorage;
 
-    template<typename SystemBase>
+    template<typename SystemBase, typename StorageContext = SystemStorageContextEmpty>
     class SystemInterface : private Common::NonCopyable
     {
     protected:
-        friend SystemStorage<SystemBase>;
+        friend SystemStorage<SystemBase, StorageContext>;
 
-        virtual bool OnAttach(const SystemStorage<SystemBase>& systemStorage)
+        virtual bool OnAttach(const SystemStorage<SystemBase, StorageContext>& systemStorage)
         {
             // Return true to indicate that everything is fine and we can continue.
             return true;
         }
         
-        virtual bool OnFinalize(const SystemStorage<SystemBase>& systemStorage)
+        virtual bool OnFinalize(const SystemStorage<SystemBase, StorageContext>& systemStorage)
         {
             // Return true to indicate that everything is fine and we can continue.
             return true;

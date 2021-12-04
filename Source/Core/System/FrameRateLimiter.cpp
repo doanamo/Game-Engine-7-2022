@@ -17,7 +17,7 @@ namespace
 FrameRateLimiter::FrameRateLimiter() = default;
 FrameRateLimiter::~FrameRateLimiter() = default;
 
-bool FrameRateLimiter::OnAttach(const SystemStorage<EngineSystem>& engineSystems)
+bool FrameRateLimiter::OnAttach(const EngineSystemStorage& engineSystems)
 {
     // Retrieve engine systems.
     m_engineMetrics = &engineSystems.Locate<Core::EngineMetrics>();

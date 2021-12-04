@@ -74,22 +74,19 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
 {
     LOG_PROFILE_SCOPE("Create engine systems");
 
-    // Create config system for engine parametrization.
-    if(auto config = std::make_unique<Core::ConfigSystem>())
-    {
-        config->Load(configVars);
-        m_engineSystems.Attach(std::move(config));
-    }
-    else
-    {
-        LOG_ERROR(LogCreateSystemsFailed, "Could not create config system.");
-        return Common::Failure(CreateErrors::FailedSystemCreation);
-    }
+    // Setup storage context for initialization.
+    m_engineSystems.GetContext().initialConfigVars = configVars;
 
-    // Create default engine systems.
+    SCOPE_GUARD([this]
+    {
+        Common::FreeContainer(m_engineSystems.GetContext().initialConfigVars);
+    });
+
+    // Create default systems.
     const std::vector<Reflection::TypeIdentifier> defaultEngineSystemTypes =
     {
         Reflection::GetIdentifier<Core::ScriptSystem>(),
+        Reflection::GetIdentifier<Core::ConfigSystem>(),
         Reflection::GetIdentifier<Core::EngineMetrics>(),
         Reflection::GetIdentifier<Core::FrameRateLimiter>(),
         Reflection::GetIdentifier<Platform::PlatformSystem>(),

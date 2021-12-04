@@ -31,7 +31,7 @@ namespace Core
         ConfigSystem();
         ~ConfigSystem() override;
 
-        void Load(const ConfigVariableArray& variables);
+        bool OnAttach(const EngineSystemStorage& systemStorage) override;
 
         template<typename Type>
         Common::Result<Type, Type> Set(Common::Name variable, Type value, bool modify = false);

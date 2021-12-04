@@ -4,15 +4,18 @@
 */
 
 #include "Core/Config/ConfigSystem.hpp"
+#include "Core/System/SystemStorage.hpp"
 using namespace Core;
 
 ConfigSystem::ConfigSystem() = default;
 ConfigSystem::~ConfigSystem() = default;
 
-void ConfigSystem::Load(const ConfigVariableArray& variables)
+bool ConfigSystem::OnAttach(const EngineSystemStorage& systemStorage)
 {
-    for(const auto& variable : variables)
+    for(const auto& variable : systemStorage.GetContext().initialConfigVars)
     {
         Set<std::string>(variable.first, variable.second);
     }
+
+    return true;
 }
