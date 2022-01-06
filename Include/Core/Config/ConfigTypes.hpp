@@ -127,6 +127,7 @@ namespace Core
 
         static Common::Result<float, void> Parse(const std::string& value)
         {
+#ifndef __EMSCRIPTEN__
             float result;
             if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
@@ -136,6 +137,10 @@ namespace Core
             {
                 return Common::Failure();
             }
+#else
+            // TEMP: Will abort if parsing fails and needs to be replaced or removed!
+            return Common::Success(std::stof(value));
+#endif
         }
 
         static constexpr bool IsSupported()
@@ -159,6 +164,7 @@ namespace Core
 
         static Common::Result<double, void> Parse(const std::string& value)
         {
+#ifndef __EMSCRIPTEN__
             double result;
             if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
@@ -168,6 +174,10 @@ namespace Core
             {
                 return Common::Failure();
             }
+#else
+            // TEMP: Will abort if parsing fails and needs to be replaced or removed!
+            return Common::Success(std::stod(value));
+#endif
         }
 
         static constexpr bool IsSupported()
