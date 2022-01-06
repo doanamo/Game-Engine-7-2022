@@ -44,9 +44,12 @@ set_target_properties(TestCommon PROPERTIES FOLDER "Tests")
 set_target_properties(TestCommon PROPERTIES COMPILE_DEFINITIONS
     TESTS_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
+if(NOT EMSCRIPTEN)
+    gtest_discover_tests(TestCommon TEST_PREFIX "Common.")
+endif()
+
 #
 # External
 #
 
 target_link_libraries(TestCommon PRIVATE gtest_main)
-gtest_discover_tests(TestCommon TEST_PREFIX "Common.")

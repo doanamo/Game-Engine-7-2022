@@ -38,9 +38,12 @@ enable_reflection(TestReflection ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(TestReflection PROPERTIES FOLDER "Tests")
 
+if(NOT EMSCRIPTEN)
+    gtest_discover_tests(TestReflection TEST_PREFIX "Reflection.")
+endif()
+
 #
 # External
 #
 
 target_link_libraries(TestReflection PRIVATE gtest_main)
-gtest_discover_tests(TestReflection TEST_PREFIX "Reflection.")

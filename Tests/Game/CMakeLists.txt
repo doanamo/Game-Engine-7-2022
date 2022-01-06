@@ -39,9 +39,12 @@ enable_reflection(TestGame ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(TestGame PROPERTIES FOLDER "Tests")
 
+if(NOT EMSCRIPTEN)
+    gtest_discover_tests(TestGame TEST_PREFIX "Game.")
+endif()
+
 #
 # External
 #
 
 target_link_libraries(TestGame PRIVATE gtest_main)
-gtest_discover_tests(TestGame TEST_PREFIX "Game.")
