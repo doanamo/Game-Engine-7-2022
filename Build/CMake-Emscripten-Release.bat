@@ -13,7 +13,7 @@ set configType=%3
 if [%inputDir%] == [] set inputDir="../."
 if [%outputDir%] == [] set outputDir="CMake-Emscripten-Release"
 if [%configType%] == [] set configType="Release"
-if [%projectPage%] == [] set projectPage="Example/Example/Example.html"
+if [%projectPage%] == [] set projectPage="Example/Source/Example.html"
 
 echo ---- Checking Python availability...
 python --version 2>NUL
@@ -77,3 +77,4 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo ---- Opening project page...
 emrun %projectPage%
+pause
