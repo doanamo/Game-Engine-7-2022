@@ -131,8 +131,8 @@ namespace Debug
                 DEBUG_ABORT(); \
             }
 #else
-    #define ASSERT_EVALUATE_SIMPLE(expression) (expression)
-    #define ASSERT_EVALUATE_MESSAGE(expression, message, ...) (expression)
+    #define ASSERT_EVALUATE_SIMPLE(expression) (void)(expression)
+    #define ASSERT_EVALUATE_MESSAGE(expression, message, ...) (void)(expression)
 #endif
 
 #define ASSERT_EVALUATE_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
