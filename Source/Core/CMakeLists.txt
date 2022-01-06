@@ -180,16 +180,9 @@ if(NOT EMSCRIPTEN)
     target_link_libraries(Core PUBLIC "glfw")
     set_property(TARGET "glfw" PROPERTY FOLDER "External")
 else()
-    target_compile_options(Core PUBLIC "SHELL: -s USE_ZLIB=1")
     target_link_options(Core PUBLIC "SHELL: -s USE_ZLIB=1")
-
-    target_compile_options(Core PUBLIC "SHELL: -s USE_LIBPNG=1")
     target_link_options(Core PUBLIC "SHELL: -s USE_LIBPNG=1")
-
-    target_compile_options(Core PUBLIC "SHELL: -s USE_GLFW=3")
     target_link_options(Core PUBLIC "SHELL: -s USE_GLFW=3")
-
-    target_compile_options(Core PUBLIC "SHELL: -s FULL_ES3=1")
     target_link_options(Core PUBLIC "SHELL: -s FULL_ES3=1")
 endif()
 
