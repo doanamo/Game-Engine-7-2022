@@ -63,6 +63,11 @@ if (COMMAND set_up_hermetic_build)
   set_up_hermetic_build()
 endif()
 
+if (POLICY CMP0069)
+  # Doan: Needed to enable LTO.
+  cmake_policy(SET CMP0069 NEW)
+endif (POLICY CMP0069)
+
 # These commands only run if this is the main project
 if(CMAKE_PROJECT_NAME STREQUAL "gtest" OR CMAKE_PROJECT_NAME STREQUAL "googletest-distribution")
 

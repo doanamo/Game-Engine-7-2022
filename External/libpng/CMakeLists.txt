@@ -35,6 +35,10 @@ endif(POLICY CMP0054)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
+# Doan: Needed to enable LTO.
+if(POLICY CMP0069)
+  cmake_policy(SET CMP0069 NEW)
+endif(POLICY CMP0069)
 
 # Doan: Let our project define valid configuration types.
 #set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MinSizeRel;RelWithDebInfo")

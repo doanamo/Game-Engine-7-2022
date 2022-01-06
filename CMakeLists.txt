@@ -41,6 +41,12 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL})
 endif()
 
+# Enable link-time optimization for Release configuration.
+include(CheckIPOSupported)
+check_ipo_supported()
+
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+
 # Make Develop behave like regular Release configuration.
 set(CMAKE_ASM_FLAGS_DEVELOP ${CMAKE_ASM_FLAGS_RELEASE})
 set(CMAKE_C_FLAGS_DEVELOP ${CMAKE_C_FLAGS_RELEASE})
