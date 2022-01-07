@@ -43,6 +43,8 @@ namespace fs = std::filesystem;
 #include <zlib.h>
 #include <png.h>
 
+#include <simdjson.h>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -59,6 +61,7 @@ namespace fs = std::filesystem;
 
 #ifdef __EMSCRIPTEN__
     #include <emscripten.h>
+    #define SIMDJSON_NO_PORTABILITY_WARNING
 #endif
 
 #include <imgui.h>

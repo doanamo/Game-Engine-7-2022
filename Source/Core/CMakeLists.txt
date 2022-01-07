@@ -147,6 +147,10 @@ target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
 target_include_directories(Core PUBLIC "../../External/utfcpp/source")
 target_include_directories(Core PUBLIC "../../External/glm")
 
+add_subdirectory("../../External/simdjson" "External/simdjson")
+target_link_libraries(Core PUBLIC "simdjson")
+set_property(TARGET "simdjson" PROPERTY FOLDER "External")
+
 add_subdirectory("../../External/lua" "External/lua")
 target_link_libraries(Core PUBLIC "lua_static")
 set_property(TARGET "lua_static" PROPERTY PROJECT_LABEL "lua")
