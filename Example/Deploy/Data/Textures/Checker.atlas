@@ -1,22 +1,22 @@
-TextureAtlas =
 {
-    Texture = "Checker.png",
-    
-    Regions =
+    "TextureAtlas":
     {
-        ["full"] = { 0, 0, 128, 128 },
-        ["center"] = { 16, 16, 112, 112 },
-        ["skewed"] = { 32, 32, 128, 96 },
-        ["top_left"] = { 0, 0, 96, 96 },
-        ["top_right"] = { 32, 0, 128, 96 },
-        ["bottom_left"] = { 0, 32, 96, 128 },
-        ["bottom_right"] = { 32, 32, 128, 128 },
-        ["flipped_horizontally"] = { 0, 128, 128, 0 },
-        ["flipped_vertically"] = { 128, 0, 0, 128 },
-        
-        ["animation_frame_0"] = { 0, 0, 128, 128 },
-        ["animation_frame_1"] = { 0, 128, 128, 0 },
-        ["animation_frame_2"] = { 128, 128, 0, 0 },
-        ["animation_frame_3"] = { 128, 0, 0, 128 },
-    },
+        "Texture": "Checker.png",
+        "Regions":
+        [
+            { "Name": "full", "Rect": [ 0, 0, 128, 128 ] },
+            { "Name": "center", "Rect": [ 16, 16, 112, 112 ] },
+            { "Name": "skewed", "Rect": [ 32, 32, 128, 96 ] },
+            { "Name": "top_left", "Rect": [ 0, 0, 96, 96 ] },
+            { "Name": "top_right", "Rect": [ 32, 0, 128, 96 ] },
+            { "Name": "bottom_left", "Rect": [ 0, 32, 96, 128 ] },
+            { "Name": "bottom_right", "Rect": [ 32, 32, 128, 128 ] },
+            { "Name": "flipped_horizontally", "Rect": [ 0, 128, 128, 0 ] },
+            { "Name": "flipped_vertically", "Rect": [ 128, 0, 0, 128 ] },
+            { "Name": "animation_frame_0", "Rect": [ 0, 0, 128, 128 ] },
+            { "Name": "animation_frame_1", "Rect": [ 0, 128, 128, 0 ] },
+            { "Name": "animation_frame_2", "Rect": [ 128, 128, 0, 0 ] },
+            { "Name": "animation_frame_3", "Rect": [ 128, 0, 0, 128 ] }
+        ]
+    }
 }

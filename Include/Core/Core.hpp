@@ -44,6 +44,7 @@ namespace fs = std::filesystem;
 #include <png.h>
 
 #include <simdjson.h>
+#define SIMDJSON_EXCEPTIONS 0
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>

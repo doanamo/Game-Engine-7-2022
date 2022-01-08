@@ -6,11 +6,15 @@
 #include "Graphics/TextureAtlas.hpp"
 #include "Graphics/TextureView.hpp"
 #include "Graphics/Texture.hpp"
-#include <Core/Script/ScriptState.hpp>
 #include <Core/System/SystemStorage.hpp>
 #include <Platform/FileSystem/FileHandle.hpp>
 #include <Core/Resource/ResourceManager.hpp>
 using namespace Graphics;
+
+namespace
+{
+    const char* LogCreateFailed = "Failed to create texture atlas from \"{}\" file! {}";
+}
 
 TextureAtlas::TextureAtlas() = default;
 TextureAtlas::~TextureAtlas() = default;
@@ -24,136 +28,129 @@ TextureAtlas::CreateResult TextureAtlas::Create()
     return Common::Success(std::move(instance));
 }
 
-TextureAtlas::CreateResult TextureAtlas::Create(Platform::FileHandle& file, const LoadFromFile& params)
+TextureAtlas::CreateResult TextureAtlas::Create(
+    Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load texture atlas from \"{}\" file",
-        file.GetPath().generic_string());
+    LOG_PROFILE_SCOPE("Create texture atlas from \"{}\" file", file.GetPathString());
+    LOG("Creating texture atlas from \"{}\" file...", file.GetPathString());
 
-    LOG("Loading texture atlas from \"{}\" file...",
-        file.GetPath().generic_string());
-
-    // Validate parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
-        Common::Failure(CreateErrors::InvalidArgument));
-
-    // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();
     if(!createResult)
     {
-        LOG_ERROR("Could not create base instance!");
+        LOG_ERROR(LogCreateFailed, file.GetPathString(), "Could not create base instance!");
         return createResult;
     }
 
     auto instance = createResult.Unwrap();
 
-    // Load resource script.
-    Core::ScriptState::LoadFromFile resourceParams;
-    resourceParams.engineSystems = params.engineSystems;
+    // Load resource data.
+    std::string jsonString = file.ReadAsTextString();
+    jsonString.reserve(jsonString.size() + simdjson::SIMDJSON_PADDING);
 
-    auto resourceScript = Core::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
-    if(resourceScript == nullptr)
+    simdjson::ondemand::document json;
+    simdjson::ondemand::parser jsonParser;
+    if(jsonParser.iterate(jsonString).get(json) != simdjson::SUCCESS)
     {
-        LOG_ERROR("Could not load texture atlas resource file!");
+        LOG_ERROR(LogCreateFailed, file.GetPathString(), "Could not parse file.");
         return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
-    // Get global table.
-    lua_getglobal(*resourceScript, "TextureAtlas");
-    SCOPE_GUARD([&resourceScript]
+    simdjson::ondemand::object textureAtlas;
+    if(json.find_field("TextureAtlas").get(textureAtlas) != simdjson::SUCCESS)
     {
-        lua_pop(*resourceScript, 1);
-    });
-
-    if(!lua_istable(*resourceScript, -1))
-    {
-        LOG_ERROR("Table \"TextureAtlas\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContents);
+        LOG_ERROR(LogCreateFailed, file.GetPathString(), "Object \"TextureAtlas\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Load texture.
+    std::string_view texturePath;
+    if(textureAtlas.find_field("Texture").get(texturePath) != simdjson::SUCCESS)
     {
-        lua_getfield(*resourceScript, -1, "Texture");
-        SCOPE_GUARD([&resourceScript]
-        {
-            lua_pop(*resourceScript, 1);
-        });
-
-        if(!lua_isstring(*resourceScript, -1))
-        {
-            LOG_ERROR("String \"TextureAtlas.Texture\" is missing!");
-            return Common::Failure(CreateErrors::InvalidResourceContents);
-        }
-
-        std::filesystem::path texturePath = lua_tostring(*resourceScript, -1);
-
-        Texture::LoadFromFile textureParams;
-        textureParams.engineSystems = params.engineSystems;
-        textureParams.mipmaps = true;
-
-        instance->m_texture = resourceManager.AcquireRelative<Graphics::Texture>(
-            texturePath, file.GetPath(), textureParams).UnwrapEither();
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "String \"TextureAtlas.Texture\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
+
+    Texture::LoadFromFile textureParams;
+    textureParams.engineSystems = params.engineSystems;
+    textureParams.mipmaps = true;
+
+    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
+    instance->m_texture = resourceManager.AcquireRelative<Graphics::Texture>(
+        texturePath, file.GetPath(), textureParams).UnwrapEither();
 
     // Read texture regions.
-    lua_getfield(*resourceScript, -1, "Regions");
-    SCOPE_GUARD([&resourceScript]
+    simdjson::ondemand::array regions;
+    if(textureAtlas.find_field("Regions").get(regions) != simdjson::SUCCESS)
     {
-        lua_pop(*resourceScript, 1);
-    });
-
-    if(!lua_istable(*resourceScript, -1))
-    {
-        LOG_ERROR("Table \"TextureAtlas.Regions\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContents);
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "Array \"TextureAtlas.Regions\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
-    for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
+    uint32_t regionIndex = 0;
+    for(auto region : regions)
     {
-        // Check key type.
-        if(!lua_isstring(*resourceScript, -2))
+        std::string_view regionName;
+        if(region.find_field("Name").get(regionName) != simdjson::SUCCESS)
         {
-            LOG_WARNING("Key in \"TextureAtlas.Regions\" is not a string!");
-            continue;
+            LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                "String \"TextureAtlas.Regions[{}].Name\" is missing.",
+                regionIndex));
+            return Common::Failure(CreateErrors::FailedResourceLoading);
         }
 
-        std::string regionName = lua_tostring(*resourceScript, -2);
-
-        // Read region rectangle.
-        glm::ivec4 pixelCoords(0);
-
-        for(int i = 0; i < 4; ++i)
+        simdjson::ondemand::array regionRect;
+        if(region.find_field("Rect").get(regionRect) != simdjson::SUCCESS)
         {
-            lua_pushinteger(*resourceScript, i + 1);
-            lua_gettable(*resourceScript, -2);
+            LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                "Array \"TextureAtlas.Regions[{}:{}].Rect\" is missing.",
+                regionIndex, regionName));
+            return Common::Failure(CreateErrors::FailedResourceLoading);
+        }
 
-            if(!lua_isinteger(*resourceScript, -1))
+        uint32_t coordIndex = 0;
+        glm::ivec4 imageCoords;
+        for(auto coord : regionRect)
+        {
+            if(coordIndex >= 4)
             {
-                LOG_WARNING("Value of \"TextureAtlas.Regions[\"{}\"][{}]\" is not an integer!",
-                    regionName, i);
+                LOG_WARNING("Array \"TextureAtlas.Regions[{}:{}].Rect\" contains more than 4 coordinates."
+                    regionIndex, regionName);
+                break;
             }
 
-            pixelCoords[i] = Common::NumericalCast<int>(lua_tointeger(*resourceScript, -1));
+            int64_t value;
+            if(coord.get(value) != simdjson::SUCCESS)
+            {
+                LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                    "Value \"TextureAtlas.Regions[{}:{}].Rect[{}]\" is not an integer.",
+                    regionIndex, regionName, coordIndex));
+                return Common::Failure(CreateErrors::FailedResourceLoading);
+            }
 
-            lua_pop(*resourceScript, 1);
+            imageCoords[coordIndex++] = Common::NumericalCast<glm::ivec4::value_type>(value);
         }
 
-        // Add new texture region.
-        if(!instance->AddRegion(regionName, pixelCoords))
+        if(!instance->AddRegion(std::string(regionName), imageCoords))
         {
-            LOG_WARNING("Could not add region with \"{}\" name!", regionName);
-            continue;
+            LOG_ERROR(LogCreateFailed, file.GetPathString(),
+                "Could not add region with \"{}\" name.", regionName);
+            return Common::Failure(CreateErrors::FailedResourceLoading);
         }
+
+        ++regionIndex;
     }
 
     return Common::Success(std::move(instance));
 }
 
-bool TextureAtlas::AddRegion(std::string name, glm::ivec4 pixelCoords)
+bool TextureAtlas::AddRegion(std::string name, glm::ivec4 imageCoords)
 {
-    auto result = m_regions.emplace(name, pixelCoords);
+    auto result = m_regions.emplace(std::move(name), imageCoords);
     return result.second;
 }
 

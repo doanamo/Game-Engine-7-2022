@@ -35,7 +35,6 @@ namespace Graphics
         {
             InvalidArgument,
             FailedResourceLoading,
-            InvalidResourceContents,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<SpriteAnimationList>, CreateErrors>;

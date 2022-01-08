@@ -1,15 +1,19 @@
-SpriteAnimationList =
 {
-    TextureAtlas = "Checker.atlas",
-    
-    Animations =
+    "SpriteAnimationList":
     {
-        ["rotation"] =
-        {
-            { "animation_frame_0", 1.0 },
-            { "animation_frame_1", 0.2 },
-            { "animation_frame_2", 0.2 },
-            { "animation_frame_3", 0.2 },
-        },
-    },
+        "TextureAtlas": "Checker.atlas",
+        "Animations":
+        [
+            {
+                "Name": "rotation",
+                "Frames":
+                [
+                    { "Name": "animation_frame_0", "Duration": 1.0 },
+                    { "Name": "animation_frame_1", "Duration": 0.2 },
+                    { "Name": "animation_frame_2", "Duration": 0.2 },
+                    { "Name": "animation_frame_3", "Duration": 0.2 }
+                ]
+            }
+        ]
+    }
 }

@@ -5,10 +5,14 @@
 
 #include "Graphics/Sprite/SpriteAnimationList.hpp"
 #include "Graphics/TextureAtlas.hpp"
-#include <Core/Script/ScriptState.hpp>
 #include <Core/System/SystemStorage.hpp>
 #include <Core/Resource/ResourceManager.hpp>
 using namespace Graphics;
+
+namespace
+{
+    const char* LogCreateFailed = "Failed to create sprite animation list from \"{}\" file! {}";
+}
 
 SpriteAnimationList::Frame::Frame() = default;
 SpriteAnimationList::Frame::Frame(TextureView&& textureView, float duration)
@@ -38,8 +42,6 @@ SpriteAnimationList::~SpriteAnimationList() = default;
 SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 {
     LOG_PROFILE_SCOPE("Create sprite animation list");
-
-    // Create class instance.
     auto instance = std::unique_ptr<SpriteAnimationList>(new SpriteAnimationList());
     return Common::Success(std::move(instance));
 }
@@ -47,177 +49,133 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 SpriteAnimationList::CreateResult SpriteAnimationList::Create(
     Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load sprite animation list from \"{}\" file...",
-        file.GetPath().generic_string());
+    LOG_PROFILE_SCOPE("Load sprite animation list from \"{}\" file...", file.GetPathString());
+    LOG("Loading sprite animation list from \"{}\" file...", file.GetPathString());
 
-    LOG("Loading sprite animation list from \"{}\" file...",
-        file.GetPath().generic_string());
-
-    // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
-        Common::Failure(CreateErrors::InvalidArgument));
-
-    // Acquire engine systems.
-    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
+    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();
     if(!createResult)
     {
-        LOG_ERROR("Could not create base instance!");
+        LOG_ERROR(LogCreateFailed, file.GetPathString(), "Could not create base instance!");
         return createResult;
     }
 
     auto instance = createResult.Unwrap();
 
-    // Load resource script.
-    Core::ScriptState::LoadFromFile resourceParams;
-    resourceParams.engineSystems = params.engineSystems;
+    // Load resource data.
+    std::string jsonString = file.ReadAsTextString();
+    jsonString.reserve(jsonString.size() + simdjson::SIMDJSON_PADDING);
 
-    auto resourceScript = Core::ScriptState::Create(file, resourceParams).UnwrapOr(nullptr);
-    if(resourceScript == nullptr)
+    simdjson::ondemand::document json;
+    simdjson::ondemand::parser jsonParser;
+    if(jsonParser.iterate(jsonString).get(json) != simdjson::SUCCESS)
     {
-        LOG_ERROR("Could not load sprite animation list resource file!");
+        LOG_ERROR(LogCreateFailed, file.GetPathString(), "Could not parse file.");
         return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
-    // Get global table.
-    lua_getglobal(*resourceScript, "SpriteAnimationList");
-    SCOPE_GUARD([&resourceScript]
+    simdjson::ondemand::object spriteAnimationList;
+    if(json.find_field("SpriteAnimationList").get(spriteAnimationList) != simdjson::SUCCESS)
     {
-        lua_pop(*resourceScript, 1);
-    });
-
-    if(!lua_istable(*resourceScript, -1))
-    {
-        LOG_ERROR("Table \"SpriteAnimationList\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContents);
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "Object \"SpriteAnimationList\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Load texture atlas.
-    std::shared_ptr<TextureAtlas> textureAtlas;
+    std::string_view textureAtlasPath;
+    if(spriteAnimationList.find_field("TextureAtlas").get(textureAtlasPath) != simdjson::SUCCESS)
     {
-        lua_getfield(*resourceScript, -1, "TextureAtlas");
-        SCOPE_GUARD([&resourceScript]
-        {
-            lua_pop(*resourceScript, 1);
-        });
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "String \"SpriteAnimationList.TextureAtlas\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
+    }
 
-        if(!lua_isstring(*resourceScript, -1))
-        {
-            LOG_ERROR("String \"SpriteAnimationList.TextureAtlas\" is missing!");
-            return Common::Failure(CreateErrors::InvalidResourceContents);
-        }
+    TextureAtlas::LoadFromFile textureAtlasParams;
+    textureAtlasParams.engineSystems = params.engineSystems;
 
-        std::filesystem::path textureAtlasPath = lua_tostring(*resourceScript, -1);
+    auto& resourceManager = params.engineSystems->Locate<Core::ResourceManager>();
+    std::shared_ptr<TextureAtlas> textureAtlas = resourceManager.AcquireRelative<TextureAtlas>(
+        textureAtlasPath, file.GetPath(), textureAtlasParams)
+        .UnwrapOr(nullptr);
 
-        TextureAtlas::LoadFromFile textureAtlasParams;
-        textureAtlasParams.engineSystems = params.engineSystems;
-        textureAtlas = resourceManager.AcquireRelative<TextureAtlas>(
-            textureAtlasPath, file.GetPath(), textureAtlasParams)
-            .UnwrapOr(nullptr);
-
-        if(textureAtlas == nullptr)
-        {
-            LOG_ERROR("Could not load referenced texture atlas!");
-            return Common::Failure(CreateErrors::FailedResourceLoading);
-        }
+    if(textureAtlas == nullptr)
+    {
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "Could not load referenced texture atlas!");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
     // Read animation entries.
-    lua_getfield(*resourceScript, -1, "Animations");
-    SCOPE_GUARD([&resourceScript]
+    simdjson::ondemand::array animations;
+    if(spriteAnimationList.find_field("Animations").get(animations) != simdjson::SUCCESS)
     {
-        lua_pop(*resourceScript, 1);
-    });
-
-    if(!lua_istable(*resourceScript, -1))
-    {
-        LOG_ERROR("Table \"SpriteAnimationList.Animations\" is missing!");
-        return Common::Failure(CreateErrors::InvalidResourceContents);
+        LOG_ERROR(LogCreateFailed, file.GetPathString(),
+            "Array \"SpriteAnimationList.Animations\" is missing.");
+        return Common::Failure(CreateErrors::FailedResourceLoading);
     }
 
-    for(lua_pushnil(*resourceScript); lua_next(*resourceScript, -2); lua_pop(*resourceScript, 1))
+    uint32_t animationIndex = 0;
+    for(auto animation : animations)
     {
-        // Check if key is a string.
-        if(!lua_isstring(*resourceScript, -2))
+        std::string_view animationName;
+        if(animation.find_field("Name").get(animationName) != simdjson::SUCCESS)
         {
-            LOG_WARNING("Key \"SpriteAnimationList.Animations\" is not a string!");
-            LOG_WARNING("Skipping one ill formated sprite animation!");
-            continue;
+            LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                "String \"SpriteAnimationList.Animations[{}].Name\" is missing.",
+                animationIndex));
+            return Common::Failure(CreateErrors::FailedResourceLoading);
         }
 
-        std::string animationName = lua_tostring(*resourceScript, -2);
-
-        // Read animation frames.
-        Animation animation;
-
-        for(lua_pushnil(*resourceScript);
-            lua_next(*resourceScript, -2);
-            lua_pop(*resourceScript, 1))
+        simdjson::ondemand::array animationFrames;
+        if(animation.find_field("Frames").get(animationFrames) != simdjson::SUCCESS)
         {
-            // Make sure that we have a table.
-            if(!lua_istable(*resourceScript, -1))
+            LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                "Array \"SpriteAnimationList.Animations[{}:{}].Frames\" is missing.",
+                animationIndex, animationName));
+            return Common::Failure(CreateErrors::FailedResourceLoading);
+        }
+
+        Animation newAnimation;
+        uint32_t frameIndex = 0;
+        for(auto frame : animationFrames)
+        {
+            std::string_view frameName;
+            if(frame.find_field("Name").get(frameName) != simdjson::SUCCESS)
             {
-                LOG_WARNING("Value in \"SpriteAnimationList.Animations[\"{}\"]\" "
-                    "is not a table!", animationName);
-                LOG_WARNING("Skipping one ill formated sprite animation frame!");
-                continue;
+                LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                    "String \"SpriteAnimationList.Animations[{}:{}].Frames[{}].Name\" is missing.",
+                    animationIndex, animationName, frameIndex));
+                return Common::Failure(CreateErrors::FailedResourceLoading);
             }
 
-            // Get sequence frame.
-            TextureView textureView;
-
+            simdjson::ondemand::number frameDuration;
+            if(frame.find_field("Duration").get(frameDuration) != simdjson::SUCCESS)
             {
-                lua_pushinteger(*resourceScript, 1);
-                lua_gettable(*resourceScript, -2);
-                SCOPE_GUARD([&resourceScript]
-                {
-                    lua_pop(*resourceScript, 1);
-                });
-
-                if(!lua_isstring(*resourceScript, -1))
-                {
-                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[{}][0]\" "
-                        "is not a string!", animationName);
-                    LOG_WARNING("Skipping one ill formated sprite animation frame!");
-                    continue;
-                }
-
-                textureView = textureAtlas->GetRegion(lua_tostring(*resourceScript, -1));
-            }
-
-            // Get frame duration.
-            float frameDuration = 0.0f;
-
-            {
-                lua_pushinteger(*resourceScript, 2);
-                lua_gettable(*resourceScript, -2);
-                SCOPE_GUARD([&resourceScript]
-                {
-                    lua_pop(*resourceScript, 1);
-                });
-
-                if(!lua_isnumber(*resourceScript, -1))
-                {
-                    LOG_WARNING("Field in \"SpriteAnimationList.Animations[\"{}\"][1]\" "
-                        "is not a number!", animationName);
-                    LOG_WARNING("Skipping one ill formated sprite animation frame!");
-                    continue;
-                }
-
-                frameDuration = (float)lua_tonumber(*resourceScript, -1);
+                LOG_ERROR(LogCreateFailed, file.GetPathString(), fmt::format(
+                    "Number \"SpriteAnimationList.Animations[{}:{}].Frames[{}:{}].Duration\" is missing.",
+                    animationIndex, animationName, frameIndex, frameName));
+                return Common::Failure(CreateErrors::FailedResourceLoading);
             }
 
             // Add frame to animation.
-            animation.frames.emplace_back(std::move(textureView), frameDuration);
-            animation.duration += frameDuration;
+            TextureView textureView = textureAtlas->GetRegion(std::string(frameName));
+            float duration = static_cast<float>(frameDuration.as_double());
+
+            newAnimation.frames.emplace_back(std::move(textureView), duration);
+            newAnimation.duration += duration;
+
+            ++frameIndex;
         }
 
         // Add animation to list.
-        instance->m_animationList.emplace_back(std::move(animation));
-        instance->m_animationMap.emplace(animationName,
-            Common::NumericalCast<uint32_t>(instance->m_animationList.size() - 1));
+        instance->m_animationList.emplace_back(std::move(newAnimation));
+        instance->m_animationMap.emplace(animationName, Common::NumericalCast<uint32_t>(
+            instance->m_animationList.size() - 1));
+
+        ++animationIndex;
     }
 
     return Common::Success(std::move(instance));

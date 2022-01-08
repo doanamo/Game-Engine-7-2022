@@ -38,7 +38,6 @@ namespace Graphics
         {
             InvalidArgument,
             FailedResourceLoading,
-            InvalidResourceContents,
         };
 
         using CreateResult = Common::Result<std::unique_ptr<TextureAtlas>, CreateErrors>;
@@ -52,7 +51,7 @@ namespace Graphics
     public:
         ~TextureAtlas();
 
-        bool AddRegion(std::string name, glm::ivec4 pixelCoords);
+        bool AddRegion(std::string name, glm::ivec4 imageCoords);
         TextureView GetRegion(std::string name);
 
     private:
