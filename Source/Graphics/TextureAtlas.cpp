@@ -118,7 +118,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(
         {
             if(coordIndex >= 4)
             {
-                LOG_WARNING("Array \"TextureAtlas.Regions[{}:{}].Rect\" contains more than 4 coordinates."
+                LOG_WARNING("Array \"TextureAtlas.Regions[{}:{}].Rect\" contains more than 4 coordinates.",
                     regionIndex, regionName);
                 break;
             }
