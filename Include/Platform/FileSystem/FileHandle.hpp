@@ -53,6 +53,7 @@ namespace Platform
         virtual uint64_t GetSize() const = 0;
 
         const fs::path& GetPath() const;
+        std::string GetPathString() const;
         OpenFlags::Type GetFlags() const;
         bool IsReadOnly() const;
 

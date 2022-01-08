@@ -19,6 +19,11 @@ const fs::path& FileHandle::GetPath() const
     return m_path;
 }
 
+std::string FileHandle::GetPathString() const
+{
+    return m_path.generic_string();
+}
+
 FileHandle::OpenFlags::Type FileHandle::GetFlags() const
 {
     return m_flags;

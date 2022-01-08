@@ -75,11 +75,8 @@ ScriptState::CreateResult ScriptState::Create()
 
 ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load script state from \"{}\" file...",
-        file.GetPath().generic_string());
-
-    LOG("Loading script state from \"{}\" file...",
-        file.GetPath().generic_string());
+    LOG_PROFILE_SCOPE("Load script state from \"{}\" file...", file.GetPathString());
+    LOG("Loading script state from \"{}\" file...", file.GetPathString());
 
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,

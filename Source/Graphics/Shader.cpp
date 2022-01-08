@@ -227,11 +227,8 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
 Shader::CreateResult Shader::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load shader from \"{}\" file",
-        file.GetPath().generic_string());
-
-    LOG_INFO("Loading shader from \"{}\" file...",
-        file.GetPath().generic_string());
+    LOG_PROFILE_SCOPE("Load shader from \"{}\" file", file.GetPathString());
+    LOG_INFO("Loading shader from \"{}\" file...", file.GetPathString());
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext,
