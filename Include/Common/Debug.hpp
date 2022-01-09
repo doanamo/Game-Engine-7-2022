@@ -29,6 +29,8 @@
 namespace Debug
 {
     void Initialize();
+
+    int64_t GetProcessID();
     bool IsDebuggerAttached();
 }
 

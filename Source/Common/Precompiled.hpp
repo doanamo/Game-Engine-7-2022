@@ -23,6 +23,7 @@
 #endif
 
 #ifdef PLATFORM_LINUX
+    #include <sys/types.h>
     #include <unistd.h>
 #endif
 

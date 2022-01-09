@@ -19,9 +19,20 @@ void Debug::Initialize()
 #endif
 }
 
+int64_t Debug::GetProcessID()
+{
+#if defined(PLATFORM_WINDOWS)
+    return GetCurrentProcessId();
+#elif defined(PLATFORM_UNIX)
+    return getpid();
+#else
+    return 0;
+#endif
+}
+
 bool Debug::IsDebuggerAttached()
 {
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
     return IsDebuggerPresent();
 #else
     return false;

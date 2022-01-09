@@ -5,6 +5,7 @@
 */
 
 #include "Platform/Window.hpp"
+#include <Core/Build/Build.hpp>
 using namespace Platform;
 
 namespace
@@ -67,9 +68,17 @@ Window::CreateResult Window::Create(const CreateParams& params)
 
     glfwWindowHint(GLFW_VISIBLE, params.visible ? 1 : 0);
 
+    // Append additional information to window title in non-release configurations.
+    std::string windowTitle = params.title;
+
+#if !defined(CONFIG_RELEASE)
+    windowTitle = fmt::format("{} ({}, PID: {})", windowTitle,
+        Build::GetConfig(), Debug::GetProcessID());
+#endif
+
     // Create window.
     instance->m_context.handle = glfwCreateWindow(
-        params.width, params.height, params.title.c_str(), nullptr, nullptr);
+        params.width, params.height, windowTitle.c_str(), nullptr, nullptr);
     if( instance->m_context.handle == nullptr)
     {
         LOG_ERROR(LogCreateFailed, "Could not create window.");
