@@ -11,6 +11,8 @@
     Contains common includes that will be part of precompiled header for every project.
 */
 
+#include <Common/Defines.hpp>
+
 #include <cctype>
 #include <ctime>
 #include <cstdint>

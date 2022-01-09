@@ -9,6 +9,8 @@
     Precompiled Header
 */
 
+#include "Common/Defines.hpp"
+
 #include <cassert>
 #include <fstream>
 #include <mutex>

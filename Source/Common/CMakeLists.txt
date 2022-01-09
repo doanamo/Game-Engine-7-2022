@@ -106,14 +106,6 @@ target_include_directories(Common PUBLIC
     "${PROJECT_SOURCE_DIR}/Source"
 )
 
-# Force defines header to be included globally.
-# This is to avoid errors when checking again global defines without including their header.
-if(MSVC)
-    target_compile_options(Common INTERFACE "/FI\"Common/Defines.hpp\"")
-else()
-    target_compile_options(Common INTERFACE "-include \"Common/Defines.hpp\"")
-endif()
-
 #
 # Precompiled Header
 #
