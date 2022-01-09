@@ -62,7 +62,7 @@ namespace fs = std::filesystem;
 
 #include <lua.hpp>
 
-#ifdef __EMSCRIPTEN__
+#ifdef PLATFORM_EMSCRIPTEN
     #include <emscripten.h>
     #define SIMDJSON_NO_PORTABILITY_WARNING
 #endif
@@ -71,7 +71,6 @@ namespace fs = std::filesystem;
 #include <imgui_stdlib.h>
 
 #include <Reflection/Reflection.hpp>
-#include <Common/Defines.hpp>
 #include <Common/Debug.hpp>
 #include <Common/Profile.hpp>
 #include <Common/Utility.hpp>

@@ -210,7 +210,7 @@ Root::ErrorCode Root::Run()
         return true;
     });
 
-#ifndef __EMSCRIPTEN__
+#ifndef PLATFORM_EMSCRIPTEN
     while(true)
     {
         bool requestingExit = false;

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#ifndef __EMSCRIPTEN__
+#ifndef PLATFORM_EMSCRIPTEN
     // Use precise time counters on platforms that support it.
     // Emscripten does not implement GLFW function for reading high frequency clock.
     #define USE_PRECISE_TIME_COUNTERS

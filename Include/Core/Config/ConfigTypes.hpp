@@ -127,7 +127,7 @@ namespace Core
 
         static Common::Result<float, void> Parse(const std::string& value)
         {
-#ifndef __EMSCRIPTEN__
+#ifndef PLATFORM_EMSCRIPTEN
             float result;
             if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {
@@ -164,7 +164,7 @@ namespace Core
 
         static Common::Result<double, void> Parse(const std::string& value)
         {
-#ifndef __EMSCRIPTEN__
+#ifndef PLATFORM_EMSCRIPTEN
             double result;
             if(std::from_chars(value.data(), value.data() + value.size(), result).ec != std::errc())
             {

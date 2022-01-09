@@ -6,18 +6,12 @@
 #include "Common/Debug.hpp"
 #include "Common/Profile.hpp"
 
-#ifdef WIN32
-    #define WIN32_LEAD_AND_MEAN
-    #define NOMINMAX
-    #include <windows.h>
-#endif
-
 void Debug::Initialize()
 {
     LOG_PROFILE_SCOPE("Initialize debug");
 
     // Enable debug memory allocator and memory leak detection.
-#if defined(WIN32) && defined(CONFIG_DEBUG)
+#if defined(PLATFORM_WINDOWS) && defined(CONFIG_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
@@ -27,7 +21,7 @@ void Debug::Initialize()
 
 bool Debug::IsDebuggerAttached()
 {
-#ifdef WIN32
+#ifdef PLATFORM_WINDOWS
     return IsDebuggerPresent();
 #else
     return false;

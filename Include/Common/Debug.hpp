@@ -11,7 +11,7 @@
     Platform Defines
 */
 
-#if defined(WIN32) && defined(CONFIG_DEBUG)
+#if defined(PLATFORM_WINDOWS) && defined(CONFIG_DEBUG)
     #define _CRTDBG_MAP_ALLOC
     #define _CRTDBG_MAP_ALLOC_NEW
     #include <crtdbg.h>
@@ -50,7 +50,7 @@ namespace Debug
     DEBUG_BREAK(); \
     abort()
 
-#ifdef WIN32
+#ifdef PLATFORM_WINDOWS
     #define DEBUG_BREAK_IF_ATTACHED() \
         if(Debug::IsDebuggerAttached()) \
         { \

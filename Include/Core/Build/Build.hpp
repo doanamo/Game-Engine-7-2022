@@ -23,6 +23,7 @@ namespace Build
     void Initialize();
     void PrintInfo();
 
+    std::string GetPlatform();
     std::string GetConfig();
 
     std::string GetEngineDir();

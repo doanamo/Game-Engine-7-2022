@@ -44,6 +44,7 @@ void Build::PrintInfo()
     LOG_INFO("Printing build information...");
     LOG_SCOPED_INDENT();
 
+    LOG_INFO("Platform: {}", Build::GetPlatform());
     LOG_INFO("Configuration: {}", Build::GetConfig());
 
     LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "./" : EngineDir);
@@ -59,6 +60,11 @@ void Build::PrintInfo()
         Build::GetGameChangeHash(),
         Build::GetGameBranchName(),
         Build::GetGameChangeDate());
+}
+
+std::string Build::GetPlatform()
+{
+    return PLATFORM_CURRENT;
 }
 
 std::string Build::GetConfig()

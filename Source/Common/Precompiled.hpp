@@ -16,13 +16,13 @@
 #include <mutex>
 #include <chrono>
 
-#ifdef WIN32
+#ifdef PLATFORM_WINDOWS
     #define WIN32_LEAD_AND_MEAN
     #define NOMINMAX
     #include <windows.h>
 #endif
 
-#ifdef __linux__
+#ifdef PLATFORM_LINUX
     #include <unistd.h>
 #endif
 

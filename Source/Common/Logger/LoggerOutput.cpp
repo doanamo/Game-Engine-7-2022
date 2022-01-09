@@ -58,9 +58,9 @@ ConsoleOutput::~ConsoleOutput() = default;
 
 bool ConsoleOutput::Initialize() const
 {
-#if defined(WIN32)
+#if defined(PLATFORM_WINDOWS)
     return GetConsoleWindow();
-#elif defined(__linux__)
+#elif defined(PLATFORM_LINUX)
     return isatty(STDOUT_FILENO);
 #else
     return false;
