@@ -23,6 +23,8 @@ namespace Build
     void Initialize();
     void PrintInfo();
 
+    std::string GetConfig();
+
     std::string GetEngineDir();
     std::string GetGameDir();
 

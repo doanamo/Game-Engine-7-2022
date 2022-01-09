@@ -44,6 +44,8 @@ void Build::PrintInfo()
     LOG_INFO("Printing build information...");
     LOG_SCOPED_INDENT();
 
+    LOG_INFO("Configuration: {}", Build::GetConfig());
+
     LOG_INFO("Engine directory: \"{}\"", EngineDir.empty() ? "./" : EngineDir);
     LOG_INFO("Engine repository: {}-{}-{} ({})",
         Build::GetEngineChangeNumber(),
@@ -57,6 +59,11 @@ void Build::PrintInfo()
         Build::GetGameChangeHash(),
         Build::GetGameBranchName(),
         Build::GetGameChangeDate());
+}
+
+std::string Build::GetConfig()
+{
+    return CONFIG_CURRENT;
 }
 
 std::string Build::GetGameDir()

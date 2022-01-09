@@ -71,6 +71,10 @@ set(FILES_TEST
     "${INCLUDE_DIR}/Test/InstanceCounter.hpp"
 )
 
+set(FILES_COMMON
+    "${INCLUDE_DIR}/Defines.hpp"
+)
+
 source_group("Debug" FILES ${FILES_DEBUG})
 source_group("Profile" FILES ${FILES_PROFILE})
 source_group("Utility" FILES ${FILES_UTILITY})
@@ -78,6 +82,7 @@ source_group("Structures" FILES ${FILES_STRUCTURES})
 source_group("Logger" FILES ${FILES_LOGGER})
 source_group("Event" FILES ${FILES_EVENT})
 source_group("Test" FILES ${FILES_TEST})
+source_group("" FILES ${FILES_COMMON})
 
 #
 # Library
@@ -91,6 +96,7 @@ add_library(Common
     ${FILES_LOGGER}
     ${FILES_EVENT}
     ${FILES_TEST}
+    ${FILES_COMMON}
 )
 
 set_property(TARGET Common PROPERTY FOLDER "Engine")
@@ -99,6 +105,14 @@ target_include_directories(Common PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"
 )
+
+# Force defines header to be included globally.
+# This is to avoid errors when checking again global defines without including their header.
+if(MSVC)
+    target_compile_options(Common INTERFACE "/FI\"Common/Defines.hpp\"")
+else()
+    target_compile_options(Common INTERFACE "-include \"Common/Defines.hpp\"")
+endif()
 
 #
 # Precompiled Header

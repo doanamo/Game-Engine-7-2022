@@ -59,9 +59,9 @@ set(CMAKE_EXE_LINKER_FLAGS_DEVELOP ${CMAKE_EXE_LINKER_FLAGS_RELEASE})
 
 # Add global defines for identifying each configuration from code.
 add_compile_definitions(
-    $<$<CONFIG:Debug>:CONFIG_DEBUG>
-    $<$<CONFIG:Develop>:CONFIG_DEVELOP>
-    $<$<CONFIG:Release>:CONFIG_RELEASE>
+    $<$<CONFIG:Debug>:CMAKE_CONFIG_DEBUG>
+    $<$<CONFIG:Develop>:CMAKE_CONFIG_DEVELOP>
+    $<$<CONFIG:Release>:CMAKE_CONFIG_RELEASE>
 )
 
 # Disable RTTI and exceptions.

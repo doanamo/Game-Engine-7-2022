@@ -69,6 +69,7 @@ namespace fs = std::filesystem;
 #include <imgui_stdlib.h>
 
 #include <Reflection/Reflection.hpp>
+#include <Common/Defines.hpp>
 #include <Common/Debug.hpp>
 #include <Common/Profile.hpp>
 #include <Common/Utility.hpp>
