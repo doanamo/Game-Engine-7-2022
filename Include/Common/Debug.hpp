@@ -11,7 +11,7 @@
     Platform Defines
 */
 
-#if defined(WIN32) && defined(BUILD_DEBUG)
+#if defined(WIN32) && defined(CONFIG_DEBUG)
     #define _CRTDBG_MAP_ALLOC
     #define _CRTDBG_MAP_ALLOC_NEW
     #include <crtdbg.h>

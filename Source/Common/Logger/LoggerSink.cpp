@@ -38,7 +38,7 @@ void Sink::RemoveOutput(Logger::Output* output)
 
 void Sink::Write(const Logger::Message& message)
 {
-#ifndef BUILD_DEBUG
+#ifndef CONFIG_DEBUG
     // Do not print messages of severity debug if not in debug configuration.
     if(message.GetSeverity() == Severity::Debug)
         return;
