@@ -25,6 +25,9 @@
     #error Unknown platform!
 #endif
 
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_MACOS)
+    #define PLATFORM_UNIX
+#endif
 
 /*
     Configuration
