@@ -77,7 +77,7 @@ namespace Debug
         ASSERT(instance != nullptr, "Invalid instance.");
 */
 
-#ifndef BUILD_RELEASE
+#ifndef CONFIG_RELEASE
     #define ASSERT_SIMPLE(expression) \
         if(expression) { } else \
         { \
@@ -117,7 +117,7 @@ namespace Debug
         ASSERT_EVALUATE(Function() != nullptr, "Invalid call.");
 */
 
-#ifndef BUILD_RELEASE
+#ifndef CONFIG_RELEASE
     #define ASSERT_EVALUATE_SIMPLE(expression) \
             if(expression) { } else \
             { \
