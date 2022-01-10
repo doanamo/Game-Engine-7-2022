@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Name.hpp>
+#include <Common/Utility/Name.hpp>
 #include "Reflection/ReflectionDetail.hpp"
 #include "Reflection/ReflectionStatic.hpp"
 

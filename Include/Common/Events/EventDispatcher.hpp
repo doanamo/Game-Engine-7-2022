@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include "Common/LinkedList.hpp"
-#include "Common/Event/EventCollector.hpp"
-#include "Common/Event/EventReceiver.hpp"
-#include "Common/Event/EventPolicies.hpp"
+#include "Common/Structures/LinkedList.hpp"
+#include "Common/Events/EventCollector.hpp"
+#include "Common/Events/EventReceiver.hpp"
+#include "Common/Events/EventPolicies.hpp"
 
 namespace Event
 {

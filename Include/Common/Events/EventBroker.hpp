@@ -8,9 +8,9 @@
 #include <any>
 #include <unordered_map>
 #include <Reflection/Reflection.hpp>
-#include "Common/Result.hpp"
-#include "Common/Event/EventBase.hpp"
-#include "Common/Event/EventDispatcher.hpp"
+#include "Common/Utility/Result.hpp"
+#include "Common/Events/EventBase.hpp"
+#include "Common/Events/EventDispatcher.hpp"
 
 /*
     Event Broker

@@ -5,7 +5,7 @@
 
 #include <string>
 #include <memory>
-#include <Common/StateMachine.hpp>
+#include <Common/Structures/StateMachine.hpp>
 #include <gtest/gtest.h>
 
 /*

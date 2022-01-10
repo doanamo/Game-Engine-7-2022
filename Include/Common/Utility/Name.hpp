@@ -8,8 +8,8 @@
 #include <string>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include "Common/Utility.hpp"
-#include "Common/NameRegistry.hpp"
+#include "Common/Utility/Utility.hpp"
+#include "Common/Utility/NameRegistry.hpp"
 
 /*
     Name

@@ -6,8 +6,8 @@
 #pragma once
 
 #include <queue>
-#include <Common/HandleMap.hpp>
-#include <Common/Event/EventDispatcher.hpp>
+#include <Common/Structures/HandleMap.hpp>
+#include <Common/Events/EventDispatcher.hpp>
 #include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 

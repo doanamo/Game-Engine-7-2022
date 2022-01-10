@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/EventBroker.hpp>
+#include <Common/Events/EventBroker.hpp>
 #include "Platform/WindowEvents.hpp"
 
 struct GLFWwindow;

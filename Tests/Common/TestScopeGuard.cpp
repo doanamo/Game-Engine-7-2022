@@ -3,7 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <Common/ScopeGuard.hpp>
+#include <Common/Utility/ScopeGuard.hpp>
 #include <gtest/gtest.h>
 
 /*

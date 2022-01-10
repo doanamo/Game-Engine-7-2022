@@ -6,7 +6,7 @@
 #pragma once
 
 #include <variant>
-#include "Debug.hpp"
+#include "Common/Debug/Debug.hpp"
 
 /*
     Result

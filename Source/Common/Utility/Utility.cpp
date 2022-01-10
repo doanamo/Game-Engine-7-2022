@@ -3,7 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Common/Utility.hpp"
+#include "Common/Utility/Utility.hpp"
 
 std::string Common::GetTextFileContent(const std::filesystem::path path)
 {

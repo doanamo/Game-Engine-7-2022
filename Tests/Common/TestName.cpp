@@ -4,7 +4,7 @@
 */
 
 #include <sstream>
-#include <Common/Name.hpp>
+#include <Common/Utility/Name.hpp>
 #include <Reflection/Reflection.hpp>
 #include <gtest/gtest.h>
 

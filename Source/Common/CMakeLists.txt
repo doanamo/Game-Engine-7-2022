@@ -13,32 +13,32 @@ set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/Include/Common")
 set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(FILES_DEBUG
-    "${INCLUDE_DIR}/Debug.hpp"
-    "${SOURCE_DIR}/Debug.cpp"
+    "${INCLUDE_DIR}/Debug/Debug.hpp"
+    "${SOURCE_DIR}/Debug/Debug.cpp"
 )
 
-set(FILES_PROFILE
-    "${INCLUDE_DIR}/Profile.hpp"
+set(FILES_PROFILING
+    "${INCLUDE_DIR}/Profiling/Profile.hpp"
 )
 
 set(FILES_UTILITY
-    "${INCLUDE_DIR}/Utility.hpp"
-    "${INCLUDE_DIR}/NonCopyable.hpp"
-    "${INCLUDE_DIR}/Resettable.hpp"
-    "${INCLUDE_DIR}/ScopeGuard.hpp"
-    "${INCLUDE_DIR}/Delegate.hpp"
-    "${INCLUDE_DIR}/Result.hpp"
-    "${INCLUDE_DIR}/Name.hpp"
-    "${INCLUDE_DIR}/NameRegistry.hpp"
-    "${SOURCE_DIR}/Utility.cpp"
-    "${SOURCE_DIR}/NameRegistry.cpp"
+    "${INCLUDE_DIR}/Utility/Utility.hpp"
+    "${INCLUDE_DIR}/Utility/NonCopyable.hpp"
+    "${INCLUDE_DIR}/Utility/Resettable.hpp"
+    "${INCLUDE_DIR}/Utility/ScopeGuard.hpp"
+    "${INCLUDE_DIR}/Utility/Delegate.hpp"
+    "${INCLUDE_DIR}/Utility/Result.hpp"
+    "${INCLUDE_DIR}/Utility/Name.hpp"
+    "${INCLUDE_DIR}/Utility/NameRegistry.hpp"
+    "${SOURCE_DIR}/Utility/Utility.cpp"
+    "${SOURCE_DIR}/Utility/NameRegistry.cpp"
 )
 
 set(FILES_STRUCTURES
-    "${INCLUDE_DIR}/LinkedList.hpp"
-    "${INCLUDE_DIR}/StateMachine.hpp"
-    "${INCLUDE_DIR}/Handle.hpp"
-    "${INCLUDE_DIR}/HandleMap.hpp"
+    "${INCLUDE_DIR}/Structures/LinkedList.hpp"
+    "${INCLUDE_DIR}/Structures/StateMachine.hpp"
+    "${INCLUDE_DIR}/Structures/Handle.hpp"
+    "${INCLUDE_DIR}/Structures/HandleMap.hpp"
 )
 
 set(FILES_LOGGER
@@ -57,18 +57,18 @@ set(FILES_LOGGER
     "${SOURCE_DIR}/Logger/LoggerHistory.cpp"
 )
 
-set(FILES_EVENT
-    "${INCLUDE_DIR}/Event/EventCollector.hpp"
-    "${INCLUDE_DIR}/Event/EventDispatcher.hpp"
-    "${INCLUDE_DIR}/Event/EventReceiver.hpp"
-    "${INCLUDE_DIR}/Event/EventPolicies.hpp"
-    "${INCLUDE_DIR}/Event/EventBase.hpp"
-    "${INCLUDE_DIR}/Event/EventQueue.hpp"
-    "${INCLUDE_DIR}/Event/EventBroker.hpp"
+set(FILES_EVENTS
+    "${INCLUDE_DIR}/Events/EventCollector.hpp"
+    "${INCLUDE_DIR}/Events/EventDispatcher.hpp"
+    "${INCLUDE_DIR}/Events/EventReceiver.hpp"
+    "${INCLUDE_DIR}/Events/EventPolicies.hpp"
+    "${INCLUDE_DIR}/Events/EventBase.hpp"
+    "${INCLUDE_DIR}/Events/EventQueue.hpp"
+    "${INCLUDE_DIR}/Events/EventBroker.hpp"
 )
 
-set(FILES_TEST
-    "${INCLUDE_DIR}/Test/InstanceCounter.hpp"
+set(FILES_TESTING
+    "${INCLUDE_DIR}/Testing/InstanceCounter.hpp"
 )
 
 set(FILES_COMMON
@@ -76,12 +76,12 @@ set(FILES_COMMON
 )
 
 source_group("Debug" FILES ${FILES_DEBUG})
-source_group("Profile" FILES ${FILES_PROFILE})
+source_group("Profiling" FILES ${FILES_PROFILING})
 source_group("Utility" FILES ${FILES_UTILITY})
 source_group("Structures" FILES ${FILES_STRUCTURES})
 source_group("Logger" FILES ${FILES_LOGGER})
-source_group("Event" FILES ${FILES_EVENT})
-source_group("Test" FILES ${FILES_TEST})
+source_group("Events" FILES ${FILES_EVENTS})
+source_group("Testing" FILES ${FILES_TESTING})
 source_group("" FILES ${FILES_COMMON})
 
 #
@@ -90,12 +90,12 @@ source_group("" FILES ${FILES_COMMON})
 
 add_library(Common
     ${FILES_DEBUG}
-    ${FILES_PROFILE}
+    ${FILES_PROFILING}
     ${FILES_UTILITY}
     ${FILES_STRUCTURES}
     ${FILES_LOGGER}
-    ${FILES_EVENT}
-    ${FILES_TEST}
+    ${FILES_EVENTS}
+    ${FILES_TESTING}
     ${FILES_COMMON}
 )
 

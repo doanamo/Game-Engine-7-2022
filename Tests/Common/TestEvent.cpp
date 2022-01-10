@@ -5,12 +5,12 @@
 
 #include <memory>
 #include <functional>
-#include <Common/Delegate.hpp>
-#include <Common/Event/EventCollector.hpp>
-#include <Common/Event/EventDispatcher.hpp>
-#include <Common/Event/EventReceiver.hpp>
-#include <Common/Event/EventBroker.hpp>
-#include <Common/Test/InstanceCounter.hpp>
+#include <Common/Utility/Delegate.hpp>
+#include <Common/Events/EventCollector.hpp>
+#include <Common/Events/EventDispatcher.hpp>
+#include <Common/Events/EventReceiver.hpp>
+#include <Common/Events/EventBroker.hpp>
+#include <Common/Testing/InstanceCounter.hpp>
 #include <gtest/gtest.h>
 
 using Test::InstanceCounter;

@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <numeric>
 #include <filesystem>
-#include "Common/Debug.hpp"
+#include "Common/Debug/Debug.hpp"
 
 /*
     Utility

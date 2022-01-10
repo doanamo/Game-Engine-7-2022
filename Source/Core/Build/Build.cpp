@@ -5,7 +5,7 @@
 
 #include "Core/Build/Build.hpp"
 #include "Core/Build/BuildInfo.hpp"
-#include <Common/Utility.hpp>
+#include <Common/Utility/Utility.hpp>
 
 namespace
 {

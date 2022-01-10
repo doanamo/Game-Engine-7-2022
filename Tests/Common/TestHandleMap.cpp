@@ -5,7 +5,7 @@
 
 #include <random>
 #include <fmt/core.h>
-#include <Common/HandleMap.hpp>
+#include <Common/Structures/HandleMap.hpp>
 #include <gtest/gtest.h>
 
 /*

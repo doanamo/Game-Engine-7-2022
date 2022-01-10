@@ -7,9 +7,9 @@
 
 #include <deque>
 #include <optional>
-#include "Common/Utility.hpp"
-#include "Common/Result.hpp"
-#include "Common/Handle.hpp"
+#include "Common/Utility/Utility.hpp"
+#include "Common/Utility/Result.hpp"
+#include "Common/Structures/Handle.hpp"
 
 /*
     Handle Map

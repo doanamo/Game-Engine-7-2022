@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Handle.hpp>
+#include <Common/Structures/Handle.hpp>
 
 /*
     Entity Handle

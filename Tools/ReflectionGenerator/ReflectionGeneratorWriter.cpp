@@ -24,8 +24,8 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
         "*/\n\n";
 
     reflectionBinding <<
-        "#include <Common/Debug.hpp>\n"
-        "#include <Common/Profile.hpp>\n"
+        "#include <Common/Debug/Debug.hpp>\n"
+        "#include <Common/Profiling/Profile.hpp>\n"
         "#include <Reflection/Reflection.hpp>\n";
 
     reflectionBinding <<

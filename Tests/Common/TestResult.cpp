@@ -5,8 +5,8 @@
 
 #include <memory>
 #include <string>
-#include <Common/Test/InstanceCounter.hpp>
-#include <Common/Result.hpp>
+#include <Common/Testing/InstanceCounter.hpp>
+#include <Common/Utility/Result.hpp>
 #include <gtest/gtest.h>
 
 using Test::InstanceCounter;

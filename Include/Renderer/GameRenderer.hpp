@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/Event/EventReceiver.hpp>
+#include <Common/Events/EventReceiver.hpp>
 #include <Core/System/EngineSystem.hpp>
 
 namespace Platform

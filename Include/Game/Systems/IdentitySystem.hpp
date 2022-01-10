@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 #include <unordered_map>
-#include <Common/Event/EventReceiver.hpp>
+#include <Common/Events/EventReceiver.hpp>
 #include "Game/GameSystem.hpp"
 #include "Game/EntityHandle.hpp"
 

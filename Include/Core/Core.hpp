@@ -71,12 +71,12 @@ namespace fs = std::filesystem;
 #include <imgui_stdlib.h>
 
 #include <Reflection/Reflection.hpp>
-#include <Common/Debug.hpp>
-#include <Common/Profile.hpp>
-#include <Common/Utility.hpp>
-#include <Common/NonCopyable.hpp>
-#include <Common/Resettable.hpp>
-#include <Common/ScopeGuard.hpp>
-#include <Common/Result.hpp>
-#include <Common/Name.hpp>
+#include <Common/Debug/Debug.hpp>
+#include <Common/Profiling/Profile.hpp>
+#include <Common/Utility/Utility.hpp>
+#include <Common/Utility/NonCopyable.hpp>
+#include <Common/Utility/Resettable.hpp>
+#include <Common/Utility/ScopeGuard.hpp>
+#include <Common/Utility/Result.hpp>
+#include <Common/Utility/Name.hpp>
 #include <Common/Logger/Logger.hpp>

@@ -3,8 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Common/NameRegistry.hpp"
-#include "Common/Name.hpp"
+#include "Common/Utility/NameRegistry.hpp"
+#include "Common/Utility/Name.hpp"
 using namespace Common;
 
 NameRegistry::NameRegistry()

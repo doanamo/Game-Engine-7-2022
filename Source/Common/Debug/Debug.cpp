@@ -3,8 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
-#include "Common/Debug.hpp"
-#include "Common/Profile.hpp"
+#include "Common/Debug/Debug.hpp"
+#include "Common/Profiling/Profile.hpp"
 
 void Debug::Initialize()
 {

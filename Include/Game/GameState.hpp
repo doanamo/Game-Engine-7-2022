@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Common/StateMachine.hpp>
+#include <Common/Structures/StateMachine.hpp>
 
 namespace Game
 {
