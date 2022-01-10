@@ -52,7 +52,8 @@ namespace Common
             fmt::format(name, ## __VA_ARGS__), __FILE__, __LINE__)
 
     #define LOG_PROFILE_SCOPE_FUNC() \
-        Common::ScopedLogProfile scopedLogProfile(__FUNCTION__ "()", __FILE__, __LINE__)
+        Common::ScopedLogProfile scopedLogProfile( \
+            fmt::format("{}()", __FUNCTION__), __FILE__, __LINE__)
 #else
     #define LOG_PROFILE_SCOPE_NAME(...) ((void)0)
     #define LOG_PROFILE_SCOPE_FUNC(...) ((void)0)
