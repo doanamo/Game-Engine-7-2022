@@ -3,10 +3,7 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <string>
-#include <memory>
 #include <Common/Structures/StateMachine.hpp>
-#include <gtest/gtest.h>
 
 /*
     Helpers

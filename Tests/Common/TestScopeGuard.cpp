@@ -4,7 +4,6 @@
 */
 
 #include <Common/Utility/ScopeGuard.hpp>
-#include <gtest/gtest.h>
 
 /*
     Scope Guard

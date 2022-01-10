@@ -3,10 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <sstream>
 #include <Common/Utility/Name.hpp>
 #include <Reflection/Reflection.hpp>
-#include <gtest/gtest.h>
 
 /*
     Helpers

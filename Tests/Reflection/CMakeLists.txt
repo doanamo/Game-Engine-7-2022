@@ -24,6 +24,15 @@ add_executable(TestReflection ${TEST_FILES})
 target_compile_features(TestReflection PUBLIC cxx_std_17)
 
 #
+# Precompiled Header
+#
+
+target_sources(TestReflection PRIVATE "Precompiled.hpp")
+target_precompile_headers(TestReflection PRIVATE "Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "Precompiled.hpp")
+
+#
 # Dependencies
 #
 

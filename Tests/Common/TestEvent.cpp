@@ -3,15 +3,12 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <memory>
-#include <functional>
 #include <Common/Utility/Delegate.hpp>
 #include <Common/Events/EventCollector.hpp>
 #include <Common/Events/EventDispatcher.hpp>
 #include <Common/Events/EventReceiver.hpp>
 #include <Common/Events/EventBroker.hpp>
 #include <Common/Testing/InstanceCounter.hpp>
-#include <gtest/gtest.h>
 
 using Test::InstanceCounter;
 

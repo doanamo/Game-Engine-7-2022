@@ -4,7 +4,6 @@
 */
 
 #include <Common/Utility/Utility.hpp>
-#include <gtest/gtest.h>
 
 /*
     Utility

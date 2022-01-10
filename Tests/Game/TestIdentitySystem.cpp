@@ -3,13 +3,11 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <Core/Core.hpp>
 #include <Core/ReflectionGenerated.hpp>
 #include <Game/ReflectionGenerated.hpp>
 #include <Game/GameInstance.hpp>
 #include <Game/EntitySystem.hpp>
 #include <Game/Systems/IdentitySystem.hpp>
-#include <gtest/gtest.h>
 
 /*
     Identity System

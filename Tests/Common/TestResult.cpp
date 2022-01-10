@@ -3,11 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <memory>
-#include <string>
 #include <Common/Testing/InstanceCounter.hpp>
 #include <Common/Utility/Result.hpp>
-#include <gtest/gtest.h>
 
 using Test::InstanceCounter;
 

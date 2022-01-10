@@ -3,10 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <string>
-#include <vector>
-#include <cinttypes>
-#include <gtest/gtest.h>
 #include <Reflection/Reflection.hpp>
 #include "TestReflectionHeader.hpp"
 #include "TestReflection/ReflectionGenerated.hpp"

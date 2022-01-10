@@ -28,6 +28,15 @@ add_executable(TestCommon ${TEST_FILES})
 target_compile_features(TestCommon PUBLIC cxx_std_17)
 
 #
+# Precompiled Header
+#
+
+target_sources(TestCommon PRIVATE "Precompiled.hpp")
+target_precompile_headers(TestCommon PRIVATE "Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "Precompiled.hpp")
+
+#
 # Dependencies
 #
 

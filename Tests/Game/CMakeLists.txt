@@ -22,6 +22,15 @@ add_executable(TestGame ${TEST_FILES})
 target_compile_features(TestGame PUBLIC cxx_std_17)
 
 #
+# Precompiled Header
+#
+
+target_sources(TestGame PRIVATE "Precompiled.hpp")
+target_precompile_headers(TestGame PRIVATE "Precompiled.hpp")
+source_group("Generated\\Precompiled" REGULAR_EXPRESSION "cmake_pch")
+source_group("" FILES "Precompiled.hpp")
+
+#
 # Dependencies
 #
 
