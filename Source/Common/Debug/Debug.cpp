@@ -8,7 +8,7 @@
 
 void Debug::Initialize()
 {
-    LOG_PROFILE_SCOPE("Initialize debug");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Enable debug memory allocator and memory leak detection.
 #if defined(PLATFORM_WINDOWS) && defined(CONFIG_DEBUG)

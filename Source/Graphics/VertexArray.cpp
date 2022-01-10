@@ -89,7 +89,7 @@ VertexArray::~VertexArray()
 VertexArray::CreateResult VertexArray::Create(
     RenderContext* renderContext, const FromArrayParams& params)
 {
-    LOG_PROFILE_SCOPE("Create vertex array");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(renderContext != nullptr,

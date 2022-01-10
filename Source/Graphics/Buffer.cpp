@@ -90,7 +90,7 @@ VertexBuffer::~VertexBuffer() = default;
 
 VertexBuffer::BufferResult VertexBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG_PROFILE_SCOPE("Create vertex buffer");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create and initialize instance.
     auto instance = std::unique_ptr<VertexBuffer>(new VertexBuffer());
@@ -112,7 +112,7 @@ IndexBuffer::~IndexBuffer() = default;
 
 IndexBuffer::BufferResult IndexBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG_PROFILE_SCOPE("Create index buffer");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create and initialize instance.
     auto instance = std::unique_ptr<IndexBuffer>(new IndexBuffer());
@@ -149,7 +149,7 @@ InstanceBuffer::~InstanceBuffer() = default;
 
 InstanceBuffer::BufferResult InstanceBuffer::Create(const Buffer::CreateFromParams& params)
 {
-    LOG_PROFILE_SCOPE("Create instance buffer");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create and initialize instance.
     auto instance = std::unique_ptr<InstanceBuffer>(new InstanceBuffer());

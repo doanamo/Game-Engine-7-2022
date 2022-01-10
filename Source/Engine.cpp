@@ -44,7 +44,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
         At the end we load default resources such as placeholder texture.
     */
 
-    LOG_PROFILE_SCOPE("Create engine");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Initialize static systems.
     Debug::Initialize();
@@ -55,7 +55,7 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
     // Create engine instance.
     auto engine = std::unique_ptr<Root>(new Root());
 
-    if(auto failureResult = engine->CreateEngineSystems(configVars).AsFailure())
+    if(auto failureResult = engine->CreateSystems(configVars).AsFailure())
     {
         LOG_FATAL(LogCreateEngineFailed, "Could not create engine systems.");
         return Common::Failure(failureResult.Unwrap());
@@ -70,9 +70,9 @@ Root::CreateResult Root::Create(const ConfigVariables& configVars)
     return Common::Success(std::move(engine));
 }
 
-Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigVariables& configVars)
+Common::Result<void, Root::CreateErrors> Root::CreateSystems(const ConfigVariables& configVars)
 {
-    LOG_PROFILE_SCOPE("Create engine systems");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Setup storage context for initialization.
     m_engineSystems.GetContext().initialConfigVars = configVars;
@@ -119,7 +119,7 @@ Common::Result<void, Root::CreateErrors> Root::CreateEngineSystems(const ConfigV
 
 Common::Result<void, Root::CreateErrors> Root::LoadDefaultResources()
 {
-    LOG_PROFILE_SCOPE("Load default engine resources");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Locate systems needed to load resources.
     auto& fileSystem = m_engineSystems.Locate<Platform::FileSystem>();

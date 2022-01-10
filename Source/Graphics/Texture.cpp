@@ -22,7 +22,7 @@ Texture::~Texture()
 
 Texture::CreateResult Texture::Create(const CreateFromParams& params)
 {
-    LOG_PROFILE_SCOPE("Create texture");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
@@ -87,7 +87,7 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
 
 Texture::CreateResult Texture::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Loading texture from \"{}\" file...", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading texture from \"{}\" file...", file.GetPathString());
 
     // Validate arguments.

@@ -38,7 +38,7 @@ Shader::~Shader()
 
 Shader::CreateResult Shader::Create(const LoadFromString& params)
 {
-    LOG_PROFILE_SCOPE("Create shader");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext,
@@ -87,7 +87,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
         {
             shaderObjectsFound = true;
 
-            LOG_PROFILE_SCOPE("Compile {}", shaderType.name);
+            LOG_PROFILE_SCOPE_NAME("Compilation of {}", shaderType.name);
 
             // Create shader object.
             shaderObject = glCreateShader(shaderType.type);
@@ -179,7 +179,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     // Link attached shader objects.
     {
-        LOG_PROFILE_SCOPE("Link shader");
+        LOG_PROFILE_SCOPE_NAME("Linkage of shader");
 
         // Create link result handle.
         glLinkProgram(instance->m_handle);
@@ -227,7 +227,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
 Shader::CreateResult Shader::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load shader from \"{}\" file", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG_INFO("Loading shader from \"{}\" file...", file.GetPathString());
 
     // Validate arguments.

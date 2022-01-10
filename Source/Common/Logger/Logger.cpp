@@ -21,46 +21,41 @@ namespace
 
     Logger::Mode GlobalLoggerMode = Logger::Mode::Normal;
     bool GlobalLoggerInitialized = false;
-
-    void LazyInitialize()
-    {
-        if(GlobalLoggerInitialized)
-            return;
-
-        LOG_PROFILE_SCOPE("Initialize logger");
-
-        // Mark as initialized once done.
-        SCOPE_GUARD([]()
-        {
-            GlobalLoggerInitialized = true;
-        });
-
-        // Add default output sinks.
-        if(GlobalLoggerMode != Logger::Mode::UnitTests)
-        {
-            GlobalSink.AddOutput(&GlobalHistory);
-            GlobalSink.AddOutput(&GlobalConsoleOutput);
-        }
-
-        GlobalSink.AddOutput(&GlobalFileOutput);
-        GlobalSink.AddOutput(&GlobalDebuggerOutput);
-    }
 }
 
 void Logger::Initialize()
 {
-    LazyInitialize();
+    if(GlobalLoggerInitialized)
+        return;
+
+    LOG_PROFILE_SCOPE_FUNC();
+
+    // Mark as initialized once done.
+    SCOPE_GUARD([]()
+    {
+        GlobalLoggerInitialized = true;
+    });
+
+    // Add default output sinks.
+    if(GlobalLoggerMode != Logger::Mode::UnitTests)
+    {
+        GlobalSink.AddOutput(&GlobalHistory);
+        GlobalSink.AddOutput(&GlobalConsoleOutput);
+    }
+
+    GlobalSink.AddOutput(&GlobalFileOutput);
+    GlobalSink.AddOutput(&GlobalDebuggerOutput);
 }
 
 void Logger::Write(const Logger::Message& message)
 {
-    LazyInitialize();
+    Initialize();
     GlobalSink.Write(message);
 }
 
 int Logger::AdvanceFrameReference()
 {
-    LazyInitialize();
+    Initialize();
     return GlobalSink.AdvanceFrameReference();
 }
 
@@ -76,13 +71,13 @@ Logger::Mode Logger::GetMode()
 
 Logger::Sink& Logger::GetGlobalSink()
 {
-    LazyInitialize();
+    Initialize();
     return GlobalSink;
 }
 
 Logger::History& Logger::GetGlobalHistory()
 {
-    LazyInitialize();
+    Initialize();
     return GlobalHistory;
 }
 

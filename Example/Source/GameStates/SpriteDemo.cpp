@@ -27,7 +27,7 @@ SpriteDemo::~SpriteDemo() = default;
 
 SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
 {
-    LOG_PROFILE_SCOPE("Create game scene");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Validate engine reference.
     CHECK_ARGUMENT_OR_RETURN(engine != nullptr,

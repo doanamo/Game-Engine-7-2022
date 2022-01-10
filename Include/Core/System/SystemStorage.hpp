@@ -111,7 +111,7 @@ namespace Core
     template<typename SystemBase, typename StorageContext>
     bool SystemStorage<SystemBase, StorageContext>::Attach(std::unique_ptr<SystemBase>&& system)
     {
-        LOG_PROFILE_SCOPE("System storage \"{}\" attachment of \"{}\"", 
+        LOG_PROFILE_SCOPE_NAME("System storage \"{}\" attachment of \"{}\"", 
             Reflection::GetName<SystemBase>().GetString(),
             Reflection::GetName(system).GetString());
 
@@ -188,7 +188,7 @@ namespace Core
             // Finalize all attached systems.
             for(auto& system : m_systemList)
             {
-                LOG_PROFILE_SCOPE("System storage \"{}\" finalization of \"{}\"",
+                LOG_PROFILE_SCOPE_NAME("System storage \"{}\" finalization of \"{}\"",
                     Reflection::GetName<SystemBase>().GetString(),
                     Reflection::GetName(system).GetString());
 

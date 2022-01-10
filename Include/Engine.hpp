@@ -48,7 +48,7 @@ namespace Engine
     private:
         Root();
 
-        Common::Result<void, CreateErrors> CreateEngineSystems(const ConfigVariables& configVars);
+        Common::Result<void, CreateErrors> CreateSystems(const ConfigVariables& configVars);
         Common::Result<void, CreateErrors> LoadDefaultResources();
 
         void ProcessFrame();

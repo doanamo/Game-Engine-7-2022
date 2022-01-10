@@ -17,7 +17,7 @@ Image::~Image() = default;
 
 Image::CreateResult Image::Create(FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load image from \"{}\" file", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading image from \"{}\" file...", file.GetPathString());
 
     // Create class instance.
@@ -46,7 +46,7 @@ Image::CreateResult Image::Create(FileHandle& file, const LoadFromFile& params)
 
 Common::FailureResult<Image::CreateErrors> Image::LoadPNG(FileHandle& file)
 {
-    LOG_PROFILE_SCOPE("Load PNG image data from \"{}\" file", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading PNG image data from \"{}\" file...", file.GetPathString());
 
     // Initialize PNG library for reading data.

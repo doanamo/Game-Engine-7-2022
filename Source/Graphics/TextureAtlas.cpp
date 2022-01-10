@@ -21,7 +21,7 @@ TextureAtlas::~TextureAtlas() = default;
 
 TextureAtlas::CreateResult TextureAtlas::Create()
 {
-    LOG_PROFILE_SCOPE("Create texture atlas");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create instance.
     auto instance = std::unique_ptr<TextureAtlas>(new TextureAtlas());
@@ -31,7 +31,7 @@ TextureAtlas::CreateResult TextureAtlas::Create()
 TextureAtlas::CreateResult TextureAtlas::Create(
     Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Create texture atlas from \"{}\" file", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Creating texture atlas from \"{}\" file...", file.GetPathString());
 
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));

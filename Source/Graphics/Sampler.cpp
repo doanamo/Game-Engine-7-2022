@@ -20,43 +20,43 @@ namespace
     GLfloat DefaultTextureMaxLOD = 1000.0f;
     GLint DefaultTextureCompareMode = GL_NONE;
     GLint DefaultTextureCompareFunc = GL_LEQUAL;
+}
 
-    void InitializeDefaults()
+void Sampler::InitializeDefaults()
+{
+    if(DefaultsInitialized)
+        return;
+
+    LOG_PROFILE_SCOPE_FUNC();
+
+    // Mark as initialized once done.
+    SCOPE_GUARD([]()
     {
-        if(DefaultsInitialized)
-            return;
+        DefaultsInitialized = true;
+    });
 
-        LOG_PROFILE_SCOPE("Initialize sampler defaults");
+    // Create temporary sampler.
+    GLuint defaultSampler = OpenGL::InvalidHandle;
+    glGenSamplers(1, &defaultSampler);
+    ASSERT(!OpenGL::CheckErrors(), "Failed to gather default sampler states!");
 
-        // Mark as initialized once done.
-        SCOPE_GUARD([]()
-        {
-            DefaultsInitialized = true;
-        });
+    ASSERT(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
+    SCOPE_GUARD([&defaultSampler]
+    {
+        glDeleteSamplers(1, &defaultSampler);
+    });
 
-        // Create temporary sampler.
-        GLuint defaultSampler = OpenGL::InvalidHandle;
-        glGenSamplers(1, &defaultSampler);
-        ASSERT(!OpenGL::CheckErrors(), "Failed to gather default sampler states!");
-
-        ASSERT(defaultSampler != OpenGL::InvalidHandle, "Default sampler handle is invalid!");
-        SCOPE_GUARD([&defaultSampler]
-        {
-            glDeleteSamplers(1, &defaultSampler);
-        });
-
-        // Read default parameters.
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_T, &DefaultTextureWrapT);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
-        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
-        glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
-        glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
-        OpenGL::CheckErrors();
-    }
+    // Read default parameters.
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MIN_FILTER, &DefaultTextureMinFilter);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_MAG_FILTER, &DefaultTextureMagFilter);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_S, &DefaultTextureWrapS);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_T, &DefaultTextureWrapT);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_WRAP_R, &DefaultTextureWrapR);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MIN_LOD, &DefaultTextureMinLOD);
+    glGetSamplerParameterfv(defaultSampler, GL_TEXTURE_MAX_LOD, &DefaultTextureMaxLOD);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_MODE, &DefaultTextureCompareMode);
+    glGetSamplerParameteriv(defaultSampler, GL_TEXTURE_COMPARE_FUNC, &DefaultTextureCompareFunc);
+    OpenGL::CheckErrors();
 }
 
 Sampler::CreateFromParams::CreateFromParams()
@@ -86,7 +86,7 @@ Sampler::~Sampler()
 
 Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
 {
-    LOG_PROFILE_SCOPE("Create sampler");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Validate arguments.
     CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,

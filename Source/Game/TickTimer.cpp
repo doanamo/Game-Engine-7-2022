@@ -11,7 +11,7 @@ TickTimer::~TickTimer() = default;
 
 TickTimer::CreateResult TickTimer::Create()
 {
-    LOG_PROFILE_SCOPE("Create tick timer");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create class instance.
     auto instance = std::unique_ptr<TickTimer>(new TickTimer());

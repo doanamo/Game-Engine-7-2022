@@ -21,7 +21,7 @@ GameInstance::~GameInstance() = default;
 
 GameInstance::CreateResult GameInstance::Create()
 {
-    LOG_PROFILE_SCOPE("Create game instance");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create class instance.
     auto instance = std::unique_ptr<GameInstance>(new GameInstance());

@@ -60,6 +60,8 @@ namespace Graphics
     private:
         Sampler();
 
+        static void InitializeDefaults();
+
     private:
         RenderContext* m_renderContext = nullptr;
         GLuint m_handle = OpenGL::InvalidHandle;

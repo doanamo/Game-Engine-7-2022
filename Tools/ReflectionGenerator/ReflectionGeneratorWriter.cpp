@@ -94,7 +94,7 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
             "\n"
             "    void RegisterExecutable()\n"
             "    {\n"
-            "        LOG_PROFILE_SCOPE(\"Register reflection types\");\n\n"
+            "        LOG_PROFILE_SCOPE_FUNC();\n\n"
             "        {\n"
             "            LOG(\"Registering reflected types...\");\n"
             "            LOG_SCOPED_INDENT();\n\n";

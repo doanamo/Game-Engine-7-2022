@@ -38,7 +38,7 @@ ScriptState::~ScriptState()
 
 ScriptState::CreateResult ScriptState::Create()
 {
-    LOG_PROFILE_SCOPE("Create script state");
+    LOG_PROFILE_SCOPE_FUNC();
 
     // Create instance.
     auto instance = std::unique_ptr<ScriptState>(new ScriptState());
@@ -75,7 +75,7 @@ ScriptState::CreateResult ScriptState::Create()
 
 ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load script state from \"{}\" file...", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading script state from \"{}\" file...", file.GetPathString());
 
     // Check arguments.

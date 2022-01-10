@@ -41,7 +41,7 @@ SpriteAnimationList::~SpriteAnimationList() = default;
 
 SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 {
-    LOG_PROFILE_SCOPE("Create sprite animation list");
+    LOG_PROFILE_SCOPE_FUNC();
     auto instance = std::unique_ptr<SpriteAnimationList>(new SpriteAnimationList());
     return Common::Success(std::move(instance));
 }
@@ -49,7 +49,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create()
 SpriteAnimationList::CreateResult SpriteAnimationList::Create(
     Platform::FileHandle& file, const LoadFromFile& params)
 {
-    LOG_PROFILE_SCOPE("Load sprite animation list from \"{}\" file...", file.GetPathString());
+    LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading sprite animation list from \"{}\" file...", file.GetPathString());
 
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
