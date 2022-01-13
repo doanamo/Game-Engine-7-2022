@@ -44,6 +44,7 @@ namespace Editor
         bool m_windowVisible = false;
         bool m_optionsVisible = false;
         bool m_autoScroll = true;
+        std::string m_copyBuffer;
         std::string m_inputBuffer;
 
         bool m_severityFilters[Logger::Severity::Count];

@@ -108,30 +108,34 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         const Logger::History::MessageList messages = Logger::GetGlobalHistory().GetMessages();
         const Logger::History::MessageStats stats = Logger::GetGlobalHistory().GetStats();
 
-        // Context menu.
-        if(ImGui::BeginPopupContextItem("Context Menu"))
-        {
-            if(ImGui::Selectable("Copy to clipboard"))
-            {
-                std::string clipboardText;
-
-                for(const auto& message : messages)
-                {
-                    clipboardText += message.text;
-                }
-
-                ImGui::SetClipboardText(clipboardText.c_str());
-            }
-
-            ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
-            ImGui::EndPopup();
-        }
-
         // Console messages.
         ImGui::BeginChild("Console Messages", ImVec2(0.0f, -24.0f));
         {
             ImVec2 windowSize = ImGui::GetWindowSize();
             ImGuiWindowFlags messagesFlags = 0;
+
+            if(ImGui::BeginPopupContextItem("Context Menu"))
+            {
+                if(!m_copyBuffer.empty())
+                {
+                    if(ImGui::Selectable("Copy to clipboard"))
+                    {
+                        ImGui::SetClipboardText(m_copyBuffer.c_str());
+                    }
+                }
+                else
+                {
+                    ImGui::TextDisabled("Copy to clipboard");
+                }
+
+                ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
+                ImGui::EndPopup();
+            }
+
+            if(!ImGui::IsPopupOpen("Context Menu"))
+            {
+                m_copyBuffer = std::string();
+            }
 
             if(m_autoScroll)
             {
@@ -156,9 +160,16 @@ void EditorConsole::OnBeginInterface(float timeDelta)
 
                     ImGui::PushTextWrapPos(0.0f);
                     ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
-                    ImGui::TextUnformatted(message.text.c_str());
+                    ImGui::Selectable(message.text.c_str());
                     ImGui::PopStyleColor();
                     ImGui::PopTextWrapPos();
+
+                    if(ImGui::IsMouseReleased(ImGuiPopupFlags_MouseButtonRight) &&
+                        ImGui::IsItemHovered())
+                    {
+                        m_copyBuffer = message.text;
+                        ImGui::OpenPopup("Context Menu");
+                    }
                 }
 
                 if(m_autoScroll)
@@ -167,6 +178,11 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                 }
             }
             ImGui::EndChild();
+
+            if(ImGui::IsMouseReleased(ImGuiPopupFlags_MouseButtonRight) && ImGui::IsItemHovered())
+            {
+                ImGui::OpenPopup("Context Menu");
+            }
 
             if(m_optionsVisible)
             {
