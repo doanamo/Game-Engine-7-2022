@@ -24,11 +24,6 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
         "*/\n\n";
 
     reflectionBinding <<
-        "#include <Common/Debug/Debug.hpp>\n"
-        "#include <Common/Profiling/Profiling.hpp>\n"
-        "#include <Reflection/Reflection.hpp>\n";
-
-    reflectionBinding <<
         "#include \"" << parameters.targetName << "/ReflectionGenerated.hpp\"\n";
 
     for(const auto& header : parser.GetReflectedHeaders())
