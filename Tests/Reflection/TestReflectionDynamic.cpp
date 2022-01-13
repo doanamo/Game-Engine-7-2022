@@ -4,7 +4,6 @@
 */
 
 #include "TestReflectionHeader.hpp"
-#include "TestReflection/ReflectionGenerated.hpp"
 
 TEST(DynamicReflection, BuiltTypes)
 {
