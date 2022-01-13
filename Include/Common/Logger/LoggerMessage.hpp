@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <string>
 #include "Common/Logger/LoggerSeverity.hpp"
 #include "Common/Logger/LoggerSink.hpp"
 

@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include <utility>
-#include "Common/Utility/NonCopyable.hpp"
-
 /*
     Scope Guard
 

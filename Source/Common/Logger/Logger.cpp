@@ -8,8 +8,6 @@
 #include "Common/Logger/LoggerSink.hpp"
 #include "Common/Logger/LoggerOutput.hpp"
 #include "Common/Logger/LoggerHistory.hpp"
-#include "Common/Utility/ScopeGuard.hpp"
-#include "Common/Profiling/Profile.hpp"
 
 namespace
 {

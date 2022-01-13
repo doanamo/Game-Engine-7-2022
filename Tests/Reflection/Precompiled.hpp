@@ -9,11 +9,6 @@
     Precompiled Header
 */
 
-#include <Common/Defines.hpp>
-
-#include <cinttypes>
-#include <string>
-#include <vector>
-
-#include <fmt/core.h>
 #include <gtest/gtest.h>
+#include <Common/Common.hpp>
+#include <Reflection/Reflection.hpp>

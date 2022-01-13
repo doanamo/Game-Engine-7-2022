@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include "Common/Debug/Debug.hpp"
-#include "Common/Utility/NonCopyable.hpp"
-
 /*
     Linked List
 

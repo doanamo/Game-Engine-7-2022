@@ -5,5 +5,8 @@
 
 #pragma once
 
-#include <Common/Defines.hpp>
-#include <Common/Utility/Utility.hpp>
+/*
+    Precompiled Header
+*/
+
+#include <Common/Common.hpp>

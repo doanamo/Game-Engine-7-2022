@@ -4,7 +4,6 @@
 */
 
 #include "Common/Debug/Debug.hpp"
-#include "Common/Profiling/Profile.hpp"
 
 void Debug::Initialize()
 {

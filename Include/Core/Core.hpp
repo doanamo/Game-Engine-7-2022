@@ -8,45 +8,18 @@
 /*
     Core Header
 
-    Contains common includes that will be part of precompiled header for every project.
+    Contains includes/defines that will be part of precompiled header for every project.
 */
 
-#include <Common/Defines.hpp>
+#include <Common/Common.hpp>
 
-#include <cctype>
-#include <ctime>
-#include <cstdint>
-
-#include <thread>
-#include <memory>
-#include <algorithm>
-#include <functional>
-#include <filesystem>
 #include <charconv>
-
-#include <fstream>
-
-#include <tuple>
-#include <optional>
-#include <string>
-#include <vector>
-#include <queue>
-#include <stack>
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-
-namespace fs = std::filesystem;
 
 #include <utf8/core.h>
 #include <utf8/unchecked.h>
-#include <fmt/core.h>
 
 #include <zlib.h>
 #include <png.h>
-
-#include <simdjson.h>
-#define SIMDJSON_EXCEPTIONS 0
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -56,27 +29,21 @@ namespace fs = std::filesystem;
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 
-#include <glad/glad.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-#include <lua.hpp>
-
 #ifdef PLATFORM_EMSCRIPTEN
     #include <emscripten.h>
     #define SIMDJSON_NO_PORTABILITY_WARNING
 #endif
 
+#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+#include <simdjson.h>
+#define SIMDJSON_EXCEPTIONS 0
+
+#include <lua.hpp>
+
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
 #include <Reflection/Reflection.hpp>
-#include <Common/Debug/Debug.hpp>
-#include <Common/Profiling/Profile.hpp>
-#include <Common/Utility/Utility.hpp>
-#include <Common/Utility/NonCopyable.hpp>
-#include <Common/Utility/Resettable.hpp>
-#include <Common/Utility/ScopeGuard.hpp>
-#include <Common/Utility/Result.hpp>
-#include <Common/Utility/Name.hpp>
-#include <Common/Logger/Logger.hpp>

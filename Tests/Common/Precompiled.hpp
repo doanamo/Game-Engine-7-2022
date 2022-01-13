@@ -9,13 +9,5 @@
     Precompiled Header
 */
 
-#include <Common/Defines.hpp>
-
-#include <memory>
-#include <functional>
-#include <string>
-#include <sstream>
-#include <random>
-
-#include <fmt/core.h>
 #include <gtest/gtest.h>
+#include <Common/Common.hpp>

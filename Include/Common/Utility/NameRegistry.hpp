@@ -5,13 +5,6 @@
 
 #pragma once
 
-#include <unordered_map>
-#include "Common/Utility/NonCopyable.hpp"
-
-#ifndef CONFIG_RELEASE
-    #define NAME_REGISTRY_ENABLED
-#endif
-
 /*
     Name Registry
 

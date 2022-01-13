@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <Common/Utility/Delegate.hpp>
 #include <Common/Events/EventCollector.hpp>
 #include <Common/Events/EventDispatcher.hpp>
 #include <Common/Events/EventReceiver.hpp>

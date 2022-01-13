@@ -9,12 +9,12 @@
     Precompiled Header
 */
 
-#include "Common/Defines.hpp"
-
 #include <cassert>
 #include <fstream>
 #include <mutex>
 #include <chrono>
+
+#include "Common/Common.hpp"
 
 #ifdef PLATFORM_WINDOWS
     #define WIN32_LEAD_AND_MEAN
@@ -26,7 +26,3 @@
     #include <sys/types.h>
     #include <unistd.h>
 #endif
-
-#include <fmt/core.h>
-#include <fmt/format.h>
-#include <fmt/chrono.h>

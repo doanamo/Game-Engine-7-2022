@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "Common/Debug/Debug.hpp"
-
 /*
     Delegate
 

@@ -9,5 +9,5 @@
     Precompiled Header
 */
 
-#include <Core/Core.hpp>
 #include <gtest/gtest.h>
+#include <Core/Core.hpp>

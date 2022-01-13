@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <fstream>
-
 /*
     Logger Output
     

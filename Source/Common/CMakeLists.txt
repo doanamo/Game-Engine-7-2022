@@ -18,7 +18,7 @@ set(FILES_DEBUG
 )
 
 set(FILES_PROFILING
-    "${INCLUDE_DIR}/Profiling/Profile.hpp"
+    "${INCLUDE_DIR}/Profiling/Profiling.hpp"
 )
 
 set(FILES_UTILITY
@@ -73,6 +73,7 @@ set(FILES_TESTING
 
 set(FILES_COMMON
     "${INCLUDE_DIR}/Defines.hpp"
+    "${INCLUDE_DIR}/Common.hpp"
 )
 
 source_group("Debug" FILES ${FILES_DEBUG})

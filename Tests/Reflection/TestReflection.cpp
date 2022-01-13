@@ -3,8 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <Reflection/Reflection.hpp>
-
 int main(int argc, char* argv[])
 {
     Logger::SetMode(Logger::Mode::UnitTests);

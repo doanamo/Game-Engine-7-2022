@@ -5,11 +5,10 @@
 
 #pragma once
 
-#include <memory>
-#include <gtest/gtest.h>
-
 /*
     Instance Counter
+
+    For use with unit tests. Requires Google Test for assertions.
 */
 
 namespace Test

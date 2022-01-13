@@ -45,3 +45,11 @@
 #else
     #error Unknown configuration!
 #endif
+
+/*
+    Settings
+*/
+
+#ifndef CONFIG_RELEASE
+    #define NAME_REGISTRY_ENABLED
+#endif

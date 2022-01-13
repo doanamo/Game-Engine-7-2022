@@ -3,7 +3,6 @@
     Software distributed under the permissive MIT License.
 */
 
-#include <Reflection/Reflection.hpp>
 #include "TestReflectionHeader.hpp"
 
 TEST(StaticReflection, BuiltTypes)

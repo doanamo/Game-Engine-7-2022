@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <Common/Utility/Utility.hpp>
 #include "Reflection/ReflectionDynamic.hpp"
 
 /*

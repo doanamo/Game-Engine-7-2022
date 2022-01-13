@@ -5,6 +5,10 @@
 
 #pragma once
 
+/*
+    Reflected Types
+*/
+
 class Undefined
 {
 };
