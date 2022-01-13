@@ -21,20 +21,16 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
         "/*\n"
         "    Copyright(c) 2018 - 2021 Piotr Doan.All rights reserved.\n"
         "    Software distributed under the permissive MIT License.\n"
-        "*/\n\n";
-
-    reflectionBinding <<
+        "*/\n\n"
         "#include \"" << parameters.targetName << "/ReflectionGenerated.hpp\"\n";
 
     for(const auto& header : parser.GetReflectedHeaders())
     {
         fs::path relativeHeaderPath = fs::relative(header, fs::path(parameters.outputDir));
-        reflectionBinding <<
-            "#include \"" << relativeHeaderPath.generic_string() << "\"\n";
+        reflectionBinding << "#include \"" << relativeHeaderPath.generic_string() << "\"\n";
     }
 
-    reflectionBinding <<
-        "\n"
+    reflectionBinding << "\n"
         "namespace Reflection::Generated\n"
         "{";
 
@@ -42,19 +38,16 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
     {
         if(!parameters.targetDependencies.empty())
         {
-            reflectionBinding <<
-                "\n";
+            reflectionBinding << "\n";
         }
 
         for(const auto& dependency : parameters.targetDependencies)
         {
-            reflectionBinding <<
-                "    void RegisterModule" << dependency << "();\n";
+            reflectionBinding << "    void RegisterModule" << dependency << "();\n";
         }
     }
 
-    reflectionBinding <<
-        "\n"
+    reflectionBinding << "\n"
         "    void RegisterModule" << parameters.targetName << "()\n"
         "    {\n"
         "        LOG(\"Registering types from " << parameters.targetName << " module...\");\n"
@@ -65,28 +58,22 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
 
     if(!parser.GetSortedTypes().empty())
     {
-        reflectionBinding <<
-        "\n";
+        reflectionBinding << "\n";
     }
 
     for(const auto& type : parser.GetSortedTypes())
     {
         reflectionBinding <<
-            "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));";
-
-        reflectionBinding <<
-            "\n";
+            "        ASSERT_EVALUATE(REFLECTION_REGISTER_TYPE(" << type->name << "));\n";
     }
 
-    reflectionBinding <<
-        "\n"
+    reflectionBinding << "\n"
         "        registered = true;\n"
         "    }\n";
 
     if(parameters.isExecutable)
     {
-        reflectionBinding <<
-            "\n"
+        reflectionBinding << "\n"
             "    void RegisterExecutable()\n"
             "    {\n"
             "        LOG_PROFILE_SCOPE_FUNC();\n\n"
@@ -96,8 +83,7 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
 
         for(const auto& dependency : parameters.targetDependencies)
         {
-            reflectionBinding <<
-                "            RegisterModule" << dependency << "();\n";
+            reflectionBinding << "            RegisterModule" << dependency << "();\n";
         }
 
         reflectionBinding <<
@@ -106,8 +92,7 @@ bool ReflectionGeneratorWriter::WriteReflectionBinding(
             "    }\n";
     }
 
-    reflectionBinding <<
-        "}\n";
+    reflectionBinding << "}\n";
 
     // Determine reflection binding file path.
     std::string reflectionBindingFilename;
