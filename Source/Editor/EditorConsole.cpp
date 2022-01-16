@@ -113,7 +113,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         const Logger::History::MessageStats stats = Logger::GetGlobalHistory().GetStats();
 
         // Console messages.
-        ImGui::BeginChild("Console Messages", ImVec2(0.0f, -inputLineWidth - 6.0f));
+        ImGui::BeginChild("Console Messages", ImVec2(0.0f, -inputLineWidth - 4.0f));
         {
             ImVec2 windowSize = ImGui::GetWindowSize();
             ImGuiWindowFlags messagesFlags = 0;
