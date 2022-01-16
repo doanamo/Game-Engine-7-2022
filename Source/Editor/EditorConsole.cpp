@@ -188,16 +188,9 @@ void EditorConsole::OnBeginInterface(float timeDelta)
             // Context menu.
             if(ImGui::BeginPopupContextItem("Context Menu"))
             {
-                if(!m_copyBuffer.empty())
+                if(ImGui::MenuItem("Copy to clipboard", nullptr, nullptr, !m_copyBuffer.empty()))
                 {
-                    if(ImGui::Selectable("Copy to clipboard"))
-                    {
-                        ImGui::SetClipboardText(m_copyBuffer.c_str());
-                    }
-                }
-                else
-                {
-                    ImGui::TextDisabled("Copy to clipboard");
+                    ImGui::SetClipboardText(m_copyBuffer.c_str());
                 }
 
                 if(ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll))
