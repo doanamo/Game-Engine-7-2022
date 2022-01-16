@@ -94,13 +94,13 @@ Window::CreateResult Window::Create(const CreateParams& params)
     glfwSetWindowCloseCallback(instance->m_context.handle, Window::CloseCallback);
 
     glfwMakeContextCurrent(instance->m_context.handle);
-    glfwSwapInterval((int)params.vsync);
 
     // Save window parameters.
     glfwGetFramebufferSize(instance->m_context.handle, &instance->m_width, &instance->m_height);
     LOG_INFO("Resolution is {}x{}.", instance->m_width, instance->m_height);
 
     instance->m_title = params.title;
+    instance->m_vsync = params.vsync;
 
     // Prepare OpenGL function and extension loader.
     if(!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
@@ -145,6 +145,7 @@ void Window::ProcessEvents()
 void Window::Present()
 {
     ASSERT(m_context.handle);
+    glfwSwapInterval((int)m_vsync);
     glfwSwapBuffers(m_context.handle);
 
     GLenum error;

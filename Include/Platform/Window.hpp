@@ -124,6 +124,7 @@ namespace Platform
 
         std::string m_title;
         bool m_sizeChanged = false;
+        bool m_vsync = false;
         int m_width = 0;
         int m_height = 0;
     };
