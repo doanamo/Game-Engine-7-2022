@@ -63,7 +63,7 @@ bool ConsoleOutput::Initialize() const
 #elif defined(PLATFORM_LINUX)
     return isatty(STDOUT_FILENO);
 #else
-    return false;
+    return true;
 #endif
 }
 
