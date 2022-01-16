@@ -40,6 +40,8 @@ namespace Logger
         void Write(const Message& message, const SinkContext& context) override;
         void Clear();
 
+        void SetEnabled(bool enabled);
+
         MessageList GetMessages() const
         {
             std::scoped_lock guard(m_lock);
@@ -56,5 +58,6 @@ namespace Logger
         mutable std::mutex m_lock;
         MessageList m_messages;
         MessageStats m_stats;
+        bool m_enabled = true;
     };
 }

@@ -30,6 +30,11 @@ bool History::Initialize() const
 
 void History::Write(const Message& message, const SinkContext& context)
 {
+    if(!m_enabled)
+    {
+        return;
+    }
+
     std::scoped_lock guard(m_lock);
 
     // Truncate message history.
@@ -59,4 +64,9 @@ void History::Clear()
 
     m_messages = MessageList();
     m_stats = MessageStats();
+}
+
+void History::SetEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }

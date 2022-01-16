@@ -129,6 +129,22 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                 }
 
                 ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
+
+                if(ImGui::MenuItem("Pause", nullptr, &m_pause))
+                {
+                    if(m_pause)
+                    {
+                        LOG_INFO("Logger history has been paused.");
+                    }
+
+                    Logger::GetGlobalHistory().SetEnabled(!m_pause);
+
+                    if(!m_pause)
+                    {
+                        LOG_INFO("Logger history has been unpaused.");
+                    }
+                }
+
                 ImGui::EndPopup();
             }
 
