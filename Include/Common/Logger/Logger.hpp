@@ -59,10 +59,15 @@ namespace Logger
 
 #define LOG(format, ...)         LOG_SCOPED_MESSAGE().Format(format, ## __VA_ARGS__)
 #define LOG_TRACE(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Trace)
-#define LOG_DEBUG(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Debug)
 #define LOG_PROFILE(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Profile)
 #define LOG_INFO(format, ...)    LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Info)
 #define LOG_SUCCESS(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Success)
 #define LOG_WARNING(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Warning)
 #define LOG_ERROR(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Error)
 #define LOG_FATAL(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Fatal)
+
+#ifdef CONFIG_DEBUG
+    #define LOG_DEBUG(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Debug)
+#else
+    #define LOG_DEBUG(format, ...) ((void)0)
+#endif

@@ -38,12 +38,6 @@ void Sink::RemoveOutput(Logger::Output* output)
 
 void Sink::Write(const Logger::Message& message)
 {
-#ifndef CONFIG_DEBUG
-    // Do not print messages of severity debug if not in debug configuration.
-    if(message.GetSeverity() == Severity::Debug)
-        return;
-#endif
-
     // Write message to all outputs.
     std::scoped_lock<std::mutex> lock(m_lock);
     for(auto output : m_outputs)
