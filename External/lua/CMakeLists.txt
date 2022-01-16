@@ -13,7 +13,6 @@ set(LUA_LIB_SOURCE
     "src/lapi.c" 
     "src/lauxlib.c"
     "src/lbaselib.c"
-    "src/lbitlib.c"
     "src/lcode.c"
     "src/lcorolib.c"
     "src/lctype.c"
