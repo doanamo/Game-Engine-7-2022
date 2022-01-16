@@ -169,9 +169,15 @@ namespace Platform
             case GLFW_KEY_LEFT_SUPER: return KeyboardKeys::KeyLeftSuper;
             case GLFW_KEY_RIGHT_SUPER: return KeyboardKeys::KeyRightSuper;
             case GLFW_KEY_MENU: return KeyboardKeys::KeyMenu;
+
+#ifdef PLATFORM_EMSCRIPTEN
+            // Temporary workaround for incorrect GLFW key mapping.
+            // https://github.com/emscripten-core/emscripten/pull/16042
+            case 94: return KeyboardKeys::KeyTilde;
+#endif
         }
 
-        ASSERT(false, "Unexpected keyboard key argument!");
+        ASSERT(false, "Unexpected keyboard key argument! (Key code: {})", key);
         return KeyboardKeys::Invalid;
     }
 
