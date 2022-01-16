@@ -159,7 +159,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                     m_autoScroll = false;
                 }
 
-                if(m_autoScroll)
+                if(m_autoScroll || m_resetScroll)
                 {
                     ImGui::SetScrollHereY(1.0f);
                     m_resetScroll = false;
