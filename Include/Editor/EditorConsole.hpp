@@ -9,6 +9,11 @@
 #include <Platform/InputDefinitions.hpp>
 #include "Editor/EditorSubsystem.hpp"
 
+namespace Core
+{
+    class ScriptSystem;
+}
+
 namespace Platform
 {
     class WindowSystem;
@@ -39,6 +44,7 @@ namespace Editor
         void OnBeginInterface(float timeDelta) override;
 
     private:
+        Core::ScriptSystem* m_scriptSystem = nullptr;
         Platform::WindowSystem* m_windowSystem = nullptr;
 
         std::string m_copyBuffer;

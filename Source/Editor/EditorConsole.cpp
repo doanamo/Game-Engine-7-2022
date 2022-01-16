@@ -6,6 +6,7 @@
 #include "Editor/EditorConsole.hpp"
 #include <Common/Logger/LoggerHistory.hpp>
 #include <Core/System/SystemStorage.hpp>
+#include <Core/Script/ScriptSystem.hpp>
 #include <Platform/WindowSystem.hpp>
 #include <Platform/Window.hpp>
 using namespace Editor;
@@ -49,6 +50,7 @@ bool EditorConsole::OnAttach(const EditorSubsystemStorage& editorSubsystems)
     auto& editorContext = editorSubsystems.Locate<EditorSubsystemContext>();
     auto& engineSystems = editorContext.GetEngineSystems();
 
+    m_scriptSystem = &engineSystems.Locate<Core::ScriptSystem>();
     m_windowSystem = &engineSystems.Locate<Platform::WindowSystem>();
 
     return true;
@@ -267,9 +269,14 @@ void EditorConsole::OnBeginInterface(float timeDelta)
 
         if(ImGui::InputText("##ConsoleInput", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            ImGui::SetKeyboardFocusHere();
+            if(!m_inputBuffer.empty())
+            {
+                LOG_INFO("> {}", m_inputBuffer.c_str());
 
-            LOG_INFO("> {}", m_inputBuffer.c_str());
+                m_scriptSystem->GetState().Execute(m_inputBuffer);
+            }
+
+            ImGui::SetKeyboardFocusHere();
 
             m_inputBuffer.clear();
             m_autoScroll = true;

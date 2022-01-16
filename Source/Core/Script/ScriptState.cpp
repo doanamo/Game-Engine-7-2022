@@ -108,7 +108,7 @@ bool ScriptState::Execute(std::string script)
 {
     if(luaL_dostring(m_state, script.c_str()) != 0)
     {
-        LOG_ERROR("Could not execute script!");
+        LOG_DEBUG("Could not execute script string!");
         PrintError();
         return false;
     }
@@ -120,7 +120,7 @@ void ScriptState::PrintError()
 {
     // Make sure that there is a string on top of the stack.
     ASSERT(lua_isstring(m_state, -1), "Expected a string!");
-    LOG_DEBUG("Lua Error: {}", lua_tostring(m_state, -1));
+    LOG_ERROR("Lua Error: {}", lua_tostring(m_state, -1));
     lua_pop(m_state, 1);
 }
 
