@@ -152,16 +152,32 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                     }
                 }
 
+                if(!m_resetScroll && ImGui::GetScrollY() < ImGui::GetScrollMaxY())
+                {
+                    // Disable auto scroll if we scroll away.
+                    // Ignore if we just re-enabled auto scrolling.
+                    m_autoScroll = false;
+                }
+
                 if(m_autoScroll)
                 {
                     ImGui::SetScrollHereY(1.0f);
+                    m_resetScroll = false;
                 }
             }
             ImGui::EndChild();
 
-            if(ImGui::IsMouseReleased(ImGuiPopupFlags_MouseButtonRight) && ImGui::IsItemHovered())
+            if(ImGui::IsItemHovered())
             {
-                ImGui::OpenPopup("Context Menu");
+                if(ImGui::IsMouseReleased(ImGuiPopupFlags_MouseButtonRight))
+                {
+                    ImGui::OpenPopup("Context Menu");
+                }
+
+                if(ImGui::GetIO().MouseWheel != 0.0f)
+                {
+                    m_autoScroll = false;
+                }
             }
 
             // Context menu.
@@ -179,7 +195,10 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                     ImGui::TextDisabled("Copy to clipboard");
                 }
 
-                ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
+                if(ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll))
+                {
+                    m_resetScroll = true;
+                }
 
                 if(ImGui::MenuItem("Pause", nullptr, &m_pause))
                 {
@@ -206,11 +225,11 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                 {
                     for(int i = 0; i < Common::StaticArraySize(m_severityFilters); ++i)
                     {
-                        if(i != 0)
+                        auto severity = static_cast<Logger::Severity::Type>(i);
+                        if(severity != Logger::Severity::Invalid)
                         {
                             std::string text = fmt::format("{0} ({1})###{0}",
-                                Logger::GetSeverityName(static_cast<Logger::Severity::Type>(i)),
-                                stats.severityCount[i]);
+                                Logger::GetSeverityName(severity), stats.severityCount[i]);
 
                             ImGui::Checkbox(text.c_str(), &m_severityFilters[i]);
                         }
