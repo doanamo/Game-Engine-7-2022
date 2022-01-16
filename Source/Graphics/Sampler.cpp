@@ -93,7 +93,7 @@ Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Create class instance.
-    auto instance = std::make_unique<Sampler>();
+    auto instance = std::unique_ptr<Sampler>(new Sampler());
 
     // Create sampler handle.
     glGenSamplers(1, &instance->m_handle);

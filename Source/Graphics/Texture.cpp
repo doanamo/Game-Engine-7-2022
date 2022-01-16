@@ -140,7 +140,7 @@ Texture::CreateResult Texture::Create(Platform::FileHandle& file, const LoadFrom
 
 void Texture::Update(const void* data)
 {
-    ASSERT_ALWAYS_ARGUMENT(data != nullptr);
+    ASSERT(data != nullptr);
 
     // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
