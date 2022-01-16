@@ -147,6 +147,10 @@ target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
 target_include_directories(Core PUBLIC "../../External/utfcpp/source")
 target_include_directories(Core PUBLIC "../../External/glm")
 
+add_subdirectory("../../External/fast_float" "External/fast_float")
+target_link_libraries(Core PUBLIC "fast_float")
+set_property(TARGET "fast_float" PROPERTY FOLDER "External")
+
 add_subdirectory("../../External/simdjson" "External/simdjson")
 target_link_libraries(Core PUBLIC "simdjson")
 set_property(TARGET "simdjson" PROPERTY FOLDER "External")
