@@ -42,7 +42,7 @@ void IdentitySystem::OnEntityDestroyed(EntityHandle entity)
 IdentitySystem::NamingResult IdentitySystem::SetEntityName(
     EntityHandle entity, std::string name, bool force)
 {
-    CHECK_ARGUMENT_OR_RETURN(m_entitySystem->IsEntityValid(entity),
+    CHECK_OR_RETURN(m_entitySystem->IsEntityValid(entity),
         Common::Failure(NamingErrors::InvalidEntity));
 
     // For non-empty name argument, before we set it there may be another entity that is already
@@ -100,7 +100,7 @@ IdentitySystem::LookupResult<EntityHandle>
 IdentitySystem::LookupResult<std::string>
     IdentitySystem::GetEntityName(EntityHandle entity) const
 {
-    CHECK_ARGUMENT_OR_RETURN(m_entitySystem->IsEntityValid(entity),
+    CHECK_OR_RETURN(m_entitySystem->IsEntityValid(entity),
         Common::Failure(LookupErrors::InvalidEntity));
 
     auto entityNameIt = m_entityNameLookup.find(entity);
@@ -158,13 +158,12 @@ void IdentitySystem::UnregisterNamedEntity(const EntityHandle& entity)
 IdentitySystem::GroupingResult IdentitySystem::SetEntityGroup(
     EntityHandle entity, std::string group)
 {
-    CHECK_ARGUMENT_OR_RETURN(m_entitySystem->IsEntityValid(entity),
+    CHECK_OR_RETURN(m_entitySystem->IsEntityValid(entity),
         Common::Failure(GroupingErrors::InvalidEntity));
 
-    // We cannot use empty group as a way to unregister entity, as one entity can belong to
-    // multiple groups at the same time.
-    CHECK_ARGUMENT_OR_RETURN(!group.empty(),
-        Common::Failure(GroupingErrors::InvalidGroup));
+    // We cannot use empty group as a way to unregister entity,
+    // as one entity can belong to multiple groups at the same time.
+    CHECK_OR_RETURN(!group.empty(), Common::Failure(GroupingErrors::InvalidGroup));
 
     // Check if target entity does not already belong to this group.
     auto entityGroupsIt = m_entityGroupsLookup.find(entity);
@@ -183,10 +182,9 @@ IdentitySystem::GroupingResult IdentitySystem::SetEntityGroup(
 IdentitySystem::GroupingResult IdentitySystem::ClearEntityGroup(
     EntityHandle entity, std::string group)
 {
-    CHECK_ARGUMENT_OR_RETURN(m_entitySystem->IsEntityValid(entity),
+    CHECK_OR_RETURN(m_entitySystem->IsEntityValid(entity),
         Common::Failure(GroupingErrors::InvalidEntity));
-
-    CHECK_ARGUMENT_OR_RETURN(!group.empty(),
+    CHECK_OR_RETURN(!group.empty(),
         Common::Failure(GroupingErrors::InvalidGroup));
 
     // Unregister entity from this group.
@@ -211,7 +209,7 @@ IdentitySystem::LookupResult<IdentitySystem::GroupEntitiesSet>
 IdentitySystem::LookupResult<IdentitySystem::EntityGroupsSet>
     IdentitySystem::GetEntityGroups(EntityHandle entity) const
 {
-    CHECK_ARGUMENT_OR_RETURN(m_entitySystem->IsEntityValid(entity),
+    CHECK_OR_RETURN(m_entitySystem->IsEntityValid(entity),
         Common::Failure(LookupErrors::InvalidEntity));
 
     auto entityGroupsIt = m_entityGroupsLookup.find(entity);

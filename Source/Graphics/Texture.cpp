@@ -25,13 +25,11 @@ Texture::CreateResult Texture::Create(const CreateFromParams& params)
     LOG_PROFILE_SCOPE_FUNC();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
+    CHECK_OR_RETURN(params.renderContext != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.width > 0,
+    CHECK_OR_RETURN(params.width > 0 && params.height > 0,
         Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.height > 0,
-        Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.format != OpenGL::InvalidEnum,
+    CHECK_OR_RETURN(params.format != OpenGL::InvalidEnum,
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Create class instance.
@@ -91,8 +89,7 @@ Texture::CreateResult Texture::Create(Platform::FileHandle& file, const LoadFrom
     LOG("Loading texture from \"{}\" file...", file.GetPathString());
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
-        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Retrieve needed engine systems.
     auto& renderContext = params.engineSystems->Locate<Graphics::RenderContext>();

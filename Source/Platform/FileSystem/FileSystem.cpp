@@ -77,9 +77,9 @@ bool FileSystem::OnAttach(const Core::EngineSystemStorage& engineSystems)
 
 FileSystem::MountDepotResult FileSystem::MountDepot(fs::path mountPath, FileDepotPtr&& fileDepot)
 {
-    CHECK_ARGUMENT_OR_RETURN(!mountPath.empty(),
+    CHECK_OR_RETURN(!mountPath.empty(),
         Common::Failure(MountDepotErrors::EmptyMountPathArgument));
-    CHECK_ARGUMENT_OR_RETURN(fileDepot != nullptr,
+    CHECK_OR_RETURN(fileDepot != nullptr,
         Common::Failure(MountDepotErrors::InvalidFileDepotArgument));
 
     // Check whether mount path is a valid directory path.
@@ -98,9 +98,9 @@ FileSystem::MountDepotResult FileSystem::MountDepot(fs::path mountPath, FileDepo
 FileDepot::OpenFileResult FileSystem::OpenFile(
     fs::path filePath, FileHandle::OpenFlags::Type openFlags)
 {
-    CHECK_ARGUMENT_OR_RETURN(!filePath.empty(),
+    CHECK_OR_RETURN(!filePath.empty(),
         Common::Failure(FileDepot::OpenFileErrors::EmptyFilePathArgument));
-    CHECK_ARGUMENT_OR_RETURN(openFlags != FileHandle::OpenFlags::None,
+    CHECK_OR_RETURN(openFlags != FileHandle::OpenFlags::None,
         Common::Failure(FileDepot::OpenFileErrors::InvalidOpenFlagsArgument));
 
     // Check whether file path contains file name.

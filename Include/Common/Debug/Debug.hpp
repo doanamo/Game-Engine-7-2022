@@ -92,15 +92,14 @@ namespace Debug
                 " - " message, ## __VA_ARGS__); \
             DEBUG_ABORT(); \
         }
-#else
-    #define ASSERT_SIMPLE(expression) ((void)0)
-    #define ASSERT_MESSAGE(expression, message, ...) ((void)0) 
-#endif
 
-#define ASSERT_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define ASSERT_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_DEDUCE(__VA_ARGS__, ASSERT_MESSAGE, \
-    ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_SIMPLE))
-#define ASSERT(...) DEBUG_EXPAND_MACRO(ASSERT_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+    #define ASSERT_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
+    #define ASSERT_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_DEDUCE(__VA_ARGS__, ASSERT_MESSAGE, \
+        ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_SIMPLE))
+    #define ASSERT(...) DEBUG_EXPAND_MACRO(ASSERT_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#else
+    #define ASSERT(expression) ((void)0)
+#endif
 
 /*
     Assert Evaluate Macros
@@ -110,7 +109,7 @@ namespace Debug
 
     Behavior in different build configurations:
     - Debug: Evaluates expression and triggers abort
-    - Release: Evaluates expression but does not trigger abort
+    - Release: Evaluates expression only (does not trigger abort)
 
     Example usage:
         ASSERT_EVALUATE(Function());
@@ -132,16 +131,15 @@ namespace Debug
                     " - " message, ## __VA_ARGS__); \
                 DEBUG_ABORT(); \
             }
-#else
-    #define ASSERT_EVALUATE_SIMPLE(expression) (void)(expression)
-    #define ASSERT_EVALUATE_MESSAGE(expression, message, ...) (void)(expression)
-#endif
 
-#define ASSERT_EVALUATE_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define ASSERT_EVALUATE_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_EVALUATE_DEDUCE(__VA_ARGS__, \
-    ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, \
-    ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_SIMPLE))
-#define ASSERT_EVALUATE(...) DEBUG_EXPAND_MACRO(ASSERT_EVALUATE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+    #define ASSERT_EVALUATE_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
+    #define ASSERT_EVALUATE_CHOOSER(...) DEBUG_EXPAND_MACRO(ASSERT_EVALUATE_DEDUCE(__VA_ARGS__, \
+        ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, \
+        ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_SIMPLE))
+    #define ASSERT_EVALUATE(...) DEBUG_EXPAND_MACRO(ASSERT_EVALUATE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#else
+    #define ASSERT_EVALUATE (void)(expression)
+#endif
 
 /*
     Assert Always Macro
@@ -182,52 +180,50 @@ namespace Debug
 /*
     Check Macro
 
-    Ensures that given expression is true in all configurations.
-    Used to only print warnings when we want to continue execution.
+    Ensures that given expression is true in debug configuration.
+    Used to only print warnings in case we do not want to assert.
 
     Behavior in different build configurations:
     - Debug: Evaluates expression and logs warning
-    - Release: Evaluates expression and logs warning
+    - Release: Evaluates expression only when needed (when returning value and not logging)
 
     Example usage:
         CHECK(m_initialized);
         CHECK(instance != nullptr, "Invalid instance.");
 */
 
-#define CHECK_SIMPLE(expression) \
-    if(expression) { } else \
-    { \
-        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression)); \
-    }
+#ifdef CONFIG_DEBUG
+    #define CHECK_SIMPLE(expression) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression)); \
+        }
 
-#define CHECK_MESSAGE(expression, message, ...) \
-    if(expression) { } else \
-    { \
-        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
-            " - " message, ## __VA_ARGS__); \
-    }
+    #define CHECK_MESSAGE(expression, message, ...) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
+                " - " message, ## __VA_ARGS__); \
+        }
 
-#define CHECK_OR_RETURN(expression, value, message, ...) \
-    if(expression) { } else \
-    { \
-        LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression) \
-            " - " message, ## __VA_ARGS__); \
-        return value; \
-    }
+    #define CHECK_OR_RETURN(expression, value, ...) \
+        if(expression) { } else \
+        { \
+            LOG_WARNING("Check failed: " DEBUG_STRINGIFY(expression)); \
+            return value; \
+        }
 
-#define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
-#define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, \
-    CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, \
-    CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
-#define CHECK(...) DEBUG_EXPAND_MACRO(CHECK_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+    #define CHECK_DEDUCE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, ...) arg7
+    #define CHECK_CHOOSER(...) DEBUG_EXPAND_MACRO(CHECK_DEDUCE(__VA_ARGS__, \
+        CHECK_MESSAGE, CHECK_MESSAGE, CHECK_MESSAGE, \
+        CHECK_MESSAGE, CHECK_MESSAGE, CHECK_SIMPLE))
+    #define CHECK(...) DEBUG_EXPAND_MACRO(CHECK_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#else
+    #define CHECK_OR_RETURN(expression, value, ...) \
+        if(expression) { } else \
+        { \
+            return value; \
+        }
 
-/*
-    Argument Handling
-*/
-
-#define ASSERT_ARGUMENT(expression) ASSERT_MESSAGE(expression, "Invalid argument!")
-#define ASSERT_ALWAYS_ARGUMENT(expression) ASSERT_ALWAYS_MESSAGE(expression, "Invalid argument!")
-#define CHECK_ARGUMENT(expression) CHECK_MESSAGE(expression, "Invalid argument!");
-
-#define CHECK_ARGUMENT_OR_RETURN(expression, value, ...) \
-    CHECK_OR_RETURN(expression, value, "Invalid argument!")
+    #define CHECK(...) ((void)0)
+#endif

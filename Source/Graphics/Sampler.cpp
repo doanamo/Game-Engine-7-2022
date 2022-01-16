@@ -89,11 +89,11 @@ Sampler::CreateResult Sampler::Create(const CreateFromParams& params)
     LOG_PROFILE_SCOPE_FUNC();
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
+    CHECK_OR_RETURN(params.renderContext != nullptr,
         Common::Failure(CreateErrors::InvalidArgument));
 
     // Create class instance.
-    auto instance = std::unique_ptr<Sampler>(new Sampler());
+    auto instance = std::make_unique<Sampler>();
 
     // Create sampler handle.
     glGenSamplers(1, &instance->m_handle);

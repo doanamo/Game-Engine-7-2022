@@ -30,8 +30,7 @@ SpriteDemo::CreateResult SpriteDemo::Create(Engine::Root* engine)
     LOG_PROFILE_SCOPE_FUNC();
 
     // Validate engine reference.
-    CHECK_ARGUMENT_OR_RETURN(engine != nullptr,
-        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(engine != nullptr, Common::Failure(CreateErrors::InvalidArgument));
 
     // Acquire engine systems.
     auto& inputManager = engine->GetSystems().Locate<Platform::InputManager>();

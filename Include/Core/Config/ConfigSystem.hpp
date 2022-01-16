@@ -93,7 +93,7 @@ namespace Core
     template<typename Type>
     bool ConfigSystem::Read(Common::Name variable, Type* value)
     {
-        CHECK_ARGUMENT_OR_RETURN(value, false);
+        CHECK_OR_RETURN(value, false);
 
         if(auto result = Get<Type>(variable))
         {

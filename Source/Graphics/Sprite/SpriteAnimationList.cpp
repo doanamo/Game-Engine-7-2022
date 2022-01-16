@@ -52,7 +52,7 @@ SpriteAnimationList::CreateResult SpriteAnimationList::Create(
     LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading sprite animation list from \"{}\" file...", file.GetPathString());
 
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();

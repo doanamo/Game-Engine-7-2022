@@ -43,11 +43,9 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 {
     LOG_PROFILE_SCOPE_FUNC();
 
-    // Check arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext,
-        Common::Failure(CreateErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(!params.shaderCode.empty(),
-        Common::Failure(CreateErrors::InvalidArgument));
+    // Validate arguments.
+    CHECK_OR_RETURN(params.renderContext, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(!params.shaderCode.empty(), Common::Failure(CreateErrors::InvalidArgument));
 
     // Create instance.
     auto instance = std::unique_ptr<Shader>(new Shader());
@@ -234,8 +232,7 @@ Shader::CreateResult Shader::Create(Platform::FileHandle& file, const LoadFromFi
     LOG_INFO("Loading shader from \"{}\" file...", file.GetPathString());
 
     // Validate arguments.
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext,
-        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(params.renderContext, Common::Failure(CreateErrors::InvalidArgument));
 
     // Load shader code from a file.
     std::string shaderCode = file.ReadAsTextString();

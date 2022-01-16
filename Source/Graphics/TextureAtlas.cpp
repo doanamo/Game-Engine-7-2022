@@ -34,7 +34,7 @@ TextureAtlas::CreateResult TextureAtlas::Create(
     LOG_PROFILE_SCOPE_FUNC();
     LOG("Creating texture atlas from \"{}\" file...", file.GetPathString());
 
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Create base instance.
     auto createResult = Create();

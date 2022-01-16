@@ -17,7 +17,7 @@ NativeFileDepot::~NativeFileDepot() = default;
 
 NativeFileDepot::CreateResult NativeFileDepot::Create(fs::path fileDirectory)
 {
-    CHECK_ARGUMENT_OR_RETURN(!fileDirectory.empty(),
+    CHECK_OR_RETURN(!fileDirectory.empty(),
         Common::Failure(CreateErrors::EmptyDepotDirectoryArgument));
 
     // Ensure that directory exists.

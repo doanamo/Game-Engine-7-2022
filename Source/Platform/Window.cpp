@@ -39,8 +39,8 @@ Window::CreateResult Window::Create(const CreateParams& params)
 {
     LOG_PROFILE_SCOPE_FUNC();
 
-    // Check parameters.
-    CHECK_ARGUMENT_OR_RETURN(params.width >= 0 && params.height >= 0,
+    // Validate parameters.
+    CHECK_OR_RETURN(params.width >= 0 && params.height >= 0,
         Common::Failure(CreateErrors::InvalidSize));
 
     // Create window instance.

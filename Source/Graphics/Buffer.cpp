@@ -25,11 +25,11 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
 {
     // Validate arguments.
     // Element count can be zero for uninitialized buffers.
-    CHECK_ARGUMENT_OR_RETURN(type != OpenGL::InvalidEnum,
+    CHECK_OR_RETURN(type != OpenGL::InvalidEnum,
         Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.renderContext != nullptr,
+    CHECK_OR_RETURN(params.renderContext != nullptr,
         Common::Failure(BufferErrors::InvalidArgument));
-    CHECK_ARGUMENT_OR_RETURN(params.elementSize != 0,
+    CHECK_OR_RETURN(params.elementSize != 0,
         Common::Failure(BufferErrors::InvalidArgument));
 
     // Create buffer handle.
@@ -71,8 +71,8 @@ Buffer::BufferResult Buffer::Initialize(GLenum type, const CreateFromParams& par
 
 void Buffer::Update(const void* data, std::size_t elementCount)
 {
-    ASSERT_ALWAYS_ARGUMENT(data != nullptr);
-    ASSERT_ALWAYS_ARGUMENT(elementCount > 0);
+    ASSERT(data != nullptr);
+    ASSERT(elementCount > 0);
 
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);

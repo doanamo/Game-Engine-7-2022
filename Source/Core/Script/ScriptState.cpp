@@ -81,8 +81,7 @@ ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const 
     LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading script state from \"{}\" file...", file.GetPathString());
 
-    CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
-        Common::Failure(CreateErrors::InvalidArgument));
+    CHECK_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
     // Call base create method to retrieve new instance.
     auto createResult = Create();
