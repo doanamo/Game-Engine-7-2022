@@ -98,7 +98,7 @@ namespace Debug
         ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_MESSAGE, ASSERT_SIMPLE))
     #define ASSERT(...) DEBUG_EXPAND_MACRO(ASSERT_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 #else
-    #define ASSERT(expression) ((void)0)
+    #define ASSERT(expression, ...) ((void)0)
 #endif
 
 /*
@@ -138,7 +138,7 @@ namespace Debug
         ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_MESSAGE, ASSERT_EVALUATE_SIMPLE))
     #define ASSERT_EVALUATE(...) DEBUG_EXPAND_MACRO(ASSERT_EVALUATE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 #else
-    #define ASSERT_EVALUATE (void)(expression)
+    #define ASSERT_EVALUATE(expression, ...) (void)(expression)
 #endif
 
 /*
@@ -225,5 +225,5 @@ namespace Debug
             return value; \
         }
 
-    #define CHECK(...) ((void)0)
+    #define CHECK(expression, ...) ((void)0)
 #endif
