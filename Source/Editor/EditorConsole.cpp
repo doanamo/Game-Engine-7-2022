@@ -114,40 +114,6 @@ void EditorConsole::OnBeginInterface(float timeDelta)
             ImVec2 windowSize = ImGui::GetWindowSize();
             ImGuiWindowFlags messagesFlags = 0;
 
-            if(ImGui::BeginPopupContextItem("Context Menu"))
-            {
-                if(!m_copyBuffer.empty())
-                {
-                    if(ImGui::Selectable("Copy to clipboard"))
-                    {
-                        ImGui::SetClipboardText(m_copyBuffer.c_str());
-                    }
-                }
-                else
-                {
-                    ImGui::TextDisabled("Copy to clipboard");
-                }
-
-                ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
-
-                if(ImGui::MenuItem("Pause", nullptr, &m_pause))
-                {
-                    if(m_pause)
-                    {
-                        LOG_INFO("Logger history has been paused.");
-                    }
-
-                    Logger::GetGlobalHistory().SetEnabled(!m_pause);
-
-                    if(!m_pause)
-                    {
-                        LOG_INFO("Logger history has been unpaused.");
-                    }
-                }
-
-                ImGui::EndPopup();
-            }
-
             if(!ImGui::IsPopupOpen("Context Menu"))
             {
                 m_copyBuffer = std::string();
@@ -158,8 +124,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                 messagesFlags |= ImGuiWindowFlags_NoScrollWithMouse;
             }
 
-            if(ImGui::BeginChild("Message History",
-                ImVec2(m_optionsVisible ? -180.0f : 0, 0.0f), false, messagesFlags))
+            if(ImGui::BeginChild("Message History", ImVec2(0.0f, 0.0f), false, messagesFlags))
             {
                 bool filterActive = std::find(std::begin(m_severityFilters),
                     std::end(m_severityFilters), true) != std::end(m_severityFilters);
@@ -200,37 +165,61 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                 ImGui::OpenPopup("Context Menu");
             }
 
-            if(m_optionsVisible)
+            // Context menu.
+            if(ImGui::BeginPopupContextItem("Context Menu"))
             {
-                ImGui::SameLine();
-                if(ImGui::BeginChild("Console Options"),
-                    ImVec2(0.0f, 0.0f), true)
+                if(!m_copyBuffer.empty())
                 {
-                    static bool temp = false;
-                    ImGui::Text("Filter severity:");
-
-                    ImGui::Indent();
-
-                    int severityID = 0;
-                    for(bool& severityFilter : m_severityFilters)
+                    if(ImGui::Selectable("Copy to clipboard"))
                     {
-                        if(severityID != 0)
-                        {
-                            std::string text = fmt::format("{} ({})", Logger::GetSeverityName(
-                                static_cast<Logger::Severity::Type>(severityID)),
-                                stats.severityCount[severityID]);
+                        ImGui::SetClipboardText(m_copyBuffer.c_str());
+                    }
+                }
+                else
+                {
+                    ImGui::TextDisabled("Copy to clipboard");
+                }
 
-                            ImGui::PushID(severityID);
-                            ImGui::Checkbox(text.c_str(), &severityFilter);
-                            ImGui::PopID();
-                        }
+                ImGui::MenuItem("Auto-scroll", nullptr, &m_autoScroll);
 
-                        severityID++;
+                if(ImGui::MenuItem("Pause", nullptr, &m_pause))
+                {
+                    if(m_pause)
+                    {
+                        LOG_INFO("Logger history has been paused.");
                     }
 
-                    ImGui::Unindent();
+                    Logger::GetGlobalHistory().SetEnabled(!m_pause);
 
-                    if(ImGui::Button("Filter by none"))
+                    if(!m_pause)
+                    {
+                        LOG_INFO("Logger history has been unpaused.");
+                    }
+                }
+
+                if(ImGui::MenuItem("Clear"))
+                {
+                    Logger::GetGlobalHistory().Clear();
+                }
+
+                ImGui::Separator();
+                if(ImGui::BeginMenu("Filters"))
+                {
+                    for(int i = 0; i < Common::StaticArraySize(m_severityFilters); ++i)
+                    {
+                        if(i != 0)
+                        {
+                            std::string text = fmt::format("{} ({})###{0}", Logger::GetSeverityName(
+                                static_cast<Logger::Severity::Type>(i)),
+                                stats.severityCount[i]);
+
+                            ImGui::Checkbox(text.c_str(), &m_severityFilters[i]);
+                        }
+                    }
+
+                    ImGui::Separator();
+
+                    if(ImGui::MenuItem("Select none"))
                     {
                         for(bool& severityFilter : m_severityFilters)
                         {
@@ -238,7 +227,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                         }
                     }
 
-                    if(ImGui::Button("Filter by all"))
+                    if(ImGui::MenuItem("Select all"))
                     {
                         for(bool& severityFilter : m_severityFilters)
                         {
@@ -246,19 +235,17 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                         }
                     }
 
-                    if(ImGui::Button("Clear history"))
-                    {
-                        Logger::GetGlobalHistory().Clear();
-                    }
+                    ImGui::EndMenu();
                 }
-                ImGui::EndChild();
+
+                ImGui::EndPopup();
             }
         }
         ImGui::EndChild();
 
         // Console input.
         ImGui::Separator();
-        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 60.0f);
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
         if(ImGui::InputText("##ConsoleInput", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
@@ -276,14 +263,6 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         }
 
         ImGui::PopItemWidth();
-
-        // Console options toggle.
-        ImGui::SameLine();
-
-        if(ImGui::Button("Options", ImVec2(60.0f, 0.0f)))
-        {
-            m_optionsVisible = !m_optionsVisible;
-        }
     }
     ImGui::End();
 }

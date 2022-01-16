@@ -45,7 +45,6 @@ namespace Editor
         std::string m_inputBuffer;
 
         bool m_windowVisible = false;
-        bool m_optionsVisible = false;
         bool m_autoScroll = true;
         bool m_pause = false;
 
