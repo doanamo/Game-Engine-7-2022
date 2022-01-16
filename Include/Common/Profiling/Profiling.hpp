@@ -47,13 +47,19 @@ namespace Common
 
 // Utility macros.
 #ifndef CONFIG_RELEASE
+    #ifdef CONFIG_DEBUG
+        #define LOG_PROFILE_SOURCE __FILE__, __LINE__
+    #else
+        #define LOG_PROFILE_SOURCE nullptr, 0
+    #endif
+
     #define LOG_PROFILE_SCOPE_NAME(name, ...) \
         Common::ScopedLogProfile scopedLogProfile( \
-            fmt::format(name, ## __VA_ARGS__), __FILE__, __LINE__)
+            fmt::format(name, ## __VA_ARGS__), LOG_PROFILE_SOURCE)
 
     #define LOG_PROFILE_SCOPE_FUNC() \
         Common::ScopedLogProfile scopedLogProfile( \
-            fmt::format("{}()", __FUNCTION__), __FILE__, __LINE__)
+            fmt::format("{}()", __FUNCTION__), LOG_PROFILE_SOURCE)
 #else
     #define LOG_PROFILE_SCOPE_NAME(...) ((void)0)
     #define LOG_PROFILE_SCOPE_FUNC(...) ((void)0)
