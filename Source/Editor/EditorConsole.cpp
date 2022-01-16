@@ -208,8 +208,8 @@ void EditorConsole::OnBeginInterface(float timeDelta)
                     {
                         if(i != 0)
                         {
-                            std::string text = fmt::format("{} ({})###{0}", Logger::GetSeverityName(
-                                static_cast<Logger::Severity::Type>(i)),
+                            std::string text = fmt::format("{0} ({1})###{0}",
+                                Logger::GetSeverityName(static_cast<Logger::Severity::Type>(i)),
                                 stats.severityCount[i]);
 
                             ImGui::Checkbox(text.c_str(), &m_severityFilters[i]);
