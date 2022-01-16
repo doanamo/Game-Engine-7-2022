@@ -109,7 +109,7 @@ namespace Reflection
         }
 
         dynamicType.Register(NAME(StaticType.Name), constructFunction, baseType);
-        LOG_TRACE("Registered type: \"{}\" ({})", StaticType.Name, dynamicType.GetIdentifier());
+        LOG_DEBUG("Registered type: \"{}\" ({})", StaticType.Name, dynamicType.GetIdentifier());
 
         return true;
     }

@@ -86,6 +86,6 @@ bool WindowSystem::IsRequestingExit()
 
 void WindowSystem::OnWindowFocusChange(const WindowEvents::Focus& event)
 {
-    LOG_TRACE("Window focus state changed to {}.", event.focused ? "foreground" : "background");
+    LOG_DEBUG("Window focus state changed to {}.", event.focused ? "foreground" : "background");
     m_frameRateLimiter->ToggleWindowFocusState(event.focused);
 }

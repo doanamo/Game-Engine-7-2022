@@ -25,9 +25,7 @@ std::string DefaultFormat::ComposeSessionStart()
     // Format log message legend text.
     sessionText += fmt::format(
         "Log message legend: "
-        "[{}] Trace, [{}] Debug, [{}] Profile, [{}] Info, "
-        "[{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
-        GetSeverityMarker(Severity::Trace),
+        "[{}] Debug, [{}] Profile, [{}] Info, [{}] Success, [{}] Warning, [{}] Error, [{}] Fatal\n",
         GetSeverityMarker(Severity::Debug),
         GetSeverityMarker(Severity::Profile),
         GetSeverityMarker(Severity::Info),

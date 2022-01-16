@@ -10,7 +10,6 @@ const char* Logger::GetSeverityName(Severity::Type severity)
 {
     switch(severity)
     {
-        case Severity::Trace:   return "Trace";
         case Severity::Debug:   return "Debug";
         case Severity::Profile: return "Profile";
         case Severity::Info:    return "Info";
@@ -26,7 +25,6 @@ const char* Logger::GetSeverityMarker(Severity::Type severity)
 {
     switch(severity)
     {
-        case Severity::Trace:   return "t";
         case Severity::Debug:   return "d";
         case Severity::Profile: return "p";
         case Severity::Info:    return "i";

@@ -58,7 +58,6 @@ namespace Logger
 #endif
 
 #define LOG(format, ...)         LOG_SCOPED_MESSAGE().Format(format, ## __VA_ARGS__)
-#define LOG_TRACE(format, ...)   LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Trace)
 #define LOG_PROFILE(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Profile)
 #define LOG_INFO(format, ...)    LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Info)
 #define LOG_SUCCESS(format, ...) LOG(format, ## __VA_ARGS__).SetSeverity(Logger::Severity::Success)

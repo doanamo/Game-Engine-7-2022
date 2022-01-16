@@ -17,7 +17,6 @@ namespace Logger
         {
             Invalid,
 
-            Trace,
             Debug,
             Profile,
             Info,
