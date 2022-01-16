@@ -99,6 +99,9 @@ void EditorConsole::OnBeginInterface(float timeDelta)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
+    const int inputLines = 1 + std::count(m_inputBuffer.begin(), m_inputBuffer.end(), '\n');
+    const float inputLineWidth = 13.0f * std::min(inputLines, 8) + 8.0f;
+
     SCOPE_GUARD([]()
     {
         ImGui::PopStyleVar(2);
@@ -110,7 +113,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         const Logger::History::MessageStats stats = Logger::GetGlobalHistory().GetStats();
 
         // Console messages.
-        ImGui::BeginChild("Console Messages", ImVec2(0.0f, -24.0f));
+        ImGui::BeginChild("Console Messages", ImVec2(0.0f, -inputLineWidth - 6.0f));
         {
             ImVec2 windowSize = ImGui::GetWindowSize();
             ImGuiWindowFlags messagesFlags = 0;
@@ -267,12 +270,12 @@ void EditorConsole::OnBeginInterface(float timeDelta)
         ImGui::Separator();
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
-        if(ImGui::InputText("##ConsoleInput", &m_inputBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
+        if(ImGui::InputTextMultiline("##ConsoleInput", &m_inputBuffer, ImVec2(0.0f, inputLineWidth),
+            ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CtrlEnterForNewLine))
         {
             if(!m_inputBuffer.empty())
             {
                 LOG_INFO("> {}", m_inputBuffer.c_str());
-
                 m_scriptSystem->GetState().Execute(m_inputBuffer);
             }
 
