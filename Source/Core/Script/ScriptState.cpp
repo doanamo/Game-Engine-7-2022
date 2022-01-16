@@ -10,6 +10,9 @@ using namespace Core;
 
 namespace
 {
+    const char* LogCreateFailed = "Failed to create script state! {}";
+    const char* LogLoadFailed = "Failed to load script state from \"{}\" file! {}";
+
     extern "C"
     {
         // Prints string on top of stack to log stream.
@@ -48,7 +51,7 @@ ScriptState::CreateResult ScriptState::Create()
 
     if(instance->m_state == nullptr)
     {
-        LOG_ERROR("Could not create Lua state!");
+        LOG_ERROR(LogCreateFailed, "Could not create Lua state.");
         return Common::Failure(CreateErrors::FailedLuaStateCreation);
     }
 
@@ -58,7 +61,7 @@ ScriptState::CreateResult ScriptState::Create()
 
     if(lua_pcall(instance->m_state, 1, 0, 0) != 0)
     {
-        LOG_ERROR("Could not load base Lua library!");
+        LOG_ERROR(LogCreateFailed, "Could not load base Lua library.");
         instance->PrintError();
         return Common::Failure(CreateErrors::FailedLuaLibraryLoading);
     }
@@ -78,7 +81,6 @@ ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const 
     LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading script state from \"{}\" file...", file.GetPathString());
 
-    // Check arguments.
     CHECK_ARGUMENT_OR_RETURN(params.engineSystems,
         Common::Failure(CreateErrors::InvalidArgument));
 
@@ -93,10 +95,9 @@ ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const 
 
     // Execute script file.
     std::string scriptCode = file.ReadAsTextString();
-
     if(!instance->Execute(scriptCode))
     {
-        LOG_ERROR("Could not execute script file!");
+        LOG_ERROR(LogLoadFailed, file.GetPathString(), "Could not execute script file!");
         instance->PrintError();
         return Common::Failure(CreateErrors::FailedLuaScriptExecution);
     }

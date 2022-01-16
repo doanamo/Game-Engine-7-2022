@@ -10,6 +10,9 @@ using namespace Graphics;
 
 namespace
 {
+    const char* LogCreateFailed = "Failed to create shader! {}";
+    const char* LogLoadFailed = "Failed to load shader from \"{}\" file! {}";
+
     struct ShaderType
     {
         const char* name;
@@ -95,7 +98,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
             if(shaderObject == OpenGL::InvalidHandle)
             {
-                LOG_ERROR("Shader object could not be created!");
+                LOG_ERROR(LogCreateFailed, "Shader object could not be created!");
                 return Common::Failure(CreateErrors::FailedShaderCreation);
             }
 
@@ -144,7 +147,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
             if(compileStatus == GL_FALSE)
             {
-                LOG_ERROR("Shader object could not be compiled!");
+                LOG_ERROR(LogCreateFailed, "Shader object could not be compiled!");
                 return Common::Failure(CreateErrors::FailedShaderCompilation);
             }
         }
@@ -153,7 +156,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
     // Check if any shader objects were found.
     if(shaderObjectsFound == false)
     {
-        LOG_ERROR("Could not find any shader objects!");
+        LOG_ERROR(LogCreateFailed, "Could not find any shader objects!");
         return Common::Failure(CreateErrors::FailedShaderCompilation);
     }
 
@@ -163,7 +166,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     if(instance->m_handle == OpenGL::InvalidHandle)
     {
-        LOG_ERROR("Shader program could not be created!");
+        LOG_ERROR(LogCreateFailed, "Shader program could not be created!");
         return Common::Failure(CreateErrors::FailedProgramCreation);
     }
 
@@ -218,7 +221,7 @@ Shader::CreateResult Shader::Create(const LoadFromString& params)
 
     if(linkStatus == GL_FALSE)
     {
-        LOG_ERROR("Shader program could not be linked!");
+        LOG_ERROR(LogCreateFailed, "Shader program could not be linked!");
         return Common::Failure(CreateErrors::FailedProgramLinkage);
     }
 
@@ -238,7 +241,7 @@ Shader::CreateResult Shader::Create(Platform::FileHandle& file, const LoadFromFi
     std::string shaderCode = file.ReadAsTextString();
     if(shaderCode.empty())
     {
-        LOG_ERROR("Shader file could not be read!");
+        LOG_ERROR(LogLoadFailed, file.GetPathString(), "Shader file could not be read.");
         return Common::Failure(CreateErrors::InvalidFileContents);
     }
 
