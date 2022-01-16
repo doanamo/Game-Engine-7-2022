@@ -273,6 +273,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
 
             m_inputBuffer.clear();
             m_autoScroll = true;
+            m_resetScroll = true;
         }
 
         if(ImGui::IsWindowAppearing())
