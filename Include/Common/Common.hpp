@@ -43,6 +43,9 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#include <utf8/core.h>
+#include <utf8/unchecked.h>
+
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/chrono.h>

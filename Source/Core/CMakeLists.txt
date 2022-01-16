@@ -144,7 +144,6 @@ target_include_directories(Core PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
 # Externals
 #
 
-target_include_directories(Core PUBLIC "../../External/utfcpp/source")
 target_include_directories(Core PUBLIC "../../External/glm")
 
 add_subdirectory("../../External/fast_float" "External/fast_float")

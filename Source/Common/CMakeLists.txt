@@ -128,6 +128,8 @@ enable_reflection(Common ${INCLUDE_DIR} ${SOURCE_DIR})
 # External
 #
 
+target_include_directories(Common PUBLIC "../../External/utfcpp/source")
+
 add_subdirectory("../../External/fmt" "External/fmt")
 target_include_directories(Common PUBLIC "../../External/fmt/include")
 target_link_libraries(Common PUBLIC fmt::fmt)

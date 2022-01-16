@@ -15,9 +15,6 @@
 
 #include <fast_float/fast_float.h>
 
-#include <utf8/core.h>
-#include <utf8/unchecked.h>
-
 #include <zlib.h>
 #include <png.h>
 
