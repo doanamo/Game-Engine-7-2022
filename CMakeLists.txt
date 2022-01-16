@@ -73,6 +73,11 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
 endif()
 
+# Global Emscripten flags.
+if(EMSCRIPTEN)
+    add_link_options("$<$<CONFIG:DEBUG>: -s SAFE_HEAP=1>")
+endif()
+
 #
 # Sources
 #

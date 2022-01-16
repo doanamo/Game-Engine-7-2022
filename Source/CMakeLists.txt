@@ -82,9 +82,4 @@ if(EMSCRIPTEN)
 
     target_link_options(Engine PUBLIC
         "SHELL: --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../Deploy/Data@Data/")
-
-    target_compile_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:SHELL: -s SAFE_HEAP=1>")
-    target_link_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:SHELL: -s SAFE_HEAP=1>")
-    target_compile_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:--profiling-funcs>")
-    target_link_options(Engine PUBLIC "$<$<CONFIG:DEBUG>:--profiling-funcs>")
 endif()
