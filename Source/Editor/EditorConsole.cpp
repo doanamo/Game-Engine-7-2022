@@ -145,7 +145,7 @@ void EditorConsole::OnBeginInterface(float timeDelta)
 
                     ImGui::PushTextWrapPos(0.0f);
                     ImGui::PushStyleColor(ImGuiCol_Text, GetLogMessageColor(message.severity));
-                    ImGui::Selectable(message.text.c_str());
+                    ImGui::TextUnformatted(message.text.c_str());
                     ImGui::PopStyleColor();
                     ImGui::PopTextWrapPos();
 
