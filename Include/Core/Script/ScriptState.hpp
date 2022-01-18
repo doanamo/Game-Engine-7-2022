@@ -36,9 +36,10 @@ namespace Core
         enum class CreateErrors
         {
             InvalidArgument,
-            FailedLuaStateCreation,
-            FailedLuaLibraryLoading,
-            FailedLuaScriptExecution,
+            FailedStateCreation,
+            FailedLibraryBinding,
+            FailedInterfaceBinding,
+            FailedScriptExecution,
             FailedScriptFileResolve,
         };
 

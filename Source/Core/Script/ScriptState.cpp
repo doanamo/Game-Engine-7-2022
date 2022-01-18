@@ -4,6 +4,7 @@
 */
 
 #include "Core/Script/ScriptState.hpp"
+#include "Core/Script/ScriptBinding.hpp"
 #include "Core/System/SystemStorage.hpp"
 #include <Platform/FileSystem/FileHandle.hpp>
 using namespace Core;
@@ -12,22 +13,6 @@ namespace
 {
     const char* LogCreateFailed = "Failed to create script state! {}";
     const char* LogLoadFailed = "Failed to load script state from \"{}\" file! {}";
-
-    extern "C"
-    {
-        // Prints string on top of stack to log stream.
-        static int LuaLog(lua_State* L)
-        {
-            ASSERT(L != nullptr, "Lua state is null!");
-
-            if(lua_isstring(L, -1))
-            {
-                LOG_INFO(lua_tostring(L, -1));
-            }
-
-            return 0;
-        }
-    }
 }
 
 ScriptState::ScriptState() = default;
@@ -52,7 +37,7 @@ ScriptState::CreateResult ScriptState::Create()
     if(instance->m_state == nullptr)
     {
         LOG_ERROR(LogCreateFailed, "Could not create Lua state.");
-        return Common::Failure(CreateErrors::FailedLuaStateCreation);
+        return Common::Failure(CreateErrors::FailedStateCreation);
     }
 
     // Load base library.
@@ -61,14 +46,18 @@ ScriptState::CreateResult ScriptState::Create()
 
     if(lua_pcall(instance->m_state, 1, 0, 0) != 0)
     {
-        LOG_ERROR(LogCreateFailed, "Could not load base Lua library.");
+        LOG_ERROR(LogCreateFailed, "Could not bind scripting library.");
         instance->PrintError();
-        return Common::Failure(CreateErrors::FailedLuaLibraryLoading);
+        return Common::Failure(CreateErrors::FailedLibraryBinding);
     }
 
-    // Register logging function.
-    lua_pushcfunction(instance->m_state, LuaLog);
-    lua_setglobal(instance->m_state, "Log");
+    // Bind scripting interface.
+    if(!BindScriptingInterface(*instance))
+    {
+        LOG_ERROR(LogCreateFailed, "Could not bind scripting interface.");
+        instance->PrintError();
+        return Common::Failure(CreateErrors::FailedInterfaceBinding);
+    }
 
     // Make sure that we did not leave anything on the stack.
     ASSERT(lua_gettop(instance->m_state) == 0, "Lua stack is not empty!");
@@ -96,9 +85,9 @@ ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const 
     std::string scriptCode = file.ReadAsTextString();
     if(!instance->Execute(scriptCode))
     {
-        LOG_ERROR(LogLoadFailed, file.GetPathString(), "Could not execute script file!");
+        LOG_ERROR(LogLoadFailed, file.GetPathString(), "Could not execute script file.");
         instance->PrintError();
-        return Common::Failure(CreateErrors::FailedLuaScriptExecution);
+        return Common::Failure(CreateErrors::FailedScriptExecution);
     }
 
     return Common::Success(std::move(instance));
