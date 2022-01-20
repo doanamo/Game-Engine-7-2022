@@ -17,6 +17,7 @@ namespace
 ScriptState::ScriptState() = default;
 ScriptState::~ScriptState()
 {
+    // Cleanup Lua state.
     if(m_state)
     {
         lua_close(m_state);
@@ -32,7 +33,6 @@ ScriptState::CreateResult ScriptState::Create()
 
     // Create Lua state.
     instance->m_state = luaL_newstate();
-
     if(instance->m_state == nullptr)
     {
         LOG_ERROR(LogCreateFailed, "Could not create Lua state.");
@@ -42,7 +42,6 @@ ScriptState::CreateResult ScriptState::Create()
     // Load base library.
     lua_pushcfunction(instance->m_state, luaopen_base);
     lua_pushstring(instance->m_state, "");
-
     if(lua_pcall(instance->m_state, 1, 0, 0) != 0)
     {
         LOG_ERROR(LogCreateFailed, "Could not bind scripting library.");
@@ -51,7 +50,7 @@ ScriptState::CreateResult ScriptState::Create()
     }
 
     // Bind scripting interface.
-    if(!BindScriptingInterface(*instance))
+    if(!instance->BindInterface(*instance))
     {
         LOG_ERROR(LogCreateFailed, "Could not bind scripting interface.");
         instance->PrintError();
@@ -69,9 +68,9 @@ ScriptState::CreateResult ScriptState::Create(Platform::FileHandle& file, const 
     LOG_PROFILE_SCOPE_FUNC();
     LOG("Loading script state from \"{}\" file...", file.GetPathString());
 
+    // Call base create method to retrieve new instance.
     CHECK_OR_RETURN(params.engineSystems, Common::Failure(CreateErrors::InvalidArgument));
 
-    // Call base create method to retrieve new instance.
     auto createResult = Create();
     if(!createResult)
     {
@@ -116,7 +115,6 @@ void ScriptState::CleanStack()
 {
     // Discard remaining objects on the stack.
     int size = lua_gettop(m_state);
-
     if(size != 0)
     {
         LOG_DEBUG("Cleaning {} remaining objects on the stack...", size);
