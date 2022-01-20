@@ -62,6 +62,8 @@ namespace Core
     private:
         ScriptState();
 
+        bool BindInterface(ScriptState& scriptState);
+
     private:
         lua_State* m_state = nullptr;
     };

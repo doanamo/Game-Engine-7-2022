@@ -4,7 +4,6 @@
 */
 
 #include "Core/Script/ScriptState.hpp"
-#include "Core/Script/ScriptBinding.hpp"
 #include "Core/System/SystemStorage.hpp"
 #include <Platform/FileSystem/FileHandle.hpp>
 using namespace Core;

@@ -21,7 +21,6 @@ set(FILES_BUILD
 
 set(FILES_SCRIPT
     "${INCLUDE_DIR}/Script/ScriptState.hpp"
-    "${INCLUDE_DIR}/Script/ScriptBinding.hpp"
     "${INCLUDE_DIR}/Script/ScriptSystem.hpp"
     "${SOURCE_DIR}/Script/ScriptState.cpp"
     "${SOURCE_DIR}/Script/ScriptBinding.cpp"
