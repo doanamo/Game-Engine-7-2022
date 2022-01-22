@@ -85,3 +85,7 @@ endif()
 add_subdirectory("Source")
 add_subdirectory("Example")
 add_subdirectory("Tests")
+
+# This is here because it must be called from root CMakeLists.
+# Otherwise tests will fail to be run when CTest is invoked.
+enable_testing()
