@@ -52,14 +52,27 @@ class Base
     REFLECTION_ENABLE(Base)
 
 public:
+    bool MethodTrue()
+    {
+        return true;
+    }
+
+    bool MethodFalse()
+    {
+        return false;
+    }
+
+public:
     std::string textWithoutAttribute;
     const char* textPtrWithAttribute = nullptr;
 };
 
 REFLECTION_TYPE_BEGIN(Base)
     REFLECTION_ATTRIBUTES(BaseAttribute())
+    REFLECTION_METHOD(MethodTrue)
     REFLECTION_FIELD(textWithoutAttribute)
     REFLECTION_FIELD(textPtrWithAttribute, TextAttribute())
+    REFLECTION_METHOD(MethodFalse)
 REFLECTION_TYPE_END
 
 class DerivedAttribute : public Reflection::TypeAttribute

@@ -121,23 +121,43 @@
     REFLECTION_TYPE_DEDUCE(__VA_ARGS__, REFLECTION_TYPE_DERIVED, REFLECTION_TYPE_BASE))
 #define REFLECTION_TYPE(...) REFLECTION_EXPAND(REFLECTION_TYPE_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
-// Field declaration macros.
-#define REFLECTION_FIELD_BEGIN(Field) \
+// Member declaration macros.
+#define REFLECTION_MEMBER_BEGIN(Member) \
     template<typename ReflectedType, typename Dummy> \
     struct MemberInfo<__COUNTER__ - MemberIndexOffset, ReflectedType, Dummy> \
     { \
-        using Type = decltype(ReflectedType::Field); \
-        static constexpr std::string_view Name = REFLECTION_STRINGIFY(Field); \
-        static constexpr auto Pointer = &ReflectedType::Field;
+        static constexpr std::string_view Name = REFLECTION_STRINGIFY(Member); \
+        static constexpr auto Pointer = &ReflectedType::Member;
 
-#define REFLECTION_FIELD_ATTRIBUTES(...) \
+#define REFLECTION_MEMBER_FIELD(Member) \
+        using Type = decltype(ReflectedType::Member); \
+        using AttributeType = Reflection::FieldAttribute; \
+        static constexpr MemberKind Kind = Reflection::Field; \
+        static_assert(std::is_member_object_pointer<decltype(Pointer)>::value, \
+            "Member is not a field!");
+
+#define REFLECTION_MEMBER_METHOD(Member) \
+        using Type = decltype(&ReflectedType::Member); \
+        using AttributeType = Reflection::MethodAttribute; \
+        static constexpr MemberKind Kind = Reflection::Method; \
+        static_assert(std::is_member_function_pointer<decltype(Pointer)>::value, \
+            "Member is not a method!");
+
+#define REFLECTION_MEMBER_ATTRIBUTES(...) \
         static constexpr auto Attributes = \
-            Reflection::Detail::MakeAttributeList<Reflection::FieldAttribute>(__VA_ARGS__);
+            Reflection::Detail::MakeAttributeList<AttributeType>(__VA_ARGS__);
 
-#define REFLECTION_FIELD_END \
+#define REFLECTION_MEMBER_END \
     };
 
 #define REFLECTION_FIELD(Field, ...) \
-    REFLECTION_FIELD_BEGIN(Field) \
-    REFLECTION_FIELD_ATTRIBUTES(__VA_ARGS__) \
-    REFLECTION_FIELD_END
+    REFLECTION_MEMBER_BEGIN(Field) \
+    REFLECTION_MEMBER_FIELD(Field) \
+    REFLECTION_MEMBER_ATTRIBUTES(__VA_ARGS__) \
+    REFLECTION_MEMBER_END
+
+#define REFLECTION_METHOD(Method, ...) \
+    REFLECTION_MEMBER_BEGIN(Method) \
+    REFLECTION_MEMBER_METHOD(Method) \
+    REFLECTION_MEMBER_ATTRIBUTES(__VA_ARGS__) \
+    REFLECTION_MEMBER_END

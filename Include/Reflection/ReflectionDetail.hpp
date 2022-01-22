@@ -79,6 +79,12 @@ namespace Reflection::Detail
         return std::tuple_cat(std::make_tuple(element), tuple);
     }
 
+    template<typename TupleType, typename Element>
+    constexpr auto PushBackTuple(TupleType tuple, Element element)
+    {
+        return std::tuple_cat(tuple, std::make_tuple(element));
+    }
+
     template<typename Function, typename... Results>
     constexpr auto Filter(Function function, const ObjectList<>& list, ObjectList<Results...> results)
     {
@@ -94,7 +100,7 @@ namespace Reflection::Detail
         if constexpr(function(Type{}))
         {
             return Filter(function, ObjectList<Types...>(PopFrontTuple(list.Objects)),
-                ObjectList<Type, Results...>(PushFrontTuple(results.Objects, element)));
+                ObjectList<Results..., Type>(PushBackTuple(results.Objects, element)));
         }
         else
         {
@@ -190,6 +196,12 @@ namespace Reflection
     using TypeIdentifier = uint32_t;
     constexpr TypeIdentifier InvalidIdentifier = 0;
 
+    enum MemberKind
+    {
+        Field,
+        Method,
+    };
+
     struct NullType;
     struct TypeAttribute;
     struct FieldAttribute;
@@ -266,6 +278,16 @@ namespace Reflection::Detail
         return { std::make_tuple(MemberDescriptionType<ReflectedType, MemberIndices>{} ...) };
     }
 
+    template<MemberKind Kind, typename... Types>
+    constexpr auto FilterMemberDescriptionList(ObjectList<Types...> members)
+    {
+        return Reflection::Filter(members,
+            [](auto member)
+            {
+                return member.Kind == Kind;
+            });
+    }
+
     template<typename... Attributes>
     constexpr bool ValidateAttributeReflection()
     {
@@ -280,7 +302,7 @@ namespace Reflection::Detail
     }
 
     template<typename Requirement, typename... Attributes>
-    constexpr bool ValidateAttributeUsage()
+    constexpr bool ValidateAttributeType()
     {
         return (... && std::is_base_of_v<Requirement, Attributes>);
     }
@@ -294,12 +316,10 @@ namespace Reflection::Detail
     template<typename Requirement, typename... Attributes>
     constexpr ObjectList<Attributes...> MakeAttributeList(Attributes&&... attributes)
     {
-        static_assert(ValidateAttributeReflection<Attributes...>(),
-            "Detected attribute that is not reflected!");
-        static_assert(ValidateAttributeUniqueness<Attributes...>(),
-            "Detected attribute that is not unique!");
-        static_assert(ValidateAttributeUsage<Requirement, Attributes...>(),
-            "Detected attribute with incorrect usage!");
+        static_assert(ValidateAttributeReflection<Attributes...>(), "Attribute is not reflected!");
+        static_assert(ValidateAttributeUniqueness<Attributes...>(), "Attribute is not unique!");
+        static_assert(ValidateAttributeType<Requirement, Attributes...>(),
+            "Attribute has incorrect type!");
 
         return { std::make_tuple(attributes...) };
     }

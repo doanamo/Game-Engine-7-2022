@@ -171,7 +171,7 @@ TEST(StaticReflection, AttributeInstances)
 TEST(StaticReflection, MemberCount)
 {
     EXPECT_EQ(Reflection::StaticType<Empty>().Members.Count, 0);
-    EXPECT_EQ(Reflection::StaticType<Base>().Members.Count, 2);
+    EXPECT_EQ(Reflection::StaticType<Base>().Members.Count, 4);
     EXPECT_EQ(Reflection::StaticType<Derived>().Members.Count, 1);
     EXPECT_EQ(Reflection::StaticType<Inner>().Members.Count, 1);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Members.Count, 2);
@@ -180,8 +180,10 @@ TEST(StaticReflection, MemberCount)
 
 TEST(StaticReflection, MemberNames)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Name, "textWithoutAttribute");
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textPtrWithAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Name, "MethodTrue");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Name, "textWithoutAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Name, "textPtrWithAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<3>().Name, "MethodFalse");
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Name, "counter");
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Name, "value");
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Name, "toggle");
@@ -193,8 +195,10 @@ TEST(StaticReflection, MemberNames)
 TEST(StaticReflection, MemberTypes)
 {
     EXPECT_FALSE(Reflection::StaticType<Base>().Member<0>().IsType<void>());
-    EXPECT_TRUE(Reflection::StaticType<Base>().Member<0>().IsType<std::string>());
-    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().IsType<const char*>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<0>().IsType<bool(Base::*)()>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().IsType<std::string>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<2>().IsType<const char*>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<3>().IsType<bool(Base::*)()>());
     EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().IsType<int>());
     EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().IsType<bool>());
     EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<1>().IsType<Inner>());
@@ -202,10 +206,35 @@ TEST(StaticReflection, MemberTypes)
     EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<1>().IsType<char>());
 }
 
+TEST(StaticReflection, MemberKind)
+{
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().GetKind(), Reflection::Method);
+    EXPECT_FALSE(Reflection::StaticType<Base>().Member<0>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<0>().IsMethod());
+
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().GetKind(), Reflection::Field);
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().IsField());
+    EXPECT_FALSE(Reflection::StaticType<Base>().Member<1>().IsMethod());
+
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().GetKind(), Reflection::Field);
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<2>().IsField());
+    EXPECT_FALSE(Reflection::StaticType<Base>().Member<2>().IsMethod());
+
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<3>().GetKind(), Reflection::Method);
+    EXPECT_FALSE(Reflection::StaticType<Base>().Member<3>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<3>().IsMethod());
+
+    EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<1>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<0>().IsField());
+    EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Member<1>().IsField());
+}
+
 TEST(StaticReflection, MemberPointers)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Pointer, &Base::textWithoutAttribute);
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textPtrWithAttribute);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Pointer, &Base::textWithoutAttribute);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Pointer, &Base::textPtrWithAttribute);
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Pointer, &Derived::counter);
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Pointer, &Inner::value);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Pointer, &BranchedOne::toggle);
@@ -217,7 +246,9 @@ TEST(StaticReflection, MemberPointers)
 TEST(StaticReflection, MemberAttributeCount)
 {
     EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 0);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<3>().Attributes.Count, 0);
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attributes.Count, 1);
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attributes.Count, 1);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attributes.Count, 2);
@@ -228,7 +259,7 @@ TEST(StaticReflection, MemberAttributeCount)
 
 TEST(StaticReflection, MemberAttributeNames)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Name, "TextAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<0>().Name, "TextAttribute");
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Name, "CounterAttribute");
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Name, "InnerAttribute");
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Name, "ToggleOnAttribute");
@@ -239,7 +270,7 @@ TEST(StaticReflection, MemberAttributeNames)
 
 TEST(StaticReflection, MemberAttributeTypes)
 {
-    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().Attribute<0>().IsType<TextAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<2>().Attribute<0>().IsType<TextAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().IsType<CounterAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().IsType<InnerAttribute>());
     EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().IsType<ToggleOnAttribute>());
@@ -250,7 +281,7 @@ TEST(StaticReflection, MemberAttributeTypes)
 
 TEST(StaticReflection, MemberAttributeInstances)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Instance, TextAttribute());
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<0>().Instance, TextAttribute());
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Instance.state, true);
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Instance.counter, 20);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Instance.state, true);
@@ -266,9 +297,9 @@ TEST(StaticReflection, EnumerateAttributesBase)
 
     Reflection::ForEach(Reflection::StaticType<Empty>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Name);
-    });
+        {
+            presentAttributes.push_back(attribute.Name);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }
@@ -280,9 +311,9 @@ TEST(StaticReflection, EnumerateAttributesDerived)
 
     Reflection::ForEach(Reflection::StaticType<Derived>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Name);
-    });
+        {
+            presentAttributes.push_back(attribute.Name);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }
@@ -294,9 +325,9 @@ TEST(StaticReflection, EnumerateAttributesBranched)
 
     Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Name);
-    });
+        {
+            presentAttributes.push_back(attribute.Name);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }
@@ -308,9 +339,9 @@ TEST(StaticReflection, EnumerateAttributesInstances)
 
     Reflection::ForEach(Reflection::StaticType<BranchedTwo>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Instance.modifier);
-    });
+        {
+            presentAttributes.push_back(attribute.Instance.modifier);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }
@@ -322,65 +353,115 @@ TEST(StaticReflection, EnumerateMembersEmpty)
 
     Reflection::ForEach(Reflection::StaticType<Empty>().Members,
         [&presentMembers](const auto& member)
-    {
-        presentMembers.push_back(member.Name);
-    });
+        {
+            presentMembers.push_back(member.Name);
+        });
 
     EXPECT_EQ(presentMembers, expectedMembers);
 }
 
 TEST(StaticReflection, EnumerateMembersBase)
 {
-    std::vector<std::string_view> expectedMembers = { "textWithoutAttribute", "textPtrWithAttribute" };
     std::vector<std::string_view> presentMembers;
+    std::vector<std::string_view> expectedMembers =
+    {
+        "MethodTrue",
+        "textWithoutAttribute",
+        "textPtrWithAttribute",
+        "MethodFalse",
+    };
 
     Reflection::ForEach(Reflection::StaticType<Base>().Members,
         [&presentMembers](const auto& member)
+        {
+            presentMembers.push_back(member.Name);
+        });
+
+    EXPECT_EQ(presentMembers, expectedMembers);
+}
+
+TEST(StaticReflection, EnumerateFieldsBase)
+{
+    std::vector<std::string_view> presentMembers;
+    std::vector<std::string_view> expectedMembers =
     {
-        presentMembers.push_back(member.Name);
-    });
+        "textWithoutAttribute",
+        "textPtrWithAttribute",
+    };
+
+    Reflection::ForEach(Reflection::StaticType<Base>().Fields,
+        [&presentMembers](const auto& member)
+        {
+            presentMembers.push_back(member.Name);
+        });
+
+    EXPECT_EQ(presentMembers, expectedMembers);
+}
+
+TEST(StaticReflection, EnumerateMethodsBase)
+{
+    std::vector<std::string_view> presentMembers;
+    std::vector<std::string_view> expectedMembers =
+    {
+        "MethodTrue",
+        "MethodFalse",
+    };
+
+    Reflection::ForEach(Reflection::StaticType<Base>().Methods,
+        [&presentMembers](const auto& member)
+        {
+            presentMembers.push_back(member.Name);
+        });
 
     EXPECT_EQ(presentMembers, expectedMembers);
 }
 
 TEST(StaticReflection, EnumerateMembersDerived)
 {
-    std::vector<std::string_view> expectedMembers = { "toggle", "inner" };
     std::vector<std::string_view> presentMembers;
+    std::vector<std::string_view> expectedMembers =
+    {
+        "toggle",
+        "inner",
+    };
 
     Reflection::ForEach(Reflection::StaticType<BranchedOne>().Members,
         [&presentMembers](const auto& member)
-    {
-        presentMembers.push_back(member.Name);
-    });
+        {
+            presentMembers.push_back(member.Name);
+        });
 
     EXPECT_EQ(presentMembers, expectedMembers);
 }
 
 TEST(StaticReflection, EnumerateMemberAttributesBase)
 {
-    std::vector<std::string_view> expectedAttributes;
     std::vector<std::string_view> presentAttributes;
+    std::vector<std::string_view> expectedAttributes;
 
     Reflection::ForEach(Reflection::StaticType<Base>().Member<0>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Name);
-    });
+        {
+            presentAttributes.push_back(attribute.Name);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }
 
 TEST(StaticReflection, EnumerateMemberAttributesDerived)
 {
-    std::vector<std::string_view> expectedAttributes = { "ToggleOnAttribute", "ToggleOffAttribute" };
     std::vector<std::string_view> presentAttributes;
+    std::vector<std::string_view> expectedAttributes =
+    {
+        "ToggleOnAttribute",
+        "ToggleOffAttribute",
+    };
 
     Reflection::ForEach(Reflection::StaticType<BranchedOne>().Member<0>().Attributes,
         [&presentAttributes](const auto& attribute)
-    {
-        presentAttributes.push_back(attribute.Name);
-    });
+        {
+            presentAttributes.push_back(attribute.Name);
+        });
 
     EXPECT_EQ(presentAttributes, expectedAttributes);
 }

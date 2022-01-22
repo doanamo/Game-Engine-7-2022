@@ -51,6 +51,7 @@ namespace Reflection
         using Type = MemberType;
         static constexpr auto TypeInfo =
             Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
+        static constexpr MemberKind Kind = TypeInfo.Kind;
         static constexpr auto Index = MemberIndex;
         static constexpr auto Name = Detail::ParseFieldName(TypeInfo.Name);
         static constexpr auto Pointer = TypeInfo.Pointer;
@@ -65,6 +66,21 @@ namespace Reflection
         static constexpr bool IsType()
         {
             return std::is_same<Type, OtherType>::value;
+        }
+
+        static constexpr MemberKind GetKind()
+        {
+            return Kind;
+        }
+
+        static constexpr bool IsField()
+        {
+            return Kind == Reflection::Field;
+        }
+
+        static constexpr bool IsMethod()
+        {
+            return Kind == Reflection::Method;
         }
 
         static constexpr bool HasAttributes()
@@ -109,9 +125,12 @@ namespace Reflection
         static constexpr auto AttributeTypes =
             Detail::MakeAttributeDescriptionWithoutInstanceList<Type>(
                 TypeInfo.Attributes, std::make_index_sequence<TypeInfo.Attributes.Count>());
-        static constexpr auto Members =
-            Detail::MakeMemberDescriptionList<Type>(
+        static constexpr auto Members = Detail::MakeMemberDescriptionList<Type>(
                 std::make_index_sequence<TypeInfo.Members.Count>());
+        static constexpr auto Fields =
+            Detail::FilterMemberDescriptionList<MemberKind::Field>(Members);
+        static constexpr auto Methods =
+            Detail::FilterMemberDescriptionList<MemberKind::Method>(Members);
 
         static constexpr bool IsNullType()
         {
