@@ -53,7 +53,7 @@ namespace Reflection
             Detail::TypeInfo<ReflectedType>::Members.template Get<MemberIndex>();
         static constexpr MemberKind Kind = TypeInfo.Kind;
         static constexpr auto Index = MemberIndex;
-        static constexpr auto Name = Detail::ParseFieldName(TypeInfo.Name);
+        static constexpr auto Name = TypeInfo.Name;
         static constexpr auto Pointer = TypeInfo.Pointer;
         static constexpr auto Attributes =
             Detail::MakeAttributeDescriptionWithInstanceList<ReflectedType>(
