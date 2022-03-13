@@ -203,6 +203,7 @@ namespace Reflection
     };
 
     struct NullType;
+    struct GenericAttribute;
     struct TypeAttribute;
     struct FieldAttribute;
     struct MethodAttribute;
@@ -304,7 +305,8 @@ namespace Reflection::Detail
     template<typename Requirement, typename... Attributes>
     constexpr bool ValidateAttributeType()
     {
-        return (... && std::is_base_of_v<Requirement, Attributes>);
+        return (... && (std::is_base_of_v<Requirement, Attributes>
+            || std::is_base_of_v<Reflection::GenericAttribute, Attributes>));
     }
 
     template<typename Requirement>

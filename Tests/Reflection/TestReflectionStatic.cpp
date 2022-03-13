@@ -136,7 +136,7 @@ TEST(StaticReflection, Attributes)
 TEST(StaticReflection, AttributeCount)
 {
     EXPECT_EQ(Reflection::StaticType<Empty>().Attributes.Count, 0);
-    EXPECT_EQ(Reflection::StaticType<Base>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Base>().Attributes.Count, 2);
     EXPECT_EQ(Reflection::StaticType<Derived>().Attributes.Count, 1);
     EXPECT_EQ(Reflection::StaticType<Inner>().Attributes.Count, 0);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Attributes.Count, 0);
@@ -146,6 +146,7 @@ TEST(StaticReflection, AttributeCount)
 TEST(StaticReflection, AttributeNames)
 {
     EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Name, "BaseAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<1>().Name, "CommonAttribute");
     EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Name, "DerivedAttribute");
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Name, "BranchedAttributeOne");
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Name, "BranchedAttributeTwo");
@@ -155,6 +156,7 @@ TEST(StaticReflection, AttributeTypes)
 {
     EXPECT_FALSE(Reflection::StaticType<Base>().Attribute<0>().IsType<DerivedAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<0>().IsType<BaseAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<1>().IsType<CommonAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Derived>().Attribute<0>().IsType<DerivedAttribute>());
     EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Attribute<0>().IsType<BranchedAttributeOne>());
     EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Attribute<1>().IsType<BranchedAttributeTwo>());
@@ -163,6 +165,7 @@ TEST(StaticReflection, AttributeTypes)
 TEST(StaticReflection, AttributeInstances)
 {
     EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance, BaseAttribute());
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<1>().Instance, CommonAttribute());
     EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Instance.state, false);
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Instance.modifier, "Small");
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<1>().Instance.modifier, "Big");
@@ -246,8 +249,8 @@ TEST(StaticReflection, MemberPointers)
 TEST(StaticReflection, MemberAttributeCount)
 {
     EXPECT_EQ(Reflection::StaticType<Base>().Member<0>().Attributes.Count, 0);
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 0);
-    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attributes.Count, 1);
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attributes.Count, 2);
     EXPECT_EQ(Reflection::StaticType<Base>().Member<3>().Attributes.Count, 0);
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attributes.Count, 1);
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attributes.Count, 1);
@@ -259,7 +262,9 @@ TEST(StaticReflection, MemberAttributeCount)
 
 TEST(StaticReflection, MemberAttributeNames)
 {
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Name, "CommonAttribute");
     EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<0>().Name, "TextAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<1>().Name, "CommonAttribute");
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Name, "CounterAttribute");
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Name, "InnerAttribute");
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Name, "ToggleOnAttribute");
@@ -270,7 +275,9 @@ TEST(StaticReflection, MemberAttributeNames)
 
 TEST(StaticReflection, MemberAttributeTypes)
 {
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<1>().Attribute<0>().IsType<CommonAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Base>().Member<2>().Attribute<0>().IsType<TextAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Member<2>().Attribute<1>().IsType<CommonAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().IsType<CounterAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().IsType<InnerAttribute>());
     EXPECT_TRUE(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().IsType<ToggleOnAttribute>());
@@ -281,7 +288,9 @@ TEST(StaticReflection, MemberAttributeTypes)
 
 TEST(StaticReflection, MemberAttributeInstances)
 {
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<1>().Attribute<0>().Instance, CommonAttribute());
     EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<0>().Instance, TextAttribute());
+    EXPECT_EQ(Reflection::StaticType<Base>().Member<2>().Attribute<1>().Instance, CommonAttribute());
     EXPECT_EQ(Reflection::StaticType<Derived>().Member<0>().Attribute<0>().Instance.state, true);
     EXPECT_EQ(Reflection::StaticType<Inner>().Member<0>().Attribute<0>().Instance.counter, 20);
     EXPECT_EQ(Reflection::StaticType<BranchedOne>().Member<0>().Attribute<0>().Instance.state, true);

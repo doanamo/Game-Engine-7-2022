@@ -21,6 +21,19 @@ class Empty
 REFLECTION_TYPE_BEGIN(Empty)
 REFLECTION_TYPE_END
 
+class CommonAttribute : public Reflection::GenericAttribute
+{
+    REFLECTION_ENABLE(CommonAttribute, Reflection::GenericAttribute)
+
+public:
+    bool operator==(const CommonAttribute& other) const
+    {
+        return true;
+    }
+};
+
+REFLECTION_TYPE(CommonAttribute, Reflection::GenericAttribute)
+
 class BaseAttribute : public Reflection::TypeAttribute
 {
     REFLECTION_ENABLE(BaseAttribute, Reflection::TypeAttribute)
@@ -68,10 +81,10 @@ public:
 };
 
 REFLECTION_TYPE_BEGIN(Base)
-    REFLECTION_ATTRIBUTES(BaseAttribute())
+    REFLECTION_ATTRIBUTES(BaseAttribute(), CommonAttribute())
     REFLECTION_METHOD(MethodTrue)
-    REFLECTION_FIELD(textWithoutAttribute)
-    REFLECTION_FIELD(textPtrWithAttribute, TextAttribute())
+    REFLECTION_FIELD(textWithoutAttribute, CommonAttribute())
+    REFLECTION_FIELD(textPtrWithAttribute, TextAttribute(), CommonAttribute())
     REFLECTION_METHOD(MethodFalse)
 REFLECTION_TYPE_END
 

@@ -20,6 +20,14 @@ namespace Reflection
         REFLECTION_ENABLE(NullType)
     };
 
+    struct GenericAttribute
+    {
+        REFLECTION_ENABLE(GenericAttribute)
+
+    protected:
+        GenericAttribute() = default;
+    };
+
     struct TypeAttribute
     {
         REFLECTION_ENABLE(TypeAttribute)
@@ -45,7 +53,9 @@ namespace Reflection
     };
 }
 
+// Types declared here must be manually registered in Registry::Register().
 REFLECTION_TYPE(Reflection::NullType)
+REFLECTION_TYPE(Reflection::GenericAttribute)
 REFLECTION_TYPE(Reflection::TypeAttribute)
 REFLECTION_TYPE(Reflection::FieldAttribute)
 REFLECTION_TYPE(Reflection::MethodAttribute)

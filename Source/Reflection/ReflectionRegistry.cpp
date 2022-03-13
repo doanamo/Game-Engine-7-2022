@@ -21,6 +21,7 @@ const Detail::ReflectionRegistry& Detail::GetRegistry()
 Registry::Registry()
 {
     RegisterType<Reflection::NullType>();
+    RegisterType<Reflection::GenericAttribute>();
     RegisterType<Reflection::TypeAttribute>();
     RegisterType<Reflection::FieldAttribute>();
     RegisterType<Reflection::MethodAttribute>();
