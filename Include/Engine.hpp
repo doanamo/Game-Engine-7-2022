@@ -20,6 +20,8 @@ namespace Engine
 {
     class Root final : private Common::NonCopyable
     {
+        REFLECTION_ENABLE(Root)
+
     public:
         using ConfigVariables = Core::ConfigVariableArray;
 
@@ -57,3 +59,7 @@ namespace Engine
         Core::EngineSystemStorage m_engineSystems;
     };
 }
+
+REFLECTION_TYPE_BEGIN(Engine::Root)
+    REFLECTION_ATTRIBUTES(Core::ScriptBinding("Engine"))
+REFLECTION_TYPE_END

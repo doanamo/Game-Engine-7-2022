@@ -49,14 +49,6 @@ ScriptState::CreateResult ScriptState::Create()
         return Common::Failure(CreateErrors::FailedLibraryBinding);
     }
 
-    // Bind scripting interface.
-    if(!instance->BindInterface(*instance))
-    {
-        LOG_ERROR(LogCreateFailed, "Could not bind scripting interface.");
-        instance->PrintError();
-        return Common::Failure(CreateErrors::FailedInterfaceBinding);
-    }
-
     // Make sure that we did not leave anything on the stack.
     ASSERT(lua_gettop(instance->m_state) == 0, "Lua stack is not empty!");
 
@@ -127,7 +119,7 @@ bool ScriptState::CollectGarbage(bool singleStep)
     if(singleStep)
     {
         // Perform only one step of the garbage collection process.
-        // Return whether there is more garbage left to collect.
+        // Return regarless of whether there is more garbage left to collect.
         return lua_gc(m_state, LUA_GCSTEP, 0) == 0;
     }
     else
