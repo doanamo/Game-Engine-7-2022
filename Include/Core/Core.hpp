@@ -38,6 +38,10 @@
 #include <simdjson.h>
 #define SIMDJSON_EXCEPTIONS 0
 
+#ifdef CONFIG_DEBUG
+    #define lua_assert(expression) ASSERT(expression)
+#endif
+
 #include <lua.hpp>
 
 #include <imgui.h>
