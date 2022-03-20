@@ -8,7 +8,7 @@ if(FASTFLOAT_TEST)
   enable_testing()
   add_subdirectory(tests)
 else(FASTFLOAT_TEST)
-  message(STATUS "Tests are disabled. Set FASTFLOAT_TEST to ON to run tests.")
+  #message(STATUS "Tests are disabled. Set FASTFLOAT_TEST to ON to run tests.")
 endif(FASTFLOAT_TEST)
 
 option(FASTFLOAT_SANITIZE "Sanitize addresses" OFF)
