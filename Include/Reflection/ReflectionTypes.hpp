@@ -15,12 +15,12 @@
 
 namespace Reflection
 {
-    struct NullType final
+    class NullType final
     {
         REFLECTION_ENABLE(NullType)
     };
 
-    struct GenericAttribute
+    class GenericAttribute
     {
         REFLECTION_ENABLE(GenericAttribute)
 
@@ -28,7 +28,7 @@ namespace Reflection
         GenericAttribute() = default;
     };
 
-    struct TypeAttribute
+    class TypeAttribute
     {
         REFLECTION_ENABLE(TypeAttribute)
 
@@ -36,7 +36,7 @@ namespace Reflection
         TypeAttribute() = default;
     };
 
-    struct FieldAttribute
+    class FieldAttribute
     {
         REFLECTION_ENABLE(FieldAttribute)
 
@@ -44,7 +44,7 @@ namespace Reflection
         FieldAttribute() = default;
     };
 
-    struct MethodAttribute
+    class MethodAttribute
     {
         REFLECTION_ENABLE(MethodAttribute)
 
