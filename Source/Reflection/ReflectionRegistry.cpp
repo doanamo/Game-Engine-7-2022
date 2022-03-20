@@ -13,11 +13,6 @@ Registry& Reflection::GetRegistry()
     return registry;
 }
 
-const Detail::ReflectionRegistry& Detail::GetRegistry()
-{
-    return Reflection::GetRegistry();
-}
-
 Registry::Registry()
 {
     RegisterType<Reflection::NullType>();

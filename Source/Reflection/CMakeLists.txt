@@ -21,6 +21,7 @@ set(FILES_DETAIL
     "${INCLUDE_DIR}/ReflectionRegistry.inl"
     "${INCLUDE_DIR}/ReflectionDeclare.hpp"
     "${INCLUDE_DIR}/ReflectionTypes.hpp"
+    "${SOURCE_DIR}/ReflectionDetail.cpp"
     "${SOURCE_DIR}/ReflectionDynamic.cpp"
     "${SOURCE_DIR}/ReflectionRegistry.cpp"
 )
