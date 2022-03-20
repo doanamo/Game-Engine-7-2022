@@ -28,7 +28,6 @@ add_library(Renderer
 )
 
 set_property(TARGET Renderer PROPERTY FOLDER "Engine")
-target_compile_features(Renderer PUBLIC cxx_std_17)
 target_include_directories(Renderer PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

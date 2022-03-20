@@ -35,7 +35,6 @@ set(SOURCE_FILES
 
 if(NOT EMSCRIPTEN)
     add_executable(ReflectionGenerator ${SOURCE_FILES})
-    target_compile_features(ReflectionGenerator PUBLIC cxx_std_17)
     export(TARGETS ReflectionGenerator FILE "${CMAKE_BINARY_DIR}/ReflectionGenerator.cmake")
 
     target_sources(ReflectionGenerator PRIVATE "Precompiled.hpp")

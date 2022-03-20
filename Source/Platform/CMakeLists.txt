@@ -82,7 +82,6 @@ add_library(Platform
 )
 
 set_property(TARGET Platform PROPERTY FOLDER "Engine")
-target_compile_features(Platform PUBLIC cxx_std_17)
 target_include_directories(Platform PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

@@ -28,7 +28,6 @@ add_library(Engine
 )
 
 set_property(TARGET Engine PROPERTY FOLDER "Engine")
-target_compile_features(Engine PUBLIC cxx_std_17)
 target_include_directories(Engine PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

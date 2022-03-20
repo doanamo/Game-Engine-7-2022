@@ -12,6 +12,28 @@ cmake_minimum_required(VERSION 3.21)
 project(GameEngine)
 
 #
+# Compilers
+#
+
+# Specify required C++ standard version.
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Disable RTTI and exceptions.
+if(MSVC)
+    string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    add_definitions("-D_HAS_EXCEPTIONS=0")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
+endif()
+
+# Global Emscripten flags.
+if(EMSCRIPTEN)
+    add_link_options("$<$<CONFIG:DEBUG>: -s SAFE_HEAP=1>")
+endif()
+
+#
 # Configurations
 #
 
@@ -47,7 +69,7 @@ check_ipo_supported()
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 
-# Make Develop behave like regular Release configuration.
+# Make Develop behave like original Release configuration.
 set(CMAKE_ASM_FLAGS_DEVELOP ${CMAKE_ASM_FLAGS_RELEASE})
 set(CMAKE_C_FLAGS_DEVELOP ${CMAKE_C_FLAGS_RELEASE})
 set(CMAKE_CXX_FLAGS_DEVELOP ${CMAKE_CXX_FLAGS_RELEASE})
@@ -64,20 +86,6 @@ add_compile_definitions(
     $<$<CONFIG:Release>:CMAKE_CONFIG_RELEASE>
 )
 
-# Disable RTTI and exceptions.
-if(MSVC)
-    string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    add_definitions("-D_HAS_EXCEPTIONS=0")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
-endif()
-
-# Global Emscripten flags.
-if(EMSCRIPTEN)
-    add_link_options("$<$<CONFIG:DEBUG>: -s SAFE_HEAP=1>")
-endif()
-
 #
 # Sources
 #
@@ -86,6 +94,6 @@ add_subdirectory("Source")
 add_subdirectory("Example")
 add_subdirectory("Tests")
 
-# This is here because it must be called from root CMakeLists.
+# This is here because it must be called from root CMakeLists file.
 # Otherwise tests will fail to be run when CTest is invoked.
 enable_testing()

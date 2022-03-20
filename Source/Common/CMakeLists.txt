@@ -101,7 +101,6 @@ add_library(Common
 )
 
 set_property(TARGET Common PROPERTY FOLDER "Engine")
-target_compile_features(Common PUBLIC cxx_std_17)
 target_include_directories(Common PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

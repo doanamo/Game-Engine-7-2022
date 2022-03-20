@@ -74,7 +74,6 @@ add_library(Core
 )
 
 set_property(TARGET Core PROPERTY FOLDER "Engine")
-target_compile_features(Core PUBLIC cxx_std_17)
 target_include_directories(Core PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

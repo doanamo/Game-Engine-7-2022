@@ -56,7 +56,6 @@ add_library(Editor
 )
 
 set_property(TARGET Editor PROPERTY FOLDER "Engine")
-target_compile_features(Editor PUBLIC cxx_std_17)
 target_include_directories(Editor PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

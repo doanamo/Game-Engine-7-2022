@@ -70,7 +70,6 @@ add_library(Graphics
 )
 
 set_property(TARGET Graphics PROPERTY FOLDER "Engine")
-target_compile_features(Graphics PUBLIC cxx_std_17)
 target_include_directories(Graphics PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

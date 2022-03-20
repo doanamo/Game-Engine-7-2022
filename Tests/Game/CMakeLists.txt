@@ -19,7 +19,6 @@ set(TEST_FILES
 #
 
 add_executable(TestGame ${TEST_FILES})
-target_compile_features(TestGame PUBLIC cxx_std_17)
 
 #
 # Precompiled Header

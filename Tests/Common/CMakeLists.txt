@@ -25,7 +25,6 @@ set(TEST_FILES
 #
 
 add_executable(TestCommon ${TEST_FILES})
-target_compile_features(TestCommon PUBLIC cxx_std_17)
 
 #
 # Precompiled Header

@@ -42,7 +42,6 @@ add_library(Reflection
 )
 
 set_property(TARGET Reflection PROPERTY FOLDER "Engine")
-target_compile_features(Reflection PUBLIC cxx_std_17)
 target_include_directories(Reflection PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"

@@ -21,7 +21,6 @@ set(TEST_FILES
 #
 
 add_executable(TestReflection ${TEST_FILES})
-target_compile_features(TestReflection PUBLIC cxx_std_17)
 
 #
 # Precompiled Header

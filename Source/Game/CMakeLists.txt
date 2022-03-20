@@ -75,7 +75,6 @@ add_library(Game
 )
 
 set_property(TARGET Game PROPERTY FOLDER "Engine")
-target_compile_features(Game PUBLIC cxx_std_17)
 target_include_directories(Game PUBLIC
     "${PROJECT_SOURCE_DIR}/Include"
     "${PROJECT_SOURCE_DIR}/Source"
