@@ -15,7 +15,7 @@
 
 namespace Reflection
 {
-    class Registry final : public Detail::ReflectionRegistry
+    class Registry final : public Detail::Registry
     {
     public:
         using TypeInfoMap = std::unordered_map<TypeIdentifier, DynamicTypeInfo&>;

@@ -336,14 +336,14 @@ namespace Reflection::Detail
         return { std::make_tuple(MemberEntry<ReflectedType, MemberIndices>{} ...) };
     }
 
-    class ReflectionRegistry
+    class Registry
     {
     protected:
-        ~ReflectionRegistry() = default;
+        ~Registry() = default;
 
     public:
         virtual const DynamicTypeInfo& LookupType(TypeIdentifier identifier) const = 0;
     };
 
-    const ReflectionRegistry& GetRegistry();
+    const Registry& GetRegistry();
 }

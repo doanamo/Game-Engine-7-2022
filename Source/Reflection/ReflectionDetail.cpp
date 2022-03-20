@@ -7,7 +7,7 @@
 #include "Reflection/ReflectionRegistry.hpp"
 using namespace Reflection;
 
-const Detail::ReflectionRegistry& Detail::GetRegistry()
+const Detail::Registry& Detail::GetRegistry()
 {
     return Reflection::GetRegistry();
 }
