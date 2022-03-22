@@ -28,8 +28,24 @@ namespace Reflection
         bool RegisterType();
 
         const DynamicTypeInfo& LookupType(TypeIdentifier identifier) const override;
+        const TypeInfoMap& GetTypes() const
+        {
+            return m_types;
+        }
 
     private:
+        template<typename Type>
+        void ValidateType();
+
+        template<typename Type>
+        DynamicTypeInfo* RegisterTypeInfo();
+
+        template<typename Type>
+        bool RegisterBasics(DynamicTypeInfo* typeInfo);
+
+        template<typename Type>
+        bool RegisterBaseType(DynamicTypeInfo* typeInfo);
+
         DynamicTypeInfo* FindTypeInfo(TypeIdentifier identifier);
 
     private:

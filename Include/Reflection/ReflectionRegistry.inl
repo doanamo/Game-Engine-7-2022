@@ -8,17 +8,76 @@
 namespace Reflection
 {
     template<typename Type>
-    bool Registry::RegisterType()
+    void Registry::ValidateType()
     {
-        // Validate type.
         constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
         static_assert(StaticType.Reflected, "Cannot register not reflected type!");
 
         ASSERT(StaticType.Identifier != InvalidIdentifier, "Attempted to register type "
             "\"{}\" ({}) with static identifier equal to invalid identifier!",
             StaticType.Name, StaticType.Identifier);
+    }
 
-        // Retrieve base type info.
+    template<typename Type>
+    DynamicTypeInfo* Registry::RegisterTypeInfo()
+    {
+        ValidateType<Type>();
+
+        constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
+        DynamicTypeInfo& dynamicType = Type::GetTypeStorage().m_dynamicType;
+        auto result = m_types.emplace(StaticType.Identifier, dynamicType);
+
+        if(!result.second)
+        {
+#ifdef NAME_REGISTRY_ENABLED
+            if(dynamicType.GetName().GetString() != StaticType.Name)
+            {
+                ASSERT(false, "Detected name hash collision between types \"{}\" ({})"
+                    " and \"{}\" ({})!", StaticType.Name, StaticType.Identifier,
+                    dynamicType.GetName().GetString(), dynamicType.GetIdentifier());
+                return nullptr;
+            }
+#endif
+
+            if(dynamicType.IsRegistered())
+            {
+                LOG_WARNING("Attempted to register type \"{}\" ({}) twice!",
+                    StaticType.Name, dynamicType.GetIdentifier());
+                return nullptr;
+            }
+
+            ASSERT(false, "Unknown registration error for type \"{}\" ({})",
+                StaticType.Name, dynamicType.GetIdentifier());
+            return nullptr;
+        }
+
+        return &dynamicType;
+    }
+
+    template<typename Type>
+    bool Registry::RegisterBasics(DynamicTypeInfo* typeInfo)
+    {
+        constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
+
+        typeInfo->SetName(NAME(StaticType.Name));
+        if constexpr(StaticType.IsConstructible())
+        {
+            typeInfo->SetConstructible(
+                []() -> void*
+                {
+                    return new Type();
+                }
+            );
+        }
+
+        return true;
+    }
+
+    template<typename Type>
+    bool Registry::RegisterBaseType(DynamicTypeInfo* typeInfo)
+    {
+        constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
+
         using BaseType = typename decltype(StaticType)::BaseType;
         static_assert(std::is_same<typename Type::Super, BaseType>::value,
             "Mismatched base types between dynamic and static reflection declarations!");
@@ -29,59 +88,39 @@ namespace Reflection
             if(!StaticType.GetBaseType().IsNullType())
             {
                 LOG_WARNING("Attempted to register type \"{}\" ({}) with unregistered "
-                    "base type \"{}\" ({})!", StaticType.Name, StaticType.Identifier, 
+                    "base type \"{}\" ({})!", StaticType.Name, StaticType.Identifier,
                     StaticType.GetBaseType().Name, StaticType.GetBaseType().Identifier);
                 return false;
             }
         }
         else
         {
-            ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type "
-                "info pointer for type \"{}\" ({})!", StaticType.Name, StaticType.Identifier);
+            if(!baseType->IsNullType())
+            {
+                ASSERT(baseType->IsRegistered(), "Retrieved unregistered non-null base type "
+                    "info pointer for type \"{}\" ({})!", StaticType.Name, StaticType.Identifier);
+            }
         }
 
-        // Map type identifier to dynamic type info.
-        auto result = m_types.emplace(StaticType.Identifier, Type::GetTypeStorage().m_dynamicType);
-        DynamicTypeInfo& dynamicType = result.first->second;
+        typeInfo->SetBaseType(baseType);
+        return true;
+    }
 
-        if(!result.second)
-        {
-#ifdef NAME_REGISTRY_ENABLED
-            if(dynamicType.GetName().GetString() != StaticType.Name)
-            {
-                ASSERT(false, "Detected name hash collision between types \"{}\" ({})"
-                    " and \"{}\" ({})!", StaticType.Name, StaticType.Identifier,
-                    dynamicType.GetName().GetString(), dynamicType.GetIdentifier());
-            }
-#endif
-
-            if(dynamicType.IsRegistered())
-            {
-                LOG_WARNING("Attempted to register type \"{}\" ({}) twice!",
-                    StaticType.Name, dynamicType.GetIdentifier());
-            }
-            else
-            {
-                ASSERT(false, "Unknown registration error for type \"{}\" ({})",
-                    StaticType.Name, dynamicType.GetIdentifier());
-            }
-
+    template<typename Type>
+    bool Registry::RegisterType()
+    {
+        DynamicTypeInfo* typeInfo = RegisterTypeInfo<Type>();
+        if(typeInfo == nullptr)
             return false;
-        }
 
-        // Initialize dynamic type info.
-        DynamicTypeInfo::ConstructFunction constructFunction = nullptr;
-        if constexpr(StaticType.IsConstructible())
-        {
-            constructFunction = []() -> void*
-            {
-                return new Type();
-            };
-        }
+        if(!RegisterBasics<Type>(typeInfo))
+            return false;
 
-        dynamicType.Register(NAME(StaticType.Name), constructFunction, baseType);
-        LOG_DEBUG("Registered type: \"{}\" ({})", StaticType.Name, dynamicType.GetIdentifier());
+        if(!RegisterBaseType<Type>(typeInfo))
+            return false;
 
+        typeInfo->MarkRegistered();
+        LOG_DEBUG("Registered type: \"{}\" ({})", typeInfo->GetName(), typeInfo->GetIdentifier());
         return true;
     }
 }

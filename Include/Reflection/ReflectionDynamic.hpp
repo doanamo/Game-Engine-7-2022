@@ -114,9 +114,10 @@ namespace Reflection
         }
 
     private:
-        void Register(const Common::Name& name,
-            ConstructFunction constructFunction,
-            DynamicTypeInfo* baseType);
+        void SetName(const Common::Name& name);
+        void SetConstructible(ConstructFunction constructFunction);
+        void SetBaseType(DynamicTypeInfo* baseType);
+        void MarkRegistered();
 
         void AddDerivedType(const DynamicTypeInfo& typeInfo);
 
