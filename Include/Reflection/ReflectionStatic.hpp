@@ -88,6 +88,12 @@ namespace Reflection
             return Attributes.Count > 0;
         }
 
+        template<typename AttributeType>
+        static constexpr bool HasAttribute()
+        {
+            return TypeInfo.Attributes.Contains<AttributeType>();
+        }
+
         template<std::size_t AttributeIndex>
         static constexpr auto Attribute() -> decltype(Attributes.template Get<AttributeIndex>())
         {
@@ -173,6 +179,12 @@ namespace Reflection
         static constexpr bool HasAttributes()
         {
             return Attributes.Count > 0;
+        }
+
+        template<typename AttributeType>
+        static constexpr bool HasAttribute()
+        {
+            return TypeInfo.Attributes.Contains<AttributeType>();
         }
 
         template<std::size_t AttributeIndex>

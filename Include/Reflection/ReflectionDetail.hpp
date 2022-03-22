@@ -50,6 +50,12 @@ namespace Reflection::Detail
             return std::get<Index>(Objects);
         }
 
+        template<typename Type>
+        constexpr bool Contains() const
+        {
+            return (std::is_same_v<Type, Types> || ...);
+        }
+
         static constexpr std::size_t Count = sizeof...(Types);
     };
 
