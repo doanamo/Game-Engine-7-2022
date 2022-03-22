@@ -3,8 +3,8 @@
     Software distributed under the permissive MIT License.
 */
 
+#include "Core/Script/ScriptBinding.hpp"
 #include "Core/Script/ScriptState.hpp"
-using namespace Core;
 
 extern "C"
 {
@@ -21,11 +21,19 @@ extern "C"
     }
 }
 
-bool ScriptState::BindInterface(ScriptState& scriptState)
+bool Core::BindScriptInterface(ScriptState& scriptState)
 {
     // Register logging function.
     lua_pushcfunction(scriptState, LuaLog);
     lua_setglobal(scriptState, "Log");
+
+    //
+    for(auto& type : Reflection::GetRegistry().GetTypes())
+    {
+        const Reflection::DynamicTypeInfo& typeInfo = type.second;
+
+        //if(typeInfo.HasAttribute<ScriptBinding>())
+    }
 
     return true;
 }

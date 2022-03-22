@@ -16,12 +16,23 @@ ScriptSystem::~ScriptSystem() = default;
 
 bool ScriptSystem::OnAttach(const EngineSystemStorage& systemStorage)
 {
+    // Create Lua script state.
     m_state = ScriptState::Create().UnwrapOr(nullptr);
     if(m_state == nullptr)
     {
         LOG_ERROR(LogAttachFailed, "Could not create script state.");
         return false;
     }
+
+    // Bind script interface.
+    if(!BindScriptInterface(*m_state))
+    {
+        LOG_ERROR(LogAttachFailed, "Could not bind script interface.");
+        return false;
+    }
+
+    // Make sure that we did not leave anything on the stack.
+    ASSERT(lua_gettop(*m_state) == 0, "Lua stack is not empty!");
 
     return true;
 }

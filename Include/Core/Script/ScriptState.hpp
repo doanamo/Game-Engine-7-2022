@@ -38,7 +38,6 @@ namespace Core
             InvalidArgument,
             FailedStateCreation,
             FailedLibraryBinding,
-            FailedInterfaceBinding,
             FailedScriptExecution,
             FailedScriptFileResolve,
         };
