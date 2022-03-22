@@ -34,18 +34,18 @@ public:
 
 REFLECTION_TYPE(CommonAttribute, Reflection::GenericAttribute)
 
-class BaseAttribute : public Reflection::TypeAttribute
+class BasicAttribute : public Reflection::TypeAttribute
 {
-    REFLECTION_ENABLE(BaseAttribute, Reflection::TypeAttribute)
+    REFLECTION_ENABLE(BasicAttribute, Reflection::TypeAttribute)
 
 public:
-    bool operator==(const BaseAttribute& other) const
+    bool operator==(const BasicAttribute& other) const
     {
         return true;
     }
 };
 
-REFLECTION_TYPE(BaseAttribute, Reflection::TypeAttribute)
+REFLECTION_TYPE(BasicAttribute, Reflection::TypeAttribute)
 
 class TextAttribute : public Reflection::FieldAttribute
 {
@@ -81,7 +81,7 @@ public:
 };
 
 REFLECTION_TYPE_BEGIN(Base)
-    REFLECTION_ATTRIBUTES(BaseAttribute(), CommonAttribute())
+    REFLECTION_ATTRIBUTES(BasicAttribute(), CommonAttribute())
     REFLECTION_METHOD(MethodTrue)
     REFLECTION_FIELD(textWithoutAttribute, CommonAttribute())
     REFLECTION_FIELD(textPtrWithAttribute, TextAttribute(), CommonAttribute())

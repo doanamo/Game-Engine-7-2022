@@ -16,6 +16,7 @@ Registry& Reflection::GetRegistry()
 Registry::Registry()
 {
     RegisterType<Reflection::NullType>();
+    RegisterType<Reflection::BaseAttribute>();
     RegisterType<Reflection::GenericAttribute>();
     RegisterType<Reflection::TypeAttribute>();
     RegisterType<Reflection::FieldAttribute>();

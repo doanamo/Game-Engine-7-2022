@@ -20,33 +20,41 @@ namespace Reflection
         REFLECTION_ENABLE(NullType)
     };
 
-    class GenericAttribute
+    class BaseAttribute
     {
-        REFLECTION_ENABLE(GenericAttribute)
+        REFLECTION_ENABLE(BaseAttribute)
+
+    protected:
+        BaseAttribute() = default;
+    };
+
+    class GenericAttribute : public BaseAttribute
+    {
+        REFLECTION_ENABLE(GenericAttribute, BaseAttribute)
 
     protected:
         GenericAttribute() = default;
     };
 
-    class TypeAttribute
+    class TypeAttribute : public BaseAttribute
     {
-        REFLECTION_ENABLE(TypeAttribute)
+        REFLECTION_ENABLE(TypeAttribute, BaseAttribute)
 
     protected:
         TypeAttribute() = default;
     };
 
-    class FieldAttribute
+    class FieldAttribute : public BaseAttribute
     {
-        REFLECTION_ENABLE(FieldAttribute)
+        REFLECTION_ENABLE(FieldAttribute, BaseAttribute)
 
     protected:
         FieldAttribute() = default;
     };
 
-    class MethodAttribute
+    class MethodAttribute : public BaseAttribute
     {
-        REFLECTION_ENABLE(MethodAttribute)
+        REFLECTION_ENABLE(MethodAttribute, BaseAttribute)
 
     protected:
         MethodAttribute() = default;
@@ -55,7 +63,8 @@ namespace Reflection
 
 // Types declared here must be manually registered in Registry::Register().
 REFLECTION_TYPE(Reflection::NullType)
-REFLECTION_TYPE(Reflection::GenericAttribute)
-REFLECTION_TYPE(Reflection::TypeAttribute)
-REFLECTION_TYPE(Reflection::FieldAttribute)
-REFLECTION_TYPE(Reflection::MethodAttribute)
+REFLECTION_TYPE(Reflection::BaseAttribute)
+REFLECTION_TYPE(Reflection::GenericAttribute, Reflection::BaseAttribute)
+REFLECTION_TYPE(Reflection::TypeAttribute, Reflection::BaseAttribute)
+REFLECTION_TYPE(Reflection::FieldAttribute, Reflection::BaseAttribute)
+REFLECTION_TYPE(Reflection::MethodAttribute, Reflection::BaseAttribute)

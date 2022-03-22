@@ -259,6 +259,14 @@ TEST(DynamicReflection, ConstructFromIdentifier)
     std::unique_ptr<Base> branchedTwo(Reflection::Construct<Base>(Reflection::GetIdentifier<BranchedTwo>()));
     EXPECT_TRUE(branchedTwo->GetTypeInfo().IsType<BranchedTwo>());
 
+    EXPECT_FALSE(Reflection::StaticType<Reflection::BaseAttribute>().IsConstructible());
+    auto* baseAttribute = Reflection::Construct<Reflection::BaseAttribute>();
+    EXPECT_EQ(baseAttribute, nullptr);
+
+    EXPECT_FALSE(Reflection::StaticType<Reflection::GenericAttribute>().IsConstructible());
+    auto* genericAttribute = Reflection::Construct<Reflection::GenericAttribute>();
+    EXPECT_EQ(genericAttribute, nullptr);
+
     EXPECT_FALSE(Reflection::StaticType<Reflection::TypeAttribute>().IsConstructible());
     auto* typeAttribute = Reflection::Construct<Reflection::TypeAttribute>();
     EXPECT_EQ(typeAttribute, nullptr);

@@ -145,7 +145,7 @@ TEST(StaticReflection, AttributeCount)
 
 TEST(StaticReflection, AttributeNames)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Name, "BaseAttribute");
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Name, "BasicAttribute");
     EXPECT_EQ(Reflection::StaticType<Base>().Attribute<1>().Name, "CommonAttribute");
     EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Name, "DerivedAttribute");
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Name, "BranchedAttributeOne");
@@ -155,7 +155,7 @@ TEST(StaticReflection, AttributeNames)
 TEST(StaticReflection, AttributeTypes)
 {
     EXPECT_FALSE(Reflection::StaticType<Base>().Attribute<0>().IsType<DerivedAttribute>());
-    EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<0>().IsType<BaseAttribute>());
+    EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<0>().IsType<BasicAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Base>().Attribute<1>().IsType<CommonAttribute>());
     EXPECT_TRUE(Reflection::StaticType<Derived>().Attribute<0>().IsType<DerivedAttribute>());
     EXPECT_TRUE(Reflection::StaticType<BranchedTwo>().Attribute<0>().IsType<BranchedAttributeOne>());
@@ -164,7 +164,7 @@ TEST(StaticReflection, AttributeTypes)
 
 TEST(StaticReflection, AttributeInstances)
 {
-    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance, BaseAttribute());
+    EXPECT_EQ(Reflection::StaticType<Base>().Attribute<0>().Instance, BasicAttribute());
     EXPECT_EQ(Reflection::StaticType<Base>().Attribute<1>().Instance, CommonAttribute());
     EXPECT_EQ(Reflection::StaticType<Derived>().Attribute<0>().Instance.state, false);
     EXPECT_EQ(Reflection::StaticType<BranchedTwo>().Attribute<0>().Instance.modifier, "Small");
