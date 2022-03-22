@@ -100,6 +100,14 @@ TEST(DynamicReflection, BaseType)
     EXPECT_TRUE(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
 }
 
+TEST(DynamicReflection, NullTypeHierarchy)
+{
+    // Even though we use null type to deduce lack of base type, we do not want it to act as such.
+    EXPECT_EQ(Reflection::DynamicType<Base>().GetBaseType().GetName(), Common::Name("Reflection::NullType"));
+    EXPECT_FALSE(Reflection::DynamicType<Base>().IsDerivedFrom<Reflection::NullType>());
+    EXPECT_FALSE(Reflection::DynamicType<Reflection::NullType>().IsBaseOf<Base>());
+}
+
 TEST(DynamicReflection, SuperDeclaration)
 {
     EXPECT_EQ(Reflection::DynamicType<Derived>().GetBaseType().GetIdentifier(),Reflection::DynamicType<Derived::Super>().GetIdentifier());
