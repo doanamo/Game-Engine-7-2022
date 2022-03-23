@@ -91,7 +91,7 @@ namespace Reflection
         template<typename AttributeType>
         static constexpr bool HasAttribute()
         {
-            return TypeInfo.Attributes.Contains<AttributeType>();
+            return TypeInfo.Attributes.template Contains<AttributeType>();
         }
 
         template<std::size_t AttributeIndex>
@@ -184,7 +184,7 @@ namespace Reflection
         template<typename AttributeType>
         static constexpr bool HasAttribute()
         {
-            return TypeInfo.Attributes.Contains<AttributeType>();
+            return TypeInfo.Attributes.template Contains<AttributeType>();
         }
 
         template<std::size_t AttributeIndex>
