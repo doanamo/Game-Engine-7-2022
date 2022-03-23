@@ -1,3 +1,7 @@
+#
+# Image
+#
+
 default:
     image: $CI_REGISTRY_IMAGE:latest
 
@@ -10,6 +14,7 @@ stages:
 build_docker_image:
     stage: image
     rules:
+        - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
         - changes:
             - Build/.gitlab-ci.yml
             - Build/Dockerfile
@@ -27,8 +32,14 @@ build_docker_image:
         - docker build -t "$CI_REGISTRY_IMAGE:latest" "Build/"
         - docker push "$CI_REGISTRY_IMAGE:latest"
 
+#
+# GCC
+#
+
 generate_gcc_debug_x64:
     stage: generate
+    rules:
+        - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     script:
         - mkdir cmake-gcc-debug-x64
         - cd cmake-gcc-debug-x64
@@ -39,6 +50,8 @@ generate_gcc_debug_x64:
 
 generate_gcc_release_x64:
     stage: generate
+    rules:
+        - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     script:
         - mkdir cmake-gcc-release-x64
         - cd cmake-gcc-release-x64
@@ -85,8 +98,14 @@ test_gcc_release_x64:
         - cd cmake-gcc-release-x64
         - ctest --output-on-failure
 
+#
+# Clang
+#
+
 generate_clang_debug_x64:
     stage: generate
+    rules:
+        - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     script:
         - mkdir cmake-clang-debug-x64
         - cd cmake-clang-debug-x64
@@ -97,6 +116,8 @@ generate_clang_debug_x64:
 
 generate_clang_release_x64:
     stage: generate
+    rules:
+        - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     script:
         - mkdir cmake-clang-release-x64
         - cd cmake-clang-release-x64
