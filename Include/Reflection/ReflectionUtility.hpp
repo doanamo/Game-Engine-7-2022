@@ -77,7 +77,7 @@ namespace Reflection
     template<typename ComparedType, typename RegisteredType>
     constexpr bool IsType(const RegisteredType& instance)
     {
-        return DynamicType(instance).IsType<ComparedType>();
+        return DynamicType(instance).template IsType<ComparedType>();
     }
 
     template<typename ComparedType>
