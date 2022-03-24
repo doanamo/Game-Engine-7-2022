@@ -74,6 +74,18 @@ namespace Reflection
         return DynamicType(identifier).IsRegistered();
     }
 
+    template<typename ComparedType, typename RegisteredType>
+    constexpr bool IsType(const RegisteredType& instance)
+    {
+        return DynamicType(instance).IsType<ComparedType>();
+    }
+
+    template<typename ComparedType>
+    inline bool IsType(const TypeIdentifier& identifier)
+    {
+        return DynamicType(identifier).IsType<ComparedType>();
+    }
+
     template<typename ReflectedType>
     constexpr TypeIdentifier GetIdentifier()
     {

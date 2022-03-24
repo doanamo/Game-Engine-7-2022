@@ -100,6 +100,62 @@ TEST(DynamicReflection, BaseType)
     EXPECT_TRUE(Reflection::DynamicType<Derived>().IsBaseOf<BranchedOne>());
 }
 
+TEST(DynamicReflection, Attributes)
+{
+    EXPECT_FALSE(Reflection::DynamicType<Empty>().HasAttributes());
+    EXPECT_TRUE(Reflection::DynamicType<Base>().HasAttributes());
+    EXPECT_TRUE(Reflection::DynamicType<Derived>().HasAttributes());
+    EXPECT_FALSE(Reflection::DynamicType<Inner>().HasAttributes());
+    EXPECT_FALSE(Reflection::DynamicType<BranchedOne>().HasAttributes());
+    EXPECT_TRUE(Reflection::DynamicType<BranchedTwo>().HasAttributes());
+
+    EXPECT_TRUE(Reflection::DynamicType<Base>().HasAttribute<BasicAttribute>());
+    EXPECT_TRUE(Reflection::DynamicType<Base>().HasAttribute<CommonAttribute>());
+    EXPECT_TRUE(Reflection::DynamicType<Derived>().HasAttribute<DerivedAttribute>());
+    EXPECT_FALSE(Reflection::DynamicType<BranchedOne>().HasAttribute<BranchedAttributeOne>());
+    EXPECT_FALSE(Reflection::DynamicType<BranchedOne>().HasAttribute<BranchedAttributeTwo>());
+    EXPECT_TRUE(Reflection::DynamicType<BranchedTwo>().HasAttribute<BranchedAttributeOne>());
+    EXPECT_TRUE(Reflection::DynamicType<BranchedTwo>().HasAttribute<BranchedAttributeTwo>());
+}
+
+TEST(DynamicReflection, AttributeCount)
+{
+    EXPECT_EQ(Reflection::DynamicType<Empty>().GetAttributes().size(), 0);
+    EXPECT_EQ(Reflection::DynamicType<Base>().GetAttributes().size(), 2);
+    EXPECT_EQ(Reflection::DynamicType<Derived>().GetAttributes().size(), 1);
+    EXPECT_EQ(Reflection::DynamicType<Inner>().GetAttributes().size(), 0);
+    EXPECT_EQ(Reflection::DynamicType<BranchedOne>().GetAttributes().size(), 0);
+    EXPECT_EQ(Reflection::DynamicType<BranchedTwo>().GetAttributes().size(), 2);
+}
+
+TEST(DynamicReflection, AttributeNames)
+{
+    EXPECT_EQ(Reflection::GetName(Reflection::DynamicType<Base>().GetAttributeByIndex(0)), "BasicAttribute");
+    EXPECT_EQ(Reflection::GetName(Reflection::DynamicType<Base>().GetAttributeByIndex(1)), "CommonAttribute");
+    EXPECT_EQ(Reflection::GetName(Reflection::DynamicType<Derived>().GetAttributeByIndex(0)), "DerivedAttribute");
+    EXPECT_EQ(Reflection::GetName(Reflection::DynamicType<BranchedTwo>().GetAttributeByIndex(0)), "BranchedAttributeOne");
+    EXPECT_EQ(Reflection::GetName(Reflection::DynamicType<BranchedTwo>().GetAttributeByIndex(1)), "BranchedAttributeTwo");
+}
+
+TEST(DynamicReflection, AttributeTypes)
+{
+    EXPECT_FALSE(Reflection::IsType<DerivedAttribute>(Reflection::DynamicType<Base>().GetAttributeByIndex(0)));
+    EXPECT_TRUE(Reflection::IsType<BasicAttribute>(Reflection::DynamicType<Base>().GetAttributeByIndex(0)));
+    EXPECT_TRUE(Reflection::IsType<CommonAttribute>(Reflection::DynamicType<Base>().GetAttributeByIndex(1)));
+    EXPECT_TRUE(Reflection::IsType<DerivedAttribute>(Reflection::DynamicType<Derived>().GetAttributeByIndex(0)));
+    EXPECT_TRUE(Reflection::IsType<BranchedAttributeOne>(Reflection::DynamicType<BranchedTwo>().GetAttributeByIndex(0)));
+    EXPECT_TRUE(Reflection::IsType<BranchedAttributeTwo>(Reflection::DynamicType<BranchedTwo>().GetAttributeByIndex(1)));
+}
+
+TEST(DynamicReflection, AttributeInstances)
+{
+    EXPECT_EQ(*Reflection::DynamicType<Base>().GetAttribute<BasicAttribute>(), BasicAttribute());
+    EXPECT_EQ(*Reflection::DynamicType<Base>().GetAttribute<CommonAttribute>(), CommonAttribute());
+    EXPECT_EQ(Reflection::DynamicType<Derived>().GetAttribute<DerivedAttribute>()->state, false);
+    EXPECT_EQ(Reflection::DynamicType<BranchedTwo>().GetAttribute<BranchedAttributeOne>()->modifier, "Small");
+    EXPECT_EQ(Reflection::DynamicType<BranchedTwo>().GetAttribute<BranchedAttributeTwo>()->modifier, "Big");
+}
+
 TEST(DynamicReflection, NullTypeHierarchy)
 {
     // Even though we use null type to deduce lack of base type, we do not want it to act as such.

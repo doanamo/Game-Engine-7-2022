@@ -46,6 +46,9 @@ namespace Reflection
         template<typename Type>
         bool RegisterBaseType(DynamicTypeInfo* typeInfo);
 
+        template<typename Type>
+        bool RegisterAttributes(DynamicTypeInfo* typeInfo);
+
         DynamicTypeInfo* FindTypeInfo(TypeIdentifier identifier);
 
     private:

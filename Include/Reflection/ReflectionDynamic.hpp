@@ -11,11 +11,13 @@
 /*
     Reflection Dynamic
 
-    Run-time reflection interface.
+    Run-time reflection type info.
 */
 
 namespace Reflection
 {
+    class BaseAttribute;
+
     template<typename ReflectedType>
     constexpr DecayedStaticTypeInfo<ReflectedType> StaticType();
 
@@ -28,8 +30,9 @@ namespace Reflection
         friend class Registry;
         static const DynamicTypeInfo Invalid;
 
-        using DynamicTypeList = std::vector<std::reference_wrapper<const DynamicTypeInfo>>;
         using ConstructFunction = void* (*)();
+        using DynamicTypeList = std::vector<const DynamicTypeInfo*>;
+        using AttributeList = std::vector<const BaseAttribute*>;
         
     public:
         DynamicTypeInfo() = default;
@@ -41,6 +44,9 @@ namespace Reflection
         bool IsType(TypeIdentifier identifier) const;
         bool IsBaseOf(TypeIdentifier identifier) const;
         bool IsDerivedFrom(TypeIdentifier identifier) const;
+        bool HasAttribute(TypeIdentifier identifier) const;
+        const BaseAttribute* GetAttribute(TypeIdentifier identifier) const;
+        const BaseAttribute* GetAttributeByIndex(size_t index) const;
 
         bool IsRegistered() const
         {
@@ -55,6 +61,16 @@ namespace Reflection
         bool HasBaseType() const
         {
             return m_registered && !m_baseType->IsNullType();
+        }
+
+        bool HasDerivedTypes() const
+        {
+            return !m_attributes.empty();
+        }
+
+        bool HasAttributes() const
+        {
+            return !m_attributes.empty();
         }
 
         const Common::Name& GetName() const
@@ -75,6 +91,11 @@ namespace Reflection
         const DynamicTypeList& GetDerivedTypes() const
         {
             return m_derivedTypes;
+        }
+
+        const AttributeList& GetAttributes() const
+        {
+            return m_attributes;
         }
 
         template<typename OtherType>
@@ -113,20 +134,34 @@ namespace Reflection
             return IsDerivedFrom(instance.GetTypeInfo().GetIdentifier());
         }
 
+        template<typename AttributeType>
+        bool HasAttribute() const
+        {
+            return HasAttribute(StaticType<AttributeType>().Identifier);
+        }
+
+        template<typename AttributeType>
+        const AttributeType* GetAttribute() const
+        {
+            const BaseAttribute* attribute = GetAttribute(StaticType<AttributeType>().Identifier);
+            return reinterpret_cast<const AttributeType*>(attribute);
+        }
+
     private:
         void SetName(const Common::Name& name);
         void SetConstructible(ConstructFunction constructFunction);
         void SetBaseType(DynamicTypeInfo* baseType);
+        void AddAttribute(const BaseAttribute* attribute);
+        void AddDerivedType(const DynamicTypeInfo* typeInfo);
         void MarkRegistered();
 
-        void AddDerivedType(const DynamicTypeInfo& typeInfo);
-
     private:
-        bool m_registered = false;
         Common::Name m_name = NAME("<UnregisteredType>");
         ConstructFunction m_constructFunction = nullptr;
         const DynamicTypeInfo* m_baseType = &Invalid;
         DynamicTypeList m_derivedTypes;
+        AttributeList m_attributes;
+        bool m_registered = false;
     };
 
     class DynamicTypeStorage

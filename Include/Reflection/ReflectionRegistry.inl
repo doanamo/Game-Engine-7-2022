@@ -107,6 +107,21 @@ namespace Reflection
     }
 
     template<typename Type>
+    bool Registry::RegisterAttributes(DynamicTypeInfo* typeInfo)
+    {
+        constexpr auto StaticType = DecayedStaticTypeInfo<Type>();
+
+        Reflection::ForEach(StaticType.Attributes,
+            [typeInfo](const auto& attribute)
+            {
+                typeInfo->AddAttribute(&attribute.Instance);
+            }
+        );
+
+        return true;
+    }
+
+    template<typename Type>
     bool Registry::RegisterType()
     {
         DynamicTypeInfo* typeInfo = RegisterTypeInfo<Type>();
@@ -117,6 +132,9 @@ namespace Reflection
             return false;
 
         if(!RegisterBaseType<Type>(typeInfo))
+            return false;
+
+        if(!RegisterAttributes<Type>(typeInfo))
             return false;
 
         typeInfo->MarkRegistered();

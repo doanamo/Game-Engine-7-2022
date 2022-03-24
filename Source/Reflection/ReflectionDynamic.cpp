@@ -33,7 +33,7 @@ void DynamicTypeInfo::SetBaseType(DynamicTypeInfo* baseType)
         ASSERT(baseType != nullptr, "Empty base type is only valid for NullType!");
 
         m_baseType = baseType;
-        baseType->AddDerivedType(*this);
+        baseType->AddDerivedType(this);
     }
     else
     {
@@ -41,25 +41,48 @@ void DynamicTypeInfo::SetBaseType(DynamicTypeInfo* baseType)
     }
 }
 
+void DynamicTypeInfo::AddAttribute(const BaseAttribute* attribute)
+{
+    ASSERT(!m_registered);
+
+#ifndef CONFIG_RELEASE
+    const auto it = std::find_if(m_attributes.begin(), m_attributes.end(),
+        [attribute](const AttributeList::value_type& registeredAttribute)
+        {
+            // Compare pointers to static instances.
+            return registeredAttribute == attribute;
+        }
+    );
+
+    ASSERT(it == m_attributes.end(), "Found existing entry in list of attributes!");
+#endif
+
+    m_attributes.emplace_back(attribute);
+}
+
+void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo* typeInfo)
+{
+    ASSERT(m_registered);
+
+#ifndef CONFIG_RELEASE
+    const auto it = std::find_if(m_derivedTypes.begin(), m_derivedTypes.end(),
+        [typeInfo](const DynamicTypeList::value_type& registeredDerivedType)
+        {
+            // Compare pointers to static instances.
+            return registeredDerivedType == typeInfo;
+        }
+    );
+
+    ASSERT(it == m_derivedTypes.end(), "Found existing entry in list of derived types!");
+#endif
+
+    m_derivedTypes.emplace_back(typeInfo);
+}
+
 void DynamicTypeInfo::MarkRegistered()
 {
     ASSERT(!m_registered, "Cannot register same dynamic type info twice!");
     m_registered = true;
-}
-
-void DynamicTypeInfo::AddDerivedType(const DynamicTypeInfo& typeInfo)
-{
-    ASSERT(m_registered);
-
-    const auto existing = std::find_if(m_derivedTypes.begin(), m_derivedTypes.end(),
-        [&typeInfo](const DynamicTypeList::value_type& derivedType)
-        {
-            return std::addressof(derivedType.get()) == std::addressof(typeInfo);
-        }
-    );
-
-    ASSERT(existing == m_derivedTypes.end(), "Found existing entry in list of derived types!");
-    m_derivedTypes.emplace_back(typeInfo);
 }
 
 void* DynamicTypeInfo::Construct() const
@@ -86,14 +109,17 @@ bool DynamicTypeInfo::IsType(const TypeIdentifier identifier) const
 
 bool DynamicTypeInfo::IsBaseOf(const TypeIdentifier identifier) const
 {
-    ASSERT(m_registered);
+    if(!m_registered)
+        return false;
+
     const DynamicTypeInfo& typeInfo = Reflection::GetRegistry().LookupType(identifier);
     return typeInfo.IsDerivedFrom(GetIdentifier());
 }
 
 bool DynamicTypeInfo::IsDerivedFrom(const TypeIdentifier identifier) const
 {
-    ASSERT(m_registered);
+    if(!m_registered)
+        return false;
 
     const DynamicTypeInfo* baseType = m_baseType;
     while(!baseType->IsNullType())
@@ -107,4 +133,29 @@ bool DynamicTypeInfo::IsDerivedFrom(const TypeIdentifier identifier) const
     }
 
     return false;
+}
+
+bool DynamicTypeInfo::HasAttribute(TypeIdentifier identifier) const
+{
+    return GetAttribute(identifier) != nullptr;
+}
+
+const BaseAttribute* DynamicTypeInfo::GetAttribute(TypeIdentifier identifier) const
+{
+    const auto it = std::find_if(m_attributes.begin(), m_attributes.end(),
+        [identifier](const AttributeList::value_type& registeredAttribute)
+        {
+            return Reflection::GetIdentifier(registeredAttribute) == identifier;
+        }
+    );
+
+    return it != m_attributes.end() ? *it : nullptr;
+}
+
+const Reflection::BaseAttribute* DynamicTypeInfo::GetAttributeByIndex(size_t index) const
+{
+    if(index >= m_attributes.size())
+        return nullptr;
+
+    return m_attributes.at(index);
 }
