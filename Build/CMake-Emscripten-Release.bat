@@ -29,23 +29,23 @@ if not exist "CMake-Emscripten-SDK" (
     
     cd "CMake-Emscripten-SDK"
     call emsdk.bat install latest
-    call emsdk.bat activate latest >nul 2>&1
+    call emsdk.bat activate latest
     cd "../."
 )
 
 cd "CMake-Emscripten-SDK"
-call emsdk_env.bat >nul 2>&1
+call emsdk_env.bat
 cd "../."
 
 echo ---- Preparing build directory...
-mkdir %outputDir% >nul 2>&1
+mkdir %outputDir%
 cd %outputDir%
 
 echo ---- Preparing Ninja build system...
 if not exist "Ninja" (
     git clone -c advice.detachedHead=false --depth=1 --branch=v1.10.2 https://github.com/ninja-build/ninja.git "Ninja"
     
-    mkdir "Ninja/build" >nul 2>&1
+    mkdir "Ninja/build"
     cd "Ninja/build"
     cmake "../." -DBUILD_TESTING=0
     cmake --build . --config Release >nul 2>&1
@@ -53,10 +53,10 @@ if not exist "Ninja" (
 )
 
 echo ---- Preparing reflection generator...
-mkdir "ReflectionGenerator" >nul 2>&1
+mkdir "ReflectionGenerator"
 cd "ReflectionGenerator"
 cmake "%engineDir%/Tools/ReflectionGenerator"
-cmake --build . --config Release >nul 2>&1
+cmake --build . --config Release
 cd "../."
 
 echo ---- Generating CMake project...
