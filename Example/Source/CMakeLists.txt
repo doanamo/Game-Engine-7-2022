@@ -9,15 +9,14 @@ include_guard(GLOBAL)
 # Files
 #
 
-set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-
 set(SOURCE_FILES
-    "${SOURCE_DIR}/Main.cpp"
-    "${SOURCE_DIR}/Precompiled.hpp"
-    "${SOURCE_DIR}/GameStates/SpriteDemo.hpp"
-    "${SOURCE_DIR}/GameStates/SpriteDemo.cpp"
+    "Main.cpp"
+    "Precompiled.hpp"
+    "GameStates/SpriteDemo.hpp"
+    "GameStates/SpriteDemo.cpp"
 )
 
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 source_group(TREE ${SOURCE_DIR} PREFIX "" FILES ${SOURCE_FILES})
 
 #
@@ -28,7 +27,9 @@ set(PROJECT_NAME Project)
 set(TARGET_NAME Example)
 
 project(${PROJECT_NAME})
-add_executable(${TARGET_NAME} ${SOURCE_FILES})
+add_executable(${TARGET_NAME}
+    ${SOURCE_FILES}
+)
 
 target_sources(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
 target_precompile_headers(${TARGET_NAME} PRIVATE "${SOURCE_DIR}/Precompiled.hpp")
