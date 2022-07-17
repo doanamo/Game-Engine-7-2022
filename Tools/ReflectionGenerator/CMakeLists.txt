@@ -4,6 +4,7 @@
 #
 
 cmake_minimum_required(VERSION 3.21)
+include("../../Build/CMakeShared.cmake")
 include_guard(GLOBAL)
 
 #
@@ -11,6 +12,7 @@ include_guard(GLOBAL)
 #
 
 project(ReflectionGenerator)
+custom_cmake_setup()
 
 #
 # Executable

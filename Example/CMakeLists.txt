@@ -6,8 +6,24 @@
 cmake_minimum_required(VERSION 3.21)
 
 #
+# Options
+#
+
+set(ENGINE_DIR "..")
+set(PROJECT_NAME Example)
+set(TARGET_NAME Example)
+
+include("${ENGINE_DIR}/Build/CMakeShared.cmake")
+
+#
 # Project
 #
 
-project(GameExample)
+project(${PROJECT_NAME})
+custom_cmake_setup()
+
+#
+# Sources
+#
+
 add_subdirectory("Source")

@@ -20,13 +20,9 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 source_group(TREE ${SOURCE_DIR} PREFIX "" FILES ${SOURCE_FILES})
 
 #
-# Application
+# Target
 #
 
-set(PROJECT_NAME Project)
-set(TARGET_NAME Example)
-
-project(${PROJECT_NAME})
 add_executable(${TARGET_NAME}
     ${SOURCE_FILES}
 )
@@ -40,8 +36,7 @@ source_group("" FILES "${SOURCE_DIR}/Precompiled.hpp")
 # Dependencies
 #
 
-set(ENGINE_DIR "../../")
-add_subdirectory("${ENGINE_DIR}/Source" "Engine")
+add_subdirectory("../${ENGINE_DIR}/Source" "Engine")
 target_link_libraries(${TARGET_NAME} PRIVATE "Engine")
 enable_reflection(${TARGET_NAME} ${SOURCE_DIR})
 
@@ -49,15 +44,13 @@ enable_reflection(${TARGET_NAME} ${SOURCE_DIR})
 # Environment
 #
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
 
 get_filename_component(ABSOLUTE_GAME_DIR "../Deploy" ABSOLUTE)
 file(WRITE "${CMAKE_BINARY_DIR}/GameDir.txt" ${ABSOLUTE_GAME_DIR})
 set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if(MSVC)
     set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS
         "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
@@ -73,7 +66,7 @@ endif()
 
 install(TARGETS ${TARGET_NAME} DESTINATION .)
 install(DIRECTORY "../Deploy/Data/" DESTINATION "Data")
-install(DIRECTORY "${ENGINE_DIR}/Deploy/Data/" DESTINATION "Data")
+install(DIRECTORY "../${ENGINE_DIR}/Deploy/Data/" DESTINATION "Data")
 
 set(CPACK_GENERATOR "ZIP")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

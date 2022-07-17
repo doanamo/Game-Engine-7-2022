@@ -1,0 +1,105 @@
+function(custom_cmake_setup)
+    # Prevent this function from running more than once.
+    if(CUSTOM_CMAKE_SETUP_CALLED)
+        return()
+    endif()
+
+    set(CUSTOM_CMAKE_SETUP_CALLED TRUE PARENT_SCOPE)
+
+    #
+    # Options
+    #
+
+    # Specify required C++ standard version.
+    set(CMAKE_CXX_STANDARD 20 PARENT_SCOPE)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON PARENT_SCOPE)
+
+    # Disable RTTI and exceptions.
+    if(MSVC)
+        string(REGEX REPLACE "/EHsc" "/EHs-c- /GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        add_definitions("-D_HAS_EXCEPTIONS=0")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions" PARENT_SCOPE)
+    endif()
+
+    # Enable fast math.
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast" PARENT_SCOPE)
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math" PARENT_SCOPE)
+    endif()
+
+    # Enable intrinsic functions in Release configuration.
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Oi" PARENT_SCOPE)
+
+    # Enable whole program optimization in Release configuration.
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL" PARENT_SCOPE)
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG" PARENT_SCOPE)
+        set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} /LTCG" PARENT_SCOPE)
+    else()
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto" PARENT_SCOPE)
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto" PARENT_SCOPE)
+        set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} -flto" PARENT_SCOPE)
+    endif()
+
+    # Debugging options.
+    if(EMSCRIPTEN)
+        add_link_options("$<$<CONFIG:DEBUG>: -s SAFE_HEAP=1>")
+    endif()
+
+    #
+    # Configurations
+    #
+
+    # Define custom set of configurations.
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Develop;Release" CACHE STRING "" FORCE)
+
+    if(NOT EMSCRIPTEN)
+        # Make Release same as removed RelWithDebInfo configuration.
+        set(CMAKE_ASM_FLAGS_RELEASE ${CMAKE_ASM_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_RC_FLAGS_RELEASE ${CMAKE_RC_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_MODULE_LINKER_FLAGS_RELEASE ${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_STATIC_LINKER_FLAGS_RELEASE ${CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_SHARED_LINKER_FLAGS_RELEASE ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} PARENT_SCOPE)
+    else()
+        # On Emscripten we want Release to be based off MinSizeRel.
+        # We need smallest WASM size and we do not need any debugging info.
+        set(CMAKE_ASM_FLAGS_RELEASE ${CMAKE_ASM_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_RC_FLAGS_RELEASE ${CMAKE_RC_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_MODULE_LINKER_FLAGS_RELEASE ${CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_STATIC_LINKER_FLAGS_RELEASE ${CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_SHARED_LINKER_FLAGS_RELEASE ${CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL} PARENT_SCOPE)
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE ${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} PARENT_SCOPE)
+    endif()
+
+    # Make Develop behave like original Release configuration.
+    set(CMAKE_ASM_FLAGS_DEVELOP ${CMAKE_ASM_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_C_FLAGS_DEVELOP ${CMAKE_C_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_CXX_FLAGS_DEVELOP ${CMAKE_CXX_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_RC_FLAGS_DEVELOP ${CMAKE_RC_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_MODULE_LINKER_FLAGS_DEVELOP ${CMAKE_MODULE_LINKER_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_STATIC_LINKER_FLAGS_DEVELOP ${CMAKE_STATIC_LINKER_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_SHARED_LINKER_FLAGS_DEVELOP ${CMAKE_SHARED_LINKER_FLAGS_RELEASE} PARENT_SCOPE)
+    set(CMAKE_EXE_LINKER_FLAGS_DEVELOP ${CMAKE_EXE_LINKER_FLAGS_RELEASE} PARENT_SCOPE)
+
+    # Add global defines for identifying each configuration from code.
+    add_compile_definitions(
+        $<$<CONFIG:Debug>:CMAKE_CONFIG_DEBUG>
+        $<$<CONFIG:Develop>:CMAKE_CONFIG_DEVELOP>
+        $<$<CONFIG:Release>:CMAKE_CONFIG_RELEASE>
+    )
+
+    #
+    # Environment
+    #
+
+    # Enable folders feature in generated Visual Studio solution.
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+endfunction()
